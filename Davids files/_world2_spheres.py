@@ -19499,6 +19499,729 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 236 · neon-noir · silicon-coding · FROM DAVID'S SUIT.ascii + power-suit (control without if/then) · bookends that balance only in a chain · a refusal written down · two loops one CONTINUE · an input the body cannot edit · a grammar that cannot say it ═══════════════════════
+JONT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A fragment with one unmatched closer at the front and one unmatched opener at the back. Read alone it is broken. It is not broken &mdash; it is a <b>joint</b>: it closes what came before and opens what comes after, so it only ever lives <i>between</i> two cells. Alone it reads incomplete because alone it <b>is</b> incomplete.<br><br>
+ <span class="lit">LIT</span> verified live with a pushdown veto. The joint on its own reports <b>1</b> illegal closer and <b>1</b> unclosed frame. Placed between two cells it reports <b>0 bad, 0 unclosed</b>. Chained at 1, 2, 3 and 5 joints it stays clean every time, with opens equalling closes at every length &mdash; <b>7, 13, 19, 31</b> of each.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the joint and named the misreading before anyone could make it: <i>&ldquo;that is not a broken container. it is a JOINT&hellip; the same trick as -+ &hellip; -+ on the cube: the bookends are only balanced once the thing is in a chain.&rdquo;</i> He also recorded the version that really <b>was</b> broken &mdash; an early draft where the while chamber never closed, giving 3 illegal closers and 4 unclosed, and one missing bracket away from the joint signature. Dropped 5 August 2026 as <code>SUIT.ascii</code>; his suite passes <b>15/15</b>, twice.<br><br>
+ <b>AVAN (AI)</b> should be exact about what the veto proves here. A balanced chain does not show the joint is <i>correct</i> &mdash; it shows it is <b>composable</b>. Any fragment with one spare closer and one spare opener chains cleanly, including nonsense; the bracket count cannot tell a joint from a coincidence with the same shape. What the measurement establishes is that the shape is legal in context, which is exactly the claim being made and no more.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The joint alone, and the joint in a chain.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add cells and watch the verdict flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnadd">add a joint &#9654;</button><button id="jnalone">just the joint</button></div>
+   <div class="cap" id="jnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: cells on a chain, with the joints between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a joint is only balanced in a chain.&rdquo; The inverse is that <b>this makes every fragment unverifiable on its own</b>. A checker handed one piece cannot say whether it is a legal joint or a genuine error, because both look identical in isolation &mdash; and the file, the diff and the code review all work on pieces. Read backwards, the design buys composability by moving correctness into the <b>assembly</b>, and the cost is that nothing can be checked until everything is present, which is the opposite of what a veto is for.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnsp">pause spin</button></div></div></div></div>"""
+JONT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,joints=1,alone=false;
+var JOINT=')[{ (can , |i| , do) - (while, |i| , does) }](>>>)(';
+var PAIRS={'(':')','[':']','{':'}'};
+var CLOSERS={')':'(',']':'[','}':'{'};
+function veto(src){
+ var st=[],bad=0,opens=0,closes=0,maxD=0;
+ for(var i=0;i<src.length;i++){
+  var ch=src.charAt(i);
+  if(PAIRS[ch]){st.push(ch);opens++;if(st.length>maxD)maxD=st.length;}
+  else if(CLOSERS[ch]){
+   closes++;
+   if(!st.length||st[st.length-1]!==CLOSERS[ch])bad++;
+   else st.pop();}}
+ return {bad:bad,unclosed:st.length,opens:opens,closes:closes,maxDepth:maxD};}
+function chain(n){
+ var s='(';
+ for(var i=0;i<n;i++)s+=' cell '+JOINT;
+ return s+' cell )';}
+function selftest(){
+ var solo=veto(JOINT);
+ var rows=[1,2,3,5].map(function(n){
+  var v=veto(chain(n));
+  return {joints:n,bad:v.bad,unclosed:v.unclosed,opens:v.opens,closes:v.closes};});
+ return {jointAlone:solo,
+  aloneLooksBroken:solo.bad>0||solo.unclosed>0,
+  lead:JOINT.charAt(0),tail:JOINT.charAt(JOINT.length-1),
+  leadIsCloser:CLOSERS[JOINT.charAt(0)]!==undefined,
+  tailIsOpener:PAIRS[JOINT.charAt(JOINT.length-1)]!==undefined,
+  chainRows:rows,
+  allChainsClean:rows.every(function(r){return r.bad===0&&r.unclosed===0;}),
+  opensEqualCloses:rows.every(function(r){return r.opens===r.closes;}),
+  ok:(solo.bad>0||solo.unclosed>0)&&rows.every(function(r){return r.bad===0&&r.unclosed===0;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE JOINT ALONE, AND THE JOINT IN A CHAIN');
+ nt(g,'#ffd76a',20,48,10,JOINT.slice(0,48));
+ nt(g,'#ff5a8a',20,64,9,'^ one unmatched CLOSER');
+ nt(g,'#ff5a8a',330,64,9,'one unmatched OPENER ^');
+ var y=88;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y+21,10,'alone: '+VR.jointAlone.bad+' illegal closer, '+
+  VR.jointAlone.unclosed+' unclosed');
+ var y2=y+46;
+ VR.chainRows.forEach(function(r,i){
+  var yy=y2+i*30;
+  nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,yy,W-40,26);ng(g);
+  ne(g,'rgba(125,226,176,0.45)',1.1);g.strokeRect(20.5,yy+0.5,W-41,26);ng(g);
+  nt(g,'#8a7ab8',34,yy+17,9,r.joints+' joint'+(r.joints===1?'':'s')+' in a chain');
+  nt(g,'#7de2b0',W-190,yy+17,9,r.bad+' bad, '+r.unclosed+' unclosed');
+  nt(g,'#5a4a85',W-84,yy+17,8,r.opens+' / '+r.closes);});
+ nt(g,'#7de2b0',20,H-10,10,'clean at every length -- opens equal closes throughout');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var src=alone?JOINT:chain(joints);
+ var v=veto(src);
+ nt(g,'#e6dcff',16,26,11,alone?'the joint on its own':(joints+' joint'+(joints===1?'':'s')+' between cells'));
+ // draw the bracket stack as it walks
+ var st=[],trace=[];
+ for(var i=0;i<src.length;i++){
+  var ch=src.charAt(i);
+  if(PAIRS[ch]){st.push(ch);trace.push(st.length);}
+  else if(CLOSERS[ch]){
+   if(st.length&&st[st.length-1]===CLOSERS[ch]){st.pop();trace.push(st.length);}
+   else trace.push(-1);}
+  else trace.push(trace.length?trace[trace.length-1]:0);}
+ var m=24,pw=W-48,base=140,mx=Math.max(1,Math.max.apply(null,trace));
+ for(var k=0;k<trace.length;k++){
+  var x=m+k*(pw/trace.length);
+  var d=trace[k];
+  if(d<0){nf(g,'rgba(255,90,138,0.9)');g.fillRect(x,base-10,Math.max(1,pw/trace.length-0.5),20);ng(g);}
+  else{nf(g,'rgba(125,226,176,'+(0.25+d/mx*0.55)+')');
+   g.fillRect(x,base-d*(90/mx),Math.max(1,pw/trace.length-0.5),Math.max(1,d*(90/mx)));ng(g);}}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,base+18,8,'bracket depth as the veto walks the text');
+ var y2=base+34;
+ var clean=v.bad===0&&v.unclosed===0;
+ nf(g,clean?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,clean?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,clean?'#7de2b0':'#ff5a8a',36,y2+26,13,clean?'0 bad, 0 unclosed':
+  (v.bad+' bad, '+v.unclosed+' unclosed'));
+ nt(g,'#8a7ab8',36,y2+45,8,v.opens+' opens, '+v.closes+' closes');
+ var o=document.getElementById('jnout');
+ if(o)o.innerHTML=alone
+  ?'On its own the joint reports <b>'+v.bad+'</b> illegal closer and <b>'+v.unclosed+
+   '</b> unclosed frame. Any checker handed this fragment alone calls it broken &mdash; and cannot tell it from a genuine error.'
+  :('With <b>'+joints+'</b> joint'+(joints===1?'':'s')+' between cells the veto reports <b>0 bad, 0 unclosed</b>, with <b>'+
+    v.opens+'</b> opens and <b>'+v.closes+'</b> closes. The spare closer at the front pairs with the cell before it and the spare opener at the back with the cell after.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var N=6;
+ for(var i=0;i<N;i++){
+  var th=i/N*2*Math.PI;
+  var q=P(96*Math.cos(th),0,96*Math.sin(th));
+  ne(g,'#7de2b0',2);
+  g.beginPath();
+  for(var j=0;j<=20;j++){
+   var t2=j/20*2*Math.PI;
+   var p=P(96*Math.cos(th)+16*Math.cos(t2),16*Math.sin(t2),96*Math.sin(th));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);
+  nt(g,'#5a4a85',q[0]-12,q[1]+4,7,'cell');
+  var th2=(i+0.5)/N*2*Math.PI;
+  var jq=P(96*Math.cos(th2),0,96*Math.sin(th2));
+  ndot(g,jq[0],jq[1],5,'#ffd76a');
+  var a=P(96*Math.cos(th),0,96*Math.sin(th));
+  var b=P(96*Math.cos((i+1)/N*2*Math.PI),0,96*Math.sin((i+1)/N*2*Math.PI));
+  ne(g,'rgba(255,215,106,0.5)',1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(jq[0],jq[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'cells around the ring');
+ nt(g,'#ffd76a',14,42,10,'gold: the joints, each closing one and opening the next');
+ nt(g,'#8a7ab8',14,58,10,'no joint is balanced by itself; the ring is');
+ nt(g,'#8a7ab8',14,H-12,9,'correctness moved into the assembly, and nothing can be checked alone');}
+document.getElementById('jnadd').onclick=function(){alone=false;joints=joints>=5?1:joints+1;drawW4();};
+document.getElementById('jnalone').onclick=function(){alone=!alone;drawW4();};
+document.getElementById('jnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thejoint=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NOEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two chambers, <code>can</code> and <code>do</code>. The first asks whether the action is available; the second runs it. <b>There is no else.</b> When the capability is absent nothing branches &mdash; the refusal is <i>written into the record</i> and the machine moves on. A path not taken leaves a trace instead of a silence.<br><br>
+ <span class="lit">LIT</span> verified live over <b>300</b> invocations, <b>100</b> of them not capable. The suit records all <b>300</b> events, with the <b>100</b> refusals counted exactly. The equivalent if/else construction records <b>200</b> &mdash; the else path leaves nothing behind &mdash; so <b>100</b> events are invisible to it. And a chamber with no else has <b>one</b> path to prove rather than two.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put the rule in capitals because it is the whole design: <i>&ldquo;`can` asks whether the action is available at this |i|. `do` runs it. THERE IS NO ELSE. absence of capability is not a branch &mdash; it is a refusal, and the refusal is written down.&rdquo;</i> His plain-English version is the same claim without the jargon: <i>&ldquo;Nothing silently takes a different path.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> should say what this does and does not remove. It does not remove conditionality &mdash; something still decides whether the action runs, and that decision is still a fork in the machine. What it removes is the <b>unrecorded</b> half: an else branch is a place where behaviour happens with no entry in the log, and the suit makes that shape unavailable. The gain is auditability, not simplicity, and the two are often confused.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three hundred invocations, and what each form remembers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the same inputs through both and compare the records.</div>
+   <div class="btns" style="margin-top:10px"><button id="neform">suit / if-else &#9654;</button><button id="nerate">change the capability</button></div>
+   <div class="cap" id="neout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one path with a record beside it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;remove the else and nothing happens unrecorded.&rdquo; The inverse is that <b>a refusal that is always recorded is a log that grows with every non-event</b>. The if/else version is silent about the hundred refusals; the suit writes all hundred down, and on a system where capability is usually absent the record becomes mostly the story of things that did not happen. Read backwards, this is not free auditability but a <b>decision about what deserves storage</b>, and the suit has decided that absence does &mdash; which is right for a machine being debugged and expensive for one being run.</div>
+   <div class="btns" style="margin-top:10px"><button id="nesp">pause spin</button></div></div></div></div>"""
+NOEL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useSuit=true,mod=3;
+function run(form,capMod,N){
+ var rec=[];
+ for(var i=0;i<N;i++){
+  var able=i%capMod!==0;
+  if(form==='suit')rec.push({i:i,event:able?'did':'refused'});
+  else if(able)rec.push({i:i,event:'did'});}
+ return rec;}
+function selftest(){
+ var N=300;
+ var suit=run('suit',3,N),branch=run('else',3,N);
+ var refusals=suit.filter(function(r){return r.event==='refused';}).length;
+ var expected=0;
+ for(var i=0;i<N;i++)if(i%3===0)expected++;
+ return {invocations:N,notCapable:expected,
+  suitEntries:suit.length,suitRecordsAll:suit.length===N,
+  refusals:refusals,refusalsExact:refusals===expected,
+  branchEntries:branch.length,branchRecordsOnlySuccess:branch.length===N-expected,
+  invisibleToBranching:suit.length-branch.length,
+  pathsWithElse:2,pathsWithout:1,
+  onlyTwoEvents:suit.every(function(r){return r.event==='did'||r.event==='refused';}),
+  ok:suit.length===N&&refusals===expected&&branch.length===N-expected};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE HUNDRED INVOCATIONS, AND WHAT EACH FORM REMEMBERS');
+ var rows=[['the suit: every event',VR.suitEntries,'#7de2b0'],
+  ['   of which refusals',VR.refusals,'#ffd76a'],
+  ['if / else: successes only',VR.branchEntries,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=52+i*62;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-170;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':'rgba(255,90,138,0.5)'));
+  g.fillRect(24,y+10,pw*r[1]/VR.invocations,26);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+10.5,pw,26);ng(g);
+  nt(g,r[2],24+pw+10,y+29,11,String(r[1]));});
+ var y2=240;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,VR.invisibleToBranching+
+  ' events left no trace at all in the branching version');
+ nt(g,'#8a7ab8',20,H-8,9,'and a chamber with no else has one path to prove, not two');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var N=60;
+ var rec=run(useSuit?'suit':'else',mod,N);
+ nt(g,'#e6dcff',16,26,11,(useSuit?'the suit  (can / do)':'if / else')+
+  '   ·   capable when i mod '+mod+' != 0');
+ var cols=12,cw=(W-48)/cols;
+ for(var i=0;i<N;i++){
+  var able=i%mod!==0;
+  var x=24+(i%cols)*cw,y=48+Math.floor(i/cols)*22;
+  nf(g,able?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(x,y,cw-3,18);ng(g);}
+ nt(g,'#7de2b0',24,48+5*22+16,8,'green: capable   pink: not capable');
+ var y2=48+5*22+28;
+ nt(g,'#8a7ab8',24,y2,9,'what the record contains');
+ var rc=(W-48)/cols;
+ for(var k=0;k<rec.length&&k<60;k++){
+  var x2=24+(k%cols)*rc,y3=y2+10+Math.floor(k/cols)*20;
+  nf(g,rec[k].event==='did'?'rgba(125,226,176,0.6)':'rgba(255,215,106,0.7)');
+  g.fillRect(x2,y3,rc-3,16);ng(g);}
+ var rows=Math.ceil(Math.min(rec.length,60)/cols);
+ var y4=y2+10+rows*20+14;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y4,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y4+0.5,W-41,50);ng(g);
+ nt(g,'#e6dcff',34,y4+21,10,rec.length+' entries for '+N+' invocations');
+ nt(g,'#8a7ab8',34,y4+39,8,useSuit?'every refusal is in the record'
+  :(N-rec.length)+' refusals left no trace');
+ var o=document.getElementById('neout');
+ if(o)o.innerHTML=useSuit
+  ?('The suit records all <b>'+rec.length+'</b> of <b>'+N+
+    '</b> invocations. Gold entries are refusals &mdash; the action did not run, and that fact is in the log rather than implied by its absence.')
+  :('The if/else form records <b>'+rec.length+'</b> of <b>'+N+'</b>. The other <b>'+
+    (N-rec.length)+'</b> went down the else path, which wrote nothing. You cannot tell from this record whether they happened at all.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // one path down the middle, with a record column beside it
+ var prev=null;
+ for(var i=0;i<14;i++){
+  var q=P(-30,-110+i*17,0);
+  ndot(g,q[0],q[1],3.4,'#7de2b0');
+  if(prev){ne(g,'#7de2b0',1.6);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;
+  var able=i%3!==0;
+  var r=P(50,-110+i*17,0);
+  ndot(g,r[0],r[1],3,able?'rgba(125,226,176,0.8)':'#ffd76a');
+  ne(g,able?'rgba(125,226,176,0.25)':'rgba(255,215,106,0.4)',1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(r[0],r[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'one path, top to bottom -- no fork');
+ nt(g,'#ffd76a',14,42,10,'and a record entry for every step, including the refusals');
+ nt(g,'#8a7ab8',14,58,10,'nothing silently takes a different route');
+ nt(g,'#8a7ab8',14,H-12,9,'but a log of non-events grows with every thing that did not happen');}
+document.getElementById('neform').onclick=function(){useSuit=!useSuit;drawW4();};
+document.getElementById('nerate').onclick=function(){mod=mod>=5?2:mod+1;drawW4();};
+document.getElementById('nesp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenoelse=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHTM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">FORTRAN 77 permits two <code>DO</code> loops to end on the <b>same</b> labelled statement. Two openers, one closer, and it is entirely legal. A pushdown check pops once, finds nothing illegal, and leaves a phantom frame on the stack &mdash; then a discharge step tidies the leftover away and reports clean. The check is not wrong at any single step; it simply cannot see the shape.<br><br>
+ <span class="lit">LIT</span> verified live. The nested shared terminator gives <b>2</b> opens, <b>1</b> close, <b>0</b> illegal closers and <b>1</b> unclosed frame &mdash; a clean report over a wrong state. Two nested chambers in the suit give <b>3</b> opens, <b>3</b> closes and a depth of <b>0</b> at the end, because every chamber carries its own closer and there is no label to share.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found the case that broke his veto and wrote both halves down: the FORTRAN shape with its one-frame drift, and the conclusion &mdash; <i>&ldquo;the fix for a parser that cannot see an ambiguity is not always a smarter parser. sometimes it is a grammar that cannot express the ambiguity.&rdquo;</i> The suit is that grammar; his suite passes <b>15/15</b>, twice.<br><br>
+ <b>AVAN (AI)</b> should record one difference honestly. David reports <i>max nesting 1</i> for two nested chambers; the bracket model here measures a max nesting of <b>3</b>, because it counts literal delimiters rather than chamber frames. The figures that carry the claim &mdash; 3 opens, 3 closes, depth back to 0 &mdash; agree exactly. The nesting number depends on which representation you count, and this page counts brackets, so it reports its own.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The stack, walking a shared terminator.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Nest more loops on one label and watch the drift grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="stmore">nest deeper &#9654;</button><button id="stsuit">the suit version</button></div>
+   <div class="cap" id="stout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: frames opened, and the one that never closes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the shared terminator is a defect the veto cannot see.&rdquo; The inverse is that <b>FORTRAN&rsquo;s designers were not being careless &mdash; sharing a terminator saved a line on a punched card</b>, and on hardware where a program was a physical stack of cards that was a real economy. Read backwards, the ambiguity is a <b>fossil of a constraint that no longer exists</b>, and the reason it survives is that the language kept its promise of compatibility; every parser since has had to see a shape that was rational in 1977 and is merely dangerous now.</div>
+   <div class="btns" style="margin-top:10px"><button id="stsp">pause spin</button></div></div></div></div>"""
+SHTM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=2,suitMode=false;
+function fortranVeto(lines){
+ var st=[],bad=0,opens=0,closes=0,trace=[];
+ lines.forEach(function(l){
+  var doM=/^\\s*DO\\s+(\\d+)\\s/.exec(l);
+  var labM=/^\\s*(\\d+)\\s+CONTINUE/.exec(l);
+  if(doM){st.push(doM[1]);opens++;}
+  else if(labM){closes++;if(st.length)st.pop();else bad++;}
+  trace.push(st.length);});
+ return {bad:bad,unclosed:st.length,opens:opens,closes:closes,trace:trace};}
+function fortranNest(n){
+ var lines=[];
+ for(var i=0;i<n;i++)lines.push('      DO 10 '+String.fromCharCode(73+i)+' = 1, N');
+ lines.push('10      CONTINUE');
+ return lines;}
+var PAIRS={'(':')','[':']','{':'}'},CLOSERS={')':'(',']':'[','}':'{'};
+function veto(src){
+ var st=[],bad=0,opens=0,closes=0,maxD=0,trace=[];
+ for(var i=0;i<src.length;i++){
+  var ch=src.charAt(i);
+  if(PAIRS[ch]){st.push(ch);opens++;if(st.length>maxD)maxD=st.length;}
+  else if(CLOSERS[ch]){closes++;
+   if(!st.length||st[st.length-1]!==CLOSERS[ch])bad++;else st.pop();}
+  trace.push(st.length);}
+ return {bad:bad,unclosed:st.length,opens:opens,closes:closes,maxDepth:maxD,trace:trace};}
+function suitNested(d){
+ var s='';
+ for(var i=0;i<d;i++)s+='(while, |i| , does ';
+ for(var j=0;j<d;j++)s+=')';
+ return '('+s+')';}
+function selftest(){
+ var f=fortranVeto(fortranNest(2));
+ var s2=veto(suitNested(2));
+ return {fortran:{bad:f.bad,unclosed:f.unclosed,opens:f.opens,closes:f.closes},
+  twoOpensOneClose:f.opens===2&&f.closes===1,
+  vetoSeesNothingWrong:f.bad===0,
+  phantomFrames:f.unclosed,onePhantom:f.unclosed===1,
+  cleanReportWrongState:f.bad===0&&f.unclosed===1,
+  suit:{opens:s2.opens,closes:s2.closes,depthAtEnd:s2.unclosed,maxDepth:s2.maxDepth},
+  suitThreeAndThree:s2.opens===3&&s2.closes===3,
+  suitDepthZero:s2.unclosed===0,
+  suitEveryChamberClosesItself:s2.opens===s2.closes&&s2.bad===0,
+  bracketNestingIsThree:s2.maxDepth===3,
+  ok:f.opens===2&&f.closes===1&&f.bad===0&&f.unclosed===1&&
+   s2.opens===3&&s2.closes===3&&s2.unclosed===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE STACK, WALKING A SHARED TERMINATOR');
+ var lines=fortranNest(2);
+ lines.forEach(function(l,i){
+  nt(g,i===lines.length-1?'#ffd76a':'#7de2b0',30,50+i*22,10,l.replace(/^\\s+/,'  '));});
+ nt(g,'#ff5a8a',330,50+(lines.length-1)*22,9,'<- ONE closer, TWO openers');
+ var f=fortranVeto(lines);
+ var base=160,m=40,pw=W-80;
+ var bw=pw/f.trace.length;
+ f.trace.forEach(function(d,i){
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(m+i*bw,base-d*30,bw-6,Math.max(2,d*30));ng(g);
+  nt(g,'#5a4a85',m+i*bw+4,base+16,8,'depth '+d);});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var y2=200;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'bad = '+f.bad+'   unclosed = '+f.unclosed+
+  '   -- a clean report over a wrong state');
+ nt(g,'#7de2b0',20,254,10,'the suit version: '+VR.suit.opens+' opens, '+VR.suit.closes+
+  ' closes, depth at end '+VR.suit.depthAtEnd);
+ nt(g,'#8a7ab8',20,274,9,'every chamber carries its own closer, so there is no label to share');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(suitMode){
+  var s=veto(suitNested(depth));
+  nt(g,'#e6dcff',16,26,11,depth+' nested chambers in the suit');
+  var m=24,pw=W-48,base=150;
+  var bw=pw/s.trace.length;
+  s.trace.forEach(function(d,i){
+   nf(g,'rgba(125,226,176,'+(0.25+d/Math.max(1,s.maxDepth)*0.55)+')');
+   g.fillRect(m+i*bw,base-d*(90/Math.max(1,s.maxDepth)),Math.max(1,bw-0.5),
+    Math.max(1,d*(90/Math.max(1,s.maxDepth))));ng(g);});
+  ne(g,'rgba(150,110,230,0.4)',1);
+  g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+  nt(g,'#8a7ab8',m,base+18,8,'bracket depth, returning to zero');
+  var y2=base+34;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,80);ng(g);
+  ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,80);ng(g);
+  nt(g,'#7de2b0',36,y2+26,12,s.opens+' opens, '+s.closes+' closes');
+  nt(g,'#7de2b0',36,y2+48,12,'depth at end '+s.unclosed);
+  nt(g,'#8a7ab8',36,y2+68,8,'no phantom frame, at any nesting');
+  var o2=document.getElementById('stout');
+  if(o2)o2.innerHTML='With <b>'+depth+'</b> nested chambers the suit gives <b>'+s.opens+
+   '</b> opens and <b>'+s.closes+'</b> closes with depth returning to <b>0</b>. There is no label, so two chambers cannot share a terminator &mdash; the shape is not expressible.';
+  return;}
+ var lines=fortranNest(depth);
+ var f=fortranVeto(lines);
+ nt(g,'#e6dcff',16,26,11,depth+' DO loops on one label');
+ lines.forEach(function(l,i){
+  nt(g,i===lines.length-1?'#ffd76a':'#7de2b0',24,48+i*18,8,l.replace(/^\\s+/,' '));});
+ var top=48+lines.length*18+14;
+ var m=24,pw=W-48,base=top+80;
+ var bw=pw/f.trace.length;
+ f.trace.forEach(function(d,i){
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(m+i*bw,base-d*22,bw-4,Math.max(2,d*22));ng(g);});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,base+16,8,'stack depth after each line');
+ var y2=base+28;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#ff5a8a',36,y2+26,12,'bad '+f.bad+'   unclosed '+f.unclosed);
+ nt(g,'#8a7ab8',36,y2+46,8,'the veto reports nothing illegal at any point');
+ var o=document.getElementById('stout');
+ if(o)o.innerHTML='<b>'+depth+'</b> DO loops sharing one CONTINUE: <b>'+f.opens+
+  '</b> opens, <b>'+f.closes+'</b> close, <b>'+f.bad+'</b> illegal closers and <b>'+
+  f.unclosed+'</b> frames left on the stack. Every individual step is legal, and the drift grows with the nesting.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two frames opened, one closer
+ for(var i=0;i<2;i++){
+  var y=-60+i*44;
+  var cor=[[-70,y,-70],[70,y,-70],[70,y,70],[-70,y,70]].map(function(v){
+   return P(v[0],v[1],v[2]);});
+  ne(g,'#7de2b0',1.8);
+  g.beginPath();
+  cor.forEach(function(p,k){if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);
+  nt(g,'#7de2b0',cor[0][0]-4,cor[0][1]-6,8,'DO 10');}
+ var close=[[-70,60,-70],[70,60,-70],[70,60,70],[-70,60,70]].map(function(v){
+  return P(v[0],v[1],v[2]);});
+ ne(g,'#ffd76a',2.2);
+ g.beginPath();
+ close.forEach(function(p,k){if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',close[0][0]-4,close[0][1]+16,9,'10 CONTINUE');
+ // the phantom
+ var ph=P(0,-82,0);
+ ndot(g,ph[0],ph[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',ph[0]+12,ph[1],9,'the frame that never closes');
+ nt(g,'#7de2b0',14,24,11,'two frames opened');
+ nt(g,'#ffd76a',14,42,10,'one terminator to close them');
+ nt(g,'#ff5a8a',14,58,10,'and the veto sees nothing illegal at any step');
+ nt(g,'#8a7ab8',14,H-12,9,'a fossil of a constraint that no longer exists: one line per card');}
+document.getElementById('stmore').onclick=function(){depth=depth>=5?2:depth+1;drawW4();};
+document.getElementById('stsuit').onclick=function(){suitMode=!suitMode;drawW4();};
+document.getElementById('stsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesharedterminator=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ROIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Both chambers read <code>|i|</code>, the magnitude they are given. Neither may write it &mdash; an attempt throws. That single restriction is what makes a chamber testable: if a body can edit its own input, then running it twice is running it on two different things, and no re-run means what it appears to mean.<br><br>
+ <span class="lit">LIT</span> verified live. A reading body runs unguarded and leaves <code>i</code> at <b>5</b>. A writing body <b>throws</b> under the guard, and <code>i</code> is still <b>5</b> afterwards. Without the guard the same body silently moves <code>i</code> from <b>5</b> to <b>6</b>. Re-run five times, the guarded chamber sees <b>5, 5, 5, 5, 5</b> and the unguarded one sees <b>6, 7, 8, 9, 10</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> stated the rule and its purpose in the same breath: <i>&ldquo;|i| &mdash; the magnitude of I. both chambers READ it. neither may WRITE it &mdash; writing throws. that is what makes a chamber testable: its inputs cannot be edited by its own body.&rdquo;</i> It is one of the fifteen checks his suite runs twice.<br><br>
+ <b>AVAN (AI)</b> should connect it to something this corpus already measured. Two batches ago a sensitivity probe re-ran an impure thunk and turned eleven calls into ninety-nine, breaking three later assertions. The read-only input is the <b>same problem solved at the other end</b>: rather than restricting who may probe, restrict what a body may touch. The guard is cheaper and stronger &mdash; it applies to every caller rather than to the careful ones &mdash; and it is only available if you control the language.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same body, five re-runs, two regimes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run a body that writes its own input, with and without the guard.</div>
+   <div class="btns" style="margin-top:10px"><button id="roguard">guard on / off &#9654;</button><button id="rorun">run it again</button><button id="roreset">reset</button></div>
+   <div class="cap" id="roout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a fixed input with a body orbiting it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a body must not edit its own input.&rdquo; The inverse is that <b>the restriction only reaches as far as the guard can see</b>. A proxy stops assignment to <code>|i|</code>; it does not stop the body writing to a file, a global, a clock or a socket, and any of those makes the second run different in exactly the way the rule was written to prevent. Read backwards, read-only inputs do not buy reproducibility &mdash; they buy <b>one specific kind of it</b>, and the value of the guarantee is set entirely by how much of the outside world the chamber can still reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="rosp">pause spin</button></div></div></div></div>"""
+ROIN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,guard=true,box={i:5},history=[5];
+function chamber(readOnly){
+ return function(iBox,body){
+  var proxy=iBox;
+  if(readOnly&&typeof Proxy!=='undefined'){
+   proxy=new Proxy(iBox,{set:function(){throw new Error('|i| is read-only');}});}
+  try{body(proxy);return {threw:false,i:iBox.i};}
+  catch(e){return {threw:true,i:iBox.i,msg:e.message};}};}
+function reads(p){return p.i*2;}
+function writes(p){p.i=p.i+1;return p.i;}
+function rerun(readOnly,body,times){
+ var box={i:5},outs=[],fn=chamber(readOnly);
+ for(var t=0;t<times;t++){fn(box,body);outs.push(box.i);}
+ return outs;}
+function selftest(){
+ var guarded=chamber(true),unguarded=chamber(false);
+ var gr=guarded({i:5},reads),gw=guarded({i:5},writes);
+ var uw=unguarded({i:5},writes);
+ var stable=rerun(true,reads,5),drift=rerun(false,writes,5);
+ var uniqueStable={};stable.forEach(function(v){uniqueStable[v]=1;});
+ var uniqueDrift={};drift.forEach(function(v){uniqueDrift[v]=1;});
+ return {readRuns:!gr.threw,readLeavesInput:gr.i===5,
+  writeThrows:gw.threw,writeMessage:gw.msg,
+  inputUnchangedAfterThrow:gw.i===5,
+  unguardedWriteSilent:!uw.threw&&uw.i===6,
+  stableReruns:stable,driftingReruns:drift,
+  stableIsConstant:Object.keys(uniqueStable).length===1,
+  driftIsMonotone:Object.keys(uniqueDrift).length===drift.length,
+  ok:gw.threw&&gw.i===5&&!uw.threw&&uw.i===6&&
+   Object.keys(uniqueStable).length===1&&Object.keys(uniqueDrift).length===drift.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SAME BODY, FIVE RE-RUNS, TWO REGIMES');
+ [['guarded  (reads only)',VR.stableReruns,'#7de2b0'],
+  ['unguarded (writes |i|)',VR.driftingReruns,'#ff5a8a']].forEach(function(r,i){
+  var y=54+i*96;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var m=24,step=(W-90)/5;
+  r[1].forEach(function(v,k){
+   var x=m+k*step;
+   var hgt=v/12*54;
+   nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+   g.fillRect(x,y+62-hgt,step-10,hgt);ng(g);
+   nt(g,r[2],x+6,y+76,9,'i='+v);});});
+ var y2=252;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'a guarded chamber measures the same thing every time');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,guard?'guard ON -- |i| is read-only':'guard OFF');
+ nt(g,'#8a7ab8',16,44,9,'body:  p.i = p.i + 1');
+ var y=62;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,50);ng(g);
+ nt(g,'#8a7ab8',34,y+20,9,'current input');
+ nt(g,'#e6dcff',34,y+40,14,'|i| = '+box.i);
+ var y2=y+64;
+ nt(g,'#8a7ab8',24,y2,9,'history of |i| across runs');
+ var step=Math.min(46,(W-60)/Math.max(1,history.length));
+ history.forEach(function(v,k){
+  var x=24+k*step;
+  nf(g,k===0?'rgba(125,226,176,0.5)':(v===history[0]?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.55)'));
+  g.fillRect(x,y2+10,step-6,26);ng(g);
+  nt(g,'#0d0818',x+4,y2+28,9,String(v));});
+ var drifted=history.some(function(v){return v!==history[0];});
+ var y3=y2+52;
+ nf(g,drifted?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,drifted?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,drifted?'#ff5a8a':'#7de2b0',36,y3+26,12,
+  drifted?'the input has moved':'the input has not moved');
+ nt(g,'#8a7ab8',36,y3+45,8,drifted?'every re-run is measuring something new'
+  :'every re-run measures the same thing');
+ var o=document.getElementById('roout');
+ if(o)o.innerHTML=guard
+  ?('With the guard on, a body that assigns to <b>|i|</b> throws immediately and the input is left at <b>'+
+    box.i+'</b>. Re-running the chamber measures the same thing every time, which is the only condition under which a re-run means anything.')
+  :('With the guard off the same body rewrites its own input silently. <b>|i|</b> is now <b>'+
+    box.i+'</b>, and the history above shows it climbing. Nothing errored; the measurement simply stopped being repeatable.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var core=P(0,0,0);
+ ndot(g,core[0],core[1],10,'#ffd76a');
+ nt(g,'#ffd76a',core[0]+14,core[1],10,'|i|');
+ // the body orbiting, unable to reach in
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var q=P(84*Math.cos(t),0,84*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ var b=P(84*Math.cos(ang*Math.PI/90),0,84*Math.sin(ang*Math.PI/90));
+ ndot(g,b[0],b[1],6,'#7de2b0');
+ nt(g,'#7de2b0',b[0]+10,b[1],8,'the body');
+ // the read arrow in, the blocked write out
+ ne(g,'rgba(125,226,176,0.6)',1.4);
+ g.beginPath();g.moveTo(b[0],b[1]);g.lineTo(core[0],core[1]);g.stroke();ng(g);
+ var mid=[(b[0]+core[0])/2,(b[1]+core[1])/2];
+ nt(g,'#7de2b0',mid[0]+4,mid[1]-6,7,'read');
+ ne(g,'#ff5a8a',2);
+ g.beginPath();
+ g.moveTo(mid[0]-8,mid[1]+8);g.lineTo(mid[0]+8,mid[1]+22);
+ g.moveTo(mid[0]+8,mid[1]+8);g.lineTo(mid[0]-8,mid[1]+22);
+ g.stroke();ng(g);
+ nt(g,'#ff5a8a',mid[0]+12,mid[1]+20,7,'write');
+ nt(g,'#ffd76a',14,24,11,'the input at the centre, fixed');
+ nt(g,'#7de2b0',14,42,10,'the body may look at it as often as it likes');
+ nt(g,'#ff5a8a',14,58,10,'and may never touch it');
+ nt(g,'#8a7ab8',14,H-12,9,'though it can still reach a file, a clock or a socket');}
+document.getElementById('roguard').onclick=function(){guard=!guard;drawW4();};
+document.getElementById('rorun').onclick=function(){
+ var fn=chamber(guard);
+ fn(box,writes);
+ history.push(box.i);
+ if(history.length>7)history=history.slice(-7);
+ drawW4();};
+document.getElementById('roreset').onclick=function(){box={i:5};history=[5];drawW4();};
+document.getElementById('rosp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thereadonlyinput=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRCN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A parser could not see an ambiguity, so the grammar was changed until the ambiguity could not be written. Not a smarter checker &mdash; a <b>narrower language</b>. The shape that broke the veto is not detected in the suit; it is simply not expressible, because there is no shared label for two constructs to end on.<br><br>
+ <span class="lit">LIT</span> verified live by enumerating every short program in both grammars. Of <b>1,364</b> labelled programs up to length 5, <b>664</b> can share a terminator &mdash; <b>48.7%</b>. Of <b>62</b> suit programs of the same lengths, <b>0</b> can. And the cost is exact and unflattering: the suit expresses <b>4.55%</b> as many programs, because you cannot remove a shape without removing everything that used it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the conclusion as a general rule rather than a local fix: <i>&ldquo;the fix for a parser that cannot see an ambiguity is not always a smarter parser. sometimes it is a grammar that cannot express the ambiguity.&rdquo;</i> The specific target was F2 in his tower &mdash; a veto with no braces, for a language whose loops end on labels.<br><br>
+ <b>AVAN (AI)</b> enumerated both grammars to put a number on the trade, because the rule is stated as a win and it is really an exchange. Removing the ambiguity removed <b>95%</b> of the expressible programs at these lengths. Most of those programs were nonsense, and the ratio is sensitive to how each grammar is encoded &mdash; but the direction is not in doubt, and a restriction that costs nothing is usually a restriction that removes nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two grammars, every short program, counted.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the program length and watch both counts move.</div>
+   <div class="btns" style="margin-top:10px"><button id="gclonger">longer &#9654;</button><button id="gcshorter">shorter</button></div>
+   <div class="cap" id="gcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the expressible space, with the ambiguous region cut out.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;make the bad shape unwriteable.&rdquo; The inverse is that <b>a grammar cannot tell a bad shape from an unforeseen one</b>. The restriction removes the shared terminator and everything isomorphic to it, including uses nobody has thought of yet, and the language has no way to distinguish the ambiguity it was aimed at from a legitimate construction with the same skeleton. Read backwards, this is prohibition rather than detection &mdash; it is more reliable precisely because it is <b>less discriminating</b>, and every future need that happens to have that shape is now a language change rather than a bug report.</div>
+   <div class="btns" style="margin-top:10px"><button id="gcsp">pause spin</button></div></div></div></div>"""
+GRCN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,maxLen=5;
+var ALPHA=[['D','1'],['D','2'],['C','1'],['C','2']];
+function ambiguousA(tokens){
+ var open={},shared=0;
+ tokens.forEach(function(t){
+  if(t[0]==='D'){open[t[1]]=(open[t[1]]||0)+1;if(open[t[1]]>1)shared++;}
+  else open[t[1]]=0;});
+ return shared>0;}
+function countA(upTo){
+ var total=0,ambig=0;
+ for(var len=1;len<=upTo;len++){
+  var n=Math.pow(4,len);
+  for(var m=0;m<n;m++){
+   var x=m,toks=[];
+   for(var k=0;k<len;k++){toks.push(ALPHA[x%4]);x=Math.floor(x/4);}
+   total++;
+   if(ambiguousA(toks))ambig++;}}
+ return {total:total,ambig:ambig};}
+function countB(upTo){
+ var total=0;
+ for(var len=1;len<=upTo;len++)total+=Math.pow(2,len);
+ return {total:total,ambig:0};}
+function selftest(){
+ var A=countA(5),B=countB(5);
+ return {maxLength:5,
+  labelledTotal:A.total,labelledAmbiguous:A.ambig,
+  labelledAmbiguousPct:A.ambig/A.total*100,
+  canExpressAmbiguity:A.ambig>0,
+  suitTotal:B.total,suitAmbiguous:B.ambig,
+  cannotExpressIt:B.ambig===0,
+  expressiveRatio:B.total/A.total,
+  expressivePct:B.total/A.total*100,
+  costsExpressiveness:B.total<A.total,
+  ok:A.ambig>0&&B.ambig===0&&B.total<A.total};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO GRAMMARS, EVERY SHORT PROGRAM, COUNTED');
+ var rows=[['labelled: total programs',VR.labelledTotal,'#8a7ab8'],
+  ['labelled: can share a terminator',VR.labelledAmbiguous,'#ff5a8a'],
+  ['suit: total programs',VR.suitTotal,'#7de2b0'],
+  ['suit: can share a terminator',VR.suitAmbiguous,'#5ad6ff']];
+ var mx=VR.labelledTotal;
+ rows.forEach(function(r,i){
+  var y=52+i*54;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-190;
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.55)':
+   (r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#5ad6ff'?'rgba(90,214,255,0.55)':'rgba(150,110,230,0.4)')));
+  g.fillRect(24,y+8,Math.max(1.5,pw*r[1]/mx),24);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+8.5,pw,24);ng(g);
+  nt(g,r[2],24+pw+10,y+26,10,r[1].toLocaleString());});
+ var y2=272;
+ nt(g,'#ff5a8a',24,y2,10,VR.labelledAmbiguousPct.toFixed(1)+
+  '% of labelled programs can express the ambiguity; '+VR.suitAmbiguous+' suit programs can');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var A=countA(maxLen),B=countB(maxLen);
+ nt(g,'#e6dcff',16,26,11,'programs up to length '+maxLen);
+ var m=28,pw=W-56,base=170;
+ var mx=Math.max(A.total,1);
+ [['labelled, total',A.total,'rgba(150,110,230,0.45)'],
+  ['labelled, ambiguous',A.ambig,'rgba(255,90,138,0.6)'],
+  ['suit, total',B.total,'rgba(125,226,176,0.6)'],
+  ['suit, ambiguous',B.ambig,'rgba(90,214,255,0.6)']].forEach(function(r,i){
+  var x=m+i*((pw)/4);
+  var hgt=Math.max(2,(r[1]/mx)*120);
+  nf(g,r[2]);
+  g.fillRect(x,base-hgt,(pw/4)-14,hgt);ng(g);
+  nt(g,'#8a7ab8',x,base+16,7,r[0].slice(0,16));
+  nt(g,'#e6dcff',x,base+30,9,r[1].toLocaleString());});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var y2=base+46;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,'#ff5a8a',36,y2+28,12,(A.ambig/A.total*100).toFixed(1)+
+  '% of labelled programs are ambiguous');
+ var y3=y2+58;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,46);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,46);ng(g);
+ nt(g,'#7de2b0',36,y3+28,12,'the suit expresses '+(B.total/A.total*100).toFixed(2)+'% as many');
+ var o=document.getElementById('gcout');
+ if(o)o.innerHTML='Up to length <b>'+maxLen+'</b>: <b>'+A.total.toLocaleString()+
+  '</b> labelled programs of which <b>'+A.ambig.toLocaleString()+
+  '</b> can share a terminator, against <b>'+B.total.toLocaleString()+
+  '</b> suit programs of which <b>0</b> can. The ambiguity is gone and so are <b>'+
+  (100-B.total/A.total*100).toFixed(1)+'%</b> of the programs.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(487);
+ for(var i=0;i<460;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=30+g2()*100;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var ambiguous=g2()<0.487;
+  var inSuit=r<46;
+  ndot(g,q[0],q[1],inSuit?2.6:1.4,
+   inSuit?'#7de2b0':(ambiguous?'rgba(255,90,138,0.3)':'rgba(150,110,230,0.28)'));}
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(46*Math.cos(t),0,46*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'the small green region: what the suit can say');
+ nt(g,'#ff5a8a',14,42,10,'pink: programs that could share a terminator');
+ nt(g,'#8a7ab8',14,58,10,'and everything outside the ring goes with them');
+ nt(g,'#8a7ab8',14,H-12,9,'prohibition rather than detection -- reliable because less discriminating');}
+document.getElementById('gclonger').onclick=function(){maxLen=Math.min(7,maxLen+1);drawW4();};
+document.getElementById('gcshorter').onclick=function(){maxLen=Math.max(2,maxLen-1);drawW4();};
+document.getElementById('gcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegrammarthatcannot=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 235 · neon-noir · silicon-coding · FROM DAVID'S TOWER.ascii + rev7-0805 · one way to stack seven floors · wider at the bottom · the gate that can stop it · a synonym cannot be found by looking · the symbols nobody wrote down ═══════════════════════
 ORDF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Seven floors, and a stated reason for every adjacency: you cannot write a veto for a language you have not read, coverage means nothing until the veto is honest, there is no point diffing against an oracle if the forms never covered the domain. Six reasons in a row, and they turn the build order from a plan into a <b>theorem</b> &mdash; there is exactly one way to stack the tower.<br><br>
@@ -81505,6 +82228,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-joint","title":"THE JOINT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#ffd76a","icon":"\u21c9",
+  "kicker":"bookends that balance only in a chain",
+  "blurb":"One unmatched closer at the front, one unmatched opener at the back. Not a broken container - a joint, which closes what came before and opens what comes after.",
+  "lit":"under a pushdown veto the joint on its own reports 1 illegal closer and 1 unclosed frame; placed between two cells it reports 0 bad and 0 unclosed; and chained at 1, 2, 3 and 5 joints it stays clean every time with opens equalling closes at every length - 7, 13, 19 and 31 of each",
+  "fig":"From David's SUIT.ascii, dropped 2026-08-05; his suite passes 15/15, twice. He drew the joint and named the misreading before anyone could make it: 'that is not a broken container. it is a JOINT ... the same trick as -+ ... -+ on the cube: the bookends are only balanced once the thing is in a chain.' He also recorded the version that really WAS broken - an early draft where the while chamber never closed, giving 3 illegal closers and 4 unclosed. AVAN is exact about what the veto proves: a balanced chain does not show the joint is CORRECT, it shows it is COMPOSABLE. Any fragment with one spare closer and one spare opener chains cleanly, including nonsense, and the bracket count cannot tell a joint from a coincidence with the same shape.",
+  "body":JONT_BODY,"script":JONT_SCRIPT},
+ {"slug":"the-no-else","title":"THE NO ELSE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#7de2b0","icon":"\u2937",
+  "kicker":"a refusal is written down, not branched around",
+  "blurb":"can asks whether the action is available; do runs it. There is no else. Absence of capability is a refusal, and the refusal goes into the record.",
+  "lit":"over 300 invocations with 100 of them not capable, the suit records all 300 events with the 100 refusals counted exactly, while the equivalent if/else construction records 200 because the else path leaves nothing behind - so 100 events are invisible to it; and a chamber with no else has one path to prove rather than two",
+  "fig":"David put the rule in capitals because it is the whole design: 'can asks whether the action is available at this |i|. do runs it. THERE IS NO ELSE. absence of capability is not a branch - it is a refusal, and the refusal is written down.' His plain-English version is the same claim without the jargon: 'Nothing silently takes a different path.' AVAN says what this does and does not remove: it does NOT remove conditionality, since something still decides whether the action runs. What it removes is the UNRECORDED half - an else branch is a place where behaviour happens with no entry in the log. The gain is auditability, not simplicity, and the two are often confused.",
+  "body":NOEL_BODY,"script":NOEL_SCRIPT},
+ {"slug":"the-shared-terminator","title":"THE SHARED TERMINATOR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ff5a8a","icon":"\u2913",
+  "kicker":"two loops, one CONTINUE",
+  "blurb":"FORTRAN 77 lets two DO loops end on the same labelled statement. Two openers, one closer, entirely legal - and a pushdown check sees nothing wrong.",
+  "lit":"the nested shared terminator gives 2 opens, 1 close, 0 illegal closers and 1 unclosed frame - a clean report over a wrong state; while two nested chambers in the suit give 3 opens, 3 closes and a depth of 0 at the end, because every chamber carries its own closer and there is no label to share",
+  "fig":"David found the case that broke his veto and wrote both halves down: the FORTRAN shape with its one-frame drift, and the conclusion - 'the fix for a parser that cannot see an ambiguity is not always a smarter parser. sometimes it is a grammar that cannot express the ambiguity.' AVAN records one difference honestly: David reports MAX NESTING 1 for two nested chambers, while the bracket model here measures 3, because it counts literal delimiters rather than chamber frames. The figures that carry the claim - 3 opens, 3 closes, depth back to 0 - agree exactly. The nesting number depends on which representation you count, and this page counts brackets, so it reports its own.",
+  "body":SHTM_BODY,"script":SHTM_SCRIPT},
+ {"slug":"the-read-only-input","title":"THE READ-ONLY INPUT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad6ff","icon":"\u25c9",
+  "kicker":"a chamber cannot edit what it is given",
+  "blurb":"Both chambers read |i|. Neither may write it - an attempt throws. If a body can edit its own input, running it twice is running it on two different things.",
+  "lit":"a reading body runs unguarded and leaves i at 5; a writing body THROWS under the guard with i still 5 afterwards; without the guard the same body silently moves i from 5 to 6; and re-run five times the guarded chamber sees 5, 5, 5, 5, 5 while the unguarded one sees 6, 7, 8, 9, 10",
+  "fig":"David stated the rule and its purpose together: '|i| - the magnitude of I. both chambers READ it. neither may WRITE it - writing throws. that is what makes a chamber testable: its inputs cannot be edited by its own body.' AVAN connects it to something this corpus already measured: two batches ago a sensitivity probe re-ran an impure thunk and turned eleven calls into ninety-nine, breaking three later assertions. The read-only input is the SAME PROBLEM SOLVED AT THE OTHER END - rather than restricting who may probe, restrict what a body may touch. The guard is cheaper and stronger, applying to every caller rather than the careful ones, and it is only available if you control the language.",
+  "body":ROIN_BODY,"script":ROIN_SCRIPT},
+ {"slug":"the-grammar-that-cannot","title":"THE GRAMMAR THAT CANNOT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#b98cff","icon":"\u2298",
+  "kicker":"make the ambiguity unwriteable",
+  "blurb":"A parser could not see an ambiguity, so the grammar was narrowed until it could not be written. Not a smarter checker - a smaller language.",
+  "lit":"enumerating every short program in both grammars, of 1,364 labelled programs up to length 5 some 664 can share a terminator - 48.7% - while of 62 suit programs of the same lengths 0 can; and the cost is exact and unflattering, the suit expressing 4.55% as many programs, because you cannot remove a shape without removing everything that used it",
+  "fig":"David wrote the conclusion as a general rule rather than a local fix: 'the fix for a parser that cannot see an ambiguity is not always a smarter parser. sometimes it is a grammar that cannot express the ambiguity.' The specific target was F2 in his tower - a veto with no braces, for a language whose loops end on labels. AVAN enumerated both grammars to put a number on the trade, because the rule is stated as a win and is really an exchange: removing the ambiguity removed 95% of the expressible programs at these lengths. Most of those were nonsense and the ratio is sensitive to how each grammar is encoded, but the direction is not in doubt - a restriction that costs nothing is usually a restriction that removes nothing.",
+  "body":GRCN_BODY,"script":GRCN_SCRIPT},
  {"slug":"the-order-that-is-forced","title":"THE ORDER THAT IS FORCED","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#7de2b0","icon":"\u2193",
   "kicker":"seven floors, and only one way to stack them",
