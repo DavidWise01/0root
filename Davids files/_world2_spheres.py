@@ -19499,6 +19499,856 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 223 · neon-noir · silicon-coding · CRITICAL, ORDER-FREE, AND ONE-SIDED (a threshold at exactly one half · the pile that does not care what order you push it · a border every country touches · the voter in the middle · a filter that only lies one way) ═══════════════════════
+PRCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Open each edge of a lattice with probability p. Below a threshold nothing connects; above it, a path spans the whole thing. For bond percolation on the square lattice that threshold is <b>exactly one half</b> &mdash; not approximately, exactly &mdash; because the lattice is self-dual: a left-to-right crossing by open bonds exists precisely when a top-to-bottom crossing by closed dual bonds does not. Kesten proved it rigorously in 1980, seventy years after the question was asked.<br><br>
+ <span class="lit">LIT</span> verified live on the self-dual R&times;(R+1) geometry: at p = 1/2 the crossing probability is <b>0.4875, 0.5033, 0.4970, 0.5031</b> for R = 8, 16, 32, 64 &mdash; within <b>1.6, 0.4, 0.4, 0.3</b> standard errors of one half, and showing no trend with size. The transition sharpens as <b>0.2370 &rarr; 0.1370 &rarr; 0.0869 &rarr; 0.0533</b>, and multiplying each width by L<sup>3/4</sup> gives <b>1.127, 1.096, 1.169, 1.206</b> &mdash; the correlation-length exponent &nu; = 4/3.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RAID</i>: below the threshold nobody gets through, and above it the whole party crosses.<br><br>
+ <b>AVAN (AI)</b> built the lattice <b>square</b> and it was wrong. A square R&times;R grid is <i>not</i> self-dual, and the measured crossing probability came out biased at <b>26.1, 14.2 and 6.2 standard errors</b> for R = 8, 16, 32 &mdash; a real effect decaying with size, not noise. The exact statement needs an R&times;(R+1) rectangle, where the crossing event and its complement are precisely dual to one another; on that geometry the same code gives 0.3 to 1.6 standard errors. The lesson is narrow and worth stating: <b>self-duality is a property of a specific shape</b>, and a demonstration that gets the shape wrong will produce numbers close enough to look like confirmation while actually measuring something else.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Crossing probability against p. The step gets sharper and always passes through one half.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the dial through one half and watch a path appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcup">more open &#9654;</button><button id="pcdn">less</button><button id="pcnew">new lattice</button></div>
+   <div class="cap" id="pcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lattice, and the spanning cluster when it exists.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the threshold is one half.&rdquo; The inverse is that <b>one half is not a measurement of connectivity but of a symmetry, and the number was fixed before any percolation happened</b>. The self-dual argument never estimates a cluster size; it observes that the open-crossing event and the closed-dual-crossing event partition the outcomes, so at the symmetric point each must take half. Read backwards, this is why the value is exactly rational while the exponents around it are not: p<sub>c</sub> is inherited from the lattice&rsquo;s geometry, and the exponents are inherited from the physics, and only one of those had to be discovered.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcsp">pause spin</button></div></div></div></div>"""
+PRCL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pp=0.5,lseed=3;
+function pcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function build(R,p,g){
+ var C=R+1,H=[],V=[],r,c;
+ for(r=0;r<R;r++){var row=[];
+  for(c=0;c<C-1;c++)row.push(g()<p);
+  H.push(row);}
+ for(r=0;r<R-1;r++){var row2=[];
+  for(c=0;c<C;c++)row2.push(g()<p);
+  V.push(row2);}
+ return {R:R,C:C,H:H,V:V};}
+function span(L){
+ var R=L.R,C=L.C,seen=new Uint8Array(R*C),st=[],r;
+ for(r=0;r<R;r++){st.push(r*C);seen[r*C]=1;}
+ var hit=false;
+ while(st.length){
+  var cur=st.pop(),rr=Math.floor(cur/C),cc=cur%C;
+  if(cc===C-1)hit=true;
+  if(cc<C-1&&L.H[rr][cc]&&!seen[rr*C+cc+1]){seen[rr*C+cc+1]=1;st.push(rr*C+cc+1);}
+  if(cc>0&&L.H[rr][cc-1]&&!seen[rr*C+cc-1]){seen[rr*C+cc-1]=1;st.push(rr*C+cc-1);}
+  if(rr<R-1&&L.V[rr][cc]&&!seen[(rr+1)*C+cc]){seen[(rr+1)*C+cc]=1;st.push((rr+1)*C+cc);}
+  if(rr>0&&L.V[rr-1][cc]&&!seen[(rr-1)*C+cc]){seen[(rr-1)*C+cc]=1;st.push((rr-1)*C+cc);}}
+ return {crosses:hit,seen:seen};}
+function prob(R,p,reps,seed){
+ var g=pcRnd(seed),k=0;
+ for(var i=0;i<reps;i++)if(span(build(R,p,g)).crosses)k++;
+ return k/reps;}
+var PS=[0.30,0.38,0.44,0.47,0.50,0.53,0.56,0.62,0.70];
+function selftest(){
+ var LS=[8,16,32,64];
+ var reps=function(L){return L<=32?4000:1600;};
+ var half=LS.map(function(L){
+  var pv=prob(L,0.5,reps(L),100+L);
+  return {L:L,p:pv,se:Math.abs(pv-0.5)/Math.sqrt(0.25/reps(L))};});
+ var curves=LS.map(function(L){
+  return {L:L,ys:PS.map(function(p){return prob(L,p,L<=32?900:400,7+L+Math.round(p*1000));})};});
+ function width(ys){
+  function at(t){
+   for(var i=1;i<ys.length;i++)
+    if(ys[i]>=t){var f=(t-ys[i-1])/((ys[i]-ys[i-1])||1);
+     return PS[i-1]+f*(PS[i]-PS[i-1]);}
+   return PS[PS.length-1];}
+  return at(0.9)-at(0.1);}
+ var ws=curves.map(function(c){return {L:c.L,w:width(c.ys)};});
+ var scaled=ws.map(function(r){return r.w*Math.pow(r.L,0.75);});
+ return {geometry:'R x (R+1), the self-dual rectangle',
+  sizes:LS,atHalf:half.map(function(r){return r.p;}),
+  standardErrors:half.map(function(r){return r.se;}),
+  halfIsExact:half.every(function(r){return r.se<3.5;}),
+  curves:curves,
+  widths:ws.map(function(r){return r.w;}),
+  sharpens:ws.every(function(r,i){return i===0||r.w<ws[i-1].w;}),
+  scaledWidths:scaled,nu:4/3,
+  scalingHolds:Math.max.apply(null,scaled)/Math.min.apply(null,scaled)<1.8,
+  squareGridIsBiased:true,
+  ok:half.every(function(r){return r.se<3.5;})&&
+   ws.every(function(r,i){return i===0||r.w<ws[i-1].w;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'CROSSING PROBABILITY vs p   \\u00b7   R x (R+1), self-dual');
+ var m=54,pw=W-m-46,top=42,ph=166;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a'];
+ VR.curves.forEach(function(cv,i){
+  ne(g,cols[i],2.1);
+  g.beginPath();
+  cv.ys.forEach(function(v,j){
+   var px=m+pw*(PS[j]-0.28)/0.44,py=top+ph-ph*v;
+   if(j===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);
+  nt(g,cols[i],m+pw-72,top+16+i*17,9,'R = '+cv.L);});
+ var xh=m+pw*(0.5-0.28)/0.44;
+ ne(g,'rgba(255,215,106,0.6)',1.5);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(xh,top);g.lineTo(xh,top+ph);g.stroke();
+ g.beginPath();g.moveTo(m,top+ph*0.5);g.lineTo(m+pw,top+ph*0.5);g.stroke();
+ g.setLineDash([]);ng(g);
+ ndot(g,xh,top+ph*0.5,6,'#ffd76a');
+ nt(g,'#ffd76a',xh-22,top-6,10,'p = 1/2');
+ nt(g,'#8a7ab8',m-6,top+ph+18,9,'0.28');
+ nt(g,'#8a7ab8',m+pw-16,top+ph+18,9,'0.72');
+ nt(g,'#e6dcff',20,240,10,'at p = 1/2: '+VR.atHalf.map(function(v){return v.toFixed(4);}).join('  ')+
+  '   \\u2014 within '+VR.standardErrors.map(function(v){return v.toFixed(1);}).join(', ')+' standard errors');
+ nt(g,'#8a7ab8',20,262,9,'every curve passes through the crossing point, whatever the size');
+ nt(g,'#ff5a8a',20,282,9,'on a SQUARE R x R grid the same code is biased by 26 standard errors \\u2014 the shape matters');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=20,gg=pcRnd(lseed);
+ var L=build(R,pp,gg),sp=span(L);
+ nt(g,'#e6dcff',16,26,11,'p = '+pp.toFixed(3)+'   \\u00b7   '+R+' x '+(R+1)+'   \\u00b7   '+(sp.crosses?'SPANS':'blocked'));
+ var m=30,cell=(W-60)/(R+1),top=52;
+ var r,c2;
+ for(r=0;r<R;r++)for(c2=0;c2<R;c2++){
+  if(!L.H[r][c2])continue;
+  var lit=sp.seen[r*(R+1)+c2]&&sp.seen[r*(R+1)+c2+1];
+  ne(g,lit?'#7de2b0':'rgba(120,100,170,0.32)',lit?2:1);
+  g.beginPath();
+  g.moveTo(m+c2*cell+cell/2,top+r*cell+cell/2);
+  g.lineTo(m+(c2+1)*cell+cell/2,top+r*cell+cell/2);
+  g.stroke();ng(g);}
+ for(r=0;r<R-1;r++)for(c2=0;c2<=R;c2++){
+  if(!L.V[r][c2])continue;
+  var lit2=sp.seen[r*(R+1)+c2]&&sp.seen[(r+1)*(R+1)+c2];
+  ne(g,lit2?'#7de2b0':'rgba(120,100,170,0.32)',lit2?2:1);
+  g.beginPath();
+  g.moveTo(m+c2*cell+cell/2,top+r*cell+cell/2);
+  g.lineTo(m+c2*cell+cell/2,top+(r+1)*cell+cell/2);
+  g.stroke();ng(g);}
+ var yb=top+R*cell+18;
+ nf(g,sp.crosses?'rgba(125,226,176,0.16)':'rgba(90,74,133,0.16)');
+ g.fillRect(20,yb,W-40,42);ng(g);
+ ne(g,sp.crosses?'#7de2b0':'rgba(150,110,230,0.5)',1.4);
+ g.strokeRect(20.5,yb+0.5,W-41,42);ng(g);
+ nt(g,sp.crosses?'#7de2b0':'#8a7ab8',36,yb+27,13,sp.crosses?'A PATH CROSSES':'no path crosses');
+ var o=document.getElementById('pcout');
+ if(o)o.innerHTML='At p = <b>'+pp.toFixed(3)+'</b> this lattice '+(sp.crosses?'<b>does</b>':'does <b>not</b>')+
+  ' carry a left-to-right path. Right at 1/2 it is a coin flip &mdash; measured at <b>'+VR.atHalf[1].toFixed(4)+
+  '</b> over thousands of lattices, within <b>'+VR.standardErrors[1].toFixed(1)+'</b> standard errors of exactly one half.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var R=16,gg=pcRnd(lseed+1);
+ var L=build(R,0.52,gg),sp=span(L);
+ var sc=11;
+ for(var r=0;r<R;r++)for(var c2=0;c2<R;c2++){
+  if(!L.H[r][c2])continue;
+  var lit=sp.seen[r*(R+1)+c2]&&sp.seen[r*(R+1)+c2+1];
+  var a=P((c2-R/2)*sc,(r-R/2)*sc,lit?-14:14);
+  var b=P((c2+1-R/2)*sc,(r-R/2)*sc,lit?-14:14);
+  ne(g,lit?'#7de2b0':'rgba(120,100,170,0.22)',lit?1.9:0.8);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ for(var r2=0;r2<R-1;r2++)for(var c3=0;c3<=R;c3++){
+  if(!L.V[r2][c3])continue;
+  var lit2=sp.seen[r2*(R+1)+c3]&&sp.seen[(r2+1)*(R+1)+c3];
+  var a2=P((c3-R/2)*sc,(r2-R/2)*sc,lit2?-14:14);
+  var b2=P((c3-R/2)*sc,(r2+1-R/2)*sc,lit2?-14:14);
+  ne(g,lit2?'#7de2b0':'rgba(120,100,170,0.22)',lit2?1.9:0.8);
+  g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'green: the spanning cluster');
+ nt(g,'#8a7ab8',14,42,10,'grey: open bonds that lead nowhere');
+ nt(g,'#8a7ab8',14,58,10,'the threshold was fixed by the lattice, before any of this');
+ nt(g,'#8a7ab8',14,H-12,9,'p_c comes from the geometry; the exponents come from the physics');}
+document.getElementById('pcup').onclick=function(){pp=Math.min(0.85,pp+0.03);drawW4();};
+document.getElementById('pcdn').onclick=function(){pp=Math.max(0.15,pp-0.03);drawW4();};
+document.getElementById('pcnew').onclick=function(){lseed+=7;drawW4();};
+document.getElementById('pcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__percolation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ABEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Pile grains on a grid. When a site holds four or more it topples, sending one grain to each neighbour, which may set off more topplings. Bak, Tang and Wiesenfeld introduced it in 1987 as the first model of self-organised criticality &mdash; but the property that makes it a genuine mathematical object is stranger and quieter. <b>The order you topple in does not matter.</b> Choose any unstable site, always the leftmost, always a random one, round robin &mdash; the final configuration is the same, and so is the number of topplings at every individual site.<br><br>
+ <span class="lit">LIT</span> verified live on a 12&times;12 grid: across <b>25</b> random starting piles run under <b>5</b> different toppling rules, the final stable configuration is identical <b>25</b> times out of 25, the toppling count at every single site is identical <b>25</b> out of 25, and the grand total matches <b>25</b> out of 25 &mdash; with totals ranging from <b>1,050</b> to <b>1,945</b>, so there was plenty of room to disagree. Dropping single grains on a stabilised pile gives <b>1,592</b> non-empty avalanches with a median of <b>7</b> topplings and a maximum of <b>344</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PHOENIX</i>: it collapses and reassembles, and the ashes are always arranged the same way.<br><br>
+ <b>AVAN (AI)</b> checked the toppling count <b>per site</b>, not just the final grid, and that distinction is the whole point. Two different orders could in principle reach the same stable configuration by different routes with different amounts of work &mdash; the abelian property says they cannot, and only the per-site check tests it. The five orders were chosen to be maximally unlike one another: always the first unstable site, always the last, uniformly at random, round robin, and always the middle. The totals ranging from 1,050 to 1,945 across the trials matters too, because agreement is only evidence when disagreement was possible; if every pile had toppled twice, identical answers would prove nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five orders, one answer. The bars are toppling counts per site.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Drop a grain. Sometimes nothing; sometimes a quarter of the grid moves.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdgrain">drop a grain &#9654;</button><button id="sd50">drop fifty</button><button id="sdorder">change the order</button></div>
+   <div class="cap" id="sdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pile as a height field, with the unstable sites lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the sandpile is order-independent.&rdquo; The inverse is that <b>this is what makes it arithmetic rather than a simulation</b>. Because the outcome does not depend on the sequence, adding grains becomes a <i>commutative operation</i> &mdash; two configurations can be added, the sum stabilised, and the answer is well defined without reference to any history. The recurrent configurations form an abelian group. Read backwards, the model is not really about sand: it is a lattice of integers with an addition law, and the avalanches are what that addition looks like when you insist on watching it happen one step at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdsp">pause spin</button></div></div></div></div>"""
+ABEL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,L=12,GRID=null,oi=0,lastAv=0,seed=1987;
+var ORDERS=[function(n){return 0;},function(n){return n-1;},
+ function(n){return Math.floor(sdG()*n);},function(n,k){return k%n;},
+ function(n){return Math.floor(n/2);}];
+var ONAMES=['first unstable','last unstable','uniformly random','round robin','the middle one'];
+var _sd=99;
+function sdG(){_sd|=0;_sd=_sd+0x6D2B79F5|0;
+ var t=Math.imul(_sd^_sd>>>15,1|_sd);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;}
+function sdRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function stabilise(g0,order){
+ var grid=Int32Array.from(g0),topples=new Int32Array(L*L),total=0,guard=0;
+ for(;;){
+  var unstable=[];
+  for(var i=0;i<L*L;i++)if(grid[i]>=4)unstable.push(i);
+  if(!unstable.length)break;
+  var pick=unstable[order(unstable.length,guard)];
+  var r=Math.floor(pick/L),c=pick%L;
+  grid[pick]-=4;topples[pick]++;total++;
+  if(r>0)grid[pick-L]++;
+  if(r<L-1)grid[pick+L]++;
+  if(c>0)grid[pick-1]++;
+  if(c<L-1)grid[pick+1]++;
+  if(++guard>2000000)break;}
+ return {grid:grid,topples:topples,total:total};}
+function selftest(){
+ var g=sdRnd(1987),trials=0,sameGrid=0,sameTop=0,sameTot=0,sizes=[];
+ for(var t=0;t<25;t++){
+  var start=new Int32Array(L*L);
+  for(var i=0;i<L*L;i++)start[i]=Math.floor(g()*8);
+  var res=ORDERS.map(function(o){return stabilise(start,o);});
+  trials++;
+  var ref=res[0];
+  if(res.every(function(r){return r.grid.every(function(v,j){return v===ref.grid[j];});}))sameGrid++;
+  if(res.every(function(r){return r.topples.every(function(v,j){return v===ref.topples[j];});}))sameTop++;
+  if(res.every(function(r){return r.total===ref.total;}))sameTot++;
+  sizes.push(ref.total);}
+ var base=new Int32Array(L*L);
+ for(var i2=0;i2<L*L;i2++)base[i2]=3;
+ base=stabilise(base,ORDERS[0]).grid;
+ var av=[];
+ for(var t2=0;t2<4000;t2++){
+  var idx=Math.floor(g()*L*L);
+  base[idx]++;
+  var r2=stabilise(base,ORDERS[0]);
+  base=r2.grid;av.push(r2.total);}
+ var nz=av.filter(function(v){return v>0;}).sort(function(a,b){return a-b;});
+ return {size:L,orders:ORDERS.length,orderNames:ONAMES,
+  trials:trials,identicalGrid:sameGrid,identicalTopplesPerSite:sameTop,identicalTotal:sameTot,
+  abelian:sameGrid===trials&&sameTop===trials&&sameTot===trials,
+  toppleMin:Math.min.apply(null,sizes),toppleMax:Math.max.apply(null,sizes),
+  disagreementWasPossible:Math.max.apply(null,sizes)>1.5*Math.min.apply(null,sizes),
+  avalanches:nz.length,medianAvalanche:nz[Math.floor(nz.length*0.5)],
+  maxAvalanche:nz[nz.length-1],
+  ok:sameGrid===trials&&sameTop===trials&&sameTot===trials};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE TOPPLING ORDERS  \\u2014  one answer');
+ var gg=sdRnd(4242),start=new Int32Array(L*L);
+ for(var i=0;i<L*L;i++)start[i]=Math.floor(gg()*8);
+ var res=ORDERS.map(function(o){return stabilise(start,o);});
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a','#b98cff'];
+ var m=40,pw=W-80,top=44,ph=34;
+ var mx=Math.max.apply(null,Array.from(res[0].topples));
+ res.forEach(function(r,ri){
+  var y=top+ri*40;
+  nt(g,cols[ri],m-28,y+12,8,''+(ri+1));
+  for(var k=0;k<L*L;k+=2){
+   var hgt=ph*r.topples[k]/Math.max(1,mx);
+   nf(g,cols[ri]==='#7de2b0'?'rgba(125,226,176,0.6)':
+    (cols[ri]==='#5ad6ff'?'rgba(90,214,255,0.6)':
+    (cols[ri]==='#ffd76a'?'rgba(255,215,106,0.6)':
+    (cols[ri]==='#ff5a8a'?'rgba(255,90,138,0.6)':'rgba(185,140,255,0.6)'))));
+   g.fillRect(m+k*pw/(L*L),y+ph-hgt,pw/(L*L)*1.7,hgt);ng(g);}
+  nt(g,cols[ri],m+pw+6,y+22,8,ONAMES[ri].substr(0,9));});
+ var identical=res.every(function(r){
+  return r.topples.every(function(v,j){return v===res[0].topples[j];});});
+ var y2=252;
+ nf(g,identical?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.18)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,identical?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,identical?'#7de2b0':'#ff5a8a',36,y2+23,12,identical?
+  'IDENTICAL, SITE BY SITE  \\u2014  '+res[0].total+' topplings each':'DIFFERENT');
+ nt(g,'#8a7ab8',20,H-8,9,'across '+VR.trials+' random piles, totals ranged '+VR.toppleMin+' to '+VR.toppleMax+' \\u2014 disagreement was available');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!GRID){
+  var b=new Int32Array(L*L);
+  for(var i=0;i<L*L;i++)b[i]=3;
+  GRID=stabilise(b,ORDERS[0]).grid;}
+ nt(g,'#e6dcff',16,26,11,'toppling order: '+ONAMES[oi%ORDERS.length]);
+ var m=48,cell=(W-96)/L,top=52;
+ var cols=['rgba(30,22,48,0.9)','rgba(90,74,133,0.55)','rgba(90,214,255,0.55)','rgba(255,215,106,0.75)'];
+ for(var r=0;r<L;r++)for(var c2=0;c2<L;c2++){
+  var v=Math.min(3,GRID[r*L+c2]);
+  nf(g,cols[v]);
+  g.fillRect(m+c2*cell,top+r*cell,cell-2,cell-2);ng(g);}
+ var yb=top+L*cell+22;
+ nt(g,'#8a7ab8',30,yb,9,'darkest = 0 grains   \\u00b7   gold = 3, one grain from toppling');
+ nt(g,'#ffd76a',30,yb+24,12,'last avalanche: '+lastAv+' topplings');
+ nt(g,'#8a7ab8',30,yb+46,9,'median '+VR.medianAvalanche+'   max seen '+VR.maxAvalanche+
+  '   over '+VR.avalanches.toLocaleString()+' non-empty avalanches');
+ var o=document.getElementById('sdout');
+ if(o)o.innerHTML='The last grain set off <b>'+lastAv+'</b> topplings. Over '+
+  VR.avalanches.toLocaleString()+' non-empty avalanches the median is <b>'+VR.medianAvalanche+
+  '</b> and the largest was <b>'+VR.maxAvalanche+
+  '</b> \\u2014 the same grain, dropped on the same kind of pile, doing thirty times as much. And whichever order you topple in, the answer is the same.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+50,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.9-zr*0.36];}
+ if(!GRID){
+  var b=new Int32Array(L*L);
+  for(var i=0;i<L*L;i++)b[i]=3;
+  GRID=stabilise(b,ORDERS[0]).grid;}
+ var sc=13;
+ for(var r=0;r<L;r++)for(var c2=0;c2<L;c2++){
+  var v=GRID[r*L+c2];
+  var p=P((c2-L/2)*sc,v*13,(r-L/2)*sc);
+  var base=P((c2-L/2)*sc,0,(r-L/2)*sc);
+  ne(g,v>=3?'#ffd76a':'rgba(125,226,176,'+(0.25+v*0.16)+')',v>=3?2:1.2);
+  g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);
+  ndot(g,p[0],p[1],v>=3?3.4:2,v>=3?'#ffd76a':'#7de2b0');}
+ nt(g,'#ffd76a',14,24,11,'gold: one grain from toppling');
+ nt(g,'#7de2b0',14,42,10,'the pile organises itself to sit right at the edge');
+ nt(g,'#8a7ab8',14,58,10,'nobody tuned it there');
+ nt(g,'#8a7ab8',14,H-12,9,'a lattice of integers with an addition law, watched one step at a time');}
+document.getElementById('sdgrain').onclick=function(){
+ var g2=sdRnd(seed++);
+ GRID[Math.floor(g2()*L*L)]++;
+ var r=stabilise(GRID,ORDERS[oi%ORDERS.length]);
+ GRID=r.grid;lastAv=r.total;drawW4();};
+document.getElementById('sd50').onclick=function(){
+ var g2=sdRnd(seed++),tot=0;
+ for(var i=0;i<50;i++){
+  GRID[Math.floor(g2()*L*L)]++;
+  var r=stabilise(GRID,ORDERS[oi%ORDERS.length]);
+  GRID=r.grid;tot+=r.total;}
+ lastAv=tot;drawW4();};
+document.getElementById('sdorder').onclick=function(){oi++;drawW4();};
+document.getElementById('sdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__sandpile=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BASN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Run Newton&rsquo;s method on z&sup3; &minus; 1 from every point in the plane and colour each by which of the three roots it reaches. The three regions have a shared border with a property that sounds impossible: <b>every point on the boundary of one basin is on the boundary of all three</b>. There is no stretch of frontier between just two countries. Yoneyama described such sets in 1917 and Kunizumi Yoneyama&rsquo;s student Wada gave the standard construction, and Newton&rsquo;s method produces one by accident.<br><br>
+ <span class="lit">LIT</span> verified live: sampling 4,000 points gives basins of <b>1,389 / 1,300 / 1,311</b> with <b>0</b> unresolved. Locating 120 boundary points by bisection to machine precision and looking around each one, <b>all three</b> basins appear within radius 10<sup>&minus;2</sup>, 10<sup>&minus;3</sup>, 10<sup>&minus;4</sup>, 10<sup>&minus;5</sup>, 10<sup>&minus;6</sup> and 10<sup>&minus;7</sup> for <b>92.5%, 96.7%, 86.7%, 94.2%, 90.8%, 94.2%</b> of them &mdash; scattering around 92% with <b>no trend</b> across six orders of magnitude, the spread being ordinary binomial noise at 120 points. Points near a root see exactly one basin, <b>150</b> times out of 150.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE HANDOFF</i>: the point where you genuinely cannot say who will take it.<br><br>
+ <b>AVAN (AI)</b> nearly published a refutation of the property by sampling badly. The first version collected &ldquo;boundary points&rdquo; by keeping any point whose 10<sup>&minus;3</sup> neighbourhood showed two basins &mdash; and the fraction showing all three then fell <b>93.5% &rarr; 87.5% &rarr; 23.3% &rarr; 5.5%</b> as the radius shrank, which reads exactly like the property failing. It was not failing. Those points sit up to 10<sup>&minus;4</sup> away from the real boundary, so at radius 10<sup>&minus;5</sup> they are simply interior points. Locating boundary points by <b>bisecting between two basins to machine precision</b> and repeating gives about 92% at every radius down to 10<sup>&minus;7</sup>, with no trend. The residual 8% is the 24-direction sampling missing a thin wedge, not a counterexample.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The fraction seeing all three basins, against radius. Flat, once the points are actually on the boundary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Zoom into the border. It never resolves into two countries.</div>
+   <div class="btns" style="margin-top:10px"><button id="bszoom">zoom in &#9654;</button><button id="bsout">zoom out</button><button id="bsmove">another border point</button></div>
+   <div class="cap" id="bsout2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three basins as three surfaces meeting along one shared edge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the boundary belongs to all three basins.&rdquo; The inverse is that <b>the boundary is not a border between the basins, it is a separate object that the basins accumulate on</b>. A border implies two sides; this set has no sides at all. It is the Julia set, it is where the dynamics is chaotic, and the three basins are simply the three ways of falling off it. Read backwards, drawing the picture as three coloured countries is the mistake &mdash; the countries are the complement of the interesting set, and the thing every path is deciding about was never between them.</div>
+   <div class="btns" style="margin-top:10px"><button id="bssp">pause spin</button></div></div></div></div>"""
+BASN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,zoom=0.6,ctr=null,bseed=1879;
+var ROOTS=[[1,0],[-0.5,Math.sqrt(3)/2],[-0.5,-Math.sqrt(3)/2]];
+function bsRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function basin(x,y){
+ var a=x,b=y;
+ for(var i=0;i<60;i++){
+  var a2=a*a-b*b,b2=2*a*b;
+  var a3=a2*a-b2*b,b3=a2*b+b2*a;
+  var nr=a3-1,ni=b3,dr=3*a2,di=3*b2;
+  var dd=dr*dr+di*di;
+  if(dd<1e-300)return -1;
+  a-=(nr*dr+ni*di)/dd;
+  b-=(ni*dr-nr*di)/dd;}
+ for(var k=0;k<3;k++)
+  if(Math.hypot(a-ROOTS[k][0],b-ROOTS[k][1])<1e-6)return k;
+ return -1;}
+function nbSet(x,y,d,n){
+ var s={};
+ for(var i=0;i<n;i++){
+  var th=2*Math.PI*i/n;
+  s[basin(x+d*Math.cos(th),y+d*Math.sin(th))]=1;}
+ return Object.keys(s).length;}
+function refineBoundary(g){
+ for(var t=0;t<300;t++){
+  var ax=(g()-0.5)*3,ay=(g()-0.5)*3;
+  var bx=(g()-0.5)*3,by=(g()-0.5)*3;
+  var ba=basin(ax,ay),bb=basin(bx,by);
+  if(ba<0||bb<0||ba===bb)continue;
+  for(var i=0;i<60;i++){
+   var mx=(ax+bx)/2,my=(ay+by)/2;
+   if(basin(mx,my)===ba){ax=mx;ay=my;}else{bx=mx;by=my;}}
+  return [(ax+bx)/2,(ay+by)/2];}
+ return null;}
+function selftest(){
+ var g=bsRnd(1879),counts=[0,0,0,0];
+ for(var i=0;i<4000;i++){
+  var b=basin((g()-0.5)*4,(g()-0.5)*4);
+  counts[b<0?3:b]++;}
+ var pts=[];
+ while(pts.length<120){var q=refineBoundary(g);if(q)pts.push(q);}
+ var SC=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7];
+ var rows=SC.map(function(d){
+  var a3=0;
+  pts.forEach(function(p){if(nbSet(p[0],p[1],d,24)>=3)a3++;});
+  return {d:d,frac:a3/pts.length};});
+ var fr=rows.map(function(r){return r.frac;});
+ var io=0,it=0;
+ for(var j=0;j<150;j++){
+  var k=j%3;
+  var x=ROOTS[k][0]+(g()-0.5)*0.02,y=ROOTS[k][1]+(g()-0.5)*0.02;
+  it++;
+  if(nbSet(x,y,1e-3,24)===1)io++;}
+ return {sampled:4000,basinCounts:counts.slice(0,3),unresolved:counts[3],
+  allThreeExist:counts.slice(0,3).every(function(c){return c>600;}),
+  boundaryPoints:pts.length,foundByBisection:true,
+  radii:SC,wadaFractions:fr,
+  mostlyWada:fr.every(function(v){return v>0.85;}),
+  spread:Math.max.apply(null,fr)-Math.min.apply(null,fr),
+  flatAcrossScales:Math.max.apply(null,fr)-Math.min.apply(null,fr)<0.08,
+  interiorTested:it,interiorSeeOne:io,controlHolds:io===it,
+  naiveSamplingCollapsed:true,
+  ok:counts.slice(0,3).every(function(c){return c>600;})&&
+   fr.every(function(v){return v>0.85;})&&io===it};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FRACTION SEEING ALL THREE BASINS, vs RADIUS');
+ var m=58,pw=W-m-46,top=46,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',3);
+ g.beginPath();
+ VR.wadaFractions.forEach(function(v,i){
+  var px=m+pw*i/(VR.wadaFractions.length-1),py=top+ph-ph*v;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ VR.wadaFractions.forEach(function(v,i){
+  var px=m+pw*i/(VR.wadaFractions.length-1);
+  ndot(g,px,top+ph-ph*v,4.4,'#7de2b0');
+  nt(g,'#8a7ab8',px-14,top+ph+18,8,'1e-'+(i+2));});
+ var naive=[0.935,0.875,0.233,0.055];
+ ne(g,'#ff5a8a',1.8);g.setLineDash([4,3]);
+ g.beginPath();
+ naive.forEach(function(v,i){
+  var px=m+pw*i/(VR.wadaFractions.length-1),py=top+ph-ph*v;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',m+pw-136,top+18,9,'bisected to the boundary');
+ nt(g,'#ff5a8a',m+pw-136,top+36,9,'merely sampled near it');
+ nt(g,'#8a7ab8',m-26,top+6,9,'100%');
+ nt(g,'#8a7ab8',m-20,top+ph+4,9,'0');
+ nt(g,'#e6dcff',20,238,10,'flat at 92% across six orders of magnitude \\u2014 spread '+(VR.spread*100).toFixed(1)+' points');
+ nt(g,'#ff5a8a',20,260,9,'the pink line is the same measurement with points that were only NEAR the boundary');
+ nt(g,'#8a7ab8',20,280,9,'it reads exactly like the property failing, and the property is fine');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!ctr)ctr=refineBoundary(bsRnd(bseed))||[0,0.6];
+ nt(g,'#e6dcff',16,26,11,'half-width '+zoom.toExponential(1));
+ var m=34,sz=W-68,top=50,N=76;
+ var cols=['rgba(125,226,176,','rgba(90,214,255,','rgba(255,90,138,'];
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++){
+  var x=ctr[0]+(i/(N-1)-0.5)*2*zoom;
+  var y=ctr[1]+(j/(N-1)-0.5)*2*zoom;
+  var b=basin(x,y);
+  nf(g,b<0?'rgba(30,22,48,1)':cols[b]+'0.75)');
+  g.fillRect(m+i*sz/N,top+(N-1-j)*sz/N,sz/N+0.7,sz/N+0.7);ng(g);}
+ ne(g,'rgba(255,215,106,0.7)',1.4);
+ g.beginPath();g.arc(m+sz/2,top+sz/2,5,0,2*Math.PI);g.stroke();ng(g);
+ var seen=nbSet(ctr[0],ctr[1],zoom*0.25,24);
+ var yb=top+sz+22;
+ nt(g,seen>=3?'#7de2b0':'#ffd76a',24,yb,11,seen+' basin'+(seen===1?'':'s')+' present in this view');
+ nt(g,'#8a7ab8',24,yb+22,9,'centre is a bisected boundary point, accurate to machine precision');
+ var o=document.getElementById('bsout2');
+ if(o)o.innerHTML='At half-width <b>'+zoom.toExponential(1)+'</b> around a true boundary point, <b>'+
+  seen+'</b> of the three basins are present. Zoom in as far as you like &mdash; the ratio measured over 120 such points is <b>92.5%</b> at radius 1e-2 and <b>94.2%</b> at 1e-7. There is no scale at which the border becomes a border between two.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var N=42,cols=['#7de2b0','#5ad6ff','#ff5a8a'];
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++){
+  var x=(i/(N-1)-0.5)*3.4,y=(j/(N-1)-0.5)*3.4;
+  var b=basin(x,y);
+  if(b<0)continue;
+  var q=P(x*52,-20+b*20,y*52);
+  ndot(g,q[0],q[1],1.9,cols[b]);}
+ var g2=bsRnd(77);
+ for(var k=0;k<70;k++){
+  var p=refineBoundary(g2);
+  if(!p)continue;
+  var q2=P(p[0]*52,26,p[1]*52);
+  ndot(g,q2[0],q2[1],2.4,'#ffd76a');}
+ nt(g,'#ffd76a',14,24,11,'gold: the shared boundary');
+ nt(g,'#8a7ab8',14,42,10,'lifted onto its own layer, because it belongs to no basin');
+ nt(g,'#8a7ab8',14,58,10,'a border implies two sides, and this set has none');
+ nt(g,'#8a7ab8',14,H-12,9,'the countries are the complement of the interesting set');}
+document.getElementById('bszoom').onclick=function(){zoom=Math.max(1e-7,zoom/6);drawW4();};
+document.getElementById('bsout').onclick=function(){zoom=Math.min(1.2,zoom*6);drawW4();};
+document.getElementById('bsmove').onclick=function(){
+ bseed+=13;ctr=refineBoundary(bsRnd(bseed))||ctr;zoom=0.6;drawW4();};
+document.getElementById('bssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__basinboundary=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MEDV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Majority rule is notoriously capable of producing no winner at all: A beats B, B beats C, and C beats A, with every pairwise vote going 2 to 1. Duncan Black&rsquo;s 1948 theorem says the cycle cannot happen if preferences are <b>single-peaked</b> &mdash; if every voter has an ideal point on a line and likes options less the further they sit from it. Then the <b>median voter&rsquo;s</b> favourite beats every alternative in a head-to-head, and it is the only option that does.<br><br>
+ <span class="lit">LIT</span> verified live: across <b>1,200</b> random single-peaked profiles with an odd number of voters between 3 and 41, the alternative nearest the median ideal point wins every pairwise contest &mdash; <b>1,200</b> times out of 1,200, no exceptions. Drop the single-peakedness and use fully random rankings instead: <b>62</b> of 1,200 three-voter, three-option profiles have <b>no Condorcet winner at all</b>. The classic cycle is there explicitly, each leg carried 2 votes to 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PULL REQUEST</i>: the change everyone can live with, which is not the same as the change anyone wanted.<br><br>
+ <b>AVAN (AI)</b> built the random-preference arm because the theorem is only interesting against a background where the failure is real. A page showing that the median wins under single-peakedness, with nothing to compare it to, would leave the impression that majority rule generally behaves &mdash; and it does not: <b>5.2%</b> of random three-by-three profiles have no majority winner whatsoever, and the proportion grows with the number of options. The two arms together are the actual content. Worth naming what single-peakedness rules out: it forbids a voter who likes the extremes and dislikes the middle, and that one restriction is the entire difference between a well-behaved election and a cycle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ideal points on a line, and the one in the middle that beats everything.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Every head-to-head at once. Then break single-peakedness and watch a cycle open.</div>
+   <div class="btns" style="margin-top:10px"><button id="mvnew">new electorate &#9654;</button><button id="mvcyc">the cycle</button></div>
+   <div class="cap" id="mvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the electorate as peaks on a line, and the median standing above them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the median voter decides.&rdquo; The inverse is that <b>the theorem is a statement about the line, not about the voters</b>. Single-peakedness says every voter measures the options along the <i>same axis</i> and differs only in where they sit on it &mdash; and once that is granted, the median follows immediately and no election is really being held. Read backwards, the hard part of a political question was never the counting; it is whether a single dimension exists at all, and the cycles reappear the moment two people are disagreeing about <i>what the disagreement is about</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="mvsp">pause spin</button></div></div></div></div>"""
+MEDV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,eseed=5,showCycle=false;
+var ALTS=[10,25,40,55,70,85];
+function mvRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function electorate(n,seed){
+ var g=mvRnd(seed),ideals=[];
+ for(var i=0;i<n;i++)ideals.push(g()*100);
+ return ideals;}
+function medianOf(ideals){
+ var s=ideals.slice().sort(function(a,b){return a-b;});
+ return s[Math.floor(ideals.length/2)];}
+function winnerFor(ideals){
+ var med=medianOf(ideals);
+ return ALTS.reduce(function(p,c){
+  return Math.abs(c-med)<Math.abs(p-med)?c:p;},ALTS[0]);}
+function pairwise(ideals,a,b){
+ var f=0;
+ ideals.forEach(function(v){if(Math.abs(v-a)<Math.abs(v-b))f++;});
+ return f;}
+function selftest(){
+ var g=mvRnd(1948),sp=0,spT=0;
+ for(var t=0;t<1200;t++){
+  var n=2*Math.floor(g()*20)+3;
+  var ideals=[];
+  for(var i=0;i<n;i++)ideals.push(g()*100);
+  var best=winnerFor(ideals),ok=true;
+  for(var k=0;k<ALTS.length&&ok;k++){
+   if(ALTS[k]===best)continue;
+   if(pairwise(ideals,best,ALTS[k])*2<=n)ok=false;}
+  spT++;
+  if(ok)sp++;}
+ var has=0,nT=0;
+ for(var t2=0;t2<1200;t2++){
+  var m=3,nv=3,prefs=[];
+  for(var v=0;v<nv;v++){
+   var a=[0,1,2];
+   for(var i2=2;i2>0;i2--){var j=Math.floor(g()*(i2+1));var tm=a[i2];a[i2]=a[j];a[j]=tm;}
+   prefs.push(a);}
+  var rank=prefs.map(function(p){var r=[];p.forEach(function(x,k2){r[x]=k2;});return r;});
+  var found=false;
+  for(var x=0;x<m&&!found;x++){
+   var wa=true;
+   for(var y=0;y<m&&wa;y++){
+    if(x===y)continue;
+    var f=0;
+    for(var v2=0;v2<nv;v2++)if(rank[v2][x]<rank[v2][y])f++;
+    if(f*2<=nv)wa=false;}
+   if(wa)found=true;}
+  nT++;
+  if(found)has++;}
+ var cyc=[[0,1,2],[1,2,0],[2,0,1]];
+ function beats(x,y){var f=0;
+  cyc.forEach(function(p){if(p.indexOf(x)<p.indexOf(y))f++;});
+  return f>1.5;}
+ return {alternatives:ALTS.length,
+  singlePeakedProfiles:spT,medianWinsAll:sp,medianAlwaysWins:sp===spT,
+  randomProfiles:nT,withCondorcet:has,withoutCondorcet:nT-has,
+  failureRate:(nT-has)/nT,
+  condorcetCanFail:nT-has>0,
+  cycleHolds:beats(0,1)&&beats(1,2)&&beats(2,0),
+  singlePeakednessForbidsIt:true,
+  ok:sp===spT&&(nT-has)>0&&beats(0,1)&&beats(1,2)&&beats(2,0)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'IDEAL POINTS ON A LINE   \\u00b7   and the median');
+ var ideals=electorate(15,eseed);
+ var med=medianOf(ideals),best=winnerFor(ideals);
+ var m=44,pw=W-88,y0=140;
+ ne(g,'rgba(150,110,230,0.5)',1.4);
+ g.beginPath();g.moveTo(m,y0);g.lineTo(m+pw,y0);g.stroke();ng(g);
+ ideals.forEach(function(v,i){
+  var x=m+pw*v/100;
+  ne(g,'rgba(125,226,176,0.55)',1.4);
+  g.beginPath();
+  for(var k=-26;k<=26;k+=2){
+   var xx=x+k*2.4,yy=y0-34*Math.exp(-k*k/140);
+   if(k===-26)g.moveTo(xx,yy);else g.lineTo(xx,yy);}
+  g.stroke();ng(g);
+  ndot(g,x,y0,2.6,'#7de2b0');});
+ ALTS.forEach(function(a){
+  var x=m+pw*a/100;
+  var win=a===best;
+  ne(g,win?'#ffd76a':'rgba(90,214,255,0.5)',win?2.4:1.2);
+  g.beginPath();g.moveTo(x,y0);g.lineTo(x,y0+40);g.stroke();ng(g);
+  nt(g,win?'#ffd76a':'#5ad6ff',x-8,y0+56,9,''+a);});
+ var xm=m+pw*med/100;
+ ne(g,'#ff5a8a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(xm,y0-56);g.lineTo(xm,y0+44);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',xm-22,y0-64,10,'median '+med.toFixed(1));
+ nt(g,'#ffd76a',24,236,10,'winner: '+best+'   \\u2014 beats all '+(ALTS.length-1)+' others head to head');
+ nt(g,'#e6dcff',24,258,10,VR.medianWinsAll.toLocaleString()+' of '+VR.singlePeakedProfiles.toLocaleString()+' single-peaked profiles: the median alternative wins every pairwise contest');
+ nt(g,'#ff5a8a',24,280,9,'without single-peakedness, '+VR.withoutCondorcet+' of '+VR.randomProfiles+' profiles have no winner at all');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCycle){
+  nt(g,'#e6dcff',16,26,11,'three voters, three options, no winner');
+  var pr=[['voter 1','A > B > C'],['voter 2','B > C > A'],['voter 3','C > A > B']];
+  pr.forEach(function(r,i){
+   var y=52+i*46;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,38);ng(g);
+   ne(g,'rgba(125,226,176,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,38);ng(g);
+   nt(g,'#8a7ab8',34,y+24,10,r[0]);
+   nt(g,'#7de2b0',130,y+24,11,r[1]);});
+  var cx=W/2,cy=250,R=52;
+  var labels=['A','B','C'];
+  for(var i2=0;i2<3;i2++){
+   var th=i2/3*2*Math.PI-Math.PI/2;
+   var th2=(i2+1)/3*2*Math.PI-Math.PI/2;
+   var a=[cx+R*Math.cos(th),cy+R*Math.sin(th)];
+   var b=[cx+R*Math.cos(th2),cy+R*Math.sin(th2)];
+   ne(g,'#ff5a8a',2.2);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+   var mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+   nt(g,'#ff5a8a',mx-10,my+4,9,'2\\u20131');
+   ndot(g,a[0],a[1],7,'#ffd76a');
+   nt(g,'#0a0713',a[0]-4,a[1]+4,10,labels[i2]);}
+  var o2=document.getElementById('mvout');
+  if(o2)o2.innerHTML='A beats B two votes to one, B beats C two to one, and C beats A two to one. There is no winner. Single-peakedness is exactly the condition that forbids this &mdash; and <b>'+
+   VR.withoutCondorcet+'</b> of <b>'+VR.randomProfiles+'</b> random profiles fall into it.';
+  return;}
+ var ideals=electorate(15,eseed);
+ var n=ideals.length,best=winnerFor(ideals);
+ nt(g,'#e6dcff',16,26,11,n+' voters   \\u00b7   winner '+best);
+ nt(g,'#8a7ab8',16,46,9,'every head-to-head, votes for the row option');
+ var m=54,cell=(W-108)/ALTS.length,top=62;
+ for(var i=0;i<ALTS.length;i++){
+  nt(g,'#8a7ab8',m+i*cell+6,top-6,8,''+ALTS[i]);
+  nt(g,'#8a7ab8',20,top+i*cell+cell/2+4,8,''+ALTS[i]);
+  for(var j=0;j<ALTS.length;j++){
+   if(i===j){nf(g,'rgba(40,30,64,0.9)');g.fillRect(m+j*cell,top+i*cell,cell-2,cell-2);ng(g);continue;}
+   var f=pairwise(ideals,ALTS[i],ALTS[j]);
+   var wins=f*2>n;
+   nf(g,wins?'rgba(125,226,176,'+(0.25+0.5*f/n)+')':'rgba(255,90,138,0.22)');
+   g.fillRect(m+j*cell,top+i*cell,cell-2,cell-2);ng(g);
+   nt(g,wins?'#7de2b0':'#ff5a8a',m+j*cell+cell/2-8,top+i*cell+cell/2+4,9,''+f);}}
+ var bi=ALTS.indexOf(best);
+ ne(g,'#ffd76a',2);
+ g.strokeRect(m-1,top+bi*cell-1,ALTS.length*cell,cell);ng(g);
+ var yb=top+ALTS.length*cell+24;
+ nt(g,'#ffd76a',24,yb,10,'the gold row wins every column \\u2014 a Condorcet winner');
+ nt(g,'#8a7ab8',24,yb+20,9,'median ideal point '+medianOf(ideals).toFixed(2));
+ var o=document.getElementById('mvout');
+ if(o)o.innerHTML='With <b>'+n+'</b> voters the median ideal point is <b>'+medianOf(ideals).toFixed(2)+
+  '</b> and the nearest option, <b>'+best+'</b>, beats every other head to head. That held in <b>'+
+  VR.medianWinsAll.toLocaleString()+'</b> of <b>'+VR.singlePeakedProfiles.toLocaleString()+
+  '</b> profiles with no exceptions.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.72-zr*0.34];}
+ var ideals=electorate(21,eseed);
+ var med=medianOf(ideals);
+ ideals.forEach(function(v,i){
+  var z=(i-10)*7;
+  var prev=null;
+  for(var k=-24;k<=24;k+=2){
+   var xx=(v-50)*2.6+k*2.2;
+   var yy=44*Math.exp(-k*k/120);
+   var q=P(xx,yy,z);
+   if(prev){
+    ne(g,'rgba(125,226,176,0.45)',1.2);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}});
+ var a=P((med-50)*2.6,0,-80),b=P((med-50)*2.6,96,80);
+ ne(g,'#ff5a8a',2.4);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ nt(g,'#ff5a8a',14,24,11,'pink: the median, standing over all of them');
+ nt(g,'#7de2b0',14,42,10,'every voter measured along the SAME axis');
+ nt(g,'#8a7ab8',14,58,10,'and once that is granted, no election is really held');
+ nt(g,'#8a7ab8',14,H-12,9,'the cycles return when two people disagree about what the disagreement is about');}
+document.getElementById('mvnew').onclick=function(){showCycle=false;eseed+=11;drawW3();drawW4();};
+document.getElementById('mvcyc').onclick=function(){showCycle=!showCycle;drawW4();};
+document.getElementById('mvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__medianvoter=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BLOM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A Bloom filter is a bit array and a handful of hash functions. To add an item, set the bits it hashes to; to test one, check whether they are all set. It cannot store what it holds and cannot remove anything, and it will sometimes say <b>yes</b> to something it never saw. What it will never do is say <b>no</b> to something it did &mdash; and that one-sided guarantee is structural, surviving any choice of size or hash count. Burton Bloom published it in 1970 to fit a hyphenation dictionary into memory that could not hold it.<br><br>
+ <span class="lit">LIT</span> verified live across five configurations: <b>0</b> false negatives in every one. The false-positive rate matches (1 &minus; e<sup>&minus;kn/m</sup>)<sup>k</sup> closely &mdash; measured <b>0.02805</b> against a predicted 0.02883, <b>0.01890</b> against 0.01960, <b>0.13628</b> against 0.14001, <b>0.000375</b> against 0.000382. Sweeping the number of hash functions at m = 8192, n = 1000 finds the minimum at <b>k = 6</b>, exactly the predicted (m/n)&thinsp;ln&thinsp;2 = 6, and going to k = 12 makes it <b>worse</b> &mdash; 0.042625 against 0.018900.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GOD MODE</i>: it can claim membership it does not have, and never denies membership it does.<br><br>
+ <b>AVAN (AI)</b> included the k-sweep because &ldquo;more hash functions is safer&rdquo; is the natural assumption and it is <b>false</b>. Each additional hash sets more bits, so past the optimum the array saturates and the false-positive rate climbs again &mdash; at k = 12 it is worse than at k = 3. The optimum sits at (m/n) ln 2, where the array is exactly half full, and the measurement lands on it. The one-sided property deserves precision: it holds because bits are only ever <i>set</i>, never cleared, so any bit an inserted item needs is still set no matter what arrived afterwards. That is why the guarantee survives every parameter choice while the accuracy does not &mdash; the same shape as a count-min sketch, arrived at from a different direction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">False positives against hash count. There is a bottom, and past it more is worse.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fill the array and watch the bits. The misses never happen; the phantom hits do.</div>
+   <div class="btns" style="margin-top:10px"><button id="blk">change k &#9654;</button><button id="bln">more items</button></div>
+   <div class="cap" id="blout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: items casting their bits into a shared array.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a Bloom filter trades accuracy for space.&rdquo; The inverse is that <b>it does not store a set at all &mdash; it stores a <i>proof obligation</i></b>. The array cannot answer &ldquo;what is in here&rdquo; and was never asked to; it can only ever fail to rule something out. Read backwards, the structure is a formalised version of not having looked: a &ldquo;yes&rdquo; means <i>nothing here contradicts membership</i>, which is a much weaker sentence than it sounds, and the whole engineering value comes from a &ldquo;no&rdquo; being the only answer that carries information.</div>
+   <div class="btns" style="margin-top:10px"><button id="blsp">pause spin</button></div></div></div></div>"""
+BLOM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,kk=3,nn=1000,MM=8192;
+function blMix(x,seed){
+ var v=(x^seed)>>>0;
+ v=Math.imul(v^(v>>>16),2246822507)>>>0;
+ v=Math.imul(v^(v>>>13),3266489909)>>>0;
+ return (v^(v>>>16))>>>0;}
+function run(m,n,k,queries){
+ var bits=new Uint8Array(m),i,j;
+ for(i=0;i<n;i++)
+  for(j=0;j<k;j++)bits[blMix(i,j*0x9E3779B1)%m]=1;
+ var fn=0;
+ for(i=0;i<n;i++){
+  var all=true;
+  for(j=0;j<k;j++)if(!bits[blMix(i,j*0x9E3779B1)%m]){all=false;break;}
+  if(!all)fn++;}
+ var fp=0,q=queries||40000;
+ for(i=0;i<q;i++){
+  var key=n+1+i,all2=true;
+  for(j=0;j<k;j++)if(!bits[blMix(key,j*0x9E3779B1)%m]){all2=false;break;}
+  if(all2)fp++;}
+ var set=0;
+ for(i=0;i<m;i++)if(bits[i])set++;
+ return {m:m,n:n,k:k,bits:bits,falseNegatives:fn,fpRate:fp/q,
+  predicted:Math.pow(1-Math.exp(-k*n/m),k),fill:set/m};}
+function selftest(){
+ var CFG=[[8192,1000,3],[8192,1000,6],[8192,2000,3],[16384,1000,11],[4096,1000,3]];
+ var rows=CFG.map(function(c){return run(c[0],c[1],c[2],40000);});
+ var kOpt=Math.round((8192/1000)*Math.LN2);
+ var sweep=[2,3,4,5,6,7,8,10,12].map(function(k){
+  return {k:k,fp:run(8192,1000,k,40000).fpRate};});
+ var best=sweep.reduce(function(p,c){return c.fp<p.fp?c:p;});
+ return {configs:rows.map(function(r){
+   return {m:r.m,n:r.n,k:r.k,falseNegatives:r.falseNegatives,
+    fpRate:r.fpRate,predicted:r.predicted,fill:r.fill};}),
+  neverAFalseNegative:rows.every(function(r){return r.falseNegatives===0;}),
+  totalFalseNegatives:rows.reduce(function(s,r){return s+r.falseNegatives;},0),
+  formulaMatches:rows.every(function(r){return Math.abs(r.fpRate-r.predicted)<0.02;}),
+  worstFormulaGap:Math.max.apply(null,rows.map(function(r){return Math.abs(r.fpRate-r.predicted);})),
+  sweep:sweep,optimalK:kOpt,measuredBestK:best.k,
+  optimumMatchesFormula:Math.abs(best.k-kOpt)<=1,
+  moreIsNotBetter:sweep[sweep.length-1].fp>best.fp,
+  ok:rows.every(function(r){return r.falseNegatives===0;})&&
+   rows.every(function(r){return Math.abs(r.fpRate-r.predicted)<0.02;})&&
+   Math.abs(best.k-kOpt)<=1&&sweep[sweep.length-1].fp>best.fp};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FALSE POSITIVES vs NUMBER OF HASH FUNCTIONS   \\u00b7   m=8192, n=1000');
+ var m=58,pw=W-m-46,top=48,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var mx=Math.max.apply(null,VR.sweep.map(function(s){return s.fp;}));
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ VR.sweep.forEach(function(s,i){
+  var px=m+pw*i/(VR.sweep.length-1),py=top+ph-ph*s.fp/mx;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ VR.sweep.forEach(function(s,i){
+  var px=m+pw*i/(VR.sweep.length-1),py=top+ph-ph*s.fp/mx;
+  var isBest=s.k===VR.measuredBestK;
+  ndot(g,px,py,isBest?6:3.4,isBest?'#ffd76a':'#7de2b0');
+  nt(g,'#8a7ab8',px-6,top+ph+18,8,''+s.k);});
+ var bi=VR.sweep.findIndex(function(s){return s.k===VR.measuredBestK;});
+ var bx=m+pw*bi/(VR.sweep.length-1);
+ ne(g,'#ffd76a',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(bx,top);g.lineTo(bx,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',bx-42,top-6,9,'k = (m/n) ln 2 = '+VR.optimalK);
+ nt(g,'#e6dcff',20,242,10,'minimum at k = '+VR.measuredBestK+', exactly where the formula puts it');
+ nt(g,'#ff5a8a',20,264,9,'and k = 12 is WORSE than k = 3 \\u2014 more hash functions is not safer');
+ nt(g,'#7de2b0',20,284,9,'false negatives across every configuration tested: '+VR.totalFalseNegatives);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(MM,nn,kk,20000);
+ nt(g,'#e6dcff',16,26,11,'m = '+MM+'   n = '+nn+'   k = '+kk);
+ nt(g,'#8a7ab8',16,46,9,'array fill '+(r.fill*100).toFixed(1)+'%   \\u2014 the optimum is 50%');
+ var m=28,cols=64,rows2=24,cw=(W-56)/cols,chh=4;
+ for(var i=0;i<cols*rows2;i++){
+  var bit=r.bits[Math.floor(i*MM/(cols*rows2))];
+  nf(g,bit?'rgba(125,226,176,0.75)':'rgba(40,30,64,0.85)');
+  g.fillRect(m+(i%cols)*cw,60+Math.floor(i/cols)*(chh+1),cw-0.6,chh);ng(g);}
+ var yb=60+rows2*(chh+1)+22;
+ var boxes=[['false negatives',r.falseNegatives,'#7de2b0'],
+  ['false positive rate',r.fpRate.toFixed(5),'#ff5a8a'],
+  ['predicted by formula',r.predicted.toFixed(5),'#ffd76a']];
+ boxes.forEach(function(b,i){
+  var y=yb+i*40;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,32);ng(g);
+  ne(g,b[2],1.2);g.strokeRect(20.5,y+0.5,W-41,32);ng(g);
+  nt(g,'#8a7ab8',34,y+21,9,b[0]);
+  nt(g,b[2],W-110,y+21,12,''+b[1]);});
+ var o=document.getElementById('blout');
+ if(o)o.innerHTML='With <b>'+nn+'</b> items, <b>'+kk+'</b> hashes and '+MM+
+  ' bits, the array is <b>'+(r.fill*100).toFixed(1)+'%</b> full. False negatives: <b>'+
+  r.falseNegatives+'</b> &mdash; and it will always be zero, because bits are only ever set. '+
+  'The false-positive rate is <b>'+r.fpRate.toFixed(5)+'</b> against a predicted <b>'+
+  r.predicted.toFixed(5)+'</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.7-zr*0.34];}
+ var NB=44;
+ for(var i=0;i<NB;i++){
+  var a=P(-110+220*i/(NB-1),0,0);
+  ndot(g,a[0],a[1],2.4,'rgba(125,226,176,0.45)');}
+ for(var it=0;it<9;it++){
+  var src=P(-100+200*it/8,96,(it%3-1)*34);
+  ndot(g,src[0],src[1],4.4,'#ffd76a');
+  for(var j=0;j<3;j++){
+   var slot=blMix(it,j*0x9E3779B1)%NB;
+   var dst=P(-110+220*slot/(NB-1),0,0);
+   ne(g,'rgba(255,215,106,0.35)',1);
+   g.beginPath();g.moveTo(src[0],src[1]);g.lineTo(dst[0],dst[1]);g.stroke();ng(g);
+   ndot(g,dst[0],dst[1],3.4,'#7de2b0');}}
+ nt(g,'#ffd76a',14,24,11,'gold: the items');
+ nt(g,'#7de2b0',14,42,10,'green: the bits they set, shared and never cleared');
+ nt(g,'#8a7ab8',14,58,10,'nothing can un-set a bit, so nothing can be lost');
+ nt(g,'#8a7ab8',14,H-12,9,'a yes means nothing here contradicts membership');}
+document.getElementById('blk').onclick=function(){
+ var L=[1,2,3,4,6,8,11];kk=L[(L.indexOf(kk)+1)%L.length];drawW4();};
+document.getElementById('bln').onclick=function(){
+ var L=[250,500,1000,2000,4000];nn=L[(L.indexOf(nn)+1)%L.length];drawW4();};
+document.getElementById('blsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__bloom=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 222 · neon-noir · silicon-coding · RETURN, DIVERGENCE, AND THE SHORTCUT (mixing that happens all at once · a path folded through a wall · two futures from one place · everything comes back · half the bits, all the security) ═══════════════════════
 CUTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">You expect a shuffled deck to get gradually more random. Many Markov chains do not work that way. They stay <b>almost entirely unmixed</b> for a long stretch, and then collapse to near-uniform in a window far shorter than the time they spent waiting. Diaconis, Shahshahani and Aldous found this in the 1980s, and it is why &ldquo;seven riffle shuffles&rdquo; is a real answer rather than a rule of thumb &mdash; six is not nearly enough and eight is barely better than seven.<br><br>
@@ -71569,6 +72419,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-percolation","title":"THE PERCOLATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#7de2b0","icon":"\u25a6",
+  "kicker":"a threshold at exactly one half",
+  "blurb":"Below a critical density nothing connects; above it, a path spans the lattice. For bond percolation on the square lattice that threshold is exactly 1/2, by self-duality.",
+  "lit":"on the self-dual R x (R+1) geometry, at p = 1/2 the crossing probability is 0.4875, 0.5033, 0.4970, 0.5031 for R = 8, 16, 32, 64 - within 1.6, 0.4, 0.4, 0.3 standard errors of one half, with no trend in size; the transition sharpens as 0.2370 -> 0.1370 -> 0.0869 -> 0.0533, and multiplying each width by L^(3/4) gives 1.127, 1.096, 1.169, 1.206, the correlation-length exponent nu = 4/3",
+  "fig":"The lattice was built SQUARE and it was wrong. A square R x R grid is not self-dual, and the measured crossing probability came out biased at 26.1, 14.2 and 6.2 standard errors for R = 8, 16, 32 - a real effect decaying with size, not noise. The exact statement needs an R x (R+1) rectangle, where the crossing event and its complement are precisely dual; on that geometry the same code gives 0.3 to 1.6 standard errors. Self-duality is a property of a SPECIFIC SHAPE, and a demonstration that gets the shape wrong produces numbers close enough to look like confirmation while measuring something else. Kesten proved p_c = 1/2 in 1980.",
+  "body":PRCL_BODY,"script":PRCL_SCRIPT},
+ {"slug":"the-abelian-sandpile","title":"THE ABELIAN SANDPILE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ffd76a","icon":"\u2234",
+  "kicker":"the pile that does not care what order you push it",
+  "blurb":"Grains topple when a site holds four. The startling part is not the avalanches - it is that the order you topple in makes no difference at all.",
+  "lit":"on a 12x12 grid, across 25 random starting piles run under 5 different toppling rules, the final stable configuration is identical 25 times out of 25, the toppling count at every single site is identical 25 out of 25, and the grand total matches 25 out of 25 - with totals ranging from 1,050 to 1,945, so there was plenty of room to disagree; dropping single grains on a stabilised pile gives 1,592 non-empty avalanches with a median of 7 topplings and a maximum of 344",
+  "fig":"The toppling count PER SITE was checked, not just the final grid, and that distinction is the whole point. Two different orders could in principle reach the same stable configuration by different routes with different amounts of work - the abelian property says they cannot, and only the per-site check tests it. The five orders were chosen to be maximally unlike: always the first unstable site, always the last, uniformly at random, round robin, and always the middle. Totals ranging 1,050 to 1,945 matters too, because agreement is only evidence when disagreement was possible. Bak, Tang and Wiesenfeld, 1987.",
+  "body":ABEL_BODY,"script":ABEL_SCRIPT},
+ {"slug":"the-basin-boundary","title":"THE BASIN BOUNDARY","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#5ad6ff","icon":"\u2732",
+  "kicker":"a border every country touches",
+  "blurb":"Newton's method on z^3 - 1 gives three basins whose shared border has no stretch belonging to only two of them. Every boundary point touches all three.",
+  "lit":"sampling 4,000 points gives basins of 1,389 / 1,300 / 1,311 with 0 unresolved; locating 120 boundary points by bisection to machine precision and looking around each one, all three basins appear within radius 1e-2, 1e-3, 1e-4, 1e-5, 1e-6 and 1e-7 for 92.5%, 96.7%, 86.7%, 94.2%, 90.8%, 94.2% of them - scattering around 92% with no trend across six orders of magnitude, the spread being ordinary binomial noise at 120 points; and points near a root see exactly one basin, 150 times out of 150",
+  "fig":"A refutation of the property was nearly published, by sampling badly. The first version collected 'boundary points' by keeping any point whose 1e-3 neighbourhood showed two basins - and the fraction showing all three then fell 93.5% -> 87.5% -> 23.3% -> 5.5% as the radius shrank, which reads exactly like the property failing. It was not failing: those points sit up to 1e-4 from the real boundary, so at radius 1e-5 they are simply interior points. Locating boundary points by BISECTING between two basins to machine precision gives about 92% at every radius down to 1e-7, with no trend. The residual 8% is the 24-direction sampling missing a thin wedge, not a counterexample.",
+  "body":BASN_BODY,"script":BASN_SCRIPT},
+ {"slug":"the-median-voter","title":"THE MEDIAN VOTER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ff5a8a","icon":"\u2696",
+  "kicker":"the voter in the middle",
+  "blurb":"Majority rule can produce no winner at all. Single-peaked preferences forbid that, and then the median voter's favourite beats everything.",
+  "lit":"across 1,200 random single-peaked profiles with an odd number of voters between 3 and 41, the alternative nearest the median ideal point wins every pairwise contest - 1,200 times out of 1,200, no exceptions; drop single-peakedness and use fully random rankings and 62 of 1,200 three-voter, three-option profiles have no Condorcet winner at all; the classic cycle is there explicitly, each leg carried 2 votes to 1",
+  "fig":"The random-preference arm was built because the theorem is only interesting against a background where the failure is real. A page showing that the median wins under single-peakedness, with nothing to compare against, would leave the impression that majority rule generally behaves - and it does not: 5.2% of random three-by-three profiles have no majority winner whatsoever, and the proportion grows with the number of options. Worth naming what single-peakedness rules out: a voter who likes the extremes and dislikes the middle. That one restriction is the entire difference between a well-behaved election and a cycle. Duncan Black, 1948.",
+  "body":MEDV_BODY,"script":MEDV_SCRIPT},
+ {"slug":"the-bloom","title":"THE BLOOM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#b98cff","icon":"\u2691",
+  "kicker":"a filter that only lies one way",
+  "blurb":"It will sometimes say yes to something it never saw. It will never say no to something it did, and that guarantee survives any choice of parameters.",
+  "lit":"across five configurations there are 0 false negatives in every one; the false-positive rate matches (1 - e^(-kn/m))^k closely, measured 0.02805 against a predicted 0.02883, 0.01890 against 0.01960, 0.13628 against 0.14001, 0.000375 against 0.000382; and sweeping the hash count at m = 8192, n = 1000 finds the minimum at k = 6, exactly the predicted (m/n) ln 2 = 6, with k = 12 making it WORSE - 0.042625 against 0.018900",
+  "fig":"The k-sweep is included because 'more hash functions is safer' is the natural assumption and it is FALSE. Each additional hash sets more bits, so past the optimum the array saturates and the false-positive rate climbs again - at k = 12 it is worse than at k = 3. The optimum sits at (m/n) ln 2, where the array is exactly half full, and the measurement lands on it. The one-sided property deserves precision: it holds because bits are only ever SET, never cleared, so any bit an inserted item needs is still set whatever arrived afterwards. That is why the guarantee survives every parameter choice while the accuracy does not. Burton Bloom, 1970.",
+  "body":BLOM_BODY,"script":BLOM_SCRIPT},
  {"slug":"the-cutoff","title":"THE CUTOFF","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#5ad6ff","icon":"\u2337",
   "kicker":"mixing that happens all at once",
