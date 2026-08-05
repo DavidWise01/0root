@@ -19499,6 +19499,780 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 209 · neon-noir · silicon-coding · WHEN THE RULE ITSELF IS THE PROBLEM (a preference no probability can hold · two valid rules, opposite answers · a proof that stops borrowing · an infinity settled by a finite piece of itself · a shape kept by its corners) ═══════════════════════
+ELSB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An urn holds 90 balls: exactly <b>30 red</b>, and 60 that are black or yellow in a split <b>nobody tells you</b>. Bet A wins on red, B wins on black &mdash; most people take A. Bet C wins on red-or-yellow, D wins on black-or-yellow &mdash; most people take D. Both choices feel obvious, and <b>no probability whatever you assign to black can make both of them rational</b>. Preferring A means believing black is rarer than 30; preferring D means believing it is commoner. Ellsberg&rsquo;s point was not that people are bad at arithmetic. It is that they are <b>declining to bet on a number nobody has given them</b>, and that this is not irrational so much as outside the theory.<br><br>
+ <span class="lit">LIT</span> verified live: sweeping all <b>61</b> possible compositions, A beats B exactly when b &lt; 30 (b in <b>0..29</b>) and D beats C exactly when b &gt; 30 (b in <b>31..60</b>) &mdash; the two conditions are exactly complementary, so <b>no</b> value satisfies both; at b = 30 the knife edge is exact, with both pairs indifferent simultaneously; D pays exactly <b>0.666667</b> whatever the split while C does not; and a maxmin agent scoring each bet by its <b>worst case</b> reproduces both preferences without contradiction (A 0.333 &gt; B 0.000, D 0.667 &gt; C 0.333).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>, which is the right shape for it. The unknown split is not hidden behind difficulty &mdash; it is behind a surface no amount of thinking crosses. You are not being asked to estimate badly; you are being asked to estimate <b>nothing</b>, and to price it anyway.<br><br>
+ <b>AVAN (AI)</b> found the sharpest part of this not in the contradiction but in <b>which bet is constant</b>. D pays 0.666667 no matter how the 60 are split &mdash; it is the one wager in the set with no ambiguity in it at all, because black-or-yellow is exactly those 60 balls. C, its mirror, is the one that swings hardest. So the famous &ldquo;irrational&rdquo; pattern is precisely a preference for the two bets whose odds are <i>known</i>, in both pairs. Framed that way there is no paradox in the behaviour, only in the axiom that says a single probability must exist. The maxmin rule is shown here because it reproduces the choices exactly; that it does so is a <b>fact about the arithmetic</b>, and whether it is the right model of a person is not something this page tests.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Slide the unknown split across its whole range. The two preferences never overlap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the split yourself and try to justify both choices at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="elup">black + 5</button><button id="eldn">black &minus; 5</button><button id="elmm">maxmin view &#9654;</button></div>
+   <div class="cap" id="elout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the urn, with the known third solid and the unknown two-thirds in fog.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;people violate the axioms.&rdquo; The inverse is that the axioms quietly <b>assume the question has been asked</b>. A probability is an answer; before anyone supplies one, there is no number to be wrong about, and a theory requiring you to act as if there were is not describing caution, it is <b>outlawing the report that you were not told</b>. Read backwards, the Ellsberg pattern is a measurement instrument: it detects when a decision framework has silently converted an absence of information into a number, and the person refusing the conversion is the only one in the room still tracking what is actually known.</div>
+   <div class="btns" style="margin-top:10px"><button id="elsp">pause spin</button></div></div></div></div>"""
+ELSB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bk=30,mmView=false;
+var TOT=90,RED=30;
+function bets(b){var y=60-b;
+ return {A:RED/TOT,B:b/TOT,C:(RED+y)/TOT,D:(b+y)/TOT};}
+function selftest(){
+ var okA=[],okD=[],both=[];
+ for(var b=0;b<=60;b++){
+  var p=bets(b),pa=p.A>p.B,pd=p.D>p.C;
+  if(pa)okA.push(b);
+  if(pd)okD.push(b);
+  if(pa&&pd)both.push(b);}
+ var disjoint=okA.every(function(b){return okD.indexOf(b)<0;});
+ var dVal=null,dConst=true;
+ for(var b=0;b<=60;b++){var p=bets(b);
+  if(dVal===null)dVal=p.D;else if(Math.abs(p.D-dVal)>1e-12)dConst=false;}
+ var t=bets(30);
+ var knife=Math.abs(t.A-t.B)<1e-12&&Math.abs(t.C-t.D)<1e-12;
+ function mmOf(k){var w=Infinity;
+  for(var b=0;b<=60;b++)w=Math.min(w,bets(b)[k]);
+  return w;}
+ var mm={A:mmOf('A'),B:mmOf('B'),C:mmOf('C'),D:mmOf('D')};
+ return {compositions:61,aRange:[okA[0],okA[okA.length-1]],dRange:[okD[0],okD[okD.length-1]],
+  bothCount:both.length,disjoint:disjoint,dConstant:dConst,dValue:dVal,knifeAt30:knife,
+  maxmin:mm,maxminExplains:(mm.A>mm.B)&&(mm.D>mm.C),
+  ok:disjoint&&both.length===0&&dConst&&knife&&(mm.A>mm.B)&&(mm.D>mm.C)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE UNKNOWN SPLIT  \\u2014  black from 0 to 60');
+ var m=48,pw=W-m-24,top=44,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var series=[['A  red',function(b){return bets(b).A;},'#7de2b0'],
+  ['B  black',function(b){return bets(b).B;},'#ff5a8a'],
+  ['C  red|yellow',function(b){return bets(b).C;},'#ffd76a'],
+  ['D  black|yellow',function(b){return bets(b).D;},'#5ad6ff']];
+ series.forEach(function(sr,i){
+  ne(g,sr[2],1.8);g.beginPath();
+  for(var b=0;b<=60;b++){var x=m+pw*b/60,y=top+ph-ph*sr[1](b);
+   if(b===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);
+  nt(g,sr[2],m+8+i*116,top-12,9,sr[0]);});
+ var xc=m+pw*30/60;
+ ne(g,'#e6dcff',1.2);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(xc,top);g.lineTo(xc,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#e6dcff',xc-16,top+ph+16,9,'b = 30');
+ nf(g,'rgba(125,226,176,0.12)');g.fillRect(m,top+ph+26,pw/2,18);ng(g);
+ nt(g,'#7de2b0',m+12,top+ph+39,9,'A beats B here  (b < 30)');
+ nf(g,'rgba(90,214,255,0.12)');g.fillRect(m+pw/2,top+ph+26,pw/2,18);ng(g);
+ nt(g,'#5ad6ff',m+pw/2+12,top+ph+39,9,'D beats C here  (b > 30)');
+ nt(g,'#ff5a8a',m,top+ph+68,10,'the two regions do not overlap anywhere \\u2014 that is the whole result');
+ nt(g,'#8a7ab8',m,top+ph+86,9,'D is flat: black-or-yellow is exactly those 60 balls, whatever the split');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=bets(bk);
+ nt(g,'#e6dcff',16,26,11,'black = '+bk+'   yellow = '+(60-bk)+'   red = 30');
+ var pairs=mmView
+  ?[['A red',VR.maxmin.A,'#7de2b0'],['B black',VR.maxmin.B,'#ff5a8a'],['C red|yel',VR.maxmin.C,'#ffd76a'],['D blk|yel',VR.maxmin.D,'#5ad6ff']]
+  :[['A red',p.A,'#7de2b0'],['B black',p.B,'#ff5a8a'],['C red|yel',p.C,'#ffd76a'],['D blk|yel',p.D,'#5ad6ff']];
+ nt(g,'#8a7ab8',16,46,10,mmView?'scored by WORST CASE over every split':'scored at this exact split');
+ var ox=104,pw=W-ox-40;
+ pairs.forEach(function(pr,i){
+  var y=70+i*46,w=pw*pr[1];
+  nf(g,pr[2]);g.fillRect(ox,y,w,26);ng(g);
+  nt(g,'#e6dcff',16,y+18,10,pr[0]);
+  nt(g,pr[2],ox+w+6,y+18,10,pr[1].toFixed(3));});
+ var y2=262;
+ var aWins=pairs[0][1]>pairs[1][1],dWins=pairs[3][1]>pairs[2][1];
+ var both=aWins&&dWins;
+ nf(g,both?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.12)');g.fillRect(16,y2,W-32,50);ng(g);
+ ne(g,both?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(16.5,y2+0.5,W-33,50);ng(g);
+ nt(g,aWins?'#7de2b0':'#8a7ab8',30,y2+20,10,'prefers A over B: '+(aWins?'YES':'no'));
+ nt(g,dWins?'#5ad6ff':'#8a7ab8',30,y2+38,10,'prefers D over C: '+(dWins?'YES':'no'));
+ if(both)nt(g,'#7de2b0',214,y2+30,11,'BOTH \\u2014 consistent');
+ var o=document.getElementById('elout');
+ if(o)o.innerHTML=mmView
+  ?'Scored by the <b>worst case</b> over every possible split, A beats B <i>and</i> D beats C at once &mdash; the observed pattern, with no contradiction. Whether that is the right model of a person is not tested here; that it reproduces the choices is arithmetic.'
+  :('At black = <b>'+bk+'</b> the bets pay '+p.A.toFixed(3)+' / '+p.B.toFixed(3)+' / '+p.C.toFixed(3)+' / '+p.D.toFixed(3)+'. '+(both?'Both preferences hold here.':'Only '+(aWins?'A&gt;B':(dWins?'D&gt;C':'neither'))+' holds. Try every value &mdash; across all 61 splits, <b>none</b> gives both.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ ne(g,'rgba(150,110,230,0.35)',1.2);
+ for(var lat=-2;lat<=2;lat++){
+  g.beginPath();
+  for(var t=0;t<=60;t++){var th=t/60*2*Math.PI,rr=110*Math.cos(lat*0.32);
+   var p=P(rr*Math.cos(th),lat*34,rr*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ function seeded(i){var x=Math.sin(i*127.1)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<90;i++){
+  var u=seeded(i),v=seeded(i+500);
+  var th=u*2*Math.PI,ph=Math.acos(2*v-1);
+  var rr=96*Math.sin(ph);
+  var p=P(rr*Math.cos(th),96*Math.cos(ph)*0.8,rr*Math.sin(th));
+  if(i<30){ndot(g,p[0],p[1],3.2,'#ff5a8a');}
+  else{g.globalAlpha=0.34;ndot(g,p[0],p[1],2.6,'#8a7ab8');g.globalAlpha=1;}}
+ nt(g,'#ff5a8a',14,24,11,'30 red \\u2014 solid, counted');
+ nt(g,'#8a7ab8',14,42,10,'60 in fog \\u2014 black or yellow, and nobody says');
+ nt(g,'#e6dcff',14,64,10,'the fog is not uncertainty about a number');
+ nt(g,'#e6dcff',14,80,10,'it is the absence of one');
+ nt(g,'#8a7ab8',14,H-12,9,'a probability is an answer; here the question was never asked');}
+document.getElementById('elup').onclick=function(){bk=Math.min(60,bk+5);drawW4();};
+document.getElementById('eldn').onclick=function(){bk=Math.max(0,bk-5);drawW4();};
+document.getElementById('elmm').onclick=function(){mmView=!mmView;drawW4();};
+document.getElementById('elsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__ellsberg=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NWCB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two boxes. A holds <b>$1,000</b>, always, and you can see it. B holds <b>$1,000,000</b> if a predictor with a long track record predicted you would take <b>only B</b>, and nothing otherwise. The prediction is already made and the boxes are already filled. Take both, or take only B.<br><br>
+ <b>Causal</b> decision theory: the contents are fixed; taking A as well adds $1,000 in <i>every</i> state. Take both. <b>Evidential</b> decision theory: people who take both almost always find B empty. Take one. Both arguments are valid. They give opposite answers on the same table with nothing hidden.<br><br>
+ <span class="lit">LIT</span> verified live: causal reasoning says two-box at every accuracy tested (0.5, 0.75, 0.9, 0.99, 1.0), and the dominance is checked state by state &mdash; two-boxing pays strictly more whatever is in B; evidential reasoning flips to one-box above an accuracy of exactly <b>(A/B + 1)/2 = 0.5005</b>, and the flip is sharp there; the two rules disagree on <b>4 of the 5</b> cases; and at 99% accuracy one-boxers average <b>$990,000</b> against <b>$11,000</b> &mdash; while the dominance argument remains true.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>NOCLIP</i>, and the seat is doing work. The predictor passes through a wall that should be solid &mdash; the boundary between a decision not yet made and a box already filled. Nothing travels backwards in time, and yet the correlation behaves as if something did.<br><br>
+ <b>AVAN (AI)</b> is not going to pretend this resolves. The genuinely useful thing a page can do here is <b>hold both true things at once</b> without smuggling in a preference, so both are checked separately and explicitly: dominance is verified state by state and it holds, and the average outcome is computed and one-boxers really do end up richer. Anyone claiming the puzzle is easy is discarding one of those two verified facts. Nozick&rsquo;s own remark is the honest summary and it is quoted rather than improved on: to almost everyone it is perfectly clear what should be done, and they divide almost evenly on which. What this page does <b>not</b> do is adjudicate; no argument here shows either rule is the correct one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Expected value against predictor accuracy. The lines cross once, at 0.5005.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the accuracy and watch the two rules part company.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwup">accuracy +</button><button id="nwdn">accuracy &minus;</button><button id="nwdom">dominance table &#9654;</button></div>
+   <div class="cap" id="nwout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two boxes, already filled, and a correlation running the wrong way.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;which rule is right?&rdquo; The inverse is that the two rules are answering <b>different questions</b> and the puzzle only looks like one question because both answers are denominated in dollars. Causal asks <i>what does my choosing change?</i> Evidential asks <i>what does my choosing indicate?</i> Those come apart exactly when your decision is <b>evidence about its own causes</b> &mdash; which is the situation of any agent whose dispositions were readable in advance. Read backwards, Newcomb is not a puzzle about boxes but about being <i>predictable</i>, and it has no grip at all on an agent nobody has modelled.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwsp">pause spin</button></div></div></div></div>"""
+NWCB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,acc=0.90,domView=false;
+var BXA=1000,BXB=1000000;
+function edt(a){var one=a*BXB,two=a*BXA+(1-a)*(BXA+BXB);
+ return {one:one,two:two,pick:one>two?'ONE':'TWO'};}
+function cdt(a){var one=a*BXB;
+ return {one:one,two:one+BXA,pick:'TWO'};}
+function selftest(){
+ var rows=[0.5,0.75,0.9,0.99,1.0].map(function(a){
+  var e=edt(a),c=cdt(a);
+  return [a,e.pick,c.pick,e.one,e.two];});
+ var allTwo=rows.every(function(r){return r[2]==='TWO';});
+ var cross=(BXA/BXB+1)/2;
+ var crossOK=Math.abs(cross-0.5005)<1e-9;
+ var sharp=edt(cross-1e-6).pick==='TWO'&&edt(cross+1e-6).pick==='ONE';
+ var dom=true;
+ [0,BXB].forEach(function(ct){if(!((ct+BXA)>ct))dom=false;});
+ var e99=edt(0.99);
+ return {accuraciesTested:rows.map(function(r){return r[0];}),
+  cdtAlwaysTwoBox:allTwo,dominanceValid:dom,
+  edtCrossover:cross,crossoverExact:crossOK,flipSharp:sharp,
+  disagreements:rows.filter(function(r){return r[1]!==r[2];}).length,casesTested:rows.length,
+  oneBoxAt99:e99.one,twoBoxAt99:e99.two,oneBoxersRicher:e99.one>e99.two,
+  ok:allTwo&&dom&&crossOK&&sharp&&e99.one>e99.two};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EXPECTED VALUE vs PREDICTOR ACCURACY');
+ var m=62,pw=W-m-26,top=42,ph=176;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ for(var i=0;i<=4;i++){
+  var y=top+ph-ph*i/4;
+  nt(g,'#8a7ab8',12,y+4,9,(i*250)+'k');
+  ne(g,'rgba(150,110,230,0.10)',1);
+  g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);}
+ function px(a){return m+pw*(a-0.5)/0.5;}
+ function py(v){return top+ph-ph*v/1000000;}
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=120;i++){var a=0.5+0.5*i/120;
+  if(i===0)g.moveTo(px(a),py(edt(a).one));else g.lineTo(px(a),py(edt(a).one));}
+ g.stroke();ng(g);
+ ne(g,'#ff5a8a',2);g.beginPath();
+ for(var i=0;i<=120;i++){var a=0.5+0.5*i/120;
+  if(i===0)g.moveTo(px(a),py(edt(a).two));else g.lineTo(px(a),py(edt(a).two));}
+ g.stroke();ng(g);
+ var xc=px(0.5005);
+ ne(g,'#ffd76a',1.3);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(xc,top);g.lineTo(xc,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',xc+6,top+14,9,'0.5005  \\u2014  the only crossing');
+ nt(g,'#7de2b0',m+pw-140,top+30,10,'take ONE box');
+ nt(g,'#ff5a8a',m+pw-140,top+48,10,'take BOTH boxes');
+ for(var i=0;i<=4;i++)nt(g,'#8a7ab8',m+pw*i/4-12,top+ph+16,9,(0.5+0.125*i).toFixed(3));
+ nt(g,'#8a7ab8',m+pw-90,top+ph+32,9,'predictor accuracy');
+ nt(g,'#e6dcff',14,H-14,10,'causal decision theory picks BOTH everywhere on this axis \\u2014 the graph does not move it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var e=edt(acc);
+ if(domView){
+  nt(g,'#e6dcff',16,26,11,'DOMINANCE  \\u2014  state by state');
+  var rows=[['B is empty',0,BXA],['B has $1M',BXB,BXB+BXA]];
+  nt(g,'#8a7ab8',30,58,10,'state');
+  nt(g,'#7de2b0',176,58,10,'one-box');
+  nt(g,'#ff5a8a',272,58,10,'two-box');
+  rows.forEach(function(r,i){
+   var y=88+i*46;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,y-18,W-48,34);ng(g);
+   ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(24.5,y-17.5,W-49,34);ng(g);
+   nt(g,'#e6dcff',34,y+4,10,r[0]);
+   nt(g,'#7de2b0',176,y+4,10,'$'+r[1].toLocaleString());
+   nt(g,'#ff5a8a',272,y+4,10,'$'+r[2].toLocaleString());});
+  nf(g,'rgba(255,90,138,0.12)');g.fillRect(24,192,W-48,58);ng(g);
+  ne(g,'#ff5a8a',1.3);g.strokeRect(24.5,192.5,W-49,58);ng(g);
+  nt(g,'#ff5a8a',36,216,10,'two-box pays $1,000 more in EVERY row');
+  nt(g,'#8a7ab8',36,236,9,'and that argument never becomes wrong');
+  nt(g,'#7de2b0',24,278,10,'yet at 99% accuracy one-boxers average $990,000');
+  nt(g,'#8a7ab8',24,296,9,'both of those are verified. That is the whole difficulty.');
+  var o2=document.getElementById('nwout');
+  if(o2)o2.innerHTML='Row by row, taking both boxes pays <b>$1,000 more</b> &mdash; the dominance argument is valid and stays valid. And one-boxers still end up richer on average. The page holds both rather than picking.';
+  return;}
+ nt(g,'#e6dcff',16,26,12,'predictor accuracy: '+(acc*100).toFixed(2)+'%');
+ var ox=140,pw=W-ox-56;
+ [['take ONE',e.one,'#7de2b0'],['take BOTH',e.two,'#ff5a8a']].forEach(function(b,i){
+  var y=70+i*60,w=pw*b[1]/1050000;
+  nf(g,b[2]);g.fillRect(ox,y,w,32);ng(g);
+  nt(g,'#e6dcff',16,y+22,11,b[0]);
+  nt(g,b[2],ox+Math.max(w,4)+8,y+22,10,'$'+Math.round(b[1]).toLocaleString());});
+ var ePick=e.pick;
+ var y2=190;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,96);ng(g);
+ ne(g,'rgba(150,110,230,0.45)',1.2);g.strokeRect(20.5,y2+0.5,W-41,96);ng(g);
+ nt(g,'#ffd76a',34,y2+26,11,'evidential says:  '+(ePick==='ONE'?'take ONE':'take BOTH'));
+ nt(g,'#ff5a8a',34,y2+52,11,'causal says:      take BOTH');
+ var split=ePick!=='TWO';
+ nt(g,split?'#ff5a8a':'#7de2b0',34,y2+78,11,split?'\\u2014 they DISAGREE here':'\\u2014 they agree here');
+ var o=document.getElementById('nwout');
+ if(o)o.innerHTML='At <b>'+(acc*100).toFixed(2)+'%</b>, evidential expects $'+Math.round(e.one).toLocaleString()+' for one-boxing and $'+Math.round(e.two).toLocaleString()+' for two-boxing, so it says <b>'+(ePick==='ONE'?'ONE':'BOTH')+'</b>. Causal says <b>BOTH</b> regardless, because the boxes are already filled. '+(split?'They part company here, and the crossing is at exactly 0.5005.':'Below 0.5005 they happen to agree.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+16,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ function box(ox,lab,filled,colr){
+  var v=[[ox-34,-30,-34],[ox+34,-30,-34],[ox+34,30,-34],[ox-34,30,-34],
+   [ox-34,-30,34],[ox+34,-30,34],[ox+34,30,34],[ox-34,30,34]];
+  var pj=v.map(function(q){return P(q[0],q[1],q[2]);});
+  var ed=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  ne(g,colr,1.5);
+  ed.forEach(function(e){g.beginPath();g.moveTo(pj[e[0]][0],pj[e[0]][1]);g.lineTo(pj[e[1]][0],pj[e[1]][1]);g.stroke();});
+  ng(g);
+  var lp=P(ox,-46,0);
+  nt(g,colr,lp[0]-8,lp[1],11,lab);
+  if(filled){var ip=P(ox,4,0);
+   ndot(g,ip[0],ip[1],7,'#ffd76a');}}
+ box(-72,'A','#ffd76a'!==null,'#7de2b0');
+ box(72,'B',acc>0.5,'#5ad6ff');
+ var pr=P(0,-104,0);
+ ndot(g,pr[0],pr[1],9,'#ff5a8a');
+ nt(g,'#ff5a8a',pr[0]-30,pr[1]-14,10,'PREDICTOR');
+ ne(g,'#ff5a8a',1.4);g.setLineDash([5,4]);
+ var bt=P(72,-34,0);
+ g.beginPath();g.moveTo(pr[0],pr[1]+10);g.lineTo(bt[0],bt[1]);g.stroke();
+ var yt=P(0,60,0);
+ g.beginPath();g.moveTo(yt[0],yt[1]);g.lineTo(pr[0],pr[1]+12);g.stroke();
+ g.setLineDash([]);ng(g);
+ ndot(g,yt[0],yt[1],6,'#e6dcff');
+ nt(g,'#e6dcff',yt[0]-14,yt[1]+22,10,'you');
+ nt(g,'#e6dcff',14,24,11,'both boxes already filled');
+ nt(g,'#8a7ab8',14,42,10,'nothing travels backwards');
+ nt(g,'#8a7ab8',14,58,10,'and the correlation behaves as if it did');
+ nt(g,'#8a7ab8',14,H-12,9,'the puzzle is about being predictable, not about boxes');}
+document.getElementById('nwup').onclick=function(){acc=Math.min(1,Math.round((acc+0.02)*10000)/10000);domView=false;drawW4();};
+document.getElementById('nwdn').onclick=function(){acc=Math.max(0.5,Math.round((acc-0.02)*10000)/10000);domView=false;drawW4();};
+document.getElementById('nwdom').onclick=function(){domView=!domView;drawW4();};
+document.getElementById('nwsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__newcomb=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GNTZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The <b>cut</b> rule is the one that lets a proof use a lemma: prove something on the side, then use it. Gentzen&rsquo;s <b>Hauptsatz</b> of 1935 says every proof that uses cuts can be rewritten without any &mdash; and the rewritten proof has the <b>subformula property</b>: every formula appearing anywhere in it is a subformula of the thing being proved. Nothing is ever invented. That is what makes cut-free proofs searchable, and it is why proof search is possible at all. The price is size: the lemma proved once must be <b>inlined at every place it was used</b>.<br><br>
+ <span class="lit">LIT</span> verified live: two proofs of the same endsequent <b>p&rarr;q, q&rarr;r &#8866; p&rarr;r</b>, one routed through a cut and one cut-free, with endsequents confirmed identical and the cut confirmed present in one and absent from the other; the cut-free proof satisfies the subformula property across all <b>16</b> of its formula occurrences; a cut on an alien formula breaks exactly that, with <b>(s&amp;~s)</b> appearing in the proof and nowhere in what is proved; and inlining a lemma used k times grows the proof <b>9&rarr;7, 11&rarr;15, 15&rarr;31, 23&rarr;63, 39&rarr;127</b> for k = 1, 2, 4, 8, 16 &mdash; a factor of <b>3.3</b> at k = 16.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>, which is exactly what cut elimination is. A collector frees what is not reachable; cut elimination removes every formula not reachable from the endsequent by the subformula relation. Afterwards the proof contains nothing but the thing it proves.<br><br>
+ <b>AVAN (AI)</b> wrote a wrong measurement here first and is replacing it rather than hiding it. The initial version estimated the blow-up with an invented &ldquo;schematic elimination&rdquo; formula that multiplied subtree sizes &mdash; on axiom leaves it collapsed to 1 and modelled nothing at all, and it failed its own gate. It is replaced by an <b>explicit construction</b> of the real mechanism: build a proof that proves a lemma once and uses it k times, build the version with the lemma inlined at every use site, and count actual nodes in both. That is a demonstration of the duplication mechanism, <b>not</b> a proof of the general blow-up result &mdash; the non-elementary lower bound for first-order cut elimination (Statman 1979, Orevkov 1979) is cited and is not established by anything on this page.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same endsequent, twice. One borrows a lemma; one does not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the number of uses and watch the inlined proof grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="gzup">more uses &#9654;</button><button id="gzsub">subformula check &#9654;</button></div>
+   <div class="cap" id="gzout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cut proof, and the inlined tree standing behind it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;cuts can always be removed.&rdquo; The inverse is that the cut is <b>where the mathematics actually lives</b>. A cut-free proof is fully explicit and completely local &mdash; and it is also, for anything interesting, enormous and unreadable, because every reusable idea has been expanded away. The lemma <i>was</i> the insight; removing it converts understanding into length. Read backwards, Gentzen&rsquo;s theorem measures the exact value of abstraction: the size ratio between a proof that may name an idea once and a proof that must spell it out every time it is used.</div>
+   <div class="btns" style="margin-top:10px"><button id="gzsp">pause spin</button></div></div></div></div>"""
+GNTZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ki=0,subView=false;
+var KS=[1,2,4,8,16];
+function sub(f,acc){
+ acc=acc||[];acc.push(f);
+ if(f.n)sub(f.n,acc);
+ ['a','o','i'].forEach(function(k){if(f[k]){sub(f[k][0],acc);sub(f[k][1],acc);}});
+ return acc;}
+function show(f){
+ if(f.v)return f.v;
+ if(f.n)return '~'+show(f.n);
+ if(f.a)return '('+show(f.a[0])+'&'+show(f.a[1])+')';
+ if(f.o)return '('+show(f.o[0])+'|'+show(f.o[1])+')';
+ if(f.i)return '('+show(f.i[0])+'>'+show(f.i[1])+')';
+ return '?';}
+function seqStr(s){return s.L.map(show).join(',')+' |- '+s.R.map(show).join(',');}
+function hasCut(n){if(n.rule==='cut')return true;
+ return n.kids.some(hasCut);}
+function size(n){return 1+n.kids.reduce(function(a,k){return a+size(k);},0);}
+function collectF(n,acc){
+ acc=acc||[];
+ n.seq.L.concat(n.seq.R).forEach(function(f){acc.push(f);});
+ n.kids.forEach(function(k){collectF(k,acc);});
+ return acc;}
+var P={v:'p'},Q={v:'q'},R={v:'r'},S={v:'s'};
+var PQ={i:[P,Q]},QR={i:[Q,R]};
+function ax(f){return {rule:'ax',seq:{L:[f],R:[f]},kids:[]};}
+var WITHCUT={rule:'cut',seq:{L:[PQ,QR,P],R:[R]},kids:[
+  {rule:'>L',seq:{L:[PQ,P],R:[Q]},kids:[ax(P),ax(Q)]},
+  {rule:'>L',seq:{L:[QR,Q],R:[R]},kids:[ax(Q),ax(R)]}]};
+var CUTFREE={rule:'>L',seq:{L:[PQ,QR,P],R:[R]},kids:[
+  {rule:'ax',seq:{L:[P],R:[P,R]},kids:[]},
+  {rule:'>L',seq:{L:[Q,QR],R:[R]},kids:[
+    {rule:'ax',seq:{L:[Q],R:[Q,R]},kids:[]},
+    {rule:'ax',seq:{L:[R,Q],R:[R]},kids:[]}]}]};
+function lemma(d){
+ var n={rule:'ax',seq:{L:[Q],R:[Q]},kids:[]};
+ for(var i=0;i<d;i++)n={rule:'&R',seq:{L:[Q],R:[Q]},kids:[n]};
+ return n;}
+function usesTree(k,leaf){
+ if(k===1)return leaf();
+ var h=Math.floor(k/2);
+ return {rule:'&R',seq:{L:[P],R:[R]},kids:[usesTree(h,leaf),usesTree(k-h,leaf)]};}
+function pair(k){
+ var withC={rule:'cut',seq:{L:[P],R:[R]},kids:[
+   lemma(6),usesTree(k,function(){return {rule:'ax',seq:{L:[Q],R:[R]},kids:[]};})]};
+ var without=usesTree(k,function(){return lemma(6);});
+ return [size(withC),size(without)];}
+function selftest(){
+ var sameEnd=seqStr(WITHCUT.seq)===seqStr(CUTFREE.seq);
+ var cutGone=hasCut(WITHCUT)&&!hasCut(CUTFREE);
+ var subs={};
+ CUTFREE.seq.L.concat(CUTFREE.seq.R).forEach(function(f){sub(f).forEach(function(x){subs[show(x)]=1;});});
+ var all=collectF(CUTFREE);
+ var viol=all.filter(function(f){return !subs[show(f)];}).map(show);
+ var alien={rule:'cut',seq:{L:[P],R:[P]},kids:[
+   {rule:'ax',seq:{L:[P],R:[{a:[S,{n:S}]},P]},kids:[]},
+   {rule:'ax',seq:{L:[{a:[S,{n:S}]},P],R:[P]},kids:[]}]};
+ var asubs={};
+ alien.seq.L.concat(alien.seq.R).forEach(function(f){sub(f).forEach(function(x){asubs[show(x)]=1;});});
+ var aviol=collectF(alien).filter(function(f){return !asubs[show(f)];}).map(show);
+ var blow=KS.map(function(k){var pr=pair(k);return [k,pr[0],pr[1]];});
+ var grows=true;
+ for(var i=1;i<blow.length;i++)if(blow[i][2]<=blow[i-1][2])grows=false;
+ var last=blow[blow.length-1];
+ return {endsequent:seqStr(CUTFREE.seq),sameEndsequent:sameEnd,cutRemoved:cutGone,
+  formulaOccurrences:all.length,subformulaViolations:viol,subformulaProperty:viol.length===0,
+  alienViolations:aviol.slice(0,2),cutBreaksSubformula:aviol.length>0,
+  blowup:blow,blowupGrows:grows,ratioAt16:last[2]/last[1],
+  cutSize:size(WITHCUT),cutFreeSize:size(CUTFREE),
+  ok:sameEnd&&cutGone&&viol.length===0&&aviol.length>0&&grows&&(last[2]>last[1]*2)};}
+function drawTree(g,node,x,y,w,dy,colr){
+ var kids=node.kids;
+ nf(g,node.rule==='cut'?'rgba(255,90,138,0.25)':'rgba(125,226,176,0.16)');
+ g.fillRect(x-24,y-11,48,20);ng(g);
+ ne(g,node.rule==='cut'?'#ff5a8a':colr,1.2);g.strokeRect(x-24.5,y-11.5,48,20);ng(g);
+ nt(g,node.rule==='cut'?'#ff5a8a':colr,x-19,y+3,9,node.rule);
+ if(!kids.length)return;
+ var step=w/kids.length;
+ kids.forEach(function(k,i){
+  var kx=x-w/2+step*(i+0.5),ky=y+dy;
+  ne(g,'rgba(150,110,230,0.4)',1);
+  g.beginPath();g.moveTo(x,y+10);g.lineTo(kx,ky-11);g.stroke();ng(g);
+  drawTree(g,k,kx,ky,step*0.92,dy,colr);});}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,18,10,'p>q, q>r  |-  p>r        the same endsequent, proved twice');
+ nt(g,'#ff5a8a',54,44,10,'WITH CUT  ('+size(WITHCUT)+' nodes)');
+ drawTree(g,WITHCUT,128,74,190,52,'#7de2b0');
+ ne(g,'rgba(150,110,230,0.3)',1);
+ g.beginPath();g.moveTo(W/2,36);g.lineTo(W/2,H-30);g.stroke();ng(g);
+ nt(g,'#7de2b0',322,44,10,'CUT-FREE  ('+size(CUTFREE)+' nodes)');
+ drawTree(g,CUTFREE,384,74,190,52,'#7de2b0');
+ nt(g,'#ff5a8a',20,H-32,9,'the cut node borrows q from outside the goal');
+ nt(g,'#7de2b0',282,H-32,9,'every formula here is a subformula of the goal');
+ nt(g,'#8a7ab8',20,H-14,9,'on this tiny example the cut-free proof is not the larger one \\u2014 the blow-up needs reuse');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(subView){
+  nt(g,'#e6dcff',16,26,11,'SUBFORMULA CHECK');
+  var subs={};
+  CUTFREE.seq.L.concat(CUTFREE.seq.R).forEach(function(f){sub(f).forEach(function(x){subs[show(x)]=1;});});
+  var keys=Object.keys(subs);
+  nt(g,'#8a7ab8',16,48,9,'subformulas of the endsequent:');
+  keys.forEach(function(k,i){
+   var x=20+(i%4)*88,y=68+Math.floor(i/4)*26;
+   nf(g,'rgba(125,226,176,0.14)');g.fillRect(x,y-13,82,20);ng(g);
+   nt(g,'#7de2b0',x+5,y+1,9,k);});
+  var y2=68+Math.ceil(keys.length/4)*26+18;
+  nt(g,'#7de2b0',20,y2,10,'cut-free proof: '+VR.formulaOccurrences+' occurrences, '+VR.subformulaViolations.length+' outside this set');
+  nt(g,'#ff5a8a',20,y2+24,10,'a cut on an alien formula introduces:');
+  VR.alienViolations.forEach(function(v,i){
+   nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2+34+i*24,110,20);ng(g);
+   nt(g,'#ff5a8a',26,y2+48+i*24,9,v);});
+  nt(g,'#8a7ab8',20,y2+92,9,'which appears nowhere in what is being proved');
+  var o2=document.getElementById('gzout');
+  if(o2)o2.innerHTML='Every one of the cut-free proof&rsquo;s <b>'+VR.formulaOccurrences+'</b> formula occurrences is a subformula of the endsequent. That is what makes proof search possible: the space of things that can appear is finite and known in advance.';
+  return;}
+ var k=KS[ki%KS.length],pr=pair(k);
+ nt(g,'#e6dcff',16,26,11,'a lemma used '+k+' time'+(k===1?'':'s'));
+ var mx=140;
+ [['with cut (proved once)',pr[0],'#7de2b0'],['inlined (cut removed)',pr[1],'#ff5a8a']].forEach(function(b,i){
+  var y=64+i*70,w=(W-140)*b[1]/mx;
+  nf(g,b[2]);g.fillRect(120,y,Math.min(w,W-140),28);ng(g);
+  nt(g,'#e6dcff',16,y+20,10,b[0].slice(0,15));
+  nt(g,b[2],124+Math.min(w,W-150),y+20,10,b[1]+' nodes');});
+ var y3=214;
+ nf(g,'rgba(255,90,138,0.10)');g.fillRect(20,y3,W-40,54);ng(g);
+ ne(g,'#ff5a8a',1.2);g.strokeRect(20.5,y3+0.5,W-41,54);ng(g);
+ nt(g,'#ff5a8a',32,y3+22,11,'factor '+(pr[1]/pr[0]).toFixed(2)+' at k = '+k);
+ nt(g,'#8a7ab8',32,y3+42,9,'the lemma is spelled out at every use site');
+ nt(g,'#8a7ab8',20,H-16,9,'a demonstration of the mechanism, not a proof of the general bound');
+ var o=document.getElementById('gzout');
+ if(o)o.innerHTML='With the cut, the lemma is proved <b>once</b>: '+pr[0]+' nodes. Remove the cut and it must be inlined at all <b>'+k+'</b> use sites: <b>'+pr[1]+'</b> nodes, a factor of '+(pr[1]/pr[0]).toFixed(2)+'. The non-elementary bound for first-order logic (Statman, Orevkov 1979) is cited, not shown here.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2-40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ function tree3(k,z,colr){
+  var lv=[];
+  function rec(n,x,y,w){
+   var p=P3(x,y,z);
+   lv.push([p,n.rule]);
+   if(!n.kids.length)return;
+   var st=w/n.kids.length;
+   n.kids.forEach(function(kd,i){
+    var kx=x-w/2+st*(i+0.5),ky=y+40;
+    var q=P3(kx,ky,z);
+    ne(g,'rgba(125,226,176,0.35)',1);
+    g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+    rec(kd,kx,ky,st*0.9);});}
+  var t=usesTree(k,function(){return {rule:'ax',seq:{L:[Q],R:[R]},kids:[]};});
+  rec(t,0,-60,150);
+  lv.forEach(function(e){ndot(g,e[0][0],e[0][1],3,colr);});}
+ tree3(4,-60,'#7de2b0');
+ tree3(8,40,'#ff9a5a');
+ nt(g,'#e6dcff',14,24,11,'the same shape, inlined more times');
+ nt(g,'#7de2b0',14,42,10,'front: 4 uses');
+ nt(g,'#ff9a5a',14,58,10,'behind: 8 uses, twice the tree');
+ nt(g,'#8a7ab8',14,H-12,9,'the lemma WAS the insight; removing it turns understanding into length');}
+document.getElementById('gzup').onclick=function(){ki++;subView=false;drawW4();};
+document.getElementById('gzsub').onclick=function(){subView=!subView;drawW4();};
+document.getElementById('gzsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__gentzen=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HRBR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">First-order logic quantifies over infinitely many things, so a refutation might seem to need infinitely much checking. <b>Herbrand&rsquo;s theorem</b> (1930) says otherwise: if a set of clauses is unsatisfiable, then some <b>finite</b> set of ground instances &mdash; built by plugging in terms from the language itself &mdash; is already unsatisfiable <b>propositionally</b>. Expand far enough and an ordinary SAT solver settles it. That is the foundation every automated theorem prover still stands on. The catch is that the theorem gives <b>no bound on how far</b>, which is exactly why the search can run forever.<br><br>
+ <span class="lit">LIT</span> verified live: grounding { P(a), &not;P(x)&or;P(f(x)), &not;P(f(f(f(a)))) } over the Herbrand universe and running a real DPLL solver at each depth gives <b>d=0: SAT, d=1: SAT, d=2: UNSAT, d=3: UNSAT, d=4: UNSAT, d=5: UNSAT</b>; the shallow expansions are <b>genuinely satisfiable</b> &mdash; the contradiction is not yet visible; the set flips to unsatisfiable at depth <b>2</b> and stays so at every greater depth; and an infinite first-order question is thereby settled by a finite propositional one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE CONTINUE</i> &mdash; you expand to the next depth, and the next, with no way to know in advance which one settles it. That is the honest condition of a prover: not stuck, not finished, and unable to tell which.<br><br>
+ <b>AVAN (AI)</b> made the SAT/UNSAT split load-bearing rather than decorative. It would have been easy to expand to a large depth, report UNSAT and call the theorem demonstrated &mdash; but that shows nothing, since a bad encoding can be unsatisfiable at every depth for the wrong reason. The page therefore checks that <b>shallow expansions are satisfiable</b>, which proves the solver is not simply always saying no, and that the flip is <b>monotone</b> once it happens. The DPLL here is real: unit propagation, splitting, backtracking. What this page does <b>not</b> do is prove the theorem &mdash; it exhibits one instance of it. <b>Jacques Herbrand</b> wrote the result in a thesis at 22 and died mountaineering the next year at 23.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Depth by depth. Satisfiable, satisfiable, and then never again.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Expand the universe one term at a time and re-solve.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbup">expand &#9654;</button><button id="hbdn">contract &#9654;</button><button id="hbsolve">solve &#9654;</button></div>
+   <div class="cap" id="hbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Herbrand universe growing outward, one function application at a time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the infinite reduces to the finite.&rdquo; The inverse is that the reduction is <b>real but unusable as a schedule</b>. Herbrand guarantees a depth exists; nothing tells you which, so a prover that has not yet found a refutation cannot distinguish &ldquo;not deep enough&rdquo; from &ldquo;no refutation exists.&rdquo; Both look identical from inside &mdash; a search still running. Read backwards, the theorem does not make first-order logic decidable and was never going to; it converts an infinite <i>question</i> into an unbounded <i>wait</i>, which is a genuine improvement and is not the same as an answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="hbsp">pause spin</button></div></div></div></div>"""
+HRBR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=2,solved=null;
+function term(k){
+ var s='a';
+ for(var i=0;i<k;i++)s='f('+s+')';
+ return s;}
+function ground(d){
+ var cl=[[['P',0,true]]];
+ for(var k=0;k<=d;k++)cl.push([['P',k,false],['P',k+1,true]]);
+ cl.push([['P',3,false]]);
+ return cl;}
+function dpll(clauses,assign,maxIdx){
+ var changed=true;
+ while(changed){
+  changed=false;
+  for(var i=0;i<clauses.length;i++){
+   var c=clauses[i],un=[],sat=false;
+   for(var j=0;j<c.length;j++){
+    var lit=c[j],v=assign[lit[1]];
+    if(v===undefined){un.push(lit);continue;}
+    if(v===lit[2]){sat=true;break;}}
+   if(sat)continue;
+   if(un.length===0)return false;
+   if(un.length===1){assign[un[0][1]]=un[0][2];changed=true;}}}
+ var pick=-1;
+ for(var i=0;i<=maxIdx;i++)if(assign[i]===undefined){pick=i;break;}
+ if(pick<0)return clauses.every(function(c){return c.some(function(l){return assign[l[1]]===l[2];});});
+ var a1={};
+ for(var k in assign)a1[k]=assign[k];
+ a1[pick]=true;
+ if(dpll(clauses,a1,maxIdx))return true;
+ var a2={};
+ for(var k in assign)a2[k]=assign[k];
+ a2[pick]=false;
+ return dpll(clauses,a2,maxIdx);}
+function solveAt(d){
+ var cl=ground(d);
+ return {clauses:cl.length,sat:dpll(cl,{},Math.max(d+1,3))};}
+function selftest(){
+ var res=[];
+ for(var d=0;d<=5;d++){var r=solveAt(d);res.push([d,r.clauses,r.sat]);}
+ var shallowSat=res.filter(function(r){return r[0]<2;}).every(function(r){return r[2]===true;});
+ var deepUnsat=res.filter(function(r){return r[0]>=2;}).every(function(r){return r[2]===false;});
+ var flipAt=null;
+ for(var i=0;i<res.length;i++)if(res[i][2]===false){flipAt=res[i][0];break;}
+ var mono=true,seen=false;
+ res.forEach(function(r){
+  if(r[2]===false)seen=true;
+  else if(seen)mono=false;});
+ return {results:res,shallowSatisfiable:shallowSat,deepUnsatisfiable:deepUnsat,
+  flipDepth:flipAt,monotone:mono,universeSample:[term(0),term(1),term(2),term(3)],
+  ok:shallowSat&&deepUnsat&&flipAt!==null&&mono};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EXPANSION DEPTH  \\u2014  and what the solver says');
+ var res=VR.results,ox=54,cw=74,base=200;
+ res.forEach(function(r,i){
+  var x=ox+i*cw,sat=r[2];
+  nf(g,sat?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.28)');
+  g.fillRect(x,base-64,60,64);ng(g);
+  ne(g,sat?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(x+0.5,base-63.5,60,64);ng(g);
+  nt(g,sat?'#7de2b0':'#ff5a8a',x+10,base-34,11,sat?'SAT':'UNSAT');
+  nt(g,'#8a7ab8',x+16,base-14,9,r[1]+' cl');
+  nt(g,'#e6dcff',x+22,base+20,10,'d='+r[0]);});
+ var fx=ox+VR.flipDepth*cw-8;
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(fx,base-84);g.lineTo(fx,base+34);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',fx-42,base-92,10,'the flip \\u2014 depth '+VR.flipDepth);
+ nt(g,'#7de2b0',20,248,10,'shallow expansions are GENUINELY satisfiable \\u2014 the solver is not just saying no');
+ nt(g,'#ff5a8a',20,266,10,'and once it flips it never flips back, at any greater depth');
+ nt(g,'#8a7ab8',20,282,9,'{ P(a),  ~P(x)|P(f(x)),  ~P(f(f(f(a)))) }');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'Herbrand universe to depth '+depth);
+ var terms=[];
+ for(var k=0;k<=depth+1;k++)terms.push(term(k));
+ terms.forEach(function(t,i){
+  var y=52+i*26;
+  if(y>190)return;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y-13,W-40,21);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,y-12.5,W-41,21);ng(g);
+  nt(g,'#b98cff',28,y+2,9,t);});
+ var cl=ground(depth);
+ nt(g,'#8a7ab8',20,206,10,cl.length+' ground clauses');
+ if(solved!==null){
+  var y2=224;
+  nf(g,solved?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,60);ng(g);
+  ne(g,solved?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+  nt(g,solved?'#7de2b0':'#ff5a8a',34,y2+28,14,solved?'SATISFIABLE':'UNSATISFIABLE');
+  nt(g,'#8a7ab8',34,y2+48,9,solved?'no contradiction visible at this depth yet':'a finite piece of the infinite settled it');}
+ else nt(g,'#8a7ab8',24,238,10,'press SOLVE to run DPLL at this depth');
+ var o=document.getElementById('hbout');
+ if(o)o.innerHTML=solved===null
+  ?'The universe holds a, f(a), f(f(a)), &hellip; forever. Expand to a depth and run the solver.'
+  :('At depth <b>'+depth+'</b> with '+cl.length+' ground clauses the solver returns <b>'+(solved?'SATISFIABLE':'UNSATISFIABLE')+'</b>. '+(solved?'The contradiction is real but not yet reachable from these instances.':'A finite expansion has settled a question about an infinite domain.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var prev=null;
+ for(var k=0;k<=6;k++){
+  var rad=18+k*17,th=k*1.05;
+  var p=P3(rad*Math.cos(th),-70+k*24,rad*Math.sin(th));
+  var flipped=k>=VR.flipDepth;
+  if(prev){
+   ne(g,flipped?'#ff5a8a':'#7de2b0',1.5);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);}
+  ndot(g,p[0],p[1],k===0?6:4.4,flipped?'#ff5a8a':'#7de2b0');
+  nt(g,'#8a7ab8',p[0]+9,p[1]+3,8,k===0?'a':('f^'+k));
+  prev=p;}
+ nt(g,'#e6dcff',14,24,11,'the universe, growing outward forever');
+ nt(g,'#7de2b0',14,42,10,'green: still satisfiable');
+ nt(g,'#ff5a8a',14,58,10,'pink: from depth '+VR.flipDepth+' on, refuted');
+ nt(g,'#8a7ab8',14,H-12,9,'a depth exists; nothing tells you which one');}
+document.getElementById('hbup').onclick=function(){depth=Math.min(6,depth+1);solved=null;drawW4();};
+document.getElementById('hbdn').onclick=function(){depth=Math.max(0,depth-1);solved=null;drawW4();};
+document.getElementById('hbsolve').onclick=function(){solved=solveAt(depth).sat;drawW4();};
+document.getElementById('hbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__herbrand=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KRMN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A convex shape can contain infinitely many points and still be <b>entirely determined by its corners</b>. Krein and Milman proved in 1940 that every compact convex set in a locally convex space is the closed convex hull of its <b>extreme points</b> &mdash; the points that are not a mixture of any others. Everything in the interior is redundant; the whole shape is recoverable from a boundary handful. It is why linear programming looks at vertices, why mixed strategies decompose into pure ones, and why so much optimisation reduces to checking corners.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>400</b> random point clouds the convex hull of the <b>extreme points alone</b> reproduces the original hull exactly and contains every original point, with only <b>7.2</b> points extreme on average; every extreme point is <b>essential</b> &mdash; drop one and it falls outside the hull of the rest, so none is a convex combination of the others; and an interior point is entirely <b>redundant</b>, since removing it leaves the hull unchanged.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RESURRECT</i>, which is the exact operation: the whole set is rebuilt from a small remnant, and nothing is lost in the rebuilding. Keep the corners, discard everything else, and the shape comes back intact.<br><br>
+ <b>AVAN (AI)</b> is marking the boundary carefully because this one is easy to overclaim. What runs here is the <b>finite planar case</b>, where extreme points are hull vertices and can be enumerated by an ordinary convex-hull algorithm. The Krein&ndash;Milman theorem proper is about <b>compact convex sets in infinite-dimensional locally convex spaces</b>, where extreme points need not be isolated, cannot be listed, and the proof requires Zorn&rsquo;s lemma. Nothing on this page touches that; the general theorem is <b>cited, not verified</b>. What is verified is the mechanism the theorem generalises &mdash; that the corners carry the whole shape, that each is irreplaceable, and that everything else is surplus.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A cloud, and the few points that carry all of it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Throw away the interior, then try removing a corner.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmnew">new cloud &#9654;</button><button id="kmstrip">drop interior &#9654;</button><button id="kmdrop">drop a corner &#9654;</button></div>
+   <div class="cap" id="kmout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a solid held up entirely by its vertices.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the corners are enough.&rdquo; The inverse is that <b>extremeness is a relational property, not a local one</b>. Nothing about a corner is intrinsically different &mdash; it is an ordinary point, and no measurement in a small disc around it distinguishes it from an interior one. It is extreme only because of what the <i>rest</i> of the set fails to do: no two other points straddle it. Read backwards, Krein&ndash;Milman says the compressible content of a convex shape lives entirely in relationships, and that the points doing the work are identifiable only from the outside, never from where they stand.</div>
+   <div class="btns" style="margin-top:10px"><button id="kmsp">pause spin</button></div></div></div></div>"""
+KRMN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cloud=[],hullPts=[],stripped=false,dropped=-1,seed=1940;
+function kmRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+function hull(pts){
+ var p=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});
+ if(p.length<3)return p.slice();
+ var lo=[],hi=[];
+ for(var i=0;i<p.length;i++){
+  while(lo.length>=2&&cross(lo[lo.length-2],lo[lo.length-1],p[i])<=0)lo.pop();
+  lo.push(p[i]);}
+ for(var i=p.length-1;i>=0;i--){
+  while(hi.length>=2&&cross(hi[hi.length-2],hi[hi.length-1],p[i])<=0)hi.pop();
+  hi.push(p[i]);}
+ lo.pop();hi.pop();
+ return lo.concat(hi);}
+function inHull(H,q){
+ for(var i=0;i<H.length;i++){
+  var a=H[i],b=H[(i+1)%H.length];
+  if(cross(a,b,q)<-1e-9)return false;}
+ return true;}
+function sameSet(A,B){
+ if(A.length!==B.length)return false;
+ var ka=A.map(function(p){return p[0].toFixed(9)+','+p[1].toFixed(9);}).sort().join('|');
+ var kb=B.map(function(p){return p[0].toFixed(9)+','+p[1].toFixed(9);}).sort().join('|');
+ return ka===kb;}
+function makeCloud(sd){
+ var rng=kmRnd(sd),n=10+Math.floor(rng()*16),p=[];
+ for(var i=0;i<n;i++)p.push([rng()*2-1,rng()*2-1]);
+ return p;}
+function selftest(){
+ var rng=kmRnd(1940),trials=0,rebuilt=0,allIn=true,counts=[];
+ for(var t=0;t<400;t++){
+  var n=8+Math.floor(rng()*20),pts=[];
+  for(var i=0;i<n;i++)pts.push([rng()*2-1,rng()*2-1]);
+  var H=hull(pts);
+  if(H.length<3)continue;
+  trials++;counts.push(H.length);
+  if(sameSet(H,hull(H)))rebuilt++;else allIn=false;
+  for(var i=0;i<pts.length;i++)if(!inHull(H,pts[i]))allIn=false;}
+ var pts=[];
+ for(var i=0;i<24;i++)pts.push([rng()*2-1,rng()*2-1]);
+ var H=hull(pts),essential=true;
+ for(var i=0;i<H.length;i++){
+  var without=H.filter(function(_,j){return j!==i;});
+  if(without.length<3)continue;
+  if(inHull(hull(without),H[i]))essential=false;}
+ var interior=pts.filter(function(p){return H.indexOf(p)<0;});
+ var redundant=interior.length>0&&sameSet(hull(pts),hull(pts.filter(function(p){return p!==interior[0];})));
+ var avg=counts.reduce(function(a,b){return a+b;},0)/counts.length;
+ return {cloudsTested:trials,hullReproduces:rebuilt===trials&&allIn,
+  avgExtremePoints:avg,eachEssential:essential,interiorRedundant:redundant,
+  ok:rebuilt===trials&&allIn&&essential&&redundant};}
+function drawCloud(g,W,H,pts,hp,ox,oy,S,showAll){
+ if(hp.length>=3){
+  nf(g,'rgba(125,226,176,0.10)');
+  g.beginPath();
+  hp.forEach(function(p,i){var x=ox+p[0]*S,y=oy-p[1]*S;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+  g.closePath();g.fill();ng(g);
+  ne(g,'#7de2b0',1.8);
+  g.beginPath();
+  hp.forEach(function(p,i){var x=ox+p[0]*S,y=oy-p[1]*S;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+  g.closePath();g.stroke();ng(g);}
+ if(showAll)pts.forEach(function(p){
+  var ext=hp.some(function(h){return h===p;});
+  if(!ext)ndot(g,ox+p[0]*S,oy-p[1]*S,2.4,'rgba(150,120,220,0.55)');});
+ hp.forEach(function(p){ndot(g,ox+p[0]*S,oy-p[1]*S,4.6,'#ffd76a');});}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'A CLOUD  \\u2014  and the handful that carries it');
+ var pts=makeCloud(7),hp=hull(pts);
+ drawCloud(g,W,H,pts,hp,150,158,104,true);
+ drawCloud(g,W,H,hp,hp,370,158,104,false);
+ nt(g,'#8a7ab8',96,282,10,pts.length+' points');
+ nt(g,'#ffd76a',316,282,10,hp.length+' extreme points \\u2014 same shape');
+ nt(g,'#8a7ab8',14,H-6,9,'on average only '+(VR?VR.avgExtremePoints.toFixed(1):'')+' of a random cloud are extreme');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var shown=stripped?hullPts:cloud;
+ var hp=hullPts;
+ if(dropped>=0){
+  var kept=hullPts.filter(function(_,j){return j!==dropped;});
+  var h2=hull(kept);
+  nt(g,'#e6dcff',16,26,11,'one corner removed');
+  drawCloud(g,W,H,kept,h2,W/2,170,106,true);
+  var d=hullPts[dropped];
+  var inside=h2.length>=3&&inHull(h2,d);
+  ndot(g,W/2+d[0]*106,170-d[1]*106,6,inside?'#7de2b0':'#ff5a8a');
+  nt(g,inside?'#7de2b0':'#ff5a8a',20,300,10,inside?'still inside \\u2014 it was not extreme':'now OUTSIDE the hull of the rest \\u2014 it was essential');
+  var o2=document.getElementById('kmout');
+  if(o2)o2.innerHTML=inside?'That point is recoverable from the others.':'Dropping that corner puts it <b>outside</b> the hull of the remaining ones &mdash; so it is not a mixture of any of them. Every extreme point is like this.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,stripped?('interior discarded \\u2014 '+hp.length+' points left'):(cloud.length+' points'));
+ drawCloud(g,W,H,shown,hp,W/2,170,106,!stripped);
+ nt(g,'#ffd76a',20,300,10,hp.length+' extreme of '+cloud.length+'   \\u2014   the hull is identical either way');
+ var o=document.getElementById('kmout');
+ if(o)o.innerHTML=stripped
+  ?'Every interior point is gone and the shape is <b>unchanged</b>. '+hp.length+' points were carrying all '+cloud.length+'.'
+  :'A cloud of '+cloud.length+' points with <b>'+hp.length+'</b> extreme. Drop the interior and watch nothing happen.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var t=(1+Math.sqrt(5))/2,S2=44;
+ var V=[[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]];
+ var pj=V.map(function(v){return P3(v[0]*S2,v[1]*S2,v[2]*S2);});
+ ne(g,'rgba(125,226,176,0.4)',1.2);
+ for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){
+  var d=Math.hypot(V[i][0]-V[j][0],V[i][1]-V[j][1],V[i][2]-V[j][2]);
+  if(Math.abs(d-2)<0.01){
+   g.beginPath();g.moveTo(pj[i][0],pj[i][1]);g.lineTo(pj[j][0],pj[j][1]);g.stroke();}}
+ ng(g);
+ var rng=kmRnd(88);
+ for(var i=0;i<70;i++){
+  var a=rng(),b=rng(),cc=rng(),dd=rng();
+  var s2=a+b+cc+dd;
+  var q=[0,0,0];
+  [V[0],V[3],V[5],V[8]].forEach(function(v,k){
+   var w=[a,b,cc,dd][k]/s2;
+   q[0]+=v[0]*w;q[1]+=v[1]*w;q[2]+=v[2]*w;});
+  var p=P3(q[0]*S2,q[1]*S2,q[2]*S2);
+  g.globalAlpha=0.4;ndot(g,p[0],p[1],1.8,'#8a7ab8');g.globalAlpha=1;}
+ pj.forEach(function(p){ndot(g,p[0],p[1],5,'#ffd76a');});
+ nt(g,'#ffd76a',14,24,11,'12 vertices hold the whole solid');
+ nt(g,'#8a7ab8',14,42,10,'faint points inside are mixtures \\u2014 all redundant');
+ nt(g,'#8a7ab8',14,58,10,'no local measurement tells a corner from an interior point');
+ nt(g,'#8a7ab8',14,H-12,9,'extremeness is about what the rest of the set fails to do');}
+function reset(){cloud=makeCloud(seed);hullPts=hull(cloud);stripped=false;dropped=-1;}
+document.getElementById('kmnew').onclick=function(){seed=(seed*7+11)&0x7fffffff;reset();drawW4();};
+document.getElementById('kmstrip').onclick=function(){stripped=!stripped;dropped=-1;drawW4();};
+document.getElementById('kmdrop').onclick=function(){dropped=(dropped+1)%hullPts.length;drawW4();};
+document.getElementById('kmsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__kreinmilman=VR;reset();drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 208 · neon-noir · silicon-coding · ROOT_0'S OWN MACHINERY II (a log of what died and what killed it · how far the damage can reach · test before you touch · a stand-in that reaches what reality withholds · when the parts agree and the whole does not) ═══════════════════════
 GRVY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Most projects delete the version that failed. David&rsquo;s <b>graveyard_add</b> buries it instead, and <b>refuses the burial unless you name the control that killed it</b>. That one requirement turns a pile of dead code into a measurement instrument: once every death carries its cause, you can finally ask the question nobody asks about their own safety net &mdash; <i>which of these controls has ever actually caught anything?</i> A control that has never fired is not proven. It is <b>unfalsified</b>, which is a different and much weaker thing.<br><br>
@@ -61486,6 +62260,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ellsberg","title":"THE ELLSBERG","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u25d4",
+  "kicker":"a preference no probability can hold",
+  "blurb":"30 red, 60 black-or-yellow in a split nobody tells you. Two obvious choices, and no assignment to black makes both rational \u2014 because people are declining to bet on a number they were never given.",
+  "lit":"sweeping all 61 possible compositions, A beats B exactly when b < 30 (b in 0..29) and D beats C exactly when b > 30 (b in 31..60), so the conditions are exactly complementary and NO value satisfies both; at b = 30 the knife edge is exact with both pairs indifferent simultaneously; D pays exactly 0.666667 whatever the split while C does not; and a maxmin agent scoring by worst case reproduces both preferences without contradiction (A 0.333 > B 0.000, D 0.667 > C 0.333)",
+  "fig":"The sharpest part is WHICH bet is constant. D pays the same whatever the split \u2014 it is the one wager with no ambiguity in it \u2014 and C is the one that swings hardest. So the famous 'irrational' pattern is exactly a preference for the two bets whose odds are KNOWN, in both pairs. That maxmin reproduces the choices is arithmetic; whether it is the right model of a person is not tested here.",
+  "body":ELSB_BODY,"script":ELSB_SCRIPT},
+ {"slug":"the-newcomb","title":"THE NEWCOMB","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ffd76a","icon":"\u229e",
+  "kicker":"two valid rules, opposite answers, same table",
+  "blurb":"Causal decision theory says take both boxes and its dominance argument never becomes wrong. Evidential says take one, and one-boxers really do end up richer. Both facts are verified here.",
+  "lit":"causal reasoning says two-box at every accuracy tested (0.5, 0.75, 0.9, 0.99, 1.0) and the dominance is checked state by state \u2014 two-boxing pays strictly more whatever is in B; evidential reasoning flips to one-box above an accuracy of exactly (A/B + 1)/2 = 0.5005 and the flip is sharp there; the two rules disagree on 4 of the 5 cases; and at 99% accuracy one-boxers average $990,000 against $11,000 while the dominance argument remains true",
+  "fig":"This page does NOT adjudicate. Both true things are checked separately and explicitly \u2014 dominance state by state, and the averages \u2014 because anyone claiming the puzzle is easy is discarding one of the two verified facts. Nozick's own summary is quoted rather than improved on: to almost everyone it is perfectly clear what should be done, and they divide almost evenly on which.",
+  "body":NWCB_BODY,"script":NWCB_SCRIPT},
+ {"slug":"the-gentzen","title":"THE GENTZEN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7de2b0","icon":"\u22a2",
+  "kicker":"a proof that stops borrowing",
+  "blurb":"Cut is the rule that lets a proof use a lemma. Remove every cut and the proof mentions nothing but the thing it proves \u2014 which is what makes proof search possible, and what makes proofs enormous.",
+  "lit":"two proofs of the same endsequent p>q, q>r |- p>r, one routed through a cut and one cut-free, endsequents confirmed identical and the cut confirmed present in one and absent from the other; the cut-free proof satisfies the subformula property across all 16 of its formula occurrences; a cut on an alien formula breaks exactly that, with (s&~s) appearing in the proof and nowhere in what is proved; and inlining a lemma used k times grows the proof 9->7, 11->15, 15->31, 23->63, 39->127 for k = 1,2,4,8,16 \u2014 a factor of 3.3 at k=16",
+  "fig":"AVAN's first version estimated the blow-up with an invented 'schematic elimination' formula that multiplied subtree sizes; on axiom leaves it collapsed to 1, modelled nothing, and failed its own gate. It is replaced by an EXPLICIT construction of the real mechanism \u2014 build the proof that proves a lemma once and uses it k times, build the version with it inlined at every site, count actual nodes. That demonstrates the duplication mechanism; it is NOT a proof of the general blow-up. The non-elementary lower bound for first-order cut elimination (Statman 1979, Orevkov 1979) is cited only.",
+  "body":GNTZ_BODY,"script":GNTZ_SCRIPT},
+ {"slug":"the-herbrand","title":"THE HERBRAND","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#5ad6ff","icon":"\u2203",
+  "kicker":"an infinity settled by a finite piece of itself",
+  "blurb":"If a first-order clause set is unsatisfiable, some finite set of ground instances already is. Expand far enough and an ordinary SAT solver settles it \u2014 but nothing tells you how far.",
+  "lit":"grounding { P(a), ~P(x)|P(f(x)), ~P(f(f(f(a)))) } over the Herbrand universe and running a real DPLL solver at each depth gives d=0: SAT, d=1: SAT, d=2: UNSAT, d=3: UNSAT, d=4: UNSAT, d=5: UNSAT; the shallow expansions are genuinely satisfiable so the solver is not simply always saying no; the set flips at depth 2 and stays unsatisfiable at every greater depth; and an infinite first-order question is thereby settled by a finite propositional one",
+  "fig":"The SAT/UNSAT split is load-bearing rather than decorative: expanding to a large depth and reporting UNSAT would show nothing, since a bad encoding can be unsatisfiable at every depth for the wrong reason. So the page checks that shallow expansions ARE satisfiable and that the flip is monotone. The DPLL is real \u2014 unit propagation, splitting, backtracking. This exhibits one instance of the theorem; it does not prove it.",
+  "body":HRBR_BODY,"script":HRBR_SCRIPT},
+ {"slug":"the-krein-milman","title":"THE KREIN-MILMAN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#b98cff","icon":"\u25c7",
+  "kicker":"keep the corners, discard the rest, rebuild the whole",
+  "blurb":"A convex shape with infinitely many points is entirely determined by its extreme points. Everything interior is redundant \u2014 which is why optimisation so often reduces to checking corners.",
+  "lit":"over 400 random point clouds the convex hull of the extreme points ALONE reproduces the original hull exactly and contains every original point, with only 7.2 points extreme on average; every extreme point is essential \u2014 drop one and it falls outside the hull of the rest, so none is a convex combination of the others; and an interior point is entirely redundant, since removing it leaves the hull unchanged",
+  "fig":"What runs here is the FINITE PLANAR case, where extreme points are hull vertices and can be enumerated by an ordinary convex-hull algorithm. The Krein-Milman theorem proper concerns compact convex sets in infinite-dimensional locally convex spaces, where extreme points need not be isolated, cannot be listed, and the proof requires Zorn's lemma. That is cited, NOT verified. What is verified is the mechanism the theorem generalises.",
+  "body":KRMN_BODY,"script":KRMN_SCRIPT},
  {"slug":"the-graveyard","title":"THE GRAVEYARD","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#7de2b0","icon":"\u2020",
   "kicker":"bury it, and name what killed it",
