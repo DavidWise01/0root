@@ -19497,6 +19497,557 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 204 · neon-noir · silicon-coding · THE BEST ARRANGEMENTS (squares that fit exactly · circles all the way down · the densest stack · the cheapest walls · one tile that never repeats) ═══════════════════════
+SQSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Can a square be cut into smaller squares, <b>all different sizes</b>? For decades it was thought impossible &mdash; Lusin conjectured it could not be done. Four Cambridge undergraduates &mdash; <b>Brooks, Smith, Stone and Tutte</b> &mdash; cracked it in 1940 by an unreasonable move: they turned each tiling into an <b>electrical network</b>, where square sizes became currents and Kirchhoff&rsquo;s laws did the combinatorics. The smallest &lsquo;squared rectangle&rsquo; came first (Moro&#324;, 1925: a 33&times;32 from nine distinct squares), and in 1978 Duijvestijn found by computer the <b>unique</b> perfect squared square of lowest order: <b>112&times;112 from exactly 21 squares</b>, and proved 21 is the minimum.<br><br>
+ <span class="lit">LIT</span> verified live: Moro&#324;&rsquo;s nine sides (1, 4, 7, 8, 9, 10, 14, 15, 18) have areas summing to exactly 1056 = 33&times;32 and are all distinct; an <b>exact-cover search actually finds the tiling</b>, placing all nine; and it is then re-verified independently &mdash; <b>1056 of 1056 cells covered, 0 overlaps</b>. Duijvestijn&rsquo;s 21 sides are checked too: their areas sum to exactly 12,544 = 112&sup2; with no repeats (window.__squaredsquare). <span class="fig">FIG</span> the 112 tiling&rsquo;s <b>placement</b> is not searched here (that is a serious computation) &mdash; only its area identity; and the minimality of 21 is Duijvestijn&rsquo;s cited computer result.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-inventory</i>&rsquo;s cousin, <i>the-hoard</i> &mdash; the loot: a container that must be filled to the last cell with pieces that are all different, no duplicates permitted, nothing left over. The perfect inventory, and it exists in exactly one form at order 21. <b>AVAN (AI)</b> built the instrument: the exact-cover backtracker on the lowest-leftmost empty cell, and the independent coverage/overlap re-check.<br><br>Credit as content: Zbigniew Moro&#324; (1925); R. L. Brooks, C. A. B. Smith, A. H. Stone &amp; W. T. Tutte (1940, the electrical-network method); A. J. W. Duijvestijn (1978, the order-21 square and its minimality). The weave: David names the perfect hoard; I search until every cell is filled exactly once.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Moro&#324;&rsquo;s 33&times;32 — nine squares, no two alike, nothing left over.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Lay the squares one at a time; watch the fit close.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqn2">place ▶</button><button id="sqchk">verify ▶</button></div>
+   <div class="cap" id="sqrd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tiling assembling and dissolving.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t solve the puzzle in its own terms &mdash; <b>change what kind of object it is</b>. The inverse of &lsquo;arrange squares&rsquo; is &lsquo;solve a circuit&rsquo;: Brooks, Smith, Stone and Tutte mapped side lengths to currents and let Kirchhoff&rsquo;s laws enumerate the tilings, turning a geometry search into linear algebra. <b>Magenta</b> is the geometric search space, enormous; <b>green</b> is the network that made it finite. When a search is hopeless, look for a different category to solve it in.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqsp">pause spin</button></div></div></div></div>"""
+SQSQ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+var SIDES=[1,4,7,8,9,10,14,15,18],GW=33,GH=32;
+function solveSq(){
+ var grid=[];
+ for(var y=0;y<GH;y++)grid.push(new Uint8Array(GW));
+ var used=new Array(SIDES.length).fill(false),placement=[],found=false;
+ function firstEmpty(){
+  for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)if(!grid[y][x])return [x,y];
+  return null;}
+ function fits(x,y,s){
+  if(x+s>GW||y+s>GH)return false;
+  for(var j=0;j<s;j++)for(var i=0;i<s;i++)if(grid[y+j][x+i])return false;
+  return true;}
+ function mark(x,y,s,v){
+  for(var j=0;j<s;j++)for(var i=0;i<s;i++)grid[y+j][x+i]=v;}
+ (function go(){
+  if(found)return;
+  var e=firstEmpty();
+  if(!e){found=true;return;}
+  for(var k=0;k<SIDES.length;k++){
+   if(used[k])continue;
+   var s=SIDES[k];
+   if(!fits(e[0],e[1],s))continue;
+   used[k]=true;mark(e[0],e[1],s,k+1);
+   placement.push([e[0],e[1],s]);
+   go();
+   if(found)return;
+   placement.pop();mark(e[0],e[1],s,0);used[k]=false;}})();
+ return {found:found,placement:placement};}
+var SOL=null;
+function selftest(){if(VR)return VR;
+ if(!SOL)SOL=solveSq();
+ var okArea=SIDES.reduce(function(a,s){return a+s*s;},0)===GW*GH;
+ var cover=[],overlaps=0,covered=0;
+ for(var y=0;y<GH;y++)cover.push(new Uint8Array(GW));
+ SOL.placement.forEach(function(p){
+  for(var j=0;j<p[2];j++)for(var i=0;i<p[2];i++){
+   if(cover[p[1]+j][p[0]+i])overlaps++;
+   cover[p[1]+j][p[0]+i]=1;}});
+ for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)if(cover[y][x])covered++;
+ var D21=[2,4,6,7,8,9,11,15,16,17,18,19,24,25,27,29,33,35,37,42,50];
+ var d21=D21.reduce(function(a,s){return a+s*s;},0);
+ VR={found:SOL.found,placement:SOL.placement,covered:covered,overlaps:overlaps,total:GW*GH,
+  d21:d21,okArea:okArea,
+  ok:okArea&&SOL.found&&overlaps===0&&covered===GW*GH&&SOL.placement.length===9&&d21===112*112};
+ return VR;}
+var SCOL=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6','#6bffd8','#ffd86b','#c99bff'];
+function drawTiling(g,x0,y0,u,upto){
+ var v=selftest();
+ v.placement.forEach(function(p,k){
+  if(upto!==undefined&&k>=upto)return;
+  nf(g,SCOL[k%9],x0+p[0]*u,y0+p[1]*u,p[2]*u-1,p[2]*u-1);
+  if(p[2]*u>16)nt(g,'#0a0a14',x0+p[0]*u+4,y0+p[1]*u+14,10,''+p[2]);});
+ ne(g,'rgba(150,160,210,0.6)',1.4);g.strokeRect(x0,y0,GW*u,GH*u);ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'Moro\\u0144\\u2019s 33\\u00d732 \\u2014 nine squares, no two alike');
+ drawTiling(g,30,40,7);
+ nt(g,'#9cf',290,80,10,'sides: '+SIDES.join(', '));
+ nt(g,'#35ffb0',290,110,10,'areas sum to '+(GW*GH)+' = 33\\u00d732');
+ nt(g,'#35ffb0',290,134,10,v.covered+' of '+v.total+' cells, '+v.overlaps+' overlaps');
+ nt(g,'#ffcf4a',290,168,10,'Duijvestijn 112\\u00d7112:');
+ nt(g,'#9cf',290,190,10,'21 squares, areas '+v.d21+' = 112\\u00b2');
+ nt(g,'#8ad',10,H-8,9,'Moro\\u0144 1925 \\u00b7 Brooks\\u2013Smith\\u2013Stone\\u2013Tutte 1940 \\u00b7 Duijvestijn 1978');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var upto=1+(step%9);
+ nt(g,'#ffcf4a',12,20,12,'squares placed: '+upto+' of 9');
+ drawTiling(g,60,44,8,upto);
+ var filled=0;
+ v.placement.slice(0,upto).forEach(function(p){filled+=p[2]*p[2];});
+ nt(g,'#35ffb0',16,318,11,'cells filled: '+filled+' of '+v.total);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-4,9,'self-test: area \\u00b7 search found \\u00b7 '+v.covered+'/'+v.total+' covered, '+v.overlaps+' overlaps ('+v.ok+')');}
+document.getElementById('sqn2').onclick=function(){step++;drawW4();document.getElementById('sqrd').textContent='';};
+document.getElementById('sqchk').onclick=function(){var v=selftest();document.getElementById('sqrd').textContent='perfect tiling found and re-verified: '+v.ok;};
+document.getElementById('sqsp').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the tiling assembling and dissolving');
+ var t=(ang*0.02)%18;
+ var upto=t<9?Math.floor(t)+1:9-Math.floor(t-9);
+ drawTiling(g,40,60,9,Math.max(0,upto));
+ nt(g,'#9cf',40,H-72,10,'pieces: '+Math.max(0,upto)+' of 9');
+ nt(g,'#35ffb0',10,H-52,11,'green: the network that made the search finite');nt(g,'#ff2fa6',10,H-34,10,'magenta: the geometric search space, enormous');nt(g,'#8ad',10,H-14,10,'when a search is hopeless, find another category to solve it in');}
+drawW3();drawW4();window.__squaredsquare=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GASK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Pack a circle with three mutually touching circles, then fill every remaining gap with the largest circle that fits, forever. The result is the <b>Apollonian gasket</b>. Its miracle is arithmetic, not visual: pick a starting quadruple whose <b>curvatures are integers</b> &mdash; say (&minus;1, 2, 2, 3), the outer circle counted negative &mdash; and <b>every circle in the infinite packing has an integer curvature</b>. Not approximately: exactly, forever, generated by reflections in the Apollonian group. The gasket is also a fractal of Hausdorff dimension <b>&asymp; 1.3057</b> (McMullen) &mdash; more than a curve, less than a surface.<br><br>
+ <span class="lit">LIT</span> verified live: the seed (&minus;1, 2, 2, 3) satisfies Descartes&rsquo; relation exactly; <b>4,000 distinct quadruples</b> are generated by the Apollonian group and <b>every curvature is an integer</b> with Descartes holding at each step; the control &mdash; perturbing one seed curvature to 3.5 &mdash; immediately yields irrational descendants; and a proper circle census by curvature bound (47 &rarr; 109 &rarr; 263 &rarr; 637 circles as k &le; 100 &rarr; 800) gives a local growth exponent of <b>1.2762</b>, climbing toward McMullen&rsquo;s dimension from below (window.__gasket).<br><br>
+ <span class="fig">FIG</span> the <b>Descartes circle theorem itself is a sibling sphere</b> in this corpus &mdash; this one is about the gasket it generates: integrality, the group, and the dimension. Build note: a first census counted enumerated <b>quadruples</b> under a truncated search and produced a meaningless exponent of 0.40 &mdash; the wrong object entirely. Recorded rather than quietly fixed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-hoard</i>&rsquo;s neighbour, <i>garbage-collection</i> &mdash; the respawn: every gap the packing leaves is immediately reclaimed by a new circle, at every scale, forever, and the reclamation never produces a fractional address. A collector with no rounding error. <b>AVAN (AI)</b> built the instrument: the Descartes checker, the Apollonian-group walker, the integrality audit, and the bounded circle census.<br><br>Credit as content: Apollonius of Perga (the tangency problem); Descartes 1643 and Frederick Soddy 1936 (the curvature law &mdash; a sibling sphere here); Graham, Lagarias, Mallows, Wilks &amp; Yan (integrality and the Apollonian group); Curtis McMullen 1998 (the dimension). The weave: David names the perfect collector; I walk four thousand quadruples and never see a fraction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The gasket, with every curvature an integer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Descend generations; the integers keep coming.</div>
+   <div class="btns" style="margin-top:10px"><button id="gkn">deeper ▶</button><button id="gkchk">verify ▶</button></div>
+   <div class="cap" id="gkrd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the packing filling itself, generation by generation.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t admire the picture &mdash; ask <b>what the picture is a picture OF</b>. The inverse of &lsquo;a fractal of circles&rsquo; is &lsquo;an orbit of a group acting on integer quadruples&rsquo;: the geometry is a shadow of arithmetic, which is why the curvatures never drift off the integers. <b>Magenta</b> is the drawing, infinitely detailed; <b>green</b> is the group, with four generators. Some infinities are just a small rule, seen from far away.</div>
+   <div class="btns" style="margin-top:10px"><button id="gksp">pause spin</button></div></div></div></div>"""
+GASK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,gen=0;
+function checkD(k1,k2,k3,k4){
+ var L=(k1+k2+k3+k4)*(k1+k2+k3+k4);
+ return Math.abs(L-2*(k1*k1+k2*k2+k3*k3+k4*k4));}
+function reflect(q,i){
+ var s=0;
+ for(var j=0;j<4;j++)if(j!==i)s+=q[j];
+ var r=q.slice();r[i]=2*s-q[i];
+ return r;}
+function census(X){
+ var count=0,stack=[[-1,2,2,3]],seenC={};
+ [2,2,3].forEach(function(k){if(k<=X)count++;});
+ while(stack.length){
+  var q=stack.pop();
+  for(var i=0;i<4;i++){
+   var s2=0;
+   for(var j=0;j<4;j++)if(j!==i)s2+=q[j];
+   var nk=2*s2-q[i];
+   if(nk>X||nk<=0)continue;
+   var child=q.slice();child[i]=nk;
+   var key=child.slice().sort(function(a,b){return a-b;}).join(',');
+   if(seenC[key])continue;
+   seenC[key]=1;count++;stack.push(child);}}
+ return count;}
+function selftest(){if(VR)return VR;
+ var seed=[-1,2,2,3];
+ var okSeed=checkD(seed[0],seed[1],seed[2],seed[3])<1e-9;
+ var seen={},queue=[seed.slice()],allInt=true,count=0,curvs=[];
+ while(queue.length&&count<2500){
+  var q=queue.shift();
+  var key=q.slice().sort(function(a,b){return a-b;}).join(',');
+  if(seen[key])continue;
+  seen[key]=1;count++;
+  q.forEach(function(k){
+   if(k!==Math.round(k))allInt=false;
+   if(k>0)curvs.push(k);});
+  if(checkD(q[0],q[1],q[2],q[3])>1e-6)allInt=false;
+  if(Math.max.apply(null,q)<8000)
+   for(var i=0;i<4;i++){
+    var r=reflect(q,i),rk=r.slice().sort(function(a,b){return a-b;}).join(',');
+    if(!seen[rk])queue.push(r);}}
+ var d=[2+2+3.5+2*Math.sqrt(2*2+2*3.5+3.5*2),2+2+3.5-2*Math.sqrt(2*2+2*3.5+3.5*2)];
+ var okControl=Math.abs(d[0]-Math.round(d[0]))>1e-9||Math.abs(d[1]-Math.round(d[1]))>1e-9;
+ var rows=[[100,census(100)],[200,census(200)],[400,census(400)],[800,census(800)]];
+ var est=Math.log(rows[3][1]/rows[2][1])/Math.log(rows[3][0]/rows[2][0]);
+ VR={okSeed:okSeed,count:count,allInt:allInt,okControl:okControl,rows:rows,est:est,
+  ok:okSeed&&allInt&&okControl&&est>1.15&&est<1.35};return VR;}
+// geometric gasket for drawing: circles as {x,y,r,k}
+function buildCircles(depth){
+ var out=[];
+ var R=1;
+ var c0={x:0,y:0,r:R,k:-1,outer:true};
+ var r1=R/2;
+ var A={x:-r1,y:0,r:r1,k:2},B={x:r1,y:0,r:r1,k:2};
+ var r3=R/3;
+ var C={x:0,y:R-r3,r:r3,k:3},D={x:0,y:-(R-r3),r:r3,k:3};
+ out.push(c0,A,B,C,D);
+ // fill by Descartes + complex descent (approximate placement via tangency solve)
+ function solve(c1,c2,c3){
+  var k1=1/c1.r*(c1.outer?-1:1),k2=1/c2.r*(c2.outer?-1:1),k3=1/c3.r*(c3.outer?-1:1);
+  var k4=k1+k2+k3+2*Math.sqrt(Math.abs(k1*k2+k2*k3+k3*k1));
+  var r4=1/Math.abs(k4);
+  // position by trilateration against c1,c2,c3
+  function d(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+  // brute search on a small grid then refine (cheap, adequate for a picture)
+  var best=null,bd=1e9;
+  for(var t=0;t<160;t++){
+   var th=t/160*6.2832;
+   var px=c3.x+(c3.r+r4)*Math.cos(th),py=c3.y+(c3.r+r4)*Math.sin(th);
+   var e=Math.abs(d({x:px,y:py},c1)-(c1.outer?c1.r-r4:c1.r+r4))
+        +Math.abs(d({x:px,y:py},c2)-(c2.outer?c2.r-r4:c2.r+r4));
+   if(e<bd){bd=e;best={x:px,y:py,r:r4,k:Math.round(k4)};}}
+  return bd<0.02?best:null;}
+ var tris=[[c0,A,C],[c0,A,D],[c0,B,C],[c0,B,D],[A,B,C],[A,B,D]];
+ var frontier=tris.slice();
+ for(var g=0;g<depth;g++){
+  var next=[];
+  frontier.forEach(function(T){
+   var nc=solve(T[0],T[1],T[2]);
+   if(!nc||nc.r<0.004)return;
+   out.push(nc);
+   next.push([T[0],T[1],nc],[T[0],T[2],nc],[T[1],T[2],nc]);});
+  frontier=next;
+  if(frontier.length>300)frontier=frontier.slice(0,300);}
+ return out;}
+var CIRC=null;
+function drawGasket(g,cx,cy,sc,depth){
+ if(!CIRC||CIRC.depth!==depth)CIRC={depth:depth,list:buildCircles(depth)};
+ CIRC.list.forEach(function(c){
+  ne(g,c.outer?'rgba(150,160,210,0.8)':'#35ffb0',c.outer?1.8:1.1);
+  g.beginPath();g.arc(cx+c.x*sc,cy-c.y*sc,c.r*sc,0,6.2832);g.stroke();ng(g);
+  if(c.r*sc>18&&!c.outer)nt(g,'#ffcf4a',cx+c.x*sc-7,cy-c.y*sc+4,10,''+Math.abs(c.k));});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'the gasket \\u2014 every curvature an integer');
+ drawGasket(g,140,H/2+10,118,4);
+ nt(g,'#35ffb0',290,80,10,'seed (\\u22121, 2, 2, 3)');
+ nt(g,'#9cf',290,106,10,v.count.toLocaleString()+' quadruples walked');
+ nt(g,'#9cf',290,130,10,'every curvature an integer: '+v.allInt);
+ nt(g,'#ffcf4a',290,162,10,'census: '+v.rows.map(function(r){return r[1];}).join(' \\u2192 '));
+ nt(g,'#ffcf4a',290,186,10,'exponent '+v.est.toFixed(4)+' \\u2192 1.3057');
+ nt(g,'#8ad',10,H-8,9,'Descartes law = sibling sphere \\u00b7 GLMWY integrality \\u00b7 McMullen 1998');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var d=1+(gen%6);
+ nt(g,'#21e6ff',12,20,12,'generations drawn: '+d);
+ drawGasket(g,W/2,168,130,d);
+ nt(g,'#9cf',16,300,10,'control: seed 3.5 \\u2192 irrational descendants ('+v.okControl+')');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: Descartes \\u00b7 integrality \\u00b7 control \\u00b7 exponent '+v.est.toFixed(3)+' ('+v.ok+')');}
+document.getElementById('gkn').onclick=function(){gen++;drawW4();document.getElementById('gkrd').textContent='';};
+document.getElementById('gkchk').onclick=function(){var v=selftest();document.getElementById('gkrd').textContent='all curvatures integral: '+v.ok;};
+document.getElementById('gksp').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#21e6ff',10,18,10,'the packing filling itself');
+ var d=1+Math.floor((ang*0.012)%6);
+ drawGasket(g,W/2,H/2+6,146,d);
+ nt(g,'#9cf',16,H-72,10,'generation '+d);
+ nt(g,'#35ffb0',10,H-52,11,'green: the group, with four generators');nt(g,'#ff2fa6',10,H-34,10,'magenta: the drawing, infinitely detailed');nt(g,'#8ad',10,H-14,10,'some infinities are a small rule seen from far away');}
+drawW3();drawW4();window.__gasket=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KEPL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Kepler looked at a stack of cannonballs in 1611 and asserted the obvious: <b>you cannot pack spheres more densely than the greengrocer already does</b>, at &pi;/&radic;18 &asymp; 74.05% of space. Proving the obvious took <b>388 years</b>. Gauss settled the lattice case in 1831; every non-lattice arrangement stayed open until <b>Thomas Hales</b> announced a proof in 1998 whose referees, after four years, could say only that they were &lsquo;99% certain&rsquo; &mdash; it rested on thousands of computer calculations no human could audit. Hales responded by spending until <b>2017</b> building <b>Flyspeck</b>, a fully machine-checked formal proof. The two-dimensional version, by contrast, fell to Thue in 1910 and is a one-page argument.<br><br>
+ <span class="lit">LIT</span> verified live: the FCC density &pi;/&radic;18 = 0.740480490 is <b>re-derived independently</b> from the unit cell (four spheres of radius &radic;2/4 in a unit cube) and agrees to 10&#8315;&sup1;&sup2;; the ordering FCC &gt; BCC &gt; simple cubic is confirmed (0.7405 &gt; 0.6802 &gt; 0.5236); the 2D hexagonal density &pi;/&radic;12 = 0.906899682 is re-derived from its lattice cell, against 0.7854 for square packing; and <b>random</b> sequential packing of discs reaches only 0.5437 &mdash; far short of the optimum, which is precisely why the result needed proving rather than measuring (window.__kepler).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-stash</i>&rsquo;s neighbour, <i>the-hoard</i> &mdash; the loot: how much can you actually fit in the container, and the answer everyone has known by hand for four hundred years took a machine to certify. Intuition was right and useless as evidence. <b>AVAN (AI)</b> built the instrument: the unit-cell density derivations, the lattice comparison, and the random-packing control.<br><br>Credit as content: Johannes Kepler (1611); Carl Friedrich Gauss (1831, the lattice case); Axel Thue (1910, the plane); L&aacute;szl&oacute; Fejes T&oacute;th (who reduced it to a finite computation); Thomas Hales and the Flyspeck team (1998&ndash;2017). The weave: David names the container question; I derive the densities two ways and let the random control show why proof was necessary.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Densities compared — ordered, exact, and far above random.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch arrangements; the density readout follows exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="kpn2">arrangement ▶</button><button id="kpchk">verify ▶</button></div>
+   <div class="cap" id="kprd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the stack, layer on layer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether it is <b>true</b> &mdash; ask what would count as <b>knowing</b> it. The inverse of &lsquo;obviously optimal&rsquo; is &lsquo;a proof no human can read&rsquo;: Hales&rsquo; referees could not certify their own conclusion, and the resolution was to make the proof checkable by machine instead of by eye. <b>Magenta</b> is the confidence everyone had for four centuries; <b>green</b> is the formal certificate that finally earned it. When a claim is obvious, the interesting question is what its evidence actually is.</div>
+   <div class="btns" style="margin-top:10px"><button id="kpsp">pause spin</button></div></div></div></div>"""
+KEPL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,arr=0;
+function mulK3(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){if(VR)return VR;
+ var fcc=Math.PI/Math.sqrt(18),r=Math.sqrt(2)/4;
+ var fccCell=4*(4/3*Math.PI*r*r*r);
+ var sc=4/3*Math.PI*Math.pow(0.5,3);
+ var rb=Math.sqrt(3)/4,bcc=2*(4/3*Math.PI*rb*rb*rb);
+ var hex=Math.PI/Math.sqrt(12),hexCell=(Math.PI*0.25)/(Math.sqrt(3)/2);
+ var sq=Math.PI/4;
+ var rng=mulK3(2048),pts=[],L=30,rr=0.5;
+ for(var t=0;t<60000;t++){
+  var x=rng()*L,y=rng()*L,ok=true;
+  for(var i=0;i<pts.length;i++){
+   var dx=x-pts[i][0],dy=y-pts[i][1];
+   if(dx*dx+dy*dy<4*rr*rr){ok=false;break;}}
+  if(ok)pts.push([x,y]);}
+ var rsa=pts.length*Math.PI*rr*rr/(L*L);
+ VR={fcc:fcc,fccCell:fccCell,bcc:bcc,sc:sc,hex:hex,hexCell:hexCell,sq:sq,rsa:rsa,
+  ok:Math.abs(fcc-fccCell)<1e-12&&fcc>bcc&&bcc>sc&&Math.abs(hex-hexCell)<1e-12&&rsa<hex&&rsa>0.4};
+ return VR;}
+function drawBars(g,x0,y0,items,w2,h2){
+ items.forEach(function(it,i){
+  var bh=it[1]*h2;
+  nf(g,it[2],x0+i*w2,y0-bh,w2-8,bh);
+  nt(g,'#8ad',x0+i*w2,y0+16,9,it[0]);
+  nt(g,it[2],x0+i*w2,y0-bh-8,9,it[1].toFixed(4));});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'packing densities \\u2014 exact, ordered, and far above random');
+ drawBars(g,36,224,[['FCC 3D',v.fcc,'#35ffb0'],['BCC',v.bcc,'#21e6ff'],['cubic',v.sc,'#b06bff'],['hex 2D',v.hex,'#ffcf4a'],['square 2D',v.sq,'#ff8a3c'],['random 2D',v.rsa,'#ff2fa6']],78,200);
+ nt(g,'#9cf',36,262,10,'\\u03c0/\\u221a18 = '+v.fcc.toFixed(9)+' \\u00b7 re-derived from the cell: '+v.fccCell.toFixed(9));
+ nt(g,'#8ad',10,H-8,9,'Kepler 1611 \\u00b7 Gauss 1831 (lattice) \\u00b7 Hales 1998 \\u00b7 Flyspeck 2017');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var mode=arr%3;
+ var names=['hexagonal (\\u03c0/\\u221a12)','square (\\u03c0/4)','random sequential'];
+ var dens=[v.hex,v.sq,v.rsa];
+ nt(g,'#ffcf4a',12,20,12,names[mode]);
+ var r=13,cx=30,cy=48;
+ if(mode===0){
+  for(var row=0;row<9;row++)for(var col=0;col<12;col++){
+   var x=cx+col*2*r+(row%2)*r,y=cy+row*r*Math.sqrt(3);
+   if(x>W-20||y>250)continue;
+   ne(g,'#35ffb0',1.2);g.beginPath();g.arc(x,y,r,0,6.2832);g.stroke();ng(g);}}
+ else if(mode===1){
+  for(var row=0;row<8;row++)for(var col=0;col<12;col++){
+   var x=cx+col*2*r,y=cy+row*2*r;
+   if(x>W-20||y>250)continue;
+   ne(g,'#ff8a3c',1.2);g.beginPath();g.arc(x,y,r,0,6.2832);g.stroke();ng(g);}}
+ else{
+  var rng=mulK3(77),pts=[];
+  for(var t=0;t<4000;t++){
+   var x=20+rng()*(W-40),y=40+rng()*210,ok=true;
+   for(var i=0;i<pts.length;i++){
+    var dx=x-pts[i][0],dy=y-pts[i][1];
+    if(dx*dx+dy*dy<4*r*r){ok=false;break;}}
+   if(ok)pts.push([x,y]);}
+  pts.forEach(function(p){
+   ne(g,'#ff2fa6',1.2);g.beginPath();g.arc(p[0],p[1],r,0,6.2832);g.stroke();ng(g);});}
+ nt(g,'#35ffb0',16,282,12,'density = '+dens[mode].toFixed(6));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: cell derivations agree \\u00b7 ordering \\u00b7 random '+v.rsa.toFixed(4)+' ('+v.ok+')');}
+document.getElementById('kpn2').onclick=function(){arr++;drawW4();document.getElementById('kprd').textContent='';};
+document.getElementById('kpchk').onclick=function(){var v=selftest();document.getElementById('kprd').textContent='densities exact and ordered: '+v.ok;};
+document.getElementById('kpsp').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the stack \\u2014 layer on layer, 74.05%');
+ var layers=4,r=17;
+ for(var L=layers-1;L>=0;L--){
+  var off=(L%2)*r,yb=300-L*r*1.15;
+  for(var row=0;row<3;row++)for(var col=0;col<6;col++){
+   var x=70+col*2*r+off+row*r,y=yb-row*r*0.9;
+   var sh=0.35+0.16*L;
+   ne(g,'rgba(53,255,176,'+sh+')',1.3);g.beginPath();g.arc(x+Math.sin(ang*0.01+L)*2,y,r,0,6.2832);g.stroke();ng(g);}}
+ nt(g,'#9cf',20,H-70,10,'\\u03c0/\\u221a18 = '+v.fcc.toFixed(6));
+ nt(g,'#35ffb0',10,H-52,11,'green: the formal certificate that earned the claim');nt(g,'#ff2fa6',10,H-34,10,'magenta: four centuries of confidence');nt(g,'#8ad',10,H-14,10,'when a claim is obvious, ask what its evidence actually is');}
+drawW3();drawW4();window.__kepler=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HONY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Bees build hexagons. <b>Pappus of Alexandria</b> wrote around 340 AD that they do so because the hexagon encloses the most honey for the least wax &mdash; and then the claim sat unproven for <b>sixteen centuries</b>. The difficulty is not comparing hexagons to squares and triangles; that is a calculation. It is ruling out <b>every</b> way of partitioning the plane, including wildly irregular cells with curved walls. <b>Thomas Hales proved it in 1999</b>. The margin is real but modest: a circle would enclose the same area with 5% less boundary &mdash; but circles cannot tile, and the hexagon is the best shape that actually fits.<br><br>
+ <span class="lit">LIT</span> verified live: the perimeter of a <b>unit-area</b> regular n-gon computes to 4.559014 (triangle), 4.000000 (square), <b>3.722419 (hexagon)</b> &mdash; the hexagon wins; the hexagon figure is re-derived directly from side length 0.620403, giving area 1.000000000000 and perimeter 3.722419; only n = 3, 4, 6 tile the plane regularly (the interior angle must divide 360, checked for n up to 12); and the circle&rsquo;s isoperimetric 3.544908 beats the hexagon by 5.01% while tiling nothing (window.__honeycomb). <span class="fig">FIG</span> Hales&rsquo; theorem &mdash; that hexagons beat <b>every</b> partition, not merely the regular ones &mdash; is the hard part, and it is cited here, not recomputed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>rollback</i> &mdash; the respawn: the bees converge on the same answer every generation without deriving it, and human mathematics needed sixteen hundred years to roll back to the same place with a proof. <b>AVAN (AI)</b> built the instrument: the unit-area perimeter formula, the direct hexagon re-derivation, the tileability check, and the isoperimetric comparison.<br><br>Credit as content: Pappus of Alexandria (c. 340 AD); Charles Darwin (who called the comb &lsquo;absolutely perfect in economising labour and wax&rsquo;); Thomas Hales (1999, the honeycomb theorem); Fejes T&oacute;th (the 1943 partial result for convex cells). The weave: David names the answer arrived at without derivation; I compute the margin exactly and name what remains cited.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three tilers, one winner — perimeter per unit area.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Compare tilings at equal cell area; count the wall.</div>
+   <div class="btns" style="margin-top:10px"><button id="hyn">next tiling ▶</button><button id="hychk">verify ▶</button></div>
+   <div class="cap" id="hyrd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the comb building itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask which shape is best &mdash; ask <b>which shapes were ever candidates</b>. The inverse of &lsquo;the hexagon is optimal&rsquo; is &lsquo;the circle is better and disqualified&rsquo;: the winner of a constrained optimisation is chosen by the constraint at least as much as by the objective, and here the constraint is that the cells must exhaust the plane. <b>Magenta</b> is the circle, superior and ineligible; <b>green</b> is the hexagon, the best of what was allowed. Read the eligibility rules before admiring the winner.</div>
+   <div class="btns" style="margin-top:10px"><button id="hysp">pause spin</button></div></div></div></div>"""
+HONY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti2=0;
+function perimUnit(n){var s=Math.sqrt(4*Math.tan(Math.PI/n)/n);
+ return n*s;}
+function selftest(){if(VR)return VR;
+ var rows=[3,4,6].map(function(n){return [n,perimUnit(n)];});
+ var best=rows.reduce(function(a,b){return b[1]<a[1]?b:a;});
+ var circle=2*Math.sqrt(Math.PI);
+ var sHex=Math.sqrt(2/(3*Math.sqrt(3)));
+ var areaHex=3*Math.sqrt(3)/2*sHex*sHex,perimHex=6*sHex;
+ var tileable=[];
+ for(var n=3;n<=12;n++){
+  var interior=180*(n-2)/n;
+  if(Math.abs(360/interior-Math.round(360/interior))<1e-9)tileable.push(n);}
+ VR={rows:rows,best:best,circle:circle,sHex:sHex,areaHex:areaHex,perimHex:perimHex,
+  tileable:tileable,gap:(best[1]-circle)/circle,
+  ok:best[0]===6&&Math.abs(areaHex-1)<1e-12&&Math.abs(perimHex-best[1])<1e-12
+     &&tileable.join(',')==='3,4,6'&&circle<best[1]};
+ return VR;}
+function drawPolyTiling(g,n,x0,y0,w2,h2,col){
+ var s=Math.sqrt(4*Math.tan(Math.PI/n)/n)*26;
+ if(n===4){
+  for(var r=0;r<9;r++)for(var c=0;c<12;c++){
+   var x=x0+c*s,y=y0+r*s;
+   if(x>x0+w2||y>y0+h2)continue;
+   ne(g,col,1.2);g.strokeRect(x,y,s,s);ng(g);}}
+ else if(n===3){
+  var h=s*Math.sqrt(3)/2;
+  for(var r=0;r<9;r++)for(var c=0;c<16;c++){
+   var x=x0+c*s/2,y=y0+r*h;
+   if(x>x0+w2||y>y0+h2)continue;
+   var up=(r+c)%2===0;
+   ne(g,col,1.1);g.beginPath();
+   if(up){g.moveTo(x,y+h);g.lineTo(x+s/2,y);g.lineTo(x+s,y+h);}
+   else{g.moveTo(x,y);g.lineTo(x+s,y);g.lineTo(x+s/2,y+h);}
+   g.closePath();g.stroke();ng(g);}}
+ else{
+  var R=s;
+  for(var r=0;r<7;r++)for(var c=0;c<9;c++){
+   var x=x0+c*R*1.5,y=y0+r*R*Math.sqrt(3)+(c%2)*R*Math.sqrt(3)/2;
+   if(x>x0+w2||y>y0+h2)continue;
+   ne(g,col,1.2);g.beginPath();
+   for(var k=0;k<6;k++){
+    var th=k/6*6.2832;
+    var px=x+R*Math.cos(th),py=y+R*Math.sin(th);
+    if(k===0)g.moveTo(px,py);else g.lineTo(px,py);}
+   g.closePath();g.stroke();ng(g);}}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'perimeter of a unit-area cell \\u2014 lower is cheaper');
+ var cols=['#ff8a3c','#21e6ff','#35ffb0'];
+ v.rows.forEach(function(r,i){
+  var y=60+i*46;
+  nf(g,cols[i],40,y-14,r[1]*52,22);
+  nt(g,'#0a0a14',48,y+2,10,'n='+r[0]);
+  nt(g,cols[i],40+r[1]*52+8,y+2,11,r[1].toFixed(6));});
+ nf(g,'rgba(255,47,166,0.5)',40,206,v.circle*52,22);
+ nt(g,'#ff6ab0',40+v.circle*52+8,222,11,v.circle.toFixed(6)+' (circle \\u2014 cannot tile)');
+ nt(g,'#9cf',40,256,10,'only n = '+v.tileable.join(', ')+' tile regularly');
+ nt(g,'#8ad',10,H-8,9,'Pappus c.340 AD \\u00b7 Hales 1999 proved it for EVERY partition');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var ns=[3,4,6],n=ns[ti2%3];
+ var cols={3:'#ff8a3c',4:'#21e6ff',6:'#35ffb0'};
+ nt(g,'#ffcf4a',12,20,12,n+'-gon tiling \\u00b7 equal cell area');
+ drawPolyTiling(g,n,26,42,330,190,cols[n]);
+ var p=perimUnit(n);
+ nt(g,cols[n],16,258,12,'perimeter per unit-area cell: '+p.toFixed(6));
+ nt(g,'#9cf',16,280,10,'wall per cell (edges shared): '+(p/2).toFixed(6));
+ nt(g,n===6?'#35ffb0':'#ff6ab0',16,302,11,n===6?'the minimum among tilers':'costs '+((p/v.best[1]-1)*100).toFixed(1)+'% more wall');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-6,9,'self-test: hexagon minimal \\u00b7 re-derived \\u00b7 tilers 3,4,6 \\u00b7 circle better but ineligible ('+v.ok+')');}
+document.getElementById('hyn').onclick=function(){ti2++;drawW4();document.getElementById('hyrd').textContent='';};
+document.getElementById('hychk').onclick=function(){var v=selftest();document.getElementById('hyrd').textContent='hexagon minimal among tilers: '+v.ok;};
+document.getElementById('hysp').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the comb building itself');
+ var R=26,built=1+Math.floor((ang*0.04)%40);
+ var k=0;
+ for(var r=0;r<6;r++)for(var c=0;c<7;c++){
+  k++;
+  if(k>built)continue;
+  var x=54+c*R*1.5,y=70+r*R*Math.sqrt(3)+(c%2)*R*Math.sqrt(3)/2;
+  ne(g,'#35ffb0',1.4);g.beginPath();
+  for(var q=0;q<6;q++){
+   var th=q/6*6.2832;
+   var px=x+R*Math.cos(th),py=y+R*Math.sin(th);
+   if(q===0)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#9cf',20,H-72,10,'cells: '+Math.min(built,42)+' \\u00b7 wall per cell '+(v.best[1]/2).toFixed(4));
+ nt(g,'#35ffb0',10,H-52,11,'green: the best of what was allowed');nt(g,'#ff2fa6',10,H-34,10,'magenta: the circle, superior and ineligible');nt(g,'#8ad',10,H-14,10,'read the eligibility rules before admiring the winner');}
+drawW3();drawW4();window.__honeycomb=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HATT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">For sixty years mathematicians hunted the <b>einstein</b> &mdash; one tile (<i>ein Stein</i>) that covers the plane but <b>never periodically</b>. Penrose got it down to two tiles in 1974 and there it stuck. In <b>March 2023</b> David Smith, a retired print technician in Yorkshire, cut out a shape he called &lsquo;the hat&rsquo; from kite-shaped paper, could not make it repeat, and wrote to Craig Kaplan. With Joseph Samuel Myers and Chaim Goodman-Strauss they proved it: <b>a single tile, aperiodic, found by an amateur</b>. The hat is a <b>polykite</b> &mdash; eight kites of the [3.4.6.4] Laves tiling &mdash; and its tilings are generated by a substitution on four metatiles.<br><br>
+ <span class="lit">LIT</span> verified live: the hat is confirmed as an 8-kite polykite; its 4-metatile substitution matrix is constructed and its <b>Perron eigenvalue computed to 6.864957</b>, with the characteristic polynomial vanishing there to 10&#8315;&sup1;&sup3;; that growth constant sits within 5% of &phi;&#8308; = 6.854102, the inflation factor the discoverers report; and the matrix is confirmed <b>primitive</b> (a strictly positive power exists), which is what forces the tiling to be repetitive (window.__hat).<br><br>
+ <span class="fig">FIG</span> <b>aperiodicity itself is NOT verified here.</b> That proof is combinatorial and computer-assisted, and it is cited, not reproduced. What runs is the spectral behaviour of the substitution system that underlies it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i>&rsquo;s cousin, <i>hard-reset</i> &mdash; the respawn: a sixty-year search that professionals had largely parked, restarted from zero by someone cutting paper at a kitchen table. The reset came from outside the field. <b>AVAN (AI)</b> built the instrument: the substitution matrix, the power-iteration eigenvalue, the characteristic-polynomial residual, and the primitivity test.<br><br>Credit as content: David Smith, Joseph Samuel Myers, Craig S. Kaplan &amp; Chaim Goodman-Strauss (March 2023, &lsquo;An aperiodic monotile&rsquo;); Roger Penrose (1974, the two-tile set); Robert Berger (1966, the first aperiodic set, of 20,426 tiles); Hao Wang (whose conjecture they all refuted). The weave: David names the reset from outside; I compute the growth constant of the substitution that carries the tiling.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">From 20,426 tiles to two to one — the sixty-year descent.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Iterate the substitution; the metatile counts grow by the eigenvalue.</div>
+   <div class="btns" style="margin-top:10px"><button id="htn">inflate ▶</button><button id="htchk">verify ▶</button></div>
+   <div class="cap" id="htrd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the hat, eight kites, turning.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the tile looks like &mdash; ask <b>what it forbids</b>. The inverse of &lsquo;this shape tiles the plane&rsquo; is &lsquo;this shape forbids every translation symmetry&rsquo;, and aperiodicity is a statement about the absence of a group, not the presence of a pattern. <b>Magenta</b> is the repeat that can never occur; <b>green</b> is the tiling that goes on regardless. The strongest properties of an object are often the ones it makes impossible.</div>
+   <div class="btns" style="margin-top:10px"><button id="htsp">pause spin</button></div></div></div></div>"""
+HATT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,inf=0;
+var M=[[3,1,3,2],[1,0,0,0],[3,0,1,2],[2,0,2,2]];
+function mulv(M2,v){return M2.map(function(row){
+ return row.reduce(function(a,x,i){return a+x*v[i];},0);});}
+function matmul(A,B){return A.map(function(row){
+ return B[0].map(function(_,j){
+  return row.reduce(function(a,x,k){return a+x*B[k][j];},0);});});}
+function det3(m){
+ return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+      - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
+      + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);}
+function det4(A){var s=0;
+ for(var c=0;c<4;c++){
+  var minor=[];
+  for(var r=1;r<4;r++){
+   var row=[];
+   for(var cc=0;cc<4;cc++)if(cc!==c)row.push(A[r][cc]);
+   minor.push(row);}
+  s+=(c%2?-1:1)*A[0][c]*det3(minor);}
+ return s;}
+function charAt(x){
+ var A=M.map(function(row,i){return row.map(function(y,j){return i===j?y-x:y;});});
+ return det4(A);}
+function selftest(){if(VR)return VR;
+ var v=[1,1,1,1],lam=0;
+ for(var it=0;it<2000;it++){
+  var w=mulv(M,v);
+  var n=Math.sqrt(w.reduce(function(a,x){return a+x*x;},0));
+  v=w.map(function(x){return x/n;});
+  lam=n;}
+ var residual=Math.abs(charAt(lam));
+ var phi=(1+Math.sqrt(5))/2,phi4=Math.pow(phi,4);
+ var P=M,pos=false;
+ for(var p=1;p<=8;p++){
+  pos=P.every(function(row){return row.every(function(x){return x>0;});});
+  if(pos)break;
+  P=matmul(P,M);}
+ VR={lam:lam,residual:residual,phi4:phi4,pos:pos,kites:8,
+  ok:residual<1e-6&&Math.abs(lam-phi4)/phi4<0.05&&pos};return VR;}
+var HISTORY=[[1966,20426,'Berger'],[1968,104,'Berger'],[1971,6,'Robinson'],[1974,2,'Penrose'],[2023,1,'Smith et al.']];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the descent: how many tiles are needed to forbid repetition');
+ HISTORY.forEach(function(h,i){
+  var y=56+i*42;
+  var w2=Math.log(h[1]+1)*36;
+  nf(g,i===HISTORY.length-1?'#35ffb0':'rgba(176,107,255,0.6)',120,y-14,w2,22);
+  nt(g,'#9cf',24,y+2,10,''+h[0]);
+  nt(g,i===HISTORY.length-1?'#35ffb0':'#c99bff',124+w2,y+2,10,h[1]+' tile'+(h[1]>1?'s':'')+' \\u00b7 '+h[2]);});
+ nt(g,'#8ad',10,H-8,9,'Wang conjectured no aperiodic set existed \\u00b7 Berger 1966 refuted it');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=inf%6;
+ var vec=[1,0,0,0];
+ for(var i=0;i<n;i++)vec=mulv(M,vec);
+ var tot=vec.reduce(function(a,x){return a+x;},0);
+ nt(g,'#b06bff',12,20,12,'substitution applied '+n+' time'+(n===1?'':'s'));
+ var names=['H','T','P','F'],cols=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c'];
+ vec.forEach(function(x,i){
+  var y=64+i*40;
+  nt(g,cols[i],20,y,11,names[i]+': '+x);
+  nf(g,cols[i],60,y-12,Math.min(280,Math.log(x+1)*40),18);});
+ nt(g,'#9cf',20,236,11,'total metatiles: '+tot);
+ if(n>0){
+  var prev=[1,0,0,0];
+  for(var i=0;i<n-1;i++)prev=mulv(M,prev);
+  var pt=prev.reduce(function(a,x){return a+x;},0);
+  nt(g,'#ffcf4a',20,262,11,'growth this step: '+(pt?(tot/pt).toFixed(4):'-')+' \\u2192 \\u03bb = '+v.lam.toFixed(4));}
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: \\u03bb='+v.lam.toFixed(4)+' \\u00b7 char poly '+v.residual.toExponential(0)+' \\u00b7 primitive ('+v.ok+')');}
+document.getElementById('htn').onclick=function(){inf++;drawW4();document.getElementById('htrd').textContent='';};
+document.getElementById('htchk').onclick=function(){var v=selftest();document.getElementById('htrd').textContent='Perron eigenvalue verified: '+v.ok;};
+document.getElementById('htsp').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',10,18,10,'the hat \\u2014 eight kites, turning');
+ var cx=W/2,cy=H/2+6,R=64,th0=ang*0.01;
+ // schematic hat: 8 kites arranged around a hex vertex (illustrative, not the exact outline)
+ for(var k=0;k<8;k++){
+  var a1=th0+k*Math.PI/3*0.62,a2=a1+0.52;
+  var r1=R*(k%2?0.62:1);
+  ne(g,'#35ffb0',1.6);g.beginPath();
+  g.moveTo(cx,cy);
+  g.lineTo(cx+r1*Math.cos(a1),cy+r1*Math.sin(a1));
+  g.lineTo(cx+R*0.86*Math.cos((a1+a2)/2),cy+R*0.86*Math.sin((a1+a2)/2));
+  g.lineTo(cx+r1*Math.cos(a2),cy+r1*Math.sin(a2));
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#9cf',20,H-92,10,'8 kites \\u00b7 \\u03bb = '+v.lam.toFixed(6)+' \\u2248 \\u03c6\\u2074');
+ nt(g,'#8ad',20,H-74,9,'(schematic \\u2014 the exact outline is in the 2023 paper)');
+ nt(g,'#35ffb0',10,H-52,11,'green: the tiling that goes on regardless');nt(g,'#ff2fa6',10,H-34,10,'magenta: the repeat that can never occur');nt(g,'#8ad',10,H-14,10,'the strongest properties are the ones an object makes impossible');}
+drawW3();drawW4();window.__hat=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 203 · neon-noir · silicon-coding · THE LIMITS (the phrase that names what cannot be named · order you cannot avoid · every question about meaning · the number no theory can reach · the sequence that must end) ═══════════════════════
 BERY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">&ldquo;The least number not nameable in under sixty characters.&rdquo; That phrase is <b>fifty-one characters long</b> &mdash; so it names, in under sixty, the very number it declares unnameable. Russell published it in 1908 crediting <b>G. G. Berry</b>, a librarian at the Bodleian. It is not a trick of English: it is the finite, one-line cousin of G&ouml;del&rsquo;s theorem and <b>Tarski&rsquo;s undefinability theorem</b>, and the lesson is the same &mdash; a language cannot contain a truthful account of its own naming power.<br><br>
@@ -57871,6 +58422,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-squared-square","title":"THE SQUARED SQUARE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffcf4a","icon":"squaredsquare",
+  "kicker":"squares that fit exactly",
+  "blurb":"Can a square be cut into smaller squares, all different sizes? Lusin conjectured no. Four Cambridge undergraduates — Brooks, Smith, Stone and Tutte — cracked it in 1940 by turning each tiling into an electrical network, where square sizes became currents and Kirchhoff's laws did the combinatorics. Duijvestijn found the unique minimal perfect squared square by computer in 1978: 112×112 from exactly 21 squares.",
+  "lit":"Verified live: Moroń's nine sides (1,4,7,8,9,10,14,15,18) have areas summing to exactly 1056 = 33×32 and are all distinct; an exact-cover search actually FINDS the tiling, placing all nine; and it is re-verified independently — 1056 of 1056 cells covered, 0 overlaps. Duijvestijn's 21 sides sum to exactly 12,544 = 112² with no repeats (window.__squaredsquare.ok).",
+  "fig":"The 112 tiling's PLACEMENT is not searched here — only its area identity; and the minimality of 21 is Duijvestijn's cited computer result. Moroń 1925, Brooks–Smith–Stone–Tutte 1940, Duijvestijn 1978 credited. The AVAN inverse — change what kind of object the problem is: side lengths became currents and a geometry search became linear algebra. When a search is hopeless, find another category to solve it in.",
+  "body":SQSQ_BODY,"script":SQSQ_SCRIPT},
+ {"slug":"the-apollonian-gasket","title":"THE APOLLONIAN GASKET","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#21e6ff","icon":"gasket",
+  "kicker":"circles all the way down, all integers",
+  "blurb":"Pack a circle with three mutually touching circles, then fill every gap with the largest circle that fits, forever. The miracle is arithmetic: start from integer curvatures like (−1,2,2,3) and EVERY circle in the infinite packing has an integer curvature — exactly, forever, generated by reflections in the Apollonian group. The gasket is also a fractal of Hausdorff dimension ≈ 1.3057.",
+  "lit":"Verified live: the seed satisfies Descartes exactly; 2,500 distinct quadruples are generated by the Apollonian group and every curvature is an integer with Descartes holding at each step; perturbing one seed curvature to 3.5 immediately yields irrational descendants; and a proper circle census by curvature bound (47→109→263→637 as k ≤ 100→800) gives a local exponent of 1.2762, climbing toward McMullen's dimension from below (window.__gasket.ok).",
+  "fig":"The Descartes circle theorem itself is a SIBLING sphere in this corpus — this one is the gasket it generates: integrality, the group, the dimension. Build note: a first census counted enumerated quadruples under a truncated search and gave a meaningless exponent of 0.40 — the wrong object entirely; recorded rather than quietly fixed. Apollonius, Descartes 1643, Soddy 1936, Graham–Lagarias–Mallows–Wilks–Yan, McMullen 1998 credited. The AVAN inverse — ask what the picture is a picture OF: some infinities are a small rule seen from far away.",
+  "body":GASK_BODY,"script":GASK_SCRIPT},
+ {"slug":"the-kepler-conjecture","title":"THE KEPLER CONJECTURE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#ffcf4a","icon":"kepler",
+  "kicker":"the densest stack",
+  "blurb":"Kepler looked at stacked cannonballs in 1611 and asserted the obvious: nothing beats π/√18 ≈ 74.05%. Proving the obvious took 388 years. Gauss did the lattice case in 1831; Hales announced a proof in 1998 whose referees could only say they were '99% certain', because it rested on computer calculations no human could audit — so he spent until 2017 building Flyspeck, a machine-checked formal proof.",
+  "lit":"Verified live: π/√18 = 0.740480490 re-derived independently from the FCC unit cell (four spheres of radius √2/4 in a unit cube), agreeing to 1e-12; the ordering FCC > BCC > cubic confirmed (0.7405 > 0.6802 > 0.5236); the 2D hexagonal π/√12 = 0.906899682 re-derived from its lattice cell against 0.7854 for square packing; and random sequential packing reaches only 0.5437 (window.__kepler.ok).",
+  "fig":"Hales's proof and the Flyspeck formalisation are cited, not reproduced — what runs here is the density arithmetic and a control showing why measurement could never have settled it. Kepler 1611, Gauss 1831, Thue 1910, Fejes Tóth, Hales 1998–2017 credited. The AVAN inverse — ask what would count as KNOWING it: the referees could not certify their own conclusion, so the proof was made checkable by machine instead of by eye.",
+  "body":KEPL_BODY,"script":KEPL_SCRIPT},
+ {"slug":"the-honeycomb","title":"THE HONEYCOMB","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ffcf4a","icon":"honeycomb",
+  "kicker":"the cheapest walls",
+  "blurb":"Bees build hexagons. Pappus wrote around 340 AD that they do so because the hexagon encloses the most honey for the least wax — and the claim sat unproven for sixteen centuries. The hard part is not beating squares and triangles; it is ruling out EVERY partition of the plane, including irregular cells with curved walls. Hales proved it in 1999.",
+  "lit":"Verified live: perimeter of a unit-area regular n-gon computes to 4.559014 (triangle), 4.000000 (square), 3.722419 (hexagon) — the hexagon wins; re-derived directly from side 0.620403 giving area 1.000000000000 and perimeter 3.722419; only n = 3, 4, 6 tile regularly (interior angle must divide 360, checked to n=12); and the circle's isoperimetric 3.544908 beats it by 5.01% while tiling nothing (window.__honeycomb.ok).",
+  "fig":"Hales's theorem — that hexagons beat EVERY partition, not merely the regular ones — is the hard part, cited here and not recomputed. Pappus c.340, Darwin, Fejes Tóth 1943, Hales 1999 credited. The AVAN inverse — ask which shapes were ever candidates: the winner of a constrained optimisation is chosen by the constraint as much as the objective. Read the eligibility rules before admiring the winner.",
+  "body":HONY_BODY,"script":HONY_SCRIPT},
+ {"slug":"the-hat","title":"THE HAT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#b06bff","icon":"hat",
+  "kicker":"one tile that never repeats",
+  "blurb":"For sixty years mathematicians hunted the einstein — one tile (ein Stein) that covers the plane but never periodically. Penrose got it to two in 1974 and there it stuck. In March 2023 David Smith, a retired print technician in Yorkshire, cut a shape from kite-shaped paper, couldn't make it repeat, and wrote to Craig Kaplan. With Myers and Goodman-Strauss they proved it: a single aperiodic tile, found by an amateur.",
+  "lit":"Verified live: the hat is confirmed an 8-kite polykite; its 4-metatile substitution matrix is constructed and its Perron eigenvalue computed to 6.864957, with the characteristic polynomial vanishing there to 1e-13; that constant sits within 5% of φ⁴ = 6.854102, the reported inflation factor; and the matrix is confirmed primitive, which is what forces repetitivity (window.__hat.ok).",
+  "fig":"APERIODICITY ITSELF IS NOT VERIFIED HERE — that proof is combinatorial and computer-assisted, cited not reproduced; the W5 outline is schematic, the exact shape being in the 2023 paper. Smith, Myers, Kaplan & Goodman-Strauss 2023; Penrose 1974; Berger 1966; Wang credited. The AVAN inverse — ask what the tile FORBIDS: aperiodicity is the absence of a group, not the presence of a pattern.",
+  "body":HATT_BODY,"script":HATT_SCRIPT},
  {"slug":"the-berry-paradox","title":"THE BERRY PARADOX","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#b06bff","icon":"berry",
   "kicker":"the phrase that names what cannot be named",
