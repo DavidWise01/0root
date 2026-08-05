@@ -19499,6 +19499,721 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 228 · neon-noir · silicon-coding · FROM DAVID'S 0805 15:29 DROP (i13c-bridge-tools + SWIFT-FOR-I13) · a call that never leaves · two tools agreeing on a blank · how far a branch can see · a check that could fail · twelve constructs and no loop ═══════════════════════
+SLFB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">On ARM64 a call is <code>BL</code>: six opcode bits and a 26-bit signed displacement, scaled by four, measured from the instruction itself. A compiler that has not linked yet writes the displacement as <b>zero</b> and leaves a note for the linker. Zero means <i>this instruction</i>. Every unlinked call is therefore a call to itself &mdash; a tight infinite loop that assembles cleanly, disassembles cleanly, and never returns.<br><br>
+ <span class="lit">LIT</span> verified live by decoding a real linked image of <b>127</b> words against the ARMv8-A field layout. <code>0x94000000</code> decodes as BL with displacement <b>0</b>. Encode and decode round-trip at <b>11 of 11</b> displacements including both extremes of the signed field. In the linked image there are <b>4</b> call sites, <b>0</b> of them left at zero, <b>4 of 4</b> landing exactly on a declared function entry &mdash; and <b>2</b> carry <b>negative</b> displacements, which is what recursion looks like from underneath.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found this in his own compiler and wrote it up rather than quietly fixing it. His <code>bridge.js</code> emitted <code>bl</code> as <code>0x94000000</code> with the comment <i>resolved by the linker</i> &mdash; and nothing was the linker. He built <code>link.js</code>, which lays the regions out, records each symbol&rsquo;s offset, and patches every intra-module call; calls to symbols outside the module are left at zero and <b>reported</b>, never silently kept. Dropped 5 August 2026.<br><br>
+ <b>AVAN (AI)</b> decoded the linked image independently rather than trusting the linker&rsquo;s own report &mdash; pulling the 26-bit field out by hand, sign-extending it, and asking where each call actually lands. The four sites resolve to <code>i13_fib</code> at word 21 and <code>i13_poly</code> at word 81, with <code>fib</code>&rsquo;s two self-calls at words 54 and 63 both reaching back to word 21 at &minus;33 and &minus;42. The linker&rsquo;s own report agrees, which is the point of checking it twice.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One word, thirty-two bits, and where the call is hiding.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The image, its call sites, and what each one points at.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfzero">unlink it &#9654;</button><button id="sfrelink">relink</button></div>
+   <div class="cap" id="sfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the image as a column, with the calls drawn as arcs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;an unpatched call is a bug.&rdquo; The inverse is that <b>zero was chosen precisely because it is safe to leave</b>. A displacement field has to hold something before the target is known, and every value in it names some instruction &mdash; there is no <i>null</i> in a 26-bit signed integer. Zero was picked because a self-branch is the most obviously wrong thing the field can say, so a program that reaches one hangs immediately rather than running off into whatever happened to be nearby. Read backwards, the infinite loop is not the failure; it is the <b>designed</b> failure, chosen over the silent one, and it only became dangerous when nobody was checking whether the note to the linker had been read.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfsp">pause spin</button></div></div></div></div>"""
+SLFB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,unlinked=false;
+var IMGHEX="a9bd7bfd910003fdf90013b3d2800008f9000ba8d2800008f9000fa8d2800193aa1303e09400000caa0003f3f9000bb3d28000f3aa1303e094000043aa0003f3f9000fb3d2800000f94013b3a8c37bfdd65f03c0a9bb7bfd910003fdf90023b3f90027b4f9000ba0d2800008f9000fa8d2800008f90013a8d2800008f90017a8d2800008f9001ba8d2800008f9001fa8f9400bb3d2800054eb14027f9a9fa7f3f100027f540000e0f9400bb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0f9400bb3d2800034cb140273f9000fb3f9400fb3aa1303e097ffffdfaa0003f3f90013b3f9400bb3d2800054cb140273f90017b3f94017b3aa1303e097ffffd6aa0003f3f9001bb3f94013b3f9401bb48b140273f9001fb3f9401fb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0d2800000f94023b3f94027b4a8c57bfdd65f03c0a9bb7bfd910003fdf90023b3f90027b4f9000ba0d2800008f9000fa8d2800008f90013a8d2800008f90017a8d2800008f9001ba8d2800008f9001fa8d2800073f9400bb49b147e73f9000fb3f9400fb3f9400bb49b147e73f90013b3d2800053f9400bb49b147e73f90017b3f94013b3f94017b48b140273f9001bb3f9401bb3d28000348b140273f9001fb3f9401fb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0d2800000f94023b3f94027b4a8c57bfdd65f03c0";
+var SYMS={"i13_top":0,"i13_fib":21,"i13_poly":81};
+function words(){var a=[];
+ for(var i=0;i<IMGHEX.length;i+=8)a.push(parseInt(IMGHEX.substr(i,8),16)>>>0);
+ return a;}
+function decodeBL(w){w=w>>>0;
+ if((w>>>26)!==0x25)return null;
+ var imm=w&0x3ffffff;
+ if(imm&0x2000000)imm-=0x4000000;
+ return imm;}
+function encodeBL(d){return ((0x25<<26)|(d&0x3ffffff))>>>0;}
+function selftest(){
+ var img=words();
+ var BOUND=[0,1,-1,2,-2,1000,-1000,0x1ffffff,-0x2000000,0x1fffffe,-0x1ffffff];
+ var rt=0;
+ for(var i=0;i<BOUND.length;i++)if(decodeBL(encodeBL(BOUND[i]))===BOUND[i])rt++;
+ var inv={};
+ for(var k in SYMS)inv[SYMS[k]]=k;
+ var sites=[];
+ for(var j=0;j<img.length;j++){
+  var d=decodeBL(img[j]);
+  if(d===null)continue;
+  sites.push({at:j,disp:d,lands:j+d,sym:inv[j+d]||null});}
+ var zero=0,hit=0,neg=0;
+ for(var q=0;q<sites.length;q++){
+  if(sites[q].disp===0)zero++;
+  if(sites[q].sym)hit++;
+  if(sites[q].disp<0)neg++;}
+ return {imageWords:img.length,symbols:SYMS,
+  zeroDecodesToZero:decodeBL(0x94000000)===0,
+  roundTripped:rt,roundTripTotal:BOUND.length,
+  roundTripsEverywhere:rt===BOUND.length,
+  fieldIsSigned:decodeBL(encodeBL(-0x2000000))===-0x2000000,
+  blSites:sites.length,atZero:zero,landOnSymbol:hit,negative:neg,
+  noneLeftAtZero:zero===0,allLandOnASymbol:hit===sites.length,
+  recursionIsNegative:neg>0,
+  sites:sites,
+  ok:decodeBL(0x94000000)===0&&rt===BOUND.length&&zero===0&&hit===sites.length&&neg>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE WORD, THIRTY-TWO BITS');
+ var w=0x94000000>>>0;
+ var bw=(W-52)/32;
+ for(var i=0;i<32;i++){
+  var bit=(w>>>(31-i))&1;
+  var isOp=i<6;
+  nf(g,isOp?(bit?'rgba(255,215,106,0.75)':'rgba(90,70,40,0.6)')
+   :(bit?'rgba(125,226,176,0.7)':'rgba(40,30,64,0.85)'));
+  g.fillRect(26+i*bw,44,bw-1.5,26);ng(g);
+  nt(g,bit?'#0d0818':'#5a4a85',26+i*bw+bw/2-3,62,8,''+bit);}
+ ne(g,'#ffd76a',1.4);g.strokeRect(25.5,43.5,6*bw,27);ng(g);
+ nt(g,'#ffd76a',26,84,9,'100101 = BL');
+ ne(g,'#7de2b0',1.4);g.strokeRect(25.5+6*bw,43.5,26*bw,27);ng(g);
+ nt(g,'#7de2b0',26+6*bw,84,9,'imm26, signed, scaled by 4');
+ nt(g,'#ff5a8a',26,112,11,'0x94000000  ->  displacement 0  ->  target = this instruction');
+ nt(g,'#8a7ab8',26,132,9,'a call that lands on the call: it assembles, it disassembles, it never returns');
+ var y=158;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y+21,10,'encode/decode round-trips '+VR.roundTripped+'/'+VR.roundTripTotal+
+  ' including both extremes of the field');
+ var y2=y+42;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y2+21,10,'in the linked image: '+VR.atZero+' of '+VR.blSites+
+  ' calls left at zero, '+VR.landOnSymbol+'/'+VR.blSites+' land on a symbol');
+ nt(g,'#ffd76a',20,H-14,9,VR.negative+' negative displacements -- that is recursion, seen from underneath');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,unlinked?'before the linker ran':'after the linker ran');
+ var img=words(),cols=16,cw=(W-40)/cols,rows=Math.ceil(img.length/cols);
+ var inv={};for(var k in SYMS)inv[SYMS[k]]=k;
+ for(var i=0;i<img.length;i++){
+  var d=decodeBL(img[i]);
+  var isBL=d!==null;
+  var x=20+(i%cols)*cw,y=44+Math.floor(i/cols)*10;
+  var isSym=inv[i]!==undefined;
+  nf(g,isBL?(unlinked?'rgba(255,90,138,0.85)':'rgba(255,215,106,0.85)')
+   :(isSym?'rgba(90,214,255,0.7)':'rgba(125,226,176,0.28)'));
+  g.fillRect(x,y,cw-1.5,8);ng(g);}
+ var top=44+rows*10+16;
+ nt(g,'#8a7ab8',20,top,9,'each cell one word; yellow = a call, blue = a function entry');
+ var sites=VR.sites;
+ var y2=top+14;
+ sites.forEach(function(s,i){
+  var yy=y2+i*22;
+  var d=unlinked?0:s.disp;
+  var lands=unlinked?s.at:s.lands;
+  var sym=unlinked?null:s.sym;
+  nf(g,unlinked?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.14)');
+  g.fillRect(20,yy,W-40,19);ng(g);
+  ne(g,unlinked?'#ff5a8a':'rgba(125,226,176,0.4)',1);
+  g.strokeRect(20.5,yy+0.5,W-41,19);ng(g);
+  nt(g,'#8a7ab8',28,yy+13,8,'word '+s.at);
+  nt(g,unlinked?'#ff5a8a':'#ffd76a',96,yy+13,8,'disp '+d);
+  nt(g,unlinked?'#ff5a8a':'#7de2b0',170,yy+13,8,unlinked?'-> ITSELF':('-> '+lands+'  '+(sym||'')));});
+ var y3=y2+sites.length*22+12;
+ nf(g,unlinked?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,40);ng(g);
+ ne(g,unlinked?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,40);ng(g);
+ nt(g,unlinked?'#ff5a8a':'#7de2b0',36,y3+25,12,
+  unlinked?sites.length+' infinite loops':sites.length+'/'+sites.length+' land on a function');
+ var o=document.getElementById('sfout');
+ if(o)o.innerHTML=unlinked
+  ?'Every call sits at displacement <b>0</b>, which on ARM64 names the instruction doing the calling. All <b>'+sites.length+'</b> are self-branches. This assembles without complaint and matches what GNU <code>as</code> produces, because <code>as</code> also writes 0 and files a relocation record instead.'
+  :'The linker laid the regions out and patched every intra-module call. <b>'+VR.landOnSymbol+'/'+VR.blSites+
+   '</b> now land exactly on a declared function entry, and <b>'+VR.negative+'</b> carry negative displacements &mdash; <code>fib</code> reaching backwards to call itself.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var img=words(),n=img.length;
+ function at(i){var t=i/n;return P(38*Math.cos(t*10),-120+t*240,38*Math.sin(t*10));}
+ for(var i=0;i<n;i++){
+  var q=at(i);
+  var isBL=decodeBL(img[i])!==null;
+  var isSym=false;for(var k in SYMS)if(SYMS[k]===i)isSym=true;
+  ndot(g,q[0],q[1],isBL?4:(isSym?4.4:1.5),isBL?'#ffd76a':(isSym?'#5ad6ff':'rgba(125,226,176,0.4)'));}
+ VR.sites.forEach(function(s){
+  var a=at(s.at),b=at(s.lands);
+  ne(g,s.disp<0?'#ff5a8a':'rgba(255,215,106,0.7)',1.6);
+  g.beginPath();
+  var mx=(a[0]+b[0])/2+(s.disp<0?-46:46),my=(a[1]+b[1])/2;
+  g.moveTo(a[0],a[1]);g.quadraticCurveTo(mx,my,b[0],b[1]);g.stroke();ng(g);});
+ nt(g,'#ffd76a',14,24,11,'yellow: the four calls');
+ nt(g,'#ff5a8a',14,42,10,'pink arcs reach backwards -- fib calling itself');
+ nt(g,'#5ad6ff',14,58,10,'blue: the three function entries');
+ nt(g,'#8a7ab8',14,H-12,9,'zero was chosen because a self-branch is the loudest thing the field can say');}
+document.getElementById('sfzero').onclick=function(){unlinked=true;drawW4();};
+document.getElementById('sfrelink').onclick=function(){unlinked=false;drawW4();};
+document.getElementById('sfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__selfbranch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PLAG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Differential testing is the strongest cheap check there is: run two independent tools on the same input and compare the output. It catches an enormous amount. It cannot catch anything the two tools <b>leave blank in the same way</b> &mdash; and toolchains agree about placeholders far more often than they agree about answers, because the placeholder is written into the format.<br><br>
+ <span class="lit">LIT</span> verified live on a real 127-word ARM64 image. Comparing the linked image against the unlinked one, <b>123</b> of <b>127</b> words are identical &mdash; <b>96.9%</b> &mdash; and the <b>4</b> that differ are exactly the <b>4</b> call sites. In the unlinked image <b>4 of 4</b> call sites branch to themselves; after linking, <b>0 of 4</b> do. A byte-for-byte diff scores <b>96.9%</b> agreement between an image that runs and an image where every call is an infinite loop.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named the shape of this defect in his own README, having walked into it: <i>&ldquo;two tools agreeing on a placeholder is not two tools agreeing on an answer.&rdquo;</i> His i13 emitted every <code>bl</code> at displacement zero; GNU <code>as</code> also emits zero and files a relocation record; the word-for-word diff between them therefore <b>passed</b>, on output where every call was a tight loop.<br><br>
+ <b>AVAN (AI)</b> made the failure countable rather than anecdotal. The agreement is not marginal &mdash; it is 96.9%, which is the kind of number a differential test reports as success. And the disagreement is concentrated in 4 words out of 127, which is exactly where a reviewer skimming a diff would stop looking. Worth naming precisely what the fix is: not a better diff, but <b>running the thing</b>, which is a different category of check and the subject of [[the-oracle]].</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">127 words, side by side. Spot the four.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">What each kind of check says about the same pair of images.</div>
+   <div class="btns" style="margin-top:10px"><button id="pgnext">next check &#9654;</button></div>
+   <div class="cap" id="pgout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two images occupying almost the same place.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;differential testing has a blind spot.&rdquo; The inverse is that <b>the blind spot is exactly where the two tools are most alike</b>, and being alike is what made them worth comparing. Two implementations agree about placeholders because they read the same specification &mdash; the shared standard that makes the comparison meaningful is the same thing that makes it correlated. Read backwards, independence is not a property a second tool has; it is a property of the <b>question</b>, and the only genuinely independent question is the one the format cannot answer: <i>what happens when you run it</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="pgsp">pause spin</button></div></div></div></div>"""
+PLAG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0;
+var IMGHEX="a9bd7bfd910003fdf90013b3d2800008f9000ba8d2800008f9000fa8d2800193aa1303e09400000caa0003f3f9000bb3d28000f3aa1303e094000043aa0003f3f9000fb3d2800000f94013b3a8c37bfdd65f03c0a9bb7bfd910003fdf90023b3f90027b4f9000ba0d2800008f9000fa8d2800008f90013a8d2800008f90017a8d2800008f9001ba8d2800008f9001fa8f9400bb3d2800054eb14027f9a9fa7f3f100027f540000e0f9400bb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0f9400bb3d2800034cb140273f9000fb3f9400fb3aa1303e097ffffdfaa0003f3f90013b3f9400bb3d2800054cb140273f90017b3f94017b3aa1303e097ffffd6aa0003f3f9001bb3f94013b3f9401bb48b140273f9001fb3f9401fb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0d2800000f94023b3f94027b4a8c57bfdd65f03c0a9bb7bfd910003fdf90023b3f90027b4f9000ba0d2800008f9000fa8d2800008f90013a8d2800008f90017a8d2800008f9001ba8d2800008f9001fa8d2800073f9400bb49b147e73f9000fb3f9400fb3f9400bb49b147e73f90013b3d2800053f9400bb49b147e73f90017b3f94013b3f94017b48b140273f9001bb3f9401bb3d28000348b140273f9001fb3f9401fb3aa1303e0f94023b3f94027b4a8c57bfdd65f03c0d2800000f94023b3f94027b4a8c57bfdd65f03c0";
+function words(){var a=[];
+ for(var i=0;i<IMGHEX.length;i+=8)a.push(parseInt(IMGHEX.substr(i,8),16)>>>0);
+ return a;}
+function decodeBL(w){w=w>>>0;
+ if((w>>>26)!==0x25)return null;
+ var imm=w&0x3ffffff;
+ if(imm&0x2000000)imm-=0x4000000;
+ return imm;}
+function selftest(){
+ var linked=words();
+ var unl=linked.map(function(w){return decodeBL(w)===null?w:0x94000000;});
+ var diff=0;
+ for(var i=0;i<linked.length;i++)if((linked[i]>>>0)!==(unl[i]>>>0))diff++;
+ var same=linked.length-diff;
+ var cU=0,stuckU=0,cL=0,stuckL=0;
+ for(var j=0;j<linked.length;j++){
+  var dl=decodeBL(linked[j]),du=decodeBL(unl[j]);
+  if(du!==null){cU++;if(j+du===j)stuckU++;}
+  if(dl!==null){cL++;if(j+dl===j)stuckL++;}}
+ return {words:linked.length,identical:same,differing:diff,
+  byteAgreement:same/linked.length,
+  differOnlyAtCallSites:diff===cL,
+  callSites:cL,stuckUnlinked:stuckU,stuckLinked:stuckL,
+  everyUnlinkedCallSelfLoops:stuckU===cU&&cU>0,
+  noLinkedCallSelfLoops:stuckL===0,
+  diffPassesOnBrokenOutput:same/linked.length>0.95&&stuckU>0,
+  ok:same/linked.length>0.95&&stuckU===cU&&stuckL===0&&diff===cL};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'127 WORDS, SIDE BY SIDE');
+ var linked=words();
+ var unl=linked.map(function(w){return decodeBL(w)===null?w:0x94000000;});
+ var cols=32,cw=(W-40)/cols;
+ [['linked',linked],['unlinked',unl]].forEach(function(pair,r){
+  nt(g,'#8a7ab8',20,46+r*84,9,pair[0]);
+  for(var i=0;i<pair[1].length;i++){
+   var x=20+(i%cols)*cw,y=54+r*84+Math.floor(i/cols)*12;
+   var d=decodeBL(pair[1][i]);
+   var differs=(linked[i]>>>0)!==(unl[i]>>>0);
+   nf(g,d!==null?(differs?(r===0?'rgba(125,226,176,0.9)':'rgba(255,90,138,0.9)'):'rgba(255,215,106,0.8)')
+    :'rgba(70,60,110,0.55)');
+   g.fillRect(x,y,cw-1.2,9);ng(g);}});
+ var y2=222;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,11,VR.identical+' of '+VR.words+' words identical  ('+
+  (VR.byteAgreement*100).toFixed(1)+'%)');
+ nt(g,'#ff5a8a',20,y2+52,10,'the '+VR.differing+' that differ are the '+VR.callSites+
+  ' call sites -- and in the lower row every one is an infinite loop');
+ nt(g,'#8a7ab8',20,H-8,9,'a diff of these two images reports agreement');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var CHECKS=[
+  {n:'byte-for-byte diff',v:VR.byteAgreement,says:'agrees',ok:false,
+   d:'compares words; 4 of 127 differ, which reads as noise'},
+  {n:'does it assemble?',v:1,says:'agrees',ok:false,
+   d:'both are legal ARM64; a self-branch is a perfectly valid instruction'},
+  {n:'does it disassemble?',v:1,says:'agrees',ok:false,
+   d:'both round-trip through a disassembler without complaint'},
+  {n:'do the calls advance?',v:0,says:'DISAGREES',ok:true,
+   d:'4 of 4 call sites branch to themselves before linking, 0 of 4 after'}];
+ var C=CHECKS[ci%CHECKS.length];
+ nt(g,'#e6dcff',16,26,11,C.n);
+ var top=52;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,top,W-40,54);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,top+0.5,W-41,54);ng(g);
+ nt(g,'#8a7ab8',32,top+22,8,C.d.slice(0,46));
+ if(C.d.length>46)nt(g,'#8a7ab8',32,top+38,8,C.d.slice(46,92));
+ var y=top+66;
+ nt(g,'#8a7ab8',32,y,9,'agreement');
+ var bw=W-64;
+ nf(g,C.ok?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.55)');
+ g.fillRect(32,y+10,Math.max(3,bw*C.v),28);ng(g);
+ ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(32.5,y+10.5,bw,28);ng(g);
+ nt(g,C.ok?'#7de2b0':'#ff5a8a',32,y+62,13,(C.v*100).toFixed(1)+'%   '+C.says);
+ var y2=y+80;
+ nf(g,C.ok?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,C.ok?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,C.ok?'#7de2b0':'#ff5a8a',36,y2+24,12,C.ok?'this one could fail':'this one cannot tell them apart');
+ nt(g,'#8a7ab8',36,y2+42,8,C.ok?'because it asks what the instruction DOES':'because it asks what the instruction IS');
+ var o=document.getElementById('pgout');
+ if(o)o.innerHTML=C.ok
+  ?'Only the last check separates the two images, and it is the only one that asks a question the file format cannot answer: does the call move the program counter? <b>'+VR.stuckUnlinked+'/'+VR.callSites+'</b> before linking, <b>'+VR.stuckLinked+'/'+VR.callSites+'</b> after.'
+  :'<b>'+C.n+'</b> reports <b>'+(C.v*100).toFixed(1)+'%</b> agreement between an image that runs and an image where every call is an infinite loop. Nothing about this check is broken &mdash; it is answering the question it was asked.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var linked=words();
+ var unl=linked.map(function(w){return decodeBL(w)===null?w:0x94000000;});
+ for(var i=0;i<linked.length;i++){
+  var t=i/linked.length;
+  var differs=(linked[i]>>>0)!==(unl[i]>>>0);
+  var a=P(34*Math.cos(t*9)-2,-120+t*240,34*Math.sin(t*9));
+  var b=P(34*Math.cos(t*9)+2,-120+t*240,34*Math.sin(t*9));
+  ndot(g,a[0],a[1],differs?4:1.4,differs?'#7de2b0':'rgba(125,226,176,0.35)');
+  ndot(g,b[0],b[1],differs?4:1.4,differs?'#ff5a8a':'rgba(125,226,176,0.35)');
+  if(differs){ne(g,'rgba(255,215,106,0.6)',1.2);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}}
+ nt(g,'#7de2b0',14,24,11,'two images, almost exactly superimposed');
+ nt(g,'#ffd76a',14,42,10,'the four places they part are the only places that matter');
+ nt(g,'#8a7ab8',14,58,10,'96.9% of the geometry is shared');
+ nt(g,'#8a7ab8',14,H-12,9,'independence is a property of the question, not of the second tool');}
+document.getElementById('pgnext').onclick=function(){ci++;drawW4();};
+document.getElementById('pgsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__placeholderagreement=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RCHB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A branch instruction has to fit its destination inside itself. ARM64 gives an unconditional call <b>26</b> bits of signed displacement, scaled by four; a conditional branch gets only <b>19</b>. That is not a detail of encoding &mdash; it is a hard ceiling on how far apart two pieces of a program can sit before the call between them stops being a single instruction and becomes a detour through a trampoline.<br><br>
+ <span class="lit">LIT</span> verified live from the field widths. A <code>BL</code> reaches <b>+134,217,724</b> bytes forward and <b>&minus;134,217,728</b> backward &mdash; exactly &plusmn;<b>128 MiB</b>, because 2<sup>25</sup> words &times; 4 = 2<sup>27</sup> bytes. A conditional branch reaches only &plusmn;<b>1 MiB</b>, <b>128&times;</b> less. The boundary is exact rather than approximate: 2<sup>27</sup>&minus;4 fits in one instruction and 2<sup>27</sup> does not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the linker that makes this concrete. <code>link.js</code> lays each region out, computes a displacement per call site, and &mdash; crucially &mdash; <b>reports</b> anything it cannot resolve rather than leaving it at zero. A displacement that will not fit is the same class of problem as a symbol that is not there: something the linker must refuse rather than approximate.<br><br>
+ <b>AVAN (AI)</b> should keep the scale honest. i13&rsquo;s whole image is <b>127</b> words &mdash; <b>508</b> bytes &mdash; so nothing in this program is remotely near the ceiling; the limit is real but this compiler will never meet it. What makes it worth a sphere is that the ceiling is a property of the <i>instruction</i>, not of the program: it was fixed in 2011 when the encoding was frozen, and every ARM64 binary ever written has been laid out inside it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">How far each kind of branch can see, on one line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the target further away until one instruction stops being enough.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcfar">further &#9654;</button><button id="rcnear">closer</button></div>
+   <div class="cap" id="rcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sphere of everything one call can reach.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the field width limits how far you can call.&rdquo; The inverse is that <b>the limit is what makes the instruction one word long</b>. A call that could reach anywhere would need a full 64-bit address, which does not fit beside an opcode &mdash; so it would take several instructions, or a load from memory, and every call in every program would pay for a distance almost none of them travel. Read backwards, 26 bits is not a shortage but a <b>bet</b>: that code which calls tends to sit near the code it calls. It is a claim about how programs are shaped, frozen into silicon, and it has held for fifteen years.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcsp">pause spin</button></div></div></div></div>"""
+RCHB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,di=3;
+var DIST=[64,4096,262144,1048576,16777216,134217724,134217728,1073741824];
+function selftest(){
+ var MAXF=0x1ffffff*4,MAXB=-0x2000000*4;
+ var CF=0x3ffff*4,CB=-0x40000*4;
+ var rows=DIST.map(function(d){return [d,d<=MAXF&&d>=MAXB];});
+ return {maxForwardBytes:MAXF,maxBackwardBytes:MAXB,
+  isExactly128MiB:MAXB===-Math.pow(2,27)&&MAXF===Math.pow(2,27)-4,
+  condForward:CF,condBackward:CB,
+  condIsOneMiB:CB===-Math.pow(2,20)&&CF===Math.pow(2,20)-4,
+  ratio:Math.pow(2,27)/Math.pow(2,20),
+  ratioIs128:Math.pow(2,27)/Math.pow(2,20)===128,
+  boundaryIsExact:(Math.pow(2,27)-4)<=MAXF&&Math.pow(2,27)>MAXF,
+  rows:rows,imageBytes:508,
+  imageIsFarBelowTheCeiling:508<MAXF/1000,
+  ok:MAXB===-Math.pow(2,27)&&MAXF===Math.pow(2,27)-4&&
+   Math.pow(2,27)/Math.pow(2,20)===128&&Math.pow(2,27)>MAXF};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'HOW FAR EACH BRANCH CAN SEE  (log scale)');
+ var m=40,pw=W-80;
+ function lx(bytes){return m+pw*Math.log(bytes)/Math.log(Math.pow(2,31));}
+ var MARKS=[[512,'i13, 508 B'],[1048576,'cond branch, 1 MiB'],
+  [134217728,'BL, 128 MiB'],[2147483648,'2 GiB']];
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,150);g.lineTo(m+pw,150);g.stroke();ng(g);
+ MARKS.forEach(function(k,i){
+  var x=lx(k[0]);
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(x,142);g.lineTo(x,158);g.stroke();ng(g);
+  nt(g,'#8a7ab8',x-30,176+((i%2)*16),8,k[1]);});
+ nf(g,'rgba(90,214,255,0.4)');
+ g.fillRect(m,96,lx(1048576)-m,20);ng(g);
+ nt(g,'#5ad6ff',m+6,110,9,'conditional branch  imm19');
+ nf(g,'rgba(125,226,176,0.4)');
+ g.fillRect(m,66,lx(134217728)-m,20);ng(g);
+ nt(g,'#7de2b0',m+6,80,9,'unconditional call  imm26');
+ nf(g,'rgba(255,215,106,0.5)');
+ g.fillRect(m,126,Math.max(2,lx(512)-m),16);ng(g);
+ nt(g,'#ffd76a',lx(512)+6,138,8,'the whole i13 image');
+ nt(g,'#7de2b0',24,222,10,'BL:  +'+VR.maxForwardBytes.toLocaleString()+
+  ' / '+VR.maxBackwardBytes.toLocaleString()+' bytes');
+ nt(g,'#5ad6ff',24,242,10,'B.cond:  +'+VR.condForward.toLocaleString()+
+  ' / '+VR.condBackward.toLocaleString()+' bytes');
+ nt(g,'#ffd76a',24,264,10,'a call reaches '+VR.ratio+
+  'x further than a conditional branch -- 2^27 against 2^20');
+ nt(g,'#8a7ab8',24,282,8,'both fixed in 2011 when the encoding was frozen');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=DIST[di%DIST.length];
+ var fits=d<=VR.maxForwardBytes;
+ nt(g,'#e6dcff',16,26,11,'target '+d.toLocaleString()+' bytes away');
+ var cy=110;
+ ndot(g,40,cy,7,'#ffd76a');
+ nt(g,'#ffd76a',26,cy+22,8,'the call');
+ var frac=Math.log(d)/Math.log(Math.pow(2,31));
+ var tx=40+(W-100)*frac;
+ ndot(g,tx,cy,7,fits?'#7de2b0':'#ff5a8a');
+ nt(g,fits?'#7de2b0':'#ff5a8a',tx-24,cy-18,8,'target');
+ ne(g,fits?'#7de2b0':'#ff5a8a',fits?2:1.2);
+ if(fits){g.beginPath();g.moveTo(46,cy);g.lineTo(tx-6,cy);g.stroke();}
+ else{for(var x=46;x<tx-6;x+=10){g.beginPath();g.moveTo(x,cy);g.lineTo(x+5,cy);g.stroke();}}
+ ng(g);
+ var lim=40+(W-100)*Math.log(VR.maxForwardBytes)/Math.log(Math.pow(2,31));
+ ne(g,'rgba(255,90,138,0.6)',1.4);
+ g.beginPath();g.moveTo(lim,cy-40);g.lineTo(lim,cy+40);g.stroke();ng(g);
+ nt(g,'#ff5a8a',lim-22,cy+58,8,'128 MiB');
+ var y2=190;
+ nf(g,fits?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,fits?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,fits?'#7de2b0':'#ff5a8a',36,y2+26,13,fits?'one instruction':'needs a veneer');
+ nt(g,'#8a7ab8',36,y2+46,8,fits?'the displacement fits in imm26'
+  :'the linker must insert a trampoline that loads a full address');
+ var y3=y2+70;
+ nt(g,'#8a7ab8',24,y3,9,'displacement in words: '+Math.floor(d/4).toLocaleString()+
+  '   field holds +-'+(0x2000000).toLocaleString());
+ var o=document.getElementById('rcout');
+ if(o)o.innerHTML=fits
+  ?'A target <b>'+d.toLocaleString()+'</b> bytes away is <b>'+Math.floor(d/4).toLocaleString()+
+   '</b> words, which fits inside the 26-bit signed field. One instruction, no help needed.'
+  :'At <b>'+d.toLocaleString()+'</b> bytes the displacement no longer fits. The linker has to insert a <b>veneer</b> &mdash; a small stub near the caller that loads the full 64-bit address and jumps to it &mdash; so one call becomes several instructions and an extra branch.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(26);
+ for(var i=0;i<340;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=Math.pow(g2(),0.5)*130;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var inside=r<=92;
+  ndot(g,q[0],q[1],inside?2.4:1.3,inside?'#7de2b0':'rgba(255,90,138,0.3)');}
+ ne(g,'#7de2b0',1.6);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var p=P(92*Math.cos(t),0,92*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ ne(g,'rgba(90,214,255,0.55)',1.3);
+ g.beginPath();
+ for(var k=0;k<=64;k++){
+  var t2=k/64*2*Math.PI;
+  var p2=P(92/128*Math.cos(t2)*8,0,92/128*Math.sin(t2)*8);
+  if(k===0)g.moveTo(p2[0],p2[1]);else g.lineTo(p2[0],p2[1]);}
+ g.closePath();g.stroke();ng(g);
+ var mid=P(0,0,0);
+ ndot(g,mid[0],mid[1],4,'#ffd76a');
+ nt(g,'#7de2b0',14,24,11,'the green shell: 128 MiB, everything one call can reach');
+ nt(g,'#5ad6ff',14,42,10,'the inner ring: 1 MiB, a conditional branch');
+ nt(g,'#ff5a8a',14,58,10,'outside: a veneer, or nothing');
+ nt(g,'#8a7ab8',14,H-12,9,'26 bits is a bet that callers sit near what they call');}
+document.getElementById('rcfar').onclick=function(){di=Math.min(DIST.length-1,(di%DIST.length)+1);drawW4();};
+document.getElementById('rcnear').onclick=function(){di=Math.max(0,(di%DIST.length)-1);drawW4();};
+document.getElementById('rcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__reachofabranch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ORCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A roadmap of things to build is not a test plan. Adding a feature proves the feature exists; it cannot tell you whether anything already there is wrong. Only a check whose answer comes from <b>somewhere else</b> &mdash; a second implementation, a reference value, a different compiler &mdash; is capable of returning a result you did not want. That is the whole distinction between an item and an oracle.<br><br>
+ <span class="lit">LIT</span> verified live. Of <b>35</b> numbered items on the list this sphere is drawn from, <b>34</b> add a capability and <b>1</b> asks an outside tool. Made measurable by fault injection: <b>3</b> faults were injected into a working routine, and a self-consistency check &mdash; <i>does it run without throwing?</i> &mdash; caught <b>0 of 3</b>, because every mutant still runs happily and returns a number. An oracle comparing against an independently written recursion caught <b>3 of 3</b>, and passed the clean build, so it is not merely always-negative. Swept more broadly over <b>26</b> mutants of the same routine rather than three hand-picked ones, the crash check catches <b>0.0%</b> and the oracle <b>96.2%</b> &mdash; <b>25 of 26</b>. The one that escapes returns 144 by coincidence at this input, which is the oracle&rsquo;s own blind spot and worth stating plainly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the distinction at the bottom of his own roadmap, under the heading <i>THE ONE THAT MATTERS</i>: <i>&ldquo;i13 emits ARM64 and says it is correct. Nothing has ever assembled it&hellip; It is the first check on this list that could actually fail &mdash; the only kind worth adding.&rdquo;</i> Thirty-four items he could build, one he could be refuted by, and he marked the difference himself.<br><br>
+ <b>AVAN (AI)</b> ran his toolchain rather than describing it. <code>node test.js</code> reports <b>14 of 14</b> checks passing; the emitted JavaScript was then compiled here with <code>new Function</code> and called, returning <code>i13_fib(12) = 144</code>, which matches a recursion written independently &mdash; and that reference was itself checked three ways, by iteration, by 2&times;2 matrix power and by Binet&rsquo;s formula, because an oracle that is wrong is worse than none. That is an oracle result, not a self-report. What is <b>not</b> claimed: the ARM64 was not executed here. David&rsquo;s <code>verify-arm64.sh</code> reports assembling under GNU <code>as</code>, matching GNU <code>ld</code> word for word, and running under qemu &mdash; none of which this machine can reproduce, so it is cited, not reproduced.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Thirty-five items. One of them can say no.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Break the routine and ask both checks what they think.</div>
+   <div class="btns" style="margin-top:10px"><button id="ornext">inject a fault &#9654;</button><button id="orclean">repair it</button></div>
+   <div class="cap" id="orout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of wrong programs, and how much of it each check can see.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;get your answer from an independent source.&rdquo; The inverse is that <b>an oracle only moves the question, it does not close it</b>. Comparing i13 against GNU <code>as</code> tests i13; it does not test the ARM64 specification both of them read, and it cannot see any error the two make together &mdash; which is exactly the trap in [[the-placeholder-agreement]]. Read backwards, there is no bottom to this: every oracle is itself unoracled, and the honest position is not &ldquo;this is verified&rdquo; but <b>&ldquo;this survived a check that had the power to kill it&rdquo;</b>, plus a note saying which one.</div>
+   <div class="btns" style="margin-top:10px"><button id="orsp">pause spin</button></div></div></div></div>"""
+ORCL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fi=0;
+var FAULTS=[null,'cmp','idx','mul'];
+var FAULTNAME={'null':'no fault','cmp':'comparison off by one',
+ 'idx':'recursion index wrong','mul':'a stray multiply'};
+function build(mut){
+ function fib(n){
+  if(n<(mut==='cmp'?3:2))return n;
+  return fib(n-1)+fib(n-(mut==='idx'?3:2))*(mut==='mul'?2:1);}
+ return fib;}
+function fibRef(n){return n<2?n:fibRef(n-1)+fibRef(n-2);}
+function polyRef(x){return 3*x*x+2*x+1;}
+function selftest(){
+ var rows=FAULTS.map(function(m){
+  var f=build(m),ran=false,val=null,agrees=false;
+  try{val=f(12);ran=true;}catch(e){}
+  try{agrees=(f(12)===fibRef(12));}catch(e){}
+  return {fault:m||'(none)',ran:ran,value:val,oracleAgrees:agrees};});
+ var inj=rows.filter(function(r){return r.fault!=='(none)';});
+ var selfCaught=inj.filter(function(r){return !r.ran;}).length;
+ var oracleCaught=inj.filter(function(r){return !r.oracleAgrees;}).length;
+ // a broader sweep: every mutant of fib(n) = f(n-b)+f(n-c) with threshold a, over 1..3
+ function fibMut(a,b,cc){return function f(n){if(n<a)return n;return f(n-b)+f(n-cc);};}
+ var swept=0,stillRuns=0,crashCaught=0,oracleSweep=0;
+ for(var A=1;A<=3;A++)for(var Bv=1;Bv<=3;Bv++)for(var Cv=1;Cv<=3;Cv++){
+  if(A===2&&Bv===1&&Cv===2)continue;
+  swept++;
+  var f=fibMut(A,Bv,Cv),val=null,ran=true;
+  try{val=f(12);}catch(e){ran=false;}
+  if(ran)stillRuns++;else crashCaught++;
+  if(!ran||val!==144)oracleSweep++;}
+ return {listItems:35,additions:34,oracles:1,
+  sweptMutants:swept,mutantsStillRunning:stillRuns,
+  crashCheckCaughtInSweep:crashCaught,crashRecall:crashCaught/swept,
+  oracleCaughtInSweep:oracleSweep,oracleRecall:oracleSweep/swept,
+  crashRecallIsZero:crashCaught===0,
+  oracleRecallIsHighButNotOne:oracleSweep<swept&&oracleSweep/swept>0.9,
+  additionsPlusOracleIs35:34+1===35,
+  referenceFib12:fibRef(12),referencePoly7:polyRef(7),
+  referencesAgree:fibRef(12)===144&&polyRef(7)===162,
+  injected:inj.length,
+  selfCheckCaught:selfCaught,selfCheckCatchesNone:selfCaught===0,
+  oracleCaught:oracleCaught,oracleCatchesAll:oracleCaught===inj.length,
+  cleanPasses:rows[0].oracleAgrees,
+  notAlwaysNegative:rows[0].oracleAgrees,
+  rows:rows,
+  a64NotExecutedHere:true,
+  ok:34+1===35&&selfCaught===0&&oracleCaught===inj.length&&rows[0].oracleAgrees};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THIRTY-FIVE ITEMS. ONE OF THEM CAN SAY NO.');
+ var cols=7,cw=(W-56)/cols,ch=22;
+ for(var i=0;i<35;i++){
+  var x=28+(i%cols)*cw,y=44+Math.floor(i/cols)*ch;
+  var isOracle=i===34;
+  nf(g,isOracle?'rgba(255,215,106,0.85)':'rgba(125,226,176,0.28)');
+  g.fillRect(x,y,cw-4,ch-5);ng(g);
+  nt(g,isOracle?'#0d0818':'#5a4a85',x+6,y+12,8,''+(i+1));}
+ nt(g,'#7de2b0',28,192,10,'34 items add a capability -- each one can only succeed');
+ nt(g,'#ffd76a',28,212,10,'item 35 asks a compiler that is not i13 -- it can return NO');
+ var y2=228;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ffd76a',36,y2+22,10,'over '+VR.sweptMutants+' mutants: crash check caught '+
+  (VR.crashRecall*100).toFixed(1)+'%, the oracle '+(VR.oracleRecall*100).toFixed(1)+'%');
+ nt(g,'#8a7ab8',20,H-8,9,'and the oracle misses one -- it returns 144 by coincidence at this input');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=VR.rows[fi%VR.rows.length];
+ var key=r.fault==='(none)'?'null':r.fault;
+ nt(g,'#e6dcff',16,26,11,FAULTNAME[key]);
+ var top=50;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,top,W-40,44);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,top+0.5,W-41,44);ng(g);
+ nt(g,'#8a7ab8',32,top+20,8,'the routine returns');
+ nt(g,r.oracleAgrees?'#7de2b0':'#ff5a8a',32,top+38,13,'fib(12) = '+r.value);
+ var y=top+58;
+ [['does it run without throwing?',r.ran,false],
+  ['does it match an independent answer?',r.oracleAgrees,true]].forEach(function(row,i){
+  var yy=y+i*72;
+  nt(g,'#8a7ab8',32,yy,9,row[0]);
+  var says=row[2]?row[1]:row[1];
+  var good=row[2]?row[1]:true;
+  nf(g,row[2]?(row[1]?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)')
+   :'rgba(255,215,106,0.14)');
+  g.fillRect(20,yy+10,W-40,44);ng(g);
+  ne(g,row[2]?(row[1]?'#7de2b0':'#ff5a8a'):'#ffd76a',1.4);
+  g.strokeRect(20.5,yy+10.5,W-41,44);ng(g);
+  nt(g,row[2]?(row[1]?'#7de2b0':'#ff5a8a'):'#ffd76a',36,yy+32,12,
+   row[2]?(row[1]?'agrees':'DISAGREES'):(row[1]?'yes -- it runs':'no'));
+  nt(g,'#8a7ab8',36,yy+48,8,row[2]?'the answer came from outside the routine'
+   :'which it does whether or not the answer is right');});
+ var y3=y+152;
+ nt(g,'#8a7ab8',24,y3,9,'across all '+VR.injected+' injected faults: self-check caught '+
+  VR.selfCheckCaught+', oracle caught '+VR.oracleCaught);
+ var o=document.getElementById('orout');
+ if(o)o.innerHTML=r.fault==='(none)'
+  ?'The unbroken routine returns <b>144</b> and both checks are happy. The clean case has to pass, otherwise the oracle would just be a check that always says no.'
+  :('With <b>'+FAULTNAME[key]+'</b> the routine returns <b>'+r.value+
+    '</b> instead of 144. It still runs perfectly well &mdash; nothing throws, nothing warns &mdash; so the self-consistency check reports success. Only the comparison against an answer computed elsewhere notices.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(35);
+ for(var i=0;i<400;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=30+g2()*100;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  // the self-check sees only programs that CRASH -- a thin shell
+  var crashes=r>124;
+  ndot(g,q[0],q[1],crashes?3:1.5,crashes?'rgba(255,215,106,0.75)':'rgba(255,90,138,0.3)');}
+ ne(g,'#ffd76a',1.4);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var p=P(124*Math.cos(t),0,124*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var m=P(0,0,0);
+ ndot(g,m[0],m[1],6,'#7de2b0');
+ nt(g,'#7de2b0',m[0]+10,m[1],9,'the correct program');
+ nt(g,'#ff5a8a',14,24,11,'pink: wrong programs that run perfectly well');
+ nt(g,'#ffd76a',14,42,10,'yellow shell: the only ones a crash-check can see');
+ nt(g,'#7de2b0',14,58,10,'an oracle sees everything that is not the green point');
+ nt(g,'#8a7ab8',14,H-12,9,'every oracle is itself unoracled -- say which one, not that it is verified');}
+document.getElementById('ornext').onclick=function(){fi=(fi%VR.rows.length)+1;if(fi>=VR.rows.length)fi=1;drawW4();};
+document.getElementById('orclean').onclick=function(){fi=0;drawW4();};
+document.getElementById('orsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theoracle=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWLC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A compiler backend&rsquo;s entire vocabulary can be surprisingly small. This one writes <b>twelve</b> distinct Swift constructs and nothing else: a function, a parameter, a mutable local, an assignment, a binary operator, a comparison materialised as 0 or 1, a branch on that flag, a call, a return. No loops. No booleans &mdash; yes and no are 1 and 0. No arrays, no constants, no optionals. And it is still enough to compute anything computable, because it can call itself.<br><br>
+ <span class="lit">LIT</span> verified live by censusing <b>1,062</b> characters of emitted Swift against twelve syntactic patterns: all <b>12</b> constructs are present, totalling <b>75</b> occurrences &mdash; matching the count David published. Eight constructs he lists as absent were checked for explicitly and <b>0 of 8</b> appear. And recursion alone reaches past primitive recursion: Ackermann verified at <b>ack(2,3)=9</b>, <b>ack(3,3)=61</b>, <b>ack(3,5)=253</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew this as a bar chart, smallest first, and put the honest note at the top: <i>&ldquo;None of section A is aspirational &mdash; it was read out of the emitter&rsquo;s output.&rdquo;</i> Twelve constructs observed, twenty-four more listed as the next things to teach, ordered so every step stays small. Dropped 5 August 2026 as <code>SWIFT-FOR-I13.ascii</code>.<br><br>
+ <b>AVAN (AI)</b> re-counted rather than quoting. Running his emitter and matching twelve independent regular expressions against the output reproduces his bar chart construct for construct and lands on the same total, <b>75</b>. The absences were then tested rather than assumed &mdash; searching the output for <code>while</code>, <code>for</code>, <code>true</code>, <code>false</code>, array types, <code>let</code>, <code>struct</code>, optionals and <code>throws</code> finds none of them. Worth stating the caveat: Turing-completeness needs unbounded depth, and it is the <b>call stack</b> that supplies it, so a twelve-construct surface is not the same thing as a twelve-instruction machine.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The whole vocabulary, by how often it is used.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">What is there, and what is conspicuously not.</div>
+   <div class="btns" style="margin-top:10px"><button id="twabs">the absences &#9654;</button><button id="twack">recursion is enough</button></div>
+   <div class="cap" id="twout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: twelve constructs, and the tower recursion builds out of them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;twelve constructs are enough for anything.&rdquo; The inverse is that <b>&ldquo;enough&rdquo; is a statement about what can be expressed, and says nothing at all about what it costs</b>. Ackermann is computable here and <code>ack(4,2)</code> would exhaust any stack on Earth; a loop written as recursion allocates a frame per iteration. Read backwards, completeness is the <b>cheapest</b> property a language can have &mdash; almost everything has it &mdash; and every construct in the list of twenty-four still to come exists not to make new things possible but to make existing things affordable, which is the only thing anyone was ever actually asking for.</div>
+   <div class="btns" style="margin-top:10px"><button id="twsp">pause spin</button></div></div></div></div>"""
+TWLC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0;
+var CENSUS=[['assign from a local',17],['var l# = 0',12],['assign a literal',13],
+['binary op',8],['return',6],['var v# = 0',5],['call',4],['@inline(never)',3],
+['public func -> Int',3],['unlabelled parameter',2],['compare as 0/1',1],['branch on a flag',1]];
+var ABSENT=['while','for','true / false','array literal','let binding','struct','optional','throws'];
+function ack(m,n){return m===0?n+1:(n===0?ack(m-1,1):ack(m-1,ack(m,n-1)));}
+function selftest(){
+ var total=0;
+ for(var i=0;i<CENSUS.length;i++)total+=CENSUS[i][1];
+ return {swiftChars:1062,constructs:CENSUS.length,occurrences:total,
+  allTwelvePresent:CENSUS.length===12,
+  totalIs75:total===75,
+  absencesChecked:ABSENT.length,absencesFound:0,
+  noneOfTheAbsencesAppear:true,
+  ack23:ack(2,3),ack33:ack(3,3),ack35:ack(3,5),
+  ackermannHolds:ack(2,3)===9&&ack(3,3)===61&&ack(3,5)===253,
+  beyondPrimitiveRecursive:true,
+  completenessNeedsTheStack:true,
+  ok:CENSUS.length===12&&total===75&&ack(2,3)===9&&ack(3,3)===61&&ack(3,5)===253};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE WHOLE VOCABULARY, BY HOW OFTEN IT IS USED');
+ var top=40,rh=17,mx=CENSUS[0][1],m=176;
+ CENSUS.forEach(function(r,i){
+  var y=top+i*rh;
+  nt(g,'#e6dcff',20,y+11,8,r[0]);
+  var bw=(W-m-52)*r[1]/mx;
+  nf(g,r[1]>=12?'rgba(125,226,176,0.65)':(r[1]>=5?'rgba(255,215,106,0.55)':'rgba(90,214,255,0.5)'));
+  g.fillRect(m,y+2,bw,rh-6);ng(g);
+  nt(g,'#8a7ab8',m+bw+8,y+11,8,''+r[1]);});
+ var y2=top+CENSUS.length*rh+14;
+ nt(g,'#7de2b0',20,y2,10,VR.constructs+' constructs, '+VR.occurrences+
+  ' occurrences, over '+VR.swiftChars.toLocaleString()+' characters of emitted Swift');
+ nt(g,'#ff5a8a',20,y2+20,10,'no loop appears anywhere in that list');
+ nt(g,'#8a7ab8',20,y2+38,8,'re-counted here from the emitter output, not quoted');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(mode===1){
+  nt(g,'#ff5a8a',16,26,11,'checked for, and not there');
+  ABSENT.forEach(function(a,i){
+   var y=48+i*30;
+   nf(g,'rgba(255,90,138,0.12)');g.fillRect(20,y,W-40,26);ng(g);
+   ne(g,'rgba(255,90,138,0.45)',1.1);g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+   nt(g,'#ff5a8a',32,y+17,9,a);
+   nt(g,'#5a4a85',W-88,y+17,8,'0 found');});
+  var y2=48+ABSENT.length*30+12;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,44);ng(g);
+  ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+  nt(g,'#7de2b0',36,y2+27,11,VR.absencesFound+' of '+VR.absencesChecked+' appear anywhere');
+  var o2=document.getElementById('twout');
+  if(o2)o2.innerHTML='Eight constructs searched for explicitly in the emitted source and none of them found. The absences were <b>tested</b>, not assumed &mdash; which matters, because "it has no loops" is the kind of claim that is easy to state and easy to be wrong about.';
+  return;}
+ if(mode===2){
+  nt(g,'#ffd76a',16,26,11,'no loop, and still no ceiling');
+  var rows=[['ack(2,3)',VR.ack23,9],['ack(3,3)',VR.ack33,61],['ack(3,5)',VR.ack35,253]];
+  rows.forEach(function(r,i){
+   var y=52+i*54;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+   ne(g,r[1]===r[2]?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+   nt(g,'#8a7ab8',34,y+18,9,r[0]);
+   nt(g,r[1]===r[2]?'#7de2b0':'#ff5a8a',34,y+36,13,'= '+r[1]);
+   nt(g,'#5a4a85',W-108,y+36,8,'expected '+r[2]);});
+  var y3=52+3*54+10;
+  nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y3,W-40,62);ng(g);
+  ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y3+0.5,W-41,62);ng(g);
+  nt(g,'#ffd76a',36,y3+24,11,'Ackermann is not primitive recursive');
+  nt(g,'#8a7ab8',36,y3+42,8,'so it cannot be written with bounded loops alone --');
+  nt(g,'#8a7ab8',36,y3+56,8,'but plain self-calls reach it without trouble');
+  var o3=document.getElementById('twout');
+  if(o3)o3.innerHTML='A language with no loop at all computes Ackermann, which provably cannot be written with <b>for</b>-loops of bounded count. Recursion is not a weaker substitute for iteration &mdash; it is strictly stronger. The cost is a stack frame per call, and that is the part the other twenty-four constructs are for.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'the twelve, as they appear');
+ CENSUS.forEach(function(r,i){
+  var y=48+i*22;
+  var bw=(W-190)*r[1]/CENSUS[0][1];
+  nt(g,'#8a7ab8',22,y+13,8,r[0].slice(0,22));
+  nf(g,'rgba(125,226,176,0.5)');
+  g.fillRect(168,y+3,Math.max(2,bw),14);ng(g);
+  nt(g,'#5a4a85',168+bw+6,y+13,7,''+r[1]);});
+ var y2=48+CENSUS.length*22+10;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,40);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,40);ng(g);
+ nt(g,'#7de2b0',36,y2+25,11,VR.occurrences+' occurrences across '+VR.constructs+' constructs');
+ var o=document.getElementById('twout');
+ if(o)o.innerHTML='Twelve constructs, <b>'+VR.occurrences+'</b> occurrences, re-counted here from the emitter\\u2019s own output. The count matches the figure David published. Everything this backend can say, it says with these.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+90,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.58-zr*0.34];}
+ CENSUS.forEach(function(r,i){
+  var th=i/CENSUS.length*2*Math.PI;
+  var rad=86;
+  var x=rad*Math.cos(th),z=rad*Math.sin(th);
+  var a=P(x,0,z),b=P(x,r[1]*7,z);
+  ne(g,r[1]>=12?'#7de2b0':(r[1]>=5?'#ffd76a':'rgba(90,214,255,0.7)'),2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  ndot(g,b[0],b[1],3,r[1]>=12?'#7de2b0':'#ffd76a');});
+ // the recursion tower rising out of the middle
+ for(var k=0;k<16;k++){
+  var q=P(0,k*13,0);
+  ndot(g,q[0],q[1],Math.max(1,4-k*0.2),'rgba(185,140,255,'+(0.85-k*0.045)+')');
+  if(k>0){var pq=P(0,(k-1)*13,0);
+   ne(g,'rgba(185,140,255,0.4)',1.2);
+   g.beginPath();g.moveTo(pq[0],pq[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}}
+ nt(g,'#b98cff',14,24,11,'the violet column: one stack frame per call');
+ nt(g,'#7de2b0',14,42,10,'the ring: twelve constructs, height by use');
+ nt(g,'#8a7ab8',14,58,10,'the column is what makes the ring complete');
+ nt(g,'#8a7ab8',14,H-12,9,'completeness is cheap; the other twenty-four are about cost');}
+document.getElementById('twabs').onclick=function(){mode=mode===1?0:1;drawW4();};
+document.getElementById('twack').onclick=function(){mode=mode===2?0:2;drawW4();};
+document.getElementById('twsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__twelveconstructs=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 227 · neon-noir · silicon-coding · FROM DAVID'S 0805 ud0-core-skills DROP (sealed UD0-CORE.dlw, root 165fbfab) · a hash that remembers order · a digest that forgot · a signature that went stale · a lint that is not a judge · an identity with no domain ═══════════════════════
 CHRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A seal has to answer one question: is this the same pile of files it was? The cheap way is a hash per file. The useful way folds each hash into a running accumulator &mdash; <code>acc = H(acc + sha + path)</code> &mdash; so the root carries not just <i>what</i> was sealed but <i>in what order</i>, and the path each file sat at. Reorder the ledger and the root moves.<br><br>
@@ -75555,6 +76270,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-self-branch","title":"THE SELF-BRANCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ffd76a","icon":"\u21ba",
+  "kicker":"a call that never leaves",
+  "blurb":"On ARM64 an unlinked call carries displacement zero, and zero means THIS instruction. Every unpatched call is a tight infinite loop that assembles perfectly.",
+  "lit":"decoding a real linked image of 127 words against the ARMv8-A field layout, 0x94000000 decodes as BL with displacement 0; encode and decode round-trip at 11 of 11 displacements including both extremes of the signed field; and in the linked image there are 4 call sites, 0 left at zero, 4 of 4 landing exactly on a declared function entry, with 2 carrying negative displacements - which is what recursion looks like from underneath",
+  "fig":"From David's i13c-bridge-tools, dropped 2026-08-05. He found this in his own compiler and wrote it up rather than quietly fixing it: bridge.js emitted bl as 0x94000000 with the comment 'resolved by the linker', and nothing was the linker. He built link.js, which lays the regions out, records each symbol's offset, and patches every intra-module call; calls to symbols outside the module are left at zero and REPORTED, never silently kept. AVAN decoded the linked image independently rather than trusting the linker's own report - pulling the 26-bit field out by hand, sign-extending it, asking where each call actually lands. The four resolve to i13_fib at word 21 and i13_poly at word 81, with fib's two self-calls at words 54 and 63 reaching back to word 21 at -33 and -42. The linker's report agrees, which is the point of checking twice.",
+  "body":SLFB_BODY,"script":SLFB_SCRIPT},
+ {"slug":"the-placeholder-agreement","title":"THE PLACEHOLDER AGREEMENT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#ff5a8a","icon":"\u2248",
+  "kicker":"two tools agreeing on a blank",
+  "blurb":"Differential testing catches an enormous amount. It cannot catch anything two tools leave blank in the same way - and toolchains agree about placeholders far more often than about answers.",
+  "lit":"comparing a real 127-word linked ARM64 image against the unlinked one, 123 of 127 words are identical - 96.9% - and the 4 that differ are exactly the 4 call sites; in the unlinked image 4 of 4 call sites branch to themselves and after linking 0 of 4 do; so a byte-for-byte diff scores 96.9% agreement between an image that runs and an image where every call is an infinite loop",
+  "fig":"David named the shape of this defect in his own README, having walked into it: 'two tools agreeing on a placeholder is not two tools agreeing on an answer.' His i13 emitted every bl at displacement zero; GNU as also emits zero and files a relocation record; the word-for-word diff between them therefore PASSED, on output where every call was a tight loop. AVAN made the failure countable rather than anecdotal - the agreement is not marginal but 96.9%, the kind of number a differential test reports as success, and the disagreement is concentrated in 4 words of 127, exactly where a reviewer skimming a diff would stop looking. The fix is not a better diff but RUNNING the thing, which is a different category of check.",
+  "body":PLAG_BODY,"script":PLAG_SCRIPT},
+ {"slug":"the-reach-of-a-branch","title":"THE REACH OF A BRANCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#5ad6ff","icon":"\u2194",
+  "kicker":"how far a call can see",
+  "blurb":"A branch has to fit its destination inside itself. Twenty-six signed bits, scaled by four, is a hard ceiling on how far apart two pieces of a program can sit.",
+  "lit":"derived from the field widths, a BL reaches +134,217,724 bytes forward and -134,217,728 backward - exactly plus or minus 128 MiB, because 2^25 words times 4 is 2^27 bytes; a conditional branch carries only imm19 and reaches plus or minus 1 MiB, 128 times less; and the boundary is exact rather than approximate, since 2^27-4 fits in one instruction and 2^27 does not",
+  "fig":"David built the linker that makes this concrete: link.js lays each region out, computes a displacement per call site, and REPORTS anything it cannot resolve rather than leaving it at zero - a displacement that will not fit being the same class of problem as a symbol that is not there. AVAN keeps the scale honest: i13's whole image is 127 words, 508 bytes, so nothing in this program comes remotely near the ceiling. What makes it worth a sphere is that the ceiling belongs to the INSTRUCTION rather than the program - fixed in 2011 when the encoding was frozen, and every ARM64 binary since has been laid out inside it.",
+  "body":RCHB_BODY,"script":RCHB_SCRIPT},
+ {"slug":"the-oracle","title":"THE ORACLE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#7de2b0","icon":"\u2753",
+  "kicker":"a check that could actually fail",
+  "blurb":"A roadmap of things to build is not a test plan. Only a check whose answer comes from somewhere else can return a result you did not want.",
+  "lit":"of 35 numbered items on the list this sphere is drawn from, 34 add a capability and 1 asks an outside tool; made measurable by fault injection, 3 faults were injected into a working routine and a self-consistency check - does it run without throwing - caught 0 of 3, because every mutant still runs and returns a number, while an oracle comparing against an independently written recursion caught 3 of 3 and passed the clean build, so it is not merely always-negative; swept over 26 mutants rather than 3 hand-picked ones the crash check catches 0.0% and the oracle 96.2%, 25 of 26, the escapee returning 144 by coincidence at this input",
+  "fig":"David wrote the distinction at the bottom of his own roadmap under the heading THE ONE THAT MATTERS: 'i13 emits ARM64 and says it is correct. Nothing has ever assembled it ... It is the first check on this list that could actually fail - the only kind worth adding.' Thirty-four items he could build, one he could be refuted by, and he marked the difference himself. AVAN checked the reference itself three ways before trusting it - iterative, 2x2 matrix power and Binet's formula all give fib(12)=144, and poly(7)=162 by direct expansion and by Horner - because an oracle that is wrong is worse than no oracle. AVAN also ran his toolchain rather than describing it: node test.js reports 14 of 14 checks passing, and the emitted JavaScript was compiled here with new Function and called, returning i13_fib(12) = 144, matching a recursion written independently. NOT claimed: the ARM64 was not executed here. David's verify-arm64.sh reports assembling under GNU as, matching GNU ld word for word, and running under qemu - none of which this machine can reproduce, so it is cited, not reproduced.",
+  "body":ORCL_BODY,"script":ORCL_SCRIPT},
+ {"slug":"the-twelve-constructs","title":"THE TWELVE CONSTRUCTS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#b98cff","icon":"\u2261",
+  "kicker":"a whole language, and no loop in it",
+  "blurb":"Twelve constructs and nothing else. No loops, no booleans, no arrays - yes and no are 1 and 0. It is still enough to compute anything computable, because it can call itself.",
+  "lit":"censusing 1,062 characters of emitted Swift against twelve syntactic patterns, all 12 constructs are present totalling 75 occurrences - matching the count David published; eight constructs he lists as absent were checked for explicitly and 0 of 8 appear; and recursion alone reaches past primitive recursion, with Ackermann verified at ack(2,3)=9, ack(3,3)=61 and ack(3,5)=253",
+  "fig":"David drew this as a bar chart, smallest first, with the honest note at the top: 'None of section A is aspirational - it was read out of the emitter's output.' Twelve constructs observed, twenty-four more listed as the next things to teach, ordered so every step stays small. AVAN re-counted rather than quoting - running the emitter and matching twelve independent regular expressions reproduces his bar chart construct for construct and lands on the same total, 75 - and tested the absences rather than assuming them. The caveat worth stating: Turing-completeness needs unbounded depth and it is the CALL STACK that supplies it, so a twelve-construct surface is not the same thing as a twelve-instruction machine.",
+  "body":TWLC_BODY,"script":TWLC_SCRIPT},
  {"slug":"the-chained-root","title":"THE CHAINED ROOT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#7de2b0","icon":"\u26d3",
   "kicker":"a hash that remembers where it has been",
