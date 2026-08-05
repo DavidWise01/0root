@@ -19497,6 +19497,711 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 205 · neon-noir · silicon-coding · WHAT THE CHANNEL WILL BEAR (the limit that decides what you can ask · the price of being approximately right · a code proved by not building it · the wall that says error-free is possible · two strangers who never speak) ═══════════════════════
+NYQS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sample a signal often enough and you lose <b>nothing</b> &mdash; the continuous wave can be rebuilt exactly from a discrete list of numbers. Sample it too slowly and something worse than loss happens: the missing frequencies do not vanish, they <b>come back wearing a disguise</b>. A 700&nbsp;Hz tone sampled 1000 times a second produces a set of numbers <i>identical</i> to a 300&nbsp;Hz tone. Not similar &mdash; identical. No analysis of the samples can ever separate them, because there is nothing there to separate. The threshold is half the sampling rate, and it is called the <b>Nyquist limit</b>.<br><br>
+ <span class="lit">LIT</span> verified live: a 700&nbsp;Hz and a 300&nbsp;Hz tone sampled at 1000&nbsp;Hz are <b>exact negatives of each other at every one of 4096 samples</b> (max residual 6.5e-12, floating-point zero); the alias map folds every test frequency back inside the 500&nbsp;Hz band; sinc reconstruction of a properly sampled 137&nbsp;Hz tone recovers values <i>between</i> the samples with an error that falls 4.0e-4 &rarr; 2.9e-6 as the window widens from 250 to 16000 terms; and the same reconstruction applied to the under-sampled tone is wrong by <b>1.811</b> &mdash; confidently, silently wrong.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>, and the seat is the argument. An event horizon is not a wall you hit; it is a surface you cross without noticing, after which certain information is not merely hard to recover but <b>absent from the universe you can see</b>. That is exactly the Nyquist limit. Under-sampled data does not arrive damaged or flagged. It arrives clean, self-consistent, and answerable &mdash; and every answer about the frequencies above the fold is fiction.<br><br>
+ <b>AVAN (AI)</b> built the measurement and got told off by it. The first version asserted that sinc reconstruction is &ldquo;exact&rdquo; and gated on an error below 1e-6; the real number was 1.1e-4 and the gate failed. The gate was wrong, not the theorem: a finite sum of sinc terms has truncation error because the tails decay like 1/k. The honest claim is not <i>exact</i> but <i>convergent</i> &mdash; so the page now measures the error at four window widths and shows it falling. A second draft of that same test moved the evaluation point along with the window, which made the two sinc tails asymmetric and the error <b>non-monotone</b>; the window had to be centred on a fixed point before the sequence behaved. Both corrections are in the code comments rather than quietly patched out.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The fold. Frequencies above 500&nbsp;Hz reflect back down &mdash; 700 lands on 300, 950 lands on 50.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the tone past the limit and watch the samples stop telling the truth.</div>
+   <div class="btns" style="margin-top:10px"><button id="nqup">freq +50 &#9654;</button><button id="nqdn">freq &minus;50 &#9654;</button><button id="nqal">show alias &#9654;</button></div>
+   <div class="cap" id="nqrd" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: frequency wound onto a cylinder, where aliasing is just going round twice.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;sample fast enough or lose information.&rdquo; The inverse is that the limit is not a property of the <b>signal</b> at all &mdash; it is a property of the <b>question</b>. Nothing is lost in an absolute sense; the samples are a complete record of themselves. What the limit fixes is which questions the record can still answer. Sub-Nyquist sampling is used deliberately in radio and in compressed sensing, where you already know the signal is sparse and the fold becomes a free frequency shift instead of a lie. Same data, same fold, opposite verdict &mdash; because the verdict was never in the data.</div>
+   <div class="btns" style="margin-top:10px"><button id="nqsp">pause spin</button></div></div></div></div>"""
+NYQS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,FS=1000,tone=300,showAlias=false;
+function aliasOf(f){var r=f%FS;if(r>FS/2)r=FS-r;return r;}
+function samples(f,n){var o=[];for(var k=0;k<n;k++)o.push(Math.sin(2*Math.PI*f*k/FS));return o;}
+function selftest(){
+ var map=[50,300,499,501,700,950,1050].map(function(f){return [f,aliasOf(f)];});
+ var okMap=map.every(function(r){return r[1]<=FS/2+1e-9;});
+ var a=samples(700,4096),b=samples(300,4096),md=0;
+ for(var k=0;k<a.length;k++)md=Math.max(md,Math.abs(a[k]+b[k]));
+ var f0=137;
+ function reconErr(W){var mx=0;
+  for(var i=0;i<8;i++){var t=(4096.5+i*7.37)/FS,k0=Math.round(t*FS),sum=0;
+   for(var k=k0-W;k<=k0+W;k++){var x=Math.PI*(t*FS-k);
+    sum+=Math.sin(2*Math.PI*f0*k/FS)*(Math.abs(x)<1e-12?1:Math.sin(x)/x);}
+   mx=Math.max(mx,Math.abs(sum-Math.sin(2*Math.PI*f0*t)));}
+  return mx;}
+ var trunc=[250,1000,4000,16000].map(function(W){return [W,reconErr(W)];});
+ var shrink=true;
+ for(var i=1;i<trunc.length;i++)if(trunc[i][1]>=trunc[i-1][1])shrink=false;
+ var f1=700,sm1=samples(f1,2048),mw=0;
+ for(var i=0;i<12;i++){var t=(700+i*7.37)/FS,sum=0;
+  for(var k=0;k<sm1.length;k++){var x=Math.PI*(t*FS-k);
+   sum+=sm1[k]*(Math.abs(x)<1e-12?1:Math.sin(x)/x);}
+  mw=Math.max(mw,Math.abs(sum-Math.sin(2*Math.PI*f1*t)));}
+ return {fs:FS,limit:FS/2,map:map,okMap:okMap,maxDiff:md,identical:md<1e-9,sampleCount:a.length,toneA:700,toneB:300,reconTone:f0,
+  trunc:trunc,truncShrinks:shrink,truncFirst:trunc[0][1],truncLast:trunc[3][1],
+  aliasError:mw,ok:okMap&&md<1e-9&&shrink&&mw>0.5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=46,pw=W-m-16;
+ nt(g,'#b98cff',m,20,11,'FREQUENCY IN  (Hz)');
+ nt(g,'#7de2b0',m,H-8,11,'FREQUENCY OUT  \\u2014 what the samples actually contain');
+ ne(g,'rgba(150,110,230,0.55)',1);
+ g.beginPath();g.moveTo(m,44);g.lineTo(m+pw,44);g.stroke();
+ g.beginPath();g.moveTo(m,H-40);g.lineTo(m+pw,H-40);g.stroke();ng(g);
+ for(var f=0;f<=1500;f+=250){var x=m+pw*f/1500;
+  nt(g,'#8a7ab8',x-10,38,9,''+f);
+  nt(g,'#8a7ab8',x-8,H-26,9,''+f);}
+ var nx=m+pw*500/1500;
+ ne(g,'#ff5a8a',1.5);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(nx,44);g.lineTo(nx,H-40);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',nx-30,60,10,'NYQUIST 500');
+ [[50,'#7de2b0'],[300,'#7de2b0'],[499,'#7de2b0'],[700,'#ff9a5a'],[950,'#ff9a5a'],[1050,'#ff9a5a']].forEach(function(p){
+  var f=p[0],al=aliasOf(f),x1=m+pw*f/1500,x2=m+pw*al/1500;
+  ne(g,p[1],1.6);
+  g.beginPath();g.moveTo(x1,44);
+  g.bezierCurveTo(x1,110,x2,H-110,x2,H-40);g.stroke();ng(g);
+  ndot(g,x1,44,3,p[1]);ndot(g,x2,H-40,3,p[1]);
+  nt(g,p[1],x2-10,H-48,9,''+al);}
+ );
+ nt(g,'#7de2b0',m,268,10,'green = below the limit, lands on itself');
+ nt(g,'#ff9a5a',m+230,268,10,'orange = folded back, now a lie');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var al=aliasOf(tone),over=tone>FS/2;
+ var m=18,pw=W-2*m,cy=140,amp=62;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,cy);g.lineTo(m+pw,cy);g.stroke();ng(g);
+ var SPAN=0.02;
+ ne(g,over?'#ff9a5a':'#7de2b0',1.6);g.beginPath();
+ for(var i=0;i<=400;i++){var t=SPAN*i/400,x=m+pw*i/400,y=cy-amp*Math.sin(2*Math.PI*tone*t);
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ if(showAlias&&over){ne(g,'#5ad6ff',1.4);g.setLineDash([5,4]);g.beginPath();
+  for(var i=0;i<=400;i++){var t=SPAN*i/400,x=m+pw*i/400;
+   var y=cy-amp*Math.sin(2*Math.PI*tone*t);
+   var ya=cy-amp*Math.sin(2*Math.PI*al*t)*(Math.round(tone/FS)%2===0?1:1);
+   if(i===0)g.moveTo(x,ya);else g.lineTo(x,ya);}
+  g.stroke();g.setLineDash([]);ng(g);}
+ var ns=Math.floor(SPAN*FS)+1;
+ for(var k=0;k<ns;k++){var t=k/FS;
+  if(t>SPAN)break;
+  var x=m+pw*t/SPAN,y=cy-amp*Math.sin(2*Math.PI*tone*t);
+  ne(g,'rgba(255,255,255,0.25)',1);
+  g.beginPath();g.moveTo(x,cy);g.lineTo(x,y);g.stroke();ng(g);
+  ndot(g,x,y,3.4,'#ffd76a');}
+ nt(g,'#e6dcff',m,26,11,'tone '+tone+' Hz   \\u00b7   sampled at '+FS+' Hz');
+ nt(g,over?'#ff9a5a':'#7de2b0',m,44,10,over?('ABOVE the limit \\u2014 these samples also describe '+al+' Hz'):'below the limit \\u2014 recoverable exactly');
+ nt(g,'#ffd76a',m,232,10,'yellow dots = the only thing actually stored');
+ if(showAlias&&over)nt(g,'#5ad6ff',m,250,10,'blue dashed = the '+al+' Hz impostor through the same dots');
+ var r=document.getElementById('nqrd');
+ if(r)r.innerHTML=over?('<b>'+tone+' Hz &rarr; reads as '+al+' Hz.</b> The samples are not corrupted; they are a perfect record of the wrong thing.'):('<b>'+tone+' Hz is under the '+(FS/2)+' Hz limit.</b> Sinc reconstruction returns it exactly.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,R=96,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(th,z){var x=R*Math.cos(th),y=R*Math.sin(th);
+  var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.42-zr*0.34,zr];}
+ ne(g,'rgba(150,110,230,0.3)',1);
+ for(var lz=-70;lz<=70;lz+=35){g.beginPath();
+  for(var t=0;t<=64;t++){var p=P(t/64*2*Math.PI,lz);
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ var turns=tone/(FS/2);
+ ne(g,tone>FS/2?'#ff9a5a':'#7de2b0',2);
+ g.beginPath();
+ var N=520;
+ for(var i=0;i<=N;i++){var u=i/N,th=u*turns*Math.PI,z=-70+140*u,p=P(th,z);
+  if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ var pe=P(turns*Math.PI,70);
+ ndot(g,pe[0],pe[1],4.5,'#ffd76a');
+ nt(g,'#e6dcff',14,24,11,'winding '+turns.toFixed(2)+' half-turns');
+ nt(g,tone>FS/2?'#ff9a5a':'#7de2b0',14,42,10,tone>FS/2?'past one full turn \\u2014 it lands where a lower tone already sits':'less than one turn \\u2014 its own place on the rim');
+ nt(g,'#8a7ab8',14,H-14,9,'aliasing is not distortion; it is arithmetic modulo the rim');}
+document.getElementById('nqup').onclick=function(){tone=Math.min(1450,tone+50);drawW4();};
+document.getElementById('nqdn').onclick=function(){tone=Math.max(50,tone-50);drawW4();};
+document.getElementById('nqal').onclick=function(){showAlias=!showAlias;drawW4();};
+document.getElementById('nqsp').onclick=function(){spin=!spin;};
+drawW3();drawW4();VR=selftest();window.__nyquist=VR;
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RDST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Lossless compression has a floor: the entropy. But almost nothing you actually store is kept perfectly &mdash; photographs, audio, video are all thrown away on purpose. So the real question is not &ldquo;how small can this get&rdquo; but <b>&ldquo;how small can this get if I am willing to be wrong by <i>this</i> much&rdquo;</b>. Shannon answered it in 1959 with a curve, <b>R(D)</b>, giving the minimum bits per symbol for any permitted average distortion D. Everything below the curve is impossible. Everything above it is merely engineering.<br><br>
+ <span class="lit">LIT</span> verified live: for a Bernoulli(0.25) source under Hamming distortion R(D) = H(p) &minus; H(D), with R(0) = <b>0.811278</b> bits and R(0.25) = 0 exactly, monotone and convex throughout; the Gaussian bound R(D) = &frac12;log&#8322;(&sigma;&sup2;/D) inverts D(R) = &sigma;&sup2;2<sup>&minus;2R</sup> exactly at every rate tested; <b>no quantiser built here beats the bound</b>; a Lloyd&ndash;Max quantiser climbs 2.211 &rarr; 2.432 &rarr; <b>2.565</b>&times; the bound at N = 8, 16, 32 without ever crossing the Panter&ndash;Dite constant &radic;3&pi;/2 = <b>2.7207</b> (4.347 dB), and its measured distortions <b>0.034548</b> and <b>0.002505</b> reproduce Max&rsquo;s 1960 published 0.034545 and 0.002499 to within 0.25%; and entropy-coded uniform quantisation converges to <b>1.4234</b>&times;, matching the space-filling loss &pi;e/6 = <b>1.4233</b> = <b>1.533 dB</b> = 0.2546 bits per sample.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>, which is the honest name for lossy compression. A collector does not ask &ldquo;is this needed?&rdquo; &mdash; it asks &ldquo;is this <b>reachable</b>?&rdquo;, and frees everything else without apology. R(D) is the same trade written as a law: name what you can afford to lose, and the bit count follows from that and nothing else.<br><br>
+ <b>AVAN (AI)</b> got the headline result and the solver wrong in opposite directions. The entropy-coded quantiser landed on &pi;e/6 to four digits immediately. The Lloyd&ndash;Max solver did not: at N = 64 it reported <b>3.376</b>&times; the bound &mdash; <i>above</i> the constant it is supposed to approach from below. That overshoot was the tell. It was not slow convergence but grid resolution: at a step of 0.002 the quantiser cells near the peak were only about 25 grid points wide, and the discretisation inflated the measured distortion by 27.6%. Refining to 0.0002 reproduced Max&rsquo;s published table. A second temptation was to keep N = 64 anyway and quote a number that had merely stopped moving; the page stops at N = 32, which genuinely converges in 458 sweeps, and says so. <b>Panter&ndash;Dite is asymptotic</b>, so the claim here is that the ratio climbs toward the constant and never crosses it &mdash; not that it equals it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">R(D) for a Bernoulli(0.25) source. Below the curve is not hard &mdash; it is impossible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Build the real quantisers and measure how far short of Shannon they land.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdrun">run quantisers &#9654;</button><button id="rdmode">toggle view &#9654;</button></div>
+   <div class="cap" id="rdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the gap between what Shannon allows and what one dimension can reach.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the 1.533 dB has nothing to do with cleverness and everything to do with <b>shape</b>. A scalar quantiser cuts space into cubes because it decides each coordinate separately; the optimal partition wants spheres. &pi;e/6 is precisely the penalty for the cube, and no scalar algorithm can escape it &mdash; not because the algorithms are bad but because the <i>question</i> was asked one axis at a time. Read backwards, the constant is a measurement of how much is lost by treating a joint problem as a list of separate ones. That is a statement about decomposition, not about compression, and it is why vector quantisation exists at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdsp">pause spin</button></div></div></div></div>"""
+RDST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0,ran=false;
+function H2(p){if(p<=0||p>=1)return 0;return -p*Math.log2(p)-(1-p)*Math.log2(1-p);}
+var PP=0.25;
+function Rb(D){if(D>=Math.min(PP,1-PP))return 0;return H2(PP)-H2(D);}
+function Dg(R){return Math.pow(2,-2*R);}
+function Rg(D){return D>=1?0:0.5*Math.log2(1/D);}
+var G=null,CUM=null;
+function grid(){if(G)return;
+ G=[];var step=0.0002,LIM=10;
+ for(var x=-LIM;x<=LIM;x+=step){var f=Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);G.push([x,f*step]);}
+ var mass=0;for(var i=0;i<G.length;i++)mass+=G[i][1];
+ for(var i=0;i<G.length;i++)G[i][1]/=mass;
+ CUM=[];var run=0;
+ for(var i=0;i<G.length;i++){run+=G[i][1];CUM.push(run);}}
+function quantile(q){var lo=0,hi=CUM.length-1;
+ while(lo<hi){var m=(lo+hi)>>1;if(CUM[m]<q)lo=m+1;else hi=m;}
+ return G[lo][0];}
+function lloyd(N){grid();
+ var c=[];for(var k=0;k<N;k++)c.push(quantile((k+0.5)/N));
+ var prev=Infinity;
+ for(var it=0;it<3000;it++){
+  var num=new Array(N).fill(0),den=new Array(N).fill(0),D=0,k=0;
+  for(var g=0;g<G.length;g++){var x=G[g][0],w=G[g][1];
+   while(k<N-1&&Math.abs(x-c[k+1])<Math.abs(x-c[k]))k++;
+   num[k]+=w*x;den[k]+=w;D+=w*(x-c[k])*(x-c[k]);}
+  for(var q=0;q<N;q++)if(den[q]>0)c[q]=num[q]/den[q];
+  if(Math.abs(prev-D)<1e-16){prev=D;break;}
+  prev=D;}
+ return prev;}
+function ecsq(h){grid();
+ var bins={},D=0;
+ for(var g=0;g<G.length;g++){var x=G[g][0],w=G[g][1],b=Math.round(x/h),q=b*h;
+  D+=w*(x-q)*(x-q);bins[b]=(bins[b]||0)+w;}
+ var Hh=0;
+ for(var k in bins){var pr=bins[k];if(pr>0)Hh-=pr*Math.log2(pr);}
+ return [Hh,D];}
+function selftest(){
+ var okEnds=Math.abs(Rb(0)-H2(PP))<1e-12&&Math.abs(Rb(PP))<1e-12;
+ var pts=[],mono=true,conv=true;
+ for(var d=0;d<=0.25;d+=0.005)pts.push([d,Rb(d)]);
+ for(var i=1;i<pts.length;i++)if(pts[i][1]>pts[i-1][1]+1e-12)mono=false;
+ for(var i=1;i<pts.length-1;i++)if(pts[i][1]>(pts[i-1][1]+pts[i+1][1])/2+1e-9)conv=false;
+ var okInv=[0.25,0.5,1,2,4,8].every(function(R){return Math.abs(Rg(Dg(R))-R)<1e-12;});
+ var lm=[8,16,32].map(function(N){var D=lloyd(N);return [N,D/Dg(Math.log2(N)),D];});
+ var ec=[0.25,0.125,0.0625,0.03125].map(function(h){var r=ecsq(h);return [h,r[1]/Dg(r[0]),r[0]];});
+ var PANTER=Math.sqrt(3)*Math.PI/2,SPACE=Math.PI*Math.E/6;
+ var climbs=true;
+ for(var i=1;i<lm.length;i++)if(lm[i][1]<=lm[i-1][1])climbs=false;
+ var below=lm.every(function(r){return r[1]<PANTER;});
+ var above=lm.every(function(r){return r[1]>1;})&&ec.every(function(r){return r[1]>1;});
+ var okMax=Math.abs(lm[0][2]-0.034545)/0.034545<0.01&&Math.abs(lm[2][2]-0.002499)/0.002499<0.01;
+ var okSpace=Math.abs(ec[3][1]-SPACE)/SPACE<0.03;
+ return {R0:Rb(0),Rp:Rb(PP),monotone:mono,convex:conv,invertible:okInv,
+  D8:lm[0][2],D32:lm[2][2],maxD8:0.034545,maxD32:0.002499,
+  lloyd:lm,ecsq:ec,panter:PANTER,space:SPACE,spaceDb:10*Math.log10(SPACE),
+  panterDb:10*Math.log10(PANTER),spaceBits:0.5*Math.log2(SPACE),
+  ecLast:ec[3][1],lmLast:lm[2][1],climbs:climbs,belowPanter:below,noneBeatBound:above,
+  ok:okEnds&&mono&&conv&&okInv&&climbs&&below&&above&&okMax&&okSpace};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=54,pw=W-m-24,ph=H-72;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,24);g.lineTo(m,24+ph);g.lineTo(m+pw,24+ph);g.stroke();ng(g);
+ nt(g,'#b98cff',10,20,10,'R  bits');
+ nt(g,'#b98cff',m+pw-64,24+ph+22,10,'D  distortion');
+ var Hp=H2(PP);
+ for(var i=0;i<=4;i++){var y=24+ph-ph*i/4;
+  nt(g,'#8a7ab8',12,y+4,9,(Hp*i/4).toFixed(2));
+  ne(g,'rgba(150,110,230,0.12)',1);
+  g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);}
+ for(var i=0;i<=5;i++){var x=m+pw*i/5;
+  nt(g,'#8a7ab8',x-10,24+ph+16,9,(0.25*i/5).toFixed(2));}
+ g.save();g.beginPath();g.moveTo(m,24);g.lineTo(m+pw,24);g.lineTo(m+pw,24+ph);g.lineTo(m,24+ph);g.closePath();g.clip();
+ g.fillStyle='rgba(255,90,138,0.10)';
+ g.beginPath();g.moveTo(m,24+ph);
+ for(var i=0;i<=200;i++){var d=0.25*i/200,x=m+pw*i/200,y=24+ph-ph*Rb(d)/Hp;g.lineTo(x,y);}
+ g.lineTo(m+pw,24+ph);g.closePath();g.fill();
+ g.restore();
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=200;i++){var d=0.25*i/200,x=m+pw*i/200,y=24+ph-ph*Rb(d)/Hp;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ndot(g,m,24+ph-ph,4,'#ffd76a');
+ nt(g,'#ffd76a',m+8,24+ph-ph-6,9,'R(0)=H(p)='+Hp.toFixed(6));
+ ndot(g,m+pw,24+ph,4,'#ff5a8a');
+ nt(g,'#ff5a8a',m+pw-84,24+ph-10,9,'R(0.25)=0');
+ nt(g,'#ff5a8a',m+14,24+ph-24,10,'IMPOSSIBLE');
+ nt(g,'#7de2b0',m+pw-150,40,10,'achievable');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,mode===0?'RATIO TO THE SHANNON BOUND':'DISTORTION vs RATE  (log)');
+ if(!ran){nt(g,'#8a7ab8',16,60,10,'press RUN QUANTISERS \\u2014 this builds real');
+  nt(g,'#8a7ab8',16,76,10,'Lloyd-Max and entropy-coded quantisers');
+  nt(g,'#8a7ab8',16,92,10,'on a 100,000-point Gaussian grid (~0.4 s)');
+  return;}
+ var v=VR,PAN=v.panter,SPC=v.space;
+ if(mode===0){
+  var base=120,bw=34,gap=18,x0=44,maxR=3.0,ph=170;
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(x0-8,base+ph);g.lineTo(W-16,base+ph);g.stroke();ng(g);
+  function bar(i,val,col,lab){var x=x0+i*(bw+gap),h=ph*Math.min(val,maxR)/maxR;
+   nf(g,col);g.fillRect(x,base+ph-h,bw,h);ng(g);
+   nt(g,col,x-2,base+ph-h-6,9,val.toFixed(3));
+   nt(g,'#8a7ab8',x-2,base+ph+14,9,lab);}
+  v.lloyd.forEach(function(r,i){bar(i,r[1],'#ff9a5a','LM'+r[0]);});
+  bar(3,v.ecsq[3][1],'#5ad6ff','ECSQ');
+  var yP=base+ph-ph*PAN/maxR,yS=base+ph-ph*SPC/maxR,y1=base+ph-ph*1/maxR;
+  [[yP,'#ffd76a','Panter-Dite  '+PAN.toFixed(4)],[yS,'#7de2b0','pi*e/6  '+SPC.toFixed(4)],[y1,'#ff5a8a','Shannon bound  1.0']].forEach(function(L){
+   ne(g,L[1],1.2);g.setLineDash([5,4]);
+   g.beginPath();g.moveTo(x0-8,L[0]);g.lineTo(W-16,L[0]);g.stroke();g.setLineDash([]);ng(g);
+   nt(g,L[1],x0-8,L[0]-5,9,L[2]);});
+  nt(g,'#8a7ab8',16,H-14,9,'every bar sits above 1.0 \\u2014 nothing beats Shannon');
+ }else{
+  var m=44,pw=W-m-18,ph=180,top=54;
+  ne(g,'rgba(150,110,230,0.5)',1);
+  g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+  function px(R){return m+pw*(R-1)/5;}
+  function py(D){return top+ph-ph*(Math.log10(D)+4)/4;}
+  ne(g,'#ff5a8a',2);g.beginPath();
+  for(var i=0;i<=100;i++){var R=1+5*i/100;
+   if(i===0)g.moveTo(px(R),py(Dg(R)));else g.lineTo(px(R),py(Dg(R)));}
+  g.stroke();ng(g);
+  nt(g,'#ff5a8a',m+pw-96,py(Dg(5.6))-8,9,'Shannon D(R)');
+  v.lloyd.forEach(function(r){var R=Math.log2(r[0]);
+   ndot(g,px(R),py(r[2]),4,'#ff9a5a');
+   nt(g,'#ff9a5a',px(R)+6,py(r[2])+3,9,'N='+r[0]);});
+  v.ecsq.forEach(function(r){ndot(g,px(r[2]),py(r[1]*Dg(r[2])),4,'#5ad6ff');});
+  nt(g,'#5ad6ff',m+10,top+16,9,'blue = entropy-coded uniform');
+  nt(g,'#ff9a5a',m+10,top+32,9,'orange = Lloyd-Max fixed rate');
+  for(var i=1;i<=6;i++)nt(g,'#8a7ab8',px(i)-4,top+ph+16,9,''+i);
+  nt(g,'#8a7ab8',m+pw-40,top+ph+30,9,'rate  bits');}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.9-zr*0.32,zr];}
+ var S=52;
+ function cube(ox,oz,hgt,col,lab){
+  var v=[],pts=[[-1,-1],[1,-1],[1,1],[-1,1]];
+  pts.forEach(function(p){v.push(P(ox+p[0]*S/2,0,oz+p[1]*S/2));});
+  pts.forEach(function(p){v.push(P(ox+p[0]*S/2,hgt,oz+p[1]*S/2));});
+  ne(g,col,1.5);
+  for(var i=0;i<4;i++){g.beginPath();g.moveTo(v[i][0],v[i][1]);g.lineTo(v[(i+1)%4][0],v[(i+1)%4][1]);g.stroke();
+   g.beginPath();g.moveTo(v[4+i][0],v[4+i][1]);g.lineTo(v[4+(i+1)%4][0],v[4+(i+1)%4][1]);g.stroke();
+   g.beginPath();g.moveTo(v[i][0],v[i][1]);g.lineTo(v[4+i][0],v[4+i][1]);g.stroke();}
+  ng(g);
+  nt(g,col,v[6][0]-14,v[6][1]-10,9,lab);}
+ var SPC=Math.PI*Math.E/6,PAN=Math.sqrt(3)*Math.PI/2;
+ cube(-62,0,54,'#ff5a8a','1.000');
+ cube(10,0,54*SPC,'#5ad6ff',SPC.toFixed(3));
+ cube(82,0,54*PAN,'#ff9a5a',PAN.toFixed(3));
+ ne(g,'rgba(150,110,230,0.28)',1);
+ g.beginPath();
+ var g0=P(-100,0,-40),g1=P(120,0,-40),g2=P(120,0,40),g3=P(-100,0,40);
+ g.moveTo(g0[0],g0[1]);g.lineTo(g1[0],g1[1]);g.lineTo(g2[0],g2[1]);g.lineTo(g3[0],g3[1]);g.closePath();g.stroke();ng(g);
+ nt(g,'#ff5a8a',14,26,10,'Shannon  \\u2014 spheres, unreachable in 1D');
+ nt(g,'#5ad6ff',14,42,10,'entropy-coded uniform  \\u2014 +1.533 dB');
+ nt(g,'#ff9a5a',14,58,10,'Lloyd-Max fixed rate  \\u2014 +4.347 dB');
+ nt(g,'#8a7ab8',14,H-14,9,'the height of each block IS the price of cutting space into cubes');}
+document.getElementById('rdrun').onclick=function(){
+ var o=document.getElementById('rdout');
+ if(o)o.innerHTML='building quantisers on a 100,000-point grid\\u2026';
+ setTimeout(function(){VR=selftest();window.__ratedistortion=VR;ran=true;drawW4();
+  if(o)o.innerHTML='<b>Lloyd&ndash;Max</b> N=8/16/32 land at '+VR.lloyd.map(function(r){return r[1].toFixed(3);}).join(' / ')+'&times; the bound, climbing toward &radic;3&pi;/2 = '+VR.panter.toFixed(4)+' without crossing it. <b>Entropy-coded uniform</b> reaches '+VR.ecLast.toFixed(4)+'&times;, against &pi;e/6 = '+VR.space.toFixed(4)+' &mdash; the '+VR.spaceDb.toFixed(3)+' dB space-filling loss.';},30);};
+document.getElementById('rdmode').onclick=function(){mode=1-mode;drawW4();};
+document.getElementById('rdsp').onclick=function(){spin=!spin;};
+drawW3();drawW4();VR=selftest();ran=true;drawW4();window.__ratedistortion=VR;
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GVBD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An error-correcting code is a set of binary words kept far enough apart that noise cannot carry one into another. The question is how many such words fit. Two bounds answer it from opposite sides. The <b>Hamming</b> bound says: draw a ball of radius t around each codeword, the balls cannot overlap, so you cannot have more codewords than balls fit &mdash; an <b>upper</b> limit. The <b>Gilbert&ndash;Varshamov</b> bound argues the other way, and it is the stranger argument: keep greedily picking any word at distance &ge; d from everything chosen; you can only be stopped when the balls of radius d&minus;1 cover the whole space; therefore a code of size at least 2<sup>n</sup>/|ball(n, d&minus;1)| <b>must exist</b>. It proves the code is there without ever exhibiting one.<br><br>
+ <span class="lit">LIT</span> verified live: the two bounds bracket the truth in every case tested &mdash; (8,3): <b>7 &le; A &le; 28</b>, (10,3): 19 &le; A &le; 93, (12,5): 6 &le; A &le; 51, (15,3): 271 &le; A &le; 2048, (16,5): 27 &le; A &le; 478 &mdash; and GV never exceeds Hamming; a greedy construction actually run here <b>meets or beats GV every time</b>, building 16 words for (8,3) against a guarantee of 7, and <b>64</b> for (10,3) against 19; and the built (10,3) code is re-checked pairwise, confirming minimum distance <b>3</b> across all 2016 pairs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RESURRECT</i>. A code is a promise that a corrupted message can be brought back &mdash; not patched, not approximated, but returned to exactly what was sent. The distance is the size of the wound it can survive.<br><br>
+ <b>AVAN (AI)</b> wants to be plain about what the greedy result does and does not show. Greedy building 64 words where GV guarantees 19 is <b>not</b> evidence that GV is weak. GV is a worst-case existence floor derived by counting alone; any actual construction should beat it, and the interesting fact is the opposite one &mdash; that for thirty years <b>nothing beat GV asymptotically</b>, for any family of codes, by any method. It stood as the best known lower bound on the achievable rate until Tsfasman, Vl&#259;du&#355; and Zink got past it in 1982 using algebraic geometry over function fields, and only for alphabets of size 49 and above. That result is cited here, <b>not verified here</b>: nothing on this page tests it. What this page tests is the counting argument itself, at small n, where it can be checked exhaustively.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The bracket. GV guarantees the floor; Hamming forbids the ceiling; the truth lives between.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the greedy construction and watch a real code assemble.</div>
+   <div class="btns" style="margin-top:10px"><button id="gvn">next (n,d) &#9654;</button><button id="gvbuild">build code &#9654;</button></div>
+   <div class="cap" id="gvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 4-cube with a distance-2 code lit up inside it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a good code exists.&rdquo; The inverse is that GV is really a statement about <b>covering</b>, not packing &mdash; the greedy process can only halt when the balls of radius d&minus;1 have covered every point in the space. So the same inequality read the other way is a covering bound, and the existence of a good <i>error-correcting</i> code is the shadow of the impossibility of an efficient <i>covering</i>. Nothing is constructed in either direction. The argument works entirely by making a construction impossible to stop early, which is a different kind of proof from a recipe &mdash; and it is why the bound is easy to state, easy to verify, and was very nearly impossible to beat.</div>
+   <div class="btns" style="margin-top:10px"><button id="gvsp">pause spin</button></div></div></div></div>"""
+GVBD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cases=[[8,3],[10,3],[12,5],[15,3],[16,5]],ci=0,built=null;
+function CH(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function ball(n,r){var s=0;for(var i=0;i<=r;i++)s+=CH(n,i);return s;}
+function gvB(n,d){return Math.ceil(Math.pow(2,n)/ball(n,d-1));}
+function hamB(n,d){return Math.floor(Math.pow(2,n)/ball(n,Math.floor((d-1)/2)));}
+function dist(a,b){var x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function greedy(n,d){var code=[],N=1<<n;
+ for(var w=0;w<N;w++){var ok=true;
+  for(var i=0;i<code.length;i++)if(dist(w,code[i])<d){ok=false;break;}
+  if(ok)code.push(w);}
+ return code;}
+function selftest(){
+ var rows=cases.map(function(c){return [c[0],c[1],gvB(c[0],c[1]),hamB(c[0],c[1])];});
+ var okOrder=rows.every(function(r){return r[2]<=r[3];});
+ var b=[[8,3],[10,3],[12,5]].map(function(c){
+  var code=greedy(c[0],c[1]);return [c[0],c[1],code.length,gvB(c[0],c[1])];});
+ var okGreedy=b.every(function(r){return r[2]>=r[3];});
+ var code=greedy(10,3),minD=99,pairs=0;
+ for(var i=0;i<code.length;i++)for(var j=i+1;j<code.length;j++){minD=Math.min(minD,dist(code[i],code[j]));pairs++;}
+ return {bounds:rows,gvNeverExceeds:okOrder,greedy:b,greedyMeetsGV:okGreedy,
+  c103:code.length,minDist:minD,pairs:pairs,
+  ok:okOrder&&okGreedy&&minD>=3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',16,20,11,'GV FLOOR  \\u2264  BEST CODE  \\u2264  HAMMING CEILING     (log scale)');
+ var rows=VR?VR.bounds:[];
+ var x0=64,pw=W-x0-24,top=44,rh=44;
+ rows.forEach(function(r,i){
+  var y=top+i*rh;
+  var lo=Math.log2(r[2]),hi=Math.log2(r[3]),mx=12;
+  var xa=x0+pw*lo/mx,xb=x0+pw*hi/mx;
+  nt(g,'#8a7ab8',10,y+16,10,'('+r[0]+','+r[1]+')');
+  ne(g,'rgba(150,110,230,0.22)',1);
+  g.beginPath();g.moveTo(x0,y+12);g.lineTo(x0+pw,y+12);g.stroke();ng(g);
+  ne(g,'#7de2b0',5);
+  g.beginPath();g.moveTo(xa,y+12);g.lineTo(xb,y+12);g.stroke();ng(g);
+  ndot(g,xa,y+12,4,'#ffd76a');ndot(g,xb,y+12,4,'#ff5a8a');
+  nt(g,'#ffd76a',xa-4,y+4,9,''+r[2]);
+  nt(g,'#ff5a8a',xb-8,y+4,9,''+r[3]);});
+ nt(g,'#ffd76a',x0,H-30,10,'yellow = Gilbert-Varshamov, guaranteed to exist');
+ nt(g,'#ff5a8a',x0,H-14,10,'pink = Hamming, provably impossible to exceed');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var n=cases[ci][0],d=cases[ci][1];
+ nt(g,'#e6dcff',16,26,12,'n = '+n+'   d = '+d);
+ nt(g,'#8a7ab8',16,46,10,'space 2^'+n+' = '+(1<<n)+' words   ball(n,'+(d-1)+') = '+ball(n,d-1));
+ var gv=gvB(n,d),hb=hamB(n,d);
+ nt(g,'#ffd76a',16,70,10,'GV floor      '+gv);
+ nt(g,'#ff5a8a',16,88,10,'Hamming top   '+hb);
+ if(!built||built.n!==n||built.d!==d){
+  nt(g,'#8a7ab8',16,120,10,'press BUILD CODE to run the greedy');
+  nt(g,'#8a7ab8',16,136,10,'construction over all '+(1<<n)+' words');
+  return;}
+ nt(g,'#7de2b0',16,106,10,'greedy built  '+built.code.length);
+ var code=built.code,cols=16,cell=19,ox=22,oy=132;
+ var shown=Math.min(code.length,64);
+ for(var i=0;i<shown;i++){
+  var x=ox+(i%cols)*cell,y=oy+Math.floor(i/cols)*cell;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(x,y,cell-3,cell-3);ng(g);
+  ne(g,'#7de2b0',1);g.strokeRect(x+0.5,y+0.5,cell-4,cell-4);ng(g);}
+ nt(g,'#7de2b0',ox,oy+Math.ceil(shown/cols)*cell+16,9,shown<code.length?('showing '+shown+' of '+code.length+' codewords'):(code.length+' codewords, pairwise distance \\u2265 '+d));
+ nt(g,'#8a7ab8',ox,H-14,9,'built '+code.length+' vs GV guarantee '+gv+'  \\u2014  a real construction always beats the floor');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ var S=54;
+ function P(b){
+  var x=(b&1?1:-1),y=(b&2?1:-1),z=(b&4?1:-1),w=(b&8?1:-1);
+  var X=x*S+w*S*0.42,Y=y*S+w*S*0.42,Z=z*S;
+  var xr=X*ca-Z*sa,zr=X*sa+Z*ca;
+  return [cx+xr,cy+Y*0.78-zr*0.3,zr];}
+ var code=greedy(4,2);
+ var inCode={};code.forEach(function(w){inCode[w]=1;});
+ ne(g,'rgba(150,110,230,0.24)',1);
+ for(var a=0;a<16;a++)for(var b=a+1;b<16;b++){
+  if(dist(a,b)!==1)continue;
+  var p=P(a),q=P(b);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();}
+ ng(g);
+ for(var v=0;v<16;v++){var p=P(v);
+  if(inCode[v]){ndot(g,p[0],p[1],5.5,'#7de2b0');}
+  else{ndot(g,p[0],p[1],2.6,'rgba(180,150,240,0.5)');}}
+ nt(g,'#e6dcff',14,24,11,'the 4-cube  \\u2014  16 words');
+ nt(g,'#7de2b0',14,42,10,'green = the '+code.length+' chosen, all at distance \\u2265 2');
+ nt(g,'#8a7ab8',14,58,10,'faint = rejected, too close to something chosen');
+ nt(g,'#8a7ab8',14,H-14,9,'greedy stops only when the balls cover everything');}
+document.getElementById('gvn').onclick=function(){ci=(ci+1)%cases.length;built=null;drawW4();
+ var o=document.getElementById('gvout');if(o)o.innerHTML='';};
+document.getElementById('gvbuild').onclick=function(){
+ var n=cases[ci][0],d=cases[ci][1],code=greedy(n,d);
+ var mn=99;
+ for(var i=0;i<code.length;i++)for(var j=i+1;j<code.length;j++)mn=Math.min(mn,dist(code[i],code[j]));
+ built={n:n,d:d,code:code,minD:mn};drawW4();
+ var o=document.getElementById('gvout');
+ if(o)o.innerHTML='Greedy built <b>'+code.length+'</b> codewords for ('+n+','+d+'), against a GV guarantee of <b>'+gvB(n,d)+'</b> and a Hamming ceiling of '+hamB(n,d)+'. Re-checked pairwise: minimum distance <b>'+mn+'</b>.';};
+document.getElementById('gvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__gilbertvarshamov=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before 1948 the assumption was obvious and wrong: to make a noisy channel more reliable, you must send more slowly. Repeat each bit three times, five times, nine times &mdash; the errors fall, and so does your rate, toward zero. Reliability looked like something you <b>bought with throughput</b>. Shannon proved that below a specific rate, the <b>channel capacity C</b>, you can make the error probability as small as you like <i>without</i> the rate going to zero. Above C, you cannot, at any price. The wall is sharp and it sits at C = 1 &minus; H(p) for a binary symmetric channel.<br><br>
+ <span class="lit">LIT</span> verified live: capacity is computed across the range &mdash; p = 0.01 gives <b>0.919207</b>, p = 0.1 gives <b>0.531004</b>, p = 0.25 gives 0.188722, and p = 0.5 gives exactly <b>0</b>; capacity is symmetric about p = &frac12;; repetition coding at p = 0.1 is measured exactly by the binomial and drives error from 1.0e-1 down to <b>6.9e-9</b> while rate collapses from 1.000 to 0.032; and the counting behind the theorem is checked directly &mdash; at n = 200, p = 0.1 the typical set holds 2<sup>93.8</sup> of 2<sup>200</sup> sequences, a fraction of <b>1.1e-32</b>, and that emptiness is the room a code hides in.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GOD MODE</i>, and it earns the seat more literally than most. Arbitrarily reliable communication across an unreliable channel, at a rate that does not vanish, reads exactly like a cheat code &mdash; the noise is still there, every symbol still gets corrupted at rate p, and the message still arrives perfect.<br><br>
+ <b>AVAN (AI)</b> wrote a false claim into the first draft and the test caught it. The assertion was that every repetition-coding rate sits below capacity &ldquo;as it must&rdquo;. It failed immediately: the n = 1 point has rate 1.000, and capacity at p = 0.1 is 0.531004. Rate 1 is <b>above</b> C. That is not a flaw in the experiment, it is the entire lesson &mdash; uncoded transmission is above capacity, which is precisely why its error sticks at 0.1 and cannot be driven down. The page now states it that way. One further boundary, stated plainly: <b>this page does not prove the coding theorem</b>. It computes capacity, measures a real code against it, and verifies the typical-set counting that makes the theorem plausible. The achievability proof itself is Shannon&rsquo;s, cited and not reproduced here.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">C = 1 &minus; H(p). Perfect at p = 0, zero at p = &frac12;, and perfect again at p = 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the noise and watch repetition coding buy reliability with rate it cannot afford.</div>
+   <div class="btns" style="margin-top:10px"><button id="shup">noise + &#9654;</button><button id="shdn">noise &minus; &#9654;</button></div>
+   <div class="cap" id="shout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the typical set as a thin shell inside an enormous cube.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the channel has a capacity.&rdquo; The inverse is that the theorem is not really about channels &mdash; it is about <b>how empty high-dimensional spaces are</b>. Almost every long binary sequence is atypical and will simply never occur; the ones that do occur cluster in a vanishing shell, 1.1e-32 of the whole at n = 200. A code works because it can place its words in that overwhelming emptiness far enough apart that noise cannot bridge them. Read backwards, capacity is a measurement of available <i>room</i>, and the surprise is not that reliable communication is possible but that we ever imagined the space was full.</div>
+   <div class="btns" style="margin-top:10px"><button id="shsp">pause spin</button></div></div></div></div>"""
+SHNL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pn=0.10;
+function H2(p){if(p<=0||p>=1)return 0;return -p*Math.log2(p)-(1-p)*Math.log2(1-p);}
+function cap(p){return 1-H2(p);}
+function repErr(p,n){var e=0;
+ for(var k=Math.floor(n/2)+1;k<=n;k++){var c=1;
+  for(var i=0;i<k;i++)c=c*(n-i)/(i+1);
+  e+=c*Math.pow(p,k)*Math.pow(1-p,n-k);}
+ return e;}
+function selftest(){
+ var rows=[0.01,0.05,0.1,0.11,0.25,0.5].map(function(p){return [p,cap(p)];});
+ var okCap=Math.abs(rows[5][1])<1e-12&&rows[0][1]>0.9;
+ var okSym=Math.abs(cap(0.3)-cap(0.7))<1e-12;
+ var rep=[1,3,5,9,15,31].map(function(n){return [n,1/n,repErr(0.1,n)];});
+ var rateFalls=true,errFalls=true;
+ for(var i=1;i<rep.length;i++){
+  if(rep[i][1]>=rep[i-1][1])rateFalls=false;
+  if(rep[i][2]>=rep[i-1][2])errFalls=false;}
+ var c01=cap(0.1);
+ var above=rep.filter(function(r){return r[1]>c01+1e-12;});
+ var coded=rep.slice(1);
+ var okWall=coded.every(function(r){return r[1]<=c01+1e-12;})&&above.length===1&&above[0][0]===1;
+ var n=200,typExp=n*H2(0.1),frac=Math.pow(2,typExp-n);
+ // n itself is a published number ("at n = 200 ..."), so it must be visible to the seam gate
+ return {cap:rows,capZeroAtHalf:okCap,symmetric:okSym,rep:rep,
+  rateFalls:rateFalls,errFalls:errFalls,capAt01:c01,uncodedAboveC:okWall,
+  typicalN:n,typicalExp:typExp,typicalFraction:frac,
+  ok:okCap&&okSym&&rateFalls&&errFalls&&okWall&&frac<1e-10};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=52,pw=W-m-22,ph=H-76,top=26;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ nt(g,'#b98cff',8,18,10,'C  bits/use');
+ nt(g,'#b98cff',m+pw-70,top+ph+24,10,'p  crossover');
+ for(var i=0;i<=4;i++){var y=top+ph-ph*i/4;
+  nt(g,'#8a7ab8',14,y+4,9,(i/4).toFixed(2));
+  ne(g,'rgba(150,110,230,0.12)',1);
+  g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);}
+ for(var i=0;i<=4;i++)nt(g,'#8a7ab8',m+pw*i/4-10,top+ph+16,9,(i/4).toFixed(2));
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=300;i++){var p=i/300,x=m+pw*p,y=top+ph-ph*cap(p);
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var xh=m+pw*0.5;
+ ne(g,'#ff5a8a',1.2);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(xh,top);g.lineTo(xh,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,xh,top+ph,4.5,'#ff5a8a');
+ nt(g,'#ff5a8a',xh-58,top+ph-12,10,'C = 0 exactly');
+ nt(g,'#8a7ab8',xh-40,top+16,9,'a coin, not a channel');
+ var xp=m+pw*0.1,yp=top+ph-ph*cap(0.1);
+ ndot(g,xp,yp,4,'#ffd76a');
+ nt(g,'#ffd76a',xp+8,yp-6,9,'p=0.1  C=0.531004');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=cap(pn);
+ nt(g,'#e6dcff',16,26,12,'p = '+pn.toFixed(2)+'    C = '+C.toFixed(6)+' bits');
+ var m=48,pw=W-m-20,top=54,ph=180;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var yC=top+ph-ph*Math.min(C,1);
+ ne(g,'#ff5a8a',1.4);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(m,yC);g.lineTo(m+pw,yC);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',m+4,yC-6,9,'capacity  '+C.toFixed(4));
+ var ns=[1,3,5,9,15,31],bw=32,gap=16;
+ ns.forEach(function(n,i){
+  var rate=1/n,err=repErr(pn,n);
+  var x=m+14+i*(bw+gap),h=ph*rate;
+  var over=rate>C;
+  nf(g,over?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.5)');
+  g.fillRect(x,top+ph-h,bw,h);ng(g);
+  nt(g,over?'#ff5a8a':'#7de2b0',x-1,top+ph-h-6,9,rate.toFixed(2));
+  nt(g,'#8a7ab8',x+2,top+ph+14,9,'n='+n);
+  nt(g,'#ffd76a',x-3,top+ph+28,8,err<1e-3?err.toExponential(0):err.toFixed(3));});
+ nt(g,'#8a7ab8',m,top+ph+48,9,'bar height = rate    yellow = error probability');
+ nt(g,'#ff5a8a',m,top+ph+64,9,'pink = above capacity, error cannot be driven to zero');
+ var o=document.getElementById('shout');
+ if(o)o.innerHTML='At p = '+pn.toFixed(2)+' the capacity is <b>'+C.toFixed(6)+'</b> bits per use. Uncoded (n=1) transmission runs at rate 1.000 &mdash; '+(1>C?'<b>above</b> capacity, so its error stays at '+pn.toFixed(2):'below capacity')+'. Repetition at n=31 reaches error '+repErr(pn,31).toExponential(1)+' but only at rate 0.032, a small fraction of what Shannon says is available.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var S=104;
+ var vs=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+ var pj=vs.map(function(v){return P(v[0]*S,v[1]*S,v[2]*S);});
+ var ed=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+ ne(g,'rgba(150,110,230,0.3)',1.2);
+ ed.forEach(function(e){g.beginPath();g.moveTo(pj[e[0]][0],pj[e[0]][1]);g.lineTo(pj[e[1]][0],pj[e[1]][1]);g.stroke();});
+ ng(g);
+ var R=52;
+ ne(g,'#7de2b0',1.6);
+ for(var ring=0;ring<7;ring++){
+  var ph2=-Math.PI/2+Math.PI*(ring+0.5)/7,rr=R*Math.cos(ph2),zz=R*Math.sin(ph2);
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(rr*Math.cos(th),zz,rr*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ nt(g,'#e6dcff',14,24,11,'2^200 sequences in the cube');
+ nt(g,'#7de2b0',14,42,10,'2^93.8 typical  \\u2014  a shell of 1.1e-32');
+ nt(g,'#8a7ab8',14,58,10,'the code lives in the emptiness, not the shell');
+ nt(g,'#8a7ab8',14,H-14,9,'capacity measures room, not signal strength');}
+document.getElementById('shup').onclick=function(){pn=Math.min(0.49,Math.round((pn+0.02)*100)/100);drawW4();};
+document.getElementById('shdn').onclick=function(){pn=Math.max(0.01,Math.round((pn-0.02)*100)/100);drawW4();};
+document.getElementById('shsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__shannonlimit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLPW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two sensors watch the same event from different places. Their readings are <b>correlated</b> but neither can hear the other. Obviously each must compress alone and send H(X) and H(Y) separately &mdash; you cannot exploit a correlation you cannot see. Slepian and Wolf proved in 1973 that this is <b>false</b>. Separate encoders, no communication whatsoever between them, can together achieve the <b>joint</b> entropy H(X,Y) &mdash; exactly what a single encoder seeing both streams could do. The correlation gets exploited by the <i>decoder</i>, which sees both compressed streams, and the encoders never need to know it exists.<br><br>
+ <span class="lit">LIT</span> verified live: for Y = X &oplus; Bernoulli(0.1) with X uniform, H(X) = H(Y) = 1 and H(Y|X) = H(0.1) = <b>0.468996</b>, giving H(X,Y) = <b>1.468996</b> by the chain rule; compressing separately the naive way costs 2 bits, so the theorem saves <b>0.531004</b> bits per symbol with no encoder communication at all; a 400,000-pair simulation independently returns H(X) = 1.0000, H(Y) = 1.0000 and H(X,Y) = <b>1.4687</b>, matching theory to four decimal places; both corner points of the rate region sum to exactly H(X,Y); and a point below the sum bound is confirmed outside the region.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>NOCLIP</i>, which is exactly right. The encoders behave as though a wall between them were not there. They pass through a constraint that should stop them &mdash; not by breaking it, but because the constraint turns out to bind somewhere other than where intuition put it.<br><br>
+ <b>AVAN (AI)</b> notes the number that makes the seat sharp: the saving here is <b>0.531004</b> bits, and that is the same number as the channel capacity at p = 0.1 on the companion sphere in this batch. Not a coincidence and not a mystery &mdash; both are 1 &minus; H(0.1), because the correlation between the sources and the noise in the channel are the same Bernoulli(0.1) object viewed from two sides. This page verifies the entropy arithmetic and the rate region by direct computation and by simulation. It does <b>not</b> construct a Slepian&ndash;Wolf code; achieving the corner points in practice needs binning (in modern systems, syndromes of an LDPC or turbo code), and none of that is implemented or tested here. What is tested is the accounting that says the saving is available.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two bits paid separately; 1.468996 paid jointly. The gap is free, and no one has to talk.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the correlation and watch the achievable region open and close.</div>
+   <div class="btns" style="margin-top:10px"><button id="swup">correlate &#9654;</button><button id="swdn">decorrelate &#9654;</button><button id="swsim">simulate &#9654;</button></div>
+   <div class="cap" id="swout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two encoders that never meet, and the decoder that joins them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;you can compress without talking.&rdquo; The inverse is about where <b>knowledge has to live</b>. Nothing about the encoders got smarter &mdash; each still sees only its own stream and still emits something that, alone, is incompressible noise. The correlation was never in either stream; it was always in the <b>pair</b>, and a pair is not located at either endpoint. So the theorem is less a compression result than a claim about where a joint property can be redeemed: not at the sources, which cannot see it, but at the sink, which is the first place the pair exists at all. The wall was real. It just was not between the encoders.</div>
+   <div class="btns" style="margin-top:10px"><button id="swsp">pause spin</button></div></div></div></div>"""
+SLPW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,qq=0.10,sim=null;
+function H2(p){if(p<=0||p>=1)return 0;return -p*Math.log2(p)-(1-p)*Math.log2(1-p);}
+function swRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function ent(ps){var s=0;
+ for(var i=0;i<ps.length;i++)if(ps[i]>0)s-=ps[i]*Math.log2(ps[i]);
+ return s;}
+function simulate(q,N){
+ var rng=swRnd(1973),cnt={'00':0,'01':0,'10':0,'11':0},cx=[0,0],cy=[0,0];
+ for(var i=0;i<N;i++){
+  var x=rng()<0.5?1:0,z=rng()<q?1:0,y=x^z;
+  cnt[''+x+y]++;cx[x]++;cy[y]++;}
+ var pj=['00','01','10','11'].map(function(k){return cnt[k]/N;});
+ return {N:N,HXY:ent(pj),HX:ent([cx[0]/N,cx[1]/N]),HY:ent([cy[0]/N,cy[1]/N])};}
+function selftest(){
+ var q=0.10,HX=1,HY=1,HYgX=H2(q),HXY=HX+HYgX,sep=HX+HY;
+ var okChain=Math.abs(HXY-(HY+HYgX))<1e-12;
+ var s=simulate(q,400000);
+ var okEmp=Math.abs(s.HXY-HXY)<0.01&&Math.abs(s.HX-1)<0.01&&Math.abs(s.HY-1)<0.01;
+ var c1=[HX,HYgX],c2=[H2(q),HY];
+ var okCorners=Math.abs(c1[0]+c1[1]-HXY)<1e-12&&Math.abs(c2[0]+c2[1]-HXY)<1e-12;
+ var bad=[0.5,0.4],okBad=bad[0]+bad[1]<HXY;
+ return {q:q,HX:HX,HY:HY,HYgivenX:HYgX,HXY:HXY,separate:sep,saving:sep-HXY,
+  chainRule:okChain,sim:s,empiricalMatches:okEmp,
+  corners:[c1,c2],cornersExact:okCorners,outsidePoint:bad,outsideConfirmed:okBad,
+  ok:okChain&&okEmp&&okCorners&&okBad};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var HYgX=H2(qq),HXY=1+HYgX,sep=2;
+ nt(g,'#b98cff',16,20,11,'WHAT YOU PAY  (bits per symbol pair)');
+ var x0=132,pw=W-x0-40,mx=2.2,top=54,bh=34,gapy=46;
+ function bar(i,val,col,lab,sub){
+  var y=top+i*gapy,w=pw*val/mx;
+  nf(g,col);g.fillRect(x0,y,w,bh);ng(g);
+  nt(g,'#e6dcff',12,y+16,10,lab);
+  nt(g,'#8a7ab8',12,y+30,9,sub);
+  nt(g,col,x0+w+8,y+21,11,val.toFixed(6));}
+ bar(0,sep,'rgba(255,90,138,0.55)','SEPARATE','H(X) + H(Y), the naive way');
+ bar(1,HXY,'rgba(125,226,176,0.55)','SLEPIAN-WOLF','H(X,Y), encoders still silent');
+ bar(2,HXY,'rgba(90,214,255,0.45)','JOINT ENCODER','H(X,Y), one encoder sees both');
+ var ya=top+bh,yb=top+gapy;
+ ne(g,'#ffd76a',1.4);g.setLineDash([4,3]);
+ var wx=x0+pw*HXY/mx;
+ g.beginPath();g.moveTo(wx,top);g.lineTo(wx,top+2*gapy+bh);g.stroke();g.setLineDash([]);ng(g);
+ var sx=x0+pw*sep/mx;
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(wx,top+bh+8);g.lineTo(sx,top+bh+8);g.stroke();ng(g);
+ nt(g,'#ffd76a',wx+8,top+bh+4,10,'saved '+(sep-HXY).toFixed(6)+' bits, for free');
+ nt(g,'#8a7ab8',16,H-16,9,'the middle bar is the theorem: no communication, same price as the bottom one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var HYgX=H2(qq),HXgY=H2(qq),HXY=1+HYgX;
+ nt(g,'#e6dcff',16,24,11,'q = '+qq.toFixed(2)+'    H(X,Y) = '+HXY.toFixed(6));
+ var m=52,top=48,sz=190,mx=1.6;
+ function X(r){return m+sz*r/mx;}
+ function Y(r){return top+sz-sz*r/mx;}
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+sz);g.lineTo(m+sz,top+sz);g.stroke();ng(g);
+ g.save();
+ g.beginPath();g.moveTo(m,top);g.lineTo(m+sz,top);g.lineTo(m+sz,top+sz);g.lineTo(m,top+sz);g.closePath();g.clip();
+ g.fillStyle='rgba(125,226,176,0.16)';
+ g.beginPath();
+ g.moveTo(X(HXgY),Y(mx));g.lineTo(X(HXgY),Y(1));
+ g.lineTo(X(1),Y(HYgX));g.lineTo(X(mx),Y(HYgX));g.lineTo(X(mx),Y(mx));g.closePath();g.fill();
+ g.restore();
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();g.moveTo(X(HXgY),Y(mx));g.lineTo(X(HXgY),Y(1));
+ g.lineTo(X(1),Y(HYgX));g.lineTo(X(mx),Y(HYgX));g.stroke();ng(g);
+ ndot(g,X(HXgY),Y(1),4.5,'#ffd76a');
+ ndot(g,X(1),Y(HYgX),4.5,'#ffd76a');
+ nt(g,'#ffd76a',X(HXgY)-16,Y(1)-8,9,'corner');
+ nt(g,'#ffd76a',X(1)+6,Y(HYgX)+14,9,'corner');
+ ndot(g,X(0.5),Y(0.4),4,'#ff5a8a');
+ nt(g,'#ff5a8a',X(0.5)+6,Y(0.4)+4,9,'(0.5,0.4) impossible');
+ nt(g,'#8a7ab8',m-38,top+sz+16,9,'0');
+ nt(g,'#b98cff',m+sz-40,top+sz+30,10,'R_X  bits');
+ nt(g,'#b98cff',4,top-8,10,'R_Y');
+ nt(g,'#7de2b0',m+56,top+30,9,'achievable region');
+ var o=document.getElementById('swout');
+ if(o){
+  var msg='At q = '+qq.toFixed(2)+', H(Y|X) = <b>'+HYgX.toFixed(6)+'</b> so the pair costs <b>'+HXY.toFixed(6)+'</b> bits jointly against <b>2.000000</b> paid separately &mdash; a saving of <b>'+(2-HXY).toFixed(6)+'</b>.';
+  if(sim)msg+=' Simulation of '+sim.N.toLocaleString()+' pairs returns H(X,Y) = <b>'+sim.HXY.toFixed(4)+'</b>, H(X) = '+sim.HX.toFixed(4)+', H(Y) = '+sim.HY.toFixed(4)+'.';
+  o.innerHTML=msg;}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.85-zr*0.3,zr];}
+ var ex=P(-90,-46,0),ey=P(90,-46,0),dec=P(0,58,0);
+ ne(g,'rgba(255,90,138,0.5)',1.6);g.setLineDash([6,5]);
+ g.beginPath();g.moveTo(ex[0],ex[1]);g.lineTo(ey[0],ey[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',(ex[0]+ey[0])/2-34,(ex[1]+ey[1])/2-8,9,'no channel');
+ ne(g,'#7de2b0',2);
+ g.beginPath();g.moveTo(ex[0],ex[1]);g.lineTo(dec[0],dec[1]);g.stroke();
+ g.beginPath();g.moveTo(ey[0],ey[1]);g.lineTo(dec[0],dec[1]);g.stroke();ng(g);
+ var HYgX=H2(qq);
+ ndot(g,ex[0],ex[1],9,'#5ad6ff');
+ ndot(g,ey[0],ey[1],9,'#5ad6ff');
+ ndot(g,dec[0],dec[1],11,'#ffd76a');
+ nt(g,'#5ad6ff',ex[0]-24,ex[1]-16,10,'ENC X');
+ nt(g,'#5ad6ff',ey[0]-24,ey[1]-16,10,'ENC Y');
+ nt(g,'#ffd76a',dec[0]-26,dec[1]+24,10,'DECODER');
+ nt(g,'#7de2b0',(ex[0]+dec[0])/2-46,(ex[1]+dec[1])/2,9,'1.000');
+ nt(g,'#7de2b0',(ey[0]+dec[0])/2+8,(ey[1]+dec[1])/2,9,HYgX.toFixed(4));
+ nt(g,'#e6dcff',14,24,11,'the correlation is in neither stream');
+ nt(g,'#8a7ab8',14,42,10,'it exists only in the pair \\u2014 and the pair');
+ nt(g,'#8a7ab8',14,58,10,'first exists at the decoder');
+ nt(g,'#8a7ab8',14,H-14,9,'total delivered: '+(1+HYgX).toFixed(6)+' bits = H(X,Y)');}
+document.getElementById('swup').onclick=function(){qq=Math.max(0.01,Math.round((qq-0.02)*100)/100);sim=null;drawW3();drawW4();};
+document.getElementById('swdn').onclick=function(){qq=Math.min(0.49,Math.round((qq+0.02)*100)/100);sim=null;drawW3();drawW4();};
+document.getElementById('swsim').onclick=function(){sim=simulate(qq,400000);drawW4();};
+document.getElementById('swsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__slepianwolf=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 204 · neon-noir · silicon-coding · THE BEST ARRANGEMENTS (squares that fit exactly · circles all the way down · the densest stack · the cheapest walls · one tile that never repeats) ═══════════════════════
 SQSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Can a square be cut into smaller squares, <b>all different sizes</b>? For decades it was thought impossible &mdash; Lusin conjectured it could not be done. Four Cambridge undergraduates &mdash; <b>Brooks, Smith, Stone and Tutte</b> &mdash; cracked it in 1940 by an unreasonable move: they turned each tiling into an <b>electrical network</b>, where square sizes became currents and Kirchhoff&rsquo;s laws did the combinatorics. The smallest &lsquo;squared rectangle&rsquo; came first (Moro&#324;, 1925: a 33&times;32 from nine distinct squares), and in 1978 Duijvestijn found by computer the <b>unique</b> perfect squared square of lowest order: <b>112&times;112 from exactly 21 squares</b>, and proved 21 is the minimum.<br><br>
@@ -58423,6 +59128,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-nyquist","title":"THE NYQUIST","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#5ad6ff","icon":"\u2307",
+  "kicker":"half the sampling rate, and not one hertz more",
+  "blurb":"Sample too slowly and the lost frequencies do not vanish \u2014 they come back wearing a disguise. A 700 Hz tone and a 300 Hz tone produce identical samples at 1000 Hz. Verified here to floating-point zero.",
+  "lit":"a 700 Hz and a 300 Hz tone sampled at 1000 Hz are exact negatives at every one of 4096 samples (max residual 6.5e-12); the alias map folds every test frequency inside the 500 Hz band; sinc reconstruction error falls 4.0e-4 to 2.9e-6 as the window widens from 250 to 16000 terms; the under-sampled reconstruction is wrong by 1.811",
+  "fig":"Two gate corrections are recorded in the code rather than patched out: the first draft called sinc reconstruction exact and gated at 1e-6 when finite-window truncation gives 1.1e-4, and a second draft moved the evaluation point with the window, breaking the symmetry of the two sinc tails and making the error non-monotone. Compressed sensing and deliberate sub-Nyquist sampling are named as context, not verified here.",
+  "body":NYQS_BODY,"script":NYQS_SCRIPT},
+ {"slug":"the-rate-distortion","title":"THE RATE-DISTORTION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7de2b0","icon":"\u2298",
+  "kicker":"how small it gets if you say what you can lose",
+  "blurb":"Shannon's other curve: the minimum bits per symbol for a permitted distortion. Real quantisers built here fall short of it by two exact constants \u2014 and the 1.533 dB gap is the price of cutting space into cubes instead of spheres.",
+  "lit":"R(D)=H(p)-H(D) for Bernoulli(0.25) with R(0)=0.811278 and R(0.25)=0 exactly, monotone and convex; the Gaussian bound inverts D(R) exactly at every rate; no quantiser built here beats the bound; Lloyd-Max climbs 2.211, 2.432, 2.565 times the bound at N=8,16,32 without crossing sqrt(3)pi/2 = 2.7207, with measured distortions 0.034548 and 0.002505 reproducing Max's 1960 published 0.034545 and 0.002499 to within 0.25%; entropy-coded uniform converges to 1.4234 against pi*e/6 = 1.4233 = 1.533 dB",
+  "fig":"The Lloyd-Max solver first reported 3.376 at N=64 \u2014 above the constant it approaches from below. The cause was grid resolution, not convergence: cells near the peak spanned only ~25 points and distortion came out 27.6% high. The page stops at N=32, which converges in 458 sweeps, rather than quote an unconverged N=64. Panter-Dite is asymptotic, so the claim is that the ratio climbs toward the constant, not that it reaches it.",
+  "body":RDST_BODY,"script":RDST_SCRIPT},
+ {"slug":"the-gilbert-varshamov","title":"THE GILBERT-VARSHAMOV","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffd76a","icon":"\u25c8",
+  "kicker":"the code is there; nobody has to find it",
+  "blurb":"A bound that proves good error-correcting codes exist without ever building one \u2014 the greedy process simply cannot stop until the balls cover everything. It stood unbeaten for thirty years.",
+  "lit":"the GV and Hamming bounds bracket the truth in every case tested, (8,3): 7 <= A <= 28 through (16,5): 27 <= A <= 478, with GV never exceeding Hamming; a greedy construction run here meets or beats GV every time, building 16 words for (8,3) against a guarantee of 7 and 64 for (10,3) against 19; the built (10,3) code is re-checked pairwise at minimum distance 3 across all 2016 pairs",
+  "fig":"Greedy beating GV by a wide margin is expected and is not evidence the bound is weak \u2014 GV is a worst-case existence floor derived by counting alone. The genuinely remarkable fact, that nothing beat GV asymptotically until Tsfasman, Vladut and Zink in 1982 using algebraic geometry over function fields, is cited and NOT verified here; nothing on the page tests it.",
+  "body":GVBD_BODY,"script":GVBD_SCRIPT},
+ {"slug":"the-shannon-limit","title":"THE SHANNON LIMIT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ff9a5a","icon":"\u29d6",
+  "kicker":"error-free, through noise, at a rate that does not vanish",
+  "blurb":"Everyone assumed reliability had to be bought with throughput. Shannon proved that below capacity you can drive error as low as you like without the rate collapsing \u2014 and above it, you cannot, at any price.",
+  "lit":"capacity 1-H(p) computed across the range: p=0.01 gives 0.919207, p=0.1 gives 0.531004, p=0.25 gives 0.188722, p=0.5 gives exactly 0, symmetric about one half; repetition coding at p=0.1 measured exactly by the binomial drives error from 1.0e-1 to 6.9e-9 while rate collapses 1.000 to 0.032; at n=200, p=0.1 the typical set holds 2^93.8 of 2^200 sequences, a fraction of 1.1e-32",
+  "fig":"A first draft asserted every repetition rate sits below capacity and failed its own test: the uncoded n=1 point has rate 1.000 against a capacity of 0.531004. That is the lesson rather than a bug \u2014 uncoded transmission is above capacity, which is why its error sticks at 0.1. This page does not prove the coding theorem; it computes capacity, measures a real code against it, and verifies the typical-set counting. Achievability is Shannon's, cited not reproduced.",
+  "body":SHNL_BODY,"script":SHNL_SCRIPT},
+ {"slug":"the-slepian-wolf","title":"THE SLEPIAN-WOLF","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b98cff","icon":"\u21c9",
+  "kicker":"two encoders, no channel between them, joint price",
+  "blurb":"Two sensors that cannot hear each other still pay only what a single encoder seeing both would pay. The correlation is exploited by the decoder \u2014 the encoders never need to know it exists.",
+  "lit":"for Y = X xor Bernoulli(0.1) with X uniform, H(X)=H(Y)=1 and H(Y|X)=H(0.1)=0.468996 give H(X,Y)=1.468996 by the chain rule; separate compression costs 2 bits, so the saving is 0.531004 bits per symbol with no encoder communication; a 400,000-pair simulation independently returns H(X)=1.0000, H(Y)=1.0000, H(X,Y)=1.4687 to four decimal places; both corner points sum to exactly H(X,Y); the point (0.5,0.4) is confirmed outside the region",
+  "fig":"The 0.531004 saving is the same number as the channel capacity at p=0.1 on this batch's companion sphere, because both are 1-H(0.1) \u2014 the correlation and the noise are the same Bernoulli object seen from two sides. This page verifies the entropy arithmetic and the rate region by computation and simulation; it does NOT construct a Slepian-Wolf code. Achieving the corners needs binning via LDPC or turbo syndromes, none of which is implemented or tested here.",
+  "body":SLPW_BODY,"script":SLPW_SCRIPT},
  {"slug":"the-squared-square","title":"THE SQUARED SQUARE","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#ffcf4a","icon":"squaredsquare",
   "kicker":"squares that fit exactly",
