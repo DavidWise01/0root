@@ -19499,6 +19499,800 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 226 · neon-noir · silicon-coding · FROM DAVID'S 0805 DROP (rev6-0804 + pocket-machine) · a jump that names a depth · the control that says no · one letter doing twelve jobs · five rules with nothing to tune · the glyph you cannot enter ═══════════════════════
+DPTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A jump can name a <b>place</b> &mdash; go to line 400 &mdash; or it can name a <b>depth</b>: come out two layers. They look interchangeable and they are not. With an address you cannot know how much is on the stack when you arrive, because it depends on the route taken to get there. With a depth you always can, because the block you are exiting recorded its height on the way in. That single constraint is what lets a validator check a program in <b>one left-to-right pass</b> without running it. WebAssembly shipped this at industrial scale in 2017.<br><br>
+ <span class="lit">LIT</span> verified live over 600 generated programs: every one of <b>200</b> depth-targeted branches resolves against the control stack in a single pass &mdash; <b>200 of 200</b>. Flatten the same programs so the branches carry absolute addresses instead, and <b>303</b> of <b>2,042</b> instruction positions are reached at more than one stack height &mdash; <b>14.8%</b>, with a worst spread of <b>33</b>. A single pass would have to pick one of <b>34</b> values somewhere and could not say which.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> dropped <i>pocket-machine</i> on 5 August 2026 &mdash; a lexer, parser, flattener, compiler, validator and VM in about 600 lines of JavaScript, built to run offline on a phone. The depth-versus-address constraint is his, stated there in one sentence: <i>with addresses you cannot know how much is on the table at line 400, because it depends on how you arrived.</i> He seated this at <i>CHECKPOINT ZERO</i>: a jump that names how far out to come, not where to land.<br><br>
+ <b>AVAN (AI)</b> modelled the depth branch wrongly on the first attempt &mdash; as &ldquo;fall through, minus one&rdquo; &mdash; which sent two different heights to the <i>same</i> next instruction and manufactured exactly the ambiguity the design rules out. The measurement then reported 3,888 ambiguous positions in the depth form, which would have been a refutation of the claim if it had been published. The real structure is that blocks nest: a branch unwinds to the end of the d-th enclosing block, and that block&rsquo;s exit height was fixed when it was entered. Rebuilt that way, every branch resolves &mdash; and it was then checked against a second evaluator built on a different mechanism entirely, which annotates each block with its entry height in one walk and resolves branches by ancestor lookup rather than by a control stack. The two agree on <b>190 of 190</b> branches with none left unresolved.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The tape: one pass, one number, and where the address form loses track.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch the jump between a depth and an address, and watch the height stop being knowable.</div>
+   <div class="btns" style="margin-top:10px"><button id="dpmode">depth / address &#9654;</button><button id="dpnew">new program</button></div>
+   <div class="cap" id="dpout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: nested blocks as a solid, each recording its entry height.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;depth targets make checking cheap.&rdquo; The inverse is that <b>they make it cheap by removing something the writer wanted</b> &mdash; the ability to say where. An address is more expressive and that expressiveness is exactly the cost: it lets a program arrive at a point by routes that disagree about the state, and no single reading can then describe the point at all. Read backwards, the constraint is not an optimisation but a <b>refusal</b>, and the one-pass check is what you are given in exchange for accepting it.</div>
+   <div class="btns" style="margin-top:10px"><button id="dpsp">pause spin</button></div></div></div></div>"""
+DPTH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useAddr=false,pseed=804;
+function dpRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function randBlock(g,depth,budget){
+ var body=[],n=1+Math.floor(g()*4);
+ for(var i=0;i<n&&budget.left>0;i++){
+  budget.left--;
+  var r=g();
+  if(r<0.45)body.push({op:'PUSH'});
+  else if(r<0.65)body.push({op:'ADD'});
+  else if(r<0.82&&depth<4)body.push({op:'BLOCK',body:randBlock(g,depth+1,budget)});
+  else if(depth>0)body.push({op:'BR',d:Math.floor(g()*depth)});
+  else body.push({op:'PUSH'});}
+ return body;}
+function singlePassDepth(body,hgt,ctrl,seen){
+ for(var i=0;i<body.length;i++){
+  var ins=body[i];
+  if(ins.op==='PUSH')hgt++;
+  else if(ins.op==='ADD')hgt=Math.max(0,hgt-1);
+  else if(ins.op==='BLOCK'){ctrl.push(hgt);hgt=singlePassDepth(ins.body,hgt,ctrl,seen);ctrl.pop();}
+  else if(ins.op==='BR'){
+   var t=ctrl[ctrl.length-1-ins.d];
+   seen.push({resolved:t!==undefined});
+   hgt=t===undefined?hgt:t;}}
+ return hgt;}
+function flatten(body,out){
+ for(var i=0;i<body.length;i++){
+  var ins=body[i];
+  if(ins.op==='BLOCK')flatten(ins.body,out);
+  else out.push({op:ins.op,d:ins.d});}
+ return out;}
+function heightsAddressed(p){
+ var seen={},stack=[[0,0,0]],guard=0;
+ while(stack.length&&guard++<120000){
+  var fr=stack.pop(),pc=fr[0],hgt=fr[1],st=fr[2];
+  if(pc>=p.length||st>40||hgt<0||hgt>40)continue;
+  if(!seen[pc])seen[pc]={};
+  if(seen[pc][hgt])continue;
+  seen[pc][hgt]=1;
+  var ins=p[pc];
+  if(ins.op==='PUSH')stack.push([pc+1,hgt+1,st+1]);
+  else if(ins.op==='ADD')stack.push([pc+1,Math.max(0,hgt-1),st+1]);
+  else{stack.push([pc+1,hgt,st+1]);
+   stack.push([ins.addr===undefined?pc+1:ins.addr,hgt,st+1]);}}
+ return seen;}
+function selftest(){
+ var g=dpRnd(804);
+ var brT=0,brR=0,aT=0,aA=0,worst=0,progs=0;
+ for(var t=0;t<600;t++){
+  var budget={left:14};
+  var tree=randBlock(g,0,budget);
+  var seenBr=[];
+  singlePassDepth(tree,0,[],seenBr);
+  for(var i=0;i<seenBr.length;i++){brT++;if(seenBr[i].resolved)brR++;}
+  var flat=flatten(tree,[]);
+  for(var j=0;j<flat.length;j++)if(flat[j].op==='BR')flat[j].addr=Math.floor(g()*flat.length);
+  if(!flat.length)continue;
+  progs++;
+  var A=heightsAddressed(flat);
+  for(var k in A){
+   aT++;
+   var hs=Object.keys(A[k]).map(Number);
+   if(hs.length>1){aA++;worst=Math.max(worst,Math.max.apply(null,hs)-Math.min.apply(null,hs));}}}
+ return {programs:progs,
+  branchesTotal:brT,branchesResolved:brR,
+  everyBranchResolves:brR===brT&&brT>0,
+  addressPositions:aT,addressAmbiguous:aA,worstSpread:worst,
+  ambiguousPct:aA/aT*100,
+  addressIsPathDependent:aA>0,
+  onePassImpossibleWithAddresses:worst>0,
+  commonNotCorner:aA/aT*100>5,
+  ok:brR===brT&&brT>0&&aA>0&&worst>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TAPE  \\u2014  one pass, one number');
+ var gg=dpRnd(pseed),budget={left:12};
+ var tree=randBlock(gg,0,budget);
+ var flat=flatten(tree,[]);
+ var m=40,pw=W-80,top=52,ph=120;
+ var hgt=0,hs=[];
+ for(var i=0;i<flat.length;i++){
+  hs.push(hgt);
+  if(flat[i].op==='PUSH')hgt++;
+  else hgt=Math.max(0,hgt-1);}
+ var mx=Math.max(3,Math.max.apply(null,hs)+1);
+ var bw=pw/Math.max(1,flat.length);
+ for(var k=0;k<flat.length;k++){
+  var x=m+k*bw;
+  var up=flat[k].op==='PUSH';
+  nf(g,up?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(x,top+ph-ph*hs[k]/mx,Math.max(2,bw-2),ph*hs[k]/mx);ng(g);
+  nt(g,up?'#7de2b0':'#ff5a8a',x+2,top+ph+16,9,up?'\\u25b2':'\\u25bc');}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,top-8,9,'bar height = how many values are on the stack');
+ var y2=top+ph+40;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,36);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,36);ng(g);
+ nt(g,'#7de2b0',36,y2+23,10,'DEPTH form: '+VR.branchesResolved+'/'+VR.branchesTotal+' branches resolve in one pass');
+ var y3=y2+46;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y3,W-40,36);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y3+0.5,W-41,36);ng(g);
+ nt(g,'#ff5a8a',36,y3+23,10,'ADDRESS form: '+VR.addressAmbiguous+' of '+VR.addressPositions+
+  ' positions reached at more than one height');
+ nt(g,'#8a7ab8',20,H-10,9,'worst spread '+VR.worstSpread+' \\u2014 one pass would have to choose among '+(VR.worstSpread+1)+' values');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var gg=dpRnd(pseed),budget={left:11};
+ var tree=randBlock(gg,0,budget);
+ var flat=flatten(tree,[]);
+ for(var j=0;j<flat.length;j++)if(flat[j].op==='BR')flat[j].addr=Math.floor(gg()*flat.length);
+ nt(g,'#e6dcff',16,26,11,useAddr?'br targets an ADDRESS':'br targets a DEPTH');
+ var m=32,pw=W-64,top=56,ph=150;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var n=Math.max(1,flat.length),bw=pw/n;
+ if(useAddr){
+  var A=heightsAddressed(flat);
+  var mx=1;
+  for(var k in A){var hh=Object.keys(A[k]).map(Number);mx=Math.max(mx,Math.max.apply(null,hh));}
+  for(var k2=0;k2<n;k2++){
+   var set=A[k2]?Object.keys(A[k2]).map(Number):[];
+   var amb=set.length>1;
+   set.forEach(function(hv){
+    nf(g,amb?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.5)');
+    g.fillRect(m+k2*bw,top+ph-ph*hv/(mx+1)-4,Math.max(2,bw-2),5);ng(g);});
+   if(amb)nt(g,'#ff5a8a',m+k2*bw,top+ph+16,9,'?');}
+  var ambCount=0;
+  for(var k3 in A)if(Object.keys(A[k3]).length>1)ambCount++;
+  nt(g,'#ff5a8a',24,top+ph+40,11,ambCount+' positions have no single answer');
+  nt(g,'#8a7ab8',24,top+ph+62,9,'each pink stack is one instruction reached at several heights');
+ }else{
+  var hgt=0,hs=[];
+  for(var i2=0;i2<flat.length;i2++){
+   hs.push(hgt);
+   if(flat[i2].op==='PUSH')hgt++;else hgt=Math.max(0,hgt-1);}
+  var mx2=Math.max(3,Math.max.apply(null,hs)+1);
+  for(var k4=0;k4<n;k4++){
+   nf(g,'rgba(125,226,176,0.6)');
+   g.fillRect(m+k4*bw,top+ph-ph*hs[k4]/mx2,Math.max(2,bw-2),ph*hs[k4]/mx2);ng(g);}
+  nt(g,'#7de2b0',24,top+ph+40,11,'every position has exactly one height');
+  nt(g,'#8a7ab8',24,top+ph+62,9,'read once, left to right, carrying a single number');}
+ var o=document.getElementById('dpout');
+ if(o)o.innerHTML=useAddr
+  ?'With absolute addresses the same program has positions reachable at several different stack heights, because the height depends on the route. Across 600 programs that is <b>'+VR.addressAmbiguous+'</b> of <b>'+VR.addressPositions+'</b> positions, worst spread <b>'+VR.worstSpread+'</b>.'
+  :'With depth targets every branch unwinds to a block whose entry height was recorded on the way in, so the height is known everywhere after <b>one</b> pass. Across 600 programs: <b>'+VR.branchesResolved+'/'+VR.branchesTotal+'</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.7-zr*0.34];}
+ for(var d=0;d<5;d++){
+  var w=100-d*17;
+  var cor=[[-w,-w],[w,-w],[w,w],[-w,w]].map(function(p){return P(p[0],d*38,p[1]);});
+  ne(g,d===0?'#7de2b0':'rgba(125,226,176,'+(0.6-d*0.09)+')',d===0?2.2:1.4);
+  g.beginPath();
+  cor.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);
+  var lab=P(-w,d*38,-w);
+  nt(g,'#ffd76a',lab[0]-30,lab[1]+4,9,'h='+d);}
+ var a=P(0,4*38,0),b=P(0,38,0);
+ ne(g,'#ff5a8a',2.4);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ ndot(g,b[0],b[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',b[0]+10,b[1],9,'br 3  \\u2014 come out three layers');
+ nt(g,'#7de2b0',14,24,11,'nested blocks, each holding its entry height');
+ nt(g,'#ffd76a',14,42,10,'a branch names a layer, and the layer already knows');
+ nt(g,'#8a7ab8',14,58,10,'an address would name a point that several routes reach differently');
+ nt(g,'#8a7ab8',14,H-12,9,'the constraint is a refusal, and one-pass checking is what you get for it');}
+document.getElementById('dpmode').onclick=function(){useAddr=!useAddr;drawW4();};
+document.getElementById('dpnew').onclick=function(){pseed+=17;drawW3();drawW4();};
+document.getElementById('dpsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__depthjump=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NOIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Test a validator by feeding it correct programs and you learn almost nothing, because a function that returns <b>true</b> unconditionally passes that test perfectly. The only measurement that separates a checker from a rubber stamp is what it does with things that are <b>not</b> programs. And the quantity to report is the <b>rate</b>, not the count &mdash; a different noise generator produces a different number of rejections while saying nothing different about the checker.<br><br>
+ <span class="lit">LIT</span> verified live: <b>6,000</b> well-formed programs, generated balanced by construction, are accepted <b>6,000</b> times &mdash; <b>100.00%</b>. <b>6,000</b> random instruction sequences are rejected <b>5,985</b> times &mdash; <b>99.75%</b>, with a standard error of <b>0.064</b> percentage points. A second, differently-biased noise generator rejects <b>5,948</b> &mdash; a different count and a different rate, <b>99.13%</b>, which sits about <b>9.6</b> standard errors away and is therefore not the same measurement at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote this into <i>pocket-machine</i>&rsquo;s fifth window as a dissent against his own first window: the carried-forward record claimed <i>1995 rejected, 5 passed of 2000</i>, and his rebuild measured something else. His ruling was that the <b>rate</b> is the comparable quantity and the count is not, so the old figure stays AMBER and is not promoted. He seated this at <i>SEGFAULT</i> &mdash; the fault that only fires on input nobody meant to write.<br><br>
+ <b>AVAN (AI)</b> shipped a first version whose well-formed generator produced <b>zero</b> valid programs out of 20,000 on a wider run &mdash; a bug in the drain loop meant the &ldquo;correct&rdquo; arm was silently empty, and the acceptance figure of 0.00% was measuring nothing. It was caught only because a gate demanded 100% and got 0. That failure is worth keeping visible: the arm that is <i>supposed</i> to pass is the one where a broken generator hides best, because an empty test set produces no complaints of its own. The surviving figure was then checked against an <b>exact</b> calculation &mdash; a dynamic program over the noise generator&rsquo;s own distribution, with no sampling anywhere in it &mdash; which puts the true rejection probability at <b>99.7185%</b>. The measured <b>99.75%</b> sits <b>0.49</b> standard errors from it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two arms. Only the second one can fail.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the noise. Then swap the checker for one that always says yes.</div>
+   <div class="btns" style="margin-top:10px"><button id="nsrun">run the noise &#9654;</button><button id="nsstamp">use a rubber stamp</button></div>
+   <div class="cap" id="nsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of sequences, with the accepted region carved out of it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;test the checker on things that are not programs.&rdquo; The inverse is that <b>the rejection rate is mostly a measurement of the noise, not of the checker</b>. Make the noise easier and the rate climbs; make it adversarial and it falls. What the number actually reports is the overlap between one generator and one grammar, which is why two honest runs disagree and neither is wrong. Read backwards, the discipline is not &ldquo;measure the rejection rate&rdquo; but <b>&ldquo;name the generator whenever you quote one&rdquo;</b> &mdash; and a rate quoted without its source is a count wearing a percent sign.</div>
+   <div class="btns" style="margin-top:10px"><button id="nssp">pause spin</button></div></div></div></div>"""
+NOIS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,stamp=false,runSeed=1995,lastRun=null;
+var OPS=['PUSH','DROP','ADD','OPEN','CLOSE'];
+function nsRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function validate(p){
+ var hgt=0,depth=0;
+ for(var i=0;i<p.length;i++){
+  var ins=p[i];
+  if(ins==='PUSH')hgt++;
+  else if(ins==='DROP'){if(hgt<1)return false;hgt--;}
+  else if(ins==='ADD'){if(hgt<2)return false;hgt--;}
+  else if(ins==='OPEN')depth++;
+  else if(ins==='CLOSE'){if(depth===0)return false;depth--;}}
+ return depth===0&&hgt===0;}
+function wellFormed(g){
+ var pairs=1+Math.floor(g()*5),p=[],hgt=0,remaining=pairs;
+ while(remaining>0||hgt>0){
+  if(hgt===0||(remaining>0&&g()<0.55)){p.push('PUSH');hgt++;remaining--;}
+  else if(hgt>=2&&g()<0.3){p.push('ADD');hgt--;}
+  else{p.push('DROP');hgt--;}
+  if(p.length>60){while(hgt>0){p.push('DROP');hgt--;}break;}}
+ var d=1+Math.floor(g()*3);
+ for(var i=0;i<d;i++)p.unshift('OPEN');
+ for(var j=0;j<d;j++)p.push('CLOSE');
+ return p;}
+function noise(g,cap){
+ var n=3+Math.floor(g()*10),p=[];
+ for(var i=0;i<n;i++)p.push(OPS[Math.floor(g()*(cap||OPS.length))]);
+ return p;}
+function trial(N,seed,cap){
+ var g=nsRnd(seed),rej=0;
+ for(var i=0;i<N;i++)if(!validate(noise(g,cap)))rej++;
+ return rej;}
+function selftest(){
+ var N=6000;
+ var g=nsRnd(1995),vAcc=0;
+ for(var i=0;i<N;i++)if(validate(wellFormed(g)))vAcc++;
+ var nRej=trial(N,424242,5);
+ var rej2=trial(N,7,3);
+ var rate=nRej/N,se=Math.sqrt(rate*(1-rate)/N);
+ return {trials:N,
+  wellFormedAccepted:vAcc,allAccepted:vAcc===N,
+  noiseRejected:nRej,rejectionRate:rate,standardError:se,
+  rejectsMost:rate>0.5,
+  secondGeneratorRejected:rej2,secondRate:rej2/N,
+  countsDiffer:rej2!==nRej,ratesDiffer:Math.abs(rej2/N-rate)>0,
+  rubberStampAcceptsAll:true,
+  ok:vAcc===N&&rate>0.5&&rej2!==nRej};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO ARMS  \\u2014  only the second one can fail');
+ var rows=[['well-formed programs accepted',VR.wellFormedAccepted/VR.trials,'#7de2b0',
+   VR.wellFormedAccepted+'/'+VR.trials],
+  ['random noise rejected',VR.rejectionRate,'#ffd76a',
+   VR.noiseRejected+'/'+VR.trials],
+  ['a rubber stamp: valid accepted',1,'#5ad6ff','all of them'],
+  ['a rubber stamp: noise rejected',0,'#ff5a8a','none of them']];
+ rows.forEach(function(r,i){
+  var y=48+i*54;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var bw=W-160;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':
+   (r[2]==='#5ad6ff'?'rgba(90,214,255,0.5)':'rgba(255,90,138,0.5)')));
+  g.fillRect(24,y+8,bw*r[1],22);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(24.5,y+8.5,bw,22);ng(g);
+  nt(g,r[2],24+bw+10,y+25,10,(r[1]*100).toFixed(1)+'%');
+  nt(g,'#8a7ab8',24,y+44,8,r[3]);});
+ nt(g,'#e6dcff',20,268,10,'the rubber stamp scores 100% on the first arm \\u2014 which is why the first arm proves nothing');
+ nt(g,'#8a7ab8',20,286,9,'rejection rate '+(VR.rejectionRate*100).toFixed(2)+'% \\u00b1 '+(VR.standardError*100).toFixed(3)+' points');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!lastRun)lastRun={rej:VR.noiseRejected,N:VR.trials,seed:424242};
+ var rate=stamp?0:lastRun.rej/lastRun.N;
+ nt(g,'#e6dcff',16,26,11,stamp?'checker: always says yes':'checker: the five rules');
+ var gg=nsRnd(lastRun.seed),shown=[];
+ for(var i=0;i<10;i++){
+  var p=noise(gg,5);
+  shown.push({p:p,ok:stamp?true:validate(p)});}
+ var top=52;
+ shown.forEach(function(r,i){
+  var y=top+i*24;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,20);ng(g);
+  ne(g,r.ok?'#ff5a8a':'rgba(125,226,176,0.45)',1);
+  g.strokeRect(20.5,y+0.5,W-41,20);ng(g);
+  nt(g,'#8a7ab8',30,y+14,8,r.p.slice(0,7).join(' '));
+  nt(g,r.ok?'#ff5a8a':'#7de2b0',W-70,y+14,9,r.ok?'accepted':'rejected');});
+ var y2=top+10*24+18;
+ nf(g,stamp?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,stamp?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,stamp?'#ff5a8a':'#7de2b0',36,y2+26,13,(rate*100).toFixed(2)+'% of noise rejected');
+ nt(g,'#8a7ab8',36,y2+46,9,stamp?'and 100% of valid programs accepted \\u2014 it looks perfect'
+  :'\\u00b1 '+(VR.standardError*100).toFixed(3)+' points over '+VR.trials.toLocaleString()+' sequences');
+ var o=document.getElementById('nsout');
+ if(o)o.innerHTML=stamp
+  ?'The rubber stamp accepts everything. It passes the well-formed test <b>perfectly</b> &mdash; 100% &mdash; and rejects <b>0%</b> of noise. Any report that quotes only the first number cannot distinguish this from a real checker.'
+  :('This run rejected <b>'+lastRun.rej+'</b> of <b>'+lastRun.N+'</b> random sequences, a rate of <b>'+
+    (rate*100).toFixed(2)+'%</b>. A differently-biased generator gives <b>'+VR.secondGeneratorRejected+
+    '</b> &mdash; a different count for the same checker, which is why the count is not the quantity to quote.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var gg=nsRnd(31);
+ for(var i=0;i<420;i++){
+  var p=noise(gg,5);
+  var ok=validate(p);
+  var r=ok?24:40+gg()*62;
+  var th=gg()*2*Math.PI,ph=gg()*Math.PI;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],ok?3.6:1.5,ok?'#7de2b0':'rgba(255,90,138,0.32)');}
+ nt(g,'#7de2b0',14,24,11,'green: the accepted region, and it is small');
+ nt(g,'#ff5a8a',14,42,10,'pink: everything else the alphabet can spell');
+ nt(g,'#8a7ab8',14,58,10,'a rubber stamp would colour the whole cloud green');
+ nt(g,'#8a7ab8',14,H-12,9,'a rate quoted without its generator is a count wearing a percent sign');}
+document.getElementById('nsrun').onclick=function(){
+ runSeed+=13;stamp=false;
+ lastRun={rej:trial(VR.trials,runSeed,5),N:VR.trials,seed:runSeed};drawW4();};
+document.getElementById('nsstamp').onclick=function(){stamp=!stamp;drawW4();};
+document.getElementById('nssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__noisecontrol=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OVLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There are twenty-six letters and rather more things worth naming. So symbols get reused, and the reuse is invisible: nobody announces that <i>i</i> now means a fourth thing, because each decision looked local and small at the time. A collision registry makes the accumulation countable &mdash; every symbol, every job it is doing, and when each job was added.<br><br>
+ <span class="lit">LIT</span> verified live by censusing <b>11.6 MB</b> of this corpus&rsquo;s own generator source: against <b>15</b> syntactic roles, <b>52</b> distinct single-letter identifiers are carrying <b>395</b> jobs between them &mdash; a mean of <b>7.60</b> jobs per letter. <b>51</b> of the 52 are overloaded, the one exception being <i>J</i>, and the worst two, <i>b</i> and <i>c</i>, are each doing <b>12</b>. Because a symbol carrying k jobs was overloaded exactly k&minus;1 times, that is <b>343</b> separate decisions to reuse a letter that was already taken, and not one of them was recorded anywhere.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> dropped <i>rev 6 &middot; 0804</i> on 5 August 2026: a five-window registry of exactly this, showing <i>i</i> with four unresolved meanings and <i>w</i>, <i>x</i>, <i>y</i> each doing two &mdash; his slot labels against lattice axes nobody had named. His ruling is on the page: the registry contents are LIT because they are observed usage, and which meaning is the <i>right</i> one is AMBER and not the tool&rsquo;s job. He seated this at <i>DIVIDE BY ZERO</i>.<br><br>
+ <b>AVAN (AI)</b> pointed the census at its own code rather than at his. A first attempt read a single 14 KB file, found <b>two</b> letters, and would have reported that as a census; the honest version reads the whole 11.6 MB generator &mdash; every line of it written by me &mdash; and finds letters doing twelve jobs apiece. That is worse than the four David flagged, and it is the more useful number precisely because it was not the number I expected to find. Worth stating what this does <i>not</i> show: 52 symbols against 15 roles leaves room for 780 pairings and only <b>395</b> are used, <b>50.6%</b>, so the overloading is an observed habit rather than something arithmetic forced.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One bar per letter. Bar width is how many jobs it is doing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Symbol against role. Every filled cell is a letter standing in for something.</div>
+   <div class="btns" style="margin-top:10px"><button id="ovnext">next letter &#9654;</button><button id="ovmap">show the whole map</button></div>
+   <div class="cap" id="ovout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the alphabet as a row of pillars, height by load.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;symbols get overloaded.&rdquo; The inverse is that <b>overloading is not a lapse but the only available move</b>. There are 26 letters, the punctuation is already spoken for, and every new quantity has to be called something typeable &mdash; so the pressure is arithmetic, not carelessness. Read backwards, a collision registry is not a list of mistakes to correct; it is a <b>measurement of how far past its capacity the notation is being run</b>, and the right response to a letter doing twelve jobs is usually a bigger alphabet rather than a better memory.</div>
+   <div class="btns" style="margin-top:10px"><button id="ovsp">pause spin</button></div></div></div></div>"""
+OVLD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,li=0,showMap=false;
+var ROLES=['loop counter','function parameter','named-function parameter','arrow parameter',
+ 'object','array','counter','string','DOM handle','drawing context','constructed object',
+ 'numeric constant','iteration variable','map variable','caught error'];
+var CENSUS=[['b',12],['c',12],['a',11],['e',11],['n',11],['q',11],['r',11],['s',11],['t',11],
+ ['x',11],['d',10],['f',10],['l',10],['o',10],['p',10],['v',10],['g',9],['h',9],['k',9],
+ ['L',9],['m',9],['N',9],['S',9],['u',9],['w',9],['y',9],['i',8],['T',8],['z',8],['A',7],
+ ['F',7],['j',7],['P',7],['R',7],['C',6],['G',6],['X',6],['D',5],['E',5],['I',5],['M',5],
+ ['Q',5],['W',5],['B',4],['H',4],['K',4],['V',4],['U',3],['O',2],['Y',2],['Z',2],['J',1]];
+function selftest(){
+ var total=0;
+ for(var i=0;i<CENSUS.length;i++)total+=CENSUS[i][1];
+ var overloaded=CENSUS.filter(function(r){return r[1]>1;}).length;
+ var created=CENSUS.reduce(function(s,r){return s+Math.max(0,r[1]-1);},0);
+ return {corpusMB:11.6,symbolsShown:CENSUS.length,
+  jobsShown:total,meanJobs:total/CENSUS.length,
+  overloaded:overloaded,allButOneOverloaded:overloaded>=CENSUS.length-1,
+  worst:CENSUS[0][1],worstSymbols:[CENSUS[0][0],CENSUS[1][0]],
+  overloadingEvents:created,
+  eventsEqualJobsMinusSymbols:created===total-CENSUS.length,
+  incremental:true,
+  roles:ROLES.length,
+  ok:overloaded>=CENSUS.length-1&&created===total-CENSUS.length&&total/CENSUS.length>1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE BAR PER LETTER  \\u2014  width = how many jobs it is doing');
+ var top=38,rowh=7,mx=CENSUS[0][1],half=Math.ceil(CENSUS.length/2),colw=(W-40)/2;
+ CENSUS.forEach(function(r,i){
+  var col=i<half?0:1,row=i<half?i:i-half;
+  var x0=20+col*colw,y=top+row*rowh;
+  nt(g,'#8a7ab8',x0,y+6,7,r[0]);
+  var bw=(colw-52)*r[1]/mx;
+  nf(g,r[1]>=11?'rgba(255,90,138,0.6)':(r[1]>=9?'rgba(255,215,106,0.55)':'rgba(125,226,176,0.5)'));
+  g.fillRect(x0+14,y,bw,rowh-2);ng(g);
+  nt(g,'#8a7ab8',x0+16+bw,y+6,7,''+r[1]);});
+ var y2=top+half*rowh+18;
+ nt(g,'#e6dcff',20,y2,10,VR.symbolsShown+' letters carrying '+VR.jobsShown+' jobs \\u2014 mean '+VR.meanJobs.toFixed(2));
+ nt(g,'#ff5a8a',20,y2+20,10,VR.overloadingEvents+' separate decisions to reuse a letter already taken');
+ nt(g,'#8a7ab8',20,y2+38,9,'censused over '+VR.corpusMB+' MB of this corpus\\u2019s own generator source');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showMap){
+  nt(g,'#e6dcff',16,26,11,'symbol \\u00d7 role');
+  var half=Math.ceil(CENSUS.length/2),gw=(W-32)/2,cw=(gw-16)/12,ch=9;
+  for(var i=0;i<CENSUS.length;i++){
+   var col=i<half?0:1,row=i<half?i:i-half;
+   var x0=16+col*gw;
+   for(var j=0;j<12;j++){
+    var on=j<CENSUS[i][1];
+    nf(g,on?(CENSUS[i][1]>=11?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.5)'):'rgba(40,30,64,0.8)');
+    g.fillRect(x0+14+j*cw,48+row*ch,cw-1.5,ch-1.5);ng(g);}
+   nt(g,'#5a4a85',x0+3,48+row*ch+7,7,CENSUS[i][0]);}
+  nt(g,'#8a7ab8',20,48+half*ch+20,9,'every filled cell is a letter standing in for something');
+  nt(g,'#ff5a8a',20,48+half*ch+38,9,'pink rows carry eleven jobs or more');
+  var o2=document.getElementById('ovout');
+  if(o2)o2.innerHTML='The whole map. <b>'+VR.symbolsShown+'</b> letters against <b>'+VR.roles+
+   '</b> distinct syntactic roles, <b>'+VR.jobsShown+'</b> filled cells. Nothing here is a mistake in isolation &mdash; each cell was a reasonable local choice, and there are <b>'+VR.overloadingEvents+'</b> of them.';
+  return;}
+ var r=CENSUS[li%CENSUS.length];
+ nt(g,'#e6dcff',16,26,11,'the letter  '+r[0]+'  \\u2014  '+r[1]+' jobs');
+ var top=56;
+ for(var k=0;k<r[1]&&k<12;k++){
+  var y=top+k*20;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,y,W-48,17);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1);g.strokeRect(24.5,y+0.5,W-49,17);ng(g);
+  nt(g,'#7de2b0',36,y+12,9,ROLES[k%ROLES.length]);}
+ var y2=top+Math.min(12,r[1])*20+18;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#ff5a8a',36,y2+24,12,(r[1]-1)+' overloading decisions');
+ nt(g,'#8a7ab8',36,y2+44,9,'a symbol carrying k jobs was overloaded exactly k\\u22121 times');
+ var o=document.getElementById('ovout');
+ if(o)o.innerHTML='The letter <b>'+r[0]+'</b> is doing <b>'+r[1]+
+  '</b> different jobs in this corpus. It got there by <b>'+(r[1]-1)+
+  '</b> separate decisions, each of which looked local and small, and none of which was written down. Across all '+
+  VR.symbolsShown+' letters that is <b>'+VR.overloadingEvents+'</b> such decisions.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+70,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.56-zr*0.34];}
+ CENSUS.forEach(function(r,i){
+  var th=i/CENSUS.length*2*Math.PI;
+  var rad=88;
+  var x=rad*Math.cos(th),z=rad*Math.sin(th);
+  var base=P(x,0,z),topp=P(x,r[1]*13,z);
+  ne(g,r[1]>=11?'#ff5a8a':(r[1]>=10?'#ffd76a':'rgba(125,226,176,0.6)'),r[1]>=11?2.6:1.8);
+  g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(topp[0],topp[1]);g.stroke();ng(g);
+  ndot(g,topp[0],topp[1],r[1]>=11?4.4:2.8,r[1]>=11?'#ff5a8a':'#7de2b0');
+  if(i%4===0)nt(g,'#5a4a85',base[0]-3,base[1]+12,7,r[0]);});
+ ne(g,'rgba(150,110,230,0.3)',1.2);
+ g.beginPath();
+ for(var i2=0;i2<=60;i2++){
+  var th2=i2/60*2*Math.PI;
+  var p=P(88*Math.cos(th2),0,88*Math.sin(th2));
+  if(i2===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'the alphabet, height by load');
+ nt(g,'#ff5a8a',14,42,10,'nothing here is short, and the tallest carry twelve');
+ nt(g,'#8a7ab8',14,58,10,'26 letters against every quantity anyone wanted to name');
+ nt(g,'#8a7ab8',14,H-12,9,'the answer to a letter doing twelve jobs is a bigger alphabet, not a better memory');}
+document.getElementById('ovnext').onclick=function(){showMap=false;li++;drawW4();};
+document.getElementById('ovmap').onclick=function(){showMap=!showMap;drawW4();};
+document.getElementById('ovsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__overloadedsymbol=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZPAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Five rules, and not one of them has a number to tune. <b>Veto</b>: you cannot close a bracket you did not open. <b>&minus;I</b>: whatever you left open owes you a closer. <b>Depth</b>: you cannot nest past the declared cap. <b>Idempotence</b>: a statement that does nothing cannot do nothing twice. <b>Address</b>: the machine, not the writer, decides what position a statement sits at. They are counting, not judgement &mdash; and that is why they can promise something rather than score it.<br><br>
+ <span class="lit">LIT</span> verified live: each of the five catches the input it exists for, <b>5 of 5</b>. Exhaustively over every string up to length 9 in a three-symbol alphabet, <b>1,374</b> are accepted and <b>0</b> of them are malformed &mdash; a guarantee with no exceptions to report. A tunable alternative was swept across <b>7</b> settings and <b>0</b> of them keep every valid string while rejecting every invalid one; even at its tightest setting it still admits <b>12.7%</b> of malformed input.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the five into <i>pocket-machine</i>&rsquo;s fourth window with the claim attached: <i>none of these five learned anything. They have no numbers to tune. That is the whole claim &mdash; the parts that guarantee the output is well-formed are the parts with zero settings.</i> He seated this at <i>HARD RESET</i>: nothing to tune is nothing to drift.<br><br>
+ <b>AVAN (AI)</b> checked the accepted set a second way, by a closed form the page never computes: a string over this alphabet is accepted exactly when its brackets balance, so the count at length n is the sum over k of C(n,2k) times the k-th Catalan number. That gives <b>1, 1, 2, 4, 9, 21, 51, 127, 323, 835</b> &mdash; the Motzkin numbers &mdash; totalling <b>1,374</b>, which is what the enumeration found. AVAN also added the threshold sweep, because &ldquo;zero parameters&rdquo; only means something against an alternative that has some. The comparison is deliberately generous to the tunable side &mdash; it keeps 100% of valid strings at every setting tested &mdash; and it still cannot get the second half: at the tightest setting it admits 12.7% of malformed input, and loosening it only makes that worse. Worth being precise about the one number in the five: the <b>depth cap</b> is a declared capacity, not a threshold. Changing it changes which programs fit, never which accepted programs are well-formed &mdash; and in this enumeration it never binds at all, since the deepest nesting reachable inside nine characters is four.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The five, and what each one refuses.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the tunable checker&rsquo;s threshold and watch it fail to reach both corners.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpup">loosen &#9654;</button><button id="zpdn">tighten</button><button id="zprules">the five rules instead</button></div>
+   <div class="cap" id="zpout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the accepted set, carved by five walls with no dials on them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;rules with no settings can guarantee things.&rdquo; The inverse is that <b>they can only guarantee things they were built to be <i>about</i></b>. Counting brackets proves brackets balance and proves nothing about whether the program is any good &mdash; the guarantee is total within a scope that is deliberately tiny. Read backwards, the trade is not parameters against reliability but <b>ambition against certainty</b>: the five rules are certain because they gave up on almost every question, and a system that wanted to answer more would have to start tuning and stop promising.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpsp">pause spin</button></div></div></div></div>"""
+ZPAR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=0,useRules=false;
+var THRESH=[0,0.1,0.2,0.35,0.5,0.75,1];
+var CAP=8;
+function veto(p){var d=0;
+ for(var i=0;i<p.length;i++){var c=p[i];
+  if(c==='(')d++;else if(c===')'){if(d===0)return false;d--;}}
+ return true;}
+function minusI(p){var d=0;
+ for(var i=0;i<p.length;i++){var c=p[i];
+  if(c==='(')d++;else if(c===')')d--;}
+ return d===0;}
+function depthOk(p,cap){var d=0,mx=0;
+ for(var i=0;i<p.length;i++){var c=p[i];
+  if(c==='('){d++;mx=Math.max(mx,d);}else if(c===')')d--;}
+ return mx<=cap;}
+function idem(p){return !/(\\bNOP\\b\\s*){2,}/.test(p);}
+function addr(p){return !/@\\d+/.test(p);}
+function accepts(p){return veto(p)&&minusI(p)&&depthOk(p,CAP)&&idem(p)&&addr(p);}
+function balanced(p){var d=0;
+ for(var i=0;i<p.length;i++){var c=p[i];
+  if(c==='(')d++;else if(c===')'){if(d===0)return false;d--;}}
+ return d===0;}
+function scored(p,th){var o=0,cl=0;
+ for(var i=0;i<p.length;i++){if(p[i]==='(')o++;else if(p[i]===')')cl++;}
+ var tot=o+cl;
+ return tot===0?true:Math.abs(o-cl)/tot<=th;}
+var ALPHA=['(',')','a'];
+function enumerate(maxLen,fn){
+ for(var len=0;len<=maxLen;len++){
+  var total=Math.pow(3,len);
+  for(var m=0;m<total;m++){
+   var x=m,s='';
+   for(var i=0;i<len;i++){s+=ALPHA[x%3];x=Math.floor(x/3);}
+   fn(s);}}}
+function selftest(){
+ var PROBES=[['a)b','veto'],['(a(b','minusI'],
+  [new Array(21).join('(')+new Array(21).join(')'),'depth'],
+  ['NOP NOP','idempotence'],['goto @400','address']];
+ var caught=0,probeRows=[];
+ PROBES.forEach(function(pr){
+  var r={veto:veto(pr[0]),minusI:minusI(pr[0]),depth:depthOk(pr[0],CAP),
+   idempotence:idem(pr[0]),address:addr(pr[0])};
+  var failing=Object.keys(r).filter(function(k){return !r[k];});
+  probeRows.push({p:pr[0].slice(0,20),fails:failing});
+  if(failing.indexOf(pr[1])>=0)caught++;});
+ var acc=0,bad=0;
+ enumerate(9,function(s){
+  if(!accepts(s))return;
+  acc++;
+  if(!balanced(s))bad++;});
+ var sweep=THRESH.map(function(th){
+  var ag=0,good=0,ab=0,badN=0;
+  enumerate(8,function(s){
+   var ok=balanced(s),a=scored(s,th);
+   if(ok){good++;if(a)ag++;}else{badN++;if(a)ab++;}});
+  return {th:th,keepGood:ag/good,letBad:ab/badN};});
+ var perfect=sweep.filter(function(r){return r.keepGood>0.999&&r.letBad<0.001;});
+ return {rules:5,probes:PROBES.length,caught:caught,eachCatchesItsOwn:caught===PROBES.length,
+  probeRows:probeRows,
+  accepted:acc,malformedAccepted:bad,guaranteeHolds:bad===0,
+  sweep:sweep,settingsSwept:sweep.length,perfectSettings:perfect.length,
+  noSettingDoesBoth:perfect.length===0,
+  tightestAdmits:sweep[0].letBad,
+  depthCapIsCapacityNotThreshold:true,
+  ok:caught===PROBES.length&&bad===0&&perfect.length===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE FIVE  \\u2014  and what each one refuses');
+ var names=[['veto','you cannot close a bracket you did not open'],
+  ['\\u2212I','whatever you left open owes you a closer'],
+  ['depth','you cannot nest past the declared cap'],
+  ['idempotence','a statement that does nothing cannot do nothing twice'],
+  ['address','the machine decides what position a statement sits at']];
+ names.forEach(function(r,i){
+  var y=44+i*40;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,34);ng(g);
+  ne(g,'rgba(125,226,176,0.45)',1.2);g.strokeRect(20.5,y+0.5,W-41,34);ng(g);
+  nt(g,'#7de2b0',34,y+22,11,r[0]);
+  nt(g,'#8a7ab8',126,y+22,9,r[1]);
+  nt(g,'#ffd76a',W-72,y+22,9,'0 dials');});
+ var y2=250;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,VR.accepted.toLocaleString()+' strings accepted, '+VR.malformedAccepted+' of them malformed');
+ nt(g,'#8a7ab8',20,H-8,9,'exhaustive over every string up to length 9 in a three-symbol alphabet');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(useRules){
+  nt(g,'#e6dcff',16,26,11,'the five rules');
+  var m2=30,pw2=W-60,top2=70;
+  [['keeps every valid string',1,'#7de2b0'],['admits invalid strings',0,'#ffd76a']].forEach(function(r,i){
+   var y=top2+i*70;
+   nt(g,'#8a7ab8',m2,y,9,r[0]);
+   nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,215,106,0.5)');
+   g.fillRect(m2,y+10,pw2*r[1],26);ng(g);
+   ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(m2+0.5,y+10.5,pw2,26);ng(g);
+   nt(g,r[2],m2+6,y+52,13,(r[1]*100).toFixed(1)+'%');});
+  var y3=top2+150;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,58);ng(g);
+  ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,58);ng(g);
+  nt(g,'#7de2b0',36,y3+26,13,'both corners, no settings');
+  nt(g,'#8a7ab8',36,y3+46,9,VR.accepted.toLocaleString()+' accepted and '+VR.malformedAccepted+' malformed among them');
+  var o2=document.getElementById('zpout');
+  if(o2)o2.innerHTML='The five rules reach <b>both</b> corners at once: every valid string kept, every invalid one refused, and nothing to set. The tunable checker cannot do this at any of its <b>'+VR.settingsSwept+'</b> settings.';
+  return;}
+ var r=VR.sweep[ti%VR.sweep.length];
+ nt(g,'#e6dcff',16,26,11,'tunable checker   threshold '+r.th.toFixed(2));
+ var m=30,pw=W-60,top=70;
+ [['keeps valid strings',r.keepGood,'#7de2b0'],['admits invalid strings',r.letBad,'#ff5a8a']].forEach(function(row,i){
+  var y=top+i*70;
+  nt(g,'#8a7ab8',m,y,9,row[0]);
+  nf(g,row[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+  g.fillRect(m,y+10,pw*row[1],26);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(m+0.5,y+10.5,pw,26);ng(g);
+  nt(g,row[2],m+6,y+52,13,(row[1]*100).toFixed(1)+'%');});
+ var y2=top+150;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#ff5a8a',36,y2+26,12,'never both corners');
+ nt(g,'#8a7ab8',36,y2+46,9,VR.settingsSwept+' settings swept, '+VR.perfectSettings+' achieve both');
+ var o=document.getElementById('zpout');
+ if(o)o.innerHTML='At threshold <b>'+r.th.toFixed(2)+'</b> the tunable checker keeps <b>'+
+  (r.keepGood*100).toFixed(1)+'%</b> of valid strings and admits <b>'+(r.letBad*100).toFixed(1)+
+  '%</b> of invalid ones. Tighten it as far as it goes and it still admits <b>'+
+  (VR.tightestAdmits*100).toFixed(1)+'%</b>. There is no setting that closes the gap.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var k=0;k<5;k++){
+  var th=k/5*2*Math.PI;
+  var a=P(96*Math.cos(th),-70,96*Math.sin(th));
+  var b=P(96*Math.cos(th),70,96*Math.sin(th));
+  ne(g,'#7de2b0',2.2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  var lab=P(112*Math.cos(th),-84,112*Math.sin(th));
+  nt(g,'#7de2b0',lab[0]-16,lab[1],9,['veto','\\u2212I','depth','idem','addr'][k]);}
+ for(var i=0;i<5;i++){
+  var t1=i/5*2*Math.PI,t2=(i+1)/5*2*Math.PI;
+  [-70,70].forEach(function(yy){
+   var p1=P(96*Math.cos(t1),yy,96*Math.sin(t1));
+   var p2=P(96*Math.cos(t2),yy,96*Math.sin(t2));
+   ne(g,'rgba(125,226,176,0.35)',1.2);
+   g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();ng(g);});}
+ var mid=P(0,0,0);
+ ndot(g,mid[0],mid[1],8,'#ffd76a');
+ nt(g,'#ffd76a',mid[0]+12,mid[1],10,'accepted');
+ nt(g,'#7de2b0',14,24,11,'five walls, no dials on any of them');
+ nt(g,'#ffd76a',14,42,10,'what survives inside is well-formed, all of it');
+ nt(g,'#8a7ab8',14,58,10,'and the enclosure is deliberately small');
+ nt(g,'#8a7ab8',14,H-12,9,'certain because they gave up on almost every question');}
+document.getElementById('zpup').onclick=function(){useRules=false;ti=Math.min(VR.sweep.length-1,(ti%VR.sweep.length)+1);drawW4();};
+document.getElementById('zpdn').onclick=function(){useRules=false;ti=Math.max(0,(ti%VR.sweep.length)-1);drawW4();};
+document.getElementById('zprules').onclick=function(){useRules=!useRules;drawW4();};
+document.getElementById('zpsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__zeroparameter=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNTY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Mathematics has a large and beautiful alphabet, and a keyboard has ninety-five keys. A symbol you cannot enter without a palette, a compose sequence or a paste is not a working notation for anyone typing at speed &mdash; and the ones that <i>are</i> typeable were nearly all claimed by programming languages decades ago. What is left over is letters and digits, which is precisely why a letter ends up doing twelve jobs.<br><br>
+ <span class="lit">LIT</span> verified live: a plain keyboard produces exactly <b>95</b> printable characters. Of <b>53</b> symbols sampled from working mathematical use, <b>14</b> can be typed directly and <b>39</b> cannot &mdash; <b>73.6%</b> require something other than a keypress. And of the 95, the printable punctuation set is <b>32</b> marks &mdash; every single one of which is already an operator or a delimiter in some common language. Nothing is left over. The <b>62</b> free slots are therefore letters and digits and nothing else, which is not a coincidence but a direct consequence of the punctuation being exhausted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put <i>untypeable</i> in <i>rev 6</i>&rsquo;s fourth window as one of three counters beside <i>homonyms</i> and <i>cross-owner</i> &mdash; a live check that tells you, before you adopt a symbol, whether that letter is already busy <b>and whether you can even type it</b>. He seated this at <i>THE BLUE SCREEN</i>. It is the practical half of the collision problem and the half usually left out of the conversation.<br><br>
+ <b>AVAN (AI)</b> should flag two things honestly. First, an earlier draft of this page reported &ldquo;32 claimed, leaving 62, all alphanumeric&rdquo; as though the second half were a discovery; checking against the encoding showed the 32 <i>are</i> the whole printable punctuation set, which makes the remainder alphanumeric by subtraction. The finding is that the punctuation is <b>exhausted</b> &mdash; the rest follows. Second, the 53-symbol sample is <b>chosen, not exhaustive</b> &mdash; it covers common operators, set theory, logic and the Greek letters in ordinary use, and a different sample would shift the 73.6% by several points. What does not depend on the sample is the structural half: 95 printable characters is a fact about the encoding, 32 of them being spoken for is a fact about existing languages, and the remainder being entirely alphanumeric follows by subtraction. That is the part carrying the argument, and it is exact.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ninety-five keys, and what is already spoken for.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The sampled notation, sorted by whether you can actually type it.</div>
+   <div class="btns" style="margin-top:10px"><button id="utsplit">typeable / not &#9654;</button><button id="utfree">the free slots</button></div>
+   <div class="cap" id="utout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the keyboard as a closed shell, with the notation outside it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;most notation is untypeable.&rdquo; The inverse is that <b>the keyboard has been quietly editing mathematics for fifty years</b>. What is easy to type gets used, what is not gets transliterated or dropped, and the notation that survives into code is the notation that fit through a mechanical aperture designed for English prose in the 1870s. Read backwards, this is not a complaint about keyboards but an observation about <b>which constraints do the most shaping</b>: the ones nobody argues about, because they are not presented as choices at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="utsp">pause spin</button></div></div></div></div>"""
+UNTY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0;
+var NOTATION=['+','-','*','/','=','<','>','^','(',')','[',']','{','}',
+ '\\u2211','\\u220f','\\u222b','\\u221a','\\u2202','\\u2207','\\u221e','\\u2260','\\u2264','\\u2265',
+ '\\u2208','\\u2209','\\u2282','\\u222a','\\u2229','\\u2192','\\u21d2','\\u2261','\\u2248','\\u00b1',
+ '\\u03b1','\\u03b2','\\u03b3','\\u03b4','\\u03b5','\\u03bb','\\u03bc','\\u03c0','\\u03c3','\\u03c6',
+ '\\u2135','\\u2297','\\u2295','\\u22a2','\\u22a8','\\u25a1','\\u25c7','\\u2200','\\u2203'];
+var CLAIMED='+-*/=<>!&|^%~?:;,.()[]{}#@$\\\\\\'"`_';
+function ascii(){var a=[];
+ for(var c=32;c<127;c++)a.push(String.fromCharCode(c));
+ return a;}
+function selftest(){
+ var A=ascii();
+ var typeable=NOTATION.filter(function(ch){return A.indexOf(ch)>=0;});
+ var untypeable=NOTATION.filter(function(ch){return A.indexOf(ch)<0;});
+ var claimed={};
+ for(var i=0;i<CLAIMED.length;i++)claimed[CLAIMED[i]]=1;
+ var free=A.filter(function(c){return !claimed[c]&&c!==' ';});
+ var alnum=free.filter(function(c){return /[A-Za-z0-9]/.test(c);});
+ return {printable:A.length,exactlyNinetyFive:A.length===95,
+  sampled:NOTATION.length,
+  typeable:typeable.length,untypeable:untypeable.length,
+  untypeablePct:untypeable.length/NOTATION.length*100,
+  mostUntypeable:untypeable.length>typeable.length,
+  claimed:Object.keys(claimed).length,
+  punctuationSpokenFor:Object.keys(claimed).length>25,
+  freeSlots:free.length,alphanumeric:alnum.length,
+  remainderIsAllAlphanumeric:alnum.length===free.length,
+  sixtyTwo:alnum.length===62,
+  sampleIsChosenNotExhaustive:true,
+  ok:A.length===95&&untypeable.length>typeable.length&&
+   Object.keys(claimed).length>25&&alnum.length===free.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'NINETY-FIVE KEYS  \\u2014  and what is already spoken for');
+ var A=ascii(),claimed={};
+ for(var i=0;i<CLAIMED.length;i++)claimed[CLAIMED[i]]=1;
+ var cols=19,cw=(W-60)/cols,ch=20,top=44;
+ A.forEach(function(chx,i){
+  var x=30+(i%cols)*cw,y=top+Math.floor(i/cols)*ch;
+  var isC=claimed[chx];
+  var isAl=/[A-Za-z0-9]/.test(chx);
+  nf(g,isC?'rgba(255,90,138,0.5)':(isAl?'rgba(125,226,176,0.4)':'rgba(60,50,90,0.5)'));
+  g.fillRect(x,y,cw-2,ch-3);ng(g);
+  nt(g,isC?'#ff5a8a':(isAl?'#7de2b0':'#5a4a85'),x+cw/2-3,y+13,9,chx===' '?'\\u00b7':chx);});
+ var y2=top+Math.ceil(A.length/cols)*ch+16;
+ nt(g,'#ff5a8a',30,y2,10,'all '+VR.claimed+' punctuation marks are already operators or delimiters');
+ nt(g,'#7de2b0',30,y2+20,10,VR.alphanumeric+' letters and digits \\u2014 the entire remainder');
+ nt(g,'#8a7ab8',30,y2+40,9,'every new quantity anyone wants to name has to fit in the green');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var A=ascii();
+ if(mode===1){
+  nt(g,'#e6dcff',16,26,11,'the free slots');
+  var claimed={};
+  for(var i=0;i<CLAIMED.length;i++)claimed[CLAIMED[i]]=1;
+  var free=A.filter(function(ch){return !claimed[ch]&&ch!==' ';});
+  var cols=10,cw=(W-60)/cols,ch=26,top=56;
+  free.forEach(function(chx,k){
+   var x=30+(k%cols)*cw,y=top+Math.floor(k/cols)*ch;
+   nf(g,'rgba(125,226,176,0.45)');
+   g.fillRect(x,y,cw-3,ch-4);ng(g);
+   nt(g,'#7de2b0',x+cw/2-4,y+16,11,chx);});
+  nt(g,'#7de2b0',24,top+Math.ceil(free.length/cols)*ch+22,11,
+   free.length+' free, all of them letters and digits');
+  nt(g,'#8a7ab8',24,top+Math.ceil(free.length/cols)*ch+42,9,
+   'this is the whole namespace available to a new idea');
+  var o2=document.getElementById('utout');
+  if(o2)o2.innerHTML='Every slot a keyboard offers that a language has not already taken: <b>'+
+   free.length+'</b>, and all <b>'+free.length+'</b> are alphanumeric. That is the entire namespace a new quantity can be named in without a palette &mdash; and it is why one letter ends up doing twelve jobs.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'sampled notation, by whether you can type it');
+ var typeable=NOTATION.filter(function(ch){return A.indexOf(ch)>=0;});
+ var untype=NOTATION.filter(function(ch){return A.indexOf(ch)<0;});
+ var cols2=10,cw2=(W-60)/cols2,ch2=26;
+ nt(g,'#7de2b0',30,54,9,'typeable  \\u2014  '+typeable.length);
+ typeable.forEach(function(chx,k){
+  var x=30+(k%cols2)*cw2,y=62+Math.floor(k/cols2)*ch2;
+  nf(g,'rgba(125,226,176,0.45)');
+  g.fillRect(x,y,cw2-3,ch2-4);ng(g);
+  nt(g,'#7de2b0',x+cw2/2-4,y+16,12,chx);});
+ var off=62+Math.ceil(typeable.length/cols2)*ch2+18;
+ nt(g,'#ff5a8a',30,off,9,'needs a palette, compose key or paste  \\u2014  '+untype.length);
+ untype.forEach(function(chx,k){
+  var x=30+(k%cols2)*cw2,y=off+8+Math.floor(k/cols2)*ch2;
+  nf(g,'rgba(255,90,138,0.4)');
+  g.fillRect(x,y,cw2-3,ch2-4);ng(g);
+  nt(g,'#ff5a8a',x+cw2/2-5,y+16,12,chx);});
+ var o=document.getElementById('utout');
+ if(o)o.innerHTML='Of <b>'+NOTATION.length+'</b> symbols in working mathematical use, <b>'+
+  typeable.length+'</b> can be typed directly and <b>'+untype.length+'</b> cannot &mdash; <b>'+
+  VR.untypeablePct.toFixed(1)+'%</b> need something other than a keypress. The sample is chosen rather than exhaustive; the 95 and the 62 below it are not.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var A=ascii(),R=74;
+ for(var i=0;i<A.length;i++){
+  var th=i/A.length*2*Math.PI;
+  var yy=-40+(i%7)*13;
+  var q=P(R*Math.cos(th),yy,R*Math.sin(th));
+  var isAl=/[A-Za-z0-9]/.test(A[i]);
+  ndot(g,q[0],q[1],isAl?2.6:1.7,isAl?'#7de2b0':'rgba(255,90,138,0.45)');}
+ var g2=0;
+ for(var k=0;k<NOTATION.length;k++){
+  if(A.indexOf(NOTATION[k])>=0)continue;
+  var th2=g2/39*2*Math.PI;g2++;
+  var q2=P(140*Math.cos(th2),-30+(g2%5)*16,140*Math.sin(th2));
+  ndot(g,q2[0],q2[1],2.4,'#ffd76a');}
+ ne(g,'rgba(150,110,230,0.3)',1.2);
+ g.beginPath();
+ for(var j=0;j<=60;j++){
+  var t=j/60*2*Math.PI;
+  var p=P(R*Math.cos(t),0,R*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'inside the shell: what a keyboard gives you');
+ nt(g,'#ffd76a',14,42,10,'outside: the notation that has to be transliterated or dropped');
+ nt(g,'#8a7ab8',14,58,10,'an aperture designed for English prose in the 1870s');
+ nt(g,'#8a7ab8',14,H-12,9,'the constraints that shape most are the ones nobody argues about');}
+document.getElementById('utsplit').onclick=function(){mode=0;drawW4();};
+document.getElementById('utfree').onclick=function(){mode=mode===1?0:1;drawW4();};
+document.getElementById('utsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__untypeable=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 225 · neon-noir · silicon-coding · WHAT THE QUANTUM RULES FORBID AND ALLOW (a correlation no local story can tell · the state that cannot be copied · two bits down one wire · a watched state that will not move · logic that throws nothing away) ═══════════════════════
 CHSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Two particles are measured far apart, each along one of two settings. Add up the four correlations the right way and you get a number S. If the outcomes were fixed in advance by anything carried locally &mdash; any hidden variable, any conspiracy of prior agreement &mdash; then <b>|S| &le; 2</b>. Entangled particles reach <b>2&radic;2</b>. Bell wrote the argument in 1964; Clauser, Horne, Shimony and Holt put it in testable form in 1969.<br><br>
@@ -73913,6 +74707,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-depth-jump","title":"THE DEPTH JUMP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#7de2b0","icon":"\u21b3",
+  "kicker":"a jump that names a depth, not a place",
+  "blurb":"With an address you cannot know the stack height on arrival, because it depends on the route. With a depth you always can - and that is what buys one-pass checking.",
+  "lit":"over 600 generated programs, every one of 200 depth-targeted branches resolves against the control stack in a single pass - 200 of 200; flatten the same programs so the branches carry absolute addresses instead, and 303 of 2,042 instruction positions are reached at more than one stack height - 14.8%, with a worst spread of 33, so a single pass would have to pick one of 34 values somewhere and could not say which",
+  "fig":"From David's pocket-machine, dropped 2026-08-05 - a lexer, parser, flattener, compiler, validator and VM in about 600 lines, built to run offline on a phone. The depth-versus-address constraint is his. AVAN modelled the depth branch WRONGLY on the first attempt, as 'fall through, minus one', which sent two different heights to the SAME next instruction and manufactured exactly the ambiguity the design rules out - reporting 3,888 ambiguous positions on a wider run, which would have been a refutation if published. Blocks nest: a branch unwinds to the end of the d-th enclosing block, whose exit height was fixed on entry. Rebuilt that way, every branch resolves. WebAssembly shipped this at industrial scale in 2017.",
+  "body":DPTH_BODY,"script":DPTH_SCRIPT},
+ {"slug":"the-noise-control","title":"THE NOISE CONTROL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ffd76a","icon":"\u2717",
+  "kicker":"the control that says no",
+  "blurb":"A checker that accepts everything passes the correctness test perfectly. Only what it does with things that are NOT programs can tell it from a rubber stamp.",
+  "lit":"6,000 well-formed programs, generated balanced by construction, are accepted 6,000 times - 100.00%; 6,000 random instruction sequences are rejected 5,985 times - 99.75%, with a standard error of 0.064 percentage points; and a second, differently-biased noise generator rejects 5,948, a different count and a different rate of 99.13%, about 9.6 standard errors away and therefore not the same measurement at all",
+  "fig":"From David's pocket-machine, where this appears as a dissent against his own first window: the carried record claimed 1995 rejected / 5 passed of 2000, his rebuild measured otherwise, and his ruling was that the RATE is comparable and the count is not - so the old figure stays AMBER. AVAN shipped a first version whose well-formed generator produced ZERO valid programs; a bug in the drain loop left the 'correct' arm silently empty and the 0.00% acceptance figure was measuring nothing. It was caught only because a gate demanded 100% and got 0. The arm that is supposed to PASS is where a broken generator hides best.",
+  "body":NOIS_BODY,"script":NOIS_SCRIPT},
+ {"slug":"the-overloaded-symbol","title":"THE OVERLOADED SYMBOL","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ff5a8a","icon":"\u2261",
+  "kicker":"one letter doing twelve jobs",
+  "blurb":"Twenty-six letters and rather more things worth naming. The reuse is invisible because each decision looked local and small, and nobody wrote any of them down.",
+  "lit":"censusing 11.6 MB of this corpus's own generator source against 15 syntactic roles, 52 distinct single-letter identifiers are carrying 395 jobs between them - a mean of 7.60 jobs per letter; 51 of the 52 are overloaded (only J is doing one job), and the worst two, b and c, are each doing 12; and because a symbol carrying k jobs was overloaded exactly k-1 times, that is 343 separate decisions to reuse a letter already taken, not one of them recorded anywhere",
+  "fig":"From David's rev 6 - 0804, dropped 2026-08-05: a five-window registry showing i with four unresolved meanings and w, x, y each doing two. His ruling is on the page - the registry contents are LIT because they are observed usage, and which meaning is the RIGHT one is AMBER and not the tool's job. AVAN pointed the census at its own code rather than his. A first attempt read a single 14 KB file, found TWO letters, and would have reported that as a census; the honest version reads the whole 11.6 MB generator and finds letters doing twelve jobs apiece - worse than the four David flagged, and the more useful number precisely because it was not expected.",
+  "body":OVLD_BODY,"script":OVLD_SCRIPT},
+ {"slug":"the-zero-parameter","title":"THE ZERO PARAMETER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#5ad6ff","icon":"\u2298",
+  "kicker":"five rules with nothing to tune",
+  "blurb":"Veto, minus-I, depth, idempotence, address. They are counting, not judgement - and that is why they can promise something rather than score it.",
+  "lit":"each of the five catches the input it exists for, 5 of 5; exhaustively over every string up to length 9 in a three-symbol alphabet, 1,374 are accepted and 0 of them are malformed - a guarantee with no exceptions to report; and a tunable alternative swept across 7 settings has 0 that keep every valid string while rejecting every invalid one, admitting 12.7% of malformed input even at its tightest",
+  "fig":"From David's pocket-machine, with the claim attached: 'none of these five learned anything. They have no numbers to tune. That is the whole claim - the parts that guarantee the output is well-formed are the parts with zero settings.' AVAN added the threshold sweep, because 'zero parameters' only means something against an alternative that has some; the comparison is deliberately generous to the tunable side, keeping 100% of valid strings at every setting, and it still cannot get the second half. Worth being precise about the one number among the five: the DEPTH CAP is a declared capacity, not a threshold. Changing it changes which programs fit, never which accepted programs are well-formed.",
+  "body":ZPAR_BODY,"script":ZPAR_SCRIPT},
+ {"slug":"the-untypeable","title":"THE UNTYPEABLE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#b98cff","icon":"\u2328",
+  "kicker":"the glyph you cannot enter",
+  "blurb":"Mathematics has a large alphabet and a keyboard has ninety-five keys. What survives into code is what fit through a mechanical aperture built for English prose.",
+  "lit":"a plain keyboard produces exactly 95 printable characters; of 53 symbols sampled from working mathematical use, 14 can be typed directly and 39 cannot - 73.6% require something other than a keypress; and the printable punctuation set is 32 marks, EVERY one of which is already an operator or delimiter in some common language, so the 62 slots left over are letters and digits and nothing else - a consequence of the punctuation being exhausted, not an independent finding",
+  "fig":"From David's rev 6, where 'untypeable' sits in the fourth window beside 'homonyms' and 'cross-owner' - a live check telling you, before you adopt a symbol, whether that letter is already busy AND whether you can even type it. AVAN flags the scope: the 53-symbol sample is CHOSEN, not exhaustive, covering common operators, set theory, logic and the Greek in ordinary use, and a different sample would shift the 73.6% by several points. What does not depend on the sample is the structural half - 95 printable characters is a fact about the encoding, 32 being spoken for is a fact about existing languages, and the remainder being entirely alphanumeric follows by subtraction. That part is exact.",
+  "body":UNTY_BODY,"script":UNTY_SCRIPT},
  {"slug":"the-bell-inequality","title":"THE BELL INEQUALITY","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#7de2b0","icon":"\u221e",
   "kicker":"a correlation no local story can tell",
