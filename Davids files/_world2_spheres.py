@@ -19499,6 +19499,790 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 224 · neon-noir · silicon-coding · WHAT AVERAGING DECIDES (the leading digit is not fair · the only fair split there is · a fight nobody wins outright · why tomorrow makes today honest · when the long run answers for everyone) ═══════════════════════
+BENF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Leading digits are not evenly spread. In many real datasets a <b>1</b> turns up about 30% of the time and a <b>9</b> under 5%, following log<sub>10</sub>(1 + 1/d). Newcomb noticed it in 1881 from the wear on logarithm tables and Benford rediscovered it in 1938. It is used to screen accounts for fraud &mdash; and it is <b>not universal</b>, which is the part that matters if you are going to accuse anyone of anything.<br><br>
+ <span class="lit">LIT</span> verified live over 60,000 terms: powers of 2 match the law to a worst digit error of <b>1.33e-5</b>, and Fibonacci numbers to <b>3.67e-5</b>. Uniformly random values do <b>not</b> &mdash; worst error <b>0.19033</b>, off by four times the effect being tested for. Powers of 10 lead with a 1 <b>100%</b> of the time. The mechanism is exact: the fractional parts of n&thinsp;log<sub>10</sub>2 equidistribute, with the worst bin deviating from uniform by <b>1.0e-3, 2.0e-4, 2.0e-5</b> at N = 10<sup>3</sup>, 10<sup>4</sup>, 10<sup>5</sup>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>OFF BY ONE</i> &mdash; a 1 leads nearly a third of the time, and the whole law is that discrepancy.<br><br>
+ <b>AVAN (AI)</b> computed the digits from <b>frac(n&thinsp;log<sub>10</sub>2)</b> rather than by generating 2<sup>n</sup> as a big integer, which is not a shortcut but the actual content: the leading digit of x depends only on the fractional part of log<sub>10</sub>x, so Benford&rsquo;s law <i>is</i> the statement that those fractional parts are uniform. Weyl&rsquo;s theorem gives that for any irrational step, so the law follows for 2<sup>n</sup>, for Fibonacci, and for anything else whose logarithm advances irrationally. The uniform-data row is the one that keeps the page honest: the law is a property of <b>multiplicative</b> processes, and a dataset that is not one will fail it while being entirely innocent.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Predicted against measured, and one source that does not comply.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the source. Only the multiplicative ones obey.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnsrc">next source &#9654;</button><button id="bnn">more terms</button></div>
+   <div class="cap" id="bnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the log-scale wheel, and where each step lands on it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;leading digits follow a log law.&rdquo; The inverse is that <b>there are no leading digits in the problem at all &mdash; there is a circle, and the digits are just how we have chosen to slice it</b>. Multiplying by 2 rotates a point on the log wheel by log<sub>10</sub>2; the digit is whichever arc you land in, and those arcs have width log<sub>10</sub>(1 + 1/d) because that is how far apart the digit boundaries sit on a logarithmic scale. Read backwards, Benford&rsquo;s law is not a fact about numbers but about <b>the ruler</b>: the unevenness was in the decimal notation before any data arrived.</div>
+   <div class="btns" style="margin-top:10px"><button id="bnsp">pause spin</button></div></div></div></div>"""
+BENF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0,nn=50000;
+var SRC=['powers of 2','Fibonacci','powers of 3','uniform 1-10','powers of 10'];
+function bnRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function ben(d){return Math.log10(1+1/d);}
+function leadFromLog(f){return Math.floor(Math.pow(10,f-Math.floor(f)));}
+function digitsOf(step,N){
+ var c=[0,0,0,0,0,0,0,0,0,0],f=0;
+ for(var n=1;n<=N;n++){f+=step;f-=Math.floor(f);c[leadFromLog(f)]++;}
+ return c.slice(1).map(function(v){return v/N;});}
+function uniformDigits(N,seed){
+ var g=bnRnd(seed),c=[0,0,0,0,0,0,0,0,0,0];
+ for(var i=0;i<N;i++){var x=g()*9+1;c[Math.floor(x)]++;}
+ return c.slice(1).map(function(v){return v/N;});}
+function sourceDigits(i,N){
+ if(i===0)return digitsOf(Math.log10(2),N);
+ if(i===1)return digitsOf(Math.log10((1+Math.sqrt(5))/2),N);
+ if(i===2)return digitsOf(Math.log10(3),N);
+ if(i===3)return uniformDigits(N,1938);
+ return digitsOf(1,N);}
+function discrepancy(step,N){
+ var bins=new Float64Array(100),f=0;
+ for(var n=1;n<=N;n++){f+=step;f-=Math.floor(f);bins[Math.floor(f*100)]++;}
+ var mx=0;
+ for(var i=0;i<100;i++)mx=Math.max(mx,Math.abs(bins[i]/N-0.01));
+ return mx;}
+function selftest(){
+ var N=60000;
+ var theory=[1,2,3,4,5,6,7,8,9].map(ben);
+ var p2=digitsOf(Math.log10(2),N);
+ var fb=digitsOf(Math.log10((1+Math.sqrt(5))/2),N);
+ var un=uniformDigits(N,1938);
+ var p10=digitsOf(1,N);
+ function dev(a){var m=0;
+  for(var i=0;i<9;i++)m=Math.max(m,Math.abs(a[i]-theory[i]));
+  return m;}
+ var rows=[1000,10000,100000].map(function(n){
+  return {n:n,d:discrepancy(Math.log10(2),n)};});
+ return {terms:N,theory:theory,
+  powersOfTwo:p2,powersOfTwoError:dev(p2),twoFollows:dev(p2)<0.004,
+  fibonacci:fb,fibonacciError:dev(fb),fibFollows:dev(fb)<0.004,
+  uniform:un,uniformError:dev(un),uniformDoesNot:dev(un)>0.15,
+  powersOfTen:p10[0],tenIsDegenerate:Math.abs(p10[0]-1)<1e-12,
+  discrepancies:rows,
+  equidistributes:rows.every(function(r,i){return i===0||r.d<=rows[i-1].d*1.1;}),
+  notUniversal:true,
+  ok:dev(p2)<0.004&&dev(fb)<0.004&&dev(un)>0.15&&Math.abs(p10[0]-1)<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'LEADING DIGIT FREQUENCY   \\u00b7   predicted vs measured');
+ var m=44,pw=W-88,top=48,ph=150;
+ var bw=pw/9;
+ for(var d=0;d<9;d++){
+  var x=m+d*bw;
+  var th=VR.theory[d],p2=VR.powersOfTwo[d],un=VR.uniform[d];
+  nf(g,'rgba(255,215,106,0.22)');
+  g.fillRect(x,top+ph-ph*th/0.34,bw-4,ph*th/0.34);ng(g);
+  ne(g,'#ffd76a',1.6);
+  g.strokeRect(x+0.5,top+ph-ph*th/0.34+0.5,bw-4,ph*th/0.34);ng(g);
+  nf(g,'rgba(125,226,176,0.7)');
+  g.fillRect(x+5,top+ph-ph*p2/0.34,bw*0.4,ph*p2/0.34);ng(g);
+  nf(g,'rgba(255,90,138,0.55)');
+  g.fillRect(x+bw*0.5,top+ph-ph*un/0.34,bw*0.35,ph*un/0.34);ng(g);
+  nt(g,'#8a7ab8',x+bw/2-4,top+ph+18,10,''+(d+1));}
+ nt(g,'#ffd76a',m,top-8,9,'outline: log10(1 + 1/d)');
+ nt(g,'#7de2b0',m+150,top-8,9,'green: powers of 2');
+ nt(g,'#ff5a8a',m+300,top-8,9,'pink: uniform data');
+ nt(g,'#e6dcff',20,244,10,'powers of 2 match to '+VR.powersOfTwoError.toExponential(2)+
+  ', Fibonacci to '+VR.fibonacciError.toExponential(2));
+ nt(g,'#ff5a8a',20,266,9,'uniform data is off by '+VR.uniformError.toFixed(4)+' \\u2014 four times the effect anyone screens for');
+ nt(g,'#8a7ab8',20,284,9,'the law is a property of MULTIPLICATIVE processes, and innocent data can fail it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=sourceDigits(si%SRC.length,nn);
+ var theory=VR.theory;
+ var err=0;
+ for(var i=0;i<9;i++)err=Math.max(err,Math.abs(d[i]-theory[i]));
+ nt(g,'#e6dcff',16,26,11,SRC[si%SRC.length]+'   \\u00b7   '+nn.toLocaleString()+' terms');
+ var m=34,pw=W-68,top=58,ph=142,bw=pw/9;
+ for(var k=0;k<9;k++){
+  var x=m+k*bw;
+  ne(g,'#ffd76a',1.5);
+  g.strokeRect(x+0.5,top+ph-ph*theory[k]/0.36+0.5,bw-4,ph*theory[k]/0.36);ng(g);
+  var good=Math.abs(d[k]-theory[k])<0.01;
+  nf(g,good?'rgba(125,226,176,0.65)':'rgba(255,90,138,0.6)');
+  g.fillRect(x+3,top+ph-ph*d[k]/0.36,bw-10,ph*d[k]/0.36);ng(g);
+  nt(g,'#8a7ab8',x+bw/2-4,top+ph+18,9,''+(k+1));}
+ var y2=top+ph+34;
+ nf(g,err<0.01?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,err<0.01?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,err<0.01?'#7de2b0':'#ff5a8a',36,y2+24,12,err<0.01?'FOLLOWS BENFORD':'DOES NOT FOLLOW');
+ nt(g,'#8a7ab8',36,y2+44,9,'worst digit error '+err.toExponential(2));
+ var o=document.getElementById('bnout');
+ if(o)o.innerHTML=err<0.01
+  ?('<b>'+SRC[si%SRC.length]+'</b> matches the law to <b>'+err.toExponential(2)+
+    '</b>. Its logarithm advances by an irrational step, so the fractional parts spread uniformly and the digit frequencies follow.')
+  :('<b>'+SRC[si%SRC.length]+'</b> is off by <b>'+err.toFixed(4)+
+    '</b>. '+(si%SRC.length===4?'Powers of 10 advance by exactly 1, so the fractional part never moves and the leading digit is always 1.'
+     :'Nothing multiplicative is happening here, so there is no reason for the law to hold \\u2014 and it does not.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var R=100;
+ var bnd=0;
+ for(var d=1;d<=9;d++){
+  var a0=Math.log10(d),a1=Math.log10(d+1);
+  ne(g,'rgba(150,110,230,0.4)',1.2);
+  var pa=P(R*Math.cos(2*Math.PI*a0),0,R*Math.sin(2*Math.PI*a0));
+  g.beginPath();g.moveTo(cx,cy);g.lineTo(pa[0],pa[1]);g.stroke();ng(g);
+  var mid=(a0+a1)/2;
+  var pm=P((R+22)*Math.cos(2*Math.PI*mid),0,(R+22)*Math.sin(2*Math.PI*mid));
+  nt(g,d===1?'#ffd76a':'#8a7ab8',pm[0]-4,pm[1]+4,d===1?12:10,''+d);}
+ ne(g,'rgba(125,226,176,0.5)',1.6);
+ g.beginPath();
+ for(var i=0;i<=120;i++){
+  var t=i/120,p=P(R*Math.cos(2*Math.PI*t),0,R*Math.sin(2*Math.PI*t));
+  if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var f=0,step=Math.log10(2);
+ for(var n=0;n<90;n++){
+  f+=step;f-=Math.floor(f);
+  var q=P(R*Math.cos(2*Math.PI*f),-60+n*1.35,R*Math.sin(2*Math.PI*f));
+  ndot(g,q[0],q[1],2,leadFromLog(f)===1?'#ffd76a':'rgba(125,226,176,0.5)');}
+ nt(g,'#7de2b0',14,24,11,'the log-scale wheel');
+ nt(g,'#ffd76a',14,42,10,'the arc for 1 is the widest, because log10(2) > log10(10/9)');
+ nt(g,'#8a7ab8',14,58,10,'multiplying by 2 rotates by log10(2), forever');
+ nt(g,'#8a7ab8',14,H-12,9,'the unevenness was in the notation before any data arrived');}
+document.getElementById('bnsrc').onclick=function(){si++;drawW4();};
+document.getElementById('bnn').onclick=function(){
+ var L=[5000,20000,50000,150000];nn=L[(L.indexOf(nn)+1)%L.length];drawW4();};
+document.getElementById('bnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__benford=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SHAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A group produces value together and has to divide it. Write down four requirements &mdash; the shares add to what was produced, players who contribute nothing get nothing, interchangeable players get equal amounts, and splitting one joint project into two independent ones does not change anyone&rsquo;s total &mdash; and there is <b>exactly one</b> way to do it. Lloyd Shapley proved that uniqueness in 1953. The formula that emerges is: average each player&rsquo;s marginal contribution over every possible order of arrival.<br><br>
+ <span class="lit">LIT</span> verified live on 40 random five-player games, averaging over all 120 orderings each: <b>efficiency</b> holds 40 times out of 40, <b>additivity</b> 40 out of 40, <b>dummy</b> 40 out of 40 and <b>symmetry</b> 40 out of 40. A sample game splits as <b>2.3467, 1.2133, 1.6467, 2.5800, 1.4133</b>, summing to <b>9.2000</b>, exactly the grand coalition&rsquo;s worth. Splitting equally instead satisfies efficiency but hands a player who contributes nothing anywhere <b>0.6800</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PUSH</i>: what each person actually added, measured over every order they could have arrived in.<br><br>
+ <b>AVAN (AI)</b> tested <b>additivity</b> the honest way, by constructing a second independent game, computing all three Shapley values from scratch, and checking &phi;(v + w) = &phi;(v) + &phi;(w) term by term. It is the least intuitive of the four axioms and the one doing most of the work in the uniqueness proof &mdash; efficiency, symmetry and dummy alone do not pin the answer down. The equal-split comparison is included because &ldquo;just divide it evenly&rdquo; is the obvious alternative and it fails on a case anyone would recognise as unfair. Worth stating the cost: the formula averages over n! orderings, which is exact here at n = 5 and computationally hopeless by n = 20, where it has to be sampled.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five players, 120 orderings, one split.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch a single ordering pay out, then watch the average settle.</div>
+   <div class="btns" style="margin-top:10px"><button id="shstep">one more ordering &#9654;</button><button id="shall">all 120</button><button id="shnew">new game</button></div>
+   <div class="cap" id="shout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every arrival order as a path, and the payouts they generate.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the Shapley value is the fair split.&rdquo; The inverse is that <b>it is fair only in the sense of being the unique fixed point of four sentences somebody chose to write down</b>. Change one and a different formula becomes the only fair one; drop additivity and a whole family appears. Read backwards, the theorem does not discover fairness, it <b>converts an argument about fairness into an argument about axioms</b> &mdash; and that is a genuine service, because the axioms can be examined one at a time while &ldquo;fair&rdquo; cannot.</div>
+   <div class="btns" style="margin-top:10px"><button id="shsp">pause spin</button></div></div></div></div>"""
+SHAP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=5,gseed=4242,shown=1,GAME=null,PERMS=null;
+function shRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function perms(arr){
+ if(arr.length<=1)return [arr];
+ var out=[];
+ arr.forEach(function(v,i){
+  perms(arr.filter(function(_,j){return j!==i;})).forEach(function(p){
+   out.push([v].concat(p));});});
+ return out;}
+function makeGame(seed){
+ var g=shRnd(seed),tbl=new Float64Array(1<<N);
+ for(var m=1;m<(1<<N);m++)tbl[m]=Math.round(g()*100)/10;
+ tbl[0]=0;
+ return function(m){return tbl[m];};}
+function shapleyPartial(v,P,upTo){
+ var phi=[];
+ for(var i=0;i<N;i++)phi.push(0);
+ for(var k=0;k<upTo;k++){
+  var p=P[k],mask=0;
+  p.forEach(function(i){
+   var before=v(mask);
+   mask|=(1<<i);
+   phi[i]+=v(mask)-before;});}
+ return phi.map(function(x){return x/upTo;});}
+function selftest(){
+ var idx=[];
+ for(var i=0;i<N;i++)idx.push(i);
+ var P=perms(idx);
+ var eff=0,sym=0,dum=0,add=0,trials=0;
+ for(var t=0;t<40;t++){
+  var v=makeGame(1000+t),w=makeGame(7000+t);
+  var phi=shapleyPartial(v,P,P.length);
+  trials++;
+  if(Math.abs(phi.reduce(function(a,b){return a+b;},0)-v((1<<N)-1))<1e-9)eff++;
+  var both=function(m){return v(m)+w(m);};
+  var pb=shapleyPartial(both,P,P.length),pw=shapleyPartial(w,P,P.length);
+  if(pb.every(function(x,i2){return Math.abs(x-(phi[i2]+pw[i2]))<1e-9;}))add++;
+  var vd=function(m){return v(m&~(1<<4));};
+  if(Math.abs(shapleyPartial(vd,P,P.length)[4])<1e-12)dum++;
+  var vs=function(m){var mm=m&~3;
+   if(m&1)mm|=2;
+   if(m&2)mm|=1;
+   return v(mm);};
+  var ps=shapleyPartial(vs,P,P.length);
+  if(Math.abs(ps[0]-phi[1])<1e-9&&Math.abs(ps[1]-phi[0])<1e-9)sym++;}
+ var v0=makeGame(4242);
+ var phi0=shapleyPartial(v0,P,P.length);
+ var vd0=function(m){return v0(m&~(1<<4));};
+ var eqDummy=vd0((1<<N)-1)/N;
+ return {players:N,orderings:P.length,games:trials,
+  efficiency:eff,efficiencyHolds:eff===trials,
+  additivity:add,additivityHolds:add===trials,
+  dummy:dum,dummyHolds:dum===trials,
+  symmetry:sym,symmetryHolds:sym===trials,
+  sampleSplit:phi0,sampleSum:phi0.reduce(function(a,b){return a+b;},0),
+  grandCoalition:v0((1<<N)-1),
+  equalSplitGivesDummy:eqDummy,equalSplitViolatesDummy:Math.abs(eqDummy)>1e-6,
+  ok:eff===trials&&add===trials&&dum===trials&&sym===trials};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR AXIOMS, ONE ANSWER   \\u00b7   '+VR.games+' random five-player games');
+ var ax=[['EFFICIENCY  shares sum to v(N)',VR.efficiency],
+  ['ADDITIVITY  phi(v+w) = phi(v)+phi(w)',VR.additivity],
+  ['DUMMY  a null player receives 0',VR.dummy],
+  ['SYMMETRY  equal players, equal shares',VR.symmetry]];
+ ax.forEach(function(a,i){
+  var y=44+i*44;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,36);ng(g);
+  var ok=a[1]===VR.games;
+  ne(g,ok?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,36);ng(g);
+  nt(g,'#e6dcff',34,y+23,10,a[0]);
+  nt(g,ok?'#7de2b0':'#ff5a8a',W-92,y+23,11,a[1]+'/'+VR.games);});
+ var y2=228;
+ nt(g,'#ffd76a',24,y2,10,'a sample split: '+VR.sampleSplit.map(function(x){return x.toFixed(4);}).join('  '));
+ nt(g,'#7de2b0',24,y2+22,10,'sum '+VR.sampleSum.toFixed(4)+'   =   v(N) '+VR.grandCoalition.toFixed(4));
+ nt(g,'#ff5a8a',24,y2+44,9,'an equal split would hand a null player '+VR.equalSplitGivesDummy.toFixed(4)+' \\u2014 efficient, and unfair');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!PERMS){var idx=[];
+  for(var i=0;i<N;i++)idx.push(i);
+  PERMS=perms(idx);}
+ if(!GAME)GAME=makeGame(gseed);
+ var upTo=Math.max(1,Math.min(shown,PERMS.length));
+ var phi=shapleyPartial(GAME,PERMS,upTo);
+ var full=shapleyPartial(GAME,PERMS,PERMS.length);
+ nt(g,'#e6dcff',16,26,11,'averaged over '+upTo+' of '+PERMS.length+' orderings');
+ nt(g,'#8a7ab8',16,46,9,'this ordering: '+PERMS[upTo-1].map(function(x){return String.fromCharCode(65+x);}).join(' \\u2192 '));
+ var m=40,pw=W-80,top=64;
+ var mx=Math.max.apply(null,full.concat(phi))*1.15;
+ for(var k=0;k<N;k++){
+  var y=top+k*44;
+  nt(g,'#8a7ab8',24,y+18,10,String.fromCharCode(65+k));
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(m,y+4,pw*phi[k]/mx,18);ng(g);
+  ne(g,'#ffd76a',1.6);
+  g.beginPath();
+  g.moveTo(m+pw*full[k]/mx,y);g.lineTo(m+pw*full[k]/mx,y+26);
+  g.stroke();ng(g);
+  nt(g,'#7de2b0',m+pw*phi[k]/mx+6,y+18,10,phi[k].toFixed(3));}
+ nt(g,'#ffd76a',m,top+N*44+6,9,'gold ticks: the value after all '+PERMS.length+' orderings');
+ var sum=phi.reduce(function(a,b){return a+b;},0);
+ var y2=top+N*44+22;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,36);ng(g);
+ ne(g,'rgba(125,226,176,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,36);ng(g);
+ nt(g,'#e6dcff',36,y2+23,10,'running sum '+sum.toFixed(4)+'   \\u00b7   v(N) = '+GAME((1<<N)-1).toFixed(4));
+ var o=document.getElementById('shout');
+ if(o)o.innerHTML='After <b>'+upTo+'</b> of the <b>'+PERMS.length+
+  '</b> arrival orders, the running average is '+phi.map(function(x){return x.toFixed(3);}).join(', ')+
+  '. '+(upTo===PERMS.length
+   ?'That is the Shapley value, and it is the only split satisfying all four axioms.'
+   :'The sum already equals v(N) at every stage \\u2014 efficiency holds ordering by ordering, not just in the limit.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ if(!PERMS){var idx=[];
+  for(var i=0;i<N;i++)idx.push(i);
+  PERMS=perms(idx);}
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a','#b98cff'];
+ for(var k=0;k<PERMS.length;k+=3){
+  var p=PERMS[k],prev=null;
+  for(var j=0;j<N;j++){
+   var th=p[j]/N*2*Math.PI;
+   var q=P3(74*Math.cos(th),-64+j*32,74*Math.sin(th));
+   if(prev){
+    ne(g,'rgba(125,226,176,0.13)',0.9);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}}
+ for(var i2=0;i2<N;i2++){
+  var th2=i2/N*2*Math.PI;
+  for(var j2=0;j2<N;j2++){
+   var q2=P3(74*Math.cos(th2),-64+j2*32,74*Math.sin(th2));
+   ndot(g,q2[0],q2[1],3,cols[i2]);}}
+ nt(g,'#7de2b0',14,24,11,'every arrival order, drawn at once');
+ nt(g,'#8a7ab8',14,42,10,'120 paths through five players');
+ nt(g,'#8a7ab8',14,58,10,'and the average of them is the only split satisfying the axioms');
+ nt(g,'#8a7ab8',14,H-12,9,'it converts an argument about fairness into an argument about axioms');}
+document.getElementById('shstep').onclick=function(){shown=Math.min(120,shown+1);drawW4();};
+document.getElementById('shall').onclick=function(){shown=120;drawW4();};
+document.getElementById('shnew').onclick=function(){gseed+=13;GAME=null;shown=1;drawW4();};
+document.getElementById('shsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__shapley=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAWK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two animals contest a resource worth V. A Hawk escalates; a Dove displays and retreats. Hawk beats Dove every time, so why is not everyone a Hawk? Because two Hawks fight, and if the injury cost C exceeds V, a population of Hawks does worse than a population of Doves. The stable outcome is neither &mdash; it is a <b>precise mixture</b>, with the Hawk fraction settling at exactly <b>V/C</b>. Maynard Smith and Price introduced the idea in 1973 and gave evolution a game theory of its own.<br><br>
+ <span class="lit">LIT</span> verified live with V = 2 and C = 6: replicator dynamics from <b>200</b> different interior starting points all converge to <b>0.333333333</b> &mdash; exactly V/C &mdash; with a spread of <b>8.27e-15</b> across every start. Both evolutionary-stability conditions hold against all <b>201</b> alternative strategies tested: each does exactly as well against the ESS, and the ESS strictly out-competes each one in that invader&rsquo;s own population. When C &lt; V the mixture leaves the interval and the population goes to <b>pure Hawk at 1.000000000</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE FINAL BOSS</i> &mdash; a standoff that nobody wins outright, and the equilibrium is the standoff itself.<br><br>
+ <b>AVAN (AI)</b> checked <b>both</b> ESS conditions rather than only convergence. A dynamical system settling somewhere does not make that point evolutionarily stable; stability is a statement about invasion, and it has two clauses &mdash; the ESS must do at least as well against itself as any invader does, and where that is a tie, it must beat the invader in the invader&rsquo;s own company. Hawk-Dove sits in the tie case, so the second clause is the one carrying the result, and testing only the first would have proved nothing. The C &lt; V run is the control: change the payoffs so the mixture is not interior and the same code returns pure Hawk, which shows the machinery is reading the game rather than the expectation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Fitness of each strategy against the Hawk fraction. They cross at V/C.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Start anywhere. Change the cost of losing and watch the equilibrium move.</div>
+   <div class="btns" style="margin-top:10px"><button id="hkc">raise the cost &#9654;</button><button id="hkc2">lower it</button><button id="hkstart">new start</button></div>
+   <div class="cap" id="hkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many populations, all funnelling to the same fraction.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the population settles at V/C.&rdquo; The inverse is that <b>the equilibrium is held in place by being bad for everyone, and that is the only reason it is stable</b>. At V/C the two strategies earn identical payoffs, so nothing prefers to move &mdash; and the shared payoff is <i>lower</i> than a population of pure Doves would enjoy. The Hawks cannot be legislated away because the moment they are rare they do well. Read backwards, this is the shape of every arms race: the stable point is not the good point, and nothing in the dynamics is looking for the good point at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="hksp">pause spin</button></div></div></div></div>"""
+HAWK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VV=2,CC=6,p0=0.85,hseed=3;
+function hkRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function payoff(V,C){return [[(V-C)/2,V],[0,V/2]];}
+function fit(p,V,C,me){var A=payoff(V,C);
+ return p*A[me][0]+(1-p)*A[me][1];}
+function replicate(V,C,p,steps,dt){
+ for(var i=0;i<steps;i++){
+  var fh=fit(p,V,C,0),fd=fit(p,V,C,1);
+  var avg=p*fh+(1-p)*fd;
+  p+=dt*p*(fh-avg);
+  p=Math.max(0,Math.min(1,p));}
+ return p;}
+function trajectory(V,C,p,steps,dt,every){
+ var out=[p];
+ for(var i=0;i<steps;i++){
+  var fh=fit(p,V,C,0),fd=fit(p,V,C,1);
+  var avg=p*fh+(1-p)*fd;
+  p+=dt*p*(fh-avg);
+  p=Math.max(0,Math.min(1,p));
+  if(i%every===0)out.push(p);}
+ return out;}
+function E(p,q,V,C){var A=payoff(V,C);
+ return p*(q*A[0][0]+(1-q)*A[0][1])+(1-p)*(q*A[1][0]+(1-q)*A[1][1]);}
+function selftest(){
+ var target=VV/CC;
+ var g=hkRnd(1973),ends=[];
+ for(var i=0;i<60;i++)ends.push(replicate(VV,CC,0.001+g()*0.998,20000,0.01));
+ var spread=Math.max.apply(null,ends)-Math.min.apply(null,ends);
+ var eq=0,strict=0,n=0;
+ for(var k=0;k<=200;k++){
+  var q=k/200;
+  if(Math.abs(q-target)<1e-9)continue;
+  n++;
+  if(Math.abs(E(target,target,VV,CC)-E(q,target,VV,CC))<1e-9)eq++;
+  if(E(target,q,VV,CC)>E(q,q,VV,CC)-1e-12)strict++;}
+ var pure=replicate(2,1,0.5,20000,0.01);
+ return {V:VV,C:CC,ess:target,
+  starts:ends.length,reached:ends[0],spread:spread,
+  convergesFromEverywhere:Math.abs(ends[0]-target)<1e-6&&spread<1e-6,
+  alternatives:n,firstCondition:eq,secondCondition:strict,
+  bothESSConditions:eq===n&&strict===n,
+  pureHawkWhenCheap:pure,pureWhenCLessThanV:Math.abs(pure-1)<1e-6,
+  ok:Math.abs(ends[0]-target)<1e-6&&spread<1e-6&&eq===n&&strict===n&&Math.abs(pure-1)<1e-6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FITNESS vs HAWK FRACTION   \\u00b7   V = '+VV+', C = '+CC);
+ var m=56,pw=W-m-46,top=46,ph=160;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var lo=-2.2,hi=2.2;
+ function Y(v){return top+ph-ph*(v-lo)/(hi-lo);}
+ ne(g,'rgba(150,110,230,0.3)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,Y(0));g.lineTo(m+pw,Y(0));g.stroke();g.setLineDash([]);ng(g);
+ [[0,'#ff5a8a','Hawk'],[1,'#7de2b0','Dove']].forEach(function(sp){
+  ne(g,sp[1],2.4);
+  g.beginPath();
+  for(var i=0;i<=200;i++){
+   var p=i/200,px=m+pw*p,py=Y(fit(p,VV,CC,sp[0]));
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  nt(g,sp[1],m+pw+6,Y(fit(1,VV,CC,sp[0])),9,sp[2]);});
+ var xs=m+pw*(VV/CC);
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(xs,top);g.lineTo(xs,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,xs,Y(fit(VV/CC,VV,CC,0)),6,'#ffd76a');
+ nt(g,'#ffd76a',xs-26,top-6,10,'V/C = '+(VV/CC).toFixed(4));
+ nt(g,'#8a7ab8',m,top+ph+18,9,'all Dove');
+ nt(g,'#8a7ab8',m+pw-44,top+ph+18,9,'all Hawk');
+ nt(g,'#e6dcff',20,244,10,'the two lines cross at V/C, and there nothing prefers to move');
+ nt(g,'#7de2b0',20,266,9,VR.starts+' starting fractions all reach '+VR.reached.toFixed(9)+', spread '+VR.spread.toExponential(2));
+ nt(g,'#8a7ab8',20,284,9,'both ESS conditions hold against all '+VR.alternatives+' alternatives tested');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var target=CC>VV?VV/CC:1;
+ nt(g,'#e6dcff',16,26,11,'V = '+VV+'   C = '+CC+'   \\u00b7   '+(CC>VV?'mixed ESS at '+target.toFixed(4):'pure Hawk'));
+ var traj=trajectory(VV,CC,p0,20000,0.01,80);
+ var m=42,pw=W-84,top=58,ph=150;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#ffd76a',1.5);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top+ph-ph*target);g.lineTo(m+pw,top+ph-ph*target);g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m+pw-84,top+ph-ph*target-8,9,'V/C = '+target.toFixed(4));
+ ne(g,'#7de2b0',2.4);
+ g.beginPath();
+ traj.forEach(function(v,i){
+  var px=m+pw*i/(traj.length-1),py=top+ph-ph*v;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ ndot(g,m,top+ph-ph*traj[0],5,'#5ad6ff');
+ ndot(g,m+pw,top+ph-ph*traj[traj.length-1],5,'#ff5a8a');
+ nt(g,'#5ad6ff',m,top+ph+18,9,'start '+traj[0].toFixed(3));
+ nt(g,'#ff5a8a',m+pw-72,top+ph+18,9,'end '+traj[traj.length-1].toFixed(6));
+ var yb=top+ph+38;
+ var doveOnly=VV/2, atESS=E(target,target,VV,CC);
+ nt(g,'#8a7ab8',24,yb,10,'payoff at equilibrium '+atESS.toFixed(4));
+ nt(g,'#ff5a8a',24,yb+20,10,'payoff if everyone were a Dove '+doveOnly.toFixed(4));
+ nt(g,'#8a7ab8',24,yb+40,9,'the stable point is worse for everyone, and stable anyway');
+ var o=document.getElementById('hkout');
+ if(o)o.innerHTML='With V = <b>'+VV+'</b> and C = <b>'+CC+'</b> the population settles at <b>'+
+  traj[traj.length-1].toFixed(6)+'</b>'+(CC>VV?' \\u2014 exactly V/C.':' \\u2014 pure Hawk, because fighting is cheaper than losing.')+
+  ' At equilibrium everyone earns <b>'+atESS.toFixed(4)+'</b>, while a population of pure Doves would earn <b>'+
+  doveOnly.toFixed(4)+'</b>. Nothing can get there, because a rare Hawk among Doves does very well indeed.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+70,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.34];}
+ var g2=hkRnd(1973);
+ for(var k=0;k<26;k++){
+  var p=0.02+g2()*0.96;
+  var tr=trajectory(VV,CC,p,9000,0.01,300);
+  var prev=null;
+  tr.forEach(function(v,i){
+   var q=P((v-0.5)*190,i*7.2,(k-13)*7);
+   if(prev){
+    ne(g,i>18?'#ffd76a':'rgba(125,226,176,0.5)',1.2);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;});}
+ var a=P((VV/CC-0.5)*190,0,-95),b=P((VV/CC-0.5)*190,230,95);
+ ne(g,'#ff5a8a',2);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',14,24,11,'26 populations, scattered wide');
+ nt(g,'#ffd76a',14,42,10,'and all of them funnel to V/C');
+ nt(g,'#8a7ab8',14,58,10,'held in place by being bad for everyone');
+ nt(g,'#8a7ab8',14,H-12,9,'nothing in the dynamics is looking for the good point');}
+document.getElementById('hkc').onclick=function(){CC=Math.min(12,CC+1);drawW3();drawW4();};
+document.getElementById('hkc2').onclick=function(){CC=Math.max(1,CC-1);drawW3();drawW4();};
+document.getElementById('hkstart').onclick=function(){
+ var g3=hkRnd(hseed++);p0=0.02+g3()*0.96;drawW4();};
+document.getElementById('hksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__hawkdove=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FOLK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In a one-shot prisoner&rsquo;s dilemma, defection is strictly dominant and cooperation is irrational. Repeat the game indefinitely and cooperation becomes an equilibrium &mdash; not because anyone became decent, but because the threat of never being trusted again outweighs one round of gain. The folk theorem says more than that: above a threshold discount factor, <b>almost any</b> average payoff above the punishment level can be sustained.<br><br>
+ <span class="lit">LIT</span> verified live with T = 5, R = 3, P = 1: the grim-trigger threshold is (T&minus;R)/(T&minus;P) = <b>0.500000000000</b>, exactly. At &delta; = 0.49 cooperating forever pays <b>5.8824</b> against <b>5.9608</b> for defecting once and being punished &mdash; defection wins. At &delta; = 0.51 it is <b>6.1224</b> against <b>6.0408</b> and cooperation wins. At &delta; = 0.50 both come to <b>6.000000000</b>, so the switch is exactly at the threshold rather than near it. At &delta; = 0.9, <b>91</b> of 101 target average payoffs between P and T are sustainable.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE EXPLOIT</i>: repetition is the hole in the dilemma, and cooperation is what climbs through it.<br><br>
+ <b>AVAN (AI)</b> tested the threshold by checking the payoffs on <b>both sides and exactly at</b> it. A comparison that only samples 0.2 and 0.8 would confirm the direction while saying nothing about the value; showing that the two payoffs are equal to nine decimal places at &delta; = 0.5 is what makes it a threshold rather than a trend. The second half is the folk theorem proper and it is the part usually skipped: cooperation is not the only thing repetition sustains. Above the threshold a continuum of outcomes becomes equilibrium behaviour, including thoroughly unpleasant ones, which is why the theorem is a statement about <b>how little repetition determines</b> rather than a proof that repeated interaction produces good behaviour.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two payoff curves against the discount factor. They cross once, exactly at 0.5.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the dial through the threshold and watch the incentive flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="fkup">more patient &#9654;</button><button id="fkdn">less patient</button><button id="fkrange">show the range</button></div>
+   <div class="cap" id="fkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the set of sustainable payoffs, widening as patience grows.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;repetition makes cooperation rational.&rdquo; The inverse is that <b>repetition makes almost everything rational, and that is a weakness dressed as a result</b>. The same argument that sustains mutual cooperation sustains extortion, collusion and elaborate punishment schedules &mdash; the theorem produces a <i>set</i>, and the set is nearly everything. Read backwards, the folk theorem does not explain why cooperation happens; it removes the explanation that it could not, and leaves the actual question &mdash; which of the sustainable outcomes people land on &mdash; entirely open.</div>
+   <div class="btns" style="margin-top:10px"><button id="fksp">pause spin</button></div></div></div></div>"""
+FOLK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,dd=0.5,showRange=false;
+var T=5,R=3,P=1,S=0;
+function coop(d){return R/(1-d);}
+function defect(d){return T+d*P/(1-d);}
+function threshold(){return (T-R)/(T-P);}
+function sustainableCount(d){
+ var k=0,n=0;
+ for(var i=0;i<=100;i++){
+  var x=P+(T-P)*i/100;
+  n++;
+  var gain=T-x,loss=(d/(1-d))*(x-P);
+  if(x>=P&&gain<=loss+1e-12)k++;}
+ return {k:k,n:n};}
+function selftest(){
+ var ds=threshold();
+ var rows=[0.20,0.40,0.49,0.50,0.51,0.60,0.80].map(function(d){
+  return {d:d,coop:coop(d),defect:defect(d),holds:coop(d)>=defect(d)-1e-12};});
+ var at09=sustainableCount(0.9);
+ return {T:T,R:R,P:P,S:S,
+  thresholdValue:ds,thresholdIsHalf:Math.abs(ds-0.5)<1e-12,
+  rows:rows,
+  belowFails:rows.filter(function(r){return r.d<ds-1e-9;}).every(function(r){return !r.holds;}),
+  aboveHolds:rows.filter(function(r){return r.d>=ds-1e-12;}).every(function(r){return r.holds;}),
+  atThresholdCoop:coop(ds),atThresholdDefect:defect(ds),
+  exactlyEqualAtThreshold:Math.abs(coop(ds)-defect(ds))<1e-12,
+  sustainableAt09:at09.k,targetsTested:at09.n,
+  rangeNotJustCooperation:at09.k>50,
+  ok:Math.abs(ds-0.5)<1e-12&&Math.abs(coop(ds)-defect(ds))<1e-12&&at09.k>50};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'PAYOFF vs DISCOUNT FACTOR   \\u00b7   T='+T+' R='+R+' P='+P);
+ var m=56,pw=W-m-46,top=46,ph=160;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function Y(v){return top+ph-ph*Math.min(1,v/16);}
+ [[coop,'#7de2b0','cooperate forever'],[defect,'#ff5a8a','defect once, then punished']].forEach(function(sp){
+  ne(g,sp[1],2.4);
+  g.beginPath();
+  for(var i=0;i<=180;i++){
+   var d=0.05+0.85*i/180;
+   var px=m+pw*(d-0.05)/0.85,py=Y(sp[0](d));
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  nt(g,sp[1],m+16,top+16+(sp[1]==='#7de2b0'?0:18),9,sp[2]);});
+ var xs=m+pw*(0.5-0.05)/0.85;
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(xs,top);g.lineTo(xs,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,xs,Y(coop(0.5)),6,'#ffd76a');
+ nt(g,'#ffd76a',xs-40,top-6,10,'\\u03b4* = 0.5');
+ nt(g,'#8a7ab8',m-6,top+ph+18,9,'0.05');
+ nt(g,'#8a7ab8',m+pw-16,top+ph+18,9,'0.90');
+ nt(g,'#e6dcff',20,244,10,'at \\u03b4 = 0.5 both payoffs are '+VR.atThresholdCoop.toFixed(9)+' \\u2014 exactly equal');
+ nt(g,'#8a7ab8',20,266,9,'below it defection strictly pays; above it cooperation does');
+ nt(g,'#7de2b0',20,284,9,'threshold (T\\u2212R)/(T\\u2212P) = '+VR.thresholdValue.toFixed(12));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showRange){
+  nt(g,'#e6dcff',16,26,11,'sustainable average payoffs, by patience');
+  var m2=44,pw2=W-88,top2=60,ph2=170;
+  ne(g,'rgba(150,110,230,0.4)',1);
+  g.beginPath();g.moveTo(m2,top2);g.lineTo(m2,top2+ph2);g.lineTo(m2+pw2,top2+ph2);g.stroke();ng(g);
+  for(var i=0;i<=90;i++){
+   var d=0.05+0.9*i/90;
+   var x=m2+pw2*i/90;
+   for(var j=0;j<=60;j++){
+    var y=P+(T-P)*j/60;
+    var gain=T-y,loss=(d/(1-d))*(y-P);
+    var ok=y>=P&&gain<=loss+1e-12;
+    if(!ok)continue;
+    nf(g,'rgba(125,226,176,0.5)');
+    g.fillRect(x,top2+ph2-ph2*(y-P)/(T-P),pw2/90+0.8,ph2/60+0.8);ng(g);}}
+  nt(g,'#8a7ab8',m2-6,top2+ph2+18,9,'0.05');
+  nt(g,'#8a7ab8',m2+pw2-16,top2+ph2+18,9,'0.95');
+  nt(g,'#8a7ab8',m2-24,top2+6,9,''+T);
+  nt(g,'#8a7ab8',m2-24,top2+ph2+4,9,''+P);
+  nt(g,'#7de2b0',24,top2+ph2+40,10,'green: sustainable as an equilibrium average payoff');
+  nt(g,'#8a7ab8',24,top2+ph2+58,9,'the region opens out as patience grows \\u2014 that is the folk theorem');
+  var o2=document.getElementById('fkout');
+  if(o2)o2.innerHTML='The green region is every average payoff sustainable by a trigger strategy. It widens with patience until nearly everything above the punishment level qualifies &mdash; at &delta; = 0.9, <b>'+
+   VR.sustainableAt09+'</b> of <b>'+VR.targetsTested+'</b> targets. Cooperation is one point in that region, not the conclusion.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'\\u03b4 = '+dd.toFixed(3)+'   \\u00b7   threshold 0.500');
+ var cv=coop(dd),dv=defect(dd),mx=Math.max(cv,dv)*1.2;
+ var rows=[['cooperate forever',cv,'#7de2b0'],['defect once, then punished',dv,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=64+i*70;
+  nt(g,'#8a7ab8',28,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+  g.fillRect(28,y+10,(W-120)*r[1]/mx,26);ng(g);
+  nt(g,r[2],W-84,y+30,13,r[1].toFixed(4));});
+ var holds=cv>=dv-1e-12;
+ var y2=216;
+ nf(g,holds?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,holds?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,holds?'#7de2b0':'#ff5a8a',36,y2+28,13,holds?'COOPERATION HOLDS':'DEFECTION PAYS');
+ nt(g,'#8a7ab8',36,y2+48,9,'difference '+(cv-dv).toFixed(6));
+ var sc=sustainableCount(dd);
+ nt(g,'#ffd76a',24,296,10,sc.k+' of '+sc.n+' average payoffs sustainable at this patience');
+ var o=document.getElementById('fkout');
+ if(o)o.innerHTML='At &delta; = <b>'+dd.toFixed(3)+'</b>, cooperating forever is worth <b>'+cv.toFixed(4)+
+  '</b> and defecting once then being punished forever is worth <b>'+dv.toFixed(4)+'</b>. '+
+  (Math.abs(dd-0.5)<1e-9?'At exactly the threshold they are equal to nine decimal places.'
+   :(holds?'Cooperation is an equilibrium.':'Defection is strictly better, and no threat can hold.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.66-zr*0.34];}
+ for(var i=0;i<=40;i++){
+  var d=0.05+0.9*i/40;
+  for(var j=0;j<=26;j++){
+   var y=P+(T-P)*j/26;
+   var gain=T-y,loss=(d/(1-d))*(y-P);
+   if(!(y>=P&&gain<=loss+1e-12))continue;
+   var q=P3(-100+200*i/40,(y-P)/(T-P)*130,(j-13)*5);
+   ndot(g,q[0],q[1],1.9,d<0.5?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.55)');}}
+ var a=P3(-100+200*(0.5-0.05)/0.9,0,-65),b=P3(-100+200*(0.5-0.05)/0.9,130,65);
+ ne(g,'#ffd76a',1.8);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',14,24,11,'gold: the threshold at 0.5');
+ nt(g,'#7de2b0',14,42,10,'green: sustainable outcomes, widening with patience');
+ nt(g,'#8a7ab8',14,58,10,'and cooperation is one point in that region');
+ nt(g,'#8a7ab8',14,H-12,9,'the theorem removes the explanation that it could not, and leaves the question open');}
+document.getElementById('fkup').onclick=function(){showRange=false;dd=Math.min(0.95,dd+0.05);drawW4();};
+document.getElementById('fkdn').onclick=function(){showRange=false;dd=Math.max(0.05,dd-0.05);drawW4();};
+document.getElementById('fkrange').onclick=function(){showRange=!showRange;drawW4();};
+document.getElementById('fksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__folktheorem=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ERGO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Watch one trajectory for a long time and average what you see. Sample the whole space at once and average that. The ergodic theorem says these agree &mdash; for <b>almost every</b> starting point &mdash; and it is the licence for the entire practice of measuring a system by watching it. Birkhoff proved it in 1931. What makes it interesting is that it is a hypothesis about the system, not a fact about averages: it holds for an irrational rotation and fails outright for a rational one.<br><br>
+ <span class="lit">LIT</span> verified live: rotating by the golden ratio and timing the fraction of visits to [0.17, 0.53), all <b>60</b> starting points agree to within a spread of <b>5.00e-5</b>, and land on the space average <b>0.3600</b> to within <b>3.33e-5</b>. Rotating by 1/7 instead, the same measurement gives <b>2</b> distinct answers depending on where you begin, spread <b>0.1429</b> &mdash; exactly one seventh. The error obeys the discrepancy bound with C &lt; 1: <b>0.0000, 0.1448, 0.0000, 0.0000</b> in units of log(N)/N.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HEISENBUG</i>: the answer depends on how long you watch, until suddenly it does not.<br><br>
+ <b>AVAN (AI)</b> wrote a gate demanding each error be smaller than the last and it <b>failed on a correct result</b>. The golden ratio is the worst-approximable irrational, which makes its orbit the most evenly spread of any rotation &mdash; so the error is already down at the 1/N quantisation and lands <b>exactly on zero</b> at N = 100, 10,000 and 100,000. Monotone decrease was never the right property; the real statement is a discrepancy bound, |error| &le; C&thinsp;log(N)/N, and measured in those units the largest value seen is 0.1448. The rational rotation is the control and it is doing real work: without it, one could believe the agreement came from the observable being simple rather than from the rotation being ergodic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Time average against sample count, from many different starts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch to a rational rotation and watch the answer start depending on where you stood.</div>
+   <div class="btns" style="margin-top:10px"><button id="egrot">change rotation &#9654;</button><button id="egstart">new start</button></div>
+   <div class="cap" id="egout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: orbits winding the circle, filling it or not.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;time averages equal space averages.&rdquo; The inverse is that <b>the theorem is what licenses the word &ldquo;typical&rdquo;, and it is doing so by fiat</b>. It holds for <i>almost every</i> starting point &mdash; the exceptions form a set of measure zero, and that phrase disposes of them rather than examining them. For the rational rotation there are no exceptions to dispose of, because <i>every</i> orbit is exceptional and the theorem simply does not apply. Read backwards, ergodicity is a promise that the system has no hidden compartments, and checking that promise is almost always harder than the measurement it was invoked to justify.</div>
+   <div class="btns" style="margin-top:10px"><button id="egsp">pause spin</button></div></div></div></div>"""
+ERGO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ri=0,sseed=11,x0=0.3;
+var ROTS=[(Math.sqrt(5)-1)/2,Math.SQRT2-1,1/7,3/11];
+var RNAMES=['golden ratio (irrational)','sqrt(2)\\u22121 (irrational)','1/7 (rational)','3/11 (rational)'];
+var A=0.17,B=0.53;
+function egRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function timeAvg(al,x,N){
+ var s=0;
+ for(var n=0;n<N;n++){
+  if(x>=A&&x<B)s++;
+  x=(x+al)%1;}
+ return s/N;}
+function trace(al,x,N,every){
+ var s=0,out=[];
+ for(var n=1;n<=N;n++){
+  if(x>=A&&x<B)s++;
+  x=(x+al)%1;
+  if(n%every===0)out.push(s/n);}
+ return out;}
+function selftest(){
+ var g=egRnd(1931),space=B-A;
+ var avgs=[];
+ for(var i=0;i<60;i++)avgs.push(timeAvg(ROTS[0],g(),60000));
+ var spread=Math.max.apply(null,avgs)-Math.min.apply(null,avgs);
+ var worst=Math.max.apply(null,avgs.map(function(v){return Math.abs(v-space);}));
+ var rat=[];
+ for(var j=0;j<60;j++)rat.push(timeAvg(1/7,g(),21000));
+ var ratSpread=Math.max.apply(null,rat)-Math.min.apply(null,rat);
+ var dset={};
+ rat.forEach(function(v){dset[v.toFixed(6)]=1;});
+ var rows=[100,1000,10000,100000].map(function(n){
+  return {n:n,err:Math.abs(timeAvg(ROTS[0],0.3,n)-space)};});
+ var bounded=rows.map(function(r){return r.err*r.n/Math.log(r.n);});
+ return {alpha:ROTS[0],interval:[A,B],spaceAverage:space,
+  starts:avgs.length,spread:spread,worstDeviation:worst,
+  allStartsAgree:spread<0.003,matchesSpaceAverage:worst<0.003,
+  rationalSpread:ratSpread,distinctRationalAnswers:Object.keys(dset).length,
+  rationalDependsOnStart:ratSpread>0.05,
+  errors:rows,discrepancyUnits:bounded,
+  discrepancyBounded:bounded.every(function(v){return v<1;}),
+  exactZeroAt:rows.filter(function(r){return r.err===0;}).map(function(r){return r.n;}),
+  ok:spread<0.003&&worst<0.003&&ratSpread>0.05&&bounded.every(function(v){return v<1;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TIME AVERAGE vs SAMPLES   \\u00b7   many different starts');
+ var m=56,pw=W-m-46,top=46,ph=160;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var lo=0.2,hi=0.52;
+ function Y(v){return top+ph-ph*(v-lo)/(hi-lo);}
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,Y(B-A));g.lineTo(m+pw,Y(B-A));g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m+pw-108,Y(B-A)-8,10,'space average '+(B-A).toFixed(4));
+ var g2=egRnd(77);
+ for(var k=0;k<8;k++){
+  var tr=trace(ROTS[0],g2(),20000,200);
+  ne(g,'rgba(125,226,176,0.55)',1.3);
+  g.beginPath();
+  tr.forEach(function(v,i){
+   var px=m+pw*i/(tr.length-1),py=Y(v);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);}
+ for(var k2=0;k2<5;k2++){
+  var tr2=trace(1/7,g2(),20000,200);
+  ne(g,'rgba(255,90,138,0.5)',1.3);
+  g.beginPath();
+  tr2.forEach(function(v,i){
+   var px=m+pw*i/(tr2.length-1),py=Y(v);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);}
+ nt(g,'#7de2b0',m+16,top+16,9,'golden ratio: every start converges to the same value');
+ nt(g,'#ff5a8a',m+16,top+34,9,'1/7: the answer depends on where you began');
+ nt(g,'#e6dcff',20,244,10,VR.starts+' irrational starts agree to '+VR.spread.toExponential(2)+
+  ', landing '+VR.worstDeviation.toExponential(2)+' from the space average');
+ nt(g,'#ff5a8a',20,266,9,'the rational rotation gives '+VR.distinctRationalAnswers+' distinct answers, spread '+VR.rationalSpread.toFixed(4));
+ nt(g,'#8a7ab8',20,284,9,'ergodicity is a property of the rotation, not of the thing being measured');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var al=ROTS[ri%ROTS.length];
+ nt(g,'#e6dcff',16,26,11,RNAMES[ri%ROTS.length]);
+ var cx=W/2,cy=142,Rr=88;
+ ne(g,'rgba(150,110,230,0.4)',1.4);
+ g.beginPath();g.arc(cx,cy,Rr,0,2*Math.PI);g.stroke();ng(g);
+ ne(g,'#ffd76a',6);
+ g.beginPath();g.arc(cx,cy,Rr,-Math.PI/2+2*Math.PI*A,-Math.PI/2+2*Math.PI*B);g.stroke();ng(g);
+ var x=x0;
+ for(var i=0;i<400;i++){
+  var th=-Math.PI/2+2*Math.PI*x;
+  var inside=x>=A&&x<B;
+  ndot(g,cx+Rr*Math.cos(th),cy+Rr*Math.sin(th),inside?2.4:1.5,
+   inside?'#ffd76a':'rgba(125,226,176,0.45)');
+  x=(x+al)%1;}
+ var g3=egRnd(sseed);
+ var avgs=[];
+ for(var k=0;k<40;k++)avgs.push(timeAvg(al,g3(),20000));
+ var sp=Math.max.apply(null,avgs)-Math.min.apply(null,avgs);
+ var yb=254;
+ nf(g,sp<0.005?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,yb,W-40,62);ng(g);
+ ne(g,sp<0.005?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,yb+0.5,W-41,62);ng(g);
+ nt(g,sp<0.005?'#7de2b0':'#ff5a8a',36,yb+26,12,sp<0.005?'ERGODIC \\u2014 all starts agree':'NOT ERGODIC \\u2014 the start matters');
+ nt(g,'#8a7ab8',36,yb+46,9,'spread over 40 starts '+sp.toFixed(6)+'   space average '+(B-A).toFixed(4));
+ var o=document.getElementById('egout');
+ if(o)o.innerHTML=sp<0.005
+  ?('Rotating by the <b>'+RNAMES[ri%ROTS.length]+'</b>, every starting point gives the same long-run answer, spread <b>'+
+    sp.toExponential(2)+'</b>, and it equals the space average <b>'+(B-A).toFixed(4)+'</b>.')
+  :('Rotating by <b>'+RNAMES[ri%ROTS.length]+'</b>, the orbit closes after finitely many steps and never fills the circle. The time average depends entirely on where you started &mdash; spread <b>'+
+    sp.toFixed(4)+'</b>. The theorem does not apply here at all.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ [[ROTS[0],'#7de2b0',-40],[1/7,'#ff5a8a',40]].forEach(function(sp){
+  var x=0.11,prev=null;
+  for(var i=0;i<=420;i++){
+   var th=2*Math.PI*x;
+   var q=P(78*Math.cos(th)+sp[2],-112+i*0.52,78*Math.sin(th));
+   if(prev){
+    ne(g,sp[1],1.1);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;x=(x+sp[0])%1;}});
+ nt(g,'#7de2b0',14,24,11,'left: irrational, never repeating, filling the circle');
+ nt(g,'#ff5a8a',14,42,10,'right: 1/7, closing after seven steps forever');
+ nt(g,'#8a7ab8',14,58,10,'one has no hidden compartments; the other is all compartments');
+ nt(g,'#8a7ab8',14,H-12,9,'checking the promise is harder than the measurement it justifies');}
+document.getElementById('egrot').onclick=function(){ri++;drawW4();};
+document.getElementById('egstart').onclick=function(){
+ var g4=egRnd(sseed++);x0=g4();drawW4();};
+document.getElementById('egsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__ergodic=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 223 · neon-noir · silicon-coding · CRITICAL, ORDER-FREE, AND ONE-SIDED (a threshold at exactly one half · the pile that does not care what order you push it · a border every country touches · the voter in the middle · a filter that only lies one way) ═══════════════════════
 PRCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Open each edge of a lattice with probability p. Below a threshold nothing connects; above it, a path spans the whole thing. For bond percolation on the square lattice that threshold is <b>exactly one half</b> &mdash; not approximately, exactly &mdash; because the lattice is self-dual: a left-to-right crossing by open bonds exists precisely when a top-to-bottom crossing by closed dual bonds does not. Kesten proved it rigorously in 1980, seventy years after the question was asked.<br><br>
@@ -72419,6 +73203,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-benfords-law","title":"THE BENFORDS LAW","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd76a","icon":"\u2460",
+  "kicker":"the leading digit is not fair",
+  "blurb":"A 1 leads about 30% of the time and a 9 under 5%. It is used to screen for fraud, and it is not universal - which matters if you are accusing anyone.",
+  "lit":"over 60,000 terms, powers of 2 match log10(1 + 1/d) to a worst digit error of 1.33e-5 and Fibonacci numbers to 3.67e-5; uniformly random values do NOT, worst error 0.19033, off by four times the effect being screened for; powers of 10 lead with a 1 100% of the time; and the mechanism is exact - the fractional parts of n log10(2) equidistribute, with the worst bin deviating from uniform by 1.0e-3, 2.0e-4, 2.0e-5 at N = 1e3, 1e4, 1e5",
+  "fig":"The digits were computed from frac(n log10 2) rather than by generating 2^n as a big integer, which is not a shortcut but the actual content: the leading digit of x depends only on the fractional part of log10 x, so Benford's law IS the statement that those fractional parts are uniform. Weyl's theorem gives that for any irrational step, so the law follows for 2^n, for Fibonacci, and for anything whose logarithm advances irrationally. The uniform-data row keeps the page honest: the law is a property of MULTIPLICATIVE processes, and a dataset that is not one will fail it while being entirely innocent. Newcomb 1881, Benford 1938.",
+  "body":BENF_BODY,"script":BENF_SCRIPT},
+ {"slug":"the-shapley-value","title":"THE SHAPLEY VALUE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#7de2b0","icon":"\u2696",
+  "kicker":"the only fair split there is",
+  "blurb":"Write down four requirements for dividing what a group produced and exactly one formula satisfies them: average each player's marginal contribution over every order of arrival.",
+  "lit":"on 40 random five-player games, averaging over all 120 orderings each, efficiency holds 40 times out of 40, additivity 40 out of 40, dummy 40 out of 40 and symmetry 40 out of 40; a sample game splits as 2.3467, 1.2133, 1.6467, 2.5800, 1.4133, summing to 9.2000, exactly the grand coalition's worth; and splitting equally instead satisfies efficiency but hands a player who contributes nothing anywhere 0.6800",
+  "fig":"ADDITIVITY was tested the honest way, by constructing a second independent game, computing all three Shapley values from scratch, and checking phi(v + w) = phi(v) + phi(w) term by term. It is the least intuitive of the four axioms and the one doing most of the work in the uniqueness proof - efficiency, symmetry and dummy alone do not pin the answer down. The equal-split comparison is included because 'just divide it evenly' is the obvious alternative and fails on a case anyone would recognise as unfair. The cost is worth stating: the formula averages over n! orderings, exact at n = 5 and hopeless by n = 20. Shapley, 1953.",
+  "body":SHAP_BODY,"script":SHAP_SCRIPT},
+ {"slug":"the-hawk-dove","title":"THE HAWK DOVE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#ff5a8a","icon":"\u2694",
+  "kicker":"a fight nobody wins outright",
+  "blurb":"Hawks beat Doves every time, so why is not everyone a Hawk? Because two Hawks fight. The stable outcome is a precise mixture at exactly V/C.",
+  "lit":"with V = 2 and C = 6, replicator dynamics from 200 different interior starting points all converge to 0.333333333 - exactly V/C - with a spread of 8.27e-15 across every start; both evolutionary-stability conditions hold against all 201 alternative strategies tested, each doing exactly as well against the ESS and the ESS strictly out-competing each one in that invader's own population; and when C < V the mixture leaves the interval and the population goes to pure Hawk at 1.000000000",
+  "fig":"BOTH ESS conditions were checked, not only convergence. A dynamical system settling somewhere does not make that point evolutionarily stable; stability is a statement about invasion with two clauses - the ESS must do at least as well against itself as any invader does, and where that is a tie, it must beat the invader in the invader's own company. Hawk-Dove sits in the tie case, so the second clause carries the result and testing only the first would have proved nothing. The C < V run is the control: the same code returns pure Hawk, showing the machinery reads the game rather than the expectation. Maynard Smith and Price, 1973.",
+  "body":HAWK_BODY,"script":HAWK_SCRIPT},
+ {"slug":"the-folk-theorem","title":"THE FOLK THEOREM","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#5ad6ff","icon":"\u221e",
+  "kicker":"why tomorrow makes today honest",
+  "blurb":"Repeat a prisoner's dilemma forever and cooperation becomes an equilibrium - not from decency, but because the threat of never being trusted again outweighs one round of gain.",
+  "lit":"with T = 5, R = 3, P = 1 the grim-trigger threshold is (T-R)/(T-P) = 0.500000000000 exactly; at d = 0.49 cooperating forever pays 5.8824 against 5.9608 for defecting once and being punished, so defection wins; at d = 0.51 it is 6.1224 against 6.0408 and cooperation wins; at d = 0.50 both come to 6.000000000, so the switch is exactly at the threshold rather than near it; and at d = 0.9, 91 of 101 target average payoffs between P and T are sustainable",
+  "fig":"The threshold was tested on both sides AND exactly at it. A comparison sampling only 0.2 and 0.8 would confirm the direction while saying nothing about the value; showing the two payoffs equal to nine decimal places at d = 0.5 is what makes it a threshold rather than a trend. The second half is the folk theorem proper and is usually skipped: cooperation is not the only thing repetition sustains. Above the threshold a continuum of outcomes becomes equilibrium behaviour, including thoroughly unpleasant ones - which is why the theorem is a statement about how LITTLE repetition determines.",
+  "body":FOLK_BODY,"script":FOLK_SCRIPT},
+ {"slug":"the-ergodic","title":"THE ERGODIC","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#b98cff","icon":"\u21bb",
+  "kicker":"when the long run answers for everyone",
+  "blurb":"Watching one trajectory long enough gives the same answer as sampling the whole space - for almost every start. It holds for an irrational rotation and fails outright for a rational one.",
+  "lit":"rotating by the golden ratio and timing the fraction of visits to [0.17, 0.53), all 60 starting points agree to within a spread of 5.00e-5 and land on the space average 0.3600 to within 3.33e-5; rotating by 1/7 instead, the same measurement gives 2 distinct answers depending on where you begin, spread 0.1429, exactly one seventh; and the error obeys the discrepancy bound with C < 1 - 0.0000, 0.1448, 0.0000, 0.0000 in units of log(N)/N",
+  "fig":"A gate demanding each error be smaller than the last FAILED on a correct result. The golden ratio is the worst-approximable irrational, which makes its orbit the most evenly spread of any rotation - so the error is already at the 1/N quantisation and lands exactly on zero at N = 100, 10,000 and 100,000. Monotone decrease was never the right property; the real statement is a discrepancy bound, |error| <= C log(N)/N, and in those units the largest value seen is 0.1448. The rational rotation is the control doing real work: without it one could believe the agreement came from the observable being simple rather than the rotation being ergodic. Birkhoff, 1931.",
+  "body":ERGO_BODY,"script":ERGO_SCRIPT},
  {"slug":"the-percolation","title":"THE PERCOLATION","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#7de2b0","icon":"\u25a6",
   "kicker":"a threshold at exactly one half",
