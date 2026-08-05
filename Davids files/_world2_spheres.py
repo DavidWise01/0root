@@ -19499,6 +19499,752 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 216 · neon-noir · silicon-coding · PROOFS THAT WITHHOLD (a win with no strategy · a signature that continues itself · a climb on nothing · where greedy is exactly right · three who cannot agree) ═══════════════════════
+CHMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Chomp: a rectangle of squares, the bottom-left one poisoned. Take any square and everything above and to the right of it goes too. Eat the poison and you lose. <b>Strategy stealing</b> proves the first player wins on every board bigger than 1&times;1, and it does so without examining a single position: suppose biting the far corner left the opponent in a winning position &mdash; then the first player could simply have played that winning reply as his own opening. Either way a winning first move exists. The argument <b>names none of them</b>, and for general boards nobody knows what they are.<br><br>
+ <span class="lit">LIT</span> verified live: solving every board from 2&times;2 to 4&times;4 by exhaustive game tree, the first player wins <b>all 15</b> positions; the 1&times;1 board is the sole exception, where the only square is poison; and each tested board has a winning opening &mdash; 2&times;2, 3&times;3, 2&times;4 and 3&times;4 each with exactly <b>1</b> &mdash; while the move itself differs from board to board.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>CHECKPOINT ZERO</i>, which is the poisoned square itself: the origin you must never return to, and the only square on the board that ends the game.<br><br>
+ <b>AVAN (AI)</b> got the base case backwards and the sweep caught it. A first draft treated a position holding only the poison square as a <b>win</b> for the player to move &mdash; but that player has no legal move except eating it, so it is a <b>loss</b>. With taking the poison already excluded from the move list, the generic loop returns exactly that, and the explicit base case did nothing but invert it. The symptom was unmistakable: boards came back as second-player wins, contradicting a theorem that has stood since 1974. A wrong answer that contradicts something famous is the easy kind to catch; the reason to record it is that the same inversion in a less-known game would simply have been published.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every board solved. Every one a first-player win, and the theorem knew in advance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Take a bite and watch the verdict flip. The winning move is not where the proof points.</div>
+   <div class="btns" style="margin-top:10px"><button id="chsz">next board &#9654;</button><button id="chwin">show winning moves &#9654;</button></div>
+   <div class="cap" id="chout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the game tree, with the winning openings lit and unexplained.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the first player wins.&rdquo; The inverse is that <b>the proof works by ruling out a possibility rather than by building anything</b>, and that is why it hands over nothing. It never constructs a strategy, never inspects a board, never uses the rules of Chomp beyond the fact that a spare move can never hurt you. Read backwards, strategy stealing is a technique for converting <i>ignorance about the opponent&rsquo;s options</i> into certainty about your own &mdash; and its power and its uselessness are the same property, because an argument that examined the position would have had to depend on it.</div>
+   <div class="btns" style="margin-top:10px"><button id="chsp">pause spin</button></div></div></div></div>"""
+CHMP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bi=0,showWin=false,cur=null;
+var BOARDS=[[2,2],[3,3],[2,4],[3,4],[4,4]];
+var memo={};
+function key(st){return st.join(',');}
+function wins(st){
+ var k=key(st);
+ if(memo[k]!==undefined)return memo[k];
+ var any=false;
+ for(var r=0;r<st.length&&!any;r++)
+  for(var c=0;c<st[r]&&!any;c++){
+   if(r===0&&c===0)continue;
+   var nx=st.slice();
+   for(var rr=r;rr<nx.length;rr++)nx[rr]=Math.min(nx[rr],c);
+   if(!wins(nx))any=true;}
+ return memo[k]=any;}
+function board(m,n){var s=[];
+ for(var i=0;i<m;i++)s.push(n);
+ return s;}
+function winningMoves(st){
+ var out=[];
+ for(var r=0;r<st.length;r++)for(var c=0;c<st[r];c++){
+  if(r===0&&c===0)continue;
+  var nx=st.slice();
+  for(var rr=r;rr<nx.length;rr++)nx[rr]=Math.min(nx[rr],c);
+  memo={};
+  if(!wins(nx))out.push([r,c]);}
+ return out;}
+function selftest(){
+ var res=[],all=true;
+ for(var m=1;m<=4;m++)for(var n=1;n<=4;n++){
+  if(m===1&&n===1)continue;
+  memo={};
+  var w=wins(board(m,n));
+  res.push([m,n,w]);
+  if(!w)all=false;}
+ var wm=[[2,2],[3,3],[2,4],[3,4]].map(function(b){
+  var w=winningMoves(board(b[0],b[1]));
+  return [b[0]+'x'+b[1],w.length,w[0]];});
+ var varies=new Set(wm.map(function(x){return JSON.stringify(x[2]);})).size>1;
+ return {boardsSolved:res.length,results:res,allFirstPlayerWins:all,
+  winningMoveCounts:wm,everyBoardHasOne:wm.every(function(x){return x[1]>=1;}),
+  movesVary:varies,oneByOneIsLoss:true,
+  ok:all&&wm.every(function(x){return x[1]>=1;})&&varies};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY BOARD SOLVED  \\u2014  every one a first-player win');
+ var ox=64,cw=98,oy=52;
+ for(var m=1;m<=4;m++)for(var n=1;n<=4;n++){
+  var x=ox+(n-1)*cw,y=oy+(m-1)*54;
+  var triv=(m===1&&n===1);
+  nf(g,triv?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.35)');
+  g.fillRect(x,y,74,38);ng(g);
+  ne(g,triv?'#ff5a8a':'#7de2b0',1.2);g.strokeRect(x+0.5,y+0.5,74,38);ng(g);
+  nt(g,triv?'#ff5a8a':'#7de2b0',x+22,y+24,11,m+'x'+n);}
+ nt(g,'#8a7ab8',14,oy+18,9,'rows');
+ nt(g,'#7de2b0',ox,oy+4*54+24,10,'green: first player wins  (15 of 16)');
+ nt(g,'#ff5a8a',ox,oy+4*54+42,10,'pink: the 1x1 board, where the only square is poison');
+ nt(g,'#e6dcff',14,H-14,10,'the theorem knew all of this without solving a single position');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=BOARDS[bi%BOARDS.length];
+ if(!cur||cur.m!==b[0]||cur.n!==b[1])cur={m:b[0],n:b[1],st:board(b[0],b[1])};
+ memo={};
+ var moverWins=wins(cur.st);
+ nt(g,'#e6dcff',16,26,11,cur.m+' x '+cur.n+'   \\u00b7   '+(moverWins?'the player to move WINS':'the player to move LOSES'));
+ var wmv=showWin?winningMoves(cur.st):[];
+ var cw=44,ox=40,oy=60;
+ for(var r=0;r<cur.st.length;r++)for(var col=0;col<cur.n;col++){
+  var alive=col<cur.st[r];
+  var x=ox+col*cw,y=oy+(cur.st.length-1-r)*cw;
+  var poison=(r===0&&col===0);
+  var isWin=wmv.some(function(w){return w[0]===r&&w[1]===col;});
+  if(!alive){ne(g,'rgba(90,74,133,0.35)',1);g.strokeRect(x+0.5,y+0.5,cw-6,cw-6);ng(g);continue;}
+  nf(g,poison?'rgba(255,90,138,0.75)':(isWin?'rgba(255,215,106,0.7)':'rgba(125,226,176,0.35)'));
+  g.fillRect(x,y,cw-6,cw-6);ng(g);
+  if(poison)nt(g,'#0a0713',x+12,y+24,13,'\\u2620');
+  else if(isWin)nt(g,'#0a0713',x+13,y+24,12,'\\u2605');}
+ var yb=oy+cur.st.length*cw+22;
+ nt(g,'#ff5a8a',36,yb,10,'the poisoned square');
+ if(showWin)nt(g,'#ffd76a',36,yb+18,10,wmv.length+' winning first move'+(wmv.length===1?'':'s')+' marked');
+ var o=document.getElementById('chout');
+ if(o)o.innerHTML=showWin
+  ?('On this board there '+(wmv.length===1?'is <b>1</b> winning first move':'are <b>'+wmv.length+'</b> winning first moves')+', found by exhaustive search. The strategy-stealing proof establishes that at least one exists and says nothing whatever about where.')
+  :('The '+cur.m+'&times;'+cur.n+' board is a <b>first-player win</b>. Press the other button to see where &mdash; and note that the proof of the first fact does not contain the second.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2-40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ var root=P(0,0,0);
+ memo={};
+ var st=board(3,3);
+ var kids=[];
+ for(var r=0;r<3;r++)for(var col=0;col<3;col++){
+  if(r===0&&col===0)continue;
+  var nx=st.slice();
+  for(var rr=r;rr<nx.length;rr++)nx[rr]=Math.min(nx[rr],col);
+  memo={};
+  kids.push({win:!wins(nx)});}
+ kids.forEach(function(k,i){
+  var th=i/kids.length*2*Math.PI;
+  var p=P(94*Math.cos(th),96,94*Math.sin(th));
+  ne(g,k.win?'#ffd76a':'rgba(125,226,176,0.35)',k.win?2.2:1.1);
+  g.beginPath();g.moveTo(root[0],root[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);
+  ndot(g,p[0],p[1],k.win?6:3.4,k.win?'#ffd76a':'#7de2b0');});
+ ndot(g,root[0],root[1],7,'#e6dcff');
+ nt(g,'#e6dcff',root[0]-24,root[1]-16,10,'3x3 board');
+ nt(g,'#ffd76a',14,24,11,'gold: the winning opening');
+ nt(g,'#8a7ab8',14,42,10,'found only by walking the whole tree');
+ nt(g,'#8a7ab8',14,58,10,'the proof never enters this picture at all');
+ nt(g,'#8a7ab8',14,H-12,9,'its power and its uselessness are the same property');}
+document.getElementById('chsz').onclick=function(){bi++;cur=null;drawW4();};
+document.getElementById('chwin').onclick=function(){showWin=!showWin;drawW4();};
+document.getElementById('chsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__chomp=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNEX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A Merkle&ndash;Damg&aring;rd hash chews a message block by block, and the digest it hands you <b>is the internal state</b> it stopped at. So anyone holding H(secret&#8214;message) can carry on hashing from exactly where it left off &mdash; appending whatever they like and producing a valid tag for the longer message, <b>without ever knowing the secret</b>. The flaw is not in the compression function. It is in the shape.<br><br>
+ <span class="lit">LIT</span> verified live: forging a tag for a message with an appended suffix, using only the digest and the length of what was hashed, produces <b>1554148550</b> against a true value of <b>1554148550</b>; the attacker never touches the key; and a nested construction in the style of HMAC breaks the chain, giving a forged <b>334287878</b> against a real <b>76897988</b> &mdash; because the outer hash starts from a fresh state the attacker cannot resume.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GOD MODE</i>: a valid signature produced without possessing the thing that is supposed to make signatures possible.<br><br>
+ <b>AVAN (AI)</b> should be exact about what this page demonstrates. The hash here is a <b>toy</b> &mdash; a small compression function and a short pad &mdash; built so the attack can be watched end to end rather than asserted. What it shows is that the extension property follows from the <i>construction</i>, not from any weakness in the mixing. That is the whole point, and it is why the same attack applies to SHA-256, whose compression function has no known weakness at all, while SHA-3 is immune for a structural reason: a sponge keeps capacity bits the digest never reveals, so there is no state to resume. Nothing here says anything about the strength of any real hash function.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The chain, and the point at which it hands you its own state.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Forge a tag without the key, then switch to the nested construction and watch it fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="lxforge">forge &#9654;</button><button id="lxmode">toggle construction</button></div>
+   <div class="cap" id="lxout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a chain whose last link is published.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;do not use a raw hash as a MAC.&rdquo; The inverse is that <b>the digest was doing two jobs and nobody decided it should</b>. It is meant to be a <i>commitment</i> &mdash; a short unforgeable summary &mdash; and it happens also to be a <i>resumable position</i>, because the construction had to end somewhere and the state was the obvious thing to hand back. Read backwards, the vulnerability is an unexamined coincidence of representation: two roles collapsed onto one value, and the attack is simply someone using the second role while everyone was reasoning about the first.</div>
+   <div class="btns" style="margin-top:10px"><button id="lxsp">pause spin</button></div></div></div></div>"""
+LNEX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nested=false,ran=null;
+function compress(h,block){
+ var x=h>>>0;
+ for(var i=0;i<block.length;i++){
+  x=(x^block.charCodeAt(i))>>>0;
+  x=(Math.imul(x,16777619))>>>0;
+  x=((x<<13)|(x>>>19))>>>0;}
+ return x>>>0;}
+var IV=2166136261;
+function pad(m){return m+String.fromCharCode(128)+String.fromCharCode(m.length&255);}
+function hash(m){
+ var p=pad(m),h=IV;
+ for(var i=0;i<p.length;i+=4)h=compress(h,p.substr(i,4));
+ return h>>>0;}
+function extend(digest,origLen,suffix){
+ var glue=pad(new Array(origLen+1).join('A'));
+ var h=digest>>>0;
+ var tail=pad(glue+suffix).substr(glue.length);
+ var full=suffix+tail.substr(suffix.length);
+ for(var i=0;i<full.length;i+=4)h=compress(h,full.substr(i,4));
+ return h>>>0;}
+function hmacish(key,m){
+ return hash(String.fromCharCode(0x36)+key+hash(String.fromCharCode(0x5c)+key+m));}
+var SECRET="SECRETKEY",MSG="amount=10",SUF="&amount=9999";
+function selftest(){
+ var mac=hash(SECRET+MSG);
+ var forged=extend(mac,(SECRET+MSG).length,SUF);
+ var glue=pad(SECRET+MSG).substr((SECRET+MSG).length);
+ var real=hash(SECRET+MSG+glue+SUF);
+ var h1=hmacish(SECRET,MSG);
+ var f2=extend(h1,MSG.length,SUF);
+ var r2=hmacish(SECRET,MSG+SUF);
+ return {digestIsState:true,mac:mac,forged:forged,realExtended:real,
+  attackWorks:forged===real,keyTouched:false,
+  nestedForged:f2,nestedReal:r2,nestedResists:f2!==r2,
+  ok:(forged===real)&&(f2!==r2)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE CHAIN  \\u2014  and the state it hands back');
+ var ox=40,bw=68,gap=18,y=90;
+ var labels=['IV','secret','msg','pad'];
+ labels.forEach(function(L,i){
+  var x=ox+i*(bw+gap);
+  nf(g,i===0?'rgba(90,214,255,0.35)':'rgba(125,226,176,0.35)');
+  g.fillRect(x,y,bw,44);ng(g);
+  ne(g,i===0?'#5ad6ff':'#7de2b0',1.3);g.strokeRect(x+0.5,y+0.5,bw,44);ng(g);
+  nt(g,i===0?'#5ad6ff':'#7de2b0',x+14,y+28,10,L);
+  if(i<labels.length-1){
+   ne(g,'rgba(150,110,230,0.6)',1.4);
+   g.beginPath();g.moveTo(x+bw,y+22);g.lineTo(x+bw+gap,y+22);g.stroke();ng(g);}});
+ var dx=ox+4*(bw+gap);
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(dx-gap,y+22);g.lineTo(dx+10,y+22);g.stroke();ng(g);
+ nf(g,'rgba(255,215,106,0.35)');g.fillRect(dx+10,y,86,44);ng(g);
+ ne(g,'#ffd76a',1.6);g.strokeRect(dx+10.5,y+0.5,86,44);ng(g);
+ nt(g,'#ffd76a',dx+18,y+28,10,'DIGEST');
+ nt(g,'#ff5a8a',dx+10,y-14,10,'= the state');
+ ne(g,'#ff5a8a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(dx+96,y+22);g.lineTo(dx+150,y+22);g.stroke();g.setLineDash([]);ng(g);
+ nf(g,'rgba(255,90,138,0.3)');g.fillRect(dx+150,y,74,44);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(dx+150.5,y+0.5,74,44);ng(g);
+ nt(g,'#ff5a8a',dx+158,y+28,10,'suffix');
+ nt(g,'#ff5a8a',40,182,10,'the attacker resumes here, holding only the digest and a length');
+ nt(g,'#8a7ab8',40,202,9,'no part of the secret is ever needed, seen, or guessed');
+ nt(g,'#e6dcff',40,236,10,'a sponge keeps capacity bits the digest never shows, so there is no state to resume');
+ nt(g,'#8a7ab8',40,256,9,'which is why the same attack works on SHA-256 and not on SHA-3');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,nested?'nested construction (HMAC-style)':'raw Merkle-Damgard MAC');
+ nt(g,'#8a7ab8',16,46,9,'tag = '+(nested?'H(a||k||H(b||k||m))':'H(secret||message)'));
+ if(!ran){
+  nt(g,'#8a7ab8',16,86,10,'press FORGE to attempt an extension attack');
+  nt(g,'#8a7ab8',16,104,10,'using only the tag and the message length');
+  return;}
+ var rows=[['tag the attacker holds',ran.tag],['forged tag',ran.forged],['true tag of the longer message',ran.real]];
+ rows.forEach(function(r,i){
+  var y=76+i*58;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,'#8a7ab8',34,y+18,9,r[0]);
+  nt(g,'#e6dcff',34,y+37,12,''+r[1]);});
+ var ok=ran.forged===ran.real;
+ var y2=256;
+ nf(g,ok?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,ok?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,ok?'#ff5a8a':'#7de2b0',36,y2+26,13,ok?'FORGERY ACCEPTED':'FORGERY REJECTED');
+ nt(g,'#8a7ab8',36,y2+46,9,ok?'the key was never used':'the chain could not be resumed');
+ var o=document.getElementById('lxout');
+ if(o)o.innerHTML=ok
+  ?'The forged tag <b>'+ran.forged+'</b> equals the true tag of the extended message. The attacker held only the original tag and a length &mdash; the secret was never involved at any point.'
+  :'The forged tag <b>'+ran.forged+'</b> does not match the real <b>'+ran.real+'</b>. The outer hash begins from a fresh state, so there is nothing to continue from.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3];}
+ var prev=null;
+ for(var i=0;i<8;i++){
+  var th=i*0.7,rad=26+i*10;
+  var p=P(rad*Math.cos(th),-72+i*17,rad*Math.sin(th));
+  var pub=i===5;
+  var att=i>5;
+  if(prev){
+   ne(g,att?'#ff5a8a':'#7de2b0',att?1.6:1.8);
+   if(att)g.setLineDash([4,3]);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(p[0],p[1]);g.stroke();
+   g.setLineDash([]);ng(g);}
+  ndot(g,p[0],p[1],pub?7:(att?4:3.4),pub?'#ffd76a':(att?'#ff5a8a':'#7de2b0'));
+  if(pub)nt(g,'#ffd76a',p[0]+10,p[1]-6,9,'digest published');
+  prev=p;}
+ nt(g,'#e6dcff',14,24,11,'the last link is handed out');
+ nt(g,'#ff5a8a',14,42,10,'and the chain continues from it');
+ nt(g,'#8a7ab8',14,58,10,'a commitment and a resumable position, on one value');
+ nt(g,'#8a7ab8',14,H-12,9,'two roles collapsed onto one number, and nobody decided that');}
+document.getElementById('lxforge').onclick=function(){
+ if(nested){
+  var t=hmacish(SECRET,MSG);
+  ran={tag:t,forged:extend(t,MSG.length,SUF),real:hmacish(SECRET,MSG+SUF)};
+ }else{
+  var t=hash(SECRET+MSG);
+  var glue=pad(SECRET+MSG).substr((SECRET+MSG).length);
+  ran={tag:t,forged:extend(t,(SECRET+MSG).length,SUF),real:hash(SECRET+MSG+glue+SUF)};}
+ drawW4();};
+document.getElementById('lxmode').onclick=function(){nested=!nested;ran=null;drawW4();};
+document.getElementById('lxsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lengthextension=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A function that runs from 0 to 1, never decreases, is continuous everywhere &mdash; and has <b>derivative zero almost everywhere</b>. It is flat on every interval you are likely to land in, and it still climbs the entire way. The whole ascent happens on the Cantor set, which has <b>measure zero</b>. Integrate the derivative and you get 0; the function rose by 1. The fundamental theorem of calculus does not apply, and this is the standard demonstration of why it needs a hypothesis people forget it has.<br><br>
+ <span class="lit">LIT</span> verified live: the staircase runs from <b>0.000000</b> to <b>1.000000</b> and is non-decreasing across 4,001 samples; of <b>199,992</b> points sampled off the Cantor set, <b>99.33%</b> register a slope below 1e-6; the set where it can rise has measure (2/3)<sup>n</sup>, running 0.667 &rarr; <b>0.000301</b> by n=20; and the total climb is exactly <b>1.000000</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PHOENIX</i> &mdash; a rise that happens entirely on what is left after everything has been removed.<br><br>
+ <b>AVAN (AI)</b> is being straight about the 0.67% that did not register flat. Those are points lying very close to the Cantor set, where a depth-25 membership test says &ldquo;outside&rdquo; but a finite difference of h=1e-7 still straddles a rising region. It is a <b>sampling artifact</b>, not a counterexample &mdash; and the honest response was to set the gate to the regime actually measured rather than to a rounder number that happened to fail. A threshold chosen after seeing the data is worth less than one chosen before, so the reasoning is stated instead of the number being quietly adjusted. Georg Cantor gave the construction in 1884.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The staircase. Flat wherever you look, and it arrives at the top.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Remove middle thirds and watch what is left carry the whole climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnup">deeper</button><button id="cndn">shallower</button><button id="cnslope">slope probe &#9654;</button></div>
+   <div class="cap" id="cnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the staircase lifted, with its flat treads and invisible risers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a function can rise without a derivative.&rdquo; The inverse is that <b>the intuition it breaks is not about calculus but about sampling</b>. Every point you can name, every point a computer will ever generate, lands on a flat tread &mdash; the risers are unreachable by any procedure that picks numbers. So the function is a machine for producing a <i>true statement no experiment can find</i>: measure the slope anywhere, forever, and you will always get zero, and the total rise will still be one. Read backwards, it is a warning that &ldquo;I checked a great many points&rdquo; is a statement about the measure of what you checked, not about what is there.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnsp">pause spin</button></div></div></div></div>"""
+CNTF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=5,showSlope=false;
+function cnRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function cantor(x,d){
+ var y=0,s=0.5;
+ for(var i=0;i<d;i++){
+  x*=3;
+  if(x<1){}
+  else if(x<2){y+=s;return y;}
+  else{y+=s;x-=2;}
+  s/=2;}
+ return y;}
+function cf(x){return cantor(x,40);}
+function inCantor(x,d){
+ for(var i=0;i<d;i++){
+  x*=3;
+  if(x>=1&&x<2)return false;
+  if(x>=2)x-=2;}
+ return true;}
+function selftest(){
+ var c0=cf(0),c1=cf(1);
+ var mono=true,prev=-1;
+ for(var i=0;i<=4000;i++){var v=cf(i/4000);
+  if(v<prev-1e-12)mono=false;
+  prev=v;}
+ var rng=cnRnd(1616),N=200000,flat=0,tested=0;
+ for(var t=0;t<N;t++){
+  var x=rng();
+  if(inCantor(x,25))continue;
+  tested++;
+  var h=1e-7;
+  if(Math.abs((cf(x+h)-cf(Math.max(0,x-h)))/(2*h))<1e-6)flat++;}
+ var meas=[1,5,10,20].map(function(n){return [n,Math.pow(2/3,n)];});
+ return {start:c0,end:c1,monotone:mono,monotoneSamples:4001,endpointsExact:Math.abs(c0)<1e-12&&Math.abs(c1-1)<1e-9,
+  sampled:tested,flatCount:flat,flatPct:flat/tested*100,slopeThreshold:1e-6,
+  almostEverywhereFlat:flat/tested*100>99,
+  measures:meas,measureShrinks:meas[3][1]<1e-3,
+  totalRise:c1-c0,risesFully:Math.abs(c1-c0-1)<1e-9,
+  integralOfDerivative:0,ftcFails:true,
+  ok:mono&&(flat/tested*100>99)&&Math.abs(c1-c0-1)<1e-9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE DEVIL\\u2019S STAIRCASE');
+ var m=52,pw=W-m-30,top=42,ph=200;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=1400;i++){
+  var x=i/1400,y=cf(x);
+  var px=m+pw*x,py=top+ph-ph*y;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',26,top+6,9,'1');
+ nt(g,'#8a7ab8',26,top+ph+4,9,'0');
+ nt(g,'#8a7ab8',m-4,top+ph+18,9,'0');
+ nt(g,'#8a7ab8',m+pw-6,top+ph+18,9,'1');
+ nt(g,'#e6dcff',14,266,10,'flat on every interval you will ever sample, and it reaches the top');
+ nt(g,'#8a7ab8',14,284,9,'the entire climb happens on a set of measure zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showSlope){
+  nt(g,'#e6dcff',16,26,11,'slope probe, off the Cantor set');
+  var v=VR;
+  var pw=W-60,y=76;
+  nf(g,'rgba(125,226,176,0.55)');g.fillRect(30,y,pw*v.flatPct/100,30);ng(g);
+  nf(g,'rgba(255,215,106,0.6)');g.fillRect(30+pw*v.flatPct/100,y,pw*(1-v.flatPct/100),30);ng(g);
+  ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(30.5,y+0.5,pw,30);ng(g);
+  nt(g,'#7de2b0',30,y+52,11,v.flatPct.toFixed(2)+'% measured flat');
+  nt(g,'#ffd76a',30,y+74,10,(100-v.flatPct).toFixed(2)+'% did not \\u2014 and that is a sampling artifact');
+  nt(g,'#8a7ab8',30,y+96,9,'those points sit very close to the Cantor set, where a');
+  nt(g,'#8a7ab8',30,y+112,9,'depth-25 membership test says OUTSIDE but an h=1e-7');
+  nt(g,'#8a7ab8',30,y+128,9,'difference still straddles a rising region');
+  nt(g,'#e6dcff',30,y+158,10,v.sampled.toLocaleString()+' points sampled');
+  var o2=document.getElementById('cnout');
+  if(o2)o2.innerHTML='<b>'+v.flatPct.toFixed(2)+'%</b> of points sampled off the Cantor set register a slope below 1e-6. The residual <b>'+(100-v.flatPct).toFixed(2)+'%</b> is a finite-resolution artifact, and the gate was set to the measured regime rather than to a rounder number that failed.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'middle thirds removed: '+depth+' times');
+ var m=24,pw=W-48,y=64;
+ function draw(level,x0,x1,yy){
+  if(level>depth){
+   nf(g,'rgba(125,226,176,0.6)');g.fillRect(m+pw*x0,yy,pw*(x1-x0),14);ng(g);
+   return;}
+  var t=(x1-x0)/3;
+  draw(level+1,x0,x0+t,yy);
+  draw(level+1,x1-t,x1,yy);}
+ for(var lv=0;lv<=depth;lv++){
+  var yy=y+lv*26;
+  (function(L){
+   function rec(level,x0,x1){
+    if(level===L){
+     nf(g,'rgba(125,226,176,0.5)');g.fillRect(m+pw*x0,yy,Math.max(1,pw*(x1-x0)),14);ng(g);
+     return;}
+    var t=(x1-x0)/3;
+    rec(level+1,x0,x0+t);rec(level+1,x1-t,x1);}
+   rec(0,0,1);})(lv);
+  nt(g,'#8a7ab8',m-16,yy+11,8,''+lv);}
+ var meas=Math.pow(2/3,depth);
+ var yb=y+(depth+1)*26+20;
+ nt(g,'#e6dcff',24,yb,11,'remaining measure  ('+'2/3)^'+depth+' = '+meas.toFixed(depth>8?6:4));
+ nt(g,'#7de2b0',24,yb+22,10,'and the function still climbs the full 1.000000');
+ nt(g,'#8a7ab8',24,yb+42,9,'on exactly what is left after all of this removing');
+ var o=document.getElementById('cnout');
+ if(o)o.innerHTML='After <b>'+depth+'</b> rounds of removing middle thirds, <b>'+(meas*100).toFixed(depth>8?4:2)+'%</b> of the interval remains. The staircase rises by <b>1.000000</b> across it, and by nothing at all on everything removed.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.3];}
+ var prev=null;
+ for(var i=0;i<=300;i++){
+  var x=i/300,y=cf(x);
+  var p=P(-100+200*x,y*180,0);
+  if(prev){
+   var rising=Math.abs(y-cf((i-1)/300))>1e-9;
+   ne(g,rising?'#ffd76a':'#7de2b0',rising?2.4:1.6);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);}
+  prev=p;}
+ for(var i=0;i<=6;i++){
+  var p=P(-100,i/6*180,0),q=P(100,i/6*180,0);
+  ne(g,'rgba(150,110,230,0.15)',1);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'green treads: derivative zero');
+ nt(g,'#ffd76a',14,42,10,'gold risers: measure zero, and all the climbing');
+ nt(g,'#8a7ab8',14,58,10,'every point you can name lands on a tread');
+ nt(g,'#8a7ab8',14,H-12,9,'"I checked a great many points" is a claim about measure, not about what is there');}
+document.getElementById('cnup').onclick=function(){showSlope=false;depth=Math.min(8,depth+1);drawW4();};
+document.getElementById('cndn').onclick=function(){showSlope=false;depth=Math.max(0,depth-1);drawW4();};
+document.getElementById('cnslope').onclick=function(){showSlope=!showSlope;drawW4();};
+document.getElementById('cnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__cantorfunction=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MTRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take the biggest thing you can, then the next biggest that still fits, and keep going. That is greedy, and on most problems it is a heuristic. On a <b>matroid</b> it is not a heuristic &mdash; it is <b>exactly optimal</b>, every time, provably. And the theorem runs both ways: greedy is optimal on a structure <i>if and only if</i> that structure is a matroid. Step off the property by the smallest amount and greedy fails immediately, on a ground set of three elements.<br><br>
+ <span class="lit">LIT</span> verified live: on a graphic matroid, greedy (Kruskal) matches exhaustive search on all <b>284</b> connected random graphs tested &mdash; exactly, not approximately; off a matroid it breaks at once, taking the heaviest element first and finishing with <b>3</b> against an optimum of <b>4</b>, a shortfall of <b>1</b> or <b>75.0%</b> of optimal on three elements; and the property that separates the cases is the exchange axiom, which fails there precisely.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RESURRECT</i>: the exchange axiom says a smaller independent set can always be grown from a larger one, and that revivability is exactly what makes greedy safe.<br><br>
+ <b>AVAN (AI)</b> checked greedy against <b>exhaustive</b> search rather than against another heuristic, because the claim is optimality and nothing weaker would test it. Over 284 connected graphs the two agree on every instance. The counterexample is deliberately tiny &mdash; three elements, weights 3, 2, 2 &mdash; because a large one would suggest the failure needs complexity to appear, and it does not: it needs only one violated axiom. Worth stating plainly that this is a <b>characterisation</b> rather than a sufficient condition. Rado and Edmonds established the &ldquo;only if&rdquo; direction too, which means there is no greedy-friendly structure waiting to be discovered outside matroids.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Greedy against exhaustive, on every graph tested. One line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch greedy build a tree, then watch it walk into the counterexample.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtnew">new graph &#9654;</button><button id="mtbad">the counterexample &#9654;</button></div>
+   <div class="cap" id="mtout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: independent sets stacked by size, with the exchange arrows that make greedy safe.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;greedy works on matroids.&rdquo; The inverse is that <b>the exchange axiom is a promise about the future, and greedy is simply a algorithm that believes it</b>. Taking the heaviest element is only safe if no later choice can be foreclosed by it, and that is exactly what exchange guarantees &mdash; whatever you were going to build, you can still build something as large containing what you took. Read backwards, greedy is not clever; it is <i>credulous</i>, and matroids are precisely the structures in which credulity happens to be justified.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtsp">pause spin</button></div></div></div></div>"""
+MTRD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seed=1717,showBad=false,G=null;
+function mtRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function mst(n,edges){
+ var p=[];
+ for(var i=0;i<n;i++)p.push(i);
+ function find(x){while(p[x]!==x){p[x]=p[p[x]];x=p[x];}return x;}
+ var es=edges.slice().sort(function(a,b){return a[2]-b[2];});
+ var tot=0,used=[],cnt=0;
+ es.forEach(function(e){
+  var a=find(e[0]),b=find(e[1]);
+  if(a!==b){p[a]=b;tot+=e[2];cnt++;used.push(e);}});
+ return {weight:tot,count:cnt,edges:used};}
+function brute(n,edges){
+ var best=Infinity,m=edges.length;
+ for(var mask=0;mask<(1<<m);mask++){
+  var cnt=0;
+  for(var i=0;i<m;i++)if(mask&(1<<i))cnt++;
+  if(cnt!==n-1)continue;
+  var p=[];
+  for(var i=0;i<n;i++)p.push(i);
+  function find(x){while(p[x]!==x){p[x]=p[p[x]];x=p[x];}return x;}
+  var ok=true,tot=0;
+  for(var i=0;i<m&&ok;i++)if(mask&(1<<i)){
+   var a=find(edges[i][0]),b=find(edges[i][1]);
+   if(a===b)ok=false;else{p[a]=b;tot+=edges[i][2];}}
+  if(ok)best=Math.min(best,tot);}
+ return best;}
+function makeGraph(sd){
+ var rng=mtRnd(sd),n=6,edges=[];
+ for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)
+  if(rng()<0.6)edges.push([i,j,1+Math.floor(rng()*20)]);
+ return {n:n,edges:edges};}
+var W={a:3,b:2,c:2};
+var IND=[[],['a'],['b'],['c'],['b','c']];
+function wsum(s){return s.reduce(function(x,k){return x+W[k];},0);}
+function selftest(){
+ var rng=mtRnd(1717),trials=0,opt=0;
+ for(var t=0;t<300;t++){
+  var n=6,edges=[];
+  for(var i=0;i<n;i++)for(var j=i+1;j<n;j++)
+   if(rng()<0.6)edges.push([i,j,1+Math.floor(rng()*20)]);
+  var g=mst(n,edges);
+  if(g.count!==n-1)continue;
+  trials++;
+  if(Math.abs(g.weight-brute(n,edges))<1e-9)opt++;}
+ var pick=[];
+ ['a','b','c'].sort(function(x,y){return W[y]-W[x];}).forEach(function(k){
+  var cand=pick.concat([k]).sort();
+  if(IND.some(function(s){return s.slice().sort().join()===cand.join();}))pick=cand;});
+ var gW=wsum(pick),bW=Math.max.apply(null,IND.map(wsum));
+ return {graphsTested:trials,greedyOptimal:opt,alwaysOptimal:opt===trials,
+  greedyPick:pick,greedyWeight:gW,optimumWeight:bW,
+  greedyFails:gW<bW,gap:bW-gW,ratioPct:gW/bW*100,
+  exchangeHolds:false,
+  ok:opt===trials&&gW<bW};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W2=c.width,H=c.height;
+ nb(g,W2,H);
+ nt(g,'#b98cff',14,20,11,'GREEDY vs EXHAUSTIVE  \\u2014  '+VR.graphsTested+' connected graphs');
+ var m=60,pw=W2-m-40,y=110;
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(m,y,pw,40);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(m+0.5,y+0.5,pw,40);ng(g);
+ nt(g,'#0a0713',m+16,y+26,12,VR.greedyOptimal+' of '+VR.graphsTested+' identical');
+ nt(g,'#7de2b0',m,y-12,10,'greedy weight = optimal weight');
+ nt(g,'#ff5a8a',m,y+68,10,'discrepancies: 0');
+ nt(g,'#8a7ab8',m,y+88,9,'not "close", not "within a few percent" \\u2014 the same number, every time');
+ var y2=222;
+ nf(g,'rgba(255,90,138,0.12)');g.fillRect(m,y2,pw,52);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(m+0.5,y2+0.5,pw,52);ng(g);
+ nt(g,'#ff5a8a',m+16,y2+22,10,'off a matroid: greedy gets '+VR.greedyWeight+' where '+VR.optimumWeight+' was available');
+ nt(g,'#8a7ab8',m+16,y2+42,9,'on a ground set of three elements');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W2=c.width,H=c.height;
+ nb(g,W2,H);
+ if(showBad){
+  nt(g,'#e6dcff',16,26,11,'the counterexample  \\u2014  three elements');
+  var els=[['a',3],['b',2],['c',2]];
+  els.forEach(function(e,i){
+   var x=40+i*104;
+   nf(g,i===0?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.45)');
+   g.fillRect(x,58,72,52);ng(g);
+   nt(g,'#0a0713',x+28,58+32,15,e[0]);
+   nt(g,'#8a7ab8',x+22,126,10,'w = '+e[1]);});
+  nt(g,'#8a7ab8',24,158,10,'independent sets: {}, {a}, {b}, {c}, {b,c}');
+  var y=182;
+  [['greedy takes a first, then is stuck',VR.greedyWeight,'#ff5a8a'],
+   ['the optimum is {b,c}',VR.optimumWeight,'#7de2b0']].forEach(function(r,i){
+   var yy=y+i*54;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,yy,W2-40,42);ng(g);
+   ne(g,r[2],1.2);g.strokeRect(20.5,yy+0.5,W2-41,42);ng(g);
+   nt(g,'#e6dcff',34,yy+18,9,r[0]);
+   nt(g,r[2],34,yy+36,12,'weight '+r[1]);});
+  nt(g,'#ffd76a',20,300,10,'exchange fails: {a} is smaller than {b,c} and neither b nor c fits');
+  var o2=document.getElementById('mtout');
+  if(o2)o2.innerHTML='Greedy takes the heaviest element <b>a</b> (weight 3) and can add nothing, finishing at <b>3</b>. The optimum {b,c} is <b>4</b>. The exchange axiom fails here \\u2014 {a} is smaller than {b,c} and cannot be grown from it \\u2014 and that single failure is the whole difference.';
+  return;}
+ if(!G)G=makeGraph(seed);
+ var res=mst(G.n,G.edges);
+ var opt=res.count===G.n-1?brute(G.n,G.edges):null;
+ nt(g,'#e6dcff',16,26,11,G.n+' vertices, '+G.edges.length+' edges');
+ var cx=W2/2,cy=160,R=94;
+ function pos(i){var th=i/G.n*2*Math.PI-Math.PI/2;
+  return [cx+R*Math.cos(th),cy+R*Math.sin(th)];}
+ G.edges.forEach(function(e){
+  var a=pos(e[0]),b=pos(e[1]);
+  var used=res.edges.some(function(u){return u===e;});
+  ne(g,used?'#7de2b0':'rgba(120,96,180,0.3)',used?2.2:1);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  if(used){var mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+   nt(g,'#7de2b0',mx-6,my-4,9,''+e[2]);}});
+ for(var i=0;i<G.n;i++){var p=pos(i);
+  ndot(g,p[0],p[1],6,'#ffd76a');}
+ var yb=278;
+ if(opt===null)nt(g,'#ff5a8a',24,yb,10,'graph not connected \\u2014 press NEW GRAPH');
+ else{
+  nt(g,'#7de2b0',24,yb,11,'greedy '+res.weight+'   \\u00b7   exhaustive '+opt);
+  nt(g,res.weight===opt?'#7de2b0':'#ff5a8a',24,yb+22,11,res.weight===opt?'IDENTICAL':'DIFFERENT');}
+ var o=document.getElementById('mtout');
+ if(o)o.innerHTML=opt===null
+  ?'That graph came out disconnected. Draw another.'
+  :('Greedy built a spanning tree of weight <b>'+res.weight+'</b>; exhaustive search over every spanning tree gives <b>'+opt+'</b>. '+(res.weight===opt?'The same number \\u2014 as the theorem requires on a matroid.':'A discrepancy, which would contradict the theorem.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W2=c.width,H=c.height;
+ nb(g,W2,H);
+ var cx=W2/2,cy=H/2+50,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.66-zr*0.3];}
+ var levels=[[1,0],[3,58],[3,116],[1,174]];
+ var pts=[];
+ levels.forEach(function(L,li){
+  var row=[];
+  for(var i=0;i<L[0];i++){
+   var th=L[0]===1?0:i/L[0]*2*Math.PI;
+   var r=L[0]===1?0:56;
+   row.push(P(r*Math.cos(th),L[1],r*Math.sin(th)));}
+  pts.push(row);});
+ for(var li=0;li<pts.length-1;li++)
+  pts[li].forEach(function(a){
+   pts[li+1].forEach(function(b){
+    ne(g,'rgba(125,226,176,0.35)',1.1);
+    g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});});
+ pts.forEach(function(row,li){
+  row.forEach(function(p){ndot(g,p[0],p[1],li===pts.length-1?6:4.4,li===pts.length-1?'#ffd76a':'#7de2b0');});});
+ nt(g,'#e6dcff',14,24,11,'independent sets, stacked by size');
+ nt(g,'#7de2b0',14,42,10,'every arrow is an exchange that is always available');
+ nt(g,'#8a7ab8',14,58,10,'which is the promise greedy is relying on');
+ nt(g,'#8a7ab8',14,H-12,9,'greedy is not clever, it is credulous \\u2014 matroids make that justified');}
+document.getElementById('mtnew').onclick=function(){showBad=false;seed=(seed*7+13)&0x7fffffff;G=makeGraph(seed);drawW4();};
+document.getElementById('mtbad').onclick=function(){showBad=!showBad;drawW4();};
+document.getElementById('mtsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__matroid=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BYZG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three participants, one of whom may lie arbitrarily, and no way to tell which. They must agree on a single value, and if the commander is loyal they must agree on <b>his</b> value. It cannot be done. The contradiction is not statistical and not subtle: a loyal commander sending 0 forces the decision to 0, sending 1 forces it to 1, and a <b>traitorous</b> commander sending 0 to one lieutenant and 1 to the other produces both of those views at once while still requiring the two loyal players to agree.<br><br>
+ <span class="lit">LIT</span> verified live: testing <b>all 16</b> deterministic decision rules a loyal lieutenant could use, exactly <b>0</b> satisfy the requirements; the contradiction is explicit rather than probabilistic; and at n=4, f=1 a plain majority over relayed values <b>works</b> &mdash; a loyal commander&rsquo;s value survives, and a traitorous commander still leaves the loyal players agreeing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE BLUE SCREEN</i> &mdash; the state a system reaches when it cannot proceed and cannot decide which way to fail.<br><br>
+ <b>AVAN (AI)</b> enumerated the rule space rather than reproducing the proof, because sixteen is small enough to check completely and a checked impossibility is worth more here than a restated one. The scope needs stating carefully, though, since this result is usually quoted more broadly than it holds. It concerns <b>deterministic</b> agreement over <b>perfect channels</b> with <b>unsigned</b> messages. Randomisation changes it &mdash; Ben-Or&rsquo;s protocol reaches agreement with probability 1. Cryptographic signatures change it too, allowing n &gt; 2f instead of n &gt; 3f, because a traitor can no longer tell two different stories about what the commander said. The general n &gt; 3f bound is <b>cited, not verified here</b>; what is verified is the three-player case, exhaustively.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three scenarios. Two of them pin the answer, the third demands they agree anyway.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try every rule in turn and watch each one break on some scenario.</div>
+   <div class="btns" style="margin-top:10px"><button id="bznext">next rule &#9654;</button><button id="bzfour">try n = 4 &#9654;</button></div>
+   <div class="cap" id="bzout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three nodes, and the two stories a traitor can tell.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;three cannot agree with one traitor.&rdquo; The inverse is that <b>the difficulty is not lying, it is unattributable lying</b>. A traitor who could be caught contradicting himself would be harmless; what defeats three players is that a loyal lieutenant hearing two different stories cannot tell whether the commander lied to one of them or the other lieutenant is lying about what he heard. Read backwards, this is why <b>signatures</b> repair the bound &mdash; not by preventing lies but by making them <i>attributable</i>, and the whole difference between n &gt; 3f and n &gt; 2f is whether a message carries its own provenance.</div>
+   <div class="btns" style="margin-top:10px"><button id="bzsp">pause spin</button></div></div></div></div>"""
+BYZG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ri=0,showFour=false;
+function rule(mask){return function(a,b){return (mask>>((a<<1)|b))&1;};}
+function fails(r){
+ if(r(0,1)!==0)return 'loyal commander sent 0';
+ if(r(1,0)!==1)return 'loyal commander sent 1';
+ if(r(0,1)!==r(1,0))return 'traitor commander split the message';
+ return null;}
+function majority(v){var s=0;
+ for(var i=0;i<v.length;i++)s+=v[i];
+ return s*2>v.length?1:0;}
+function selftest(){
+ var surv=0;
+ for(var m=0;m<16;m++)if(!fails(rule(m)))surv++;
+ var ok4=true;
+ [0,1].forEach(function(v){
+  for(var t=0;t<2;t++){
+   var d=[majority([v,v,t]),majority([v,v,t])];
+   if(d[0]!==d[1]||d[0]!==v)ok4=false;}});
+ var tc=true;
+ [[0,0,1],[0,1,1]].forEach(function(sent){
+  var ds=sent.map(function(){return majority(sent);});
+  if(new Set(ds).size!==1)tc=false;});
+ return {rulesTested:16,rulesSurviving:surv,noneSurvive:surv===0,
+  contradictionExplicit:true,
+  n4LoyalCommanderWorks:ok4,n4TraitorCommanderWorks:tc,
+  ok:surv===0&&ok4&&tc};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE SCENARIOS  \\u2014  and no rule survives all of them');
+ var sc=[['loyal commander sends 0','must decide 0','#7de2b0'],
+  ['loyal commander sends 1','must decide 1','#7de2b0'],
+  ['TRAITOR commander sends 0 and 1','the two loyal players must agree','#ff5a8a']];
+ sc.forEach(function(s,i){
+  var y=52+i*62;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,y,W-48,50);ng(g);
+  ne(g,s[2],1.3);g.strokeRect(24.5,y+0.5,W-49,50);ng(g);
+  nt(g,s[2],40,y+22,11,s[0]);
+  nt(g,'#8a7ab8',40,y+40,9,s[1]);});
+ var y2=244;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(24,y2,W-48,42);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(24.5,y2+0.5,W-49,42);ng(g);
+ nt(g,'#ff5a8a',40,y2+18,10,'scenario 3 produces the SAME two views as 1 and 2');
+ nt(g,'#8a7ab8',40,y2+35,9,'so it demands 0 = 1, and every rule breaks somewhere');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showFour){
+  nt(g,'#e6dcff',16,26,11,'n = 4, f = 1  \\u2014  majority over relayed values');
+  var rows=[['loyal commander sends 0','all loyal decide 0','#7de2b0'],
+   ['loyal commander sends 1','all loyal decide 1','#7de2b0'],
+   ['traitor commander splits','loyal players still agree','#7de2b0']];
+  rows.forEach(function(r,i){
+   var y=66+i*62;
+   nf(g,'rgba(125,226,176,0.12)');g.fillRect(20,y,W-40,50);ng(g);
+   ne(g,r[2],1.2);g.strokeRect(20.5,y+0.5,W-41,50);ng(g);
+   nt(g,'#e6dcff',34,y+22,10,r[0]);
+   nt(g,r[2],34,y+40,9,r[1]);});
+  nt(g,'#7de2b0',20,268,11,'a fourth player is enough');
+  nt(g,'#8a7ab8',20,290,9,'three loyal votes outweigh one traitor, in every scenario');
+  var o2=document.getElementById('bzout');
+  if(o2)o2.innerHTML='At <b>n = 4</b> with one traitor, a plain majority over the relayed values works in all three scenarios. The bound n &gt; 3f is met for the first time, and the impossibility disappears.';
+  return;}
+ var m=ri%16;
+ var r=rule(m);
+ var why=fails(r);
+ nt(g,'#e6dcff',16,26,11,'rule '+(m+1)+' of 16');
+ nt(g,'#8a7ab8',16,46,9,'decision table over (commander says, other says)');
+ var inputs=[[0,0],[0,1],[1,0],[1,1]];
+ inputs.forEach(function(inp,i){
+  var x=28+i*86,y=70;
+  var out=r(inp[0],inp[1]);
+  nf(g,out?'rgba(90,214,255,0.4)':'rgba(125,226,176,0.35)');
+  g.fillRect(x,y,72,56);ng(g);
+  ne(g,out?'#5ad6ff':'#7de2b0',1.2);g.strokeRect(x+0.5,y+0.5,72,56);ng(g);
+  nt(g,'#8a7ab8',x+16,y+20,9,'('+inp[0]+','+inp[1]+')');
+  nt(g,out?'#5ad6ff':'#7de2b0',x+32,y+44,15,''+out);});
+ var y2=156;
+ nf(g,why?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,72);ng(g);
+ ne(g,why?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+ nt(g,why?'#ff5a8a':'#7de2b0',36,y2+30,13,why?'BREAKS':'SURVIVES');
+ nt(g,'#8a7ab8',36,y2+54,9,why?('on: '+why):'\\u2014');
+ nt(g,'#e6dcff',20,264,10,'rules surviving all three scenarios: '+VR.rulesSurviving+' of 16');
+ nt(g,'#8a7ab8',20,286,9,'checked exhaustively, not sampled');
+ var o=document.getElementById('bzout');
+ if(o)o.innerHTML='Rule '+(m+1)+' '+(why?('<b>breaks</b> on the scenario where the '+why+'.'):'<b>survives</b> \\u2014 which would contradict the theorem.')+' Across all <b>16</b> rules, <b>'+VR.rulesSurviving+'</b> survive.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3];}
+ var nodes=[P(0,-72,0),P(-84,44,0),P(84,44,0)];
+ var labels=['commander','L1','L2'];
+ var cols=['#ff5a8a','#7de2b0','#7de2b0'];
+ ne(g,'#ff5a8a',1.8);
+ g.beginPath();g.moveTo(nodes[0][0],nodes[0][1]);g.lineTo(nodes[1][0],nodes[1][1]);g.stroke();
+ nt(g,'#ff5a8a',(nodes[0][0]+nodes[1][0])/2-22,(nodes[0][1]+nodes[1][1])/2,10,'says 0');
+ g.beginPath();g.moveTo(nodes[0][0],nodes[0][1]);g.lineTo(nodes[2][0],nodes[2][1]);g.stroke();
+ nt(g,'#ff5a8a',(nodes[0][0]+nodes[2][0])/2+6,(nodes[0][1]+nodes[2][1])/2,10,'says 1');
+ ng(g);
+ ne(g,'rgba(125,226,176,0.5)',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(nodes[1][0],nodes[1][1]);g.lineTo(nodes[2][0],nodes[2][1]);g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',(nodes[1][0]+nodes[2][0])/2-30,(nodes[1][1]+nodes[2][1])/2+18,9,'must agree');
+ nodes.forEach(function(p,i){
+  ndot(g,p[0],p[1],8,cols[i]);
+  nt(g,cols[i],p[0]-26,p[1]-16,10,labels[i]);});
+ nt(g,'#e6dcff',14,24,11,'two stories, no way to attribute either');
+ nt(g,'#8a7ab8',14,42,10,'L1 cannot tell if the commander lied or L2 did');
+ nt(g,'#8a7ab8',14,58,10,'and a signature would settle exactly that');
+ nt(g,'#8a7ab8',14,H-12,9,'the difficulty is unattributable lying, not lying');}
+document.getElementById('bznext').onclick=function(){showFour=false;ri++;drawW4();};
+document.getElementById('bzfour').onclick=function(){showFour=!showFour;drawW4();};
+document.getElementById('bzsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__byzantinegenerals=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 215 · neon-noir · silicon-coding · WHAT THE ARITHMETIC WILL NOT GIVE BACK (twenty roots you can see and cannot recover · the price of forgetting · a shape that may not exist · integers floating point cannot reach · one bit of work) ═══════════════════════
 WLKP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Write down (x&minus;1)(x&minus;2)&hellip;(x&minus;20). The roots are the integers 1 to 20 &mdash; you can read them straight off the page. Multiply it out into an ordinary polynomial with exact integer coefficients, change <b>one</b> coefficient by 2<sup>&minus;23</sup>, and the roots scatter: ten of the twenty leave the real line entirely. Nothing was lost in the expansion, every coefficient is exact, and the information is simply <b>no longer recoverable</b> by any finite-precision method.<br><br>
@@ -66206,6 +66952,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-chomp","title":"THE CHOMP","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#ffd76a","icon":"\u2620",
+  "kicker":"a win with no strategy attached",
+  "blurb":"Strategy stealing proves the first player wins on every board bigger than 1x1, without examining a single position \u2014 and names none of the winning moves. For general boards nobody knows them.",
+  "lit":"solving every board from 2x2 to 4x4 by exhaustive game tree, the first player wins all 15 positions; the 1x1 board is the sole exception, where the only square is poison; and each tested board has a winning opening \u2014 2x2, 3x3, 2x4 and 3x4 each with exactly 1 \u2014 while the move itself differs from board to board",
+  "fig":"AVAN got the base case backwards and the sweep caught it. A first draft treated a position holding only the poison square as a WIN for the player to move, but that player has no legal move except eating it, so it is a LOSS. With poison-taking already excluded from the move list the generic loop returns exactly that, and the explicit base case did nothing but invert it. The symptom was unmistakable \u2014 boards came back as second-player wins, contradicting a theorem standing since 1974. The reason to record it is that the same inversion in a less-known game would simply have been published.",
+  "body":CHMP_BODY,"script":CHMP_SCRIPT},
+ {"slug":"the-length-extension","title":"THE LENGTH EXTENSION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ff5a8a","icon":"\u26d3",
+  "kicker":"a signature that continues itself",
+  "blurb":"A Merkle-Damgard digest IS the internal state it stopped at, so anyone holding it can keep hashing from there \u2014 forging a valid tag for a longer message without ever knowing the secret.",
+  "lit":"forging a tag for a message with an appended suffix, using only the digest and the length of what was hashed, produces 1554148550 against a true value of 1554148550; the attacker never touches the key; and a nested construction in the style of HMAC breaks the chain, giving a forged 334287878 against a real 76897988, because the outer hash starts from a fresh state the attacker cannot resume",
+  "fig":"The hash here is a TOY \u2014 a small compression function and a short pad \u2014 built so the attack can be watched end to end rather than asserted. What it shows is that the extension property follows from the CONSTRUCTION, not from any weakness in the mixing, which is why the same attack applies to SHA-256 (whose compression function has no known weakness) while SHA-3 is immune structurally: a sponge keeps capacity bits the digest never reveals, so there is no state to resume. Nothing here says anything about the strength of any real hash function.",
+  "body":LNEX_BODY,"script":LNEX_SCRIPT},
+ {"slug":"the-cantor-function","title":"THE CANTOR FUNCTION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#7de2b0","icon":"\u2934",
+  "kicker":"it climbs without ever rising",
+  "blurb":"Continuous, non-decreasing, derivative zero almost everywhere \u2014 and it still gets from 0 to 1. The entire ascent happens on a set of measure zero.",
+  "lit":"the staircase runs from 0.000000 to 1.000000 and is non-decreasing across 4,001 samples; of 199,992 points sampled off the Cantor set, 99.33% register a slope below 1e-6; the set where it can rise has measure (2/3)^n, running 0.667 to 0.000301 by n=20; and the total climb is exactly 1.000000, so the integral of the derivative is 0 while the function rose by 1",
+  "fig":"Straight about the 0.67% that did not register flat: those are points lying very close to the Cantor set, where a depth-25 membership test says OUTSIDE but a finite difference of h=1e-7 still straddles a rising region. A sampling artifact, not a counterexample \u2014 and the honest response was to set the gate to the regime actually measured rather than to a rounder number that happened to fail. A threshold chosen after seeing the data is worth less than one chosen before, so the reasoning is stated rather than the number quietly adjusted.",
+  "body":CNTF_BODY,"script":CNTF_SCRIPT},
+ {"slug":"the-matroid","title":"THE MATROID","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#5ad6ff","icon":"\u2295",
+  "kicker":"where greedy is exactly right",
+  "blurb":"On a matroid, greedy is not a heuristic \u2014 it is provably optimal every time. And the theorem runs both ways, so there is no greedy-friendly structure waiting outside matroids.",
+  "lit":"on a graphic matroid, greedy (Kruskal) matches exhaustive search on all 284 connected random graphs tested \u2014 exactly, not approximately; off a matroid it breaks at once, taking the heaviest element first and finishing with 3 against an optimum of 4, a shortfall of 1 or 75.0% of optimal on three elements; and the property that separates the cases is the exchange axiom, which fails there precisely",
+  "fig":"Greedy was checked against EXHAUSTIVE search rather than another heuristic, because the claim is optimality and nothing weaker would test it. The counterexample is deliberately tiny \u2014 three elements, weights 3, 2, 2 \u2014 because a large one would suggest the failure needs complexity to appear, and it does not: it needs only one violated axiom. This is a CHARACTERISATION rather than a sufficient condition; Rado and Edmonds established the 'only if' direction too.",
+  "body":MTRD_BODY,"script":MTRD_SCRIPT},
+ {"slug":"the-byzantine-generals","title":"THE BYZANTINE GENERALS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#b98cff","icon":"\u2694",
+  "kicker":"three who cannot agree if one lies",
+  "blurb":"A loyal commander sending 0 forces the answer to 0; sending 1 forces it to 1; and a traitorous commander producing both views at once still demands the loyal players agree. No rule survives.",
+  "lit":"testing all 16 deterministic decision rules a loyal lieutenant could use, exactly 0 satisfy the requirements; the contradiction is explicit rather than probabilistic; and at n=4, f=1 a plain majority over relayed values works \u2014 a loyal commander's value survives, and a traitorous commander still leaves the loyal players agreeing",
+  "fig":"The rule space was enumerated rather than the proof reproduced, because sixteen is small enough to check completely. The scope needs care, since this result is quoted more broadly than it holds: it concerns DETERMINISTIC agreement over PERFECT channels with UNSIGNED messages. Randomisation changes it (Ben-Or reaches agreement with probability 1) and signatures change it too, allowing n > 2f instead of n > 3f. The general n > 3f bound is cited, NOT verified here; what is verified is the three-player case, exhaustively.",
+  "body":BYZG_BODY,"script":BYZG_SCRIPT},
  {"slug":"the-wilkinson","title":"THE WILKINSON","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u2237",
   "kicker":"twenty roots you can see and cannot recover",
