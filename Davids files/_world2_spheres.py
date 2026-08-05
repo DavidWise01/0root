@@ -22,7 +22,9 @@ I13_MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 
             "sha 64881ebf")
 
 def chrome(s):
-    # DEAD stamp (David's rev5 honesty scheme: LIT measured / FIG assigned / DEAD tested, disproven).
+    # DEAD stamp. David's rev5 scheme is LIT measured / AMBER assigned by me / DEAD tested, disproven.
+    # World II runs a two-stamp variant of it: LIT for what the page measured, FIG for what was
+    # assigned. AMBER and FIG are the same slot under different names - do not conflate them.
     # Optional per sphere — spheres without a "dead" key render exactly as before.
     dead_html = (f"""<br><br><span class="dead">DEAD</span> {s['dead']}""" if s.get('dead') else "")
     return f"""<!doctype html><html lang="en"><head>
