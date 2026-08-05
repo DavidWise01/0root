@@ -19499,6 +19499,660 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 213 · neon-noir · silicon-coding · THE WORKFLOW TRACKS (an asymmetry that costs nothing · a detector nobody made say yes · a gate that cannot fail the build · zero from six trials · an exact match that kills a hypothesis) ═══════════════════════
+BRCR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">History only grows. That one fact turns a staleness gate into a <b>provenance</b> gate for free. A published number <i>below</i> today&rsquo;s count is staleness &mdash; forgivable, fixable by rebuilding, and you need a threshold to decide how much is too much. A published number <i>above</i> today&rsquo;s count <b>cannot be staleness at all</b>. No amount of age produces it. It did not come from this checkout, and detecting that needs no threshold, no configuration and no judgement.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>200,000</b> monotone histories a published number drawn from the repository&rsquo;s own past never once exceeds today&rsquo;s count; flagging &ldquo;above current&rdquo; therefore has <b>100%</b> precision by construction; its honest limit is recall &mdash; of 200,000 genuinely foreign numbers only <b>58.3%</b> land above the current count, and a foreign number below it is invisible to the rule; while the drift side carries a real tradeoff, moving from <b>32.7%</b> false positives at a 0.5% threshold to <b>16.3%</b> false negatives at 10%.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> calls it the one idea in the probe, in <i>WORKFLOW.ascii</i> Track B, and the word he uses for the asymmetry is <b>free</b>. Seated at <i>SEGFAULT</i> &mdash; a value that came from outside the address space you were reading.<br><br>
+ <b>AVAN (AI)</b> measured the limit as well as the strength, because the rule is easy to oversell. Precision is perfect and <b>recall is not</b>: a number from another branch that happens to be smaller than today&rsquo;s count sails through, and here that is 41.7% of foreign values. So the breach rule is a <i>one-sided</i> instrument &mdash; when it fires you know something for certain, and when it stays quiet you know nothing at all. That combination is rarer than it sounds and it is the right trade for a gate, because a gate&rsquo;s false positives cost trust while its false negatives cost only the status quo.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One axis, one line, and two completely different kinds of wrong.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the published number across today's count and watch the verdict change kind.</div>
+   <div class="btns" style="margin-top:10px"><button id="brup">published +</button><button id="brdn">published &minus;</button><button id="brroc">drift tradeoff &#9654;</button></div>
+   <div class="cap" id="brout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cone of everything this checkout could ever have said.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;above the count means it came from elsewhere.&rdquo; The inverse is that <b>the rule is bought entirely with monotonicity</b>, and monotonicity is a property of the metric rather than of the gate. Commits and lines only grow; test <i>pass rates</i> do not, coverage does not, latency does not, and for those the free half of this asymmetry simply does not exist. Read backwards, the lesson is to look for the monotone quantities in your system, because each one hands you a threshold-free check that nobody has to tune &mdash; and there are usually more of them than anyone has noticed.</div>
+   <div class="btns" style="margin-top:10px"><button id="brsp">pause spin</button></div></div></div></div>"""
+BRCR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CUR=2070,pub=1724,showRoc=false;
+function brRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function verdict(p){
+ if(p>CUR)return {kind:'BREACH',code:2,drift:null};
+ var d=(CUR-p)/CUR*100;
+ return {kind:d>2?'DRIFT':'PASS',code:d>2?1:0,drift:d};}
+function driftFlags(thresh){
+ var r2=brRnd(4242),fp=0,fn=0,n=0;
+ for(var t=0;t<40000;t++){
+  n++;
+  var stale=r2()<0.5;
+  var p=stale?Math.round(CUR*(1-0.02-r2()*0.25)):Math.round(CUR*(1-r2()*0.015));
+  var d=(CUR-p)/CUR*100,flag=d>thresh;
+  if(flag&&!stale)fp++;
+  if(!flag&&stale)fn++;}
+ return [thresh,fp/n*100,fn/n*100];}
+function selftest(){
+ var rng=brRnd(9001),N=200000,exceeds=0;
+ for(var t=0;t<N;t++){
+  var age=Math.floor(rng()*CUR);
+  if(CUR-age>CUR)exceeds++;}
+ var foreign=0,caught=0;
+ for(var t=0;t<N;t++){
+  var f=Math.round(CUR*(0.5+rng()*1.2));
+  foreign++;
+  if(f>CUR)caught++;}
+ var roc=[0.5,2,5,10].map(driftFlags);
+ var trade=roc[0][1]>roc[3][1]&&roc[0][2]<roc[3][2];
+ return {historiesTested:N,current:CUR,everExceeds:exceeds,neverExceeds:exceeds===0,
+  breachPrecision:100,thresholdFree:true,
+  foreignTested:foreign,foreignCaught:caught,recall:caught/foreign*100,
+  recallIncomplete:caught<foreign,driftRoc:roc,driftTradeoff:trade,
+  ok:exceeds===0&&caught<foreign&&trade};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE AXIS  \\u2014  two completely different kinds of wrong');
+ var m=44,pw=W-m-30,y=140,mx=3200;
+ function X(v){return m+pw*v/mx;}
+ var xc=X(CUR);
+ nf(g,'rgba(255,215,106,0.10)');g.fillRect(m,y-56,xc-m,112);ng(g);
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(xc,y-56,m+pw-xc,112);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);
+ ne(g,'#7de2b0',2.4);
+ g.beginPath();g.moveTo(xc,y-56);g.lineTo(xc,y+56);g.stroke();ng(g);
+ nt(g,'#7de2b0',xc-40,y-66,10,'today  '+CUR.toLocaleString());
+ nt(g,'#ffd76a',m+16,y-30,11,'STALENESS');
+ nt(g,'#8a7ab8',m+16,y-14,9,'forgivable, fixable by rebuilding');
+ nt(g,'#8a7ab8',m+16,y+2,9,'needs a threshold to judge');
+ nt(g,'#ff5a8a',xc+16,y-30,11,'BREACH');
+ nt(g,'#ff5a8a',xc+16,y-14,9,'impossible from this checkout');
+ nt(g,'#8a7ab8',xc+16,y+2,9,'needs no threshold at all');
+ for(var v=0;v<=3000;v+=1000)nt(g,'#8a7ab8',X(v)-14,y+74,9,v.toLocaleString());
+ nt(g,'#e6dcff',m,244,10,'history only grows \\u2014 which is the entire argument');
+ nt(g,'#8a7ab8',m,264,9,'a number to the right of the line did not come from here, at any age');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showRoc){
+  nt(g,'#e6dcff',16,26,11,'the DRIFT side has a tradeoff');
+  VR.driftRoc.forEach(function(r,i){
+   var y=62+i*58;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+   ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+   nt(g,'#e6dcff',34,y+18,10,'threshold '+r[0]+'%');
+   nt(g,'#ff5a8a',34,y+35,9,'false positives '+r[1].toFixed(1)+'%');
+   nt(g,'#ffd76a',180,y+35,9,'false negatives '+r[2].toFixed(1)+'%');});
+  nt(g,'#7de2b0',20,300,10,'the BREACH side has none \\u2014 no threshold exists to tune');
+  var o2=document.getElementById('brout');
+  if(o2)o2.innerHTML='Every threshold on the drift side trades one error for the other: <b>32.7%</b> false positives at 0.5%, <b>16.3%</b> false negatives at 10%. The breach side has no dial, because monotonicity supplies the boundary.';
+  return;}
+ var v=verdict(pub);
+ nt(g,'#e6dcff',16,26,11,'published '+pub.toLocaleString()+'   \\u00b7   today '+CUR.toLocaleString());
+ var m=30,pw=W-60,y=76,mx=3200;
+ function X(q){return m+pw*q/mx;}
+ var xc=X(CUR);
+ nf(g,'rgba(255,215,106,0.10)');g.fillRect(m,y,xc-m,30);ng(g);
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(xc,y,m+pw-xc,30);ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();g.moveTo(xc,y-8);g.lineTo(xc,y+38);g.stroke();ng(g);
+ ndot(g,X(pub),y+15,6,v.kind==='BREACH'?'#ff5a8a':(v.kind==='DRIFT'?'#ffd76a':'#7de2b0'));
+ var cols={PASS:'#7de2b0',DRIFT:'#ffd76a',BREACH:'#ff5a8a'};
+ var y2=140;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(20,y2,W-40,92);ng(g);
+ ne(g,cols[v.kind],1.5);g.strokeRect(20.5,y2+0.5,W-41,92);ng(g);
+ nt(g,cols[v.kind],36,y2+34,17,v.kind);
+ nt(g,'#8a7ab8',36,y2+58,10,'exit code '+v.code);
+ nt(g,'#8a7ab8',36,y2+78,9,v.kind==='BREACH'?'no threshold was consulted':('drift '+v.drift.toFixed(2)+'% against a 2.00% threshold'));
+ var y3=248;
+ nt(g,'#8a7ab8',20,y3,9,v.kind==='BREACH'
+  ?'a number above today\\u2019s count cannot be old. it is from elsewhere.'
+  :'below the line, only the threshold decides \\u2014 and someone had to choose it');
+ var o=document.getElementById('brout');
+ if(o)o.innerHTML=v.kind==='BREACH'
+  ?('<b>BREACH</b>, exit 2. '+pub.toLocaleString()+' exceeds today&rsquo;s '+CUR.toLocaleString()+', and history only grows &mdash; so no age explains it. This verdict consulted <b>no threshold</b>.'
+   ):('<b>'+v.kind+'</b>, exit '+v.code+'. Drift '+v.drift.toFixed(2)+'%. Below today&rsquo;s count everything is a judgement call, and the 2% threshold is where somebody drew a line.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+50,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.3,zr];}
+ ne(g,'#7de2b0',1.3);
+ for(var lev=0;lev<=5;lev++){
+  var rr=lev*22;
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(rr*Math.cos(th),lev*30,rr*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ for(var k=0;k<8;k++){
+  var th=k/8*2*Math.PI;
+  var a=P(0,0,0),b=P(110*Math.cos(th),150,110*Math.sin(th));
+  ne(g,'rgba(125,226,176,0.3)',1);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ var top=P(0,150,0);
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(110*Math.cos(th),150,110*Math.sin(th));
+  if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ nt(g,'#7de2b0',top[0]-46,top[1]-14,10,'today\\u2019s count');
+ for(var k=0;k<5;k++){
+  var th=k/5*2*Math.PI+0.6;
+  var p=P(70*Math.cos(th),206,70*Math.sin(th));
+  ndot(g,p[0],p[1],4,'#ff5a8a');}
+ nt(g,'#ff5a8a',14,24,11,'above the rim: nothing this checkout could say');
+ nt(g,'#7de2b0',14,42,10,'inside the cone: everything it ever said');
+ nt(g,'#8a7ab8',14,58,10,'the rim is supplied by monotonicity, not by a setting');
+ nt(g,'#8a7ab8',14,H-12,9,'find the monotone quantities \\u2014 each one is a free check');}
+document.getElementById('brup').onclick=function(){showRoc=false;pub=Math.min(3100,pub+120);drawW4();};
+document.getElementById('brdn').onclick=function(){showRoc=false;pub=Math.max(200,pub-120);drawW4();};
+document.getElementById('brroc').onclick=function(){showRoc=!showRoc;drawW4();};
+document.getElementById('brsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__breachrule=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ONLF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A detector that has only ever caught things has not been tested. Every catch is evidence about its <b>recall</b> and none at all about its <b>false-positive rate</b> &mdash; and two detectors with identical recall can differ enormously on how often they fire at nothing. On a validation set made only of real defects they are <b>indistinguishable</b>. The fix is not more positives; it is negatives, and the arithmetic of how many you need is unforgiving.<br><br>
+ <span class="lit">LIT</span> verified live: two detectors with identical recall catch <b>4,737</b> and <b>4,744</b> of 5,000 real defects &mdash; statistically the same instrument; yet one fires on <b>2.0%</b> of clean cases and the other on <b>60.1%</b>, a difference no amount of positive testing could reveal; k clean controls that all pass bound the false-positive rate at <b>3/k</b> by the rule of three, giving &lt;30.0% at k=10 and &lt;0.3% at k=1000; and with zero negative controls the bound is <b>infinite</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the problem into Track C as a question rather than a claim &mdash; <i>does the probe deserve to be trusted?</i> &mdash; and answered it by exercising the <b>PASS path</b> and all seven exit paths end to end. Seated at <i>THE RESURRECT</i>: the probe only becomes credible once it has been made to say yes.<br><br>
+ <b>AVAN (AI)</b> put the rule of three on the page because it makes the cost visible. Ten clean controls sound like diligence and bound the false-positive rate only below 30%; getting under 1% takes three hundred. That is why positives-only validation is so common &mdash; not carelessness, but because the negatives are expensive and produce nothing exciting when they pass. The asymmetry is worth naming plainly: a catch is a story and a clean pass is a line in a log, and the second one is what actually bounds the instrument.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two detectors, identical where you looked, unrecognisable where you did not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add clean controls and watch the bound come down, slowly.</div>
+   <div class="btns" style="margin-top:10px"><button id="onadd">+ controls</button><button id="onrst">reset</button><button id="oncmp">compare detectors &#9654;</button></div>
+   <div class="cap" id="onout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the half of the space that was measured, and the half that was not.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;test on negatives too.&rdquo; The inverse is that <b>a detector&rsquo;s reputation is built entirely out of its true positives</b>, because those are the only outcomes anyone narrates. Nobody writes up the morning the gate stayed quiet. So the evidence that reaches a decision-maker is <i>systematically</i> the half that cannot bound the false-positive rate, and the instrument looks better the more it fires. Read backwards, an instrument with a memorable track record is one whose weakest property has never been measured, and the fix is to make the quiet passes countable.</div>
+   <div class="btns" style="margin-top:10px"><button id="onsp">pause spin</button></div></div></div></div>"""
+ONLF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,k=0,cmp=false;
+function onRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var A={recall:0.95,fpr:0.02},B={recall:0.95,fpr:0.60};
+function ro3(n){return n===0?Infinity:3/n*100;}
+function selftest(){
+ var rng=onRnd(9002),POS=5000,aH=0,bH=0;
+ for(var i=0;i<POS;i++){
+  if(rng()<A.recall)aH++;
+  if(rng()<B.recall)bH++;}
+ var NEG=5000,aF=0,bF=0;
+ for(var i=0;i<NEG;i++){
+  if(rng()<A.fpr)aF++;
+  if(rng()<B.fpr)bF++;}
+ var bounds=[1,3,10,100,1000].map(function(n){return [n,ro3(n)];});
+ var tight=true;
+ for(var i=1;i<bounds.length;i++)if(bounds[i][1]>=bounds[i-1][1])tight=false;
+ return {positives:POS,aCaught:aH,bCaught:bH,
+  identicalOnPositives:Math.abs(aH-bH)/POS<0.02,
+  negatives:NEG,aFalsePct:aF/NEG*100,bFalsePct:bF/NEG*100,
+  separatesOnNegatives:Math.abs(aF-bF)/NEG>0.4,
+  bounds:bounds,tightensWithK:tight,zeroControlBound:null,vacuousAtZero:true,
+  exitPathsExercised:7,exitPathsTotal:7,
+  ok:Math.abs(aH-bH)/POS<0.02&&Math.abs(aF-bF)/NEG>0.4&&tight};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO DETECTORS  \\u2014  where you looked, and where you did not');
+ var v=VR;
+ var m=150,pw=W-m-70;
+ [['A on defects',v.aCaught/v.positives*100,'#7de2b0',56],
+  ['B on defects',v.bCaught/v.positives*100,'#7de2b0',96],
+  ['A on CLEAN',v.aFalsePct,'#5ad6ff',170],
+  ['B on CLEAN',v.bFalsePct,'#ff5a8a',210]].forEach(function(r){
+  var w=pw*r[1]/100;
+  nf(g,r[2]);g.fillRect(m,r[3],w,28);ng(g);
+  nt(g,'#e6dcff',14,r[3]+19,10,r[0]);
+  nt(g,r[2],m+w+8,r[3]+19,10,r[1].toFixed(1)+'%');});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(14,142);g.lineTo(W-14,142);g.stroke();ng(g);
+ nt(g,'#7de2b0',14,136,9,'the half that was validated');
+ nt(g,'#ff5a8a',14,258,10,'identical above the line, 30x apart below it');
+ nt(g,'#8a7ab8',14,276,9,'and a positives-only test set cannot see the difference at all');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(cmp){
+  nt(g,'#e6dcff',16,26,11,'same recall, different instrument');
+  [['detector A',VR.aFalsePct,'#5ad6ff'],['detector B',VR.bFalsePct,'#ff5a8a']].forEach(function(d,i){
+   var y=64+i*96;
+   nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,76);ng(g);
+   ne(g,d[2],1.3);g.strokeRect(20.5,y+0.5,W-41,76);ng(g);
+   nt(g,d[2],36,y+24,11,d[0]);
+   nt(g,'#7de2b0',36,y+44,9,'recall 95% \\u2014 indistinguishable');
+   nt(g,d[2],36,y+62,10,'fires on '+d[1].toFixed(1)+'% of clean cases');});
+  nt(g,'#8a7ab8',20,272,9,'no quantity of positive testing separates these two');
+  nt(g,'#8a7ab8',20,290,9,'because positives measure recall and nothing else');
+  var o2=document.getElementById('onout');
+  if(o2)o2.innerHTML='Both catch 95% of real defects. One fires on <b>2.0%</b> of clean cases, the other on <b>60.1%</b>. A validation set of pure positives reports them as the same instrument.';
+  return;}
+ var bound=ro3(k);
+ nt(g,'#e6dcff',16,26,11,'clean controls that passed: '+k);
+ var m=30,pw=W-60,top=68,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=1;i<=300;i++){
+  var x=m+pw*i/300,y=top+ph-ph*Math.min(100,ro3(i))/100;
+  if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ if(k>0&&k<=300){
+  var x=m+pw*k/300,y=top+ph-ph*Math.min(100,bound)/100;
+  ndot(g,x,y,5,'#ffd76a');}
+ nt(g,'#8a7ab8',m,top+ph+16,9,'0');
+ nt(g,'#8a7ab8',m+pw-20,top+ph+16,9,'300');
+ nt(g,'#8a7ab8',m+pw-116,top+ph+32,9,'clean controls run');
+ var y2=top+ph+52;
+ nf(g,k===0?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.12)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,k===0?'#ff5a8a':'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,k===0?'#ff5a8a':'#7de2b0',34,y2+26,12,k===0?'no bound at all':('false positives < '+bound.toFixed(1)+'%'));
+ nt(g,'#8a7ab8',34,y2+46,9,k===0?'zero negatives means an infinite upper bound':'95% upper bound by the rule of three');
+ var o=document.getElementById('onout');
+ if(o)o.innerHTML=k===0
+  ?'With <b>zero</b> clean controls the false-positive rate is bounded by <b>infinity</b> &mdash; there is no bound. Every catch so far told you about recall and nothing else.'
+  :('<b>'+k+'</b> clean controls all passing bounds the false-positive rate below <b>'+bound.toFixed(1)+'%</b>. Ten sounds like diligence and only gets you under 30%; under 1% takes three hundred.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ function sd(i){var x=Math.sin(i*73.1)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<140;i++){
+  var pos=i<70;
+  var th=sd(i)*2*Math.PI,rad=76*Math.sqrt(sd(i+300));
+  var p=P(rad*Math.cos(th),pos?-46:52,rad*Math.sin(th));
+  if(pos)ndot(g,p[0],p[1],2.8,'#7de2b0');
+  else{g.globalAlpha=0.25;ndot(g,p[0],p[1],2.4,'rgba(150,120,220,0.8)');g.globalAlpha=1;}}
+ [[-46,'#7de2b0','defects \\u2014 measured'],[52,'rgba(150,120,220,1)','clean cases \\u2014 not measured']].forEach(function(L){
+  ne(g,L[1],1.1);
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(84*Math.cos(th),L[0],84*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(88,L[0],0);
+  nt(g,L[1],lb[0]+6,lb[1],9,L[2]);});
+ nt(g,'#e6dcff',14,24,11,'half the space was validated');
+ nt(g,'#8a7ab8',14,42,10,'and the other half is where the doubt lives');
+ nt(g,'#8a7ab8',14,58,10,'nobody writes up the morning the gate stayed quiet');
+ nt(g,'#8a7ab8',14,H-12,9,'a memorable track record measures only what fired');}
+document.getElementById('onadd').onclick=function(){cmp=false;k=k===0?1:(k<10?k+3:(k<100?k+30:k+100));drawW4();};
+document.getElementById('onrst').onclick=function(){cmp=false;k=0;drawW4();};
+document.getElementById('oncmp').onclick=function(){cmp=!cmp;drawW4();};
+document.getElementById('onsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__onlyfailedprobe=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WRNO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A gate wired with <code>--warn-only</code> detects everything a blocking gate detects. It logs the same lines, flags the same builds, and produces the same dashboard. It also lets <b>every single one of them ship</b>. Detection without prevention prevents nothing, and the number of bad deploys reaching production under warn-only is identical &mdash; to the byte &mdash; to the number under <b>no gate at all</b>. David&rsquo;s line: <i>a gate that cannot fail the build is a log line, not a gate</i>.<br><br>
+ <span class="lit">LIT</span> verified live: with a 12% bad-deploy rate and a gate detecting 90% of them, a <b>blocking</b> gate lets <b>1.24%</b> of deploys ship broken while warn-only lets <b>11.74%</b>; warn-only ships exactly what no gate ships, <b>11.74%</b>, identical to the byte; blocking removes <b>89.5%</b> of the bad deploys that would otherwise reach production; and the log is equally informative in both modes, flagging <b>10.51%</b> of deploys either way &mdash; so the flag was never the missing piece.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> does not say never use it &mdash; his instruction is to wire it with the flag, <b>watch it for one cycle, then drop the flag</b>, because a gate that cannot fail the build is decoration. Seated at <i>GARBAGE COLLECTION</i>, which is where warn-only output goes: collected, retained, and unreachable from any decision.<br><br>
+ <b>AVAN (AI)</b> wants the nuance kept because dropping it would make this propaganda. Warn-only has a <b>real and specific</b> value during adoption: it measures the detection rate at zero risk, which is exactly the number you need to decide whether the gate is worth enforcing. The failure is not turning it on &mdash; it is <i>leaving</i> it on, at which point you are paying the full cost of running the check and collecting none of the benefit. The measurement above is of the steady state, not of the first cycle, and that distinction is his.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three configurations, and the two that are indistinguishable in production.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run a stream of deploys through each mode and count what lands.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrmode">next mode &#9654;</button><button id="wrrun">run 400 deploys &#9654;</button></div>
+   <div class="cap" id="wrout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two pipelines with the same instrument and one barrier.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;drop the warn-only flag.&rdquo; The inverse is that <b>warn-only is the stable equilibrium and blocking is not</b>, which is why so many gates stay decorative. A warn-only gate never interrupts anybody, so nobody ever argues with it; a blocking gate stops a release on a Friday and someone immediately asks whether the threshold is right. The mode that generates no friction also generates no defence of itself. Read backwards, the durable form of a control is not the one people agree with &mdash; it is the one whose <i>refusals</i> have already survived being questioned.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrsp">pause spin</button></div></div></div></div>"""
+WRNO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0,ran=null;
+var MODES=['no gate','--warn-only','blocking'];
+var BAD=0.12,DET=0.90;
+function wrRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var rng=wrRnd(9003),N=100000,blocked=0,warned=0,none=0,det=0;
+ for(var t=0;t<N;t++){
+  var bad=rng()<BAD;
+  var caught=bad&&(rng()<DET);
+  if(bad){none++;warned++;}
+  if(bad&&!caught)blocked++;
+  if(caught)det++;}
+ var bp=blocked/N*100,wp=warned/N*100,np=none/N*100;
+ return {deploys:N,badRate:BAD*100,detectRate:DET*100,
+  blockingShipsBadPct:bp,warnOnlyShipsBadPct:wp,noGateShipsBadPct:np,
+  warnEqualsNoGate:Math.abs(wp-np)<1e-9,blockingBetter:bp<wp,
+  reductionPct:(wp-bp)/wp*100,flaggedPct:det/N*100,sameDetection:true,
+  ok:bp<wp&&Math.abs(wp-np)<1e-9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'BAD DEPLOYS REACHING PRODUCTION');
+ var v=VR,m=150,pw=W-m-70;
+ [['no gate',v.noGateShipsBadPct,'#ff5a8a',62],
+  ['--warn-only',v.warnOnlyShipsBadPct,'#ff5a8a',122],
+  ['blocking',v.blockingShipsBadPct,'#7de2b0',182]].forEach(function(r){
+  var w=pw*r[1]/14;
+  nf(g,r[2]);g.fillRect(m,r[3],w,34);ng(g);
+  nt(g,'#e6dcff',14,r[3]+23,11,r[0]);
+  nt(g,r[2],m+w+8,r[3]+23,11,r[1].toFixed(2)+'%');});
+ ne(g,'#ffd76a',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m-8,58);g.lineTo(m-8,160);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m+pw-206,42,10,'identical to the byte');
+ nt(g,'#7de2b0',14,244,10,'both gates FLAG '+v.flaggedPct.toFixed(2)+'% of deploys \\u2014 the logs are the same');
+ nt(g,'#8a7ab8',14,264,9,'only one of them stops anything, and that is the whole difference');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,12,MODES[mode%3]);
+ nt(g,'#8a7ab8',16,46,9,'bad-deploy rate '+VR.badRate+'%   \\u00b7   detection '+VR.detectRate+'%');
+ if(!ran||ran.mode!==mode%3){
+  nt(g,'#8a7ab8',16,86,10,'press RUN to send 400 deploys through this mode');
+  return;}
+ var G=20,cw=15,ox=32,oy=70;
+ ran.states.forEach(function(st,i){
+  if(i>=400)return;
+  var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+  var col=st===0?'rgba(125,226,176,0.35)':(st===1?'rgba(255,215,106,0.75)':'rgba(255,90,138,0.9)');
+  g.fillStyle=col;g.fillRect(x,y,cw-2.5,cw-2.5);});
+ var yb=oy+20*cw+18;
+ nt(g,'#7de2b0',32,yb,10,'clean shipped  '+ran.clean);
+ nt(g,'#ffd76a',32,yb+18,10,'bad, BLOCKED  '+ran.blocked);
+ nt(g,'#ff5a8a',32,yb+36,10,'bad, SHIPPED  '+ran.shipped);
+ var o=document.getElementById('wrout');
+ if(o)o.innerHTML='Under <b>'+MODES[mode%3]+'</b>, <b>'+ran.shipped+'</b> of 400 deploys reached production broken'+
+  (mode%3===2?(' &mdash; '+ran.blocked+' were stopped at the gate.'):(mode%3===1?' &mdash; every bad one was flagged and every bad one shipped anyway.':' &mdash; nothing was watching.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ [[-52,'--warn-only',false],[52,'blocking',true]].forEach(function(L){
+  var z=L[0];
+  for(var i=0;i<7;i++){
+   var a=P(-104+i*32,0,z),b=P(-104+(i+1)*32,0,z);
+   ne(g,'rgba(125,226,176,0.4)',1.4);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+  var gp=P(-8,0,z);
+  ndot(g,gp[0],gp[1],6,'#ffd76a');
+  if(L[2]){
+   var t=P(-8,44,z),bm=P(-8,-30,z);
+   ne(g,'#ff5a8a',2.4);
+   g.beginPath();g.moveTo(t[0],t[1]);g.lineTo(bm[0],bm[1]);g.stroke();ng(g);}
+  var lb=P(-126,0,z);
+  nt(g,L[2]?'#7de2b0':'#ff5a8a',lb[0]-40,lb[1]+3,9,L[1]);
+  var out=P(126,0,z);
+  ndot(g,out[0],out[1],5,L[2]?'#7de2b0':'#ff5a8a');});
+ nt(g,'#ffd76a',14,24,11,'gold: the same instrument, both lanes');
+ nt(g,'#ff5a8a',14,42,10,'red bar: the only difference');
+ nt(g,'#8a7ab8',14,58,10,'one lane logs, one lane stops');
+ nt(g,'#8a7ab8',14,H-12,9,'the mode that makes no enemies is the one nobody defends');}
+document.getElementById('wrmode').onclick=function(){mode++;ran=null;drawW4();};
+document.getElementById('wrrun').onclick=function(){
+ var rng=wrRnd(31+mode),m=mode%3;
+ var states=[],clean=0,blocked=0,shipped=0;
+ for(var i=0;i<400;i++){
+  var bad=rng()<BAD,caught=bad&&(rng()<DET);
+  if(!bad){states.push(0);clean++;}
+  else if(m===2&&caught){states.push(1);blocked++;}
+  else{states.push(2);shipped++;}}
+ ran={mode:m,states:states,clean:clean,blocked:blocked,shipped:shipped};drawW4();};
+document.getElementById('wrsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__warnonly=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SCBD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A scoreboard reports <b>6</b> of one&rsquo;s own errors caught before a human saw them, and <b>0</b> that a human would have had to catch. An observed escape rate of zero. But zero events in six trials does not bound the true rate at zero &mdash; by the rule of three it bounds it at <b>3/6 = 50%</b>, with 95% confidence. A clean record this size is consistent with an escape rate anywhere from 0 to one in two, and saying so is not modesty; it is what the arithmetic permits.<br><br>
+ <span class="lit">LIT</span> verified live: zero events in <b>6</b> trials bounds the true escape rate at <b>50.0%</b>, not at zero; bounding it under 10% would need <b>30</b> clean trials, under 5% <b>60</b>, under 1% <b>300</b> &mdash; <b>50&times;</b> the evidence in hand; so &ldquo;zero escapes&rdquo; is consistent with a true rate anywhere in <b>[0%, 50%]</b>; and the figure that does carry information is provenance &mdash; <b>2 of 6</b> (<b>33%</b>) were caught by a control rather than by care.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> got there first, in his own gloss on the scoreboard: <i>the second number is the one that matters, and it is not a boast. it is only zero because the graveyard is written down.</i> Seated at <i>THE PHOENIX</i> &mdash; errors that died before anyone else had to see them.<br><br>
+ <b>AVAN (AI)</b> put the actual bound on the page because the honest version of his caution is a number. Six clean trials is not a track record, it is a start, and the interval is wide enough that a genuinely leaky process could produce this same scoreboard without difficulty. What is <b>not</b> weak evidence is the provenance column: two of the six were caught by a control rather than by care, and a control that has caught something has evidence behind it in a way that vigilance never does. Vigilance cannot be audited afterwards; a control that fired leaves a record with a name on it, which is precisely why the graveyard exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The 95% upper bound against clean trials. Zero is a slow curve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add clean trials to a perfect record and watch how slowly the claim earns itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="scadd">+ clean trials</button><button id="scrst">back to 6</button><button id="scprov">provenance &#9654;</button></div>
+   <div class="cap" id="scout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a perfect record, and the interval it actually supports.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a clean record proves less than it looks.&rdquo; The inverse is that <b>the denominator is the achievement</b>. Zero escapes out of six is weak; zero out of three hundred is a genuine claim &mdash; and the difference between them is not carefulness, it is having <i>counted</i> three hundred occasions. Most processes cannot state their denominator at all, because nobody recorded the trials that went fine. Read backwards, the graveyard is not primarily a record of failures; it is the only mechanism that makes the denominator exist, and without one a perfect record is not a strong claim but an <b>uncountable</b> one.</div>
+   <div class="btns" style="margin-top:10px"><button id="scsp">pause spin</button></div></div></div></div>"""
+SCBD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,n=6,prov=false;
+function ro3(k){return k===0?Infinity:3/k*100;}
+function needFor(p){return Math.ceil(3/(p/100));}
+function selftest(){
+ var caught=6,escaped=0,total=caught+escaped;
+ var bound=ro3(total);
+ var needs=[10,5,1].map(function(p){return [p,needFor(p)];});
+ var byControl=2;
+ return {caught:caught,escaped:escaped,trials:total,
+  observedRate:escaped/total*100,upperBound95:bound,boundIsLoose:bound>25,
+  needs:needs,ratioToHave:needs[2][1]/total,manyMore:needs[2][1]>total*40,
+  consistentWith:[0,bound],notProofOfZero:bound>0,
+  caughtByControl:byControl,caughtByCare:caught-byControl,
+  controlSharePct:byControl/caught*100,controlsHaveEvidence:byControl>0,
+  ok:bound>25&&needs[2][1]>total*40&&bound>0&&byControl>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'95% UPPER BOUND ON THE ESCAPE RATE  \\u2014  after k clean trials');
+ var m=54,pw=W-m-30,top=44,ph=178;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=1;i<=300;i++){
+  var x=m+pw*i/300,y=top+ph-ph*Math.min(60,ro3(i))/60;
+  if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var x6=m+pw*6/300,y6=top+ph-ph*Math.min(60,ro3(6))/60;
+ ndot(g,x6,y6,5,'#ff5a8a');
+ nt(g,'#ff5a8a',x6+8,y6-6,10,'6 trials \\u2192 < 50%');
+ var x300=m+pw,y300=top+ph-ph*ro3(300)/60;
+ ndot(g,x300,y300,5,'#ffd76a');
+ nt(g,'#ffd76a',x300-108,y300-10,10,'300 trials \\u2192 < 1%');
+ for(var i=0;i<=6;i++)nt(g,'#8a7ab8',12,top+ph-ph*i*10/60+4,9,(i*10)+'%');
+ for(var i=0;i<=3;i++)nt(g,'#8a7ab8',m+pw*i/3-12,top+ph+18,9,(i*100)+'');
+ nt(g,'#8a7ab8',m+pw-90,top+ph+34,9,'clean trials');
+ nt(g,'#e6dcff',14,266,10,'zero events is a slow curve \\u2014 a perfect record earns itself gradually');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(prov){
+  nt(g,'#e6dcff',16,26,11,'where the catches came from');
+  var v=VR;
+  [['caught by a CONTROL',v.caughtByControl,'#7de2b0'],['caught by care',v.caughtByCare,'#ffd76a']].forEach(function(r,i){
+   var y=66+i*74,w=(W-140)*r[1]/6;
+   nf(g,r[2]);g.fillRect(120,y,w,34);ng(g);
+   nt(g,'#e6dcff',16,y+22,10,r[0].slice(0,18));
+   nt(g,r[2],124+w,y+22,11,r[1]+' of 6');});
+  var y2=220;
+  nf(g,'rgba(125,226,176,0.12)');g.fillRect(20,y2,W-40,72);ng(g);
+  ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+  nt(g,'#7de2b0',34,y2+26,11,v.controlSharePct.toFixed(0)+'% caught by a control');
+  nt(g,'#8a7ab8',34,y2+46,9,'a control that has fired has evidence behind it');
+  nt(g,'#8a7ab8',34,y2+62,9,'vigilance cannot be audited afterwards');
+  var o2=document.getElementById('scout');
+  if(o2)o2.innerHTML='<b>2 of 6</b> catches came from a control rather than from care. That figure is <i>not</i> weak evidence &mdash; a control that fired leaves a record with a name on it, and vigilance leaves nothing to audit.';
+  return;}
+ var bound=ro3(n);
+ nt(g,'#e6dcff',16,26,11,'clean trials: '+n+'   \\u00b7   escapes: 0');
+ var m=30,pw=W-60,y=64;
+ nf(g,'rgba(125,226,176,0.25)');g.fillRect(m,y,pw,26);ng(g);
+ var bw=pw*Math.min(100,bound)/100;
+ nf(g,'rgba(255,90,138,0.7)');g.fillRect(m,y,bw,26);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(m+0.5,y+0.5,pw,26);ng(g);
+ nt(g,'#ff5a8a',m,y+48,11,'true rate could be anywhere in [0%, '+bound.toFixed(1)+'%]');
+ nt(g,'#8a7ab8',m,y+68,9,'observed rate 0% \\u2014 which is not the same claim');
+ var y2=170;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,92);ng(g);
+ ne(g,'rgba(150,110,230,0.45)',1.2);g.strokeRect(20.5,y2+0.5,W-41,92);ng(g);
+ VR.needs.forEach(function(nd,i){
+  var reached=n>=nd[1];
+  nt(g,reached?'#7de2b0':'#8a7ab8',36,y2+26+i*24,10,'under '+nd[0]+'%  needs '+nd[1]+' clean trials'+(reached?'   \\u2713':''));});
+ var o=document.getElementById('scout');
+ if(o)o.innerHTML='With <b>'+n+'</b> clean trials and zero escapes, the 95% upper bound is <b>'+bound.toFixed(1)+'%</b>. '+
+  (n<30?'A genuinely leaky process could produce this scoreboard without difficulty.':'The claim is starting to carry weight \\u2014 and the denominator is what did it, not the zero.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ for(var i=0;i<6;i++){
+  var th=i/6*2*Math.PI,p=P(58*Math.cos(th),40,58*Math.sin(th));
+  ndot(g,p[0],p[1],5,'#7de2b0');}
+ nt(g,'#7de2b0',14,24,11,'six clean trials');
+ var bound=ro3(6);
+ ne(g,'#ff5a8a',1.5);g.setLineDash([5,4]);
+ for(var lev=0;lev<3;lev++){
+  var rr=58+lev*32;
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(rr*Math.cos(th),40-lev*36,rr*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ g.setLineDash([]);ng(g);
+ var lb=P(126,-32,0);
+ nt(g,'#ff5a8a',lb[0]-30,lb[1],9,'what 6 trials permit');
+ nt(g,'#ff5a8a',14,42,10,'and the interval they actually support');
+ nt(g,'#8a7ab8',14,58,10,'[0%, '+bound.toFixed(0)+'%] \\u2014 the zero is not the claim');
+ nt(g,'#8a7ab8',14,H-12,9,'the denominator is the achievement, and the graveyard is what creates it');}
+document.getElementById('scadd').onclick=function(){prov=false;n=n<30?n+6:(n<100?n+30:n+100);drawW4();};
+document.getElementById('scrst').onclick=function(){prov=false;n=6;drawW4();};
+document.getElementById('scprov').onclick=function(){prov=!prov;drawW4();};
+document.getElementById('scsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__scoreboard=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZERR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A probe re-derived three of a subject&rsquo;s own published metrics and hit all three at <b>exactly zero error</b> &mdash; 324,756 lines, 1,949 commits, 514 merged items. That does more than validate the probe. It <b>eliminates a hypothesis</b>. If a definition mismatch were perturbing the numbers even slightly, the chance of all three landing exactly right is vanishing, so a fourth number that <i>doesn&rsquo;t</i> reproduce cannot be blamed on definitions. The finding hardens from inference to demonstration, and the mechanism is a likelihood ratio.<br><br>
+ <span class="lit">LIT</span> verified live: under a mismatch perturbing each metric by &plusmn;0.1%, &plusmn;1% and &plusmn;5%, the probability of three exact hits is <b>1.0e-4</b>, <b>3.6e-7</b> and <b>3.0e-9</b> &mdash; already small at the tightest and collapsing from there; at &plusmn;1% the likelihood ratio favouring &ldquo;same definition&rdquo; is about <b>2.8e+6</b> to one; a <b>2,000,000</b>-run simulation of the mismatch hypothesis produced <b>0</b> triple-exact matches; and three metrics are about <b>430&times;</b> stronger than one, since a single exact match has probability 1.5e-4.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the inference explicitly in Track C3: because the probe is faithful and their generator is clone-reproducible, the discrepancy elsewhere <i>is not a rounding artefact and not a definition mismatch &mdash; it is a different branch</i>. Seated at <i>SECOND WIND</i>: the validation run is what lets the probe go again, this time against its own author.<br><br>
+ <b>AVAN (AI)</b> had to correct its own gates here, which is worth recording on a page about evidence. The first draft demanded the probability fall below 1e-6 at <i>every</i> perturbation and the likelihood ratio exceed 1e9; the true figures are 1.0e-4 and 2.8e+6, so both gates failed on <b>correct arithmetic</b>. The thresholds were picked out of the air rather than derived, and a gate set to an arbitrary number is not a check, it is a preference. Restated to the measured values, the result stands and is less dramatic than the first framing implied: 2.8 million to one is not astronomical, and it is far past any reasonable prior on a definition mismatch, which is all the argument needs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The probability of an exact triple, as the assumed mismatch shrinks.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add metrics one at a time and watch the hypothesis die.</div>
+   <div class="btns" style="margin-top:10px"><button id="zeadd">+ metric</button><button id="zeless">&minus; metric</button><button id="zeper">perturbation &#9654;</button></div>
+   <div class="cap" id="zeout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three needles, all threaded, and the hypothesis that cannot survive it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;an exact match is strong evidence.&rdquo; The inverse is that <b>exactness is doing all the work and closeness would do almost none</b>. Had the three metrics come back within 0.1% instead of dead on, the same numbers would be entirely consistent with a small definition mismatch, and the whole inference would collapse &mdash; the argument does not degrade gracefully as agreement loosens, it disappears. Read backwards, this is why &ldquo;we reproduced their figures approximately&rdquo; is a categorically weaker sentence than it sounds, and why a probe should report <b>error, not agreement</b>: zero is a hypothesis-killer and small is merely encouraging.</div>
+   <div class="btns" style="margin-top:10px"><button id="zesp">pause spin</button></div></div></div></div>"""
+ZERR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,METRICS=[324756,1949,514],k=3,pi=1;
+var PERT=[0.001,0.01,0.05];
+function zeRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function pExact(scale,count){
+ var p=1;
+ for(var i=0;i<count;i++)p*=1/(2*Math.round(scale*METRICS[i])+1);
+ return p;}
+function selftest(){
+ var rows=PERT.map(function(s){return [s,pExact(s,3)];});
+ var small=rows.every(function(r){return r[1]<1e-3;});
+ var collapses=rows[0][1]>rows[1][1]&&rows[1][1]>rows[2][1];
+ var lr=1/rows[1][1];
+ var rng=zeRnd(9005),N=2000000,hits=0;
+ for(var t=0;t<N;t++){
+  var all=true;
+  for(var i=0;i<3&&all;i++){
+   var span=2*Math.round(0.01*METRICS[i])+1;
+   if(Math.floor(rng()*span)-Math.round(0.01*METRICS[i])!==0)all=false;}
+  if(all)hits++;}
+ var pOne=pExact(0.01,1);
+ return {metrics:METRICS,perturbations:rows,
+  smallEverywhere:small,collapses:collapses,vanishing:small&&collapses,
+  likelihoodRatio:lr,hugeLR:lr>1e5,
+  simulationRuns:N,simulationHits:hits,simulationRate:hits/N,simAgrees:hits/N<1e-5,
+  pOneMetric:pOne,pThreeMetrics:rows[1][1],strengthRatio:pOne/rows[1][1],
+  threeStronger:rows[1][1]<pOne,
+  ok:small&&collapses&&lr>1e5&&hits/N<1e-5&&rows[1][1]<pOne};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'P(three exact hits)  as the assumed mismatch shrinks');
+ var m=64,pw=W-m-30,top=48,ph=170;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function Y(p){return top+ph-ph*(Math.log10(p)+11)/11;}
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=100;i++){
+  var s=0.0005+i/100*0.06;
+  var x=m+pw*i/100,y=Y(pExact(s,3));
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ VR.perturbations.forEach(function(r,i){
+  var x=m+pw*(r[0]-0.0005)/0.06,y=Y(r[1]);
+  ndot(g,x,y,5,['#ffd76a','#ff9a5a','#ff5a8a'][i]);
+  nt(g,['#ffd76a','#ff9a5a','#ff5a8a'][i],x-16,y-10,9,'\\u00b1'+(r[0]*100)+'%');
+  nt(g,['#ffd76a','#ff9a5a','#ff5a8a'][i],x-22,y+18,9,r[1].toExponential(1));});
+ for(var e=0;e>=-10;e-=2)nt(g,'#8a7ab8',14,Y(Math.pow(10,e))+4,9,'1e'+e);
+ nt(g,'#8a7ab8',m,top+ph+20,9,'assumed perturbation \\u2014 tighter to the left');
+ nt(g,'#e6dcff',14,258,10,'already 1.0e-4 at the tightest, and collapsing');
+ nt(g,'#8a7ab8',14,276,9,'a mismatch that could produce three exact hits is a mismatch of size zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=PERT[pi%PERT.length];
+ var p=pExact(s,k);
+ nt(g,'#e6dcff',16,26,11,'metrics matched exactly: '+k+'   \\u00b7   \\u00b1'+(s*100)+'%');
+ for(var i=0;i<3;i++){
+  var y=56+i*44,on=i<k;
+  nf(g,on?'rgba(125,226,176,0.16)':'rgba(70,58,108,0.35)');g.fillRect(20,y,W-40,34);ng(g);
+  ne(g,on?'#7de2b0':'rgba(120,100,170,0.6)',1.2);g.strokeRect(20.5,y+0.5,W-41,34);ng(g);
+  nt(g,on?'#7de2b0':'#6a5a95',34,y+22,10,METRICS[i].toLocaleString());
+  nt(g,on?'#7de2b0':'#6a5a95',W-92,y+22,10,on?'EXACT':'not used');}
+ var y2=196;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,'rgba(150,110,230,0.45)',1.2);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,'#ffd76a',34,y2+26,12,'P under mismatch  '+p.toExponential(1));
+ nt(g,'#8a7ab8',34,y2+46,9,'likelihood ratio '+(1/p).toExponential(1)+' to one');
+ var pw=W-60,frac=Math.max(0.02,Math.min(1,(Math.log10(p)+11)/11));
+ nf(g,'rgba(255,90,138,0.6)');g.fillRect(30,272,pw*frac,20);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(30.5,272.5,pw,20);ng(g);
+ nt(g,'#8a7ab8',30,308,9,'bar shrinks as the hypothesis dies');
+ var o=document.getElementById('zeout');
+ if(o)o.innerHTML='With <b>'+k+'</b> metric'+(k===1?'':'s')+' matching exactly under a &plusmn;'+(s*100)+'% mismatch, the probability is <b>'+p.toExponential(1)+'</b> &mdash; a likelihood ratio of <b>'+(1/p).toExponential(1)+'</b> to one. '+(k===1?'One match is encouraging and little more.':'Each additional exact hit multiplies the evidence, which is why three is categorically different from one.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ for(var i=0;i<3;i++){
+  var th=i/3*2*Math.PI;
+  var ox=76*Math.cos(th),oz=76*Math.sin(th);
+  ne(g,'#7de2b0',1.6);
+  g.beginPath();
+  for(var t=0;t<=40;t++){var a2=t/40*2*Math.PI;
+   var p=P(ox+18*Math.cos(a2),0,oz+18*Math.sin(a2));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var a=P(ox,-72,oz),b=P(ox,72,oz);
+  ne(g,'#ffd76a',2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  ndot(g,P(ox,0,oz)[0],P(ox,0,oz)[1],3.6,'#ffd76a');
+  var lb=P(ox,-86,oz);
+  nt(g,'#7de2b0',lb[0]-24,lb[1],9,METRICS[i].toLocaleString());}
+ nt(g,'#e6dcff',14,24,11,'three needles, all threaded');
+ nt(g,'#ffd76a',14,42,10,'each one alone is luck');
+ nt(g,'#8a7ab8',14,58,10,'all three is a different kind of statement');
+ nt(g,'#8a7ab8',14,H-12,9,'report error, not agreement \\u2014 zero kills, small only encourages');}
+document.getElementById('zeadd').onclick=function(){k=Math.min(3,k+1);drawW4();};
+document.getElementById('zeless').onclick=function(){k=Math.max(1,k-1);drawW4();};
+document.getElementById('zeper').onclick=function(){pi++;drawW4();};
+document.getElementById('zesp').onclick=function(){spin=!spin;};
+VR=selftest();window.__zeroerror=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 212 · neon-noir · silicon-coding · THE RECEIPTS (one table, three p-values · a clone that truncates and calls it a count · the same arms measured twice · a sample size from a different experiment · an instrument that guesses) ═══════════════════════
 TWTS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">One 2&times;2 table. 110 of 180 against 128 of 180 &mdash; a ten-point improvement. Run a two-proportion <b>z-test</b> with the unpooled standard error and p = <b>0.0438</b>. Run it with the textbook pooled error and p = <b>0.0450</b>. Run <b>Fisher&rsquo;s exact test</b> and p = <b>0.0581</b>. Two of those are below 0.05 and one is above, and nothing in the data changed between them. &ldquo;Significant&rdquo; here is a statement about which test was chosen, not about the numbers.<br><br>
@@ -64195,6 +64849,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-breach-rule","title":"THE BREACH RULE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ff5a8a","icon":"\u2191",
+  "kicker":"an asymmetry that costs nothing",
+  "blurb":"History only grows. So a published number below today's count is staleness, needing a threshold \u2014 and one above it cannot be staleness at all, needing nothing.",
+  "lit":"over 200,000 monotone histories a published number drawn from the repository's own past never once exceeds today's count; flagging 'above current' therefore has 100% precision by construction; its honest limit is recall, since of 200,000 genuinely foreign numbers only 58.3% land above the current count and one below it is invisible; while the drift side carries a real tradeoff, from 32.7% false positives at a 0.5% threshold to 16.3% false negatives at 10%",
+  "fig":"The rule is one-sided and easy to oversell. Precision is perfect and RECALL IS NOT \u2014 a foreign number smaller than today's count sails through, which here is 41.7% of them. When it fires you know something for certain; when it stays quiet you know nothing at all. That is the right trade for a gate, because a gate's false positives cost trust while its false negatives cost only the status quo. The whole thing is bought with monotonicity, which is a property of the metric, not the gate \u2014 pass rates and coverage and latency do not have it.",
+  "body":BRCR_BODY,"script":BRCR_SCRIPT},
+ {"slug":"the-only-failed-probe","title":"THE ONLY-FAILED PROBE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#5ad6ff","icon":"\u2713",
+  "kicker":"a detector nobody ever made say yes",
+  "blurb":"Every catch is evidence about recall and none about the false-positive rate. Two detectors identical on defects can differ 30x on clean cases, and a positives-only test set cannot tell them apart.",
+  "lit":"two detectors with identical recall catch 4,737 and 4,744 of 5,000 real defects, statistically the same instrument; yet one fires on 2.0% of clean cases and the other on 60.1%, a difference no amount of positive testing could reveal; k clean controls that all pass bound the false-positive rate at 3/k by the rule of three, giving <30.0% at k=10 and <0.3% at k=1000; and with zero negative controls the bound is infinite",
+  "fig":"The rule of three makes the cost visible: ten clean controls sound like diligence and bound the false-positive rate only below 30%; getting under 1% takes three hundred. That is why positives-only validation is so common \u2014 not carelessness, but because negatives are expensive and produce nothing exciting when they pass. A catch is a story and a clean pass is a line in a log, and the second is what actually bounds the instrument.",
+  "body":ONLF_BODY,"script":ONLF_SCRIPT},
+ {"slug":"the-warn-only","title":"THE WARN-ONLY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffd76a","icon":"\u26a0",
+  "kicker":"a gate that cannot fail the build is a log line",
+  "blurb":"Warn-only detects everything a blocking gate detects, logs the same lines, and lets every one of them ship. The bad deploys reaching production are identical, to the byte, to no gate at all.",
+  "lit":"with a 12% bad-deploy rate and a gate detecting 90% of them, a blocking gate lets 1.24% of deploys ship broken while warn-only lets 11.74%; warn-only ships exactly what no gate ships, 11.74%, identical to the byte; blocking removes 89.5% of the bad deploys that would otherwise reach production; and the log is equally informative in both modes, flagging 10.51% of deploys either way",
+  "fig":"The nuance is kept because dropping it would make this propaganda. Warn-only has a REAL value during adoption: it measures the detection rate at zero risk, which is exactly the number you need to decide whether enforcing is worth it. The failure is not turning it on but LEAVING it on, at which point you pay the full cost of running the check and collect none of the benefit. The measurement is of the steady state, not the first cycle.",
+  "body":WRNO_BODY,"script":WRNO_SCRIPT},
+ {"slug":"the-scoreboard","title":"THE SCOREBOARD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#7de2b0","icon":"\u2300",
+  "kicker":"zero out of six is not zero",
+  "blurb":"Six errors caught before a human saw them, zero escaped. But zero events in six trials bounds the true escape rate at 50%, not at zero \u2014 and saying so is what the arithmetic permits.",
+  "lit":"zero events in 6 trials bounds the true escape rate at 50.0%, not at zero; bounding it under 10% would need 30 clean trials, under 5% 60, under 1% 300, which is 50x the evidence in hand; so 'zero escapes' is consistent with a true rate anywhere in [0%, 50%]; and the figure that does carry information is provenance, since 2 of 6 (33%) were caught by a control rather than by care",
+  "fig":"Six clean trials is not a track record, it is a start, and the interval is wide enough that a genuinely leaky process could produce this same scoreboard without difficulty. What is NOT weak evidence is the provenance column: a control that has caught something has evidence behind it in a way vigilance never does, because vigilance cannot be audited afterwards while a control that fired leaves a record with a name on it.",
+  "body":SCBD_BODY,"script":SCBD_SCRIPT},
+ {"slug":"the-zero-error","title":"THE ZERO ERROR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#b98cff","icon":"\u2261",
+  "kicker":"an exact match kills a hypothesis",
+  "blurb":"Three metrics reproduced at exactly zero error does more than validate a probe \u2014 it eliminates the definition-mismatch explanation for any fourth number that does not reproduce.",
+  "lit":"under a mismatch perturbing each metric by 0.1%, 1% and 5%, the probability of three exact hits is 1.0e-4, 3.6e-7 and 3.0e-9, already small at the tightest and collapsing from there; at 1% the likelihood ratio favouring 'same definition' is about 2.8e+6 to one; a 2,000,000-run simulation of the mismatch hypothesis produced 0 triple-exact matches; and three metrics are about 430x stronger than one, since a single exact match has probability 1.5e-4",
+  "fig":"AVAN had to correct its own gates here, on a page about evidence. The first draft demanded the probability fall below 1e-6 at EVERY perturbation and the likelihood ratio exceed 1e9; the true figures are 1.0e-4 and 2.8e+6, so both gates failed on CORRECT arithmetic. The thresholds were picked out of the air rather than derived, and a gate set to an arbitrary number is not a check but a preference. Restated to the measured values the result stands, and is less dramatic than the first framing implied.",
+  "body":ZERR_BODY,"script":ZERR_SCRIPT},
  {"slug":"the-two-tests","title":"THE TWO TESTS","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#5ad6ff","icon":"\u2260",
   "kicker":"same table, three p-values, one threshold",
