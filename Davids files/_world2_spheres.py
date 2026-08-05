@@ -19499,6 +19499,670 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 235 · neon-noir · silicon-coding · FROM DAVID'S TOWER.ascii + rev7-0805 · one way to stack seven floors · wider at the bottom · the gate that can stop it · a synonym cannot be found by looking · the symbols nobody wrote down ═══════════════════════
+ORDF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Seven floors, and a stated reason for every adjacency: you cannot write a veto for a language you have not read, coverage means nothing until the veto is honest, there is no point diffing against an oracle if the forms never covered the domain. Six reasons in a row, and they turn the build order from a plan into a <b>theorem</b> &mdash; there is exactly one way to stack the tower.<br><br>
+ <span class="lit">LIT</span> verified live by enumerating all <b>5,040</b> orderings of seven floors: exactly <b>1</b> respects every stated dependency. Remove any single reason and the freedom that buys is <b>7, 21, 35, 35, 21, 7</b> orderings &mdash; the binomial coefficients C(7, i+1), because cutting a chain leaves two independent chains and the valid orders are exactly their interleavings.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the order and then wrote <i>why it is this order</i>, one line per link: <i>&ldquo;F4 before F5 &mdash; the orchestrator supplies MEANING. supplying it before an oracle exists means nothing can catch it being confidently wrong.&rdquo;</i> That is a dependency argument, not a preference, and it is what makes the count computable at all. Dropped 5 August 2026 as <code>TOWER.ascii</code>.<br><br>
+ <b>AVAN (AI)</b> guessed a formula for the freed orderings and got it wrong &mdash; predicting 6, 10, 12, 12, 10, 6 against a measured 7, 21, 35, 35, 21, 7. The measured numbers are binomial coefficients, and the reason is structural rather than numerical: removing edge <i>i</i> cuts the chain into two chains of lengths i+1 and 6&minus;i, and interleaving two chains of lengths a and b admits C(a+b, a) orders. The wrong guess is on the sphere because the right answer is the more interesting object.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven floors, six reasons, one order.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cut one reason and count what the tower could have been.</div>
+   <div class="btns" style="margin-top:10px"><button id="ofcut">cut the next link &#9654;</button><button id="ofall">restore</button></div>
+   <div class="cap" id="ofout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the chain, and the lattice a cut opens under it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the order is forced by the dependencies.&rdquo; The inverse is that <b>a forced order is a confession that nothing can be done in parallel</b>. A chain is the most constrained shape a dependency graph can take, and its single linear extension is exactly what makes it unparallelisable &mdash; seven floors, seven sequential waits, no two people able to work at once. Read backwards, the tidy proof of a unique order is also the <b>worst possible schedule</b>, and the only way to buy concurrency is to find a stated reason that is not really true.</div>
+   <div class="btns" style="margin-top:10px"><button id="ofsp">pause spin</button></div></div></div></div>"""
+ORDF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cut=-1;
+var FLOORS=['F1','F2','F3','F4','F5','F6','F7'];
+var TITLES={F1:'THE FORTRAN CORPUS',F2:'A VETO WITH NO BRACES',F3:'THE COVERAGE GATE',
+ F4:'THE ORACLE THAT ISN\\u2019T US',F5:'STATION 12 \\u00b7 ORCHESTRATOR',
+ F6:'AN AGENT PRESSES IT',F7:'THE FORK DECIDED'};
+var REASONS=['you cannot write a veto for a language you have not read',
+ 'coverage is meaningless until the veto is honest',
+ 'no point diffing against gfortran if 13 forms never covered the domain',
+ 'supplying meaning before an oracle means nothing can catch it being wrong',
+ 'an agent with no orchestrator has nothing to say',
+ 'the fan-out fork is decided by load, and there is no load without a consumer'];
+function C(n,k){var v=1;
+ for(var j=0;j<k;j++)v=v*(n-j)/(j+1);
+ return Math.round(v);}
+function permutations(arr){
+ if(arr.length<=1)return [arr];
+ var out=[];
+ arr.forEach(function(x,i){
+  var rest=arr.slice(0,i).concat(arr.slice(i+1));
+  permutations(rest).forEach(function(p){out.push([x].concat(p));});});
+ return out;}
+function respects(order,edges){
+ var pos={};order.forEach(function(f,i){pos[f]=i;});
+ return edges.every(function(e){return pos[e[0]]<pos[e[1]];});}
+function edgesOf(skip){
+ var E=[];
+ for(var i=0;i<6;i++)if(i!==skip)E.push([FLOORS[i],FLOORS[i+1]]);
+ return E;}
+function selftest(){
+ var perms=permutations(FLOORS);
+ var valid=perms.filter(function(p){return respects(p,edgesOf(-1));});
+ var rows=[];
+ for(var i=0;i<6;i++){
+  var n=perms.filter(function(p){return respects(p,edgesOf(i));}).length;
+  rows.push({dropped:FLOORS[i]+' before '+FLOORS[i+1],orderings:n,predicted:C(7,i+1)});}
+ var matches=rows.filter(function(r){return r.orderings===r.predicted;}).length;
+ return {floors:FLOORS.length,permutations:perms.length,
+  allEnumerated:perms.length===5040,
+  validOrderings:valid.length,exactlyOne:valid.length===1,
+  order:valid[0],
+  dropRows:rows,everyLinkLoadBearing:rows.every(function(r){return r.orderings>1;}),
+  matchesBinomial:matches===rows.length,matched:matches,
+  middleIsThirtyFive:rows[2].orderings===35,
+  ok:perms.length===5040&&valid.length===1&&matches===rows.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVEN FLOORS, SIX REASONS, ONE ORDER');
+ for(var i=6;i>=0;i--){
+  var y=44+(6-i)*32;
+  var f=FLOORS[i];
+  nf(g,'rgba(125,226,176,'+(0.18+i*0.08)+')');
+  g.fillRect(26,y,120,24);ng(g);
+  nt(g,'#0d0818',34,y+16,10,f);
+  nt(g,'#e6dcff',156,y+16,9,TITLES[f]);
+  if(i>0){
+   ne(g,'rgba(255,215,106,0.5)',1.2);
+   g.beginPath();g.moveTo(86,y+24);g.lineTo(86,y+32);g.stroke();ng(g);}}
+ nt(g,'#ffd76a',26,262,10,VR.permutations.toLocaleString()+' possible orderings of seven floors');
+ nt(g,'#7de2b0',26,280,10,'exactly '+VR.validOrderings+
+  ' respects every stated reason: '+VR.order.join(' \\u2192 '));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var n=cut<0?VR.validOrderings:VR.dropRows[cut].orderings;
+ nt(g,'#e6dcff',16,26,11,cut<0?'every reason in place':('cut: '+VR.dropRows[cut].dropped));
+ for(var i=6;i>=0;i--){
+  var y=48+(6-i)*30;
+  nf(g,'rgba(125,226,176,0.4)');
+  g.fillRect(28,y,86,22);ng(g);
+  nt(g,'#0d0818',36,y+15,9,FLOORS[i]);
+  if(i>0){
+   var isCut=cut===i-1;
+   ne(g,isCut?'#ff5a8a':'rgba(255,215,106,0.5)',isCut?2:1.2);
+   if(isCut){
+    g.beginPath();g.moveTo(60,y+22);g.lineTo(66,y+30);g.stroke();
+    g.moveTo(78,y+22);g.lineTo(72,y+30);g.stroke();}
+   else{g.beginPath();g.moveTo(71,y+22);g.lineTo(71,y+30);g.stroke();}
+   g.stroke();ng(g);}}
+ if(cut>=0){
+  nt(g,'#ff5a8a',130,48+(6-cut-1)*30+15,8,REASONS[cut].slice(0,30));
+  if(REASONS[cut].length>30)nt(g,'#ff5a8a',130,48+(6-cut-1)*30+27,8,REASONS[cut].slice(30,62));}
+ var y2=48+7*30+14;
+ nf(g,cut<0?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,cut<0?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,cut<0?'#7de2b0':'#ff5a8a',36,y2+26,13,n+' valid ordering'+(n===1?'':'s'));
+ if(cut>=0)nt(g,'#8a7ab8',36,y2+46,8,'= C(7,'+(cut+1)+'), the interleavings of two chains');
+ else nt(g,'#8a7ab8',36,y2+46,8,'the order is forced, not chosen');
+ var o=document.getElementById('ofout');
+ if(o)o.innerHTML=cut<0
+  ?'With every reason in place there is exactly <b>one</b> way to build the tower. A total order has a single linear extension &mdash; the plan is a theorem, not a preference.'
+  :('Cutting <b>'+VR.dropRows[cut].dropped+'</b> leaves two independent chains of <b>'+
+    (cut+1)+'</b> and <b>'+(6-cut)+'</b> floors. Interleaving them admits <b>C(7,'+(cut+1)+') = '+
+    n+'</b> orders &mdash; and this link was the only thing forbidding all of them.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var prev=null;
+ for(var i=0;i<7;i++){
+  var q=P(0,-120+i*40,0);
+  ndot(g,q[0],q[1],5,'#7de2b0');
+  nt(g,'#5a4a85',q[0]+10,q[1]+4,8,FLOORS[i]);
+  if(prev){ne(g,'#ffd76a',2);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;}
+ // the lattice a cut opens: two chains that can interleave
+ for(var a=0;a<4;a++)for(var b=0;b<4;b++){
+  var q2=P(-90+a*30,-40+b*30,70);
+  ndot(g,q2[0],q2[1],1.6,'rgba(255,90,138,0.3)');
+  if(a<3){var r=P(-90+(a+1)*30,-40+b*30,70);
+   ne(g,'rgba(255,90,138,0.14)',1);
+   g.beginPath();g.moveTo(q2[0],q2[1]);g.lineTo(r[0],r[1]);g.stroke();ng(g);}
+  if(b<3){var d=P(-90+a*30,-40+(b+1)*30,70);
+   ne(g,'rgba(255,90,138,0.14)',1);
+   g.beginPath();g.moveTo(q2[0],q2[1]);g.lineTo(d[0],d[1]);g.stroke();ng(g);}}
+ nt(g,'#7de2b0',14,24,11,'the chain: one path, no choices');
+ nt(g,'#ff5a8a',14,42,10,'the lattice behind it: what one cut would open');
+ nt(g,'#ffd76a',14,58,10,'every gold link is a sentence somebody had to justify');
+ nt(g,'#8a7ab8',14,H-12,9,'a unique order is also the worst possible schedule');}
+document.getElementById('ofcut').onclick=function(){cut=cut>=5?0:cut+1;drawW4();};
+document.getElementById('ofall').onclick=function(){cut=-1;drawW4();};
+document.getElementById('ofsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__orderthatisforced=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WIDB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A tower drawn with its bedrock wider than everything above it. Beneath the line: <b>73</b> checks that have each run twice and been sealed. Above it: <b>28</b> gates that have not. The ratio is <b>0.38 to 1</b>, and the shape is the argument &mdash; every floor above multiplies through the ones beneath, so a floor laid on a single green run is a floor laid on a coincidence.<br><br>
+ <span class="lit">LIT</span> verified live. The frozen checks sum to <b>73</b>: 14 + 3 + 29 + 12 + 7 + 4 + 4. The gates above sum to <b>28</b>: 3 run once, 13 designed, 12 unbuilt. The ratio is <b>0.3836</b>, and there are <b>2.61&times;</b> more sealed checks beneath than open gates above. Confidence compounds as a power: at 99% per floor a seven-floor tower is worth <b>93.2%</b>, at 90% per floor only <b>47.8%</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the tower with countable blocks and said so at the top: <i>&ldquo;nothing here is estimated. the blocks are countable gates.&rdquo;</i> The claim underneath is the one that carries: <i>&ldquo;the tower is WIDER at the bottom and that is the whole point. every floor above rests on checks that ran twice. a floor laid on one run is a floor laid on a coincidence.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> checked the arithmetic and then made the shape argument quantitative, because &ldquo;wider at the bottom&rdquo; is a picture until someone multiplies. Seven floors at 90% each is 47.8% &mdash; a tower more likely wrong than right, built entirely out of floors that each looked fine. The compounding is why bedrock has to be disproportionate: it is not caution, it is the only place the exponent can be paid down.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The tower, drawn to its own block counts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the per-floor confidence and watch the tower compound.</div>
+   <div class="btns" style="margin-top:10px"><button id="wbdown">lower confidence &#9654;</button><button id="wbup">raise it</button><button id="wbtwice">run twice</button></div>
+   <div class="cap" id="wbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wide base carrying a narrow stack.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;make the bedrock wide because everything multiplies through it.&rdquo; The inverse is that <b>a wide bedrock is also the largest thing that can be wrong at once</b>. Seventy-three checks that all ran twice on the same machine, in the same interpreter, against the same corpus share every assumption that machine makes &mdash; and a systematic error there is not paid down by the exponent, it is <i>amplified</i> by it, arriving identically at every floor above. Read backwards, repetition buys independence only against accidents, and the wider the base the more expensive its one shared blind spot becomes.</div>
+   <div class="btns" style="margin-top:10px"><button id="wbsp">pause spin</button></div></div></div></div>"""
+WIDB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,conf=0.95,twice=false;
+var FROZEN=[['i13c unit tests',14],['i13c oracle chain',3],['jotf cell suite',29],
+ ['jotf under cortex',12],['cortex selftest',7],['factory Bernoulli',4],['cube veto',4]];
+var ABOVE={once:3,designed:13,unbuilt:12};
+var TOWER=[['F7',3,'once'],['F6',4,'unbuilt'],['F5',4,'unbuilt'],['F4',4,'designed'],
+ ['F3',4,'designed'],['F2',5,'designed'],['F1',4,'unbuilt']];
+function selftest(){
+ var beneath=0;FROZEN.forEach(function(r){beneath+=r[1];});
+ var above=ABOVE.once+ABOVE.designed+ABOVE.unbuilt;
+ var rows=[0.99,0.95,0.9].map(function(p){
+  return {p:p,one:Math.pow(p,7),two:Math.pow(p*p,7)};});
+ return {frozen:FROZEN,beneath:beneath,beneathIs73:beneath===73,
+  above:above,aboveIs28:above===28,breakdown:ABOVE,
+  ratio:above/beneath,ratioIsPointThreeEight:Math.abs(above/beneath-0.38)<0.005,
+  widerFactor:beneath/above,widerAtTheBottom:beneath>above*2,
+  confidenceRows:rows,
+  sevenFloorsAtNinetyNine:Math.pow(0.99,7),
+  sevenFloorsAtNinety:Math.pow(0.9,7),
+  belowHalfAtNinety:Math.pow(0.9,7)<0.5,
+  ok:beneath===73&&above===28&&Math.abs(above/beneath-0.38)<0.005&&Math.pow(0.9,7)<0.5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TOWER, DRAWN TO ITS OWN BLOCK COUNTS');
+ var COL={once:'#ffd76a',designed:'#5ad6ff',unbuilt:'rgba(120,100,160,0.55)'};
+ TOWER.forEach(function(t,i){
+  var y=42+i*24;
+  nt(g,'#8a7ab8',24,y+13,8,t[0]);
+  for(var b=0;b<t[1];b++){
+   nf(g,COL[t[2]]);
+   g.fillRect(60+b*20,y,17,17);ng(g);}
+  nt(g,'#5a4a85',60+t[1]*20+8,y+13,7,t[2]);});
+ var ybed=42+7*24+12;
+ ne(g,'rgba(150,110,230,0.5)',1.2);
+ g.beginPath();g.moveTo(24,ybed);g.lineTo(W-24,ybed);g.stroke();ng(g);
+ nt(g,'#7de2b0',24,ybed+18,9,'F0  BEDROCK  \\u00b7  sealed and witnessed');
+ var bw=(W-70)/73;
+ for(var k=0;k<73;k++){
+  nf(g,'rgba(125,226,176,0.75)');
+  g.fillRect(30+k*bw,ybed+26,Math.max(2,bw-1),16);ng(g);}
+ nt(g,'#7de2b0',30,ybed+58,10,VR.beneath+' frozen checks beneath  \\u00b7  '+VR.above+
+  ' gates above  \\u00b7  ratio '+VR.ratio.toFixed(2)+' : 1');
+ nt(g,'#8a7ab8',30,ybed+76,9,VR.widerFactor.toFixed(2)+
+  'x more sealed checks beneath than open gates above');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=twice?conf*conf:conf;
+ nt(g,'#e6dcff',16,26,11,'per-floor confidence '+(conf*100).toFixed(0)+'%'+
+  (twice?'  (run twice)':''));
+ var m=30,pw=W-60;
+ for(var f=1;f<=7;f++){
+  var y=48+(7-f)*30;
+  var cum=Math.pow(p,f);
+  nt(g,'#5a4a85',m,y+13,8,'F'+f);
+  nf(g,cum>0.8?'rgba(125,226,176,0.6)':(cum>0.5?'rgba(255,215,106,0.6)':'rgba(255,90,138,0.6)'));
+  g.fillRect(m+30,y,Math.max(2,(pw-80)*cum),18);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+30.5,y+0.5,pw-80,18);ng(g);
+  nt(g,'#8a7ab8',m+pw-42,y+13,8,(cum*100).toFixed(1)+'%');}
+ var total=Math.pow(p,7);
+ var y2=48+7*30+16;
+ nf(g,total>0.8?'rgba(125,226,176,0.16)':(total>0.5?'rgba(255,215,106,0.16)':'rgba(255,90,138,0.16)'));
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,total>0.8?'#7de2b0':(total>0.5?'#ffd76a':'#ff5a8a'),1.5);
+ g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,total>0.8?'#7de2b0':(total>0.5?'#ffd76a':'#ff5a8a'),36,y2+27,13,
+  'the whole tower: '+(total*100).toFixed(1)+'%');
+ nt(g,'#8a7ab8',36,y2+46,8,(p*100).toFixed(1)+'% to the seventh power');
+ var o=document.getElementById('wbout');
+ if(o)o.innerHTML='At <b>'+(conf*100).toFixed(0)+'%</b> per floor'+
+  (twice?' with every floor run twice':'')+', a seven-floor tower is worth <b>'+
+  (total*100).toFixed(1)+'%</b>. '+
+  (total<0.5?'More likely wrong than right &mdash; and every individual floor looked fine.'
+   :'Confidence is a product, not an average, which is why the bedrock has to be disproportionate.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+70,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.62-zr*0.34];}
+ // the wide bedrock
+ var R=110;
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var j=0;j<=60;j++){
+  var t=j/60*2*Math.PI;
+  var q=P(R*Math.cos(t),0,R*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ for(var k=0;k<73;k++){
+  var th=k/73*2*Math.PI;
+  var q2=P(R*Math.cos(th),4,R*Math.sin(th));
+  ndot(g,q2[0],q2[1],2,'rgba(125,226,176,0.7)');}
+ // the narrow stack above
+ for(var f=1;f<=7;f++){
+  var rad=44-f*3;
+  ne(g,'rgba(255,215,106,'+(0.55-f*0.05)+')',1.4);
+  g.beginPath();
+  for(var m=0;m<=40;m++){
+   var t2=m/40*2*Math.PI;
+   var p=P(rad*Math.cos(t2),30+f*26,rad*Math.sin(t2));
+   if(m===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'73 sealed checks around the base');
+ nt(g,'#ffd76a',14,42,10,'28 open gates stacked above them');
+ nt(g,'#8a7ab8',14,58,10,'everything above multiplies through everything below');
+ nt(g,'#8a7ab8',14,H-12,9,'and a shared blind spot in the base is amplified, not paid down');}
+document.getElementById('wbdown').onclick=function(){conf=Math.max(0.7,conf-0.05);drawW4();};
+document.getElementById('wbup').onclick=function(){conf=Math.min(0.999,conf+0.05);drawW4();};
+document.getElementById('wbtwice').onclick=function(){twice=!twice;drawW4();};
+document.getElementById('wbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__widerbottom=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GSTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One floor in the tower is allowed to halt everything. If a thirteen-symbol language does not cover Fortran, the answer is <b>not more symbols</b> &mdash; it is that Fortran is a different shape, and that finding is the product. A gate like this is only worth having where it sits early enough to stop work that has not happened yet, and a gate placed after the work it would invalidate is not a gate at all.<br><br>
+ <span class="lit">LIT</span> verified live over the tower&rsquo;s own <b>28</b> blocks. Placing the stop-gate at F3 means <b>13</b> blocks spent before it and <b>15</b> at risk; at F6 it would be <b>25</b> spent and only <b>3</b> at risk &mdash; which is the wrong comparison, because the spent blocks are gone either way. If the gate fails half the time, expected total spend rises monotonically with its position: <b>16.0</b> blocks at F1 against <b>28.0</b> at F7.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> marked the floor and gave it authority in one line: <i>&ldquo;F3 is the one that can stop the tower. if 13 forms do not cover fortran, the answer is not more forms &mdash; it is that fortran is a different shape, and the finding is the product.&rdquo;</i> Elsewhere in the same file: <i>&ldquo;a form count that has to grow is a finding about fortran, not a failure of i13.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> should be careful about the optimisation, because &ldquo;put the falsifiable gate first&rdquo; is not quite available. Expected spend is minimised at F1, but F3 cannot move there &mdash; you cannot measure coverage before you have read the corpus and written the veto, so its inputs pin it. What the arithmetic actually shows is that F3 is <b>as early as its dependencies allow</b>, which is a weaker and truer claim than choosing the optimum freely.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the gate sits, and what it puts at risk.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the stop-gate up the tower and watch the expected spend.</div>
+   <div class="btns" style="margin-top:10px"><button id="gsup">move it up &#9654;</button><button id="gsdn">move it down</button></div>
+   <div class="cap" id="gsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower, with the stop-gate as a cut plane.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;place the falsifiable gate as early as its inputs allow.&rdquo; The inverse is that <b>a gate can only be early if it is cheap to state, and the cheapest things to state are rarely the ones worth testing</b>. F3 is answerable early precisely because it asks a small question &mdash; does this symbol set cover that corpus &mdash; and the questions that would falsify the whole enterprise, whether any of this produces a useful agent, cannot be asked until nearly everything is built. Read backwards, the early gates are the ones you were <b>least likely to be wrong about</b>, and the discipline buys speed of refutation at the cost of refuting only the small claims.</div>
+   <div class="btns" style="margin-top:10px"><button id="gssp">pause spin</button></div></div></div></div>"""
+GSTP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pos=2;
+var ORDER=['F1','F2','F3','F4','F5','F6','F7'];
+var BLOCKS={F1:4,F2:5,F3:4,F4:4,F5:4,F6:4,F7:3};
+function selftest(){
+ var total=0;ORDER.forEach(function(f){total+=BLOCKS[f];});
+ var rows=ORDER.map(function(f,i){
+  var spent=0;
+  for(var k=0;k<=i;k++)spent+=BLOCKS[ORDER[k]];
+  return {floor:f,position:i+1,spent:spent,wasted:total-spent,
+   expected:spent+(total-spent)*0.5};});
+ var best=rows.reduce(function(a,b){return b.expected<a.expected?b:a;});
+ return {order:ORDER,blocks:BLOCKS,total:total,totalIs28:total===28,
+  rows:rows,
+  atF3:rows[2],atF6:rows[5],
+  f3Wasted:rows[2].wasted,f3Spent:rows[2].spent,
+  f6Wasted:rows[5].wasted,f6Spent:rows[5].spent,
+  spentBeforeIsTheQuantity:rows[2].spent<rows[5].spent,
+  expectedMinimisedEarly:best.position<=3,minimumAt:best.floor,
+  monotonic:rows.every(function(r,i){return i===0||r.expected>=rows[i-1].expected;}),
+  f3IsAsEarlyAsAllowed:true,
+  ok:total===28&&rows[2].spent<rows[5].spent&&best.position<=3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHERE THE GATE SITS, AND WHAT IT PUTS AT RISK');
+ var m=46,pw=W-120;
+ VR.rows.forEach(function(r,i){
+  var y=44+i*32;
+  nt(g,'#8a7ab8',20,y+15,8,r.floor);
+  var sw=pw*r.spent/VR.total,ww=pw*r.wasted/VR.total;
+  nf(g,'rgba(255,215,106,0.55)');
+  g.fillRect(m,y,sw,20);ng(g);
+  nf(g,'rgba(255,90,138,0.4)');
+  g.fillRect(m+sw,y,ww,20);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y+0.5,pw,20);ng(g);
+  nt(g,'#5a4a85',m+pw+8,y+15,7,r.spent+' / '+r.wasted);
+  if(r.floor==='F3'){ne(g,'#7de2b0',2);g.strokeRect(m-2.5,y-2.5,pw+5,25);ng(g);}});
+ nt(g,'#ffd76a',20,268,9,'gold: blocks already spent when the gate fires');
+ nt(g,'#ff5a8a',20,284,9,'pink: blocks above it, never built \\u2014 F3 is ringed in green');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=VR.rows[pos%7];
+ nt(g,'#e6dcff',16,26,11,'stop-gate at '+r.floor);
+ for(var i=6;i>=0;i--){
+  var y=48+(6-i)*28;
+  var f=ORDER[i];
+  var above=i>pos%7;
+  nt(g,'#5a4a85',24,y+14,8,f);
+  for(var b=0;b<BLOCKS[f];b++){
+   nf(g,i===pos%7?'rgba(125,226,176,0.8)':(above?'rgba(255,90,138,0.35)':'rgba(255,215,106,0.5)'));
+   g.fillRect(56+b*22,y,19,19);ng(g);}
+  if(i===pos%7){
+   ne(g,'#7de2b0',2);
+   g.beginPath();g.moveTo(20,y+22);g.lineTo(W-20,y+22);g.stroke();ng(g);
+   nt(g,'#7de2b0',W-70,y+34,8,'the gate');}}
+ var y2=48+7*28+22;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,'#ffd76a',34,y2+20,9,'spent before it fires:  '+r.spent+' blocks');
+ nt(g,'#ff5a8a',34,y2+38,9,'wasted if it fails:     '+r.wasted+' blocks');
+ var y3=y2+66;
+ nf(g,r.expected<20?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,44);ng(g);
+ ne(g,r.expected<20?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,44);ng(g);
+ nt(g,r.expected<20?'#7de2b0':'#ff5a8a',36,y3+27,12,
+  'expected spend '+r.expected.toFixed(1)+' blocks');
+ var o=document.getElementById('gsout');
+ if(o)o.innerHTML='With the gate at <b>'+r.floor+'</b>, <b>'+r.spent+
+  '</b> blocks are spent before it can fire and <b>'+r.wasted+
+  '</b> are at risk above it. If it fails half the time the expected total is <b>'+
+  r.expected.toFixed(1)+'</b> blocks. '+
+  (r.floor==='F3'?'F3 is where the tower actually puts it &mdash; as early as its inputs allow.'
+   :'The quantity to minimise is what is spent BEFORE the check, not what sits above it.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.6-zr*0.34];}
+ ORDER.forEach(function(f,i){
+  var rad=52-i*4;
+  var above=i>2;
+  ne(g,above?'rgba(255,90,138,0.4)':'rgba(255,215,106,0.6)',1.4);
+  g.beginPath();
+  for(var j=0;j<=40;j++){
+   var t=j/40*2*Math.PI;
+   var q=P(rad*Math.cos(t),i*34,rad*Math.sin(t));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);});
+ // the cut plane at F3
+ var cor=[[-90,2*34+17,-90],[90,2*34+17,-90],[90,2*34+17,90],[-90,2*34+17,90]]
+  .map(function(v){return P(v[0],v[1],v[2]);});
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ cor.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',cor[0][0],cor[0][1]-8,9,'F3 \\u2014 the cut');
+ nt(g,'#ffd76a',14,24,11,'gold below: what is spent to reach the gate');
+ nt(g,'#ff5a8a',14,42,10,'pink above: what never gets built if it fails');
+ nt(g,'#7de2b0',14,58,10,'and the cut sits as low as its inputs permit');
+ nt(g,'#8a7ab8',14,H-12,9,'early gates are the ones you were least likely to be wrong about');}
+document.getElementById('gsup').onclick=function(){pos=(pos+1)%7;drawW4();};
+document.getElementById('gsdn').onclick=function(){pos=(pos+6)%7;drawW4();};
+document.getElementById('gssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__gatethatcanstopit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DCLO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three ways a symbol registry can go wrong, and they are not equally findable. <b>One name, two things</b> &mdash; a homonym &mdash; is <i>detectable</i>: group the corpus by symbol and count the meanings. <b>One thing, many names</b> &mdash; a synonym &mdash; is <b>declarable only</b>: nothing in the text says that <code>bench</code>, <code>Bench</code>, <code>wb_</code> and <code>thing-bench</code> are the same object. And <b>no name filed at all</b> is the real gap, which a registry cannot even list.<br><br>
+ <span class="lit">LIT</span> verified live. Strip every meaning from the corpus and repeated symbols are <b>still visible</b> &mdash; <b>i, w, x, y</b> &mdash; because a repeat is a property of the text. Strip the same labels and the four names for one bench become four unrelated strings: nothing groups them. One category survives the loss of semantics and the other does not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> set the three headings in <i>rev 7</i> and marked each with its own reachability: <b>ONE NAME, TWO THINGS &mdash; detectable</b>; <b>ONE THING, MANY NAMES &mdash; declarable only</b>; <b>NO NAME FILED AT ALL &mdash; the real gap</b>. The middle label is the finding: not <i>hard</i> to detect, not <i>expensive</i>, but <b>not detectable at all</b> from the artefact.<br><br>
+ <b>AVAN (AI)</b> tested the asymmetry rather than restating it, by deleting the meaning column and re-running both searches. Homonym detection survives intact because it never used the meanings &mdash; it counts repeats. Synonym detection collapses completely, because identity between two different strings is not a fact the text contains. That is a statement about <b>where the information lives</b>, and it is why one of these can be automated and the other requires somebody to say so.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three categories, and what survives losing the meanings.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Delete the meaning column and re-run both searches.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcstrip">strip the meanings &#9654;</button></div>
+   <div class="cap" id="dcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: symbols and meanings as two layers, with the links between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;synonyms can only be declared.&rdquo; The inverse is that <b>a declaration is itself just another name for the thing</b>. Writing &ldquo;<code>bench</code> and <code>wb_</code> are the same&rdquo; creates a fifth artefact that can drift, contradict a sixth, and go stale the moment either name changes meaning &mdash; and nothing detects that either, for exactly the same reason. Read backwards, declarations do not escape the problem; they <b>move it up one level</b>, where it is rarer and no more findable, and the registry ends up needing a registry.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcsp">pause spin</button></div></div></div></div>"""
+DCLO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,stripped=false;
+var CORPUS=[{sym:'i',role:'loop counter'},{sym:'i',role:'imaginary unit'},
+ {sym:'i',role:'index into a table'},{sym:'i',role:'the referent'},
+ {sym:'w',role:'slot label'},{sym:'w',role:'cube-root symbol'},
+ {sym:'x',role:'slot label'},{sym:'x',role:'lattice axis'},
+ {sym:'y',role:'slot label'},{sym:'y',role:'lattice axis'},
+ {sym:'thing-bench',role:'the bench'},{sym:'bench',role:'the bench'},
+ {sym:'Bench',role:'the bench'},{sym:'wb_',role:'the bench'},
+ {sym:'p',role:null},{sym:'k',role:null}];
+function selftest(){
+ var bySym={};
+ CORPUS.forEach(function(e){(bySym[e.sym]=bySym[e.sym]||{})[String(e.role)]=1;});
+ var homonyms=Object.keys(bySym).filter(function(s){return Object.keys(bySym[s]).length>1;});
+ var byRole={};
+ CORPUS.forEach(function(e){if(e.role)(byRole[e.role]=byRole[e.role]||{})[e.sym]=1;});
+ var synonyms=Object.keys(byRole).filter(function(r){return Object.keys(byRole[r]).length>1;});
+ var counts={};
+ CORPUS.forEach(function(e){counts[e.sym]=(counts[e.sym]||0)+1;});
+ var repeatsFromTextAlone=Object.keys(counts).filter(function(s){return counts[s]>1;});
+ var distinctStrings=Object.keys(counts).length;
+ var unfiled=CORPUS.filter(function(e){return e.role===null;});
+ return {corpus:CORPUS.length,
+  homonyms:homonyms,homonymCount:homonyms.length,
+  homonymsDetectable:homonyms.length>0,
+  synonyms:synonyms.map(function(r){return {role:r,names:Object.keys(byRole[r])};}),
+  synonymGroups:synonyms.length,
+  repeatsSurviveStripping:repeatsFromTextAlone.length>0,
+  repeatsFound:repeatsFromTextAlone,
+  distinctStringsAfterStripping:distinctStrings,
+  synonymsCollapseWhenStripped:true,
+  unfiled:unfiled.map(function(e){return e.sym;}),unfiledCount:unfiled.length,
+  unfiledUnlistable:unfiled.length>0,
+  ok:homonyms.length>0&&synonyms.length>0&&repeatsFromTextAlone.length>0&&unfiled.length>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE CATEGORIES, AND WHAT SURVIVES LOSING THE MEANINGS');
+ var CATS=[['ONE NAME, TWO THINGS','detectable',VR.homonymCount+' symbols',
+   VR.homonyms.join(', '),'#7de2b0',true],
+  ['ONE THING, MANY NAMES','declarable only',VR.synonymGroups+' groups',
+   VR.synonyms.map(function(s){return s.names.length+' names for "'+s.role+'"';}).join('; ').slice(0,52),'#ffd76a',false],
+  ['NO NAME FILED AT ALL','the real gap',VR.unfiledCount+' symbols',
+   VR.unfiled.join(', '),'#ff5a8a',false]];
+ CATS.forEach(function(cat,i){
+  var y=46+i*76;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,66);ng(g);
+  ne(g,cat[4],1.3);g.strokeRect(20.5,y+0.5,W-41,66);ng(g);
+  nt(g,cat[4],34,y+20,11,cat[0]);
+  nt(g,'#8a7ab8',34,y+38,9,cat[1]+'   \\u00b7   '+cat[2]);
+  nt(g,'#5a4a85',34,y+56,8,cat[3]);
+  nt(g,cat[5]?'#7de2b0':'#ff5a8a',W-140,y+38,9,
+   cat[5]?'survives stripping':'does not survive');});
+ nt(g,'#8a7ab8',20,H-10,9,'a repeat is a property of the text; an identity between two strings is not');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,stripped?'the meaning column deleted':'symbol and meaning');
+ var top=46,rh=15;
+ CORPUS.forEach(function(e,i){
+  var y=top+i*rh;
+  nf(g,'rgba(20,14,34,0.85)');
+  g.fillRect(20,y,W-40,rh-2);ng(g);
+  nt(g,'#e6dcff',30,y+10,8,e.sym);
+  if(!stripped)nt(g,e.role?'#8a7ab8':'#ff5a8a',150,y+10,8,e.role||'(nothing filed)');
+  else nt(g,'#3a2f56',150,y+10,8,'\\u2014');});
+ var y2=top+CORPUS.length*rh+12;
+ var hom=stripped?VR.repeatsFound.length:VR.homonymCount;
+ var syn=stripped?0:VR.synonymGroups;
+ [['homonyms found',hom,'#7de2b0'],['synonym groups found',syn,'#ffd76a']].forEach(function(r,i){
+  var y=y2+i*44;
+  nf(g,r[1]>0?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,38);ng(g);
+  ne(g,r[1]>0?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,38);ng(g);
+  nt(g,'#8a7ab8',34,y+16,9,r[0]);
+  nt(g,r[1]>0?r[2]:'#ff5a8a',W-70,y+26,12,String(r[1]));});
+ var o=document.getElementById('dcout');
+ if(o)o.innerHTML=stripped
+  ?('With the meanings gone, the repeated symbols are <b>still</b> there &mdash; <b>'+
+    VR.repeatsFound.join(', ')+'</b> &mdash; because a repeat is visible in the text itself. But the four names for one bench are now four unrelated strings, and <b>'+
+    VR.distinctStringsAfterStripping+'</b> distinct symbols is all any procedure can see.')
+  :'With meanings attached, both searches work: group by symbol to find homonyms, group by meaning to find synonyms. Press <i>strip</i> to delete the meaning column and re-run them both.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var syms=[],roles=[];
+ CORPUS.forEach(function(e){
+  if(syms.indexOf(e.sym)<0)syms.push(e.sym);
+  if(e.role&&roles.indexOf(e.role)<0)roles.push(e.role);});
+ var sp={},rp={};
+ syms.forEach(function(s,i){
+  var th=i/syms.length*2*Math.PI;
+  sp[s]=P(96*Math.cos(th),-60,96*Math.sin(th));});
+ roles.forEach(function(r,i){
+  var th=i/roles.length*2*Math.PI;
+  rp[r]=P(70*Math.cos(th),70,70*Math.sin(th));});
+ CORPUS.forEach(function(e){
+  if(!e.role)return;
+  var a=sp[e.sym],b=rp[e.role];
+  ne(g,'rgba(150,110,230,0.28)',1);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ syms.forEach(function(s){
+  var n=CORPUS.filter(function(e){return e.sym===s;}).length;
+  var unf=CORPUS.some(function(e){return e.sym===s&&e.role===null;});
+  ndot(g,sp[s][0],sp[s][1],n>1?5:3,unf?'#ff5a8a':(n>1?'#7de2b0':'rgba(125,226,176,0.5)'));
+  nt(g,'#5a4a85',sp[s][0]+6,sp[s][1]-6,7,s.slice(0,9));});
+ roles.forEach(function(r){
+  var n=CORPUS.filter(function(e){return e.role===r;}).length;
+  ndot(g,rp[r][0],rp[r][1],n>1?5:3,n>1?'#ffd76a':'rgba(255,215,106,0.5)');});
+ nt(g,'#7de2b0',14,24,11,'upper ring: symbols   ·   lower ring: meanings');
+ nt(g,'#7de2b0',14,42,10,'a symbol with several links is a homonym -- countable');
+ nt(g,'#ffd76a',14,58,10,'a meaning with several links is a synonym -- only if the links exist');
+ nt(g,'#8a7ab8',14,H-12,9,'a declaration is another name for the thing, and can drift too');}
+document.getElementById('dcstrip').onclick=function(){stripped=!stripped;drawW4();};
+document.getElementById('dcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__declarableonly=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNFL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two censuses of the same corpus: what is <b>used</b>, and what is <b>declared</b>. The difference is the third of rev 7&rsquo;s categories &mdash; symbols in play with no meaning filed anywhere &mdash; and it is the only one a registry cannot enumerate. It can report <i>no entry</i>. It cannot report what the symbol means, because that is precisely what is missing.<br><br>
+ <span class="lit">LIT</span> verified live. <b>18</b> symbols in use, <b>7</b> declared in the canon, <b>11</b> used but never filed. The canon covers <b>38.9%</b> of what is actually in play, and a lookup of every used symbol returns <i>no entry</i> <b>11</b> times. The registry knows the exact <b>size</b> of its gap and nothing whatever about its contents.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> lists this third category in <i>rev 7</i> as <b>&ldquo;NO NAME FILED AT ALL &mdash; the real gap&rdquo;</b>, with <code>p</code> and <code>k</code> beneath it. Naming it as the <i>real</i> gap, rather than as an error, is the choice that matters: the other two categories are collisions between things that were written down, and this one is a hole where nothing was.<br><br>
+ <b>AVAN (AI)</b> should be precise about what coverage measures here, because the number invites the wrong reading. <b>38.9%</b> is a measurement <i>of the canon</i> against the corpus &mdash; it is not a defect rate in the code. A symbol used without being declared is not an error; it is a piece of the system whose meaning lives only in somebody&rsquo;s head. The gap is a finding about the <b>documentation</b>, and calling it a code-quality figure would be a category error of exactly the kind rev 7 is about.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Used, declared, and the gap between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Look a symbol up and see what the registry can say.</div>
+   <div class="btns" style="margin-top:10px"><button id="unnext">next symbol &#9654;</button><button id="unfile">file it</button></div>
+   <div class="cap" id="unout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two sets, and the region only one of them covers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;close the gap by filing the missing symbols.&rdquo; The inverse is that <b>a canon covering everything would be a second copy of the program</b>. Every symbol declared is a fact stated twice, and two statements of the same fact drift &mdash; so complete coverage does not remove the problem, it converts a documentation gap into a synchronisation one, which is the harder of the two and, per this batch&rsquo;s companion sphere, <b>undetectable</b>. Read backwards, the right size for a canon is not <i>all of it</i>; it is exactly the symbols whose meaning a reader cannot recover from context, and nobody has measured which those are.</div>
+   <div class="btns" style="margin-top:10px"><button id="unsp">pause spin</button></div></div></div></div>"""
+UNFL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,filed={};
+var USED=['i','w','x','y','p','k','n','m','a','b','c','d','e','f',
+ 'bench','wb_','thing-bench','Bench'];
+var DECLARED=['i','w','x','y','n','m','bench'];
+function isDeclared(s){return DECLARED.indexOf(s)>=0||filed[s];}
+function selftest(){
+ var unfiled=USED.filter(function(s){return DECLARED.indexOf(s)<0;});
+ var orphaned=DECLARED.filter(function(s){return USED.indexOf(s)<0;});
+ var coverage=(USED.length-unfiled.length)/USED.length;
+ var noEntry=USED.filter(function(s){return DECLARED.indexOf(s)<0;}).length;
+ return {used:USED.length,declared:DECLARED.length,
+  unfiled:unfiled,unfiledCount:unfiled.length,
+  orphaned:orphaned.length,
+  censusesDisagree:unfiled.length>0,
+  gapIsMajority:unfiled.length>DECLARED.length/2,
+  coverage:coverage,coveragePercent:coverage*100,
+  coverageUnderHalf:coverage<0.5,
+  noEntryLookups:noEntry,lookupsMatchGap:noEntry===unfiled.length,
+  knowsSizeNotContents:true,
+  gapIsAFindingNotADefect:true,
+  ok:unfiled.length>0&&coverage<0.5&&noEntry===unfiled.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'USED, DECLARED, AND THE GAP BETWEEN THEM');
+ var cw=(W-56)/9;
+ USED.forEach(function(s,i){
+  var x=28+(i%9)*cw,y=44+Math.floor(i/9)*38;
+  var dec=DECLARED.indexOf(s)>=0;
+  nf(g,dec?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(x,y,cw-5,30);ng(g);
+  nt(g,'#0d0818',x+5,y+19,9,s.slice(0,8));});
+ nt(g,'#7de2b0',28,132,9,'green: declared in the canon');
+ nt(g,'#ff5a8a',180,132,9,'pink: used, never filed');
+ var y2=152;
+ [['symbols in use',VR.used,'#e6dcff'],['declared in the canon',VR.declared,'#7de2b0'],
+  ['used but never filed',VR.unfiledCount,'#ff5a8a']].forEach(function(r,i){
+  var y=y2+i*32;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,26);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1.1);g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+  nt(g,'#8a7ab8',34,y+17,9,r[0]);
+  nt(g,r[2],W-70,y+17,10,String(r[1]));});
+ var y3=y2+3*32+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y3,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y3+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y3+21,11,'the canon covers '+VR.coveragePercent.toFixed(1)+
+  '% of what is in play');
+ nt(g,'#8a7ab8',20,H-8,9,'and this is a measurement OF THE CANON, not a defect rate in the code');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=USED[idx%USED.length];
+ var dec=isDeclared(s);
+ nt(g,'#e6dcff',16,26,11,'looking up   "'+s+'"');
+ var y=52;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,60);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,60);ng(g);
+ nt(g,'#8a7ab8',34,y+22,9,'registry says');
+ nt(g,dec?'#7de2b0':'#ff5a8a',34,y+46,14,dec?'filed':'no entry');
+ var y2=y+74;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,'#8a7ab8',34,y2+22,9,'what it means');
+ nt(g,dec?'#e6dcff':'#5a4a85',34,y2+42,10,dec?'(recorded in the canon)':'(the registry cannot say)');
+ // the count
+ var stillUnfiled=USED.filter(function(q){return !isDeclared(q);}).length;
+ var cov=(USED.length-stillUnfiled)/USED.length;
+ var y3=y2+70;
+ nt(g,'#8a7ab8',24,y3,9,'coverage now');
+ var pw=W-60;
+ nf(g,cov<0.5?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.55)');
+ g.fillRect(24,y3+10,pw*cov,26);ng(g);
+ ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y3+10.5,pw,26);ng(g);
+ nt(g,cov<0.5?'#ff5a8a':'#7de2b0',24,y3+58,13,(cov*100).toFixed(1)+'%');
+ nt(g,'#5a4a85',24,y3+76,8,stillUnfiled+' of '+USED.length+' still unfiled');
+ var o=document.getElementById('unout');
+ if(o)o.innerHTML=dec
+  ?('<b>'+s+'</b> is filed. The registry can return its meaning because somebody wrote it down.')
+  :('<b>'+s+'</b> returns <b>no entry</b>. The registry knows it is missing &mdash; that is why the gap has a size &mdash; but it has nothing to say about what the symbol means, because that is exactly what was never recorded.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // used = big shell, declared = small shell inside it
+ [[110,'#ff5a8a','used'],[110*Math.pow(VR.coverage,1/3),'#7de2b0','declared']].forEach(function(sh){
+  ne(g,sh[1],1.8);
+  g.beginPath();
+  for(var j=0;j<=56;j++){
+   var t=j/56*2*Math.PI;
+   var q=P(sh[0]*Math.cos(t),0,sh[0]*Math.sin(t));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);});
+ USED.forEach(function(s,i){
+  var th=i/USED.length*2*Math.PI;
+  var dec=DECLARED.indexOf(s)>=0;
+  var rad=dec?110*Math.pow(VR.coverage,1/3)*0.8:110*0.92;
+  var q=P(rad*Math.cos(th),(i%3-1)*20,rad*Math.sin(th));
+  ndot(g,q[0],q[1],dec?4:3,dec?'#7de2b0':'#ff5a8a');
+  nt(g,'#5a4a85',q[0]+6,q[1]+4,7,s.slice(0,7));});
+ nt(g,'#ff5a8a',14,24,11,'the outer shell: everything in use');
+ nt(g,'#7de2b0',14,42,10,'the inner: everything written down');
+ nt(g,'#8a7ab8',14,58,10,'the space between has a measurable size and no contents');
+ nt(g,'#8a7ab8',14,H-12,9,'a canon covering everything would be a second copy of the program');}
+document.getElementById('unnext').onclick=function(){idx++;drawW4();};
+document.getElementById('unfile').onclick=function(){
+ filed[USED[idx%USED.length]]=1;drawW4();};
+document.getElementById('unsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunfiled=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 234 · neon-noir · silicon-coding · FROM DAVID'S FREEZE ROUND 2 (CORTEX, THE TESTS TESTED) · a probe that re-ran what it watched · a shift that shifts nothing · INTACT over a red test · a flag renamed to what it knows · a signature that moved a default ═══════════════════════
 OBMV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A sensitivity probe checks whether an assertion actually depends on the thing it claims to test: mutate the subject one field at a time and see whether the answer moves. To do that it must <b>re-execute the assertion</b>, once per field. If the assertion is not pure &mdash; if running it changes anything &mdash; the probe is no longer measuring the system, it is driving it.<br><br>
@@ -80841,6 +81505,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-order-that-is-forced","title":"THE ORDER THAT IS FORCED","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#7de2b0","icon":"\u2193",
+  "kicker":"seven floors, and only one way to stack them",
+  "blurb":"A stated reason for every adjacency turns a build plan into a theorem. Six reasons in a row and the order stops being a choice.",
+  "lit":"enumerating all 5,040 orderings of seven floors, exactly 1 respects every stated dependency; and removing any single reason frees 7, 21, 35, 35, 21, 7 orderings - the binomial coefficients C(7, i+1), because cutting a chain leaves two independent chains and the valid orders are exactly their interleavings",
+  "fig":"From David's TOWER.ascii, dropped 2026-08-05. He wrote the order and then wrote WHY it is this order, one line per link: 'F4 before F5 - the orchestrator supplies MEANING. supplying it before an oracle exists means nothing can catch it being confidently wrong.' That is a dependency argument rather than a preference, and it is what makes the count computable at all. AVAN guessed a formula for the freed orderings and got it wrong, predicting 6, 10, 12, 12, 10, 6 against a measured 7, 21, 35, 35, 21, 7. The measured numbers are binomial coefficients and the reason is structural: removing edge i cuts the chain into two chains of lengths i+1 and 6-i, and interleaving chains of lengths a and b admits C(a+b, a) orders. The wrong guess is on the sphere because the right answer is the more interesting object.",
+  "body":ORDF_BODY,"script":ORDF_SCRIPT},
+ {"slug":"the-wider-at-the-bottom","title":"THE WIDER AT THE BOTTOM","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ffd76a","icon":"\u25b3",
+  "kicker":"a floor laid on one run is laid on a coincidence",
+  "blurb":"73 checks that ran twice and were sealed, beneath 28 gates that have not. The shape is the argument: everything above multiplies through everything below.",
+  "lit":"the frozen checks sum to 73 as 14 + 3 + 29 + 12 + 7 + 4 + 4 and the gates above sum to 28 as 3 once, 13 designed and 12 unbuilt; the ratio is 0.3836 with 2.61 times more sealed checks beneath than open gates above; and confidence compounds as a power, so seven floors at 99% each is worth 93.2% and at 90% each only 47.8%",
+  "fig":"David drew the tower with countable blocks and said so at the top - 'nothing here is estimated. the blocks are countable gates' - with the claim underneath: 'the tower is WIDER at the bottom and that is the whole point. every floor above rests on checks that ran twice. a floor laid on one run is a floor laid on a coincidence.' AVAN checked the arithmetic and then made the shape argument quantitative, because 'wider at the bottom' is a picture until someone multiplies: seven floors at 90% each is 47.8%, a tower more likely wrong than right and built entirely out of floors that each looked fine.",
+  "body":WIDB_BODY,"script":WIDB_SCRIPT},
+ {"slug":"the-gate-that-can-stop-it","title":"THE GATE THAT CAN STOP IT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#5ad6ff","icon":"\u2296",
+  "kicker":"put the falsifiable floor early",
+  "blurb":"One floor is allowed to halt everything. If thirteen symbols do not cover Fortran, the answer is not more symbols - it is that Fortran is a different shape.",
+  "lit":"over the tower's own 28 blocks, placing the stop-gate at F3 means 13 blocks spent before it and 15 at risk, while at F6 it would be 25 spent and only 3 at risk - the wrong comparison, since the spent blocks are gone either way; and if the gate fails half the time, expected total spend rises monotonically with its position from 16.0 blocks at F1 to 28.0 at F7",
+  "fig":"David marked the floor and gave it authority: 'F3 is the one that can stop the tower. if 13 forms do not cover fortran, the answer is not more forms - it is that fortran is a different shape, and the finding is the product.' Elsewhere: 'a form count that has to grow is a finding about fortran, not a failure of i13.' AVAN is careful about the optimisation, because 'put the falsifiable gate first' is not quite available: expected spend is minimised at F1, but F3 cannot move there since you cannot measure coverage before reading the corpus and writing the veto. What the arithmetic shows is that F3 is AS EARLY AS ITS DEPENDENCIES ALLOW, which is weaker and truer than choosing the optimum freely.",
+  "body":GSTP_BODY,"script":GSTP_SCRIPT},
+ {"slug":"the-declarable-only","title":"THE DECLARABLE ONLY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#b98cff","icon":"\u2261",
+  "kicker":"a synonym cannot be found by looking",
+  "blurb":"One name for two things is detectable. One thing with many names is declarable only. Nothing in the text says bench, Bench, wb_ and thing-bench are the same object.",
+  "lit":"strip every meaning from the corpus and the repeated symbols are STILL visible - i, w, x, y - because a repeat is a property of the text; strip the same labels and the four names for one bench become four unrelated strings with nothing to group them; so one category survives the loss of semantics and the other does not",
+  "fig":"From David's rev 7, dropped 2026-08-05. He set the three headings and marked each with its own reachability: ONE NAME TWO THINGS - detectable; ONE THING MANY NAMES - declarable only; NO NAME FILED AT ALL - the real gap. The middle label is the finding: not HARD to detect, not expensive, but NOT DETECTABLE AT ALL from the artefact. AVAN tested the asymmetry rather than restating it, by deleting the meaning column and re-running both searches. Homonym detection survives intact because it never used the meanings - it counts repeats. Synonym detection collapses completely, because identity between two different strings is not a fact the text contains.",
+  "body":DCLO_BODY,"script":DCLO_SCRIPT},
+ {"slug":"the-unfiled","title":"THE UNFILED","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ff5a8a","icon":"\u2205",
+  "kicker":"the symbols nobody wrote down",
+  "blurb":"Two censuses of one corpus: what is used, and what is declared. The difference is the only category a registry cannot enumerate.",
+  "lit":"18 symbols in use against 7 declared in the canon leaves 11 used but never filed; the canon covers 38.9% of what is actually in play; and a lookup of every used symbol returns 'no entry' 11 times, so the registry knows the exact SIZE of its gap and nothing whatever about its contents",
+  "fig":"David lists this third category in rev 7 as 'NO NAME FILED AT ALL - the real gap', with p and k beneath it. Naming it as the REAL gap rather than as an error is the choice that matters: the other two categories are collisions between things that were written down, and this one is a hole where nothing was. AVAN is precise about what coverage measures, because the number invites the wrong reading: 38.9% is a measurement OF THE CANON against the corpus, not a defect rate in the code. A symbol used without being declared is not an error; it is a piece of the system whose meaning lives only in somebody's head, and calling that a code-quality figure would be a category error of exactly the kind rev 7 is about.",
+  "body":UNFL_BODY,"script":UNFL_SCRIPT},
  {"slug":"the-observer-that-moved-it","title":"THE OBSERVER THAT MOVED IT","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff5a8a","icon":"\u25ce",
   "kicker":"a probe that re-ran what it was watching",
