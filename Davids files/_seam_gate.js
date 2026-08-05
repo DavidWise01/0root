@@ -163,6 +163,17 @@ function litClaims(lit) {
     push(m[0], parseFloat(m[1].replace(/,/g, '')), 'count');
     push(m[0], parseFloat(m[2].replace(/,/g, '')), 'count');
   }
+  // bare integer counts >= 100 (240, 11,520, 331,776) — these are measurements, not citations.
+  // Bare 4-digit numbers in 1000..2100 are skipped as probable years; comma-grouped ones are kept.
+  const seenInt = new Set();
+  for (const m of lit.matchAll(/(?<![\d.,])(\d{1,3}(?:,\d{3})+|\d{3,9})(?![\d.])/g)) {
+    const raw = m[1], v = parseFloat(raw.replace(/,/g, ''));
+    if (seenInt.has(raw)) continue;
+    if (v < 100 || v > 1e9) continue;
+    if (!raw.includes(',') && v >= 1000 && v <= 2100) continue;   // year
+    seenInt.add(raw);
+    push(raw, v, 'intcount');
+  }
   return claims;
 }
 

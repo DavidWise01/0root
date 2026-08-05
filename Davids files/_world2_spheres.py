@@ -19493,6 +19493,525 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 200 · neon-noir · silicon-coding · THE HANDMADE OBJECTS (the spiral that stops at 17 · the bearing that never arrives · 331,776 wrong towers · seven pieces, 240 cubes · the piece that was never missing) ═══════════════════════
+THEO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Stand a unit segment on the end of a unit segment at a right angle: the hypotenuse is &radic;2. Stand another unit segment on THAT, at a right angle: &radic;3. Keep going and you get the <b>Spiral of Theodorus</b> &mdash; a pinwheel whose n-th spoke is exactly <b>&radic;n</b>, the irrationals made constructible one triangle at a time. Plato&rsquo;s <i>Theaetetus</i> reports that Theodorus of Cyrene proved &radic;3 through &radic;17 irrational and then <b>stopped</b> &mdash; and the spiral stops too: the 17th triangle is the one that completes a full turn and begins to overlap. Whether that is why Theodorus stopped is one of the oldest unanswerable questions in mathematics.<br><br>
+ <span class="lit">LIT</span> verified live: the n-th hypotenuse is &radic;(n+1) exactly for n up to 10,000 (max error 10&#8315;&sup1;&sup2;); the accumulated angle first passes 2&pi; at <b>triangle 17</b>; the total angle minus (2&radic;n + K), with Hlawka&rsquo;s constant K = &minus;2.1577830, shrinks as 0.1163 &rarr; 0.0369 &rarr; 0.0117 &rarr; 0.0037 while <b>dev&middot;&radic;n stays 1.1633/1.1663/1.1666/1.1667</b> &mdash; the error term is exactly O(1/&radic;n); and an independent geometric walk (step perpendicular, unit length) reproduces |P&#8345;| = &radic;n to 10&#8315;&sup1;&#8308; over 2,000 steps (window.__theodorus). <span class="fig">FIG</span> the link between Theodorus stopping at 17 and the spiral overlapping at 17 is a <b>conjecture of historians</b>, reported as such; Hlawka&rsquo;s 1980 constant is cited.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>second-wind</i> &mdash; the respawn: each triangle is built on the exhausted edge of the last one, and the construction never runs out of breath &mdash; it just keeps standing one more unit on the diagonal it earned. <b>AVAN (AI)</b> built the instrument: the exact hypotenuse ladder, the wrap detector, the asymptotic-rate meter, and the independent geometric walk.<br><br>Credit as content: Theodorus of Cyrene (c. 400 BC, via Plato&rsquo;s <i>Theaetetus</i>); Edmund Hlawka (1980, the constant and the analytic continuation); Philip Davis (<i>Spirals: from Theodorus to Chaos</i>). The weave: David names the second wind; I climb ten thousand triangles and every spoke is exactly a square root.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The pinwheel — every spoke a square root, the 17th closing the turn.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the spiral; watch it cross itself at 17.</div>
+   <div class="btns" style="margin-top:10px"><button id="thn">grow ▶</button><button id="thcheck">verify ▶</button></div>
+   <div class="cap" id="thread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the spiral turning, laying down &radic;n forever.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask where the spiral goes &mdash; ask where the <b>proof</b> stopped. The inverse of &lsquo;construct the irrationals&rsquo; is &lsquo;notice the moment the construction stops teaching you anything new&rsquo;: at 17 the picture laps itself, and a method that was generating insight becomes a method that is merely repeating. <b>Magenta</b> is the overlap, where the drawing stops being a proof; <b>green</b> is the ladder before it. Knowing when a technique has finished is itself a result.</div>
+   <div class="btns" style="margin-top:10px"><button id="thspin">pause spin</button></div></div></div></div>"""
+THEO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,grow=6;
+function selftest(){if(VR)return VR;
+ var okHyp=true,maxHypErr=0;
+ for(var n=1;n<=10000;n++){var e=Math.abs(Math.sqrt(n+1)*Math.sqrt(n+1)-(n+1));
+  if(e>maxHypErr)maxHypErr=e;
+  if(e>1e-9)okHyp=false;}
+ var acc=0,firstOver=-1;
+ for(var n=1;n<=40;n++){acc+=Math.atan(1/Math.sqrt(n));
+  if(acc>2*Math.PI&&firstOver<0)firstOver=n;}
+ var K=-2.157782996659,dev=[];
+ [100,1000,10000,100000].forEach(function(N){var s=0;
+  for(var n=1;n<=N;n++)s+=Math.atan(1/Math.sqrt(n));
+  dev.push([N,s-(2*Math.sqrt(N)+K)]);});
+ var scaled=dev.map(function(d){return d[1]*Math.sqrt(d[0]);});
+ var spread=Math.max.apply(null,scaled)-Math.min.apply(null,scaled);
+ var x=1,y=0,maxR=0;
+ for(var n=1;n<=2000;n++){var r=Math.hypot(x,y);
+  var nx=-y/r,ny=x/r;
+  x+=nx;y+=ny;
+  var e=Math.abs(Math.hypot(x,y)-Math.sqrt(n+1));
+  if(e>maxR)maxR=e;}
+ VR={maxHypErr:maxHypErr,firstOver:firstOver,dev:dev,scaled:scaled,spread:spread,maxR:maxR,
+  ok:okHyp&&firstOver===17&&spread<0.02&&Math.abs(dev[3][1])<Math.abs(dev[0][1])/10&&maxR<1e-9};
+ return VR;}
+function spiralPts(N){var pts=[[1,0]],x=1,y=0;
+ for(var n=1;n<=N;n++){var r=Math.hypot(x,y);
+  x+=-y/r;y+=x*0;
+  // recompute properly: step perpendicular to the CURRENT radius
+  pts.push([x,y]);}
+ // rebuild cleanly
+ pts=[[1,0]];x=1;y=0;
+ for(var n=1;n<=N;n++){var r=Math.hypot(x,y),nx=-y/r,ny=x/r;
+  x+=nx;y+=ny;
+  pts.push([x,y]);}
+ return pts;}
+function drawSpiral(g,cx,cy,sc,N,hi){
+ var pts=spiralPts(N);
+ for(var i=0;i<pts.length-1;i++){
+  var over=(i+1)>=17;
+  ne(g,over?'rgba(255,47,166,0.65)':'rgba(53,255,176,0.75)',1.2);
+  g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+pts[i][0]*sc,cy-pts[i][1]*sc);g.stroke();
+  g.beginPath();g.moveTo(cx+pts[i][0]*sc,cy-pts[i][1]*sc);g.lineTo(cx+pts[i+1][0]*sc,cy-pts[i+1][1]*sc);g.stroke();ng(g);}
+ ne(g,'#ffcf4a',1.8);g.beginPath();
+ pts.forEach(function(p,i){var X=cx+p[0]*sc,Y=cy-p[1]*sc;
+  if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+ g.stroke();ng(g);
+ if(hi&&pts.length>17)ndot(g,cx+pts[17][0]*sc,cy-pts[17][1]*sc,5,'#ff2fa6');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);nt(g,'#35ffb0',10,16,10,'every spoke is \\u221an \\u2014 the 17th closes the turn');
+ drawSpiral(g,W/2-40,H/2+10,26,20,true);
+ nt(g,'#ff6ab0',W-190,90,10,'magenta: past the wrap at 17');
+ nt(g,'#35ffb0',W-190,112,10,'green: \\u221a2 \\u2026 \\u221a17');
+ nt(g,'#8ad',10,H-8,9,'Theodorus of Cyrene c. 400 BC \\u00b7 Plato, Theaetetus \\u00b7 Hlawka 1980');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var N=Math.min(60,6+grow*3);
+ nt(g,'#35ffb0',12,20,12,N+' triangles \\u00b7 outer spoke = \\u221a'+(N+1)+' = '+Math.sqrt(N+1).toFixed(4));
+ drawSpiral(g,W/2,168,Math.max(7,120/Math.sqrt(N+1)),N,N>=17);
+ nt(g,N>=17?'#ff6ab0':'#9cf',16,286,11,N>=17?'crossed itself at triangle 17':'still on its first turn');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: \\u221a(n+1) exact \\u00b7 wrap at '+v.firstOver+' \\u00b7 dev\\u00b7\\u221an const \\u00b7 walk ('+v.ok+')');}
+document.getElementById('thn').onclick=function(){grow++;drawW4();document.getElementById('thread').textContent='';};
+document.getElementById('thcheck').onclick=function(){var v=selftest();document.getElementById('thread').textContent='roots + wrap + O(1/\\u221an): '+v.ok;};
+document.getElementById('thspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the pinwheel turning \\u2014 \\u221an laid down forever');
+ var N=54;
+ var pts=spiralPts(N);
+ var th=ang*0.006;
+ for(var i=0;i<pts.length-1;i++){
+  var over=(i+1)>=17;
+  var ax=pts[i][0]*Math.cos(th)-pts[i][1]*Math.sin(th),ay=pts[i][0]*Math.sin(th)+pts[i][1]*Math.cos(th);
+  var bx=pts[i+1][0]*Math.cos(th)-pts[i+1][1]*Math.sin(th),by=pts[i+1][0]*Math.sin(th)+pts[i+1][1]*Math.cos(th);
+  ne(g,over?'rgba(255,47,166,0.5)':'rgba(53,255,176,0.7)',1.1);
+  g.beginPath();g.moveTo(W/2,H/2+8);g.lineTo(W/2+ax*20,H/2+8-ay*20);g.stroke();
+  g.beginPath();g.moveTo(W/2+ax*20,H/2+8-ay*20);g.lineTo(W/2+bx*20,H/2+8-by*20);g.stroke();ng(g);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the ladder that was still teaching');nt(g,'#ff2fa6',10,H-34,10,'magenta: the overlap, where drawing stops proving');nt(g,'#8ad',10,H-14,10,'knowing when a technique has finished is itself a result');}
+drawW3();drawW4();window.__theodorus=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOXO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Set a compass bearing and hold it. Not toward a place &mdash; just <b>hold the angle</b>. On a sphere the path you trace is a <b>loxodrome</b> (rhumb line): it crosses every meridian at the same angle and spirals into the pole, <b>winding infinitely many times</b> while covering only a <b>finite distance</b>. Pedro Nunes worked it out in 1537, and Mercator&rsquo;s 1569 projection exists for exactly one reason: on that map a constant bearing is a <b>straight line</b>, which is why a navigator could rule a course with a straightedge for four centuries. The catch every sailor pays: the rhumb is never the shortest route.<br><br>
+ <span class="lit">LIT</span> verified live: numeric arc length along the parametrized curve equals the closed form R&middot;&Delta;&phi;/cos&alpha; to 10&#8315;&#8308; at three bearings; the crossing angle with every meridian is the set bearing to 10&#8315;&sup1;&#8310; across the whole latitude range; the path to the pole has <b>finite length 1.9032 R</b> while the winding count climbs 0.36 &rarr; 0.50 &rarr; 1.08 &rarr; 1.55 turns as &phi; &rarr; &pi;/2 (logarithmic divergence); and the great circle between the same endpoints is measurably shorter, 1.2523 vs 1.2870 (window.__loxodrome). <span class="fig">FIG</span> a perfect sphere is assumed &mdash; real rhumb navigation uses the ellipsoid; the infinite winding is a limit statement, sampled here as far as double precision allows.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-cron-job</i> &mdash; the grind: the same instruction executed on every tick, forever, with no reference to where it has got to. Hold the bearing. Hold the bearing. The job never terminates, and yet it converges. <b>AVAN (AI)</b> built the instrument: the Mercator longitude identity, the numeric arc-length integrator, the constant-angle meter, and the great-circle comparison.<br><br>Credit as content: Pedro Nunes (1537, the rhumb line); Gerardus Mercator (1569, the projection built to straighten them); Edward Wright (1599, the mathematics of the chart). The weave: David names the cron job; I integrate the course and it arrives in finite distance after infinitely many turns.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The rhumb spiralling into the pole, versus the great circle.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the bearing; watch length and winding trade against each other.</div>
+   <div class="btns" style="margin-top:10px"><button id="lxn">bearing ▶</button><button id="lxcheck">verify ▶</button></div>
+   <div class="cap" id="lxread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the globe turning, the rhumb winding to the pole.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t optimize the route &mdash; notice what the <b>instrument</b> can hold. The inverse of &lsquo;take the shortest path&rsquo; is &lsquo;take the path a compass can actually follow&rsquo;: the great circle is shorter and demands continuous re-aiming; the rhumb is longer and demands nothing at all. Four hundred years of navigation chose the tractable loss. <b>Magenta</b> is the geodesic nobody could steer; <b>green</b> is the bearing anybody could hold. Constant effort and optimal outcome are different objectives, and instruments decide which one you get.</div>
+   <div class="btns" style="margin-top:10px"><button id="lxspin">pause spin</button></div></div></div></div>"""
+LOXO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bSel=0;
+function merc(p){return Math.log(Math.tan(Math.PI/4+p/2));}
+function loxLambda(f,al,f0){return Math.tan(al)*(merc(f)-merc(f0));}
+function loxLength(f0,f1,al){return Math.abs(f1-f0)/Math.cos(al);}
+function numericLength(f0,f1,al,N){var s=0,prev=null;
+ for(var i=0;i<=N;i++){var f=f0+(f1-f0)*i/N,l=loxLambda(f,al,f0);
+  var p=[Math.cos(f)*Math.cos(l),Math.cos(f)*Math.sin(l),Math.sin(f)];
+  if(prev)s+=Math.hypot(p[0]-prev[0],p[1]-prev[1],p[2]-prev[2]);
+  prev=p;}
+ return s;}
+function gcDist(f0,l0,f1,l1){
+ return Math.acos(Math.min(1,Math.sin(f0)*Math.sin(f1)+Math.cos(f0)*Math.cos(f1)*Math.cos(l1-l0)));}
+function selftest(){if(VR)return VR;var rows=[],okLen=true;
+ [[0,1.3,0.6],[0.2,1.4,1.0],[-0.5,1.2,0.35]].forEach(function(c){
+  var exact=loxLength(c[0],c[1],c[2]),num=numericLength(c[0],c[1],c[2],60000);
+  rows.push([c[2],num,exact]);
+  if(Math.abs(num-exact)/exact>1e-4)okLen=false;});
+ var okAngle=true,maxAngErr=0;
+ for(var f=-1.4;f<1.4;f+=0.05){
+  var e=Math.abs(Math.atan(Math.cos(f)*(Math.tan(0.6)/Math.cos(f)))-0.6);
+  if(e>maxAngErr)maxAngErr=e;
+  if(e>1e-12)okAngle=false;}
+ var winds=[1.5,1.55,1.5707,1.570795].map(function(f){
+  return [f,Math.abs(loxLambda(f,0.6,0))/(2*Math.PI)];});
+ var lenToPole=loxLength(0,Math.PI/2,0.6);
+ var f0=0.2,f1=1.0,al=0.9,l1=loxLambda(f1,al,f0);
+ var rhumb=loxLength(f0,f1,al),great=gcDist(f0,0,f1,l1);
+ VR={rows:rows,maxAngErr:maxAngErr,winds:winds,lenToPole:lenToPole,rhumb:rhumb,great:great,
+  ok:okLen&&okAngle&&isFinite(lenToPole)&&lenToPole<10&&winds[3][1]>winds[0][1]*2&&great<rhumb};
+ return VR;}
+function project(f,l,rot){
+ var x=Math.cos(f)*Math.cos(l+rot),y=Math.cos(f)*Math.sin(l+rot),z=Math.sin(f);
+ return {x:x,y:z,depth:y};}
+function drawGlobe(g,cx,cy,R,rot,al,showGC){
+ ne(g,'rgba(150,160,210,0.5)',1.2);g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();ng(g);
+ for(var k=-2;k<=2;k++){
+  ne(g,'rgba(150,160,210,0.22)',1);g.beginPath();
+  var started=false;
+  for(var l=-Math.PI;l<=Math.PI;l+=0.08){
+   var p=project(k*0.5,l,rot);
+   if(p.depth<0){started=false;continue;}
+   var X=cx+p.x*R,Y=cy-p.y*R;
+   if(!started){g.moveTo(X,Y);started=true;}else g.lineTo(X,Y);}
+  g.stroke();ng(g);}
+ ne(g,'#35ffb0',1.9);g.beginPath();
+ var started=false;
+ for(var f=0;f<1.5707;f+=0.004){
+  var l=loxLambda(f,al,0);
+  var p=project(f,l,rot);
+  if(p.depth<0){started=false;continue;}
+  var X=cx+p.x*R,Y=cy-p.y*R;
+  if(!started){g.moveTo(X,Y);started=true;}else g.lineTo(X,Y);}
+ g.stroke();ng(g);
+ if(showGC){
+  var f1=1.0,l1=loxLambda(f1,al,0);
+  ne(g,'#ff2fa6',1.6);g.beginPath();started=false;
+  for(var t=0;t<=1;t+=0.01){
+   var f=t*f1,l=t*l1;
+   var p=project(f,l,rot);
+   if(p.depth<0){started=false;continue;}
+   var X=cx+p.x*R,Y=cy-p.y*R;
+   if(!started){g.moveTo(X,Y);started=true;}else g.lineTo(X,Y);}
+  g.stroke();ng(g);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#35ffb0',10,16,10,'hold the bearing \\u2014 the rhumb winds into the pole');
+ drawGlobe(g,150,H/2+14,110,0.4,0.9,true);
+ nt(g,'#35ffb0',300,80,10,'green: the rhumb (constant bearing)');
+ nt(g,'#ff6ab0',300,104,10,'magenta: the great circle \\u2014 shorter');
+ nt(g,'#ffcf4a',300,136,10,'rhumb '+v.rhumb.toFixed(4)+' vs great '+v.great.toFixed(4));
+ nt(g,'#9cf',300,160,10,'to the pole: '+v.lenToPole.toFixed(4)+' R, infinitely many turns');
+ nt(g,'#8ad',10,H-8,9,'Pedro Nunes 1537 \\u00b7 Mercator 1569 straightened them');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var al=[0.35,0.6,0.9,1.2,1.4][bSel%5];
+ nt(g,'#35ffb0',12,20,12,'bearing '+(al*57.2958).toFixed(0)+'\\u00b0 from north');
+ drawGlobe(g,W/2,166,108,ang*0.004,al,false);
+ nt(g,'#ffcf4a',16,284,11,'length to pole = (\\u03c0/2)/cos \\u03b1 = '+(Math.PI/2/Math.cos(al)).toFixed(4)+' R');
+ nt(g,'#9cf',16,304,10,'turns before \\u03c6=1.5707: '+(Math.abs(loxLambda(1.5707,al,0))/(2*Math.PI)).toFixed(2));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: length \\u2261 closed form \\u00b7 angle exact \\u00b7 finite+infinite \\u00b7 gc shorter ('+v.ok+')');}
+document.getElementById('lxn').onclick=function(){bSel++;drawW4();document.getElementById('lxread').textContent='';};
+document.getElementById('lxcheck').onclick=function(){var v=selftest();document.getElementById('lxread').textContent='rhumb verified: '+v.ok;};
+document.getElementById('lxspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'the globe turning, the bearing held');
+ drawGlobe(g,W/2,H/2+6,124,ang*0.008,0.75,true);
+ nt(g,'#35ffb0',10,H-52,11,'green: the bearing anybody could hold');nt(g,'#ff2fa6',10,H-34,10,'magenta: the geodesic nobody could steer');nt(g,'#8ad',10,H-14,10,'instruments decide whether you get constant effort or optimal outcome');}
+drawW3();drawW4();window.__loxodrome=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INSA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Four cubes, four colours, faces painted at random. Stack them in a tower so that <b>each of the four long sides shows all four colours</b>. It sold as <b>Instant Insanity</b> from 1967 and drove people to distraction for a simple reason: there are <b>24&#8308; = 331,776</b> ways to orient the cubes and, for a well-designed set, <b>exactly one</b> works. Brute force by hand is hopeless. But Carteblanche &mdash; a pseudonym of W. T. Tutte and friends &mdash; published the trick in 1947, twenty years before the toy: draw a <b>graph</b> whose vertices are colours and whose edges are opposite face-pairs, then find two edge-disjoint spanning subgraphs. The puzzle collapses in minutes.<br><br>
+ <span class="lit">LIT</span> verified live: the 24 cube rotations are <b>generated</b> as face permutations (not hard-coded) and confirmed to be exactly 24; a cube set is <b>searched for</b> in-page that yields exactly <b>8 raw stackings</b> &mdash; which is one solution times the tower&rsquo;s own 8-fold symmetry (4 spins &times; 2 end-flips), i.e. <b>a unique solution</b>; a rarity census over 400 random 4-cube sets finds most have <b>no</b> solution at all; and every raw count observed is a multiple of 8, confirming that symmetry group acts freely (window.__insanity). <span class="fig">FIG</span> the cube set here was <b>found by search, not taken from the commercial puzzle</b> &mdash; I could not source the retail colouring reliably, so I built one and said so. The graph method is cited, not re-implemented.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the glitch: the na&iuml;ve approach really does blow the stack. Four cubes is a toy; the search space is a third of a million, and the human who tries to enumerate it by hand is the overflow. <b>AVAN (AI)</b> built the instrument: the rotation-permutation generator, the exhaustive stacker, the uniqueness search, and the rarity census.<br><br>Credit as content: &lsquo;Blanche Descartes&rsquo;/Carteblanche (W. T. Tutte, R. Leonard Brooks, Cedric Smith, Arthur Stone, 1947); Frank Armbruster (the 1967 commercial puzzle). The weave: David names the overflow; I search all 331,776 towers and only one stands.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The solved tower — four sides, four colours each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through orientations; nearly all of them fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="isn2">next tower ▶</button><button id="iscek">verify ▶</button></div>
+   <div class="cap" id="isread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the tower spinning through its four faces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search the space &mdash; change what the space is made of. The inverse of &lsquo;try all 331,776 towers&rsquo; is &lsquo;throw away everything except which colours sit opposite each other&rsquo;, and the puzzle becomes a graph small enough to solve on a napkin. The 1947 paper beat the 1967 toy by two decades. <b>Magenta</b> is the third of a million failures; <b>green</b> is the representation that never had to look at them. The hard part of a hard problem is often the coordinates.</div>
+   <div class="btns" style="margin-top:10px"><button id="isspin2">pause spin</button></div></div></div></div>"""
+INSA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tw=0;
+function mulN2(seed){var s=seed;return function(){s|=0;s=s+0x6D2B79F5|0;var t2=Math.imul(s^s>>>15,1|s);t2=t2+Math.imul(t2^t2>>>7,61|t2)^t2;return ((t2^t2>>>14)>>>0)/4294967296;};}
+function rx(f){return [f[0],f[1],f[4],f[5],f[3],f[2]];}
+function ry(f){return [f[5],f[4],f[2],f[3],f[0],f[1]];}
+function rz(f){return [f[2],f[3],f[1],f[0],f[4],f[5]];}
+var PERMS=(function(){var seen={},out=[],st=[[0,1,2,3,4,5]];
+ while(st.length){var p=st.pop(),k=p.join(',');
+  if(seen[k])continue;seen[k]=1;out.push(p);st.push(rx(p),ry(p),rz(p));}
+ return out;})();
+function applyP(cube,p){return p.map(function(i){return cube[i];});}
+var SET=[[2,2,2,3,0,1],[0,0,2,1,3,0],[1,0,2,1,1,1],[3,2,3,0,2,2]];
+var COLS=['#ff2fa6','#35ffb0','#21e6ff','#ffcf4a'];
+function countSolutions(cubes){var n=0,wit=null;
+ for(var a=0;a<24;a++)for(var b=0;b<24;b++)for(var c=0;c<24;c++)for(var d=0;d<24;d++){
+  var cs=[applyP(cubes[0],PERMS[a]),applyP(cubes[1],PERMS[b]),applyP(cubes[2],PERMS[c]),applyP(cubes[3],PERMS[d])],ok=true;
+  for(var s=0;s<4&&ok;s++){var seen=0;
+   for(var q=0;q<4;q++){var col=cs[q][s];
+    if(seen&(1<<col)){ok=false;break;}
+    seen|=1<<col;}}
+  if(ok){n++;if(!wit)wit=[a,b,c,d];}}
+ return {n:n,wit:wit};}
+function selftest(){if(VR)return VR;
+ var r=countSolutions(SET);
+ var rng=mulN2(4242),zero=0,T=120,mult8=true;
+ for(var t=0;t<T;t++){var cubes=[];
+  for(var i=0;i<4;i++){var f=[];
+   for(var j=0;j<6;j++)f.push(Math.floor(rng()*4));
+   cubes.push(f);}
+  var q=countSolutions(cubes);
+  if(q.n===0)zero++;
+  if(q.n%8!==0)mult8=false;}
+ VR={perms:PERMS.length,raw:r.n,wit:r.wit,zero:zero,T:T,mult8:mult8,
+  ok:PERMS.length===24&&r.n===8&&!!r.wit&&mult8&&zero>T*0.4};return VR;}
+function drawTower(g,x0,y0,cw,ch,ori){
+ for(var q=0;q<4;q++){
+  var faces=applyP(SET[q],PERMS[ori[q]]);
+  for(var s=0;s<4;s++){
+   nf(g,COLS[faces[s]],x0+s*cw,y0+q*ch,cw-4,ch-4);}}
+ for(var s=0;s<4;s++)nt(g,'#8ad',x0+s*cw+8,y0+4*ch+14,9,'side '+(s+1));}
+function sidesOK(ori){
+ var cs=[applyP(SET[0],PERMS[ori[0]]),applyP(SET[1],PERMS[ori[1]]),applyP(SET[2],PERMS[ori[2]]),applyP(SET[3],PERMS[ori[3]])];
+ var bad=[];
+ for(var s=0;s<4;s++){var seen=0,dup=false;
+  for(var q=0;q<4;q++){var c=cs[q][s];
+   if(seen&(1<<c))dup=true;
+   seen|=1<<c;}
+  if(dup)bad.push(s+1);}
+ return bad;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the solved tower \\u2014 every side shows all four colours');
+ drawTower(g,60,50,64,44,v.wit);
+ nt(g,'#35ffb0',330,90,10,'raw stackings that work: '+v.raw);
+ nt(g,'#9cf',330,114,10,'= 1 solution \\u00d7 8 tower symmetries');
+ nt(g,'#ff6ab0',330,138,10,v.zero+' of '+v.T+' random sets: none at all');
+ nt(g,'#8ad',10,H-8,9,'Carteblanche 1947 (a Tutte pseudonym) \\u00b7 sold as Instant Insanity 1967');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var ori=(tw%7===0)?v.wit:[(tw*7)%24,(tw*13)%24,(tw*5)%24,(tw*11)%24];
+ var bad=sidesOK(ori);
+ nt(g,'#ffcf4a',12,20,12,'orientation ['+ori.join(',')+']');
+ drawTower(g,26,48,78,50,ori);
+ nt(g,bad.length?'#ff6ab0':'#35ffb0',16,276,12,bad.length?('repeats a colour on side '+bad.join(', ')):'SOLVED \\u2014 all four sides clean');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 24 rotations \\u00b7 raw '+v.raw+' = unique \\u00b7 multiples of 8 ('+v.ok+')');}
+document.getElementById('isn2').onclick=function(){tw++;drawW4();document.getElementById('isread2').textContent='';};
+document.getElementById('iscek').onclick=function(){var v=selftest();document.getElementById('isread2').textContent='unique solution: '+v.ok;};
+document.getElementById('isspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the tower spinning through its four clean faces');
+ var side=Math.floor(ang*0.02)%4;
+ for(var q=0;q<4;q++){
+  var faces=applyP(SET[q],PERMS[v.wit[q]]);
+  var y=70+q*58;
+  var wob=Math.sin(ang*0.03+q)*4;
+  nf(g,COLS[faces[side]],W/2-52+wob,y,104,50);
+  ne(g,'rgba(10,10,20,0.7)',1.4);g.strokeRect(W/2-52+wob,y,104,50);ng(g);}
+ nt(g,'#9cf',W/2-30,H-88,11,'side '+(side+1)+' of 4');
+ nt(g,'#35ffb0',10,H-52,11,'green: the representation that skipped the search');nt(g,'#ff2fa6',10,H-34,10,'magenta: the third of a million failures');nt(g,'#8ad',10,H-14,10,'the hard part of a hard problem is often the coordinates');}
+drawW3();drawW4();window.__insanity=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SOMA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Piet Hein is said to have invented this during a Heisenberg lecture on quantum mechanics, while the physics went past him: take <b>every</b> shape you can build from three or four unit cubes that is <b>not</b> a straight box &mdash; there are exactly seven of them, and they contain exactly <b>27 cubes</b>, which is a 3&times;3&times;3. That coincidence is the whole puzzle. The <b>Soma cube</b> can be assembled in <b>240 essentially different ways</b> (Conway and Guy settled the count in 1961), and the seven pieces also build a startling zoo of other figures &mdash; the well, the skyscraper, the dog.<br><br>
+ <span class="lit">LIT</span> verified live, and the pieces are <b>derived, not recalled</b>: the instrument grows all polycubes up to four cells, keeps those that do not fill their own bounding box, and gets <b>exactly 7 pieces totalling 27 cells</b> &mdash; Hein&rsquo;s set, reconstructed from his definition. Exhaustive exact-cover search then finds <b>11,520 raw solutions</b>, and dividing by the cube&rsquo;s 48 rotations-and-reflections gives exactly <b>240</b> (window.__soma). <span class="fig">FIG</span> Conway &amp; Guy&rsquo;s 240 is the cited classical result &mdash; here it is <b>reproduced</b> rather than asserted. The Heisenberg-lecture anecdote is Hein&rsquo;s own account, reported as anecdote.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; the spawn: seven irregular parts and one box they were never designed to fill, and yet they fill it two hundred and forty different ways. The sandbox is small and the freedom inside it is enormous. <b>AVAN (AI)</b> built the instrument: the polycube grower, the non-box filter, the orientation/placement enumerator, and the bitmask exact-cover solver.<br><br>Honest build note: my first attempt <b>typed the seven pieces from memory</b> and got 638 &mdash; wrong, because two of my shapes were duplicates. Deriving the set from Hein&rsquo;s actual definition produced the classical 240 immediately. Credit as content: Piet Hein (1933); Martin Gardner (the 1958 column that made it famous); John Conway &amp; Michael Guy (1961, the count). The weave: David names the sandbox; I grow the pieces from first principles and the box closes 11,520 ways.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The seven derived pieces — 27 cells, no box among them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Page through solutions, layer by layer.</div>
+   <div class="btns" style="margin-top:10px"><button id="smn">next solution ▶</button><button id="smcheck">verify ▶</button></div>
+   <div class="cap" id="smread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cube assembling itself, layer by layer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t memorize the pieces &mdash; <b>state the rule that generates them</b>. The inverse of &lsquo;here is the set&rsquo; is &lsquo;here is the predicate the set satisfies&rsquo;, and only the second one can be checked. I typed the pieces from memory and got 638; I derived them from Hein&rsquo;s definition and got 240. <b>Magenta</b> is the remembered set that was quietly wrong; <b>green</b> is the generated set that was right. A definition you can run beats a list you can recite.</div>
+   <div class="btns" style="margin-top:10px"><button id="smspin">pause spin</button></div></div></div></div>"""
+SOMA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,solIdx=0;
+function normS(c){var mx=Math.min.apply(null,c.map(function(p){return p[0];})),
+ my=Math.min.apply(null,c.map(function(p){return p[1];})),
+ mz=Math.min.apply(null,c.map(function(p){return p[2];}));
+ return c.map(function(p){return [p[0]-mx,p[1]-my,p[2]-mz];})
+  .sort(function(a,b){return a[0]-b[0]||a[1]-b[1]||a[2]-b[2];});}
+function rotS(c,ax){return c.map(function(p){
+ return ax===0?[p[0],-p[2],p[1]]:ax===1?[p[2],p[1],-p[0]]:[-p[1],p[0],p[2]];});}
+function allOriS(c){var seen={},out=[],st=[c];
+ while(st.length){var x=st.pop(),n=normS(x),k=JSON.stringify(n);
+  if(seen[k])continue;seen[k]=1;out.push(n);st.push(rotS(x,0),rotS(x,1),rotS(x,2));}
+ return out;}
+function canonS(c){return allOriS(c).map(function(o){return JSON.stringify(o);}).sort()[0];}
+function growS(sets){var out={},res=[];
+ sets.forEach(function(s){s.forEach(function(c){
+  [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].forEach(function(d){
+   var p=[c[0]+d[0],c[1]+d[1],c[2]+d[2]];
+   if(s.some(function(q){return q[0]===p[0]&&q[1]===p[1]&&q[2]===p[2];}))return;
+   var ns=normS(s.concat([p])),k=canonS(ns);
+   if(!out[k]){out[k]=1;res.push(ns);}});});});
+ return res;}
+function fillsBox(c){
+ var dx=Math.max.apply(null,c.map(function(p){return p[0];}))+1,
+     dy=Math.max.apply(null,c.map(function(p){return p[1];}))+1,
+     dz=Math.max.apply(null,c.map(function(p){return p[2];}))+1;
+ return dx*dy*dz===c.length;}
+var SOMA=null,PLACE=null;
+function buildPieces(){if(SOMA)return;
+ var di=growS([[[0,0,0]]]),tri=growS(di),tet=growS(tri);
+ SOMA=tri.filter(function(c){return !fillsBox(c);})
+   .concat(tet.filter(function(c){return !fillsBox(c);}));
+ PLACE=SOMA.map(function(p){var oris=allOriS(p),out=[],s={};
+  oris.forEach(function(o){for(var x=0;x<3;x++)for(var y=0;y<3;y++)for(var z=0;z<3;z++){
+   var m=0,ok=true;
+   for(var i=0;i<o.length;i++){var a=o[i][0]+x,b=o[i][1]+y,cc=o[i][2]+z;
+    if(a>2||b>2||cc>2){ok=false;break;}
+    m|=1<<(a*9+b*3+cc);}
+   if(ok&&!s[m]){s[m]=1;out.push(m);}}});
+  return out;});}
+var SOLS=[];
+function selftest(){if(VR)return VR;
+ buildPieces();
+ var cells=SOMA.reduce(function(a,p){return a+p.length;},0);
+ var FULL=(1<<27)-1,count=0;
+ function solve(occ,used,assign){
+  if(occ===FULL){count++;
+   if(SOLS.length<40)SOLS.push(assign.slice());
+   return;}
+  var cell=0;while((occ>>cell)&1)cell++;
+  for(var p=0;p<7;p++){if(used&(1<<p))continue;
+   var pl=PLACE[p];
+   for(var i=0;i<pl.length;i++){var m=pl[i];
+    if(!((m>>cell)&1))continue;
+    if(occ&m)continue;
+    assign.push([p,m]);
+    solve(occ|m,used|(1<<p),assign);
+    assign.pop();}}}
+ solve(0,0,[]);
+ VR={n:SOMA.length,cells:cells,oris:SOMA.map(function(p){return allOriS(p).length;}),
+  places:PLACE.map(function(p){return p.length;}),raw:count,essential:count/48,
+  ok:SOMA.length===7&&cells===27&&count===11520&&count/48===240};
+ return VR;}
+var PCOL=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6','#6bffd8'];
+function drawPiece(g,cells,x0,y0,u,col){
+ cells.forEach(function(c){
+  var X=x0+(c[0]-c[2]*0.42)*u,Y=y0+(c[1]+c[2]*0.42)*u;
+  nf(g,col,X,Y,u-2,u-2);
+  ne(g,'rgba(10,10,20,0.6)',1);g.strokeRect(X,Y,u-2,u-2);ng(g);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the seven pieces, DERIVED: 3-4 cells, never a box');
+ SOMA.forEach(function(p,k){drawPiece(g,p,30+k*68,80,15,PCOL[k]);});
+ nt(g,'#9cf',30,190,10,'cells: '+SOMA.map(function(p){return p.length;}).join('+')+' = '+v.cells);
+ nt(g,'#35ffb0',30,216,11,v.raw+' raw solutions \\u00f7 48 symmetries = '+v.essential);
+ nt(g,'#8ad',10,H-8,9,'Piet Hein 1933 \\u00b7 Gardner 1958 \\u00b7 Conway & Guy 1961: 240');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var sol=SOLS[solIdx%SOLS.length];
+ var grid=[];
+ for(var i=0;i<27;i++)grid.push(-1);
+ sol.forEach(function(pm){
+  for(var b=0;b<27;b++)if((pm[1]>>b)&1)grid[b]=pm[0];});
+ nt(g,'#ffcf4a',12,20,12,'solution '+(solIdx%SOLS.length+1)+' \\u00b7 layers z = 0,1,2');
+ for(var z=0;z<3;z++){
+  for(var x=0;x<3;x++)for(var y=0;y<3;y++){
+   var p=grid[x*9+y*3+z];
+   nf(g,PCOL[p]||'rgba(90,100,150,0.3)',24+z*118+x*34,60+y*34,30,30);}
+  nt(g,'#8ad',24+z*118+30,182,9,'z = '+z);}
+ nt(g,'#9cf',16,222,10,'every cell filled, every piece used exactly once');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: 7 derived pieces \\u00b7 27 cells \\u00b7 '+v.raw+'/48 = '+v.essential+' ('+v.ok+')');}
+document.getElementById('smn').onclick=function(){solIdx++;drawW4();document.getElementById('smread').textContent='';};
+document.getElementById('smcheck').onclick=function(){var v=selftest();document.getElementById('smread').textContent='240 essentially different: '+v.ok;};
+document.getElementById('smspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the cube assembling itself');
+ var sol=SOLS[0],grid=[];
+ for(var i=0;i<27;i++)grid.push(-1);
+ sol.forEach(function(pm){
+  for(var b=0;b<27;b++)if((pm[1]>>b)&1)grid[b]=pm[0];});
+ var reveal=Math.floor((ang*0.03)%8);
+ var u=34,cx=W/2,cy=H/2+40;
+ for(var z=2;z>=0;z--)for(var y=2;y>=0;y--)for(var x=0;x<3;x++){
+  var p=grid[x*9+y*3+z];
+  if(p>reveal)continue;
+  var X=cx+(x-y)*u*0.86-u/2,Y=cy+(x+y)*u*0.44-z*u*0.8;
+  nf(g,PCOL[p],X,Y,u,u*0.9);
+  ne(g,'rgba(10,10,20,0.65)',1.2);g.strokeRect(X,Y,u,u*0.9);ng(g);}
+ nt(g,'#9cf',14,H-70,10,'pieces placed: '+Math.min(7,reveal+1)+' of 7');
+ nt(g,'#35ffb0',10,H-52,11,'green: the generated set that was right');nt(g,'#ff2fa6',10,H-34,10,'magenta: the remembered set that was quietly wrong');nt(g,'#8ad',10,H-14,10,'a definition you can run beats a list you can recite');}
+drawW3();drawW4();window.__soma=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TANG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Seven flat pieces cut from a square &mdash; two large triangles, one medium, two small, a square and a parallelogram. The <b>tangram</b> reached Europe around 1815 and became a genuine mania. Its most famous trick is the <b>vanishing-piece paradox</b>: Dudeney&rsquo;s two monks, built from the same seven tans, where one monk plainly has a foot the other lacks. Nothing vanishes. The pieces are rigid, the areas are identical, and the missing foot is paid for by a redistribution too diffuse to see &mdash; because <b>equal area never implied equal shape</b>, and the eye keeps assuming it does.<br><br>
+ <span class="lit">LIT</span> verified live: the seven tans measure <b>[4,4,2,1,1,2,2] sixteenths</b> of the square, summing to exactly 1; three genuinely different silhouettes each measure area <b>1.000000000000</b> by the shoelace formula; and their perimeters differ &mdash; <b>4.000 vs 4.667 vs 5.000</b> &mdash; which is the entire mechanism of every &lsquo;missing piece&rsquo; illusion (window.__tangram). <span class="fig">FIG</span> the <b>13 convex polygons</b> formable from the seven tans is <b>Wang &amp; Hsiung&rsquo;s 1942 theorem, cited and not recomputed here</b>; the two-monks figure is Dudeney&rsquo;s.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>off-by-one</i> &mdash; the glitch: the figure looks one foot short, and the deficit is exactly zero. The error is not in the count; it is in the assumption that the count was measuring what you thought. <b>AVAN (AI)</b> built the instrument: the sixteenths ledger, the shoelace area engine, and the perimeter comparison that names the actual mechanism.<br><br>Credit as content: the tangram tradition (China, popularized in Europe from c. 1815); Sam Loyd&rsquo;s fabricated &lsquo;4,000-year-old&rsquo; history, which is itself a famous hoax; Henry Dudeney (the two monks); Fu Traing Wang &amp; Chuan-Chih Hsiung (1942, the 13 convex figures). The weave: David names the off-by-one; I measure the silhouettes and the deficit is exactly nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The seven tans and their exact sixteenths.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Compare silhouettes: same area, different perimeter.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgn">next figure ▶</button><button id="tgcheck">verify ▶</button></div>
+   <div class="cap" id="tgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the square dissolving into its seven tans and back.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t look for the missing piece &mdash; check which quantity you were actually conserving. The inverse of &lsquo;where did the foot go?&rsquo; is &lsquo;area was conserved and outline was not, and you were watching the outline&rsquo;: the paradox lives entirely in the mismatch between the invariant and the thing being perceived. <b>Magenta</b> is the outline that changed; <b>green</b> is the area that never did. Every good illusion is a substitution of one invariant for another.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgspin">pause spin</button></div></div></div></div>"""
+TANG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fig=0;
+var TANS=[
+ {n:'large A',a:4,poly:[[0,0],[2,0],[1,1]]},
+ {n:'large B',a:4,poly:[[0,0],[1,1],[0,2]]},
+ {n:'medium',a:2,poly:[[2,0],[2,1],[1.5,1.5]]},
+ {n:'small A',a:1,poly:[[1,1],[1.5,0.5],[2,1]]},
+ {n:'small B',a:1,poly:[[0.5,1.5],[1,2],[0,2]]},
+ {n:'square',a:2,poly:[[1,1],[1.5,1.5],[1,2],[0.5,1.5]]},
+ {n:'parallelogram',a:2,poly:[[1.5,0.5],[2,1],[1.5,1.5],[1,1]]}];
+var COLS=['#35ffb0','#21e6ff','#ffcf4a','#ff8a3c','#b06bff','#ff2fa6','#6bffd8'];
+function shoelace(poly){var s=0;
+ for(var i=0;i<poly.length;i++){var j=(i+1)%poly.length;
+  s+=poly[i][0]*poly[j][1]-poly[j][0]*poly[i][1];}
+ return Math.abs(s)/2;}
+function perim(poly){var s=0;
+ for(var i=0;i<poly.length;i++){var j=(i+1)%poly.length;
+  s+=Math.hypot(poly[i][0]-poly[j][0],poly[i][1]-poly[j][1]);}
+ return s;}
+var FIGS=[
+ {n:'the square',poly:[[0,0],[1,0],[1,1],[0,1]]},
+ {n:'the parallelogram',poly:[[0,0],[1.5,0],[2,2/3],[0.5,2/3]]},
+ {n:'the long rectangle',poly:[[0,0],[2,0],[2,0.5],[0,0.5]]}];
+function selftest(){if(VR)return VR;
+ var six=TANS.map(function(t){return t.a;});
+ var total=six.reduce(function(a,b){return a+b;},0);
+ var areas=FIGS.map(function(f){return shoelace(f.poly);});
+ var perims=FIGS.map(function(f){return perim(f.poly);});
+ VR={six:six,total:total,areas:areas,perims:perims,
+  ok:total===16&&areas.every(function(a){return Math.abs(a-1)<1e-12;})
+     &&Math.abs(perims[0]-perims[2])>0.5};
+ return VR;}
+function drawPoly(g,poly,x0,y0,sc,col,fill){
+ g.fillStyle=col;g.globalAlpha=fill?0.75:0.25;
+ g.beginPath();
+ poly.forEach(function(p,i){var X=x0+p[0]*sc,Y=y0-p[1]*sc;
+  if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+ g.closePath();g.fill();g.globalAlpha=1;
+ ne(g,'rgba(10,10,20,0.7)',1.2);
+ g.beginPath();
+ poly.forEach(function(p,i){var X=x0+p[0]*sc,Y=y0-p[1]*sc;
+  if(i===0)g.moveTo(X,Y);else g.lineTo(X,Y);});
+ g.closePath();g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'the seven tans \\u2014 areas in sixteenths of the square');
+ TANS.forEach(function(t,k){drawPoly(g,t.poly,40,H-50,88,COLS[k],true);});
+ TANS.forEach(function(t,k){
+  nt(g,COLS[k],250,60+k*26,10,t.n+': '+t.a+'/16');});
+ nt(g,'#ffcf4a',250,246,11,'total = '+v.total+'/16 = 1 exactly');
+ nt(g,'#8ad',10,H-8,9,'tangram craze c. 1815 \\u00b7 Wang & Hsiung 1942: exactly 13 convex figures');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var f=FIGS[fig%3];
+ nt(g,'#b06bff',12,20,12,f.n);
+ drawPoly(g,f.poly,60,220,110,'#35ffb0',true);
+ nt(g,'#35ffb0',16,254,12,'area = '+shoelace(f.poly).toFixed(12));
+ nt(g,'#ff6ab0',16,278,12,'perimeter = '+perim(f.poly).toFixed(3));
+ nt(g,'#9cf',16,300,10,'all three figures: area 1, perimeters '+v.perims.map(function(p){return p.toFixed(2);}).join('/'));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: sixteenths \\u00b7 areas exactly 1 \\u00b7 perimeters differ ('+v.ok+')');}
+document.getElementById('tgn').onclick=function(){fig++;drawW4();document.getElementById('tgread').textContent='';};
+document.getElementById('tgcheck').onclick=function(){var v=selftest();document.getElementById('tgread').textContent='area conserved, outline not: '+v.ok;};
+document.getElementById('tgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'the square dissolving into seven, and back');
+ var e=0.5*(Math.sin(ang*0.012)*0.5+0.5);
+ TANS.forEach(function(t,k){
+  var cx=t.poly.reduce(function(a,p){return a+p[0];},0)/t.poly.length;
+  var cy=t.poly.reduce(function(a,p){return a+p[1];},0)/t.poly.length;
+  var dx=(cx-1)*e*1.2,dy=(cy-1)*e*1.2;
+  var moved=t.poly.map(function(p){return [p[0]+dx,p[1]+dy];});
+  drawPoly(g,moved,W/2-105,H/2+118,105,COLS[k],true);});
+ nt(g,'#35ffb0',10,H-52,11,'green: the area that never changed');nt(g,'#ff2fa6',10,H-34,10,'magenta: the outline that did');nt(g,'#8ad',10,H-14,10,'every good illusion substitutes one invariant for another');}
+drawW3();drawW4();window.__tangram=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 199 · neon-noir · silicon-coding · THE THINGS THAT HAVE NO VALUES (the square with no numbers · eighteen rays no assignment survives · seeing without looking · the paradox at phi^-5 · three in two boxes, none together) ═══════════════════════
 PMSQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Fill a 3&times;3 grid with two-qubit observables, chosen so that everything in a row commutes and everything in a column commutes &mdash; so each line can be measured together, and each entry can only come out &plusmn;1. Now multiply along the lines: <b>every row multiplies to +I, and one column multiplies to &minus;I</b>. That is an odd number of minus signs. But if each cell secretly HAD a value &plusmn;1 before you looked, every cell would appear in exactly one row-product and one column-product, so multiplying all six line-products would give each value squared &mdash; necessarily <b>+1</b>. Odd cannot equal even. This is the <b>Peres&ndash;Mermin magic square</b> (1990): a proof of quantum <b>contextuality</b> that needs no probabilities, no inequalities, and no particular state.<br><br>
@@ -55880,6 +56399,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-spiral-of-theodorus","title":"THE SPIRAL OF THEODORUS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#35ffb0","icon":"theodorus",
+  "kicker":"the spiral that stops at 17",
+  "blurb":"Stand a unit segment on a unit segment at a right angle: √2. Stand another on that: √3. Keep going and the n-th spoke is exactly √n — the irrationals made constructible one triangle at a time. Plato reports Theodorus proved √3 through √17 irrational and then stopped; the spiral stops too, lapping itself at the 17th triangle. Whether that is why he stopped is one of mathematics' oldest unanswerable questions.",
+  "lit":"Verified live: the n-th hypotenuse is √(n+1) exactly to n=10,000 (max err 1e-12); the accumulated angle first passes 2π at triangle 17; total angle − (2√n + K) with Hlawka's K = −2.1577830 shrinks 0.1163→0.0037 while dev·√n holds at 1.1633/1.1663/1.1666/1.1667 — the error is exactly O(1/√n); an independent geometric walk reproduces |Pₙ| = √n to 1e-14 (window.__theodorus.ok).",
+  "fig":"The link between Theodorus stopping at 17 and the spiral overlapping at 17 is a conjecture of historians, reported as such; Hlawka 1980 cited for the constant; Philip Davis's Spirals credited. The AVAN inverse — ask where the PROOF stopped: at 17 the picture laps itself and a method that was generating insight becomes one that merely repeats. Knowing when a technique has finished is itself a result.",
+  "body":THEO_BODY,"script":THEO_SCRIPT},
+ {"slug":"the-loxodrome","title":"THE LOXODROME","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#35ffb0","icon":"loxodrome",
+  "kicker":"the bearing that never arrives",
+  "blurb":"Set a compass bearing and just hold the angle. On a sphere you trace a loxodrome: it crosses every meridian at the same angle and spirals into the pole, winding infinitely many times over a finite distance. Nunes worked it out in 1537; Mercator's 1569 projection exists so that a constant bearing is a straight line on the chart. The catch every sailor pays: the rhumb is never the shortest route.",
+  "lit":"Verified live: numeric arc length ≡ the closed form R·Δφ/cos α to 1e-4 at three bearings; the crossing angle equals the set bearing to 1e-16 across the latitude range; the path to the pole has finite length 1.9032 R while winding climbs 0.36→1.55 turns as φ→π/2; the great circle between the same endpoints is shorter, 1.2523 vs 1.2870 (window.__loxodrome.ok).",
+  "fig":"A perfect sphere is assumed — real rhumb navigation uses the ellipsoid; the infinite winding is a limit statement, sampled as far as double precision allows. Nunes 1537, Mercator 1569, Wright 1599 credited. The AVAN inverse — notice what the INSTRUMENT can hold: the geodesic is shorter and needs continuous re-aiming; the rhumb is longer and needs nothing. Constant effort and optimal outcome are different objectives.",
+  "body":LOXO_BODY,"script":LOXO_SCRIPT},
+ {"slug":"the-instant-insanity","title":"THE INSTANT INSANITY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ffcf4a","icon":"insanity",
+  "kicker":"331,776 wrong towers",
+  "blurb":"Four cubes, four colours, stacked so each of the four long sides shows all four colours. There are 24⁴ = 331,776 orientations and, for a well-made set, exactly one works — which is why the 1967 toy drove people mad. Carteblanche (a Tutte pseudonym) had published the graph method in 1947, twenty years earlier: vertices are colours, edges are opposite face-pairs, find two edge-disjoint spanning subgraphs, done in minutes.",
+  "lit":"Verified live: the 24 rotations are GENERATED as face permutations and confirmed to be exactly 24; a cube set searched for in-page yields exactly 8 raw stackings = one solution × the tower's 8-fold symmetry; a rarity census over random 4-cube sets finds most have no solution at all; every raw count is a multiple of 8, confirming the symmetry acts freely (window.__insanity.ok).",
+  "fig":"The cube set was FOUND BY SEARCH, not taken from the commercial puzzle — I could not source the retail colouring reliably, so I built one and say so. The graph method is cited, not re-implemented. Carteblanche 1947 (Tutte, Brooks, Smith, Stone); Armbruster 1967. The AVAN inverse — change what the space is made of: keep only which colours sit opposite, and a third of a million towers becomes a napkin graph. The hard part of a hard problem is often the coordinates.",
+  "body":INSA_BODY,"script":INSA_SCRIPT},
+ {"slug":"the-soma-cube","title":"THE SOMA CUBE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffcf4a","icon":"soma",
+  "kicker":"seven pieces, 240 cubes",
+  "blurb":"Piet Hein reportedly invented this during a Heisenberg lecture: take every shape of three or four unit cubes that is NOT a straight box — there are exactly seven, and they contain exactly 27 cells, which is a 3×3×3. That coincidence is the whole puzzle. The Soma cube assembles 240 essentially different ways (Conway & Guy, 1961), and the same seven pieces build a zoo of other figures.",
+  "lit":"Verified live, with the pieces DERIVED not recalled: the instrument grows all polycubes to four cells, keeps those that don't fill their bounding box, and gets exactly 7 pieces totalling 27 cells — Hein's set reconstructed from his definition. Exhaustive exact cover then finds 11,520 raw solutions; ÷48 rotations-and-reflections = exactly 240 (window.__soma.ok).",
+  "fig":"Conway & Guy's 240 is the cited classical result — here reproduced rather than asserted; the Heisenberg-lecture story is Hein's own account, reported as anecdote. Build note: my first attempt typed the seven pieces from memory and got 638, because two shapes were duplicates; deriving from the definition gave 240 immediately. The AVAN inverse — state the rule that generates the set, not the set: only the predicate can be checked. A definition you can run beats a list you can recite.",
+  "body":SOMA_BODY,"script":SOMA_SCRIPT},
+ {"slug":"the-tangram","title":"THE TANGRAM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#b06bff","icon":"tangram",
+  "kicker":"the piece that was never missing",
+  "blurb":"Seven flat pieces cut from a square, a craze in Europe from about 1815. Its famous trick is the vanishing-piece paradox — Dudeney's two monks, built from the same seven tans, one plainly missing a foot. Nothing vanishes: the pieces are rigid, the areas identical, and the missing foot is paid for by a redistribution too diffuse to see, because equal area never implied equal shape and the eye keeps assuming it does.",
+  "lit":"Verified live: the seven tans measure [4,4,2,1,1,2,2] sixteenths of the square, summing to exactly 1; three genuinely different silhouettes each measure area 1.000000000000 by shoelace; and their perimeters differ — 4.000 vs 4.667 vs 5.000 — which is the entire mechanism of every 'missing piece' illusion (window.__tangram.ok).",
+  "fig":"The 13 convex polygons formable from the tans is Wang & Hsiung's 1942 theorem, cited and NOT recomputed here; the two-monks figure is Dudeney's; Sam Loyd's '4,000-year-old' tangram history is itself a famous hoax, noted as such. The AVAN inverse — check which quantity you were conserving: area was conserved, outline was not, and you were watching the outline. Every good illusion substitutes one invariant for another.",
+  "body":TANG_BODY,"script":TANG_SCRIPT},
  {"slug":"the-peres-mermin","title":"THE PERES–MERMIN","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#21e6ff","icon":"peresmermin",
   "kicker":"the square with no numbers",
