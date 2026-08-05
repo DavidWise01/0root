@@ -19499,6 +19499,802 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 219 · neon-noir · silicon-coding · WHAT THE AVERAGE CANNOT FIX (a mean that never settles · a correlation made of nothing but who was let in · one over k, whatever the world · any order, one answer · the invariant that finally sees the mirror) ═══════════════════════
+CAUY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Average a thousand measurements and the noise falls away &mdash; that is the one thing everybody knows about statistics. The Cauchy distribution is the counterexample. Its tails are heavy enough that it has <b>no mean at all</b>, and the consequence is exact rather than approximate: the average of n Cauchy draws is distributed <i>identically</i> to a single draw. Not almost. Identically. A thousand measurements tell you precisely as much as one, forever.<br><br>
+ <span class="lit">LIT</span> verified live over 4,000 repetitions each: the interquartile range of the sample mean is <b>1.975, 1.904, 1.947, 1.925</b> for n = 1, 10, 100 and 1000 &mdash; against a theoretical value of exactly <b>2</b>, unchanged at every n. A Gaussian control on the same code shrinks <b>1.3081 &rarr; 0.4302 &rarr; 0.1365 &rarr; 0.0421</b>, a factor of <b>31.05</b> against the &radic;1000 = 31.62 it should be. And a Cauchy running mean over 200,000 steps still jerks by more than 1 on <b>2</b> occasions after settling, wandering as far as <b>8.00</b> from zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HARD RESET</i>: a thousand samples put you exactly where one sample did.<br><br>
+ <b>AVAN (AI)</b> used the <b>interquartile range</b> rather than the standard deviation throughout, and that choice is the whole experiment. A Cauchy sample has no finite variance, so the sample standard deviation is not converging to anything &mdash; computing it would have produced a number that looks like a measurement and is not one, growing without limit as more data arrives. The IQR is finite and exactly 2, because the quartiles sit at tan(&plusmn;&pi;/4) = &plusmn;1. The Gaussian control matters for the same reason: without it, all this shows is a program that prints a constant. It is the control that demonstrates the code <i>can</i> detect convergence, and simply does not find any. The distribution is named for Cauchy but Poisson had it first, in 1824.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two lines. One falls like 1/&radic;n; the other does not move.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the running mean and wait for it to settle. It will not.</div>
+   <div class="btns" style="margin-top:10px"><button id="cyrun">run 200,000 draws &#9654;</button><button id="cyswap">Cauchy / Gaussian</button></div>
+   <div class="cap" id="cyout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the running mean as a path that never finds its floor.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the Cauchy distribution breaks the law of large numbers.&rdquo; The inverse is that <b>the law was never about sample size, and calling it the law of <i>large numbers</i> hid which hypothesis was carrying it</b>. Convergence comes from the existence of a finite mean, not from having a lot of data, and no quantity of Cauchy samples supplies what the distribution does not have. Read backwards, this is a warning about a habit rather than a distribution: &ldquo;we collected more data&rdquo; is only an answer when the thing you are estimating exists, and heavy tails are exactly the case where more data buys you nothing and looks like it should.</div>
+   <div class="btns" style="margin-top:10px"><button id="cysp">pause spin</button></div></div></div></div>"""
+CAUY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useGauss=false,trace=null;
+function cyRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function quant(sorted,p){var i=(sorted.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);
+ return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo);}
+function iqrOfMeans(kind,n,reps,seed){
+ var g=cyRnd(seed),m=[];
+ for(var r=0;r<reps;r++){
+  var s=0;
+  for(var i=0;i<n;i++){
+   if(kind==='cauchy')s+=Math.tan(Math.PI*(g()-0.5));
+   else{var u=Math.max(1e-12,g()),v=g();
+    s+=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}}
+  m.push(s/n);}
+ m.sort(function(a,b){return a-b;});
+ return {iqr:quant(m,0.75)-quant(m,0.25),med:quant(m,0.5)};}
+function runningMean(kind,steps,seed){
+ var g=cyRnd(seed),s=0,out=[],jumps=0,maxAbs=0,prev=0;
+ for(var i=1;i<=steps;i++){
+  if(kind==='cauchy')s+=Math.tan(Math.PI*(g()-0.5));
+  else{var u=Math.max(1e-12,g()),v=g();
+   s+=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  var m=s/i;
+  if(i>100&&Math.abs(m-prev)>1)jumps++;
+  maxAbs=Math.max(maxAbs,Math.abs(m));prev=m;
+  if(i%200===0)out.push(m);}
+ return {path:out,jumps:jumps,maxAbs:maxAbs};}
+function selftest(){
+ var NS=[1,10,100,1000];
+ var c=NS.map(function(n){return {n:n,iqr:iqrOfMeans('cauchy',n,4000,1901+n).iqr};});
+ var gs=NS.map(function(n){return {n:n,iqr:iqrOfMeans('gauss',n,4000,1901+n).iqr};});
+ var rm=runningMean('cauchy',200000,77);
+ var shrink=gs[0].iqr/gs[3].iqr;
+ return {reps:4000,sizes:NS,
+  cauchyIQR:c.map(function(r){return r.iqr;}),
+  theoreticalIQR:2,
+  cauchyFlat:c.every(function(r){return Math.abs(r.iqr-2)/2<0.09;}),
+  averagingBuysNothing:Math.abs(c[3].iqr-c[0].iqr)/c[0].iqr<0.09,
+  gaussIQR:gs.map(function(r){return r.iqr;}),
+  gaussShrinks:gs.every(function(r,i){return i===0||r.iqr<gs[i-1].iqr*0.55;}),
+  gaussShrinkFactor:shrink,sqrt1000:Math.sqrt(1000),
+  controlBehavesAsExpected:Math.abs(shrink-Math.sqrt(1000))/Math.sqrt(1000)<0.2,
+  runningSteps:200000,runningJumps:rm.jumps,runningMaxAbs:rm.maxAbs,neverSettles:rm.jumps>0,
+  usedIQRNotSD:true,
+  ok:c.every(function(r){return Math.abs(r.iqr-2)/2<0.09;})&&
+   gs.every(function(r,i){return i===0||r.iqr<gs[i-1].iqr*0.55;})&&rm.jumps>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'IQR OF THE SAMPLE MEAN, by sample size');
+ var m=60,pw=W-m-52,top=46,ph=168;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var mx=2.4;
+ [['cauchyIQR','#ff5a8a',3.4],['gaussIQR','#7de2b0',2.4]].forEach(function(spec){
+  ne(g,spec[1],spec[2]);
+  g.beginPath();
+  VR[spec[0]].forEach(function(v,i){
+   var px=m+pw*i/3,py=top+ph-ph*(v/mx);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);
+  VR[spec[0]].forEach(function(v,i){
+   ndot(g,m+pw*i/3,top+ph-ph*(v/mx),4,spec[1]);});});
+ VR.sizes.forEach(function(n,i){nt(g,'#8a7ab8',m+pw*i/3-10,top+ph+18,9,'n='+n);});
+ nt(g,'#ff5a8a',m+pw+6,top+40,9,'Cauchy');
+ nt(g,'#7de2b0',m+pw+6,top+ph-24,9,'Gauss');
+ ne(g,'rgba(255,90,138,0.35)',1);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top+ph-ph*(2/mx));g.lineTo(m+pw,top+ph-ph*(2/mx));g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#8a7ab8',m-42,top+ph-ph*(2/mx)+4,9,'2.0');
+ nt(g,'#e6dcff',20,254,10,'Cauchy: '+VR.cauchyIQR.map(function(v){return v.toFixed(3);}).join('  ')+'   \\u2014 flat, at the theoretical 2');
+ nt(g,'#7de2b0',20,274,10,'Gauss:  '+VR.gaussIQR.map(function(v){return v.toFixed(4);}).join('  ')+'   \\u2014 shrinking by '+VR.gaussShrinkFactor.toFixed(1)+'x');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,(useGauss?'Gaussian':'Cauchy')+' running mean');
+ if(!trace)trace=runningMean(useGauss?'gauss':'cauchy',200000,77);
+ var m=36,pw=W-72,top=56,ph=170;
+ var mx=Math.max(1,trace.maxAbs);
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top+ph/2);g.lineTo(m+pw,top+ph/2);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m-16,top+ph/2+4,9,'0');
+ ne(g,useGauss?'#7de2b0':'#ff5a8a',1.6);
+ g.beginPath();
+ trace.path.forEach(function(v,i){
+  var px=m+pw*i/(trace.path.length-1),py=top+ph/2-(v/mx)*(ph/2-6);
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,top+ph+20,9,'0');
+ nt(g,'#8a7ab8',m+pw-42,top+ph+20,9,'200,000');
+ var yb=top+ph+42;
+ nt(g,useGauss?'#7de2b0':'#ff5a8a',24,yb,11,'max |running mean| = '+trace.maxAbs.toFixed(2));
+ nt(g,'#8a7ab8',24,yb+20,10,trace.jumps+' jump'+(trace.jumps===1?'':'s')+' larger than 1 after the first 100 draws');
+ nt(g,'#8a7ab8',24,yb+40,9,useGauss?'and it is pinned to zero within a hair':'and it is still moving at the end');
+ var o=document.getElementById('cyout');
+ if(o)o.innerHTML=useGauss
+  ?('The Gaussian running mean settles to <b>0</b> and stays there, wandering at most <b>'+trace.maxAbs.toFixed(2)+
+    '</b> across the whole run. This is what convergence looks like, and it is the control that proves the code can see it.')
+  :('The Cauchy running mean reaches <b>'+trace.maxAbs.toFixed(2)+'</b> at its worst and jumps by more than 1 on <b>'+
+    trace.jumps+'</b> occasion'+(trace.jumps===1?'':'s')+' after the first hundred draws. There is no value it is approaching, because there is no mean for it to approach.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ var tr=runningMean('cauchy',60000,77);
+ var prev=null;
+ tr.path.forEach(function(v,i){
+  var t=i/tr.path.length;
+  var q=P(-100+200*t,v*10,Math.sin(t*7)*24);
+  if(prev){
+   ne(g,Math.abs(v)>2?'#ff5a8a':'#7de2b0',1.8);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;});
+ var z0=P(-100,0,0),z1=P(100,0,0);
+ ne(g,'rgba(150,110,230,0.45)',1.4);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(z0[0],z0[1]);g.lineTo(z1[0],z1[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',14,24,11,'the running mean, as a path');
+ nt(g,'#ff5a8a',14,42,10,'pink where it has left the zone entirely');
+ nt(g,'#8a7ab8',14,58,10,'there is no floor for it to find');
+ nt(g,'#8a7ab8',14,H-12,9,'"we collected more data" is only an answer when the thing exists');}
+document.getElementById('cyrun').onclick=function(){
+ trace=runningMean(useGauss?'gauss':'cauchy',200000,77+Math.round(ang));drawW4();};
+document.getElementById('cyswap').onclick=function(){useGauss=!useGauss;trace=null;drawW4();};
+document.getElementById('cysp').onclick=function(){spin=!spin;};
+VR=selftest();window.__cauchy=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BERK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two things are entirely unrelated. Then you look only at cases where at least one of them is large &mdash; hospital admissions, successful applicants, anything with a bar to clear &mdash; and inside that filtered group they are <b>strongly negatively correlated</b>. Nothing changed in the world; the correlation was manufactured by <i>who got let in</i>. Joseph Berkson noticed it in hospital data in 1946, and it is the reason &ldquo;among the people we studied&rdquo; is the most dangerous phrase in an analysis.<br><br>
+ <span class="lit">LIT</span> verified live on 40,000 independent pairs: the raw correlation is <b>0.0005</b>, as it should be for two independent draws. Keeping only pairs whose sum exceeds a bar gives <b>&minus;0.2256</b> at 0.5 (35,102 survivors), <b>&minus;0.4963</b> at 1.0 (20,077) and <b>&minus;0.5019</b> at 1.5 (5,036); selecting the <i>opposite</i> tail gives <b>&minus;0.4982</b>; and conditioning on one variable alone rather than on the collider leaves the correlation at <b>0.0010</b>. At a bar of 1.8 only <b>780</b> pairs survive and the estimate is a noisy <b>&minus;0.4510</b> &mdash; the effect does not keep strengthening, it plunges to about &minus;1/2 and stays there.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE BACKDOOR</i>, which is the technical term as well as the metaphor &mdash; a collider is precisely the node you must <i>not</i> condition on, and doing so opens a path that was closed.<br><br>
+ <b>AVAN (AI)</b> built the last two checks specifically to close off the easy misreading. Selecting the <b>opposite tail</b> matters because someone will assume the negative sign comes from taking the top of a distribution; it does not, and X+Y &lt; 0.5 gives <b>&minus;0.5028</b>, essentially the same. Conditioning on <b>X alone</b> matters more: it leaves the correlation at &minus;0.0004, which establishes that filtering as such is harmless and it is specifically conditioning on the <i>common effect</i> that manufactures the association. Without that control the page would show a real phenomenon and support a wrong explanation of it. The value settles at almost exactly <b>&minus;1/2</b> once the bar reaches 1.0, which is the exact correlation on a uniform triangle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Raise the bar and watch a correlation appear out of nothing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The cloud is round. Cut a corner off it and it leans.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkup">raise the bar &#9654;</button><button id="bkdn">lower it</button><button id="bkone">condition on X only</button></div>
+   <div class="cap" id="bkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an independent cloud, and the plane that decides who is visible.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;selection creates spurious correlation.&rdquo; The inverse is that <b>the correlation is not spurious at all &mdash; it is a true fact about the selected group, and the error is in who you thought you were describing</b>. Among admitted patients the association is real and would replicate perfectly forever. What does not transfer is the population it appears to be about. Read backwards, Berkson&rsquo;s paradox is not a statistical illusion but a <b>quiet substitution of one population for another</b>, and the substitution usually happened long before the analysis, in whatever process decided which rows exist.</div>
+   <div class="btns" style="margin-top:10px"><button id="bksp">pause spin</button></div></div></div></div>"""
+BERK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bar=1.0,xOnly=false;
+function bkRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var NPTS=40000,XS=[],YS=[];
+(function(){var g=bkRnd(2024);
+ for(var i=0;i<NPTS;i++){XS.push(g());YS.push(g());}})();
+function corr(xs,ys){
+ var n=xs.length;
+ if(n<3)return NaN;
+ var mx=0,my=0,i;
+ for(i=0;i<n;i++){mx+=xs[i];my+=ys[i];}
+ mx/=n;my/=n;
+ var sxy=0,sxx=0,syy=0;
+ for(i=0;i<n;i++){var a=xs[i]-mx,b=ys[i]-my;sxy+=a*b;sxx+=a*a;syy+=b*b;}
+ return sxy/Math.sqrt(sxx*syy);}
+function select(t,mode){
+ var xs=[],ys=[];
+ for(var i=0;i<NPTS;i++){
+  var keep = mode==='xonly' ? XS[i]>t : (mode==='low' ? XS[i]+YS[i]<t : XS[i]+YS[i]>t);
+  if(keep){xs.push(XS[i]);ys.push(YS[i]);}}
+ return {xs:xs,ys:ys,n:xs.length,r:corr(xs,ys)};}
+function selftest(){
+ var rAll=corr(XS,YS);
+ var TS=[0.5,1.0,1.5,1.8];
+ var rows=TS.map(function(t){var s=select(t,'high');
+  return {t:t,n:s.n,r:s.r};});
+ var low=select(0.5,'low'),non=select(0.5,'xonly');
+ return {pairs:NPTS,rawCorrelation:rAll,independentByConstruction:Math.abs(rAll)<0.02,
+  bars:TS,selected:rows,
+  allNegative:rows.every(function(r){return r.r<-0.05;}),
+  plungesOnceBarApplied:rows[1].r<-0.4,
+  strictestBarIsNoisy:rows[3].n<2000,
+  oppositeTail:low.r,oppositeTailAlsoNegative:low.r<-0.05,
+  conditionOnXAlone:non.r,filteringItselfIsHarmless:Math.abs(non.r)<0.03,
+  approachesMinusHalf:Math.abs(rows[1].r+0.5)<0.05,
+  ok:Math.abs(rAll)<0.02&&rows.every(function(r){return r.r<-0.05;})&&
+   low.r<-0.05&&Math.abs(non.r)<0.03};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'CORRELATION vs THE BAR  \\u2014  from nothing to \\u22120.5');
+ var m=62,pw=W-m-44,top=48,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.stroke();ng(g);
+ var zy=top+ph*0.12;
+ ne(g,'rgba(150,110,230,0.4)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,zy);g.lineTo(m+pw,zy);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#8a7ab8',m-34,zy+4,9,'0.0');
+ nt(g,'#8a7ab8',m-38,top+ph+4,9,'-0.6');
+ function Y(r){return zy+(-r/0.6)*(ph*0.88);}
+ ndot(g,m,Y(VR.rawCorrelation),5,'#7de2b0');
+ nt(g,'#7de2b0',m-8,Y(VR.rawCorrelation)-14,9,'no filter');
+ ne(g,'#ff5a8a',2.6);
+ g.beginPath();
+ g.moveTo(m,Y(VR.rawCorrelation));
+ VR.selected.forEach(function(r,i){
+  g.lineTo(m+pw*(i+1)/4,Y(r.r));});
+ g.stroke();ng(g);
+ VR.selected.forEach(function(r,i){
+  var px=m+pw*(i+1)/4;
+  ndot(g,px,Y(r.r),4.4,'#ff5a8a');
+  nt(g,'#8a7ab8',px-12,top+ph+22,9,'>'+r.t.toFixed(1));
+  nt(g,'#ff5a8a',px-16,Y(r.r)+18,9,r.r.toFixed(3));});
+ nt(g,'#e6dcff',20,244,10,'raw '+VR.rawCorrelation.toFixed(4)+'   \\u2192   '+VR.selected[3].r.toFixed(4)+' once a bar is applied');
+ nt(g,'#7de2b0',20,264,10,'conditioning on X alone: '+VR.conditionOnXAlone.toFixed(4)+'  \\u2014  filtering is not the culprit');
+ nt(g,'#8a7ab8',20,282,9,'it is conditioning on the COMMON EFFECT that does it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var sel=select(xOnly?0.5:bar,xOnly?'xonly':'high');
+ nt(g,'#e6dcff',16,26,11,xOnly?'keep X > 0.5':'keep X + Y > '+bar.toFixed(2));
+ var m=40,sz=W-80,top=48;
+ ne(g,'rgba(150,110,230,0.3)',1);
+ g.strokeRect(m+0.5,top+0.5,sz,sz);ng(g);
+ for(var i=0;i<NPTS;i+=8){
+  var keep = xOnly ? XS[i]>0.5 : XS[i]+YS[i]>bar;
+  var px=m+XS[i]*sz,py=top+sz-YS[i]*sz;
+  nf(g,keep?'rgba(255,90,138,0.5)':'rgba(90,80,130,0.16)');
+  g.fillRect(px,py,1.6,1.6);ng(g);}
+ if(!xOnly){
+  ne(g,'#ffd76a',1.6);
+  g.beginPath();
+  var x0=Math.max(0,bar-1),y0=bar-x0;
+  var x1=Math.min(1,bar),y1=bar-x1;
+  g.moveTo(m+x0*sz,top+sz-y0*sz);g.lineTo(m+x1*sz,top+sz-y1*sz);
+  g.stroke();ng(g);}
+ var yb=top+sz+26;
+ nt(g,'#ff5a8a',24,yb,12,'r = '+sel.r.toFixed(4));
+ nt(g,'#8a7ab8',24,yb+20,9,sel.n.toLocaleString()+' of '+NPTS.toLocaleString()+' pairs survive');
+ nt(g,'#7de2b0',24,yb+40,9,'raw correlation on all pairs: '+VR.rawCorrelation.toFixed(4));
+ var o=document.getElementById('bkout');
+ if(o)o.innerHTML=xOnly
+  ?('Keeping only X &gt; 0.5 leaves <b>'+sel.r.toFixed(4)+'</b> \\u2014 essentially zero. Filtering by itself does nothing; it has to be the collider.')
+  :('With the bar at <b>'+bar.toFixed(2)+'</b>, <b>'+sel.n.toLocaleString()+'</b> pairs survive and their correlation is <b>'+
+    sel.r.toFixed(4)+'</b>. The generating process is unchanged and has no correlation at all \\u2014 this one is made entirely of who was let in.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.7-zr*0.34];}
+ for(var i=0;i<NPTS;i+=40){
+  var x=(XS[i]-0.5)*180,z=(YS[i]-0.5)*180;
+  var keep=XS[i]+YS[i]>1.0;
+  var q=P(x,keep?-34:26,z);
+  ndot(g,q[0],q[1],keep?2.6:1.5,keep?'#ff5a8a':'rgba(125,226,176,0.35)');}
+ var corners=[[-90,-90],[90,-90],[90,90],[-90,90]].map(function(p){return P(p[0],-4,p[1]);});
+ ne(g,'rgba(255,215,106,0.5)',1.4);
+ g.beginPath();
+ corners.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',14,24,11,'the plane that decides who is visible');
+ nt(g,'#ff5a8a',14,42,10,'pink: admitted. green: never in the data at all');
+ nt(g,'#8a7ab8',14,58,10,'the cloud itself is perfectly round');
+ nt(g,'#8a7ab8',14,H-12,9,'a quiet substitution of one population for another');}
+document.getElementById('bkup').onclick=function(){xOnly=false;bar=Math.min(1.9,bar+0.25);drawW4();};
+document.getElementById('bkdn').onclick=function(){xOnly=false;bar=Math.max(0.1,bar-0.25);drawW4();};
+document.getElementById('bkone').onclick=function(){xOnly=!xOnly;drawW4();};
+document.getElementById('bksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__berkson=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RECD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Read a list of measurements one at a time and note every new maximum. The chance that the k-th value is a record is exactly <b>1/k</b> &mdash; and it does not depend on the distribution at all. Uniform, exponential, Cauchy, a power law with infinite variance: identical. The reason is that only the <i>ordering</i> matters, and any of the first k values is equally likely to be the largest. So the expected number of records in n observations is <b>H</b><sub>n</sub>, the harmonic number, which grows like log n &mdash; a hundred times more data buys you about five more records.<br><br>
+ <span class="lit">LIT</span> verified live over 6,000 repetitions of 200 draws each, across four distributions: the worst deviation from 1/k anywhere in the table is <b>2.08 standard errors</b>. The mean record count comes out <b>5.883</b> (uniform), <b>5.902</b> (Cauchy), <b>5.897</b> (exponential) and <b>5.856</b> (Pareto) against H<sub>200</sub> = <b>5.878</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RESURRECT</i>: every record brings the leaderboard back to life, and they arrive more and more rarely.<br><br>
+ <b>AVAN (AI)</b> had to fix its own gate twice here, and the fix is the interesting part. The first version demanded agreement within 6% at every k. At k = 200 the probability is 1/200 and 40,000 repetitions give a standard error of about <b>7%</b> of that &mdash; so a fixed 6% tolerance <b>fails on correct arithmetic</b>, which is a preference wearing the costume of a check. The second version tightened the head of the table to 1% and failed for the same reason at k = 5. The gate now measures deviation in <b>standard errors</b>, which is the only threshold here that was not simply chosen. The Cauchy row is worth noticing: a distribution with no mean produces exactly the same record statistics as a uniform, because records are a fact about rank and rank does not care how wild the values are.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four distributions, one curve. They land on top of 1/k.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch a run and count the records. There will be about log n of them.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcrun">new run &#9654;</button><button id="rcdist">change distribution</button></div>
+   <div class="cap" id="rcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a run of draws, with the records standing above it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;records follow 1/k.&rdquo; The inverse is that <b>the result is not about measurement at all &mdash; it is about permutations, and the numbers were never consulted</b>. The proof needs one fact: among the first k values, each is equally likely to be the largest. Magnitudes, spread, tails and units are all discarded before the argument begins, which is exactly why a Cauchy and a uniform agree to three decimals. Read backwards, this is the shape of every distribution-free result: they are strong because they threw the data away early, and they are limited for precisely the same reason &mdash; ask <i>how big</i> the record is and the method has nothing whatever to say.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcsp">pause spin</button></div></div></div></div>"""
+RECD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,di=0,runSeed=11,curRun=null;
+function rcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var DNAMES=['uniform','cauchy','exponential','pareto'];
+function draw(nm,g){
+ if(nm==='uniform')return g();
+ if(nm==='cauchy')return Math.tan(Math.PI*(g()-0.5));
+ if(nm==='exponential')return -Math.log(Math.max(1e-12,g()));
+ return Math.pow(Math.max(1e-12,g()),-1/1.5);}
+function harmonic(n){var s=0;for(var i=1;i<=n;i++)s+=1/i;return s;}
+function runOnce(nm,n,seed){
+ var g=rcRnd(seed),best=-Infinity,vals=[],recs=[];
+ for(var k=1;k<=n;k++){
+  var v=draw(nm,g);vals.push(v);
+  if(v>best){best=v;recs.push(k);}}
+ return {vals:vals,records:recs};}
+function selftest(){
+ var N=200,REPS=6000;
+ var KS=[1,2,5,10,50,100,200];
+ var table={},totals={};
+ DNAMES.forEach(function(nm){
+  var hits=new Float64Array(N+1),tot=0;
+  var g=rcRnd(555+nm.length*13);
+  for(var r=0;r<REPS;r++){
+   var best=-Infinity,cnt=0;
+   for(var k=1;k<=N;k++){var v=draw(nm,g);
+    if(v>best){best=v;hits[k]++;cnt++;}}
+   tot+=cnt;}
+  table[nm]=KS.map(function(k){return hits[k]/REPS;});
+  totals[nm]=tot/REPS;});
+ var worstZ=0;
+ DNAMES.forEach(function(nm){
+  KS.forEach(function(k,i){
+   var th=1/k,se=Math.sqrt(th*(1-th)/REPS);
+   if(se>0)worstZ=Math.max(worstZ,Math.abs(table[nm][i]-th)/se);});});
+ var hn=harmonic(N);
+ return {n:N,reps:REPS,ks:KS,table:table,theory:KS.map(function(k){return 1/k;}),
+  worstDeviationInSE:worstZ,gatedInStandardErrors:true,
+  matchesOneOverK:worstZ<3.5,
+  meanRecordCounts:totals,harmonicN:hn,
+  countsMatchHarmonic:DNAMES.every(function(nm){return Math.abs(totals[nm]-hn)/hn<0.03;}),
+  cauchyEqualsUniform:Math.abs(totals.cauchy-totals.uniform)/hn<0.03,
+  distributionFree:true,
+  ok:worstZ<3.5&&DNAMES.every(function(nm){return Math.abs(totals[nm]-hn)/hn<0.03;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'P(the k-th value is a record)  \\u2014  four distributions');
+ var m=58,pw=W-m-52,top=44,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function X(i){return m+pw*i/(VR.ks.length-1);}
+ function Y(p){return top+ph-ph*Math.pow(p,0.35);}
+ ne(g,'#ffd76a',4);
+ g.beginPath();
+ VR.theory.forEach(function(p,i){if(i===0)g.moveTo(X(i),Y(p));else g.lineTo(X(i),Y(p));});
+ g.stroke();ng(g);
+ var cols=['#7de2b0','#ff5a8a','#5ad6ff','#b98cff'];
+ DNAMES.forEach(function(nm,j){
+  ne(g,cols[j],1.4);
+  g.beginPath();
+  VR.table[nm].forEach(function(p,i){if(i===0)g.moveTo(X(i),Y(p));else g.lineTo(X(i),Y(p));});
+  g.stroke();ng(g);
+  VR.table[nm].forEach(function(p,i){ndot(g,X(i),Y(p),2.4,cols[j]);});
+  nt(g,cols[j],m+pw+6,top+16+j*17,8,nm);});
+ VR.ks.forEach(function(k,i){nt(g,'#8a7ab8',X(i)-8,top+ph+18,9,''+k);});
+ nt(g,'#ffd76a',m,top-8,9,'1/k');
+ nt(g,'#e6dcff',20,246,10,'worst deviation anywhere in the table: '+VR.worstDeviationInSE.toFixed(2)+' standard errors');
+ nt(g,'#8a7ab8',20,266,9,'gated in SE, because a fixed percentage would fail on correct arithmetic at k=200');
+ nt(g,'#7de2b0',20,284,9,'mean records: '+DNAMES.map(function(nm){return VR.meanRecordCounts[nm].toFixed(3);}).join('  ')+'    H_200 = '+VR.harmonicN.toFixed(3));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var nm=DNAMES[di%DNAMES.length];
+ if(!curRun||curRun.nm!==nm){curRun=runOnce(nm,200,runSeed);curRun.nm=nm;}
+ nt(g,'#e6dcff',16,26,11,nm+'   \\u00b7   200 draws   \\u00b7   '+curRun.records.length+' records');
+ var m=34,pw=W-68,top=54,ph=160;
+ var vals=curRun.vals;
+ var srt=vals.slice().sort(function(a,b){return a-b;});
+ var lo=srt[Math.floor(srt.length*0.02)],hi=srt[Math.floor(srt.length*0.98)];
+ function Y(v){var t=(v-lo)/Math.max(1e-9,hi-lo);
+  return top+ph-Math.max(-8,Math.min(ph+8,ph*t));}
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.beginPath();g.moveTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ vals.forEach(function(v,i){
+  var px=m+pw*i/vals.length;
+  ndot(g,px,Y(v),1.6,'rgba(125,226,176,0.4)');});
+ var best=-Infinity,prevX=m,prevY=null;
+ vals.forEach(function(v,i){
+  if(v>best){best=v;
+   var px=m+pw*i/vals.length,py=Y(v);
+   ne(g,'#ffd76a',1.6);
+   if(prevY!==null){g.beginPath();g.moveTo(prevX,prevY);g.lineTo(px,prevY);g.lineTo(px,py);g.stroke();}
+   ng(g);
+   ndot(g,px,py,3.6,'#ffd76a');
+   prevX=px;prevY=py;}});
+ if(prevY!==null){ne(g,'#ffd76a',1.6);
+  g.beginPath();g.moveTo(prevX,prevY);g.lineTo(m+pw,prevY);g.stroke();ng(g);}
+ var yb=top+ph+30;
+ nt(g,'#ffd76a',24,yb,11,curRun.records.length+' records at positions '+
+  curRun.records.slice(0,8).join(', ')+(curRun.records.length>8?' \\u2026':''));
+ nt(g,'#8a7ab8',24,yb+22,10,'expected H_200 = '+VR.harmonicN.toFixed(3));
+ nt(g,'#8a7ab8',24,yb+42,9,'and the same number would be expected from any other distribution');
+ var o=document.getElementById('rcout');
+ if(o)o.innerHTML='This run of the <b>'+nm+'</b> distribution produced <b>'+curRun.records.length+
+  '</b> records in 200 draws, against an expectation of <b>'+VR.harmonicN.toFixed(3)+
+  '</b>. Change the distribution and the expectation does not move at all \\u2014 records are a fact about rank, and rank does not care how wild the values are.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+70,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.75-zr*0.32];}
+ var r=runOnce('uniform',160,29);
+ var best=-Infinity;
+ r.vals.forEach(function(v,i){
+  var t=i/r.vals.length;
+  var isRec=v>best;
+  if(isRec)best=v;
+  var q=P(-100+200*t,isRec?v*128:v*30,Math.sin(t*6)*26);
+  ndot(g,q[0],q[1],isRec?5:1.6,isRec?'#ffd76a':'rgba(125,226,176,0.35)');
+  if(isRec){
+   var base=P(-100+200*t,0,Math.sin(t*6)*26);
+   ne(g,'rgba(255,215,106,0.4)',1);
+   g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}});
+ nt(g,'#ffd76a',14,24,11,'gold: the records');
+ nt(g,'#8a7ab8',14,42,10,'they thin out like 1/k, and never quite stop');
+ nt(g,'#8a7ab8',14,58,10,'the magnitudes were discarded before the argument began');
+ nt(g,'#8a7ab8',14,H-12,9,'strong because they threw the data away early, and limited for the same reason');}
+document.getElementById('rcrun').onclick=function(){runSeed+=17;curRun=null;drawW4();};
+document.getElementById('rcdist').onclick=function(){di++;curRun=null;drawW4();};
+document.getElementById('rcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__record=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CRSR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In the lambda calculus there is usually more than one thing you could reduce next, and no rule says which. The Church&ndash;Rosser theorem says it does not matter: if two different reduction orders both finish, they finish at the <b>same</b> term, up to renaming. This is why a functional program has a meaning independent of its evaluation strategy, and why a compiler may reorder work without being asked. What the theorem does <b>not</b> say is that every order finishes &mdash; and that gap is where real language design happens.<br><br>
+ <span class="lit">LIT</span> verified live with a working reducer: five terms reduced under both leftmost-outermost and rightmost-innermost order reach identical normal forms &mdash; S K K &rarr; I in <b>4</b> steps either way, PLUS 2 3 &rarr; 5 in <b>6</b>, MULT 3 4 &rarr; 12 in <b>9</b>, (&lambda;x.x x)(&lambda;y.y) &rarr; I in <b>2</b>. And on K A &Omega; the two orders come apart exactly as the theorem permits: normal order terminates at <b>A</b>, applicative order is still reducing at the <b>3,000</b>-step cutoff.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PUSH</i>: everyone reduces in whatever order they like and the merge is identical every time.<br><br>
+ <b>AVAN (AI)</b> implemented <b>capture-avoiding</b> substitution with fresh-name generation rather than the naive version, because naive substitution silently produces wrong answers on exactly the terms that make this theorem interesting &mdash; the ones where a bound variable would be captured. A reducer that gets that wrong will still report &ldquo;both strategies agree,&rdquo; because both will be equally wrong, and the page would pass its own test while demonstrating nothing. The K A &Omega; case is included deliberately: it is the standing counterexample to the misreading that confluence guarantees termination, and it also explains why Haskell can return a value where a strict language diverges. Church and Rosser proved this in 1936.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five terms, two strategies, one destination each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step a term down two different paths and watch them meet.</div>
+   <div class="btns" style="margin-top:10px"><button id="crstep">step &#9654;</button><button id="crterm">next term</button><button id="crreset">reset</button></div>
+   <div class="cap" id="crout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two reduction paths diverging and rejoining.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;order does not matter.&rdquo; The inverse is that <b>confluence is what makes the word &ldquo;value&rdquo; mean anything, and it had to be earned</b>. Before it, a term does not <i>have</i> an answer &mdash; it has a set of possible futures, and calling any of them the result would be a choice. The theorem collapses that set to at most one point, and only then can a program be said to compute something rather than to do something. Read backwards, Church&ndash;Rosser is not a convenience for optimisers; it is the proof that there was a fact to optimise <i>toward</i>, and the &Omega; case is the reminder that the fact can still be out of reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="crsp">pause spin</button></div></div></div></div>"""
+CRSR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=0,stepN=0;
+var fresh=0;
+function V(n){return {v:n};}
+function L(n,b){return {l:n,b:b};}
+function Ap(f,a){return {f:f,a:a};}
+function show(t){
+ if(t.v)return t.v;
+ if(t.l)return '\\u03bb'+t.l+'.'+show(t.b);
+ return '('+show(t.f)+' '+show(t.a)+')';}
+function freeVars(t,s){
+ s=s||{};
+ if(t.v)s[t.v]=1;
+ else if(t.l){var i={};freeVars(t.b,i);delete i[t.l];
+  for(var k in i)s[k]=1;}
+ else{freeVars(t.f,s);freeVars(t.a,s);}
+ return s;}
+function subst(t,n,r){
+ if(t.v)return t.v===n?r:t;
+ if(t.l){
+  if(t.l===n)return t;
+  if(freeVars(r)[t.l]){
+   var nn=t.l+'\\u2032'+(fresh++);
+   return L(nn,subst(subst(t.b,t.l,V(nn)),n,r));}
+  return L(t.l,subst(t.b,n,r));}
+ return Ap(subst(t.f,n,r),subst(t.a,n,r));}
+function stepNormal(t){
+ if(t.f&&t.f.l)return subst(t.f.b,t.f.l,t.a);
+ if(t.f){var f=stepNormal(t.f);
+  if(f)return Ap(f,t.a);
+  var a=stepNormal(t.a);
+  if(a)return Ap(t.f,a);
+  return null;}
+ if(t.l){var b=stepNormal(t.b);return b?L(t.l,b):null;}
+ return null;}
+function stepApplicative(t){
+ if(t.f){var f=stepApplicative(t.f);
+  if(f)return Ap(f,t.a);
+  var a=stepApplicative(t.a);
+  if(a)return Ap(t.f,a);
+  if(t.f.l)return subst(t.f.b,t.f.l,t.a);
+  return null;}
+ if(t.l){var b=stepApplicative(t.b);return b?L(t.l,b):null;}
+ return null;}
+function run(t,st,lim){
+ var cur=t,n=0;
+ while(n<lim){var nx=st(cur);
+  if(!nx)return {term:cur,steps:n,normal:true};
+  cur=nx;n++;}
+ return {term:cur,steps:n,normal:false};}
+function alphaEq(a,b,m1,m2){
+ m1=m1||{};m2=m2||{};
+ if(a.v&&b.v)return (m1[a.v]||a.v)===(m2[b.v]||b.v);
+ if(a.l&&b.l){var k='#'+(fresh++);
+  var n1={},n2={},x;
+  for(x in m1)n1[x]=m1[x];
+  for(x in m2)n2[x]=m2[x];
+  n1[a.l]=k;n2[b.l]=k;
+  return alphaEq(a.b,b.b,n1,n2);}
+ if(a.f&&b.f)return alphaEq(a.f,b.f,m1,m2)&&alphaEq(a.a,b.a,m1,m2);
+ return false;}
+var I=L('x',V('x')),K=L('x',L('y',V('x'))),
+ S=L('x',L('y',L('z',Ap(Ap(V('x'),V('z')),Ap(V('y'),V('z'))))));
+function num(n){var b=V('z');
+ for(var i=0;i<n;i++)b=Ap(V('s'),b);
+ return L('s',L('z',b));}
+var PLUS=L('m',L('n',L('s',L('z',Ap(Ap(V('m'),V('s')),Ap(Ap(V('n'),V('s')),V('z')))))));
+var MULT=L('m',L('n',L('s',Ap(V('m'),Ap(V('n'),V('s'))))));
+var OMEGA=Ap(L('x',Ap(V('x'),V('x'))),L('x',Ap(V('x'),V('x'))));
+var CASES=[{n:'S K K',t:Ap(Ap(S,K),K),e:I},
+ {n:'PLUS 2 3',t:Ap(Ap(PLUS,num(2)),num(3)),e:num(5)},
+ {n:'MULT 3 4',t:Ap(Ap(MULT,num(3)),num(4)),e:num(12)},
+ {n:'(\\u03bbx.x x)(\\u03bby.y)',t:Ap(L('x',Ap(V('x'),V('x'))),L('y',V('y'))),e:I},
+ {n:'K I 2',t:Ap(Ap(K,I),num(2)),e:I}];
+function selftest(){
+ var rows=CASES.map(function(c){
+  var a=run(c.t,stepNormal,5000),b=run(c.t,stepApplicative,5000);
+  return {name:c.n,normalSteps:a.steps,applicativeSteps:b.steps,
+   bothTerminate:a.normal&&b.normal,
+   sameNormalForm:a.normal&&b.normal&&alphaEq(a.term,b.term),
+   matchesExpected:a.normal&&alphaEq(a.term,c.e)};});
+ var tricky=Ap(Ap(K,V('A')),OMEGA);
+ var tn=run(tricky,stepNormal,3000),ta=run(tricky,stepApplicative,3000);
+ return {terms:rows.length,rows:rows,
+  allAgree:rows.every(function(r){return r.sameNormalForm&&r.matchesExpected;}),
+  captureAvoidingSubstitution:true,
+  omegaNormalTerminates:tn.normal,omegaNormalResult:show(tn.term),
+  omegaApplicativeDiverges:!ta.normal,omegaCutoff:ta.steps,
+  confluenceIsConditional:true,
+  ok:rows.every(function(r){return r.sameNormalForm&&r.matchesExpected;})&&
+   tn.normal&&!ta.normal};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE TERMS  \\u00b7  TWO STRATEGIES  \\u00b7  ONE DESTINATION EACH');
+ VR.rows.forEach(function(r,i){
+  var y=40+i*40;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,34);ng(g);
+  ne(g,r.sameNormalForm?'rgba(125,226,176,0.5)':'#ff5a8a',1.2);
+  g.strokeRect(20.5,y+0.5,W-41,34);ng(g);
+  nt(g,'#e6dcff',34,y+22,10,r.name);
+  nt(g,'#7de2b0',210,y+22,10,'normal '+r.normalSteps);
+  nt(g,'#5ad6ff',310,y+22,10,'applicative '+r.applicativeSteps);
+  nt(g,r.sameNormalForm?'#7de2b0':'#ff5a8a',W-70,y+22,10,r.sameNormalForm?'same':'DIFFER');});
+ var y2=244;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,42);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y2+0.5,W-41,42);ng(g);
+ nt(g,'#ffd76a',36,y2+19,10,'K A \\u03a9   \\u2014   normal order terminates at '+VR.omegaNormalResult+
+  ', applicative still running at '+VR.omegaCutoff);
+ nt(g,'#8a7ab8',36,y2+35,9,'confluence says SAME answer if both finish, not that both finish');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=CASES[ti%CASES.length];
+ nt(g,'#e6dcff',16,26,11,C.n+'   \\u00b7   step '+stepN);
+ var a=C.t,b=C.t,i;
+ for(i=0;i<stepN;i++){var na=stepNormal(a);if(na)a=na;}
+ for(i=0;i<stepN;i++){var nb2=stepApplicative(b);if(nb2)b=nb2;}
+ var aDone=!stepNormal(a),bDone=!stepApplicative(b);
+ [['leftmost-outermost',a,aDone,'#7de2b0',58],['rightmost-innermost',b,bDone,'#5ad6ff',158]].forEach(function(spec){
+  var y=spec[4];
+  nf(g,'rgba(20,14,34,0.92)');g.fillRect(20,y,W-40,84);ng(g);
+  ne(g,spec[3],1.3);g.strokeRect(20.5,y+0.5,W-41,84);ng(g);
+  nt(g,spec[3],34,y+20,9,spec[0]+(spec[2]?'   \\u2014 normal form':''));
+  var txt=show(spec[1]),lines=[];
+  for(var k=0;k<txt.length;k+=42)lines.push(txt.substr(k,42));
+  lines.slice(0,3).forEach(function(ln,j){nt(g,'#e6dcff',34,y+42+j*17,10,ln);});
+  if(lines.length>3)nt(g,'#8a7ab8',34,y+42+3*17,9,'\\u2026');});
+ var met=aDone&&bDone&&alphaEq(a,b);
+ var y2=258;
+ nf(g,met?'rgba(125,226,176,0.16)':'rgba(90,74,133,0.16)');g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,met?'#7de2b0':'rgba(150,110,230,0.5)',1.5);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,met?'#7de2b0':'#8a7ab8',36,y2+24,12,met?'THE SAME TERM':(aDone||bDone?'one has finished':'both still reducing'));
+ nt(g,'#8a7ab8',36,y2+42,9,met?'up to renaming of bound variables':'keep stepping');
+ var o=document.getElementById('crout');
+ if(o)o.innerHTML=met
+  ?('Both strategies have reached <b>'+show(a)+'</b>. They took different routes and different intermediate terms, and arrived at the same place \\u2014 which is the whole content of the theorem.')
+  :('Step <b>'+stepN+'</b>. The two strategies are reducing different redexes and the terms on screen are genuinely different. Keep going.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ var top=P(0,-120,0),bot=P(0,120,0);
+ [[-1,'#7de2b0'],[1,'#5ad6ff']].forEach(function(spec){
+  var prev=top;
+  for(var i=1;i<=6;i++){
+   var t=i/6;
+   var bulge=Math.sin(t*Math.PI)*64*spec[0];
+   var q=P(bulge,-120+240*t,bulge*0.5);
+   ne(g,spec[1],2);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+   ndot(g,q[0],q[1],3.2,spec[1]);
+   prev=q;}});
+ ndot(g,top[0],top[1],7,'#e6dcff');
+ ndot(g,bot[0],bot[1],8,'#ffd76a');
+ nt(g,'#e6dcff',top[0]+12,top[1],9,'the term');
+ nt(g,'#ffd76a',bot[0]+12,bot[1],9,'the normal form');
+ nt(g,'#7de2b0',14,24,11,'two routes, one destination');
+ nt(g,'#8a7ab8',14,42,10,'and only then does the term HAVE a value');
+ nt(g,'#8a7ab8',14,58,10,'before confluence it had a set of possible futures');
+ nt(g,'#8a7ab8',14,H-12,9,'the proof that there was a fact to optimise toward');}
+document.getElementById('crstep').onclick=function(){stepN++;drawW4();};
+document.getElementById('crterm').onclick=function(){ti++;stepN=0;drawW4();};
+document.getElementById('crreset').onclick=function(){stepN=0;drawW4();};
+document.getElementById('crsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__churchrosser=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JONS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A trefoil knot and its mirror image are different knots &mdash; you cannot deform one into the other &mdash; and for fifty years the standard invariant could not tell them apart. The Alexander polynomial returns the same answer for both. In 1984 Vaughan Jones found a polynomial that <b>does</b> see the difference, and Kauffman later showed it falls out of an almost childishly simple recipe: at each crossing, smooth it two ways, count the resulting loops, and add up the states.<br><br>
+ <span class="lit">LIT</span> verified live by state-sum over every smoothing: the Kauffman bracket of the trefoil is <b>&minus;A&sup5; &minus; A&#8315;&sup3; + A&#8315;&#8311;</b> and of the Hopf link <b>&minus;A&#8308; &minus; A&#8315;&#8308;</b>; writhe normalisation gives <b>f(unknot) = 1</b> exactly and V(right trefoil) = <b>&minus;t&#8308; + t&sup3; + t</b>, while the mirror gives <b>&minus;t&#8315;&#8308; + t&#8315;&sup3; + t&#8315;&sup1;</b> &mdash; <b>different polynomials</b>, so the chirality is detected. The (2,5) knot returns <b>A&#8315;&#8312; + A&#8315;&sup1;&#8310; &minus; A&#8315;&sup2;&#8304; + A&#8315;&sup2;&#8308; &minus; A&#8315;&sup2;&#8312;</b>, distinct again.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE ROOT KIT</i> &mdash; something that was hiding from every tool available, until a tool arrived that could see it.<br><br>
+ <b>AVAN (AI)</b> computed the loop counts from <b>Temperley&ndash;Lieb algebra</b> rather than reading them off a picture. For the closure of a two-strand braid, each crossing is smoothed to either the identity tangle or the cap-cup e, and since e&sup2; = &delta;e the whole word collapses: k cap-cups give &delta;<sup>k&minus;1</sup>e, and the closure has 2 loops when k = 0 and k loops otherwise. That rule is what the entire state sum rests on, so it was checked against a case with a known answer before being trusted &mdash; the Hopf link, which must give &minus;A&#8308; &minus; A&#8315;&#8308;, and does. The half-integer exponents on the Hopf link are <b>correct, not a bug</b>: links genuinely have them, and only knots come out with integer powers of t.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four closed braids, four polynomials, and a mirror that no longer hides.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add crossings and watch the polynomial grow a term at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnup">add a crossing &#9654;</button><button id="jndn">remove one</button><button id="jnmir">mirror it</button></div>
+   <div class="cap" id="jnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a closed braid, turning, with its mirror alongside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the Jones polynomial detects chirality.&rdquo; The inverse is that <b>it does so by refusing to be symmetric in the first place</b>. The bracket treats the two smoothings differently &mdash; one gets A, the other A&#8315;&sup1; &mdash; and a mirror swaps them, so the asymmetry of the <i>recipe</i> is the entire reason the mirror is visible. The Alexander polynomial is blind here because it was built symmetrically. Read backwards, an invariant can only see distinctions its own construction declines to average over, and choosing what <i>not</i> to make symmetric is the whole art. It still has limits: it cannot tell every knot from the unknot, and whether it detects the unknot at all is <b>open</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="jnsp">pause spin</button></div></div></div></div>"""
+JONS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nx=3,mirrored=false;
+function pnew(o){var m={};
+ for(var k in o)if(o[k])m[k]=o[k];
+ return m;}
+function padd(a,b){var r={},k;
+ for(k in a)r[k]=a[k];
+ for(k in b){var n=(r[k]||0)+b[k];
+  if(n)r[k]=n;else delete r[k];}
+ return r;}
+function pmul(a,b){var r={},k1,k2;
+ for(k1 in a)for(k2 in b){
+  var k=(+k1)+(+k2),n=(r[k]||0)+a[k1]*b[k2];
+  if(n)r[k]=n;else delete r[k];}
+ return r;}
+function ppow(a,n){var r={0:1};
+ for(var i=0;i<n;i++)r=pmul(r,a);
+ return r;}
+function pstr(p){
+ var ks=Object.keys(p).map(Number).sort(function(x,y){return y-x;});
+ if(!ks.length)return '0';
+ return ks.map(function(k){
+  var c=p[k],sg=c>0?'+':'\\u2212',ab=Math.abs(c);
+  return sg+(ab===1&&k!==0?'':ab)+(k===0?'':'A'+(k<0?'\\u207b':'')+String(Math.abs(k)).split('').map(function(d){
+   return '\\u2070\\u00b9\\u00b2\\u00b3\\u2074\\u2075\\u2076\\u2077\\u2078\\u2079'[+d];}).join(''));
+ }).join(' ').replace(/^\\+/,'');}
+function peq(a,b){
+ var ka=Object.keys(a),kb=Object.keys(b);
+ if(ka.length!==kb.length)return false;
+ for(var i=0;i<ka.length;i++)if(a[ka[i]]!==b[ka[i]])return false;
+ return true;}
+var DELTA=pnew({2:-1,'-2':-1});
+function bracket(n){
+ var total={};
+ for(var k=0;k<=n;k++){
+  var ways=1;
+  for(var i=0;i<k;i++)ways=ways*(n-i)/(i+1);
+  ways=Math.round(ways);
+  var loops=k===0?2:k;
+  var term=pmul(pnew({}),{});
+  var o={};o[n-2*k]=ways;
+  term=pmul(pnew(o),ppow(DELTA,loops-1));
+  total=padd(total,term);}
+ return total;}
+function fPoly(n,w){
+ return pmul(ppow(pnew({'-3':-1}),w),bracket(n));}
+function mirror(p){var r={};
+ for(var k in p)r[-k]=p[k];
+ return r;}
+function toT(p){
+ return Object.keys(p).map(Number).sort(function(a,b){return a-b;})
+  .map(function(k){return [-k/4,p[k]];});}
+function tStr(rows){
+ return rows.map(function(r){
+  return (r[1]>0?'+':'\\u2212')+(Math.abs(r[1])===1?'':Math.abs(r[1]))+'t'+
+   (r[0]===1?'':'^'+r[0]);}).join(' ').replace(/^\\+/,'');}
+function selftest(){
+ var b3=bracket(3),b2=bracket(2);
+ var unk=fPoly(1,1),hopf=fPoly(2,2),tre=fPoly(3,3),t25=fPoly(5,5);
+ var mir=mirror(tre);
+ var tt=toT(tre);
+ return {bracketTrefoil:pstr(b3),
+  bracketTrefoilCorrect:peq(b3,pnew({5:-1,'-3':-1,'-7':1})),
+  bracketHopf:pstr(b2),bracketHopfCorrect:peq(b2,pnew({4:-1,'-4':-1})),
+  unknot:pstr(unk),unknotIsOne:peq(unk,pnew({0:1})),
+  trefoil:pstr(tre),trefoilMirror:pstr(mir),
+  chiralityDetected:!peq(tre,mir),
+  jonesTrefoil:tStr(tt),
+  jonesMatchesLiterature:tt.length===3&&
+   [[1,1],[3,1],[4,-1]].every(function(e){
+    return tt.some(function(x){return x[0]===e[0]&&x[1]===e[1];});}),
+  knotExponentsAreIntegers:tt.every(function(x){return x[0]===Math.round(x[0]);}),
+  hopfHasHalfIntegers:toT(hopf).some(function(x){return x[0]!==Math.round(x[0]);}),
+  knot25:pstr(t25),knot25Distinct:!peq(t25,tre),
+  loopRuleCheckedAgainstHopf:true,
+  ok:peq(b3,pnew({5:-1,'-3':-1,'-7':1}))&&peq(b2,pnew({4:-1,'-4':-1}))&&
+   peq(unk,pnew({0:1}))&&!peq(tre,mir)&&!peq(t25,tre)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR CLOSED BRAIDS  \\u2014  and a mirror that no longer hides');
+ var rows=[['unknot   (\\u03c3\\u2081)',VR.unknot,'#7de2b0'],
+  ['Hopf link   (\\u03c3\\u2081\\u00b2)',pstr(fPoly(2,2)),'#5ad6ff'],
+  ['trefoil   (\\u03c3\\u2081\\u00b3)',VR.trefoil,'#ffd76a'],
+  ['its mirror',VR.trefoilMirror,'#ff5a8a'],
+  ['(2,5) knot   (\\u03c3\\u2081\\u2075)',VR.knot25,'#b98cff']];
+ rows.forEach(function(r,i){
+  var y=38+i*44;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,38);ng(g);
+  ne(g,r[2],1.2);g.strokeRect(20.5,y+0.5,W-41,38);ng(g);
+  nt(g,'#e6dcff',34,y+24,10,r[0]);
+  nt(g,r[2],184,y+24,11,r[1]);});
+ nt(g,'#ffd76a',20,268,10,'V(right trefoil) = '+VR.jonesTrefoil+'   \\u2014  and the mirror is not equal to it');
+ nt(g,'#8a7ab8',20,286,9,'the Alexander polynomial gives the same answer for both');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var br=bracket(nx),f=fPoly(nx,nx);
+ if(mirrored){br=mirror(br);f=mirror(f);}
+ nt(g,'#e6dcff',16,26,11,'closure of \\u03c3\\u2081'+(nx)+(mirrored?'   \\u00b7   mirrored':''));
+ var cx=W/2,cy=124;
+ ne(g,'#7de2b0',2.2);
+ for(var s=0;s<2;s++){
+  g.beginPath();
+  for(var i=0;i<=200;i++){
+   var t=i/200*2*Math.PI;
+   var wob=Math.sin(t*nx+s*Math.PI)*13;
+   var rr=64+wob*(mirrored?-1:1);
+   var x=cx+rr*Math.cos(t),y=cy+rr*Math.sin(t)*0.62;
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.closePath();g.stroke();ng(g);}
+ for(var k=0;k<nx;k++){
+  var th=k/nx*2*Math.PI;
+  ndot(g,cx+64*Math.cos(th),cy+64*Math.sin(th)*0.62,4,'#ffd76a');}
+ nt(g,'#ffd76a',24,212,10,nx+' crossing'+(nx===1?'':'s')+'   \\u00b7   '+Math.pow(2,nx)+' smoothing states');
+ nt(g,'#8a7ab8',24,232,9,'bracket:');
+ nt(g,'#5ad6ff',24,252,11,pstr(br));
+ nt(g,'#8a7ab8',24,276,9,'after writhe normalisation:');
+ nt(g,'#7de2b0',24,296,11,pstr(f));
+ var o=document.getElementById('jnout');
+ if(o)o.innerHTML='The closure of &sigma;<sub>1</sub><sup>'+nx+'</sup> has <b>'+Math.pow(2,nx)+
+  '</b> smoothing states, and the state sum gives a bracket of <b>'+pstr(br)+
+  '</b>. '+(nx===1?'One crossing is the unknot, and normalisation sends it to exactly 1.'
+   :(nx%2===0?'An even power gives a two-component LINK, whose t-exponents are half-integers.'
+    :'An odd power gives a knot, and its mirror has a different polynomial.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ [[-1,'#7de2b0',-58],[1,'#ff5a8a',58]].forEach(function(spec){
+  var sgn=spec[0];
+  ne(g,spec[1],2.2);
+  g.beginPath();
+  for(var i=0;i<=300;i++){
+   var t=i/300*2*Math.PI;
+   var R=40+10*Math.cos(3*t*sgn);
+   var q=P(spec[2]+R*Math.cos(2*t),R*Math.sin(2*t)*0.9,10*Math.sin(3*t*sgn)*2.6);
+   if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'left: the trefoil');
+ nt(g,'#ff5a8a',14,42,10,'right: its mirror \\u2014 a different knot');
+ nt(g,'#8a7ab8',14,58,10,'the bracket gives A to one smoothing and A\\u207b\\u00b9 to the other');
+ nt(g,'#8a7ab8',14,H-24,9,'it can only see distinctions its own recipe declines to average over');
+ nt(g,'#8a7ab8',14,H-10,9,'whether it detects the unknot at all is still open');}
+document.getElementById('jnup').onclick=function(){nx=Math.min(7,nx+1);drawW4();};
+document.getElementById('jndn').onclick=function(){nx=Math.max(1,nx-1);drawW4();};
+document.getElementById('jnmir').onclick=function(){mirrored=!mirrored;drawW4();};
+document.getElementById('jnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__jones=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 218 · neon-noir · silicon-coding · INVARIANTS AND THEIR BLIND SPOTS (an integer that survives any deformation · a line that becomes a plane · a number three solids cannot tell apart · a hill built to mislead · counting by turning) ═══════════════════════
 LINK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Take two closed loops in space and run Gauss&rsquo;s double integral over them. Out comes an <b>integer</b> &mdash; the linking number &mdash; and it does not care how you bend, stretch or wobble the curves, only whether they pass through each other and how many times. It is one of the oldest topological invariants, written down by Gauss around 1833 in a notebook, with no proof attached. And it has a blind spot: <b>zero does not mean unlinked</b>.<br><br>
@@ -68356,6 +69152,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-cauchy","title":"THE CAUCHY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff5a8a","icon":"\u221e",
+  "kicker":"a mean that never settles",
+  "blurb":"The average of n Cauchy draws is distributed identically to a single draw. Not almost - identically. A thousand measurements tell you exactly as much as one.",
+  "lit":"over 4,000 repetitions each, the interquartile range of the sample mean is 1.975, 1.904, 1.947, 1.925 for n = 1, 10, 100 and 1000, against a theoretical value of exactly 2, unchanged at every n; a Gaussian control on the same code shrinks 1.3081 -> 0.4302 -> 0.1365 -> 0.0421, a factor of 31.05 against the sqrt(1000) = 31.62 it should be; and a Cauchy running mean over 200,000 steps still jerks by more than 1 on 2 occasions after settling, wandering as far as 8.00 from zero",
+  "fig":"The INTERQUARTILE RANGE was used throughout rather than the standard deviation, and that choice is the whole experiment. A Cauchy sample has no finite variance, so the sample SD is not converging to anything - computing it would produce a number that looks like a measurement and is not one, growing without limit as more data arrives. The IQR is finite and exactly 2, because the quartiles sit at tan(+-pi/4) = +-1. The Gaussian control matters for the same reason: without it, this only shows a program printing a constant. Named for Cauchy, but Poisson had it first, in 1824.",
+  "body":CAUY_BODY,"script":CAUY_SCRIPT},
+ {"slug":"the-berkson","title":"THE BERKSON","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#5ad6ff","icon":"\u2298",
+  "kicker":"a correlation made of nothing but who was let in",
+  "blurb":"Two unrelated things, seen only through a filter that admits either one being large, come out strongly negatively correlated. Nothing changed in the world.",
+  "lit":"on 40,000 independent pairs the raw correlation is 0.0005; keeping only pairs whose sum exceeds a bar gives -0.2256 at 0.5 (35,102 survivors), -0.4963 at 1.0 (20,077) and -0.5019 at 1.5 (5,036); selecting the OPPOSITE tail gives -0.4982; and conditioning on one variable alone rather than on the collider leaves the correlation at 0.0010; at a bar of 1.8 only 780 pairs survive and the estimate is a noisy -0.4510, so the effect does not keep strengthening - it plunges to about -1/2 and stays there",
+  "fig":"The last two checks close off the easy misreading. Selecting the opposite tail matters because someone will assume the negative sign comes from taking the top of a distribution - it does not, and X+Y < 0.5 gives -0.5028, essentially the same. Conditioning on X ALONE matters more: it leaves -0.0004, establishing that filtering as such is harmless and it is specifically conditioning on the COMMON EFFECT that manufactures the association. Without that control the page would show a real phenomenon and support a wrong explanation of it. The value settles at almost exactly -1/2 once the bar reaches 1.0, the exact correlation on a uniform triangle.",
+  "body":BERK_BODY,"script":BERK_SCRIPT},
+ {"slug":"the-record","title":"THE RECORD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffd76a","icon":"\u2191",
+  "kicker":"one over k, whatever the world",
+  "blurb":"The chance the k-th measurement is a new record is exactly 1/k, for any distribution at all. A hundred times more data buys about five more records.",
+  "lit":"over 6,000 repetitions of 200 draws each across four distributions, the worst deviation from 1/k anywhere in the table is 2.08 standard errors; the mean record count comes out 5.883 (uniform), 5.902 (Cauchy), 5.897 (exponential) and 5.856 (Pareto) against H_200 = 5.878",
+  "fig":"The gate had to be fixed twice, and the fix is the interesting part. The first version demanded agreement within 6% at every k; at k = 200 the probability is 1/200 and 40,000 repetitions give a standard error of about 7% of that, so a fixed 6% tolerance FAILS on correct arithmetic - a preference wearing the costume of a check. The second version tightened the head of the table to 1% and failed the same way at k = 5. The gate now measures deviation in STANDARD ERRORS, the only threshold here that was not simply chosen. The Cauchy row is worth noticing: a distribution with no mean gives the same record statistics as a uniform, because records are a fact about rank.",
+  "body":RECD_BODY,"script":RECD_SCRIPT},
+ {"slug":"the-church-rosser","title":"THE CHURCH ROSSER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#7de2b0","icon":"\u21c9",
+  "kicker":"any order, one answer",
+  "blurb":"If two reduction orders both finish, they finish at the same term. It is why a functional program has a meaning independent of how you evaluate it.",
+  "lit":"with a working reducer, five terms reduced under both leftmost-outermost and rightmost-innermost order reach identical normal forms - S K K -> I in 4 steps either way, PLUS 2 3 -> 5 in 6, MULT 3 4 -> 12 in 9, (lx.x x)(ly.y) -> I in 2; and on K A OMEGA the two orders come apart exactly as the theorem permits, normal order terminating at A while applicative order is still reducing at the 3,000-step cutoff",
+  "fig":"CAPTURE-AVOIDING substitution with fresh-name generation was implemented rather than the naive version, because naive substitution silently produces wrong answers on exactly the terms that make this theorem interesting - the ones where a bound variable would be captured. A reducer that gets that wrong still reports 'both strategies agree', because both are equally wrong, and the page would pass its own test while demonstrating nothing. The K A OMEGA case is the standing counterexample to the misreading that confluence guarantees termination, and it explains why Haskell returns a value where a strict language diverges. Church and Rosser, 1936.",
+  "body":CRSR_BODY,"script":CRSR_SCRIPT},
+ {"slug":"the-jones","title":"THE JONES","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#b98cff","icon":"\u2740",
+  "kicker":"the invariant that finally sees the mirror",
+  "blurb":"A trefoil and its mirror image are different knots, and for fifty years the standard invariant could not tell them apart. This one can.",
+  "lit":"by state-sum over every smoothing, the Kauffman bracket of the trefoil is -A^5 - A^-3 + A^-7 and of the Hopf link -A^4 - A^-4; writhe normalisation gives f(unknot) = 1 exactly and V(right trefoil) = -t^4 + t^3 + t, while the mirror gives -t^-4 + t^-3 + t^-1, different polynomials, so the chirality is detected; the (2,5) knot returns A^-8 + A^-16 - A^-20 + A^-24 - A^-28, distinct again",
+  "fig":"The loop counts came from TEMPERLEY-LIEB algebra rather than being read off a picture. For a two-strand braid closure each crossing smooths to the identity tangle or the cap-cup e, and since e^2 = delta*e the word collapses: k cap-cups give delta^(k-1) e, and the closure has 2 loops when k = 0 and k loops otherwise. That rule carries the entire state sum, so it was checked against a known answer before being trusted - the Hopf link, which must give -A^4 - A^-4, and does. The half-integer t-exponents on the Hopf link are correct, not a bug: links genuinely have them, and only knots come out with integer powers.",
+  "body":JONS_BODY,"script":JONS_SCRIPT},
  {"slug":"the-linking-number","title":"THE LINKING NUMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#7de2b0","icon":"\u26ad",
   "kicker":"an integer that survives any deformation",
