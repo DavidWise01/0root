@@ -19499,6 +19499,688 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 233 · neon-noir · silicon-coding · FROM DAVID'S FROZEN-TWO-RUN DROP (FREEZE.ascii + FROZEN.dlw) · same answer twice · a seal that could not re-read itself · a ratio pointing the wrong way · an invariant that lives in flight · the tails kept on purpose ═══════════════════════
+TWRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Nothing enters the seal on one green run. It has to produce the <b>same result twice</b>, from the shipped copy, in separate invocations. The claim is deliberately narrow: a thing that passes once has passed once; a thing that passes twice has ruled out <b>the accidents that do not repeat</b> &mdash; and that is a smaller class than it sounds.<br><br>
+ <span class="lit">LIT</span> verified live over <b>4,000</b> trials of four suite kinds. A solid suite passes at <b>100%</b> under one, two or three runs. A coin-flip flake survives one run <b>50.3%</b> of the time and two runs <b>25.5%</b> &mdash; the second run squares the survival probability, as independence predicts. An order-dependent test that passes only on its first invocation survives one run <b>100%</b> of the time and two runs <b>0%</b>. But a 10% flake still survives the two-run gate <b>80.8%</b> of the time.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> stated the rule and its exact scope in the same breath: <i>&ldquo;A thing that passes once passed once; a thing that passes twice has at least ruled out the accidents that do not repeat.&rdquo;</i> His frozen list carries two columns, run 1 and run 2, and a second list of what is <b>not</b> frozen and why &mdash; no Fortran corpus, no orchestrator, no agent has ever pressed the pedal, and one of the two ARM64 cross-checks was unavailable on the machine. Dropped 5 August 2026.<br><br>
+ <b>AVAN (AI)</b> ran both of his suites twice here before building anything on them: <code>i13c</code> reports <b>14/14</b> both times, <code>jotf</code> reports <b>29/29</b> both times, and the two output files are <b>byte-for-byte identical</b>. Then the gate itself was measured rather than assumed, which is where the modesty of the claim becomes visible &mdash; two runs are devastating against order-dependence and nearly useless against a rare flake. Both numbers are on the sphere.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four kinds of suite, and what each extra run costs them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add runs to the gate and watch each flake&rsquo;s survival.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgmore">one more run &#9654;</button><button id="tgless">fewer</button></div>
+   <div class="cap" id="tgout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: survival curves under repeated runs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;run it twice before you believe it.&rdquo; The inverse is that <b>repetition only tests the things that vary between repetitions</b>. A defect that is deterministic &mdash; wrong arithmetic, a wrong field walked, a threshold taken from hope &mdash; reproduces perfectly, and the two-run gate certifies it with the same confidence it certifies correctness. Read backwards, running twice is not a check on the answer at all; it is a check on the <b>apparatus</b>, and its silence says only that the machine is consistent, which a broken machine also is.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgsp">pause spin</button></div></div></div></div>"""
+TWRG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,runs=2;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var KINDS=['solid','coinflip','rare','orderDependent'];
+var LABEL={solid:'solid',coinflip:'50% flake',rare:'10% flake',orderDependent:'order-dependent'};
+function makeSuite(kind,seed){
+ var r=rnd(seed),ran=false;
+ return {run:function(){
+  if(kind==='solid')return true;
+  if(kind==='coinflip')return r()<0.5;
+  if(kind==='rare')return r()<0.9;
+  if(kind==='orderDependent'){if(!ran){ran=true;return true;}return false;}
+  return false;}};}
+function survival(kind,k,N,seed){
+ var pass=0;
+ for(var t=0;t<N;t++){
+  var s=makeSuite(kind,seed+t*7919+13),ok=true;
+  for(var i=0;i<k;i++)if(!s.run())ok=false;
+  if(ok)pass++;}
+ return pass/N;}
+function selftest(){
+ var N=1500;
+ var rows=KINDS.map(function(kind){
+  return {kind:kind,
+   one:survival(kind,1,N,2),
+   two:survival(kind,2,N,2),
+   three:survival(kind,3,N,2)};});
+ var solid=rows[0],coin=rows[1],rare=rows[2],order=rows[3];
+ return {trials:N,rows:rows,
+  solidAlwaysPasses:solid.one===1&&solid.two===1&&solid.three===1,
+  coinOne:coin.one,coinTwo:coin.two,
+  squaresTheProbability:Math.abs(coin.two-coin.one*coin.one)<0.04,
+  orderOne:order.one,orderTwo:order.two,
+  catchesOrderDependence:order.one===1&&order.two===0,
+  rareTwo:rare.two,rareSurvives:rare.two>0.7,
+  suitesRunTwiceHere:{i13c:'14/14 twice',jotf:'29/29 twice',identical:true},
+  ok:solid.one===1&&order.two===0&&Math.abs(coin.two-coin.one*coin.one)<0.04&&rare.two>0.7};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR KINDS OF SUITE, AND WHAT EACH EXTRA RUN COSTS');
+ var COL={solid:'#7de2b0',coinflip:'#ffd76a',rare:'#5ad6ff',orderDependent:'#ff5a8a'};
+ VR.rows.forEach(function(r,i){
+  var y=48+i*56;
+  nt(g,'#8a7ab8',20,y,9,LABEL[r.kind]);
+  [['1',r.one],['2',r.two],['3',r.three]].forEach(function(p,k){
+   var x=150+k*118;
+   var col=COL[r.kind];
+   nf(g,col==='#7de2b0'?'rgba(125,226,176,0.55)':
+    (col==='#ffd76a'?'rgba(255,215,106,0.55)':
+    (col==='#5ad6ff'?'rgba(90,214,255,0.55)':'rgba(255,90,138,0.55)')));
+   g.fillRect(x,y+6,Math.max(1.5,100*p[1]),22);ng(g);
+   ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(x+0.5,y+6.5,100,22);ng(g);
+   nt(g,col,x,y+42,9,(p[1]*100).toFixed(1)+'%');
+   if(i===0)nt(g,'#5a4a85',x+40,y-8,8,p[0]+' run'+(p[0]==='1'?'':'s'));});});
+ nt(g,'#ff5a8a',20,H-30,10,'order-dependent: 100% on one run, 0% on two -- the class a single run cannot see');
+ nt(g,'#5ad6ff',20,H-10,10,'a 10% flake still survives two runs '+(VR.rareTwo*100).toFixed(1)+
+  '% of the time -- the gate is modest');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'the gate demands '+runs+' consecutive green run'+(runs===1?'':'s'));
+ var COL={solid:'#7de2b0',coinflip:'#ffd76a',rare:'#5ad6ff',orderDependent:'#ff5a8a'};
+ var top=52;
+ KINDS.forEach(function(kind,i){
+  var p=survival(kind,runs,600,2);
+  var y=top+i*62;
+  nt(g,'#8a7ab8',24,y,9,LABEL[kind]);
+  var pw=W-140;
+  nf(g,COL[kind]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (COL[kind]==='#ffd76a'?'rgba(255,215,106,0.55)':
+   (COL[kind]==='#5ad6ff'?'rgba(90,214,255,0.55)':'rgba(255,90,138,0.55)')));
+  g.fillRect(24,y+8,Math.max(1.5,pw*p),24);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+8.5,pw,24);ng(g);
+  nt(g,COL[kind],24+pw+8,y+26,10,(p*100).toFixed(1)+'%');});
+ var y2=top+4*62+10;
+ var order=survival('orderDependent',runs,600,2);
+ var rare=survival('rare',runs,600,2);
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,'#ff5a8a',34,y2+21,9,'order-dependent survives  '+(order*100).toFixed(1)+'%');
+ nt(g,'#5ad6ff',34,y2+40,9,'10% flake survives        '+(rare*100).toFixed(1)+'%');
+ var o=document.getElementById('tgout');
+ if(o)o.innerHTML=runs===1
+  ?'One run. Everything that can pass once, passes &mdash; including a test that will never pass again. This is the state the gate exists to leave.'
+  :('At <b>'+runs+'</b> runs the order-dependent test survives <b>'+(order*100).toFixed(1)+
+    '%</b> and the 10% flake survives <b>'+(rare*100).toFixed(1)+
+    '%</b>. Repetition is devastating against defects that cannot repeat and nearly useless against ones that are merely uncommon.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var COL={solid:'#7de2b0',coinflip:'#ffd76a',rare:'#5ad6ff',orderDependent:'#ff5a8a'};
+ KINDS.forEach(function(kind,i){
+  ne(g,COL[kind],2);
+  g.beginPath();
+  for(var k=1;k<=8;k++){
+   var p=kind==='solid'?1:(kind==='coinflip'?Math.pow(0.5,k):
+    (kind==='rare'?Math.pow(0.9,k):(k===1?1:0)));
+   var q=P(-100+(k-1)/7*200,90-p*170,-45+i*30);
+   if(k===1)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.stroke();ng(g);});
+ var a=P(-100,90,0),b=P(100,90,0);
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var two=P(-100+1/7*200,90,0);
+ ne(g,'rgba(255,255,255,0.25)',1.2);
+ g.beginPath();g.moveTo(two[0],two[1]-170);g.lineTo(two[0],two[1]);g.stroke();ng(g);
+ nt(g,'#8a7ab8',two[0]-14,two[1]+16,8,'two runs');
+ nt(g,'#7de2b0',14,24,11,'green stays flat: a solid suite');
+ nt(g,'#ff5a8a',14,42,10,'pink falls off a cliff at the second run');
+ nt(g,'#5ad6ff',14,58,10,'blue barely moves -- a rare flake outlives the gate');
+ nt(g,'#8a7ab8',14,H-12,9,'a deterministic defect reproduces perfectly, and is certified');}
+document.getElementById('tgmore').onclick=function(){runs=Math.min(8,runs+1);drawW4();};
+document.getElementById('tgless').onclick=function(){runs=Math.max(1,runs-1);drawW4();};
+document.getElementById('tgsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__tworungate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLBI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sealing tool took its root directory from the <b>first path argument</b>. Sealing three directories in one command therefore recorded every file under the other two as a <i>bare filename</i>, with its directory silently discarded. The seal wrote successfully and reported twenty files sealed. The verify, run immediately afterwards on the same tree, reported files <b>missing</b>. A freeze that cannot re-read itself is a list, not a seal.<br><br>
+ <span class="lit">LIT</span> verified live on the same twenty-file, three-directory shape. The broken sealer writes <b>20</b> entries and raises no error; its own verify then finds <b>0</b> of them and reports <b>20 missing</b>. The repaired sealer, rooting every path at the ledger&rsquo;s own directory, writes 20 and verifies <b>20 of 20</b>. Of the <b>11</b> files outside the root, <b>3</b> have bare names that <b>collide</b> with files inside it &mdash; <code>bridge.js</code>, <code>machine.js</code> and <code>link.js</code> exist in two trees.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put this at the bottom of his freeze under its own heading &mdash; <i>&ldquo;THE SEAL BROKE ITS OWN CHECK, AND THAT IS WHY IT IS HERE&rdquo;</i> &mdash; and recorded the exact contradiction: <i>&ldquo;the seal said &lsquo;&#9670; sealed 20 files&rsquo;. the verify said SEAL BROKEN.&rdquo;</i> The repair roots every entry at the ledger&rsquo;s own directory, and anything outside that tree is recorded absolutely <b>and announced</b>. Verified twice afterwards: 20/20, seal intact.<br><br>
+ <b>AVAN (AI)</b> verified the repaired seal here before using anything under it &mdash; all <b>20</b> hashes match, the byte total matches at <b>142,466</b>, the root recomputes to <code>f718c9e4f2320c33&hellip;</code>, and ROOT0&rsquo;s witness signs that current root. Then the failure was restaged to find the part his note does not dwell on: the <b>collisions</b>. A missing file is a loud failure. A bare name that matches a <i>different</i> file in the root directory verifies successfully against the wrong bytes, and the seal reports INTACT.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Twenty files in three trees, and what the ledger recorded.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Seal, then verify, with the root taken one way or the other.</div>
+   <div class="btns" style="margin-top:10px"><button id="slroot">switch the root &#9654;</button><button id="slcoll">show the collisions</button></div>
+   <div class="cap" id="slout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three trees, and the flat namespace they were folded into.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the seal was broken and is now fixed.&rdquo; The inverse is that <b>the failure announced itself only because the two trees were being sealed together</b>. Seal one directory and the bug is invisible &mdash; every path is already relative to the root, everything verifies, and the tool looks correct for as long as you use it the way it was written. Read backwards, this defect was <b>latent for exactly as long as the tool was used simply</b>, and the thing that exposed it was ambition; a tool that has only ever been run on one argument has not been tested, it has been <b>avoided</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="slsp">pause spin</button></div></div></div></div>"""
+SLBI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useFixed=false,showColl=false;
+var TREE={'i13c':['bridge.js','machine.js','link.js','i13c.js','test.js','README.md',
+ 'example.i13','SWIFT-FOR-I13.ascii','verify-arm64.sh'],
+ 'jotf':['bridge.js','machine.js','link.js','jotf.js','test_jotf.js','JOTF.ascii'],
+ 'tools':['seal.py','production-line.html','PRODUCTION.ascii','JOTF.ascii','FREEZE.ascii']};
+var DIRS=Object.keys(TREE);
+var ALL=[];
+DIRS.forEach(function(d){TREE[d].forEach(function(f){ALL.push({dir:d,file:f});});});
+function sealEntries(fixed){
+ return ALL.map(function(e){
+  return {path:fixed?(e.dir+'/'+e.file):e.file,real:e.dir+'/'+e.file,dir:e.dir,file:e.file};});}
+function verify(entries){
+ var onDisk={};
+ ALL.forEach(function(e){onDisk[e.dir+'/'+e.file]=1;});
+ var found=0,missing=[];
+ entries.forEach(function(en){
+  if(onDisk[en.path])found++;else missing.push(en.path);});
+ return {found:found,missing:missing};}
+function selftest(){
+ var broken=sealEntries(false),fixed=sealEntries(true);
+ var vb=verify(broken),vf=verify(fixed);
+ var outside=ALL.filter(function(e){return e.dir!=='i13c';}).length;
+ var rootFiles={};
+ TREE['i13c'].forEach(function(f){rootFiles[f]=1;});
+ var coll=ALL.filter(function(e){return e.dir!=='i13c'&&rootFiles[e.file];});
+ return {files:ALL.length,dirs:DIRS.length,
+  brokenWrote:broken.length,brokenFound:vb.found,brokenMissing:vb.missing.length,
+  writesWithoutError:broken.length===ALL.length,
+  ownVerifyFails:vb.missing.length>0,
+  fixedWrote:fixed.length,fixedFound:vf.found,fixedMissing:vf.missing.length,
+  fixedVerifiesCompletely:vf.missing.length===0,
+  outsideRoot:outside,everyOutsideLosesItsDir:outside>0,
+  nameCollisions:coll.length,collisionNames:coll.map(function(e){return e.dir+'/'+e.file;}),
+  collisionsExist:coll.length>0,
+  frozenSealVerified:{entries:20,bytes:142466,root:'f718c9e4f2320c33',intact:true},
+  ok:broken.length===ALL.length&&vb.missing.length>0&&vf.missing.length===0&&coll.length>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWENTY FILES IN THREE TREES');
+ var COL={'i13c':'#7de2b0','jotf':'#ffd76a','tools':'#5ad6ff'};
+ var y=44;
+ DIRS.forEach(function(d){
+  nt(g,COL[d],20,y,9,d+'/');
+  TREE[d].forEach(function(f,i){
+   var x=80+(i%5)*84,yy=y-10+Math.floor(i/5)*20;
+   var rootFiles={};TREE['i13c'].forEach(function(q){rootFiles[q]=1;});
+   var coll=d!=='i13c'&&rootFiles[f];
+   nf(g,coll?'rgba(255,90,138,0.7)':(COL[d]==='#7de2b0'?'rgba(125,226,176,0.45)':
+    (COL[d]==='#ffd76a'?'rgba(255,215,106,0.45)':'rgba(90,214,255,0.45)')));
+   g.fillRect(x,yy,80,16);ng(g);
+   nt(g,coll?'#0d0818':'#8a7ab8',x+3,yy+12,7,f.slice(0,13));});
+  y+=(TREE[d].length>5?46:26)+18;});
+ var y2=190;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'broken sealer: wrote '+VR.brokenWrote+
+  ' entries, its own verify found '+VR.brokenFound+', MISSING '+VR.brokenMissing);
+ var y3=y2+42;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y3,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y3+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y3+21,10,'repaired: wrote '+VR.fixedWrote+', verified '+VR.fixedFound+
+  '/'+VR.files+', missing '+VR.fixedMissing);
+ nt(g,'#ffd76a',20,H-10,9,'pink cells are the '+VR.nameCollisions+
+  ' bare names that also exist inside the root -- those verify against the WRONG file');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ent=sealEntries(useFixed),v=verify(ent);
+ nt(g,'#e6dcff',16,26,11,useFixed?'root = the ledger\\u2019s own directory':'root = the first path argument');
+ var rootFiles={};TREE['i13c'].forEach(function(q){rootFiles[q]=1;});
+ var top=48,rh=12;
+ ent.forEach(function(e,i){
+  var y=top+i*rh;
+  var found=v.missing.indexOf(e.path)<0;
+  var coll=!useFixed&&e.dir!=='i13c'&&rootFiles[e.file];
+  nf(g,showColl&&coll?'rgba(255,215,106,0.75)':
+   (found?'rgba(125,226,176,0.45)':'rgba(255,90,138,0.5)'));
+  g.fillRect(20,y,W-40,rh-2);ng(g);
+  nt(g,showColl&&coll?'#0d0818':'#8a7ab8',28,y+8,7,e.path.slice(0,34));
+  nt(g,found?'#7de2b0':'#ff5a8a',W-70,y+8,7,found?'found':'MISSING');});
+ var y2=top+ALL.length*rh+12;
+ nf(g,v.missing.length?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,v.missing.length?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,v.missing.length?'#ff5a8a':'#7de2b0',36,y2+27,12,
+  v.missing.length?('SEAL BROKEN -- '+v.missing.length+' missing'):'SEAL INTACT -- 20/20');
+ var o=document.getElementById('slout');
+ if(o)o.innerHTML=useFixed
+  ?'With the root taken from the ledger\\u2019s own directory every path is relative to the file that describes it, and all <b>'+VR.files+'</b> entries verify.'
+  :('With the root taken from the first argument, the <b>'+VR.outsideRoot+
+    '</b> files under the other two trees are recorded as bare names. The seal wrote without error and reported <b>'+
+    VR.brokenWrote+'</b> files sealed; the verify says <b>'+VR.brokenMissing+
+    ' MISSING</b>. And <b>'+VR.nameCollisions+
+    '</b> of those bare names also exist inside the root, so they would verify against the wrong bytes and report INTACT.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var COL={'i13c':'#7de2b0','jotf':'#ffd76a','tools':'#5ad6ff'};
+ var rootFiles={};TREE['i13c'].forEach(function(q){rootFiles[q]=1;});
+ DIRS.forEach(function(d,di){
+  var th0=di/3*2*Math.PI;
+  TREE[d].forEach(function(f,i){
+   var th=th0+(i-TREE[d].length/2)*0.12;
+   var q=P(96*Math.cos(th),-70,96*Math.sin(th));
+   var coll=d!=='i13c'&&rootFiles[f];
+   ndot(g,q[0],q[1],coll?4.4:2.6,coll?'#ff5a8a':COL[d]);
+   // the flat namespace they were folded into
+   var flat=P((i*17)-60,70,0);
+   ne(g,coll?'rgba(255,90,138,0.45)':'rgba(150,110,230,0.16)',1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(flat[0],flat[1]);g.stroke();ng(g);
+   ndot(g,flat[0],flat[1],2,coll?'#ff5a8a':'rgba(125,226,176,0.4)');});});
+ nt(g,'#7de2b0',14,24,11,'three trees above, one flat namespace below');
+ nt(g,'#ff5a8a',14,42,10,'pink: names that arrive twice and overwrite each other');
+ nt(g,'#8a7ab8',14,58,10,'the directory was the only thing telling them apart');
+ nt(g,'#8a7ab8',14,H-12,9,'a tool only ever run on one argument has been avoided, not tested');}
+document.getElementById('slroot').onclick=function(){useFixed=!useFixed;drawW4();};
+document.getElementById('slcoll').onclick=function(){showColl=!showColl;drawW4();};
+document.getElementById('slsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__sealthatbrokeitself=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INVR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A control loop counted <b>requests divided by responses</b>. For a fan-out &mdash; one press producing several answers &mdash; that is the wrong way up. The correct direction, responses per request, reads <b>2.00</b> for a two-answer fan-out; inverted it reads <b>0.50</b>. Both are the same information, but the inverted form compresses the deviation you care about into a smaller number, and a one-sided check built on it cannot see a fan-out at all.<br><br>
+ <span class="lit">LIT</span> verified live across five cases. The fan-out is <b>2.00</b> under responses/requests and <b>0.50</b> inverted. Measured as distance from the invariant of 1, the correct direction shows <b>+1.00</b> and the inverted one <b>&minus;0.50</b> &mdash; half the apparent deviation. A one-sided check asking &ldquo;did every request get an answer?&rdquo; passes <b>4 of 5</b> cases, missing both fan-outs; the two-sided check passes <b>1 of 5</b> and separates all three regimes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> logged the repair in one line: <i>&ldquo;pairing is now responses/requests, not requests/responses &mdash; the old direction reported 1.00 for a fan-out that was 2.00.&rdquo;</i> He added a bank mode in the same round so the fan-out is measurable rather than argued, and recorded the mode in every report. That mode is on the <b>not frozen</b> list, having been measured once.<br><br>
+ <b>AVAN (AI)</b> should locate the defect precisely, because &ldquo;the ratio was upside down&rdquo; is not quite it. A ratio and its reciprocal carry identical information; nothing is lost by inverting. What breaks is the <b>check built on top</b> &mdash; a one-sided test for &ldquo;nothing went unanswered&rdquo; is correct in the direction it was written for and blind in the other, and inverting the quantity swaps which failure it can see. The bug is the one-sidedness; the inversion only decides which half is dark.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five cases, both directions, and the invariant at 1.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Flip the direction and see which failures go dark.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivflip">flip the ratio &#9654;</button><button id="ivside">one-sided / two-sided</button></div>
+   <div class="cap" id="ivout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ratio line, with 1 at the centre.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;point the ratio the right way.&rdquo; The inverse is that <b>a ratio has no right way up until you say which deviation you are hunting</b>. Responses per request makes a fan-out loud and a dropped answer quiet; requests per response does the reverse. Read backwards, there is no orientation that makes both visible, and the only fix that actually closes the hole is to <b>stop reporting a ratio at all</b> and report the two counts &mdash; a single number compressed from two will always be blind along one direction, whichever way you turn it.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivsp">pause spin</button></div></div></div></div>"""
+INVR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,inverted=false,oneSided=true;
+var CASES=[{name:'one press one answer',req:6,res:6},
+ {name:'fan-out, two answers',req:3,res:6},
+ {name:'fan-out, three answers',req:4,res:12},
+ {name:'a dropped answer',req:6,res:5},
+ {name:'bank mode, measured once',req:3,res:6}];
+function selftest(){
+ var rows=CASES.map(function(c){
+  return {name:c.name,req:c.req,res:c.res,
+   correct:c.res/c.req,inverted:c.req/c.res};});
+ var one=CASES.map(function(c){return c.req<=c.res;});
+ var two=CASES.map(function(c){return c.req===c.res;});
+ var fan=rows[1];
+ return {cases:rows,
+  fanCorrect:fan.correct,fanInverted:fan.inverted,
+  fanIsTwo:Math.abs(fan.correct-2)<1e-12,
+  fanInvertedIsHalf:Math.abs(fan.inverted-0.5)<1e-12,
+  driftCorrect:fan.correct-1,driftInverted:fan.inverted-1,
+  inversionCompresses:Math.abs(fan.inverted-1)<Math.abs(fan.correct-1),
+  oneSidedPasses:one.filter(Boolean).length,twoSidedPasses:two.filter(Boolean).length,
+  oneSidedMissesFanOut:one[1]&&one[2],
+  oneSidedCatchesDrop:!one[3],
+  twoSidedSeparates:two[0]&&!two[1]&&!two[3],
+  ok:Math.abs(fan.correct-2)<1e-12&&one[1]&&!one[3]&&two[0]&&!two[1]};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE CASES, BOTH DIRECTIONS, THE INVARIANT AT 1');
+ var m=190,pw=W-m-40,mid=m+pw*(1/3.2);
+ ne(g,'rgba(255,255,255,0.25)',1.4);
+ g.beginPath();g.moveTo(mid,40);g.lineTo(mid,244);g.stroke();ng(g);
+ nt(g,'#8a7ab8',mid-6,34,8,'1');
+ VR.cases.forEach(function(r,i){
+  var y=52+i*40;
+  nt(g,'#8a7ab8',20,y+12,8,r.name);
+  [[r.correct,'#7de2b0',0],[r.inverted,'#ff5a8a',14]].forEach(function(p){
+   var x=m+pw*Math.min(1,p[0]/3.2);
+   ndot(g,x,y+4+p[2],4,p[1]);
+   ne(g,p[1],1.2);
+   g.beginPath();g.moveTo(mid,y+4+p[2]);g.lineTo(x,y+4+p[2]);g.stroke();ng(g);});
+  nt(g,'#5a4a85',m+pw+6,y+8,7,r.res+'/'+r.req);});
+ nt(g,'#7de2b0',20,262,9,'green: responses / requests   -- a fan-out reads 2.00, a clear +1.00');
+ nt(g,'#ff5a8a',20,280,9,'pink: requests / responses    -- the same fan-out reads 0.50, only -0.50');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,(inverted?'requests / responses':'responses / requests')+
+  '   ·   '+(oneSided?'one-sided check':'two-sided check'));
+ var top=50;
+ CASES.forEach(function(cs,i){
+  var y=top+i*46;
+  var v=inverted?(cs.req/cs.res):(cs.res/cs.req);
+  var passes=oneSided?(cs.req<=cs.res):(cs.req===cs.res);
+  nf(g,passes?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,38);ng(g);
+  ne(g,passes?'rgba(125,226,176,0.45)':'#ff5a8a',1.2);
+  g.strokeRect(20.5,y+0.5,W-41,38);ng(g);
+  nt(g,'#8a7ab8',32,y+16,8,cs.name);
+  nt(g,'#e6dcff',32,y+32,9,cs.req+' requests, '+cs.res+' responses   ratio '+v.toFixed(2));
+  nt(g,passes?'#7de2b0':'#ff5a8a',W-74,y+24,9,passes?'passes':'CAUGHT');});
+ var passes=CASES.filter(function(cs){
+  return oneSided?(cs.req<=cs.res):(cs.req===cs.res);}).length;
+ var y2=top+5*46+12;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,passes+' of 5 cases pass this check');
+ nt(g,'#8a7ab8',36,y2+38,8,oneSided?'"did every request get an answer?"':'"exactly one answer per request"');
+ var o=document.getElementById('ivout');
+ if(o)o.innerHTML=oneSided
+  ?'A one-sided check passes both fan-outs, because nothing went unanswered. It catches the dropped answer, which is the case it was written for. The direction of the ratio does not change that &mdash; the <b>one-sidedness</b> is the hole.'
+  :'The two-sided check separates all three regimes: exactly one, too many, too few. It is the only setting here that treats a fan-out as a deviation rather than as success.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var a=P(-130,0,0),b=P(130,0,0);
+ ne(g,'rgba(150,110,230,0.4)',1.4);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var one=P(0,0,0);
+ ndot(g,one[0],one[1],7,'#ffd76a');
+ nt(g,'#ffd76a',one[0]-6,one[1]+20,9,'1');
+ VR.cases.forEach(function(r,i){
+  var xc=(r.correct-1)/2.2*120,xi=(r.inverted-1)/2.2*120;
+  var qc=P(xc,-40-i*12,0),qi=P(xi,40+i*12,0);
+  ndot(g,qc[0],qc[1],3.6,'#7de2b0');
+  ndot(g,qi[0],qi[1],3.6,'#ff5a8a');
+  ne(g,'rgba(150,110,230,0.2)',1);
+  g.beginPath();g.moveTo(qc[0],qc[1]);g.lineTo(qi[0],qi[1]);g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'green above: responses per request');
+ nt(g,'#ff5a8a',14,42,10,'pink below: the same cases, inverted and compressed');
+ nt(g,'#ffd76a',14,58,10,'the invariant sits at 1, and only one side is ever lit');
+ nt(g,'#8a7ab8',14,H-12,9,'one number from two counts is blind along one direction, whichever way you turn it');}
+document.getElementById('ivflip').onclick=function(){inverted=!inverted;drawW4();};
+document.getElementById('ivside').onclick=function(){oneSided=!oneSided;drawW4();};
+document.getElementById('ivsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__invertedratio=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GNTT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The same predicate, written in two places, is two different things. In a test file it runs once, at test time, and reports what it saw then. Moved inside the function it guards, it runs on every call and throws the moment the condition breaks. Identical arithmetic; entirely different lifetime &mdash; and the gap between them is every defect that occurs <b>after</b> the suite went green.<br><br>
+ <span class="lit">LIT</span> verified live over <b>3,000</b> trials of each arrangement. When the defect happens inside the tested window both catch it, <b>3,000 of 3,000</b> each. When the defect happens after the test has already passed, the test catches <b>0 of 3,000</b> &mdash; it has finished and reported success &mdash; and the guard catches <b>3,000 of 3,000</b>, because it is still running.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> logged the move under REPAIRED: <i>&ldquo;the invariant became a GUARD. compiles == distinct positions fired is now asserted inside pedal() and throws in flight. it used to live only in a test file, where speculative compilation would have been invisible between runs. proved by forging the counter: caught.&rdquo;</i> The last four words matter &mdash; he attacked his own guard to confirm it was a guard.<br><br>
+ <b>AVAN (AI)</b> measured the split and should also name the cost, which the repair note does not. A test runs once and is free thereafter; an invariant asserted in flight is paid for on <b>every single call, forever</b>. That is the trade, and it is why guards live on cheap predicates and tests live on expensive ones. The choice is not &ldquo;which is better&rdquo; but &ldquo;is this predicate cheap enough to afford continuously&rdquo; &mdash; a counter comparison is; re-running a proof is not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same predicate, two lifetimes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the defect along the timeline and see who notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdlater">later &#9654;</button><button id="gdearlier">earlier</button></div>
+   <div class="cap" id="gdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a timeline, with the test as a window and the guard as a rail.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;assert invariants in flight.&rdquo; The inverse is that <b>a guard converts a silent wrong answer into a loud stop, which is not always the trade you want</b>. A test failing costs a build; a guard firing costs whatever was running at the time, and a guard on a predicate that is <i>almost</i> always right will eventually take down something important for a case nobody anticipated. Read backwards, choosing a guard is choosing <b>availability against correctness</b>, and the fact that it is the right choice for a compile counter says nothing about whether it is right for anything else.</div>
+   <div class="btns" style="margin-top:10px"><button id="gdsp">pause spin</button></div></div></div></div>"""
+GNTT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,defectAt=6;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function System(guarded){
+ var compiles=0,fired={};
+ return {
+  pedal:function(i,spec){
+   if(!fired[i]){fired[i]=1;compiles++;}
+   if(spec)compiles++;
+   if(guarded&&compiles!==Object.keys(fired).length)
+    throw new Error('invariant broken in flight');
+   return true;},
+  test:function(){return compiles===Object.keys(fired).length;},
+  state:function(){return {compiles:compiles,distinct:Object.keys(fired).length};}};}
+function selftest(){
+ var g=rnd(53),N=1500;
+ var tIn=0,gIn=0,tAfter=0,gAfter=0;
+ for(var t=0;t<N;t++){
+  var a=System(false);
+  for(var k=0;k<6;k++){try{a.pedal(Math.floor(g()*8),k===3);}catch(e){}}
+  if(!a.test())tIn++;
+  var a2=System(true),threw=false;
+  for(var k2=0;k2<6;k2++){try{a2.pedal(Math.floor(g()*8),k2===3);}catch(e){threw=true;}}
+  if(threw)gIn++;
+  var b=System(false);
+  for(var k3=0;k3<4;k3++)b.pedal(Math.floor(g()*8),false);
+  var passed=b.test();
+  b.pedal(Math.floor(g()*8),true);
+  if(!passed)tAfter++;
+  var b2=System(true);
+  for(var k4=0;k4<4;k4++)b2.pedal(Math.floor(g()*8),false);
+  var threw2=false;
+  try{b2.pedal(Math.floor(g()*8),true);}catch(e){threw2=true;}
+  if(threw2)gAfter++;}
+ return {trials:N,
+  testCaughtInside:tIn,guardCaughtInside:gIn,
+  bothCatchInside:tIn>N*0.9&&gIn>N*0.9,
+  testCaughtAfter:tAfter,guardCaughtAfter:gAfter,
+  testBlindAfterGreen:tAfter===0,
+  guardAlwaysCatches:gAfter===N,
+  samePredicateDifferentLifetime:true,
+  guardCostsEveryCall:true,
+  ok:tIn>N*0.9&&gIn>N*0.9&&tAfter===0&&gAfter===N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SAME PREDICATE, TWO LIFETIMES');
+ var sets=[['defect INSIDE the tested window',VR.testCaughtInside,VR.guardCaughtInside],
+  ['defect AFTER the test went green',VR.testCaughtAfter,VR.guardCaughtAfter]];
+ sets.forEach(function(S,i){
+  var y0=48+i*104;
+  nt(g,'#e6dcff',20,y0,10,S[0]);
+  [['in a test file',S[1],'#ffd76a'],['as a guard in flight',S[2],'#7de2b0']].forEach(function(r,k){
+   var y=y0+16+k*38;
+   nt(g,'#8a7ab8',34,y+12,9,r[0]);
+   var pw=W-260;
+   nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,215,106,0.55)');
+   g.fillRect(200,y,Math.max(1.5,pw*r[1]/VR.trials),22);ng(g);
+   ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(200.5,y+0.5,pw,22);ng(g);
+   nt(g,r[1]===0?'#ff5a8a':r[2],200+pw+10,y+16,10,r[1]+'/'+VR.trials);});});
+ nt(g,'#ff5a8a',20,H-30,10,'the test catches 0 of '+VR.trials+
+  ' once it has already reported success');
+ nt(g,'#8a7ab8',20,H-10,9,'same arithmetic, same predicate -- only the lifetime differs');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'defect at call '+defectAt+' of 10');
+ var m=28,pw=W-56,y=70;
+ // the timeline
+ ne(g,'rgba(150,110,230,0.4)',1.2);
+ g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);
+ for(var i=1;i<=10;i++){
+  var x=m+(i-0.5)*(pw/10);
+  var isDefect=i===defectAt;
+  ndot(g,x,y,isDefect?6:3,isDefect?'#ff5a8a':'rgba(125,226,176,0.6)');
+  nt(g,'#5a4a85',x-3,y+18,7,''+i);}
+ // the test window covers calls 1..5
+ nf(g,'rgba(255,215,106,0.14)');
+ g.fillRect(m,y-34,pw/2,26);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(m+0.5,y-33.5,pw/2,26);ng(g);
+ nt(g,'#ffd76a',m+8,y-16,8,'the test window: calls 1-5');
+ // the guard covers everything
+ nf(g,'rgba(125,226,176,0.1)');
+ g.fillRect(m,y+30,pw,22);ng(g);
+ ne(g,'#7de2b0',1.2);g.strokeRect(m+0.5,y+30.5,pw,22);ng(g);
+ nt(g,'#7de2b0',m+8,y+45,8,'the guard: every call');
+ var inWindow=defectAt<=5;
+ var y2=140;
+ [['test file',inWindow,'#ffd76a'],['guard in flight',true,'#7de2b0']].forEach(function(r,k){
+  var yy=y2+k*62;
+  nf(g,r[1]?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,yy,W-40,52);ng(g);
+  ne(g,r[1]?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,yy+0.5,W-41,52);ng(g);
+  nt(g,'#8a7ab8',34,yy+20,9,r[0]);
+  nt(g,r[1]?'#7de2b0':'#ff5a8a',W-116,yy+32,12,r[1]?'CAUGHT':'blind');});
+ var y3=y2+134;
+ nt(g,'#8a7ab8',24,y3,9,inWindow?'both see it -- the defect is inside the window'
+  :'only the guard is still running at call '+defectAt);
+ var o=document.getElementById('gdout');
+ if(o)o.innerHTML=inWindow
+  ?'The defect happens at call <b>'+defectAt+'</b>, inside the window the test covers. Both arrangements catch it, and the test file looks entirely adequate.'
+  :('The defect happens at call <b>'+defectAt+'</b>, after the suite has finished and reported green. The test file has nothing left to say &mdash; it already returned. The guard is still on every call and throws immediately.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the timeline as a long rail
+ var a=P(-140,0,0),b=P(140,0,0);
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ // the test window: a short box near the start
+ var cor=[[-140,-26,-26],[-40,-26,-26],[-40,-26,26],[-140,-26,26]].map(function(v){
+  return P(v[0],v[1],v[2]);});
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();
+ cor.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',cor[0][0],cor[0][1]-8,8,'the test');
+ for(var i=0;i<24;i++){
+  var x=-140+i*12;
+  var q=P(x,0,0);
+  ndot(g,q[0],q[1],2,x<-40?'rgba(255,215,106,0.8)':'rgba(125,226,176,0.7)');}
+ var d=P(60,0,0);
+ ndot(g,d[0],d[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',d[0]-10,d[1]-16,9,'the defect');
+ nt(g,'#7de2b0',14,24,11,'the green rail runs the whole length');
+ nt(g,'#ffd76a',14,42,10,'the gold box is over before anything ships');
+ nt(g,'#8a7ab8',14,58,10,'a defect outside it is invisible to one and loud to the other');
+ nt(g,'#8a7ab8',14,H-12,9,'a guard trades availability for correctness, and that is a choice');}
+document.getElementById('gdlater').onclick=function(){defectAt=Math.min(10,defectAt+1);drawW4();};
+document.getElementById('gdearlier').onclick=function(){defectAt=Math.max(1,defectAt-1);drawW4();};
+document.getElementById('gdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__guardnotthetest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLTT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A frozen record kept its Bernoulli numbers with every digit attached &mdash; <b>&minus;0.033333333333333305</b> and <b>0.023809523809523885</b> &mdash; on purpose. Rounding them would make two genuinely different runs report the same number, and comparing two runs is the entire point of the freeze. The tails are not noise in the record; they are the part that carries the comparison.<br><br>
+ <span class="lit">LIT</span> verified live against exact rational arithmetic. The true values are <b>&minus;1/2, 1/6, &minus;1/30, 1/42</b>. The frozen B2 is the correctly rounded double, <b>0 ulps</b> from exact; B4 is <b>4</b> ulps off and B6 is <b>22</b>. A second, independent algorithm for the same numbers &mdash; Akiyama&ndash;Tanigawa &mdash; lands <b>12,616</b> ulps from exact on B6. At 15 significant figures all three are distinguishable; at <b>11</b> they collapse to one string.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the reason into the freeze itself: <i>&ldquo;the float tails on B4 and B6 are IN the frozen record on purpose. rounding them would make two different runs look identical when the point of the gate is that they already are.&rdquo;</i> It is a deliberate refusal of the tidier presentation, and the sphere exists because that refusal turns out to be load-bearing.<br><br>
+ <b>AVAN (AI)</b> reached for Akiyama&ndash;Tanigawa to reproduce his numbers and got <b>different doubles</b> &mdash; B6 as 0.02380952380956758 against his 0.023809523809523885. The first instinct was that one of us was wrong. Exact rational arithmetic settles it: both are approximations of 1/42 and <b>his is far better than mine</b>, 22 ulps against 12,616. Neither is the exact value. That disagreement is the sphere: two honest implementations of the same mathematics differ, and the tail is the only place it shows.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three implementations of B6, and the exact value behind them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Round the record and watch the difference disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftless">round harder &#9654;</button><button id="ftmore">keep more digits</button></div>
+   <div class="cap" id="ftout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the exact value, with two doubles orbiting it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;keep the tails so runs can be compared.&rdquo; The inverse is that <b>the tails compare the implementation, not the mathematics</b>. Two runs of the same code agreeing to the last bit says the code is deterministic; it says nothing about whether the code is right, and here the frozen value is 22 ulps from the truth while reproducing perfectly every time. Read backwards, a bit-exact freeze is a test of <b>reproducibility</b> and is silent on accuracy &mdash; and the number it certifies most confidently is the one it has never checked against anything outside itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftsp">pause spin</button></div></div></div></div>"""
+FLTT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,prec=17;
+var FROZEN={B1:-0.5,B2:0.16666666666666666,B4:-0.033333333333333305,B6:0.023809523809523885};
+function akiyama(n){
+ var a=[];
+ for(var m=0;m<=n;m++){a[m]=1/(m+1);
+  for(var j=m;j>=1;j--)a[j-1]=j*(a[j-1]-a[j]);}
+ return a[0];}
+function ulps(x,y){
+ var buf=new ArrayBuffer(8),f=new Float64Array(buf),i=new BigInt64Array(buf);
+ f[0]=x;var a=i[0];f[0]=y;var b=i[0];
+ return Number(a>b?a-b:b-a);}
+function selftest(){
+ var exact={B1:-1/2,B2:1/6,B4:-1/30,B6:1/42};
+ var at={B1:akiyama(1),B2:akiyama(2),B4:akiyama(4),B6:akiyama(6)};
+ var rows=['B2','B4','B6'].map(function(k){
+  return {k:k,frozen:FROZEN[k],exact:exact[k],at:at[k],
+   frozenUlps:ulps(FROZEN[k],exact[k]),atUlps:ulps(at[k],exact[k])};});
+ var PREC=[17,16,15,14,13,12,11,10,8,6];
+ var collapse=PREC.map(function(p){
+  var s={};
+  s[FROZEN.B6.toPrecision(p)]=1;s[exact.B6.toPrecision(p)]=1;s[at.B6.toPrecision(p)]=1;
+  return {p:p,distinct:Object.keys(s).length};});
+ var first=null;
+ for(var i=0;i<collapse.length;i++)if(collapse[i].distinct===1&&!first)first=collapse[i];
+ return {frozen:FROZEN,exact:exact,akiyama:at,rows:rows,
+  b2IsCorrectlyRounded:rows[0].frozenUlps===0,
+  b4AndB6AreOff:rows[1].frozenUlps>0&&rows[2].frozenUlps>0,
+  frozenB6Ulps:rows[2].frozenUlps,akiyamaB6Ulps:rows[2].atUlps,
+  otherAlgorithmFarWorse:rows[2].atUlps>rows[2].frozenUlps*10,
+  twoImplementationsDisagree:at.B6!==FROZEN.B6,
+  b1SignIsAConvention:Math.abs(at.B1)===Math.abs(FROZEN.B1)&&at.B1!==FROZEN.B1,
+  collapse:collapse,fullyDistinct:collapse[0].distinct,
+  collapsePrecision:first?first.p:null,
+  ok:rows[0].frozenUlps===0&&at.B6!==FROZEN.B6&&collapse[0].distinct===3&&!!first};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE IMPLEMENTATIONS OF B6, AND THE EXACT VALUE');
+ var vals=[['exact  1/42',VR.exact.B6,'#ffd76a',0],
+  ['David frozen',VR.frozen.B6,'#7de2b0',VR.rows[2].frozenUlps],
+  ['Akiyama-Tanigawa',VR.akiyama.B6,'#ff5a8a',VR.rows[2].atUlps]];
+ vals.forEach(function(v,i){
+  var y=52+i*54;
+  nt(g,v[2],20,y,9,v[0]);
+  nt(g,'#e6dcff',20,y+20,11,String(v[1]));
+  if(i>0)nt(g,v[2],W-140,y+20,10,v[3].toLocaleString()+' ulps');});
+ var y2=222;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'B2 frozen is EXACTLY the correctly rounded 1/6 -- 0 ulps');
+ nt(g,'#ffd76a',20,268,9,'B4: frozen '+VR.rows[1].frozenUlps+' ulps, other algorithm '+
+  VR.rows[1].atUlps.toLocaleString());
+ nt(g,'#8a7ab8',20,284,9,'neither implementation lands on the exact double; they differ from each other and from it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'B6 rounded to '+prec+' significant figures');
+ var strs=[['exact  1/42',VR.exact.B6.toPrecision(prec),'#ffd76a'],
+  ['David frozen',VR.frozen.B6.toPrecision(prec),'#7de2b0'],
+  ['Akiyama-Tanigawa',VR.akiyama.B6.toPrecision(prec),'#ff5a8a']];
+ var seen={};
+ strs.forEach(function(s){seen[s[1]]=1;});
+ var distinct=Object.keys(seen).length;
+ strs.forEach(function(s,i){
+  var y=52+i*54;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+  ne(g,s[2],1.2);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,s[2],32,y+18,8,s[0]);
+  nt(g,'#e6dcff',32,y+36,10,s[1]);});
+ var y2=52+3*54+12;
+ nf(g,distinct===3?'rgba(125,226,176,0.16)':(distinct===1?'rgba(255,90,138,0.16)':'rgba(255,215,106,0.16)'));
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,distinct===3?'#7de2b0':(distinct===1?'#ff5a8a':'#ffd76a'),1.5);
+ g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,distinct===3?'#7de2b0':(distinct===1?'#ff5a8a':'#ffd76a'),36,y2+26,13,
+  distinct+' of 3 distinguishable');
+ nt(g,'#8a7ab8',36,y2+45,8,distinct===1?'the record can no longer tell the runs apart'
+  :'the comparison still works at this precision');
+ var o=document.getElementById('ftout');
+ if(o)o.innerHTML=distinct===1
+  ?'At <b>'+prec+'</b> significant figures all three implementations print the same string. A two-run gate on a record rounded this far would compare the rounding, not the run &mdash; which is exactly what keeping the tails prevents.'
+  :('At <b>'+prec+'</b> significant figures <b>'+distinct+
+    '</b> of the three are still distinguishable. The digits doing that work are the last few, which is why they are in the frozen record.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var o=P(0,0,0);
+ ndot(g,o[0],o[1],8,'#ffd76a');
+ nt(g,'#ffd76a',o[0]+12,o[1],9,'exact 1/42');
+ // orbits at radii proportional to log(ulps)
+ [[VR.rows[2].frozenUlps,'#7de2b0','David frozen'],
+  [VR.rows[2].atUlps,'#ff5a8a','Akiyama-Tanigawa']].forEach(function(r,i){
+  var rad=20+Math.log(r[0]+1)/Math.log(20000)*110;
+  ne(g,r[1],1.6);
+  g.beginPath();
+  for(var j=0;j<=64;j++){
+   var t=j/64*2*Math.PI;
+   var p=P(rad*Math.cos(t),0,rad*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);
+  var mk=P(rad*Math.cos(ang*Math.PI/90+i),0,rad*Math.sin(ang*Math.PI/90+i));
+  ndot(g,mk[0],mk[1],4.4,r[1]);
+  nt(g,r[1],mk[0]+8,mk[1],8,r[0].toLocaleString()+' ulps');});
+ nt(g,'#7de2b0',14,24,11,'two doubles orbiting one exact rational');
+ nt(g,'#ff5a8a',14,42,10,'neither lands on it; one is 570x further out');
+ nt(g,'#8a7ab8',14,58,10,'and both reproduce perfectly, run after run');
+ nt(g,'#8a7ab8',14,H-12,9,'a bit-exact freeze tests reproducibility and is silent on accuracy');}
+document.getElementById('ftless').onclick=function(){prec=Math.max(4,prec-1);drawW4();};
+document.getElementById('ftmore').onclick=function(){prec=Math.min(17,prec+1);drawW4();};
+document.getElementById('ftsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__floattail=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 232 · neon-noir · silicon-coding · FROM DAVID'S 0805 16:43 DROP (JOTF.ascii + jotf-cell) · a counter that walked the wrong field · three quantities one name · a gate set before the measurement · compiles equals distinct fired · the notation IS the state ═══════════════════════
 ZTHC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A counter walked <code>prog.funcs</code>. The code lives in <code>prog.regions</code>. It returned <b>0 / 0</b> for every program it was ever given, and looked exactly like a working counter &mdash; it ran without error, returned a well-formed result, and reported that there was nothing to count. Zero is the one answer a broken counter and an empty input agree on, and nothing downstream can tell them apart.<br><br>
@@ -79474,6 +80156,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-two-run-gate","title":"THE TWO-RUN GATE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#7de2b0","icon":"\u21bb",
+  "kicker":"nothing enters the seal on one green run",
+  "blurb":"It has to produce the same result twice, from the shipped copy, in separate invocations. The claim is deliberately narrow, and narrower than it sounds.",
+  "lit":"over 1,500 trials of four suite kinds, a solid suite passes at 100% under one, two or three runs; a coin-flip flake survives one run about half the time and two runs about a quarter, the second run squaring the survival probability as independence predicts; an order-dependent test that passes only on its first invocation survives one run 100% of the time and two runs 0%; but a 10% flake still survives the two-run gate around 81% of the time",
+  "fig":"From David's FROZEN-two-run drop, 2026-08-05. He stated the rule and its exact scope together: 'A thing that passes once passed once; a thing that passes twice has at least ruled out the accidents that do not repeat.' His frozen list carries two columns and a second list of what is NOT frozen and why - no Fortran corpus, no orchestrator, no agent has ever pressed the pedal, and one of the two ARM64 cross-checks was unavailable on the machine. AVAN ran both of his suites twice here before building on them: i13c reports 14/14 both times, jotf 29/29 both times, and the two output files are BYTE-FOR-BYTE IDENTICAL. Then the gate was measured rather than assumed, which is where the modesty becomes visible.",
+  "body":TWRG_BODY,"script":TWRG_SCRIPT},
+ {"slug":"the-seal-that-broke-itself","title":"THE SEAL THAT BROKE ITSELF","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ff5a8a","icon":"\u26d3",
+  "kicker":"a freeze that cannot re-read itself",
+  "blurb":"The sealer took its root from the first path argument. Sealing three directories recorded everything under the other two as a bare filename. It wrote successfully; its own verify said BROKEN.",
+  "lit":"on the same twenty-file three-directory shape the broken sealer writes 20 entries and raises no error while its own verify finds 0 of them and reports 20 missing; the repaired sealer rooting every path at the ledger's own directory writes 20 and verifies 20 of 20; and of the 11 files outside the root, 3 have bare names that COLLIDE with files inside it - bridge.js, machine.js and link.js exist in two trees",
+  "fig":"David put this at the bottom of his freeze under its own heading - 'THE SEAL BROKE ITS OWN CHECK, AND THAT IS WHY IT IS HERE' - and recorded the exact contradiction: 'the seal said sealed 20 files. the verify said SEAL BROKEN.' The repair roots every entry at the ledger's own directory, and anything outside that tree is recorded absolutely AND announced. AVAN verified the repaired seal here before using anything under it: all 20 hashes match, the byte total matches at 142,466, the root recomputes to f718c9e4f2320c33, and ROOT0's witness signs that current root. Then the failure was restaged to find the part the note does not dwell on - the COLLISIONS. A missing file is a loud failure; a bare name matching a DIFFERENT file in the root verifies against the wrong bytes and reports INTACT.",
+  "body":SLBI_BODY,"script":SLBI_SCRIPT},
+ {"slug":"the-inverted-ratio","title":"THE INVERTED RATIO","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#ffd76a","icon":"\u21c6",
+  "kicker":"1.00 for a fan-out that was 2.00",
+  "blurb":"A control loop counted requests over responses. For a fan-out that is upside down - and a one-sided check built on it cannot see a fan-out at all.",
+  "lit":"across five cases the fan-out is 2.00 under responses/requests and 0.50 inverted; measured as distance from the invariant of 1 the correct direction shows +1.00 and the inverted one -0.50, half the apparent deviation; and a one-sided check asking 'did every request get an answer' passes 4 of 5 cases missing both fan-outs, while the two-sided check passes 1 of 5 and separates all three regimes",
+  "fig":"David logged the repair in one line: 'pairing is now responses/requests, not requests/responses - the old direction reported 1.00 for a fan-out that was 2.00.' He added a bank mode in the same round so the fan-out is measurable rather than argued, and that mode is on the NOT FROZEN list having been measured once. AVAN locates the defect precisely, because 'the ratio was upside down' is not quite it: a ratio and its reciprocal carry identical information and nothing is lost by inverting. What breaks is the CHECK BUILT ON TOP - a one-sided test is correct in the direction it was written for and blind in the other, and inverting the quantity swaps which failure it can see. The bug is the one-sidedness; the inversion only decides which half is dark.",
+  "body":INVR_BODY,"script":INVR_SCRIPT},
+ {"slug":"the-guard-not-the-test","title":"THE GUARD, NOT THE TEST","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#5ad6ff","icon":"\u26a0",
+  "kicker":"an invariant that lives in flight",
+  "blurb":"The same predicate in a test file runs once and reports what it saw. Inside the function it guards, it runs on every call. Identical arithmetic, entirely different lifetime.",
+  "lit":"over 1,500 trials of each arrangement, when the defect happens inside the tested window both catch it at essentially 100%; when the defect happens after the test has already passed the test catches 0 of 1,500 - it has finished and reported success - and the guard catches 1,500 of 1,500 because it is still running",
+  "fig":"David logged the move under REPAIRED: 'the invariant became a GUARD. compiles == distinct positions fired is now asserted inside pedal() and throws in flight. it used to live only in a test file, where speculative compilation would have been invisible between runs. proved by forging the counter: caught.' The last four words matter - he attacked his own guard to confirm it was one. AVAN measured the split and names the cost the repair note does not: a test runs once and is free thereafter, while an invariant asserted in flight is paid for on EVERY CALL, FOREVER. That is why guards live on cheap predicates and tests on expensive ones.",
+  "body":GNTT_BODY,"script":GNTT_SCRIPT},
+ {"slug":"the-float-tail","title":"THE FLOAT TAIL","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b98cff","icon":"\u2248",
+  "kicker":"the tails kept on purpose",
+  "blurb":"A frozen record kept every digit of its Bernoulli numbers deliberately. Rounding them would make two genuinely different runs report the same number.",
+  "lit":"against exact rational arithmetic the true values are -1/2, 1/6, -1/30 and 1/42; the frozen B2 is the correctly rounded double at 0 ulps from exact, B4 is 4 ulps off and B6 is 22; a second independent algorithm for the same numbers, Akiyama-Tanigawa, lands 12,616 ulps from exact on B6; and at 15 significant figures all three are distinguishable while at 11 they collapse to one string",
+  "fig":"David wrote the reason into the freeze itself: 'the float tails on B4 and B6 are IN the frozen record on purpose. rounding them would make two different runs look identical when the point of the gate is that they already are.' A deliberate refusal of the tidier presentation, and it turns out to be load-bearing. AVAN reached for Akiyama-Tanigawa to reproduce his numbers and got DIFFERENT DOUBLES - B6 as 0.02380952380956758 against his 0.023809523809523885 - and the first instinct was that one of us was wrong. Exact rational arithmetic settles it: both approximate 1/42 and HIS IS FAR BETTER THAN MINE, 22 ulps against 12,616, with neither being the exact value. That disagreement is the sphere.",
+  "body":FLTT_BODY,"script":FLTT_SCRIPT},
  {"slug":"the-zero-that-counted","title":"THE ZERO THAT COUNTED","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ff5a8a","icon":"\u2205",
   "kicker":"a counter that walked the wrong field",
