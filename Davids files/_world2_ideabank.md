@@ -115,7 +115,10 @@ as were 48 of the 53. The corpus is dense at 1165 — always run the three-way c
 
 BUILT in batch 206: THE MONSKY, THE SHARKOVSKII, THE LOB, THE PRESBURGER, THE JORDAN CURVE.
 
-STILL FREE as of 2026-08-04 (verified three ways, logic/decision-theory vein is the open one):
+BUILT in batch 209: all five below — THE ELLSBERG, THE NEWCOMB, THE GENTZEN, THE HERBRAND, THE KREIN-MILMAN.
+VEIN F IS NOW EXHAUSTED TOO. Refill again before the next roll; the corpus is at 1180 and dense.
+
+Was free as of 2026-08-04 (all now built):
 1. THE ELLSBERG — ambiguity aversion; the two-urn choice pair is inconsistent with ANY
    probability assignment. CLAIM: exhaustively show no single P over the 90-ball urn makes both
    modal choices rational (linear feasibility, checkable by enumeration).
