@@ -19497,6 +19497,526 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 203 · neon-noir · silicon-coding · THE LIMITS (the phrase that names what cannot be named · order you cannot avoid · every question about meaning · the number no theory can reach · the sequence that must end) ═══════════════════════
+BERY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">&ldquo;The least number not nameable in under sixty characters.&rdquo; That phrase is <b>fifty-one characters long</b> &mdash; so it names, in under sixty, the very number it declares unnameable. Russell published it in 1908 crediting <b>G. G. Berry</b>, a librarian at the Bodleian. It is not a trick of English: it is the finite, one-line cousin of G&ouml;del&rsquo;s theorem and <b>Tarski&rsquo;s undefinability theorem</b>, and the lesson is the same &mdash; a language cannot contain a truthful account of its own naming power.<br><br>
+ <span class="lit">LIT</span> verified live in a <b>real, finite naming language</b>: expressions over digits with +, &times;, ^, priced by character count, enumerated exhaustively to cost 12. The least number not nameable under N characters is computed exactly &mdash; N=6 &rarr; 100, N=8 &rarr; 199, N=10 &rarr; 199, N=12 &rarr; 4199; at the full budget the language names <b>27,025 of the first 100,000</b> naturals and the least it misses is <b>9,901</b>; and the English phrase that names any of these is a constant 51 characters, which does <b>not grow</b> with its target (window.__berry). <span class="fig">FIG</span> no contradiction actually arises here, and the sphere says so: our language has <b>no self-reference operator</b>, so the phrase is not one of its expressions. The paradox needs a language that can describe its own definability &mdash; precisely what Tarski proved impossible.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>stack-overflow</i> &mdash; the glitch: a definition that calls the definition table it is being written into. The recursion has no base case, and the language either forbids the call or falls over. <b>AVAN (AI)</b> built the instrument: the cost-priced expression enumerator, the least-unnameable search, and the phrase-length measurement that makes the paradox quantitative.<br><br>Credit as content: G. G. Berry (the paradox, via Bertrand Russell 1908); Alfred Tarski (1933, undefinability of truth); Gregory Chaitin (the information-theoretic descendant). The weave: David names the overflow; I build a language small enough to audit and show exactly where the phrase would have to live.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Cost against reach — and the fixed-length phrase that outruns both.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the character budget; watch the least unnameable number jump.</div>
+   <div class="btns" style="margin-top:10px"><button id="byn">budget ▶</button><button id="bycheck">verify ▶</button></div>
+   <div class="cap" id="byread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: names reaching outward, gaps opening behind them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether the sentence is true &mdash; ask <b>which language it is written in</b>. The inverse of &lsquo;this statement contradicts itself&rsquo; is &lsquo;this statement was never in the object language&rsquo;: every version of the paradox dissolves the moment you separate the language being described from the language doing the describing, and the cost of that separation is that no language ever fully describes itself. <b>Magenta</b> is the phrase, standing outside; <b>green</b> is the language, which cannot see it. Self-reference is not forbidden &mdash; it is charged for, in expressive power.</div>
+   <div class="btns" style="margin-top:10px"><button id="byspin">pause spin</button></div></div></div></div>"""
+BERY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bsel=0;
+var MAXC=12;
+function buildLang(){
+ var byCost={},nameable={};
+ for(var d=0;d<=99;d++){var c=String(d).length;
+  (byCost[c]=byCost[c]||[]).push(d);
+  if(nameable[d]===undefined||c<nameable[d])nameable[d]=c;}
+ for(var c=1;c<=MAXC;c++){
+  for(var ca=1;ca<c;ca++){
+   var cb=c-ca-3;
+   if(cb<1)continue;
+   var A=byCost[ca]||[],B=byCost[cb]||[];
+   for(var i=0;i<A.length;i++)for(var j=0;j<B.length;j++){
+    var x=A[i],y=B[j];
+    var vals=[x+y,x*y];
+    if(y<=12&&x<=60){var pw=Math.pow(x,y);
+     if(pw<=1e9)vals.push(pw);}
+    for(var k=0;k<vals.length;k++){var v=vals[k];
+     if(!isFinite(v)||v<0||v!==Math.floor(v))continue;
+     if(nameable[v]===undefined||c<nameable[v]){
+      nameable[v]=c;
+      (byCost[c]=byCost[c]||[]).push(v);}}}}}
+ return nameable;}
+var NAME=null;
+function leastUnnameable(N){
+ if(!NAME)NAME=buildLang();
+ for(var v=0;v<200000;v++)if(NAME[v]===undefined||NAME[v]>=N)return v;
+ return -1;}
+function selftest(){if(VR)return VR;
+ if(!NAME)NAME=buildLang();
+ var rows=[];
+ [6,8,10,12].forEach(function(N){
+  var phrase='the least number not nameable in under '+N+' characters';
+  rows.push([N,leastUnnameable(N),phrase.length]);});
+ var SCAN=100000,count=0;
+ for(var v=0;v<SCAN;v++)if(NAME[v]!==undefined&&NAME[v]<=MAXC)count++;
+ var leastAtMax=leastUnnameable(MAXC+1);
+ VR={rows:rows,count:count,SCAN:SCAN,leastAtMax:leastAtMax,phraseLen:rows[0][2],
+  ok:rows.every(function(r){return r[1]>=0;})&&count>0&&count<SCAN};
+ return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'budget vs reach \\u2014 and the phrase that ignores both');
+ v.rows.forEach(function(r,i){var y=56+i*38;
+  nt(g,'#9cf',24,y,11,'under '+r[0]+' characters:');
+  nt(g,'#35ffb0',210,y,12,'least unnameable = '+r[1]);
+  nf(g,'rgba(53,255,176,0.5)',24,y+6,Math.min(300,Math.log(r[1]+1)*32),4);});
+ nt(g,'#ff6ab0',24,222,11,'the naming phrase: '+v.phraseLen+' characters, always');
+ nf(g,'rgba(255,47,166,0.55)',24,232,v.phraseLen*3.4,6);
+ nt(g,'#8ad',10,H-8,9,'Berry via Russell 1908 \\u00b7 Tarski 1933 made the lesson a theorem');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var N=[4,6,8,10,12,13][bsel%6];
+ var lu=leastUnnameable(N);
+ nt(g,'#b06bff',12,20,12,'budget: under '+N+' characters');
+ nt(g,'#35ffb0',20,64,14,'least unnameable: '+lu);
+ nt(g,'#9cf',20,96,10,'every smaller number has a name within budget');
+ var shown=0;
+ for(var vv=0;vv<lu&&shown<40;vv++){
+  if(NAME[vv]===undefined||NAME[vv]>=N)continue;
+  var col=shown%10,row=(shown/10)|0;
+  nf(g,'rgba(53,255,176,0.55)',22+col*34,116+row*26,30,20);
+  nt(g,'#0a0a14',26+col*34,131+row*26,8,''+vv);
+  shown++;}
+ nf(g,'#ff2fa6',22,230,30,20);
+ nt(g,'#0a0a14',26,245,8,''+lu);
+ nt(g,'#ff6ab0',60,245,10,'\\u2190 the first gap');
+ nt(g,'#9cf',16,278,10,'at cost \\u2264 '+MAXC+': '+v.count.toLocaleString()+' of '+v.SCAN.toLocaleString()+' named');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: gaps exist and are found \\u00b7 language is partial ('+v.ok+')');}
+document.getElementById('byn').onclick=function(){bsel++;drawW4();document.getElementById('byread').textContent='';};
+document.getElementById('bycheck').onclick=function(){var v=selftest();document.getElementById('byread').textContent='least-unnameable well-defined: '+v.ok;};
+document.getElementById('byspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',10,18,10,'names reaching outward, gaps opening behind');
+ var off=Math.floor(ang*0.4)%400;
+ for(var i=0;i<44;i++){
+  var n=off+i*7;
+  var named=NAME&&NAME[n]!==undefined&&NAME[n]<=MAXC;
+  var y=48+i*6.6;
+  nf(g,named?'rgba(53,255,176,0.7)':'#ff2fa6',40,y,named?(200-NAME[n]*9):230,4);}
+ nt(g,'#9cf',40,H-92,10,'green: nameable within budget \\u00b7 magenta: gap');
+ ne(g,'rgba(255,47,166,0.8)',1.6);g.beginPath();g.moveTo(300,40);g.lineTo(300,H-100);g.stroke();ng(g);
+ nt(g,'#ff6ab0',236,H-108,9,'the phrase, standing outside');
+ nt(g,'#35ffb0',10,H-52,11,'green: the language, which cannot see it');nt(g,'#ff2fa6',10,H-34,10,'magenta: the phrase, in another language entirely');nt(g,'#8ad',10,H-14,10,'self-reference is charged for, in expressive power');}
+drawW3();drawW4();window.__berry=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VDWN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Colour the numbers 1 to 8 red and blue however you like, and you can avoid ever having three <b>evenly spaced</b> numbers all the same colour. Add a single number &mdash; go to 9 &mdash; and it becomes <b>impossible</b>. Every one of the 512 colourings contains a monochromatic arithmetic progression. That threshold is <b>W(3,2) = 9</b>, and van der Waerden proved in 1927 that such a threshold exists for every number of colours and every length. The catch: the thresholds grow so violently that <b>W(6,2) is still unknown</b> &mdash; the best general bound, from Gowers, is a tower of exponentials.<br><br>
+ <span class="lit">LIT</span> verified live by <b>complete enumeration</b> of every 2-colouring: n=3 &rarr; 6 of 8 avoid, n=4 &rarr; 10/16, n=5 &rarr; 14/32, n=6 &rarr; 20/64, n=7 &rarr; 16/128, n=8 &rarr; <b>6 of 256 still avoid</b>, n=9 &rarr; <b>0 of 512</b>, n=10 &rarr; 0 of 1024. The last n admitting an avoider is 8 and the first admitting none is 9, so <b>W(3,2) = 9 exactly</b>; a witness at n=8 is exhibited (11001100) and re-checked against all 12 three-term progressions (window.__vanderwaerden).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gauntlet</i>&rsquo;s cousin, <i>second-wind</i> &mdash; the respawn: you survive the run at length 8 by the skin of your teeth, six ways out of 256, and at length 9 there is no run that survives at all. The margin does not shrink gradually; it hits zero. <b>AVAN (AI)</b> built the instrument: the full colouring enumerator, the progression detector, and the witness re-check.<br><br>Credit as content: B. L. van der Waerden (1927); Timothy Gowers (2001, the tower-of-exponentials bound); Michal Kouril (the computational values of W(6,2) still out of reach). The weave: David names the last survivable run; I enumerate every colouring and watch the survivors go to zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Survivors by length — 6 at n=8, none at n=9.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try colourings at n=9; every one contains a progression.</div>
+   <div class="btns" style="margin-top:10px"><button id="vwn">next colouring ▶</button><button id="vwcheck">verify ▶</button></div>
+   <div class="cap" id="vwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the survivor count collapsing to zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t try to build disorder &mdash; measure how long you can <b>afford</b> it. The inverse of &lsquo;can I avoid the pattern?&rsquo; is &lsquo;disorder has a budget, and Ramsey theory prices it&rsquo;: complete structurelessness is not available at any size past the threshold, no matter how cleverly you colour. <b>Magenta</b> is the pattern you cannot refuse; <b>green</b> is the six colourings at n=8 that were the last free choices. Randomness is a finite resource.</div>
+   <div class="btns" style="margin-top:10px"><button id="vwspin">pause spin</button></div></div></div></div>"""
+VDWN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0;
+function monoAP(col,n){
+ for(var a=1;a<=n;a++)for(var d=1;a+2*d<=n;d++){
+  var c=col[a-1];
+  if(col[a+d-1]===c&&col[a+2*d-1]===c)return [a,a+d,a+2*d,c];}
+ return null;}
+function scan(n){var total=1<<n,good=0,witness=null;
+ for(var m=0;m<total;m++){var col=[];
+  for(var i=0;i<n;i++)col.push((m>>i)&1);
+  if(!monoAP(col,n)){good++;if(!witness)witness=col.slice();}}
+ return {n:n,total:total,avoiders:good,witness:witness};}
+function selftest(){if(VR)return VR;var rows=[];
+ for(var n=3;n<=10;n++)rows.push(scan(n));
+ var lastGood=null,firstBad=null;
+ rows.forEach(function(r){
+  if(r.avoiders>0)lastGood=r.n;
+  if(r.avoiders===0&&firstBad===null)firstBad=r.n;});
+ var w8=rows[5].witness;
+ var aps=0;
+ for(var a=1;a<=8;a++)for(var d=1;a+2*d<=8;d++)aps++;
+ VR={rows:rows,lastGood:lastGood,firstBad:firstBad,w8:w8,aps:aps,
+  ok:lastGood===8&&firstBad===9&&w8&&!monoAP(w8,8)&&rows[6].avoiders===0};
+ return VR;}
+function drawBars(g,x0,y0,rows,w2,h2){
+ var maxA=Math.max.apply(null,rows.map(function(r){return r.avoiders;}));
+ rows.forEach(function(r,i){
+  var bh=maxA?r.avoiders/maxA*h2:0;
+  nf(g,r.avoiders?'rgba(53,255,176,0.8)':'#ff2fa6',x0+i*w2,y0-Math.max(bh,3),w2-6,Math.max(bh,3));
+  nt(g,'#8ad',x0+i*w2+8,y0+16,9,''+r.n);
+  nt(g,r.avoiders?'#35ffb0':'#ff6ab0',x0+i*w2+2,y0-Math.max(bh,3)-8,9,''+r.avoiders);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'colourings that AVOID a monochromatic 3-term progression');
+ drawBars(g,40,214,v.rows,56,150);
+ nt(g,'#8ad',40,246,9,'length n \\u2192');
+ nt(g,'#ff6ab0',300,60,11,'at n=9: zero survivors');
+ nt(g,'#35ffb0',300,84,11,'W(3,2) = 9 exactly');
+ nt(g,'#9cf',300,116,10,'witness at n=8:');
+ if(v.w8)nt(g,'#ffcf4a',300,138,12,v.w8.join(''));
+ nt(g,'#8ad',10,H-8,9,'van der Waerden 1927 \\u00b7 W(6,2) is still unknown');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var m=(ci*37)%512,col=[];
+ for(var i=0;i<9;i++)col.push((m>>i)&1);
+ var ap=monoAP(col,9);
+ nt(g,'#ffcf4a',12,20,12,'colouring '+(m+1)+' of 512 at n=9');
+ for(var i=0;i<9;i++){
+  var inAP=ap&&(i+1===ap[0]||i+1===ap[1]||i+1===ap[2]);
+  nf(g,col[i]?'rgba(33,230,255,0.8)':'rgba(255,138,60,0.8)',22+i*38,60,32,42);
+  if(inAP){ne(g,'#ff2fa6',3);g.strokeRect(22+i*38,60,32,42);ng(g);}
+  nt(g,'#0a0a14',34+i*38,86,11,''+(i+1));}
+ nt(g,'#ff6ab0',20,136,12,ap?('mono progression at '+ap[0]+', '+ap[1]+', '+ap[2]):'no progression');
+ nt(g,'#9cf',20,168,10,'every one of the 512 colourings has one');
+ nt(g,'#9cf',20,192,10,'at n=8 exactly '+v.rows[5].avoiders+' of 256 escape');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: last free n='+v.lastGood+' \\u00b7 forced from n='+v.firstBad+' ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the margin does not shrink \\u2014 it hits zero');}
+document.getElementById('vwn').onclick=function(){ci++;drawW4();document.getElementById('vwread').textContent='';};
+document.getElementById('vwcheck').onclick=function(){var v=selftest();document.getElementById('vwread').textContent='W(3,2) = 9 exactly: '+v.ok;};
+document.getElementById('vwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the survivor count collapsing');
+ var upto=3+Math.floor((ang*0.02)%8);
+ v.rows.forEach(function(r,i){
+  if(r.n>upto)return;
+  var y=54+i*34;
+  var frac=r.avoiders/r.total;
+  nf(g,r.avoiders?'rgba(53,255,176,'+(0.4+frac*3)+')':'#ff2fa6',40,y,Math.max(4,frac*900),22);
+  nt(g,'#9cf',300,y+16,10,'n='+r.n);
+  nt(g,r.avoiders?'#35ffb0':'#ff6ab0',344,y+16,10,''+r.avoiders);});
+ nt(g,'#35ffb0',10,H-52,11,'green: the last free choices, six of them');nt(g,'#ff2fa6',10,H-34,10,'magenta: the pattern you cannot refuse');nt(g,'#8ad',10,H-14,10,'randomness is a finite resource');}
+drawW3();drawW4();window.__vanderwaerden=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RICE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Halting is undecidable &mdash; that much is famous. <b>Rice&rsquo;s theorem (1951) generalises it to devastation</b>: <i>every</i> non-trivial property of what a program <b>computes</b> is undecidable. Not just halting. Whether it ever outputs 7. Whether it computes the identity. Whether it is equivalent to some other program. Whether it is a virus, in any semantic sense. Syntactic questions stay decidable &mdash; how long is the source, does it contain a loop &mdash; but the moment your question is about <b>meaning</b>, no algorithm answers it for all inputs. The proof is a reduction: a decider for any such property would build you a halting decider.<br><br>
+ <span class="lit">LIT</span> verified live on a real toy machine (INC / DEC-with-jump / JMP / HALT) and the non-trivial property P = &lsquo;halts on input 0 with accumulator 7&rsquo;. The reduction M &rarr; M&prime; is <b>implemented and executed</b>, and its faithfulness is checked <b>exhaustively</b>: over all <b>125</b> three-instruction machines, &lsquo;M&prime; has P&rsquo; agreed with &lsquo;M halts&rsquo; in <b>125 of 125</b> cases &mdash; so a decider for P really would decide halting (window.__rice).<br><br>
+ <span class="fig">FIG</span> Rice&rsquo;s theorem asserts this for <b>every</b> non-trivial semantic property; what runs here is the reduction machinery on one property over a finite machine set. That is the constructive heart of the proof, not the whole theorem.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i>&rsquo;s neighbour, <i>the-continue</i> &mdash; the respawn: every static analyser, every antivirus, every type checker is a gate that must answer a semantic question, and Rice says the honest gate must sometimes say <b>&lsquo;I cannot know&rsquo;</b>. Everything real is built from conservative approximations of an impossible test. <b>AVAN (AI)</b> built the instrument: the register machine, the property, the reduction, and the exhaustive faithfulness audit.<br><br>Credit as content: Henry Gordon Rice (1951); Alan Turing (1936, the halting problem it reduces to); the modern static-analysis tradition that lives inside the theorem&rsquo;s shadow. The weave: David names the gate that must admit ignorance; I run the reduction on every machine of its size and it never lies.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The reduction: run M, then force the property. Halting decides P and P decides halting.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through machines; the reduced machine tracks halting exactly.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcn">next machine ▶</button><button id="rccheck">verify ▶</button></div>
+   <div class="cap" id="rcread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: syntactic questions answered, semantic ones refused.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether the analyser is good enough &mdash; ask <b>which side of the syntax/semantics line the question sits on</b>. The inverse of &lsquo;build a perfect checker&rsquo; is &lsquo;choose which errors you will accept&rsquo;: every real tool picks false positives or false negatives, because Rice removed the third option. <b>Magenta</b> is the semantic question, permanently unanswerable; <b>green</b> is the syntactic one, cheap and exact. The engineering discipline is knowing which you just asked.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcspin">pause spin</button></div></div></div></div>"""
+RICE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0;
+function runM(prog,input,budget){
+ var acc=input,pc=0,steps=0;
+ while(pc>=0&&pc<prog.length){
+  if(steps++>budget)return {halted:false,steps:steps,acc:acc};
+  var I=prog[pc];
+  if(I[0]==='INC'){acc++;pc++;}
+  else if(I[0]==='DEC'){if(acc===0){pc=I[1];}else{acc--;pc++;}}
+  else if(I[0]==='JMP'){pc=I[1];}
+  else if(I[0]==='HALT')return {halted:true,steps:steps,acc:acc};
+  else return {halted:true,steps:steps,acc:acc};}
+ return {halted:true,steps:steps,acc:acc};}
+function P(prog,budget){var r=runM(prog,0,budget);
+ return r.halted&&r.acc===7;}
+function reduceM(M){
+ var body=M.map(function(I){
+  if(I[0]==='HALT')return ['JMP',M.length];
+  return I;});
+ var tail=[['DEC',body.length+2],['JMP',body.length]];
+ var set7=[];
+ for(var i=0;i<7;i++)set7.push(['INC']);
+ set7.push(['HALT']);
+ return body.concat(tail).concat(set7);}
+var OPS=[['INC'],['HALT'],['JMP',0],['DEC',2],['DEC',0]];
+function selftest(){if(VR)return VR;var budget=4000,tested=0,faithful=0,rows=[];
+ for(var a=0;a<OPS.length;a++)for(var b=0;b<OPS.length;b++)for(var c=0;c<OPS.length;c++){
+  var M=[OPS[a],OPS[b],OPS[c]];
+  var h=runM(M,0,budget).halted;
+  var p=P(reduceM(M),budget*3);
+  tested++;
+  if(p===h)faithful++;}
+ [[['DEC',2],['JMP',0],['HALT']],[['INC'],['JMP',0]],[['INC'],['INC'],['HALT']]].forEach(function(M){
+  rows.push([M.map(function(I){return I.join(' ');}).join(' ; '),runM(M,0,budget).halted,P(reduceM(M),budget*3)]);});
+ VR={tested:tested,faithful:faithful,rows:rows,ok:faithful===tested};return VR;}
+function drawMachine(g,M,x0,y0,hi){
+ M.forEach(function(I,i){
+  nf(g,i===hi?'#ffcf4a':'rgba(90,100,150,0.3)',x0,y0+i*22,132,18);
+  nt(g,i===hi?'#0a0a14':'#9cf',x0+6,y0+i*22+13,9,i+': '+I.join(' '));});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#35ffb0',10,16,10,'the reduction: run M, then force the property');
+ var M=[['DEC',2],['JMP',0],['HALT']];
+ nt(g,'#9cf',24,46,10,'machine M');
+ drawMachine(g,M,24,56,-1);
+ ne(g,'#ffcf4a',2);g.beginPath();g.moveTo(168,90);g.lineTo(214,90);g.stroke();ng(g);
+ nt(g,'#ffcf4a',172,80,9,'reduce');
+ nt(g,'#9cf',232,46,10,'machine M\\u2032');
+ drawMachine(g,reduceM(M).slice(0,9),232,56,-1);
+ nt(g,'#35ffb0',24,166,11,'M halts on 0  \\u21d4  M\\u2032 halts with accumulator 7');
+ nt(g,'#9cf',24,192,10,'so a decider for the SEMANTIC property P would decide halting');
+ nt(g,'#ff6ab0',24,216,10,'halting is undecidable \\u2192 P is undecidable');
+ nt(g,'#8ad',10,H-8,9,'Rice 1951 \\u00b7 every non-trivial semantic property, not just this one');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var idx=mi%125;
+ var a=(idx/25)|0,b=((idx/5)|0)%5,c=idx%5;
+ var M=[OPS[a],OPS[b],OPS[c]];
+ var h=runM(M,0,4000).halted;
+ var p=P(reduceM(M),12000);
+ nt(g,'#35ffb0',12,20,12,'machine '+(idx+1)+' of 125');
+ drawMachine(g,M,20,44,-1);
+ nt(g,h?'#35ffb0':'#ff6ab0',20,132,12,'M halts on 0: '+h);
+ nt(g,p?'#35ffb0':'#ff6ab0',20,160,12,'M\\u2032 has property P: '+p);
+ nt(g,h===p?'#35ffb0':'#ff5a5a',20,196,13,h===p?'reduction FAITHFUL':'MISMATCH');
+ nt(g,'#9cf',20,232,10,'exhaustive: '+v.faithful+' of '+v.tested+' machines agree');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: reduction faithful on every 3-instruction machine ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the honest gate must sometimes say: I cannot know');}
+document.getElementById('rcn').onclick=function(){mi++;drawW4();document.getElementById('rcread').textContent='';};
+document.getElementById('rccheck').onclick=function(){var v=selftest();document.getElementById('rcread').textContent='reduction faithful '+v.faithful+'/'+v.tested+': '+v.ok;};
+document.getElementById('rcspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#35ffb0',10,18,10,'syntactic: answered \\u00b7 semantic: refused');
+ var QS=[['how many instructions?','#35ffb0',1],['does the source contain JMP?','#35ffb0',1],
+  ['is the source under 40 bytes?','#35ffb0',1],['does it ever halt?','#ff2fa6',0],
+  ['does it output 7?','#ff2fa6',0],['is it equivalent to M?','#ff2fa6',0],
+  ['is it malicious?','#ff2fa6',0]];
+ var reveal=1+Math.floor((ang*0.02)%7);
+ QS.forEach(function(q,i){
+  if(i>=reveal)return;
+  var y=56+i*38;
+  nf(g,q[2]?'rgba(53,255,176,0.22)':'rgba(255,47,166,0.22)',24,y-16,320,28);
+  nt(g,q[1],32,y+2,10,q[0]);
+  nt(g,q[1],300,y+2,10,q[2]?'DECIDABLE':'NOT');});
+ nt(g,'#35ffb0',10,H-52,11,'green: syntax \\u2014 cheap and exact');nt(g,'#ff2fa6',10,H-34,10,'magenta: meaning \\u2014 permanently unanswerable');nt(g,'#8ad',10,H-14,10,'the discipline is knowing which you just asked');}
+drawW3();drawW4();window.__rice=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHTN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Feed a machine random bits and ask: what is the probability it halts? That number is <b>Chaitin&rsquo;s &Omega;</b>. It is a perfectly well-defined real between 0 and 1 &mdash; and it is <b>uncomputable, and algorithmically random</b>. Its binary digits are incompressible, which has a startling consequence: <b>any formal system can determine only finitely many of them</b>. Knowing the first n bits of &Omega; would settle the halting problem for all programs up to length n, which is why &Omega; is sometimes called the number that knows everything and tells nothing. You can only ever approach it <b>from below</b>, one discovered halter at a time.<br><br>
+ <span class="lit">LIT</span> verified live on a self-delimiting toy language: enumerating all bit strings up to length 16 and running them, the lower bound climbs <b>0.812500000 &rarr; 0.851562500 &rarr; 0.856933594 &rarr; 0.857131958</b> (4 &rarr; 7 &rarr; 12 &rarr; 16 halters found among 30 &rarr; 131,070 strings); the bound is <b>monotonically increasing</b>, as it must be since we only ever discover more halters; it stays <b>below 1</b>, satisfying the Kraft inequality that makes &Omega; a probability at all; and the last two bounds agree on only <b>12 leading binary digits</b> (window.__chaitin). <span class="fig">FIG</span> this is a lower bound for a <b>toy</b> machine, never the real constant. &Omega; is machine-dependent by definition, and no page can compute it &mdash; that is the point.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>event-horizon</i> &mdash; the respawn: you can approach the value forever and never cross into it. Every additional digit costs an exponentially larger search and, in the real &Omega;, requires solving halting for longer programs. The information is right there and permanently out of reach. <b>AVAN (AI)</b> built the instrument: the self-delimiting decoder, the enumerate-and-run lower bound, the Kraft check, and the digit-agreement meter.<br><br>Credit as content: Gregory Chaitin (1975, &Omega; and algorithmic information theory); Andrey Kolmogorov &amp; Ray Solomonoff (the complexity it rests on); Cristian Calude (who computed the first bits of a specific &Omega;). The weave: David names the horizon; I climb toward it from below and report exactly how far I got.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The lower bound climbing — always up, never arriving.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Extend the search; count how many digits actually settle.</div>
+   <div class="btns" style="margin-top:10px"><button id="cwn">longer ▶</button><button id="cwcheck">verify ▶</button></div>
+   <div class="cap" id="cwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: halters discovered, the bound creeping up.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the number is &mdash; ask <b>what knowing a digit would buy you</b>. The inverse of &lsquo;compute &Omega;&rsquo; is &lsquo;price its digits in halting problems&rsquo;: the n-th bit is worth exactly the decidability of all programs shorter than n, which is why the price is never payable. <b>Magenta</b> is the digit you cannot afford; <b>green</b> is the bound you can always improve slightly. Some quantities are best understood by their exchange rate rather than their value.</div>
+   <div class="btns" style="margin-top:10px"><button id="cwspin">pause spin</button></div></div></div></div>"""
+CHTN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ext=0;
+function decode(bits,i,depth){
+ if(depth>12||i>=bits.length)return {status:'undef',i:i};
+ if(bits[i]==='0')return {status:'halt',i:i+1};
+ if(bits[i]==='1'&&bits[i+1]==='0')return {status:'halt',i:i+3};
+ if(bits.substr(i,3)==='110')return {status:'loop',i:i+5};
+ if(bits.substr(i,3)==='111'){var r=decode(bits,i+3,depth+1);
+  return {status:r.status,i:r.i};}
+ return {status:'undef',i:i};}
+function omegaBound(maxLen){var total=0,halters=0,seen=0;
+ for(var L=1;L<=maxLen;L++){
+  for(var m=0;m<(1<<L);m++){
+   var bits='';
+   for(var k=0;k<L;k++)bits+=((m>>(L-1-k))&1);
+   var r=decode(bits,0,0);
+   seen++;
+   if(r.status==='halt'&&r.i===L){total+=Math.pow(2,-L);halters++;}}}
+ return {omega:total,halters:halters,seen:seen};}
+function leadingSettled(a,b){var s=0;
+ for(var k=1;k<=20;k++){
+  var da=Math.floor(a*Math.pow(2,k))%2,db=Math.floor(b*Math.pow(2,k))%2;
+  if(da===db)s++;else break;}
+ return s;}
+function selftest(){if(VR)return VR;var rows=[];
+ [4,8,12,16].forEach(function(L){rows.push([L,omegaBound(L)]);});
+ var monotone=true;
+ for(var i=1;i<rows.length;i++)if(rows[i][1].omega<rows[i-1][1].omega)monotone=false;
+ var kraft=rows[rows.length-1][1].omega;
+ var settled=leadingSettled(rows[2][1].omega,rows[3][1].omega);
+ VR={rows:rows,kraft:kraft,settled:settled,monotone:monotone,
+  ok:monotone&&kraft<=1&&kraft>0};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'the lower bound climbing \\u2014 always up, never arriving');
+ ne(g,'rgba(150,160,210,0.4)',1);g.beginPath();g.moveTo(50,236);g.lineTo(W-30,236);g.stroke();ng(g);
+ ne(g,'rgba(255,47,166,0.6)',1.4);g.beginPath();g.moveTo(50,60);g.lineTo(W-30,60);g.stroke();ng(g);
+ nt(g,'#ff6ab0',W-140,52,9,'\\u03a9 (unreachable)');
+ v.rows.forEach(function(r,i){
+  var x=70+i*100,h=(r[1].omega/1.0)*176;
+  nf(g,'rgba(53,255,176,0.75)',x,236-h,52,h);
+  nt(g,'#9cf',x-2,250,9,'L\\u2264'+r[0]);
+  nt(g,'#35ffb0',x-6,236-h-8,9,r[1].omega.toFixed(6));});
+ nt(g,'#8ad',10,H-8,9,'Chaitin 1975 \\u00b7 definable, uncomputable, algorithmically random');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var i=ext%4,r=v.rows[i];
+ nt(g,'#21e6ff',12,20,12,'search all strings of length \\u2264 '+r[0]);
+ nt(g,'#35ffb0',20,62,14,r[1].omega.toFixed(9));
+ nt(g,'#9cf',20,92,10,r[1].halters+' halters found among '+r[1].seen.toLocaleString()+' strings');
+ var bits='';
+ for(var k=1;k<=16;k++)bits+=Math.floor(r[1].omega*Math.pow(2,k))%2;
+ for(var k=0;k<16;k++){
+  var settled=k<v.settled;
+  nf(g,settled?'rgba(53,255,176,0.8)':'rgba(255,47,166,0.5)',22+k*21,116,18,24);
+  nt(g,'#0a0a14',28+k*21,133,10,bits[k]);}
+ nt(g,'#35ffb0',20,164,10,'green: digits agreed by the last two bounds ('+v.settled+')');
+ nt(g,'#ff6ab0',20,186,10,'magenta: not yet settled \\u2014 and each costs an exponential search');
+ nt(g,'#9cf',20,220,10,'Kraft sum stays \\u2264 1: '+v.kraft.toFixed(9));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: monotone \\u00b7 bounded by 1 \\u00b7 approached from below ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the information is right there and out of reach');}
+document.getElementById('cwn').onclick=function(){ext++;drawW4();document.getElementById('cwread').textContent='';};
+document.getElementById('cwcheck').onclick=function(){var v=selftest();document.getElementById('cwread').textContent='monotone lower bound, Kraft-valid: '+v.ok;};
+document.getElementById('cwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'halters discovered, the bound creeping up');
+ var t=(ang*0.006)%1;
+ var idx=Math.min(3,Math.floor(t*4));
+ var r=v.rows[idx];
+ ne(g,'rgba(255,47,166,0.7)',1.6);g.beginPath();g.moveTo(40,70);g.lineTo(W-30,70);g.stroke();ng(g);
+ nt(g,'#ff6ab0',W-120,62,9,'\\u03a9');
+ var h=(r[1].omega)*200;
+ nf(g,'rgba(53,255,176,0.7)',40,270-h,W-80,h);
+ nt(g,'#35ffb0',48,270-h-8,11,r[1].omega.toFixed(9));
+ nt(g,'#9cf',48,292,10,'strings searched: '+r[1].seen.toLocaleString()+' \\u00b7 halters: '+r[1].halters);
+ nt(g,'#35ffb0',10,H-52,11,'green: the bound you can always improve slightly');nt(g,'#ff2fa6',10,H-34,10,'magenta: the digit you cannot afford');nt(g,'#8ad',10,H-14,10,'understand some quantities by exchange rate, not value');}
+drawW3();drawW4();window.__chaitin=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FTRE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Build a sequence of labelled trees where the first has at most 1 node, the second at most 2, and so on &mdash; and no earlier tree can be <b>embedded</b> in a later one. <b>Kruskal&rsquo;s tree theorem (1960)</b> says every such sequence must eventually stop. <b>TREE(k)</b> is the longest one possible with k labels. TREE(1) = 1. TREE(2) = 3. And TREE(3) is <b>finite</b> &mdash; guaranteed finite, by a theorem &mdash; while being so large that Graham&rsquo;s number is not a useful comparison. Harvey Friedman showed the finiteness of TREE(3) is <b>not provable</b> in systems that comfortably handle ordinary mathematics: the statement is true, and the proof needs strength most of mathematics never uses.<br><br>
+ <span class="lit">LIT</span> verified live by <b>exhaustive search</b> over labelled rooted trees with inf-preserving embedding: with one label the longest bad sequence has length <b>1</b>, so TREE(1) = 1; with two labels it has length <b>3</b>, so TREE(2) = 3 (window.__tree). <span class="fig">FIG</span> TREE(3) is <b>not computed here and cannot be</b> &mdash; not by this page, not by any physically realisable computation. Its finiteness is Kruskal&rsquo;s theorem; its unprovability in weak systems is Friedman&rsquo;s. Both are cited, neither is reproduced.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-resurrect</i> &mdash; the respawn: the sequence is <b>guaranteed to die</b>, and the guarantee tells you nothing about when. One label dies instantly, two labels last three rounds, three labels outlive every notation we have for counting. The theorem promises an ending it cannot describe. <b>AVAN (AI)</b> built the instrument: the tree generator with canonical de-duplication, the inf-preserving embedding test, and the exhaustive bad-sequence search.<br><br>Credit as content: Joseph Kruskal (1960, the tree theorem); C. St. J. A. Nash-Williams (1963, the minimal-bad-sequence proof); Harvey Friedman (TREE, and its unprovability in predicative systems). The weave: David names the guaranteed ending; I compute the two cases anyone can and say plainly that the third is beyond every machine.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">TREE(1) = 1, TREE(2) = 3, and then the cliff.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the longest bad sequence at two labels — and watch it end.</div>
+   <div class="btns" style="margin-top:10px"><button id="trn">next tree ▶</button><button id="trcheck">verify ▶</button></div>
+   <div class="cap" id="trread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the bad sequence growing until embedding catches it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t confuse <b>finite</b> with <b>reachable</b>. The inverse of &lsquo;the theorem guarantees termination&rsquo; is &lsquo;the guarantee carries no bound you could ever use&rsquo;: TREE(3) is a specific natural number, fully determined, and permanently outside computation. <b>Magenta</b> is that number, existing and unreachable; <b>green</b> is the two cases small enough to hold. Existence proofs and usable bounds are different currencies, and mathematics trades them at ruinous rates.</div>
+   <div class="btns" style="margin-top:10px"><button id="trspin">pause spin</button></div></div></div></div>"""
+FTRE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=0;
+function nodesOf(t){return 1+t.kids.reduce(function(a,c){return a+nodesOf(c);},0);}
+function canon(t){return t.label+'('+t.kids.map(canon).sort().join(',')+')';}
+function gen(n,labels){
+ if(n===0)return [];
+ var out=[];
+ labels.forEach(function(L){
+  if(n===1){out.push({label:L,kids:[]});return;}
+  function forests(rem){
+   if(rem===0)return [[]];
+   var res=[];
+   for(var s=1;s<=rem;s++)
+    gen(s,labels).forEach(function(t){
+     forests(rem-s).forEach(function(F){res.push([t].concat(F));});});
+   return res;}
+  forests(n-1).forEach(function(F){out.push({label:L,kids:F});});});
+ var seen={},res=[];
+ out.forEach(function(t){var k=canon(t);
+  if(!seen[k]){seen[k]=1;res.push(t);}});
+ return res;}
+function embeds(t,s){
+ function match(t,s){
+  if(t.label!==s.label)return false;
+  var used=new Array(s.kids.length).fill(false);
+  function go(i){
+   if(i===t.kids.length)return true;
+   for(var j=0;j<s.kids.length;j++){
+    if(used[j])continue;
+    if(hosts(t.kids[i],s.kids[j])){used[j]=true;
+     if(go(i+1))return true;
+     used[j]=false;}}
+   return false;}
+  return go(0);}
+ function hosts(t,s){
+  if(match(t,s))return true;
+  for(var j=0;j<s.kids.length;j++)if(hosts(t,s.kids[j]))return true;
+  return false;}
+ return hosts(t,s);}
+function longestBad(labels,maxN){
+ var best=0,bestSeq=null;
+ function search(seq){
+  var i=seq.length+1;
+  if(i>maxN){if(seq.length>best){best=seq.length;bestSeq=seq.slice();}return;}
+  var cands=[];
+  for(var n=1;n<=i;n++)cands=cands.concat(gen(n,labels));
+  var extended=false;
+  cands.forEach(function(t){
+   if(nodesOf(t)>i)return;
+   for(var k=0;k<seq.length;k++)if(embeds(seq[k],t))return;
+   extended=true;
+   seq.push(t);search(seq);seq.pop();});
+  if(!extended&&seq.length>best){best=seq.length;bestSeq=seq.slice();}}
+ search([]);
+ return {len:best,seq:bestSeq};}
+function selftest(){if(VR)return VR;
+ var t1=longestBad([1],5),t2=longestBad([1,2],5);
+ VR={t1:t1.len,t2:t2.len,seq2:t2.seq,ok:t1.len===1&&t2.len===3};return VR;}
+var LCOL=['#35ffb0','#ff2fa6'];
+function drawTree(g,t,x,y,spread,depth){
+ ndot(g,x,y,6,LCOL[(t.label-1)%2]);
+ var n=t.kids.length;
+ t.kids.forEach(function(c,i){
+  var cx=x+(i-(n-1)/2)*spread,cy=y+38;
+  ne(g,'rgba(150,160,210,0.6)',1.4);g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();ng(g);
+  drawTree(g,c,cx,cy,spread*0.55,depth+1);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'TREE(1) = 1 \\u00b7 TREE(2) = 3 \\u00b7 TREE(3) = beyond notation');
+ nf(g,'rgba(53,255,176,0.8)',40,200,44,20);
+ nt(g,'#8ad',48,236,9,'k=1');
+ nt(g,'#35ffb0',44,192,10,'1');
+ nf(g,'rgba(53,255,176,0.8)',110,160,44,60);
+ nt(g,'#8ad',118,236,9,'k=2');
+ nt(g,'#35ffb0',114,152,10,'3');
+ nf(g,'#ff2fa6',180,60,44,160);
+ nt(g,'#8ad',188,236,9,'k=3');
+ nt(g,'#ff6ab0',176,52,10,'\\u226b Graham');
+ nt(g,'#9cf',250,110,10,'finite, by Kruskal\\u2019s theorem');
+ nt(g,'#9cf',250,134,10,'unprovably so in weak systems');
+ nt(g,'#9cf',250,158,10,'(Friedman)');
+ nt(g,'#ffcf4a',250,190,10,'not computed here \\u2014 and');
+ nt(g,'#ffcf4a',250,210,10,'not computable anywhere');
+ nt(g,'#8ad',10,H-8,9,'Kruskal 1960 \\u00b7 Nash-Williams 1963 \\u00b7 Friedman');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var k=ti%4;
+ nt(g,'#ffcf4a',12,20,12,k<3?('tree '+(k+1)+' of the longest bad sequence'):'sequence ENDS');
+ if(k<3&&v.seq2&&v.seq2[k]){
+  drawTree(g,v.seq2[k],W/2,80,90,0);
+  nt(g,'#9cf',20,200,10,'at most '+(k+1)+' node'+(k?'s':'')+' \\u00b7 no earlier tree embeds into it');}
+ else{
+  nt(g,'#ff6ab0',20,90,12,'every 4-node tree hosts an earlier one');
+  nt(g,'#9cf',20,120,10,'the sequence cannot be extended \\u2014 TREE(2) = 3');}
+ nt(g,'#35ffb0',20,236,11,'TREE(1) = '+v.t1+' \\u00b7 TREE(2) = '+v.t2);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: exhaustive bad-sequence search ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'the theorem promises an ending it cannot describe');}
+document.getElementById('trn').onclick=function(){ti++;drawW4();document.getElementById('trread').textContent='';};
+document.getElementById('trcheck').onclick=function(){var v=selftest();document.getElementById('trread').textContent='TREE(1)=1, TREE(2)=3: '+v.ok;};
+document.getElementById('trspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',10,18,10,'the bad sequence growing until embedding catches it');
+ var k=Math.floor((ang*0.02)%4);
+ if(v.seq2)for(var i=0;i<Math.min(k+1,3);i++){
+  if(!v.seq2[i])continue;
+  drawTree(g,v.seq2[i],80+i*115,70,52,0);
+  nt(g,'#8ad',66+i*115,190,9,'T'+(i+1));}
+ if(k>=3){
+  nt(g,'#ff6ab0',40,240,12,'no legal fourth tree exists');
+  nt(g,'#9cf',40,266,10,'every candidate hosts T1, T2 or T3');}
+ nt(g,'#35ffb0',10,H-52,11,'green: the two cases small enough to hold');nt(g,'#ff2fa6',10,H-34,10,'magenta: TREE(3), existing and unreachable');nt(g,'#8ad',10,H-14,10,'existence proofs and usable bounds are different currencies');}
+drawW3();drawW4();window.__tree=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 202 · neon-noir · silicon-coding · THE MONSTERS (the curve with no slope · three lakes one shore · the line that fills a square · the set that cannot be measured · the dust with weight) ═══════════════════════
 WEIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Before 1872, &lsquo;continuous&rsquo; was quietly assumed to mean &lsquo;smooth except at obvious corners&rsquo;. Then Weierstrass exhibited <b>&Sigma; a&#8319; cos(b&#8319;&pi;x)</b> &mdash; a sum of ever-faster, ever-fainter cosines that is <b>continuous at every point and differentiable at none</b>. Hermite called such functions a &lsquo;lamentable plague&rsquo;; Poincar&eacute; called them monsters. They are now known to be the <b>typical</b> continuous function &mdash; smoothness is the rare accident. The mechanism is a race: each new term shrinks by a but wiggles b times faster, so if <b>ab &gt; 1</b> the slopes outrun the amplitudes forever.<br><br>
@@ -57351,6 +57871,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-berry-paradox","title":"THE BERRY PARADOX","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#b06bff","icon":"berry",
+  "kicker":"the phrase that names what cannot be named",
+  "blurb":"'The least number not nameable in under sixty characters' is fifty-one characters long — so it names, in under sixty, the number it declares unnameable. Russell published it in 1908 crediting G. G. Berry, a Bodleian librarian. It is the one-line cousin of Gödel's theorem and Tarski's undefinability theorem: a language cannot contain a truthful account of its own naming power.",
+  "lit":"Verified live in a real finite naming language — expressions over digits with +, ×, ^, priced by character count, enumerated exhaustively to cost 12. Least number not nameable under N characters: N=6→100, N=8→199, N=10→199, N=12→4199; at full budget the language names 27,025 of the first 100,000 naturals and the least it misses is 9,901; and the naming phrase is a constant 51 characters that does not grow with its target (window.__berry.ok).",
+  "fig":"No contradiction actually arises here and the sphere says so: our language has NO self-reference operator, so the phrase is not one of its expressions. The paradox needs a language that can describe its own definability — precisely what Tarski proved impossible. Berry via Russell 1908, Tarski 1933, Chaitin credited. The AVAN inverse — ask which language it is written in: self-reference is not forbidden, it is charged for, in expressive power.",
+  "body":BERY_BODY,"script":BERY_SCRIPT},
+ {"slug":"the-van-der-waerden","title":"THE VAN DER WAERDEN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffcf4a","icon":"vanderwaerden",
+  "kicker":"order you cannot avoid",
+  "blurb":"Two-colour the numbers 1 to 8 and you can avoid ever having three evenly spaced numbers of one colour. Add a single number and it becomes impossible — all 512 colourings of 1..9 contain one. That threshold is W(3,2) = 9, and van der Waerden proved in 1927 that a threshold exists for every colour count and length. The catch: they grow so violently that W(6,2) is still unknown.",
+  "lit":"Verified live by complete enumeration of every 2-colouring: n=3→6/8 avoid, n=4→10/16, n=5→14/32, n=6→20/64, n=7→16/128, n=8→6 of 256 still avoid, n=9→0 of 512, n=10→0 of 1024. Last n admitting an avoider is 8, first admitting none is 9, so W(3,2) = 9 exactly; a witness at n=8 (11001100) is re-checked against all 12 three-term progressions (window.__vanderwaerden.ok).",
+  "fig":"van der Waerden 1927; Gowers 2001 for the tower-of-exponentials bound; W(5,2)=178 known, W(6,2) unknown — cited, not computed. The AVAN inverse — measure how long you can AFFORD disorder: complete structurelessness is unavailable past the threshold no matter how cleverly you colour. Randomness is a finite resource.",
+  "body":VDWN_BODY,"script":VDWN_SCRIPT},
+ {"slug":"the-rice","title":"THE RICE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#35ffb0","icon":"rice",
+  "kicker":"every question about meaning",
+  "blurb":"Halting is undecidable — that much is famous. Rice's theorem generalises it to devastation: EVERY non-trivial property of what a program computes is undecidable. Whether it outputs 7, whether it equals another program, whether it is malicious in any semantic sense. Syntactic questions stay cheap; the moment your question is about meaning, no algorithm answers it for all inputs.",
+  "lit":"Verified live on a real toy machine (INC / DEC-with-jump / JMP / HALT) with the non-trivial property P = 'halts on 0 with accumulator 7'. The reduction M→M′ is implemented and executed, and its faithfulness checked exhaustively: over all 125 three-instruction machines, 'M′ has P' agreed with 'M halts' in 125 of 125 cases — so a decider for P really would decide halting (window.__rice.ok).",
+  "fig":"Rice's theorem asserts this for EVERY non-trivial semantic property; what runs here is the reduction machinery on one property over a finite machine set — the constructive heart of the proof, not the whole theorem. Rice 1951, Turing 1936 credited. The AVAN inverse — ask which side of the syntax/semantics line the question sits on: every real tool picks false positives or false negatives, because Rice removed the third option.",
+  "body":RICE_BODY,"script":RICE_SCRIPT},
+ {"slug":"the-chaitin-omega","title":"THE CHAITIN OMEGA","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#21e6ff","icon":"chaitin",
+  "kicker":"the number no theory can reach",
+  "blurb":"Feed a machine random bits and ask: what is the probability it halts? That is Chaitin's Ω — perfectly well-defined, uncomputable, and algorithmically random. Its digits are incompressible, so any formal system can determine only finitely many of them. Knowing the first n bits would settle halting for all programs shorter than n. You can only ever approach it from below.",
+  "lit":"Verified live on a self-delimiting toy language: enumerating all strings to length 16, the lower bound climbs 0.812500000 → 0.851562500 → 0.856933594 → 0.857131958 (4→7→12→16 halters among 30→131,070 strings); monotonically increasing, as it must be; below 1, satisfying the Kraft inequality that makes Ω a probability; and the last two bounds agree on only 12 leading binary digits (window.__chaitin.ok).",
+  "fig":"This is a lower bound for a TOY machine, never the real constant — Ω is machine-dependent by definition and no page can compute it; that is the point. Chaitin 1975, Kolmogorov & Solomonoff, Calude credited. The AVAN inverse — price its digits in halting problems: the n-th bit is worth the decidability of every shorter program, which is why the price is never payable.",
+  "body":CHTN_BODY,"script":CHTN_SCRIPT},
+ {"slug":"the-tree","title":"THE TREE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffcf4a","icon":"tree",
+  "kicker":"the sequence that must end",
+  "blurb":"Build a sequence of labelled trees, the n-th having at most n nodes, where no earlier tree embeds in a later one. Kruskal's theorem says every such sequence must stop. TREE(1) = 1. TREE(2) = 3. TREE(3) is finite — guaranteed by a theorem — and so large that Graham's number is not a useful comparison. Friedman showed that finiteness is not provable in systems that handle ordinary mathematics comfortably.",
+  "lit":"Verified live by exhaustive search over labelled rooted trees with inf-preserving embedding: one label gives a longest bad sequence of length 1, so TREE(1) = 1; two labels give length 3, so TREE(2) = 3 (window.__tree.ok).",
+  "fig":"TREE(3) is NOT computed here and cannot be — not by this page, not by any physically realisable computation. Its finiteness is Kruskal's theorem; its unprovability in weak systems is Friedman's. Both cited, neither reproduced. Kruskal 1960, Nash-Williams 1963, Friedman credited. The AVAN inverse — don't confuse finite with reachable: existence proofs and usable bounds are different currencies, traded at ruinous rates.",
+  "body":FTRE_BODY,"script":FTRE_SCRIPT},
  {"slug":"the-weierstrass","title":"THE WEIERSTRASS","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#35ffb0","icon":"weierstrass",
   "kicker":"the curve with no slope anywhere",
