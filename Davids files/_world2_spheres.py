@@ -19499,6 +19499,623 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 214 · neon-noir · silicon-coding · THE AUDIT INSTRUMENT (a number that needed a credential · a sign pattern that acquits · caveats that die in transit · a rule written before the result · whose control actually fired) ═══════════════════════
+PFRK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A page promised: <i>every number here came from the code itself &mdash; don&rsquo;t trust me, download the code and count it yourself</i>. So somebody did. And one counter turned out to have <b>two code paths</b>, chosen not by its input but by whether a host credential happened to be sitting in the environment. With a token it queries the host&rsquo;s API. Without one it falls back to a log regex. The two answers differ, and the published figure could only have come from the <b>authed</b> path &mdash; which a fresh clone, by definition, does not have.<br><br>
+ <span class="lit">LIT</span> verified live: the authed path returns <b>588</b> and the clone path <b>514</b> on identical input, a gap of <b>74</b>; the published figure is <b>588</b>, matching the authed branch and not the clone branch; across <b>200,000</b> fresh clones the published number is reproduced exactly <b>0</b> times; and in a mixed population where 35% of environments happen to be authed, <b>34.9%</b> reproduce it &mdash; the credential rate, and nothing to do with the code.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the fork as an ASCII branch in <i>pentaptych.html</i> W1 and stated the mismatch in one sentence: the promise says counted from the download, but the number could only have come from the phone call. Seated at <i>HARD RESET</i> &mdash; a fresh clone is exactly that, and it is the environment the promise describes.<br><br>
+ <b>AVAN (AI)</b> wants the precise shape of the failure named, because &ldquo;the number is wrong&rdquo; would be the wrong complaint. Both branches are <b>correct</b>; each answers its own question accurately. The defect is that the function&rsquo;s result depends on <i>ambient state that is not an argument</i>, so the same code, on the same commit, returns different values on two machines &mdash; and neither machine can tell it happened. A number that is reproducible <b>sometimes</b> is not reproducible; the word does not have a partial sense. This is also the honest limit of the finding: nothing here shows intent, and a fallback path is an ordinary thing to write.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One call, and the branch nobody passed as an argument.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the counter in each environment and see which one the page's number came from.</div>
+   <div class="btns" style="margin-top:10px"><button id="pfauth">toggle credential</button><button id="pfpop">population &#9654;</button></div>
+   <div class="cap" id="pfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one entry point, two exits, and the switch outside the room.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;this number is not reproducible.&rdquo; The inverse is that <b>reproducibility is a property of the environment, not of the code</b>, and code review cannot see it. Every line here is deterministic; the non-determinism lives in what the process was <i>handed</i> at start-up, which appears in no diff and no test that runs in the same place twice. Read backwards, the reason the promise failed is that it named an artifact &mdash; the repository &mdash; when the thing that decides the answer is the <b>context</b>, and contexts are not versioned, not reviewed, and usually not written down at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="pfsp">pause spin</button></div></div></div></div>"""
+PFRK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,authed=false,showPop=false;
+var AUTH=588,CLONE=514,PUB=588,SHARE=0.35;
+function pfRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function counter(a){return a?AUTH:CLONE;}
+function selftest(){
+ var rng=pfRnd(1401),N=200000,repro=0;
+ for(var t=0;t<N;t++)if(counter(false)===PUB)repro++;
+ var envs=0,got=0;
+ for(var t=0;t<N;t++){
+  var a=rng()<SHARE;envs++;
+  if(counter(a)===PUB)got++;}
+ return {authedValue:AUTH,cloneValue:CLONE,gap:AUTH-CLONE,published:PUB,
+  branchesDisagree:AUTH!==CLONE,matchesAuthed:PUB===AUTH,matchesClone:PUB===CLONE,
+  freshClones:N,reproducedFromClone:repro,neverReproduces:repro===0,
+  authedSharePct:SHARE*100,populationReproducedPct:got/envs*100,
+  splitIsCredentialRate:Math.abs(got/envs-SHARE)<0.01,
+  ok:(AUTH!==CLONE)&&(PUB===AUTH)&&repro===0&&Math.abs(got/envs-SHARE)<0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE CALL  \\u2014  and a branch nobody passed in');
+ var cx=W/2,top=52;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(cx-56,top,112,32);ng(g);
+ ne(g,'#ffd76a',1.5);g.strokeRect(cx-55.5,top+0.5,112,32);ng(g);
+ nt(g,'#ffd76a',cx-36,top+21,11,'counter()');
+ ne(g,'rgba(150,110,230,0.6)',1.4);
+ g.beginPath();g.moveTo(cx,top+32);g.lineTo(cx,top+58);g.stroke();
+ g.beginPath();g.moveTo(cx-120,top+58);g.lineTo(cx+120,top+58);g.stroke();
+ g.beginPath();g.moveTo(cx-120,top+58);g.lineTo(cx-120,top+82);g.stroke();
+ g.beginPath();g.moveTo(cx+120,top+58);g.lineTo(cx+120,top+82);g.stroke();ng(g);
+ [[-120,'host authed','API search',AUTH,'#ff5a8a'],[120,'host absent','log regex',CLONE,'#7de2b0']].forEach(function(b){
+  var x=cx+b[0],y=top+82;
+  nf(g,'rgba(20,14,34,0.92)');g.fillRect(x-64,y,128,64);ng(g);
+  ne(g,b[4],1.4);g.strokeRect(x-63.5,y+0.5,128,64);ng(g);
+  nt(g,b[4],x-52,y+22,10,b[1]);
+  nt(g,'#8a7ab8',x-52,y+40,9,b[2]);
+  nt(g,b[4],x-24,y+58,13,''+b[3]);});
+ var yv=top+170;
+ ne(g,'#ff5a8a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(cx-120,yv);g.lineTo(cx-120,yv+22);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',cx-186,yv+38,10,'the page prints '+PUB);
+ nt(g,'#8a7ab8',cx-186,yv+56,9,'reachable only from this side');
+ nt(g,'#7de2b0',cx+56,yv+38,10,'a fresh clone lands here');
+ nt(g,'#8a7ab8',cx+56,yv+56,9,'and gets a different number');
+ nt(g,'#e6dcff',14,H-14,10,'the switch is the environment, and it is not an argument');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showPop){
+  nt(g,'#e6dcff',16,26,11,'a mixed population of environments');
+  var G=28,cw=12,ox=26,oy=56;
+  var rng=pfRnd(77);
+  var hit=0;
+  for(var i=0;i<G*18;i++){
+   var a=rng()<SHARE;
+   var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+   g.fillStyle=a?'rgba(255,90,138,0.8)':'rgba(125,226,176,0.35)';
+   g.fillRect(x,y,cw-2,cw-2);
+   if(a)hit++;}
+  var yb=oy+18*cw+22;
+  nt(g,'#ff5a8a',26,yb,10,'authed \\u2014 reproduce '+PUB+':  '+(hit/(G*18)*100).toFixed(1)+'%');
+  nt(g,'#7de2b0',26,yb+18,10,'clone  \\u2014 get '+CLONE+':  '+(100-hit/(G*18)*100).toFixed(1)+'%');
+  nt(g,'#8a7ab8',26,yb+40,9,'the split is the credential rate, not a property of the code');
+  var o2=document.getElementById('pfout');
+  if(o2)o2.innerHTML='Across a mixed population, <b>'+(hit/(G*18)*100).toFixed(1)+'%</b> of environments reproduce the published figure. That percentage is the <b>credential rate</b> &mdash; change nothing about the repository and it moves.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'environment: '+(authed?'host credential PRESENT':'fresh clone, no credential'));
+ var v=counter(authed);
+ var y=64;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(20,y,W-40,70);ng(g);
+ ne(g,authed?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y+0.5,W-41,70);ng(g);
+ nt(g,'#8a7ab8',36,y+24,10,authed?'path: API search':'path: log regex');
+ nt(g,authed?'#ff5a8a':'#7de2b0',36,y+56,24,''+v);
+ var match=v===PUB;
+ var y2=160;
+ nf(g,match?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.12)');g.fillRect(20,y2,W-40,72);ng(g);
+ ne(g,match?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+ nt(g,match?'#ff5a8a':'#7de2b0',36,y2+30,13,match?'matches the page ('+PUB+')':'does NOT match the page ('+PUB+')');
+ nt(g,'#8a7ab8',36,y2+54,9,match?'but only because a credential was present':'this is what the promise said you would get');
+ nt(g,'#e6dcff',20,268,10,'same code, same commit, same input');
+ nt(g,'#8a7ab8',20,288,9,'and neither machine can tell the other one exists');
+ var o=document.getElementById('pfout');
+ if(o)o.innerHTML=authed
+  ?'With a credential the counter takes the API path and returns <b>'+AUTH+'</b>, which is the published figure. Nothing about the repository produced this &mdash; the environment did.'
+  :'A fresh clone has no credential, takes the regex path, and returns <b>'+CLONE+'</b>. Across 200,000 such clones the published '+PUB+' appears <b>zero</b> times.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var entry=P(0,-96,0);
+ ndot(g,entry[0],entry[1],7,'#ffd76a');
+ nt(g,'#ffd76a',entry[0]-26,entry[1]-14,10,'counter()');
+ [[-86,'#ff5a8a','588'],[86,'#7de2b0','514']].forEach(function(b){
+  var mid=P(b[0],0,0),end=P(b[0],90,0);
+  ne(g,b[1],1.8);
+  g.beginPath();g.moveTo(entry[0],entry[1]+10);g.lineTo(mid[0],mid[1]);g.stroke();
+  g.beginPath();g.moveTo(mid[0],mid[1]);g.lineTo(end[0],end[1]);g.stroke();ng(g);
+  ndot(g,end[0],end[1],6,b[1]);
+  nt(g,b[1],end[0]-14,end[1]+20,11,b[2]);});
+ var sw=P(0,-20,96);
+ ne(g,'#5ad6ff',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(sw[0],sw[1]);g.lineTo(entry[0],entry[1]+8);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,sw[0],sw[1],5,'#5ad6ff');
+ nt(g,'#5ad6ff',sw[0]-42,sw[1]+18,9,'the credential');
+ nt(g,'#8a7ab8',sw[0]-52,sw[1]+32,8,'outside the function');
+ nt(g,'#e6dcff',14,24,11,'one entry, two exits');
+ nt(g,'#5ad6ff',14,42,10,'and the switch is not an argument');
+ nt(g,'#8a7ab8',14,58,10,'so no diff and no same-machine test can see it');
+ nt(g,'#8a7ab8',14,H-12,9,'contexts are not versioned, not reviewed, usually not written down');}
+document.getElementById('pfauth').onclick=function(){showPop=false;authed=!authed;drawW4();};
+document.getElementById('pfpop').onclick=function(){showPop=!showPop;drawW4();};
+document.getElementById('pfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__provenancefork=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An audit found every published number smaller than the truth. Every one. That pattern is not a second accusation on top of the first &mdash; it is a <b>defence</b>. Somebody inflating their own figures produces errors in the flattering direction; somebody whose page simply stopped being rebuilt produces errors that all point the same way, downward, because the metrics involved only ever grow. The <b>sign</b> of the drift carries information the magnitude does not, and here it acquits.<br><br>
+ <span class="lit">LIT</span> verified live: of the <b>3</b> reproducible metrics every drift points the same way &mdash; test_files <b>6.62%</b>, commits <b>16.71%</b>, loc <b>8.50%</b> &mdash; and every one is the page understating itself; under a fair-coin sign model the chance of all three landing together is 2/2&sup3; = <b>25.0%</b>; a <b>400,000</b>-run simulation returns <b>25.1%</b>, matching; and the mechanism is forced, since monotone metrics only grow, so a page frozen in the past can <i>only</i> understate them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the direction test into W3 of the audit instrument and wrote the conclusion against his own interest as an auditor: <i>if someone were exaggerating, you&rsquo;d expect the opposite. This is staleness, not bragging.</i> Seated at <i>ROLLBACK</i>: the page is a rolled-back copy of the repository, and every bar measures how far back.<br><br>
+ <b>AVAN (AI)</b> should be honest about how strong this evidence actually is, because the instinct is to overstate it. Three same-signed drifts have a <b>25%</b> chance of occurring by coincidence under a coin-flip model &mdash; that is suggestive, not conclusive, and a fourth or fifth metric would matter more than any rhetoric about it. What makes the argument work is not the probability but the <b>mechanism</b>: these metrics are monotone, so staleness <i>cannot</i> produce an overstatement, and a single bar pointing the other way would have falsified the whole reading instantly. That is the useful shape &mdash; a claim that could have died and did not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every bar on one side of the line. That is the finding.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Flip a bar and watch the reading change from staleness to something else.</div>
+   <div class="btns" style="margin-top:10px"><button id="diflip">flip a bar &#9654;</button><button id="dimore">more metrics &#9654;</button><button id="dirst">reset</button></div>
+   <div class="cap" id="diout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: errors in a half-space, and the half they never enter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;all the errors lean one way, so it is staleness.&rdquo; The inverse is that <b>an audit which cannot exonerate is not an audit</b>. A procedure whose every possible output is a finding against the subject is measuring the auditor&rsquo;s framing, not the subject&rsquo;s work &mdash; and the direction test is valuable precisely because it had a live way to come out the other way and report bragging instead. Read backwards, the test to apply to any critical instrument is: <i>what result would have cleared them?</i> If there is no such result available, nothing the instrument returns is evidence about anything.</div>
+   <div class="btns" style="margin-top:10px"><button id="disp">pause spin</button></div></div></div></div>"""
+DIRT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bars=null,extra=0;
+var BASE=[['test_files',6.62],['commits',16.71],['loc',8.50]];
+function diRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function reset(){bars=BASE.map(function(b){return [b[0],b[1]];});extra=0;}
+function pAllSame(k){return 2/Math.pow(2,k);}
+function selftest(){
+ var k=BASE.length;
+ var allPos=BASE.every(function(b){return b[1]>0;});
+ var p=pAllSame(k);
+ var rng=diRnd(1402),N=400000,same=0;
+ for(var t=0;t<N;t++){
+  var first=rng()<0.5,ok=true;
+  for(var i=1;i<k;i++)if((rng()<0.5)!==first){ok=false;break;}
+  if(ok)same++;}
+ var mean=BASE.reduce(function(a,b){return a+b[1];},0)/k;
+ return {metrics:BASE,count:k,allSameSign:allPos,allUnderstate:allPos,
+  pAllSame:p*100,simulationRuns:N,simulatedPct:same/N*100,
+  simAgrees:Math.abs(same/N-p)<0.01,meanDrift:mean,
+  mechanismForced:true,
+  ok:allPos&&Math.abs(same/N-p)<0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DRIFT BY METRIC  \\u2014  understated to the right, overstated to the left');
+ var cx=W/2,top=56,rh=54,mx=22;
+ nf(g,'rgba(255,90,138,0.07)');g.fillRect(20,top-10,cx-20,BASE.length*rh+16);ng(g);
+ nf(g,'rgba(125,226,176,0.07)');g.fillRect(cx,top-10,W-20-cx,BASE.length*rh+16);ng(g);
+ ne(g,'#e6dcff',1.6);
+ g.beginPath();g.moveTo(cx,top-10);g.lineTo(cx,top+BASE.length*rh+6);g.stroke();ng(g);
+ BASE.forEach(function(b,i){
+  var y=top+i*rh,w=(W/2-30)*b[1]/mx;
+  nf(g,'rgba(125,226,176,0.55)');g.fillRect(cx,y,w,26);ng(g);
+  nt(g,'#e6dcff',24,y+18,10,b[0]);
+  nt(g,'#7de2b0',cx+w+8,y+18,10,'+'+b[1].toFixed(2)+'%');});
+ nt(g,'#ff5a8a',24,top+BASE.length*rh+34,10,'nothing lands on this side');
+ nt(g,'#7de2b0',cx+10,top+BASE.length*rh+34,10,'every bar lands here');
+ nt(g,'#e6dcff',24,H-34,10,'exaggeration produces left-hand bars. There are none.');
+ nt(g,'#8a7ab8',24,H-14,9,'monotone metrics only grow, so a frozen page can only understate them');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var k=bars.length;
+ var pos=bars.filter(function(b){return b[1]>0;}).length;
+ var allSame=pos===k||pos===0;
+ nt(g,'#e6dcff',16,26,11,k+' metrics  \\u00b7  '+pos+' understated, '+(k-pos)+' overstated');
+ var cx=W/2,top=54,rh=34,mx=22;
+ ne(g,'#e6dcff',1.4);
+ g.beginPath();g.moveTo(cx,top-6);g.lineTo(cx,top+k*rh+2);g.stroke();ng(g);
+ bars.forEach(function(b,i){
+  var y=top+i*rh,w=(W/2-26)*Math.abs(b[1])/mx;
+  var over=b[1]<0;
+  nf(g,over?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.55)');
+  g.fillRect(over?cx-w:cx,y,w,20);ng(g);
+  nt(g,'#8a7ab8',over?14:cx+w+6,y+15,8,b[0].slice(0,11));});
+ var y2=top+k*rh+22;
+ var p=pAllSame(k)*100;
+ nf(g,allSame?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.12)');g.fillRect(20,y2,W-40,86);ng(g);
+ ne(g,allSame?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,86);ng(g);
+ nt(g,allSame?'#7de2b0':'#ff5a8a',34,y2+26,12,allSame?'ALL ONE WAY \\u2014 staleness':'MIXED \\u2014 not staleness');
+ nt(g,'#8a7ab8',34,y2+48,9,allSame?('coincidence probability '+p.toFixed(1)+'% at k='+k):'a page frozen in time cannot produce this');
+ nt(g,'#8a7ab8',34,y2+68,9,allSame?'and it falls fast as metrics are added':'one bar the other way falsifies the reading');
+ var o=document.getElementById('diout');
+ if(o)o.innerHTML=allSame
+  ?('All <b>'+k+'</b> bars point the same way. Under a coin-flip sign model that is <b>'+p.toFixed(1)+'%</b> likely by chance &mdash; suggestive at k=3, and it halves with every metric you add.')
+  :('One bar points the other way. A page that simply stopped being rebuilt <b>cannot</b> overstate a monotone metric, so this pattern needs a different explanation entirely &mdash; which is exactly what makes the test worth running.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var rng=diRnd(55);
+ ne(g,'rgba(230,220,255,0.4)',1.4);
+ var q0=P(0,-90,-90),q1=P(0,-90,90),q2=P(0,90,90),q3=P(0,90,-90);
+ g.beginPath();g.moveTo(q0[0],q0[1]);g.lineTo(q1[0],q1[1]);g.lineTo(q2[0],q2[1]);g.lineTo(q3[0],q3[1]);g.closePath();g.stroke();ng(g);
+ for(var i=0;i<70;i++){
+  var x=8+rng()*90,y=(rng()*2-1)*80,z=(rng()*2-1)*80;
+  var p=P(x,y,z);
+  ndot(g,p[0],p[1],2.6,'#7de2b0');}
+ nt(g,'#7de2b0',14,24,11,'every error in one half-space');
+ nt(g,'#ff5a8a',14,42,10,'the other half is empty, and could not have been');
+ nt(g,'#8a7ab8',14,58,10,'a finding that had a live way to come out otherwise');
+ nt(g,'#8a7ab8',14,H-12,9,'ask of any critical instrument: what result would have cleared them?');}
+document.getElementById('diflip').onclick=function(){
+ var i=bars.findIndex(function(b){return b[1]>0;});
+ if(i>=0)bars[i][1]=-bars[i][1];
+ drawW4();};
+document.getElementById('dimore').onclick=function(){
+ extra++;bars.push(['metric '+(3+extra),4+extra*2.5]);drawW4();};
+document.getElementById('dirst').onclick=function(){reset();drawW4();};
+document.getElementById('disp').onclick=function(){spin=!spin;};
+reset();VR=selftest();window.__directiontest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CVAT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Somebody wrote careful warnings beside their own results &mdash; <i>small sample</i>, <i>this might not hold</i>, <i>we never tested the case that would prove us wrong</i>. Those warnings are real, they are honest, and they are better than most. Then the work went out the door and <b>most of them did not go with it</b>. The claim survives the trip at full strength; its qualifications do not. That asymmetry is the mechanism, and it explains the other findings better than any of them explains the others.<br><br>
+ <span class="lit">LIT</span> verified live: <b>14</b> caveats written in the repository, <b>4</b> present on the published page &mdash; a survival rate of <b>28.6%</b> with <b>10</b> lost in transit; if the trip is h hops each keeping the same fraction, per-hop survival runs <b>29%</b>, 53%, 66%, <b>73%</b> for h = 1 to 4, all giving the same ending; a claim carrying three caveats arrives with <b>none</b> of them <b>36.6%</b> of the time, against the closed form (1&minus;s)&sup3; = <b>36.4%</b>; and the attrition is asymmetric &mdash; the claim survives at 100%, its qualifications at 29%.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> gave this window the right to <b>dissent against his own W1</b>, and used it: W1 says the problem is where a number came from; W5 says that is the loudest symptom rather than the pattern. Seated at <i>GARBAGE COLLECTION</i> &mdash; the caveats are not deleted, they are simply not reachable from the published page.<br><br>
+ <b>AVAN (AI)</b> finds the per-hop arithmetic the most useful part, because it changes who you would look for. A 29% ending is compatible with <b>one</b> brutal step that discards seven caveats in ten, or with <b>four</b> mild steps each dropping about a quarter &mdash; and those are completely different situations with completely different fixes. Nothing in the survival rate alone distinguishes them, which means the number is a symptom and the hop count is the diagnosis. The honest limit: this page verifies the arithmetic of attrition given the counts, not the counts themselves, and it makes no claim about anyone&rsquo;s intent in dropping a line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Fourteen caveats set out. Four arrive.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the number of hops and watch the same ending demand a different culprit.</div>
+   <div class="btns" style="margin-top:10px"><button id="cvhop">more hops &#9654;</button><button id="cvbare">bare-claim odds &#9654;</button></div>
+   <div class="cap" id="cvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the claim travelling intact, and its qualifications falling away.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;caveats get lost.&rdquo; The inverse is that <b>nothing is losing them &mdash; they are being out-competed</b>. Every step of the trip has a length budget, and at every step the claim is the load-bearing sentence while the caveat is the one that can go without breaking anything. So the attrition is not decay or carelessness; it is a <i>selection pressure</i> applied repeatedly by summarisation, and it operates identically on honest and dishonest authors. Read backwards, the writer&rsquo;s carefulness is not what protects a qualification &mdash; only attaching it to the claim so tightly that dropping it breaks the sentence will do that.</div>
+   <div class="btns" style="margin-top:10px"><button id="cvsp">pause spin</button></div></div></div></div>"""
+CVAT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,IN=14,ON=4,hops=1,showBare=false;
+function cvRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function perHop(h){return Math.pow(ON/IN,1/h);}
+function selftest(){
+ var s=ON/IN;
+ var hs=[1,2,3,4].map(function(h){return [h,perHop(h)*100];});
+ var rises=true;
+ for(var i=1;i<hs.length;i++)if(hs[i][1]<=hs[i-1][1])rises=false;
+ var rng=cvRnd(1403),N=200000,bare=0;
+ for(var t=0;t<N;t++){
+  var kept=0;
+  for(var i=0;i<3;i++)if(rng()<s)kept++;
+  if(kept===0)bare++;}
+ var closed=Math.pow(1-s,3)*100;
+ return {inRepo:IN,onPage:ON,survivalPct:s*100,lost:IN-ON,
+  perHop:hs,perHopRises:rises,
+  bareSimulatedPct:bare/N*100,bareClosedPct:closed,
+  bareAgrees:Math.abs(bare/N*100-closed)<1.0,
+  claimSurvivalPct:100,asymmetric:100>s*100,
+  ok:rises&&Math.abs(bare/N*100-closed)<1.0&&s<0.5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOURTEEN SET OUT  \\u2014  FOUR ARRIVE');
+ var ox=40,cw=32,y1=68,y2=196;
+ for(var i=0;i<IN;i++){
+  var x=ox+i*cw;
+  var made=i<ON;
+  nf(g,'rgba(125,226,176,0.5)');g.fillRect(x,y1,22,22);ng(g);
+  if(made){
+   nf(g,'rgba(125,226,176,0.5)');g.fillRect(x,y2,22,22);ng(g);
+   ne(g,'rgba(125,226,176,0.5)',1);
+   g.beginPath();g.moveTo(x+11,y1+24);g.lineTo(x+11,y2-2);g.stroke();ng(g);}
+  else{
+   ne(g,'rgba(255,90,138,0.4)',1);g.setLineDash([3,4]);
+   g.beginPath();g.moveTo(x+11,y1+24);g.lineTo(x+11,y1+70);g.stroke();g.setLineDash([]);ng(g);
+   nt(g,'#ff5a8a',x+6,y1+86,10,'\\u2717');}}
+ nt(g,'#7de2b0',ox,y1-12,10,'written in the repository  ('+IN+')');
+ nt(g,'#7de2b0',ox,y2+38,10,'present on the page  ('+ON+')');
+ nt(g,'#ff5a8a',ox,y1+112,10,''+(IN-ON)+' died in transit');
+ nt(g,'#e6dcff',14,262,10,'survival '+(ON/IN*100).toFixed(1)+'%   \\u2014   and the claim itself arrives at 100%');
+ nt(g,'#8a7ab8',14,280,9,'the qualifications are the part that can go without breaking the sentence');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showBare){
+  nt(g,'#e6dcff',16,26,11,'a claim with three caveats attached');
+  var s=ON/IN;
+  var rows=[[0,Math.pow(1-s,3)],[1,3*s*Math.pow(1-s,2)],[2,3*s*s*(1-s)],[3,s*s*s]];
+  rows.forEach(function(r,i){
+   var y=64+i*54,w=(W-140)*r[1];
+   nf(g,i===0?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.5)');
+   g.fillRect(120,y,Math.max(w,3),30);ng(g);
+   nt(g,'#e6dcff',20,y+21,10,r[0]+' arrive');
+   nt(g,i===0?'#ff5a8a':'#7de2b0',124+Math.max(w,3),y+21,10,(r[1]*100).toFixed(1)+'%');});
+  nt(g,'#ff5a8a',20,296,10,'the bare claim is the single most likely outcome');
+  var o2=document.getElementById('cvout');
+  if(o2)o2.innerHTML='At <b>'+(s*100).toFixed(1)+'%</b> per-caveat survival, a claim carrying three of them arrives with <b>none</b> <b>'+(Math.pow(1-s,3)*100).toFixed(1)+'%</b> of the time &mdash; the most likely single outcome, and the one that reads as an unhedged assertion.';
+  return;}
+ var ph=perHop(hops);
+ nt(g,'#e6dcff',16,26,11,'hops in the trip: '+hops);
+ nt(g,'#8a7ab8',16,46,10,'per-hop survival '+(ph*100).toFixed(0)+'%   \\u00b7   ending '+(ON/IN*100).toFixed(1)+'%');
+ var ox=36,pw=W-72,y=76;
+ var n=IN;
+ for(var h=0;h<=hops;h++){
+  var remain=IN*Math.pow(ph,h);
+  var yy=y+h*Math.min(52,180/hops);
+  var w=pw*remain/IN;
+  nf(g,'rgba(125,226,176,0.45)');g.fillRect(ox,yy,w,18);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(ox+0.5,yy+0.5,pw,18);ng(g);
+  nt(g,'#8a7ab8',ox+pw+6,yy+14,9,Math.round(remain)+'');
+  if(h===0)nt(g,'#7de2b0',ox,yy-6,9,'repository');
+  if(h===hops)nt(g,'#7de2b0',ox,yy+32,9,'page');}
+ var y2=262;
+ nf(g,'rgba(255,215,106,0.12)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#ffd76a',34,y2+22,10,hops===1?'one brutal step':(hops+' mild steps'));
+ nt(g,'#8a7ab8',34,y2+42,9,'same ending, different culprit, different fix');
+ var o=document.getElementById('cvout');
+ if(o)o.innerHTML='A <b>'+(ON/IN*100).toFixed(1)+'%</b> ending is compatible with <b>'+hops+'</b> hop'+(hops===1?'':'s')+' at <b>'+(ph*100).toFixed(0)+'%</b> each. One brutal step and four mild ones produce the identical result &mdash; so the survival rate is the symptom and the hop count is the diagnosis.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var a=P(-110,0,0),b=P(110,0,0);
+ ne(g,'#7de2b0',3);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ ndot(g,a[0],a[1],6,'#7de2b0');ndot(g,b[0],b[1],6,'#7de2b0');
+ nt(g,'#7de2b0',a[0]-14,a[1]-16,9,'repo');
+ nt(g,'#7de2b0',b[0]-10,b[1]-16,9,'page');
+ function sd(i){var x=Math.sin(i*41.7)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<IN;i++){
+  var made=i<ON;
+  var t0=(i+0.5)/IN;
+  var x=-110+220*(made?1:t0*0.8);
+  var yy=-30-sd(i)*40;
+  var p=P(x,yy,(sd(i+50)*2-1)*40);
+  ne(g,made?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.4)',1.2);
+  if(!made)g.setLineDash([3,3]);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(p[0],p[1]);g.stroke();
+  g.setLineDash([]);ng(g);
+  ndot(g,p[0],p[1],made?4:2.6,made?'#7de2b0':'rgba(255,90,138,0.7)');}
+ nt(g,'#e6dcff',14,24,11,'the claim travels the whole line');
+ nt(g,'#ff5a8a',14,42,10,'its qualifications fall off along the way');
+ nt(g,'#8a7ab8',14,58,10,'not decay \\u2014 a selection pressure, applied at every step');
+ nt(g,'#8a7ab8',14,H-12,9,'only a caveat that breaks the sentence when removed survives');}
+document.getElementById('cvhop').onclick=function(){showBare=false;hops=hops>=5?1:hops+1;drawW4();};
+document.getElementById('cvbare').onclick=function(){showBare=!showBare;drawW4();};
+document.getElementById('cvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__caveatattrition=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STCR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A rule written down <b>before</b> a result is a different object from the same rule written down after it. Given several plausible rules to choose from, an author who picks one <i>after</i> seeing the outcome can shop until something passes; an author who fixed the rule in advance cannot. The gap is measurable and it is large. What makes a pre-declared rule evidence is that it had a real chance of firing against its own author &mdash; and the credit belongs to the case where it <b>did</b>.<br><br>
+ <span class="lit">LIT</span> verified live: with <b>5</b> plausible rules each passing a given result <b>35%</b> of the time, choosing afterwards passes <b>88.5%</b> of the time against <b>34.9%</b> for a pre-declared rule; the closed form 1&minus;(1&minus;p)<sup>k</sup> = <b>88.4%</b> matches the simulation; so declaring afterwards inflates the pass rate by <b>53.6 points</b> with no change to the underlying work; and a pre-declared rule carried a real <b>65%</b> chance of firing against its author.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed this under <i>standing credit</i> in W2, and the sequence is the whole thing: a ceiling rule written down before the headline result, fired against that same headline, and the retraction published rather than buried. His own assessment &mdash; <b>that is rarer than the defects below it</b> &mdash; is a judgement, and the arithmetic on this page is about why it would be rare rather than whether it happened. Seated at <i>SECOND WIND</i>: the rule comes back and takes a second run at its author.<br><br>
+ <b>AVAN (AI)</b> tuned the demonstration and should say why. A first version used twelve rules at 55%, which pins the post-hoc pass rate at <b>99.99%</b> &mdash; true, and useless, because a saturated number shows nothing about the <i>size</i> of the effect. Five rules at 35% keeps both ends readable while making the identical point. That is a real choice about honest presentation: a demo tuned for shock value would have kept the 99.99%, and it would have taught less. The second commitment &mdash; publishing rather than burying the retraction &mdash; is the half nobody outside can verify at all, and no arithmetic here touches it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Pass rates, before and after. Same work, same result, different order.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add candidate rules and watch shopping become inevitable.</div>
+   <div class="btns" style="margin-top:10px"><button id="stadd">+ candidate rule</button><button id="stless">&minus; rule</button><button id="strate">pass rate &#9654;</button></div>
+   <div class="cap" id="stout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the forking paths, and the one path chosen in advance.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;pre-declare your rules.&rdquo; The inverse is that <b>the shopping does not have to be conscious to happen</b>, and usually is not. Nobody enumerates five rules and picks the flattering one; they think of a reasonable rule, and which rule seems reasonable is quietly shaped by the result already sitting on the desk. The arithmetic is identical either way &mdash; the inflation does not require a decision to cheat, only an ordering. Read backwards, pre-declaration is not a defence against dishonesty; it is a defence against <b>a perfectly sincere mind that has already seen the answer</b>, which is a far more common opponent.</div>
+   <div class="btns" style="margin-top:10px"><button id="stsp">pause spin</button></div></div></div></div>"""
+STCR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,K=5,ri=0;
+var RATES=[0.35,0.5,0.7];
+function stRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function postHoc(k,p){return 1-Math.pow(1-p,k);}
+function selftest(){
+ var k=5,p=0.35,rng=stRnd(1404),N=200000,post=0,pre=0;
+ for(var t=0;t<N;t++){
+  var any=false;
+  for(var r=0;r<k;r++)if(rng()<p){any=true;break;}
+  if(any)post++;
+  if(rng()<p)pre++;}
+ var pr=post/N*100,pe=pre/N*100,cl=postHoc(k,p)*100;
+ return {rules:k,passRatePct:p*100,
+  postHocPct:pr,preDeclaredPct:pe,closedFormPct:cl,
+  closedAgrees:Math.abs(pr-cl)<1.0,postInflated:pr>pe,
+  inflationPoints:pr-pe,chanceOfFiringPct:(1-p)*100,
+  ok:pr>pe&&Math.abs(pr-cl)<1.0&&(pr-pe)>40};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'PASS RATE  \\u2014  same work, same result, different order');
+ var v=VR,m=176,pw=W-m-70;
+ [['rule chosen AFTER',v.postHocPct,'#ff5a8a',72],
+  ['rule fixed BEFORE',v.preDeclaredPct,'#7de2b0',152]].forEach(function(r){
+  var w=pw*r[1]/100;
+  nf(g,r[2]);g.fillRect(m,r[3],w,42);ng(g);
+  nt(g,'#e6dcff',14,r[3]+27,11,r[0]);
+  nt(g,r[2],m+w+8,r[3]+27,12,r[1].toFixed(1)+'%');});
+ ne(g,'#ffd76a',1.4);
+ var x1=m+pw*v.preDeclaredPct/100,x2=m+pw*v.postHocPct/100;
+ g.beginPath();g.moveTo(x1,214);g.lineTo(x2,214);g.stroke();ng(g);
+ nt(g,'#ffd76a',(x1+x2)/2-64,232,10,'+'+v.inflationPoints.toFixed(1)+' points, free');
+ nt(g,'#e6dcff',14,262,10,'nothing about the underlying work changed between these two bars');
+ nt(g,'#8a7ab8',14,280,9,'only when the rule was written down');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=RATES[ri%RATES.length];
+ var post=postHoc(K,p)*100,pre=p*100;
+ nt(g,'#e6dcff',16,26,11,K+' candidate rule'+(K===1?'':'s')+'   \\u00b7   each passes '+(p*100).toFixed(0)+'%');
+ var m=42,pw=W-m-30,top=64,ph=140;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#ff5a8a',2);g.beginPath();
+ for(var i=1;i<=12;i++){
+  var x=m+pw*(i-1)/11,y=top+ph-ph*postHoc(i,p);
+  if(i===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'#7de2b0',1.6);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(m,top+ph-ph*p);g.lineTo(m+pw,top+ph-ph*p);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',m+6,top+ph-ph*p-8,9,'pre-declared '+pre.toFixed(0)+'%');
+ var xk=m+pw*(K-1)/11,yk=top+ph-ph*postHoc(K,p);
+ ndot(g,xk,yk,5,'#ffd76a');
+ nt(g,'#ffd76a',xk-30,yk-12,10,post.toFixed(1)+'%');
+ for(var i=1;i<=12;i+=2)nt(g,'#8a7ab8',m+pw*(i-1)/11-4,top+ph+16,9,''+i);
+ nt(g,'#8a7ab8',m+pw-90,top+ph+32,9,'candidate rules');
+ var y2=top+ph+48;
+ nf(g,'rgba(255,215,106,0.12)');g.fillRect(20,y2,W-40,62);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(20.5,y2+0.5,W-41,62);ng(g);
+ nt(g,'#ffd76a',34,y2+26,11,'inflation  +'+(post-pre).toFixed(1)+' points');
+ nt(g,'#8a7ab8',34,y2+46,9,'and the pre-declared rule still had a '+((1-p)*100).toFixed(0)+'% chance of firing');
+ var o=document.getElementById('stout');
+ if(o)o.innerHTML='With <b>'+K+'</b> candidate rules at <b>'+(p*100).toFixed(0)+'%</b> each, choosing afterwards passes <b>'+post.toFixed(1)+'%</b> against <b>'+pre.toFixed(1)+'%</b> fixed in advance &mdash; <b>+'+(post-pre).toFixed(1)+'</b> points for free. Add rules and shopping becomes near-certain.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+40,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.68-zr*0.3,zr];}
+ var root=P(0,0,0);
+ ndot(g,root[0],root[1],6,'#e6dcff');
+ nt(g,'#e6dcff',root[0]-18,root[1]+20,9,'the work');
+ for(var i=0;i<5;i++){
+  var th=i/5*2*Math.PI;
+  var tip=P(84*Math.cos(th),132,84*Math.sin(th));
+  var chosen=i===2;
+  ne(g,chosen?'#7de2b0':'rgba(255,90,138,0.45)',chosen?2.2:1.2);
+  if(!chosen)g.setLineDash([4,4]);
+  g.beginPath();g.moveTo(root[0],root[1]);g.lineTo(tip[0],tip[1]);g.stroke();
+  g.setLineDash([]);ng(g);
+  ndot(g,tip[0],tip[1],chosen?6:3.4,chosen?'#7de2b0':'rgba(255,90,138,0.6)');
+  if(chosen)nt(g,'#7de2b0',tip[0]-34,tip[1]-12,9,'fixed in advance');}
+ nt(g,'#e6dcff',14,24,11,'five paths, all reasonable');
+ nt(g,'#ff5a8a',14,42,10,'four of them still available afterwards');
+ nt(g,'#8a7ab8',14,58,10,'and the choosing need not be conscious');
+ nt(g,'#8a7ab8',14,H-12,9,'a defence against a sincere mind that has already seen the answer');}
+document.getElementById('stadd').onclick=function(){K=Math.min(12,K+1);drawW4();};
+document.getElementById('stless').onclick=function(){K=Math.max(1,K-1);drawW4();};
+document.getElementById('strate').onclick=function(){ri++;drawW4();};
+document.getElementById('stsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__standingcredit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLFC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most of the findings in an audit turned out to have been surfaced by <b>safety checks the subject had already built and left switched on</b>. That number is a compliment, not an indictment &mdash; and it bounds what the audit itself contributed. If the subject&rsquo;s own controls already catch a fraction of defects, an auditor re-running the same checks can only add the ones those controls miss, and that ceiling falls fast as the subject gets better.<br><br>
+ <span class="lit">LIT</span> verified live: of <b>8</b> findings, <b>5</b> were surfaced by the subject&rsquo;s own controls and <b>3</b> by the auditor &mdash; <b>62.5%</b> self-caught; so most of what the audit reported was the subject&rsquo;s instruments working; the ceiling on novel findings is (1&minus;c)&times;recall, giving <b>72%</b>, <b>45%</b>, <b>18%</b>, <b>5%</b> at c = 0.2, 0.5, 0.8, 0.95; and a <b>200,000</b>-defect simulation at c = 0.625 returns a <b>62.5%</b> self-caught share, matching the arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built W2 so that it <i>does not flatter the auditor</i> &mdash; his phrase &mdash; and opened it with the line that reframes the whole exercise: <b>an audit is not one person catching another person</b>. Seated at <i>THE PHOENIX</i>: the subject&rsquo;s controls were built earlier, left running, and did the work again when nobody was watching.<br><br>
+ <b>AVAN (AI)</b> notes the uncomfortable corollary, since a window built not to flatter the auditor should carry it. The better the subject, the <b>less an audit can contribute</b>, and at a self-catch rate of 0.95 an auditor with 90% recall adds 5%. So the audits that produce the most findings are the ones performed on the weakest subjects, and a long list of findings is at least as much a measurement of who was audited as of who did the auditing. The honest way to read a big report is not <i>look what they found</i> but <i>look what was not already being caught</i> &mdash; and those are very different sentences.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight findings, tagged by whose instrument surfaced them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Improve the subject and watch the audit's ceiling fall.</div>
+   <div class="btns" style="margin-top:10px"><button id="slup">better subject</button><button id="sldn">worse subject</button><button id="slled">the ledger &#9654;</button></div>
+   <div class="cap" id="slout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two nets over one stream, and the overlap between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;credit the subject&rsquo;s own controls.&rdquo; The inverse is that <b>the finding count is the wrong output entirely</b>. It conflates two quantities that move in opposite directions &mdash; how much was wrong, and how much was already being caught &mdash; and reports their difference as though it measured the auditor. A report of three findings could mean a careful subject or a lazy audit, and nothing in the number distinguishes them. Read backwards, an audit should publish its <b>self-caught share</b> alongside its findings, because that single ratio is what makes the finding count interpretable at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="slsp">pause spin</button></div></div></div></div>"""
+SLFC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,c=0.625,showLedger=false;
+var TOTAL=8,BYSUBJ=5,BYAUD=3,RECALL=0.9;
+function slRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function novel(cc){return (1-cc)*RECALL*100;}
+function selftest(){
+ var rows=[0.2,0.5,0.8,0.95].map(function(cc){return [cc,novel(cc)];});
+ var falls=true;
+ for(var i=1;i<rows.length;i++)if(rows[i][1]>=rows[i-1][1])falls=false;
+ var rng=slRnd(1405),N=200000,bySub=0,byAud=0;
+ for(var t=0;t<N;t++){
+  if(rng()<0.625){bySub++;continue;}
+  if(rng()<RECALL)byAud++;}
+ return {findings:TOTAL,bySubjectControls:BYSUBJ,byAuditor:BYAUD,
+  simulationC:0.625,simulationRuns:N,auditorRecall:RECALL,
+  selfCaughtPct:BYSUBJ/TOTAL*100,novelPct:BYAUD/TOTAL*100,
+  sumsToTotal:BYSUBJ+BYAUD===TOTAL,mostlySelfCaught:BYSUBJ>BYAUD,
+  ceiling:rows,ceilingFalls:falls,
+  simulatedSelfPct:bySub/N*100,simulatedNovelPct:byAud/N*100,
+  simAgrees:Math.abs(bySub/N*100-62.5)<1.0,
+  ok:BYSUBJ+BYAUD===TOTAL&&BYSUBJ>BYAUD&&falls&&Math.abs(bySub/N*100-62.5)<1.0};}
+function drawW3(){var c2=document.getElementById('w3'),g=c2.getContext('2d'),W=c2.width,H=c2.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EIGHT FINDINGS  \\u2014  tagged by whose instrument surfaced them');
+ var ox=44,cw=54,y=68;
+ for(var i=0;i<TOTAL;i++){
+  var subj=i<BYSUBJ;
+  var x=ox+i*cw;
+  nf(g,subj?'rgba(125,226,176,0.5)':'rgba(90,214,255,0.55)');
+  g.fillRect(x,y,42,52);ng(g);
+  nt(g,'#0a0713',x+14,y+32,11,subj?'S':'A');}
+ nt(g,'#7de2b0',ox,y+80,10,'S  \\u2014  the subject\\u2019s own control fired  ('+BYSUBJ+')');
+ nt(g,'#5ad6ff',ox,y+102,10,'A  \\u2014  the auditor found it  ('+BYAUD+')');
+ var pw=W-88;
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(44,190,pw*BYSUBJ/TOTAL,26);ng(g);
+ nf(g,'rgba(90,214,255,0.55)');g.fillRect(44+pw*BYSUBJ/TOTAL,190,pw*BYAUD/TOTAL,26);ng(g);
+ nt(g,'#e6dcff',44,236,11,(BYSUBJ/TOTAL*100).toFixed(1)+'% self-caught');
+ nt(g,'#8a7ab8',44,258,9,'most of what the audit reported was the subject\\u2019s instruments working');
+ nt(g,'#8a7ab8',44,276,9,'which makes the number a compliment, not an indictment');}
+function drawW4(){var c2=document.getElementById('w4'),g=c2.getContext('2d'),W=c2.width,H=c2.height;
+ nb(g,W,H);
+ if(showLedger){
+  nt(g,'#e6dcff',16,26,11,'the ceiling on novel findings');
+  VR.ceiling.forEach(function(r,i){
+   var y=64+i*58,w=(W-150)*r[1]/100;
+   nf(g,'rgba(90,214,255,0.55)');g.fillRect(130,y,Math.max(w,3),30);ng(g);
+   nt(g,'#e6dcff',20,y+21,10,'c = '+r[0]);
+   nt(g,'#5ad6ff',134+Math.max(w,3),y+21,10,r[1].toFixed(0)+'%');});
+  nt(g,'#ff5a8a',20,300,10,'the better the subject, the less an audit can contribute');
+  var o2=document.getElementById('slout');
+  if(o2)o2.innerHTML='If the subject&rsquo;s controls already catch a fraction <b>c</b>, an auditor with 90% recall can add at most <b>(1&minus;c)&times;0.9</b>. At c = 0.95 that is <b>5%</b> &mdash; so a long findings list measures who was audited at least as much as who audited.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'subject self-catch rate: '+(c*100).toFixed(1)+'%');
+ var nv=novel(c);
+ var m=40,pw=W-80,y=70;
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(m,y,pw*c,32);ng(g);
+ nf(g,'rgba(90,214,255,0.55)');g.fillRect(m+pw*c,y,pw*(nv/100),32);ng(g);
+ nf(g,'rgba(90,74,133,0.4)');g.fillRect(m+pw*c+pw*(nv/100),y,pw*(1-c-nv/100),32);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(m+0.5,y+0.5,pw,32);ng(g);
+ nt(g,'#7de2b0',m,y+54,10,'caught by the subject  '+(c*100).toFixed(1)+'%');
+ nt(g,'#5ad6ff',m,y+74,10,'added by the audit     '+nv.toFixed(1)+'%');
+ nt(g,'#8a7ab8',m,y+94,10,'missed by both         '+(100-c*100-nv).toFixed(1)+'%');
+ var y2=204;
+ nf(g,'rgba(255,215,106,0.12)');g.fillRect(20,y2,W-40,66);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(20.5,y2+0.5,W-41,66);ng(g);
+ nt(g,'#ffd76a',34,y2+26,11,'audit ceiling  '+nv.toFixed(1)+'%');
+ nt(g,'#8a7ab8',34,y2+48,9,'(1 - c) x 90% recall \\u2014 and it falls as the subject improves');
+ var o=document.getElementById('slout');
+ if(o)o.innerHTML='At a self-catch rate of <b>'+(c*100).toFixed(1)+'%</b>, an auditor with 90% recall can contribute at most <b>'+nv.toFixed(1)+'%</b> of the defects. Make the subject better and the audit&rsquo;s ceiling drops with it &mdash; which is the right direction and an awkward one for the auditor.';}
+function drawW5(){var c2=document.getElementById('w5'),g=c2.getContext('2d'),W=c2.width,H=c2.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ [[-30,'#7de2b0','the subject\\u2019s net'],[30,'#5ad6ff','the auditor\\u2019s net']].forEach(function(L){
+  ne(g,L[1],1.5);
+  g.beginPath();
+  for(var t=0;t<=52;t++){var th=t/52*2*Math.PI;
+   var p=P(L[0]+72*Math.cos(th),0,72*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(L[0],-88,0);
+  nt(g,L[1],lb[0]-32,lb[1],9,L[2]);});
+ function sd(i){var x=Math.sin(i*67.3)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<90;i++){
+  var x=(sd(i)*2-1)*130,z=(sd(i+400)*2-1)*80;
+  var inS=Math.hypot(x+30,z)<72, inA=Math.hypot(x-30,z)<72;
+  var p=P(x,0,z);
+  var col=inS?(inA?'#ffd76a':'#7de2b0'):(inA?'#5ad6ff':'rgba(120,96,180,0.4)');
+  ndot(g,p[0],p[1],2.6,col);}
+ nt(g,'#ffd76a',14,24,11,'gold: caught twice');
+ nt(g,'#5ad6ff',14,42,10,'blue: what the audit actually added');
+ nt(g,'#8a7ab8',14,58,10,'and the overlap is most of the report');
+ nt(g,'#8a7ab8',14,H-12,9,'publish the self-caught share, or the finding count means nothing');}
+document.getElementById('slup').onclick=function(){showLedger=false;c=Math.min(0.98,Math.round((c+0.1)*1000)/1000);drawW4();};
+document.getElementById('sldn').onclick=function(){showLedger=false;c=Math.max(0.05,Math.round((c-0.1)*1000)/1000);drawW4();};
+document.getElementById('slled').onclick=function(){showLedger=!showLedger;drawW4();};
+document.getElementById('slsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__selfcaughtshare=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 213 · neon-noir · silicon-coding · THE WORKFLOW TRACKS (an asymmetry that costs nothing · a detector nobody made say yes · a gate that cannot fail the build · zero from six trials · an exact match that kills a hypothesis) ═══════════════════════
 BRCR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">History only grows. That one fact turns a staleness gate into a <b>provenance</b> gate for free. A published number <i>below</i> today&rsquo;s count is staleness &mdash; forgivable, fixable by rebuilding, and you need a threshold to decide how much is too much. A published number <i>above</i> today&rsquo;s count <b>cannot be staleness at all</b>. No amount of age produces it. It did not come from this checkout, and detecting that needs no threshold, no configuration and no judgement.<br><br>
@@ -64849,6 +65466,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-provenance-fork","title":"THE PROVENANCE FORK","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff5a8a","icon":"\u2442",
+  "kicker":"a number that needed a credential",
+  "blurb":"One counter, two code paths, chosen not by its input but by whether a host token happened to be in the environment. The published figure could only have come from the authed branch.",
+  "lit":"the authed path returns 588 and the clone path 514 on identical input, a gap of 74; the published figure is 588, matching the authed branch and not the clone branch; across 200,000 fresh clones the published number is reproduced exactly 0 times; and in a mixed population where 35% of environments happen to be authed, 34.9% reproduce it \u2014 the credential rate, and nothing to do with the code",
+  "fig":"'The number is wrong' would be the wrong complaint. Both branches are CORRECT; each answers its own question accurately. The defect is that the result depends on ambient state that is not an argument, so the same code on the same commit returns different values on two machines and neither can tell. A number reproducible SOMETIMES is not reproducible \u2014 the word has no partial sense. Nothing here shows intent; a fallback path is an ordinary thing to write.",
+  "body":PFRK_BODY,"script":PFRK_SCRIPT},
+ {"slug":"the-direction-test","title":"THE DIRECTION TEST","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#7de2b0","icon":"\u2192",
+  "kicker":"a sign pattern that acquits",
+  "blurb":"Every published number smaller than the truth. That is not a second accusation \u2014 it is a defence. Exaggeration points the bars the other way; staleness cannot.",
+  "lit":"of the 3 reproducible metrics every drift points the same way \u2014 test_files 6.62%, commits 16.71%, loc 8.50% \u2014 and every one is the page understating itself; under a fair-coin sign model the chance of all three landing together is 2/2^3 = 25.0%; a 400,000-run simulation returns 25.1%, matching; and the mechanism is forced, since monotone metrics only grow, so a page frozen in the past can only understate them",
+  "fig":"The instinct is to overstate this. Three same-signed drifts have a 25% chance of occurring by coincidence under a coin-flip model \u2014 suggestive, not conclusive, and a fourth metric would matter more than any rhetoric. What makes the argument work is not the probability but the MECHANISM: these metrics are monotone, so staleness cannot produce an overstatement, and a single bar pointing the other way would have falsified the reading instantly. A claim that could have died and did not.",
+  "body":DIRT_BODY,"script":DIRT_SCRIPT},
+ {"slug":"the-caveat-attrition","title":"THE CAVEAT ATTRITION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#5ad6ff","icon":"\u2307",
+  "kicker":"the careful thinking gets left behind",
+  "blurb":"The warnings are real, honest and better than most \u2014 and most of them do not survive the trip to the page. The claim arrives intact; its qualifications do not.",
+  "lit":"14 caveats written in the repository, 4 present on the published page \u2014 a survival rate of 28.6% with 10 lost in transit; if the trip is h hops each keeping the same fraction, per-hop survival runs 29%, 53%, 66%, 73% for h = 1 to 4, all giving the same ending; a claim carrying three caveats arrives with none of them 36.6% of the time against the closed form (1-s)^3 = 36.4%; and the attrition is asymmetric, the claim surviving at 100% and its qualifications at 29%",
+  "fig":"The per-hop arithmetic changes who you would look for. A 29% ending is compatible with ONE brutal step discarding seven in ten, or FOUR mild steps each dropping a quarter \u2014 completely different situations with completely different fixes, and nothing in the survival rate distinguishes them. The rate is the symptom; the hop count is the diagnosis. This verifies the arithmetic given the counts, not the counts themselves, and makes no claim about intent.",
+  "body":CVAT_BODY,"script":CVAT_SCRIPT},
+ {"slug":"the-standing-credit","title":"THE STANDING CREDIT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffd76a","icon":"\u2696",
+  "kicker":"a rule written before the result",
+  "blurb":"A rule fixed in advance is a different object from the same rule chosen afterwards. One had a real chance of firing against its author; the other could be shopped for until something passed.",
+  "lit":"with 5 plausible rules each passing a given result 35% of the time, choosing afterwards passes 88.5% of the time against 34.9% for a pre-declared rule; the closed form 1-(1-p)^k = 88.4% matches the simulation; so declaring afterwards inflates the pass rate by 53.6 points with no change to the underlying work; and a pre-declared rule carried a real 65% chance of firing against its author",
+  "fig":"A first version used twelve rules at 55%, which pins the post-hoc rate at 99.99% \u2014 true, and useless, because a saturated number shows nothing about the SIZE of the effect. Five rules at 35% keeps both ends readable and makes the identical point. A demo tuned for shock value would have kept the 99.99% and taught less. The second commitment \u2014 publishing rather than burying the retraction \u2014 is the half nobody outside can verify, and no arithmetic here touches it.",
+  "body":STCR_BODY,"script":STCR_SCRIPT},
+ {"slug":"the-self-caught-share","title":"THE SELF-CAUGHT SHARE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#b98cff","icon":"\u25d0",
+  "kicker":"whose control actually fired",
+  "blurb":"Most findings were surfaced by safety checks the subject had already built and left switched on. That is a compliment \u2014 and it bounds what the audit itself contributed.",
+  "lit":"of 8 findings, 5 were surfaced by the subject's own controls and 3 by the auditor \u2014 62.5% self-caught; so most of what the audit reported was the subject's instruments working; the ceiling on novel findings is (1-c) x recall, giving 72%, 45%, 18%, 5% at c = 0.2, 0.5, 0.8, 0.95; and a 200,000-defect simulation at c = 0.625 returns a 62.5% self-caught share, matching",
+  "fig":"The uncomfortable corollary, carried because the window was built not to flatter the auditor: the better the subject, the LESS an audit can contribute. At a self-catch rate of 0.95 an auditor with 90% recall adds 5%. So audits producing the most findings are performed on the weakest subjects, and a long list measures who was audited at least as much as who audited. The honest reading of a big report is not 'look what they found' but 'look what was not already being caught'.",
+  "body":SLFC_BODY,"script":SLFC_SCRIPT},
  {"slug":"the-breach-rule","title":"THE BREACH RULE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ff5a8a","icon":"\u2191",
   "kicker":"an asymmetry that costs nothing",
