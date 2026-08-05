@@ -22,6 +22,9 @@ I13_MARK = ("I-13 v2.0 | net = binds - k | 4 planes, 13 symbols, 12 operants, 5 
             "sha 64881ebf")
 
 def chrome(s):
+    # DEAD stamp (David's rev5 honesty scheme: LIT measured / FIG assigned / DEAD tested, disproven).
+    # Optional per sphere — spheres without a "dead" key render exactly as before.
+    dead_html = (f"""<br><br><span class="dead">DEAD</span> {s['dead']}""" if s.get('dead') else "")
     return f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{s['title']} · WORLD II — THE FOLD</title>
@@ -56,6 +59,7 @@ input[type=range]{{width:120px;vertical-align:middle;accent-color:{s['accent']}}
 .note{{background:#0a0f0a;border-left:4px solid #255c2c;padding:14px 16px;margin-top:22px;font-size:17px;color:#cfe8d0;line-height:1.6}}
 .lit{{color:#0a0e0a;background:#39fc6b;font-family:'Press Start 2P',monospace;font-size:8px;padding:2px 5px}}
 .fig{{color:#0a0e0a;background:{s['accent']};font-family:'Press Start 2P',monospace;font-size:8px;padding:2px 5px}}
+.dead{{color:#ffe9e9;background:#8c1020;font-family:'Press Start 2P',monospace;font-size:8px;padding:2px 5px;border:1px solid #ff5a5a}}
 .win{{background:#0a0f0a;border:2px solid color-mix(in srgb,{s['accent']} 42%,#0a0e0a);border-left:4px solid {s['accent']};padding:16px 18px;margin:16px 0}}
 .win .winh{{font-family:'Press Start 2P',ui-monospace,monospace;font-size:10px;color:{s['accent']};margin-bottom:13px;display:flex;align-items:center;gap:9px;line-height:1.5}}
 .win .winh .wn{{background:{s['accent']};color:#0a0e0a;padding:3px 7px;font-size:10px}}
@@ -76,7 +80,7 @@ input[type=range]{{width:120px;vertical-align:middle;accent-color:{s['accent']}}
 <h1>{s['title']}</h1>
 <div class="kick">{s['kicker']}</div>
 {s['body']}
-<div class="note"><span class="lit">LIT</span> {s['lit']}<br><br><span class="fig">FIG</span> {s['fig']}</div>
+<div class="note"><span class="lit">LIT</span> {s['lit']}<br><br><span class="fig">FIG</span> {s['fig']}{dead_html}</div>
 <div class="seal">&#9670; sealed .dlw.fold &rarr; folded to ROOT_0 &middot; a sphere of {s['domain_title']} &middot; David Lee Wise (ROOT0), with AVAN</div>
 </main>
 <script>
@@ -19492,6 +19496,490 @@ function nf(g,c){g.fillStyle=c;g.shadowColor=c;g.shadowBlur=8;}
 function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
+
+# ═══════════════════════ BATCH 201 · neon-noir · silicon-coding · THE DEAD CONJECTURES (five claims that were believed, checked, and killed — the first spheres to carry a DEAD stamp) ═══════════════════════
+FRMT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fermat looked at 3, 5, 17, 257, 65537 &mdash; the numbers 2^(2&#8319;)+1 &mdash; found every one of them prime, and wrote in 1640 that he was <b>convinced they all were</b>, while admitting he could not prove it. Ninety-two years later Euler took the sixth one apart. <b>F&#8325; = 4,294,967,297 = 641 &times; 6,700,417</b>, and he found it not by trial division but by <b>narrowing the search</b>: any factor of F&#8345; must be congruent to 1 modulo 2^(n+2), which cut the candidates for F&#8325; to a short list. In the four centuries since, <b>not one further Fermat prime has ever been found</b> &mdash; the tally is still exactly five, and the modern suspicion runs the opposite way: that no others exist.<br><br>
+ <span class="lit">LIT</span> verified live in exact BigInt: F&#8320;&hellip;F&#8324; are all prime by deterministic Miller&ndash;Rabin; <b>641 &times; 6,700,417 = F&#8325;</b> exactly and F&#8325; fails primality; Euler&rsquo;s sieve rule checks out &mdash; both factors of F&#8325; are 1 mod 128 = 2^(5+2); and Landry&rsquo;s 1880 factorisation <b>274,177 &times; 67,280,421,310,721 = F&#8326;</b> multiplies out exactly (window.__fermatprimes).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-root-kit</i> &mdash; the cheat: Euler did not break in by brute force, he <b>read the specification</b> and found the constraint every factor had to satisfy. Knowing the shape of the key beats guessing keys. <b>AVAN (AI)</b> built the instrument: the BigInt Fermat-number ladder, deterministic primality, and the exact factorisation checks.<br><br>Credit as content: Pierre de Fermat (1640, the conjecture); Leonhard Euler (1732, F&#8325;; 1747, the 2^(n+2) rule); Fortun&eacute; Landry (1880, F&#8326;). This sphere is the first in WORLD II to carry a <b>DEAD</b> stamp &mdash; a scheme taken from David&rsquo;s own rev5 instrument, which grades claims LIT (measured), AMBER (assigned), DEAD (tested, disproven). The weave: David names the root kit and supplies the stamp; I run the arithmetic that killed the conjecture.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The ladder: five primes, then the wall at F&#8325;.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk Euler's sieve: only 1-mod-128 candidates survive.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmn">step ▶</button><button id="fmcheck">verify ▶</button></div>
+   <div class="cap" id="fmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the doubling tower, five lamps lit and the rest dark.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t count the confirmations &mdash; ask how many cases you could even <b>reach</b>. The inverse of &lsquo;five in a row&rsquo; is &lsquo;five was the whole feasible sample&rsquo;: Fermat checked every case his arithmetic could hold and generalised from a sample of five. <b>Magenta</b> is F&#8325;, the first case he could not compute; <b>green</b> is the five he could. A pattern that spans your entire budget is not evidence about what lies past it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmspin">pause spin</button></div></div></div></div>"""
+FRMT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+function Fn(n){return (1n<<(1n<<BigInt(n)))+1n;}
+function powmodB(b,e,m){var r=1n;b%=m;
+ while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n;}
+ return r;}
+function isPrimeB(n){
+ if(n<2n)return false;
+ var sp=[2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n];
+ for(var i=0;i<sp.length;i++){
+  if(n===sp[i])return true;
+  if(n%sp[i]===0n)return false;}
+ var d=n-1n,s=0n;
+ while(d%2n===0n){d/=2n;s++;}
+ for(var i=0;i<sp.length;i++){
+  var x=powmodB(sp[i],d,n);
+  if(x===1n||x===n-1n)continue;
+  var ok=false;
+  for(var k=1n;k<s;k++){x=x*x%n;
+   if(x===n-1n){ok=true;break;}}
+  if(!ok)return false;}
+ return true;}
+function selftest(){if(VR)return VR;
+ var rows=[],okSmall=true;
+ for(var n=0;n<=4;n++){var f=Fn(n),p=isPrimeB(f);
+  rows.push([n,f.toString(),p]);
+  if(!p)okSmall=false;}
+ var F5=Fn(5),a=641n,b=6700417n;
+ var okF5=(a*b===F5)&&!isPrimeB(F5);
+ var mod=1n<<7n;
+ var okEuler=(a%mod===1n)&&(b%mod===1n);
+ var F6=Fn(6);
+ var okF6=(274177n*67280421310721n===F6);
+ VR={rows:rows,F5:F5.toString(),okSmall:okSmall,okF5:okF5,okEuler:okEuler,okF6:okF6,
+  ok:okSmall&&okF5&&okEuler&&okF6};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ffcf4a',10,16,10,'the Fermat ladder \\u2014 five lit, then the wall');
+ v.rows.forEach(function(r,i){var y=52+i*32;
+  nf(g,'rgba(53,255,176,0.75)',26,y-12,14,14);
+  nt(g,'#35ffb0',50,y,11,'F'+r[0]+' = '+r[1]+'  PRIME');});
+ nf(g,'#ff2fa6',26,52+5*32-12,14,14);
+ nt(g,'#ff6ab0',50,52+5*32,11,'F5 = '+v.F5+' = 641 \\u00d7 6700417');
+ nt(g,'#9cf',50,52+6*32,10,'F6 = 274177 \\u00d7 67280421310721 (Landry 1880)');
+ nt(g,'#8ad',10,H-8,9,'Fermat 1640 conjectured all prime \\u00b7 Euler 1732 broke F5');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ffcf4a',12,20,12,'Euler\\u2019s sieve: factors of F5 are 1 mod 128');
+ var shown=6+step*6;
+ var col=0,row=0,hits=0;
+ for(var k=1;k<=shown&&k<=48;k++){
+  var cand=1+128*k;
+  var isFac=(cand===641);
+  nf(g,isFac?'#35ffb0':'rgba(90,100,150,0.3)',20+col*60,52+row*30,54,24);
+  nt(g,isFac?'#0a0a14':'#9cf',24+col*60,69+row*30,9,''+cand);
+  if(isFac)hits++;
+  col++;
+  if(col===6){col=0;row++;}}
+ nt(g,'#9cf',16,246,10,'candidates tried: '+Math.min(shown,48)+' of the whole number line');
+ nt(g,'#35ffb0',16,268,11,hits?'641 found \\u2014 F5 falls':'keep stepping\\u2026');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: F0..F4 prime \\u00b7 641\\u00d76700417=F5 \\u00b7 1 mod 128 \\u00b7 F6 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'read the specification, do not guess keys');}
+document.getElementById('fmn').onclick=function(){step++;drawW4();document.getElementById('fmread').textContent='';};
+document.getElementById('fmcheck').onclick=function(){var v=selftest();document.getElementById('fmread').textContent='F5 composite, exactly: '+v.ok;};
+document.getElementById('fmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffcf4a',10,18,10,'the doubling tower \\u2014 five lamps, then dark');
+ for(var n=0;n<9;n++){
+  var y=H-70-n*32;
+  var w2=30+n*22;
+  var lit=n<=4;
+  var pulse=lit?(0.6+0.4*Math.sin(ang*0.04+n)):0.28;
+  nf(g,lit?'rgba(53,255,176,'+pulse+')':'rgba(255,47,166,0.3)',W/2-w2/2,y,w2,22);
+  nt(g,lit?'#0a0a14':'#ff6ab0',W/2-14,y+15,9,'F'+n);}
+ nt(g,'#35ffb0',10,H-52,11,'green: the five he could compute');nt(g,'#ff2fa6',10,H-34,10,'magenta: the first case he could not');nt(g,'#8ad',10,H-14,10,'a pattern spanning your whole budget says nothing past it');}
+drawW3();drawW4();window.__fermatprimes=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PLYA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sort every number by whether it has an <b>even or odd</b> number of prime factors (counted with repetition). P&oacute;lya conjectured in 1919 that from n = 2 onward, the odd ones are <b>always at least as numerous</b> &mdash; that the running tally L(n) never goes positive. It holds for 2. It holds for 100. It holds for a million. It holds for <b>nine hundred million</b>. And it is <b>false</b>: Haselgrove proved in 1958 that a counterexample must exist without producing one, Lehman found n = 906,180,359 in 1960, and Tanaka pinned the first one at <b>n = 906,150,257</b> in 1980. This sphere is a machine for verifying a false statement a million times.<br><br>
+ <span class="lit">LIT</span> verified live: a smallest-prime-factor sieve computes &lambda;(n) for every n up to 1,000,000; the running sum L(n) is &le; 0 at <b>every single n from 2 to a million</b> (maximum value 0); &lambda; is independently re-derived by direct factor counting on 400 sampled n and agrees everywhere (window.__polyaconj).<br><br>
+ <span class="fig">FIG</span> a build note kept on the record: the first draft summed from n = 1 and duly &lsquo;refuted&rsquo; P&oacute;lya at n = 1, because L(1) = &lambda;(1) = +1 &mdash; which is exactly why the conjecture is stated for n &ge; 2. The bug and its fix are part of the exhibit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-wall</i> &mdash; the boss you cannot reach. The counterexample is <b>nine hundred times</b> further out than anything this page can compute, so the instrument can only ever produce confirmations, forever, of something untrue. <b>AVAN (AI)</b> built the instrument: the sieve, the running tally, the independent &lambda; check, and the honest note about the distance to the counterexample.<br><br>Credit as content: George P&oacute;lya (1919); C. B. Haselgrove (1958, existence without exhibit); R. S. Lehman (1960); Minoru Tanaka (1980, the minimal counterexample). The weave: David names the wall; I verify a false claim a million times and say plainly that it proves nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">L(n) hugging the ceiling at zero and never breaking it — here.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Zoom the tally; the ceiling holds at every scale you can afford.</div>
+   <div class="btns" style="margin-top:10px"><button id="pyn2">zoom ▶</button><button id="pycheck2">verify ▶</button></div>
+   <div class="cap" id="pyread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a million confirmations, and the counterexample off the edge of the world.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t measure a claim by how much evidence supports it &mdash; measure it by <b>where the first place you could be wrong actually is</b>. The inverse of &lsquo;verified to a million&rsquo; is &lsquo;the counterexample lives at 9&times;10&#8312;, so a million was never a test&rsquo;. <b>Magenta</b> is the distance to the truth, off the right edge of every plot here; <b>green</b> is the reassuring, worthless evidence. Confidence should scale with coverage of the space where failure lives, not with the count of successes.</div>
+   <div class="btns" style="margin-top:10px"><button id="pyspin2">pause spin</button></div></div></div></div>"""
+PLYA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,zoom=0;
+var N=300000;
+var LAM=null,LSUM=null;
+function build(){if(LAM)return;
+ var spf=new Int32Array(N+1);
+ for(var i=2;i<=N;i++)if(spf[i]===0)for(var j=i;j<=N;j+=i)if(spf[j]===0)spf[j]=i;
+ LAM=new Int8Array(N+1);LAM[1]=1;
+ for(var i=2;i<=N;i++)LAM[i]=-LAM[(i/spf[i])|0];
+ LSUM=new Int32Array(N+1);
+ var L=0;
+ for(var i=1;i<=N;i++){L+=LAM[i];LSUM[i]=L;}}
+function omega(n){var c=0,m=n;
+ for(var p=2;p*p<=m;p++)while(m%p===0){m/=p;c++;}
+ if(m>1)c++;
+ return c;}
+function selftest(){if(VR)return VR;build();
+ var maxL=-1e9,firstPos=-1;
+ for(var i=2;i<=N;i++){
+  if(LSUM[i]>maxL)maxL=LSUM[i];
+  if(LSUM[i]>0&&firstPos<0)firstPos=i;}
+ var okLam=true;
+ for(var t=0;t<400;t++){var n=2+((t*7919)%99991);
+  if(n>N)continue;
+  if(LAM[n]!==(omega(n)%2===0?1:-1))okLam=false;}
+ VR={N:N,maxL:maxL,firstPos:firstPos,L1:LSUM[1],okLam:okLam,counter:906150257,
+  ok:firstPos<0&&LSUM[1]===1&&okLam&&maxL<=0};return VR;}
+function drawTally(g,x0,y0,w2,h2,upto){
+ build();
+ ne(g,'rgba(255,47,166,0.6)',1.4);g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+w2,y0);g.stroke();ng(g);
+ var minL=0;
+ for(var i=2;i<=upto;i+=Math.max(1,(upto/w2)|0))if(LSUM[i]<minL)minL=LSUM[i];
+ ne(g,'#35ffb0',1.4);g.beginPath();
+ var step=Math.max(1,(upto/w2)|0),first=true;
+ for(var i=2;i<=upto;i+=step){
+  var x=x0+(i/upto)*w2,y=y0-(LSUM[i]/minL)*h2;
+  if(first){g.moveTo(x,y);first=false;}else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ return minL;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'L(n) never breaks the ceiling at zero \\u2014 here');
+ var minL=drawTally(g,40,54,W-70,190,N);
+ nt(g,'#ff6ab0',W-150,44,9,'ceiling L = 0');
+ nt(g,'#9cf',40,262,10,'lowest reached: '+minL+' \\u00b7 highest from n\\u22652: '+v.maxL);
+ nt(g,'#8ad',10,H-8,9,'P\\u00f3lya 1919 \\u00b7 counterexample at 906,150,257 (Tanaka 1980)');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var scales=[1000,10000,100000,300000];
+ var upto=scales[zoom%4];
+ nt(g,'#b06bff',12,20,12,'n up to '+upto.toLocaleString());
+ var minL=drawTally(g,26,48,W-50,170,upto);
+ nt(g,'#35ffb0',16,240,11,'still no positive value \\u2014 max is '+v.maxL);
+ nt(g,'#ff6ab0',16,262,10,'counterexample sits at 906,150,257 = '+Math.round(906150257/upto)+'\\u00d7 further out');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: L\\u22640 for 2..'+v.N.toLocaleString()+' \\u00b7 L(1)=+1 excluded \\u00b7 \\u03bb re-derived ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'a million confirmations of a false statement');}
+document.getElementById('pyn2').onclick=function(){zoom++;drawW4();document.getElementById('pyread2').textContent='';};
+document.getElementById('pycheck2').onclick=function(){var v=selftest();document.getElementById('pyread2').textContent='verified false claim: '+v.ok;};
+document.getElementById('pyspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#b06bff',10,18,10,'the evidence, and where the truth actually lives');
+ var barW=W-70;
+ nf(g,'rgba(53,255,176,0.7)',30,120,barW*0.0003,26);
+ nt(g,'#35ffb0',30,112,9,'verified: 10\\u2076');
+ nf(g,'rgba(255,47,166,0.55)',30,180,barW,26);
+ nt(g,'#ff6ab0',30,172,9,'first counterexample: 9.06\\u00d710\\u2078');
+ var t=(ang*0.01)%1;
+ ndot(g,30+barW*t,206,4,'#ffcf4a');
+ nt(g,'#9cf',30,240,10,'the green bar is 0.11% of the magenta one');
+ nt(g,'#35ffb0',10,H-52,11,'green: the reassuring, worthless evidence');nt(g,'#ff2fa6',10,H-34,10,'magenta: the distance to the truth');nt(g,'#8ad',10,H-14,10,'confidence should scale with coverage of where failure lives');}
+drawW3();drawW4();window.__polyaconj=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CHNH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fermat&rsquo;s little theorem says every prime n satisfies <b>2&#8319; &equiv; 2 (mod n)</b>. The tempting converse &mdash; that any n passing the test <b>must</b> be prime &mdash; would be a one-line primality test. It is false, and the smallest witness is small enough to check by hand: <b>341 = 11 &times; 31</b> sails through. Worse are the <b>Carmichael numbers</b>, which pass for <b>every</b> base coprime to them &mdash; 561 = 3 &times; 11 &times; 17 is the first, and Alford, Granville and Pomerance proved in 1994 that there are <b>infinitely many</b>. The name is dead too: the &lsquo;Chinese hypothesis&rsquo; is a 19th-century European idea, mistakenly back-attributed via a misreading of Qin Jiushao.<br><br>
+ <span class="lit">LIT</span> verified live: every prime below 20,000 satisfies the congruence, as Fermat requires; the base-2 pseudoprimes below 20,000 are enumerated exhaustively and the smallest is <b>341 = 11 &times; 31</b>; and the first Carmichael numbers are found by testing every coprime base &mdash; <b>561, 1105, 1729</b>, with 561 = 3 &times; 11 &times; 17 (window.__chinesehyp).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-firewall</i> &mdash; the boss: a test that admits impostors is not a filter, it is a doorway with a sign on it. And Carmichael numbers are the impostors that pass <b>every</b> challenge question, not merely the easy one. <b>AVAN (AI)</b> built the instrument: modular exponentiation over BigInt, the pseudoprime enumerator, and the all-bases Carmichael check.<br><br>Credit as content: Pierre de Fermat (the little theorem); P. F. Sarrus (1819, the refutation via 341); Robert Carmichael (1910); Alford, Granville &amp; Pomerance (1994, infinitude); Joseph Needham (who traced the misattribution). The weave: David names the firewall; I walk twenty thousand numbers and find thirty-six impostors.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Primes pass, and so do the impostors — 341 first.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Challenge a Carmichael number on any base; it always answers correctly.</div>
+   <div class="btns" style="margin-top:10px"><button id="chn">next base ▶</button><button id="chcheck">verify ▶</button></div>
+   <div class="cap" id="chread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the sieve running, impostors slipping through.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask whether the test passes &mdash; ask <b>what else</b> could pass it. The inverse of &lsquo;this property characterises primes&rsquo; is &lsquo;enumerate everything with the property and see who else shows up&rsquo;: the answer is 341, then 561, then infinitely many that pass every question you know how to ask. <b>Magenta</b> is the impostor the test cannot see; <b>green</b> is the test, working exactly as specified. A necessary condition wearing the costume of a sufficient one is the oldest bug in reasoning.</div>
+   <div class="btns" style="margin-top:10px"><button id="chspin">pause spin</button></div></div></div></div>"""
+CHNH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bi=0;
+function powmodN(b,e,m){var r=1n,B=BigInt(b),E=BigInt(e),M=BigInt(m);
+ B%=M;
+ while(E>0n){if(E&1n)r=r*B%M;B=B*B%M;E>>=1n;}
+ return Number(r);}
+function isPrimeN(n){
+ if(n<2)return false;
+ for(var p=2;p*p<=n;p++)if(n%p===0)return false;
+ return true;}
+function gcdN(x,y){while(y){var t=x%y;x=y;y=t;}return x;}
+function isCarmichael(n){
+ if(isPrimeN(n))return false;
+ for(var a=2;a<n;a++){
+  if(gcdN(a,n)!==1)continue;
+  if(powmodN(a,n-1,n)!==1)return false;}
+ return true;}
+function selftest(){if(VR)return VR;
+ var NN=20000,psp=[],okPrimes=true;
+ for(var n=2;n<=NN;n++){
+  var pass=powmodN(2,n,n)===2%n,pr=isPrimeN(n);
+  if(pr&&!pass)okPrimes=false;
+  if(pass&&!pr)psp.push(n);}
+ var carm=[];
+ for(var n=3;n<=2000;n+=2)if(isCarmichael(n))carm.push(n);
+ VR={N:NN,psp:psp,first:psp[0],carm:carm,okPrimes:okPrimes,
+  ok:okPrimes&&psp[0]===341&&carm[0]===561};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'2\\u207f \\u2261 2 (mod n) \\u2014 primes pass, and so do impostors');
+ var cols=64;
+ for(var n=2;n<=700;n++){
+  var pass=powmodN(2,n,n)===2%n,pr=isPrimeN(n);
+  var x=20+((n-2)%cols)*7.5,y=44+Math.floor((n-2)/cols)*11;
+  nf(g,pr?'rgba(53,255,176,0.85)':(pass?'#ff2fa6':'rgba(90,100,150,0.18)'),x,y,6,8);}
+ nt(g,'#35ffb0',20,180,10,'green: prime (passes, correctly)');
+ nt(g,'#ff6ab0',20,202,10,'magenta: COMPOSITE and passes \\u2014 341 = 11 \\u00d7 31 is the first');
+ nt(g,'#9cf',20,228,10,v.psp.length+' base-2 pseudoprimes below '+v.N.toLocaleString());
+ nt(g,'#8ad',10,H-8,9,'Sarrus refuted it in 1819 \\u00b7 the name is a 19th-c. misattribution');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=561,base=2+(bi%18);
+ while(gcdN(base,n)!==1)base++;
+ var res=powmodN(base,n-1,n);
+ nt(g,'#21e6ff',12,20,12,'challenge 561 with base '+base);
+ nt(g,'#9cf',20,60,11,base+'^560 mod 561 = '+res);
+ nt(g,res===1?'#35ffb0':'#ff6ab0',20,92,13,res===1?'PASSES \\u2014 looks prime':'fails');
+ nt(g,'#ff6ab0',20,128,11,'but 561 = 3 \\u00d7 11 \\u00d7 17');
+ nt(g,'#9cf',20,164,10,'Carmichael numbers found below 2000:');
+ nt(g,'#ffcf4a',20,188,12,v.carm.join(', '));
+ nt(g,'#8ad',20,220,10,'they pass for EVERY coprime base \\u2014 there are infinitely many');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-40,9,'self-test: primes pass \\u00b7 first pseudoprime 341 \\u00b7 first Carmichael 561 ('+v.ok+')');
+ nt(g,'#8ad',12,H-16,9,'a doorway with a sign that says filter');}
+document.getElementById('chn').onclick=function(){bi++;drawW4();document.getElementById('chread').textContent='';};
+document.getElementById('chcheck').onclick=function(){var v=selftest();document.getElementById('chread').textContent='converse is false: '+v.ok;};
+document.getElementById('chspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'the sieve running \\u2014 impostors slipping through');
+ var off=Math.floor(ang*0.06);
+ for(var k=0;k<40;k++){
+  var n=2+((off+k)%700);
+  var pass=powmodN(2,n,n)===2%n,pr=isPrimeN(n);
+  var y=48+k*7.4;
+  if(!pass)continue;
+  nf(g,pr?'rgba(53,255,176,0.8)':'#ff2fa6',60,y,pr?120:200,5);
+  if(!pr)nt(g,'#ff6ab0',270,y+5,9,''+n);}
+ ne(g,'rgba(150,160,210,0.5)',1.4);g.beginPath();g.moveTo(50,40);g.lineTo(50,H-70);g.stroke();ng(g);
+ nt(g,'#8ad',54,H-58,9,'the filter');
+ nt(g,'#35ffb0',10,H-52,11,'green: the test, working exactly as specified');nt(g,'#ff2fa6',10,H-34,10,'magenta: the impostor it cannot see');nt(g,'#8ad',10,H-14,10,'a necessary condition dressed as a sufficient one');}
+drawW3();drawW4();window.__chinesehyp=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TAIT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In 1884 Peter Guthrie Tait announced a proof of the <b>four-colour theorem</b>. It rested on one assumption that felt obvious: every 3-connected planar cubic graph has a <b>Hamiltonian cycle</b> &mdash; a tour visiting every vertex once. If true, the four-colour theorem follows in a page. It is false. <b>Tutte killed it in 1946</b> with an explicit 46-vertex counterexample, and the four-colour theorem stayed open until the Appel&ndash;Haken computer proof of 1976. The smallest polyhedral graph with no Hamiltonian cycle is older than the conjecture it refutes in spirit: the <b>Herschel graph</b>, drawn in 1873.<br><br>
+ <span class="lit">LIT</span> verified live on the Herschel graph, fully specified in the page: V = 11, E = 18, so any planar embedding has F = 9 by Euler&rsquo;s formula; it is <b>3-connected</b> &mdash; every one of the 55 vertex pairs is removed and the remainder is still connected; it is <b>bipartite with parts of size 6 and 5</b>, and a Hamiltonian cycle must alternate between parts, so unequal parts make one impossible; and exhaustive depth-first search over every path from every start finds <b>no Hamiltonian cycle at all</b> (window.__tait).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-gatekeeper</i> &mdash; the boss: a lemma standing between everyone and a famous theorem, waved through for sixty-two years because it looked obviously true. The gate was never locked; nobody checked. <b>AVAN (AI)</b> built the instrument: the exhaustive Hamiltonian search, the 55-pair connectivity test, the bipartite parity argument, and the Euler count.<br><br>Credit as content: P. G. Tait (1884, the conjecture and the failed proof); Alexander Herschel (1873, the graph); W. T. Tutte (1946, the counterexample); Appel &amp; Haken (1976). The weave: David names the gatekeeper; I search every tour in the smallest counterexample and there is none.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The Herschel graph — 11 vertices, two colours, unequal parts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try to build a tour; every path strands itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="tan">try a path ▶</button><button id="tacheck">verify ▶</button></div>
+   <div class="cap" id="taread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a path reaches all 11 vertices — and still cannot close.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t search harder for the tour &mdash; <b>count the parity</b>. The inverse of &lsquo;no one has found a Hamiltonian cycle&rsquo; is &lsquo;a cycle alternates colours, so it needs equal parts, and these are 6 and 5&rsquo; &mdash; a one-line impossibility that no amount of searching would ever have produced. The search confirms the subtlety: a Hamiltonian <b>path</b> across all eleven vertices <b>does</b> exist &mdash; only the closing edge is forbidden. <b>Magenta</b> is that one missing edge home; <b>green</b> is the full-length path that still fails. When search is failing, look for the invariant that forbids the answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="taspin">pause spin</button></div></div></div></div>"""
+TAIT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tryN=0;
+var NV=11;
+var EDGES=[[0,2],[0,3],[0,4],[1,2],[1,3],[1,5],[2,6],[2,7],[3,8],[3,9],[4,6],[4,8],[5,7],[5,9],[6,10],[7,10],[8,10],[9,10]];
+var ADJ=[];
+for(var i=0;i<NV;i++)ADJ.push([]);
+EDGES.forEach(function(e){ADJ[e[0]].push(e[1]);ADJ[e[1]].push(e[0]);});
+function hasHam(){
+ var visited=new Array(NV).fill(false),path=[0],found=false,longest=1,bestPath=[0];
+ visited[0]=true;
+ (function go(v){
+  if(found)return;
+  if(path.length>longest){longest=path.length;bestPath=path.slice();}
+  if(path.length===NV){
+   if(ADJ[v].indexOf(0)>=0)found=true;
+   return;}
+  for(var i=0;i<ADJ[v].length;i++){var w=ADJ[v][i];
+   if(visited[w])continue;
+   visited[w]=true;path.push(w);
+   go(w);
+   path.pop();visited[w]=false;
+   if(found)return;}})(0);
+ return {found:found,longest:longest,bestPath:bestPath};}
+function selftest(){if(VR)return VR;
+ var h=hasHam();
+ var color=new Array(NV).fill(-1);
+ color[0]=0;
+ var st=[0],bip=true;
+ while(st.length){var v=st.pop();
+  ADJ[v].forEach(function(w){
+   if(color[w]<0){color[w]=1-color[v];st.push(w);}
+   else if(color[w]===color[v])bip=false;});}
+ var pa=color.filter(function(c){return c===0;}).length;
+ var pb=color.filter(function(c){return c===1;}).length;
+ function connAfter(rm){
+  var seen={},start=-1;
+  for(var i=0;i<NV;i++)if(rm.indexOf(i)<0){start=i;break;}
+  var s2=[start];seen[start]=1;
+  while(s2.length){var v=s2.pop();
+   ADJ[v].forEach(function(w){
+    if(rm.indexOf(w)>=0||seen[w])return;
+    seen[w]=1;s2.push(w);});}
+  return Object.keys(seen).length===NV-rm.length;}
+ var ok3=true,pairs=0;
+ for(var i=0;i<NV;i++)for(var j=i+1;j<NV;j++){pairs++;
+  if(!connAfter([i,j]))ok3=false;}
+ var Fc=2-NV+EDGES.length;
+ VR={ham:h.found,longest:h.longest,bestPath:h.bestPath,color:color,pa:pa,pb:pb,bip:bip,
+  ok3:ok3,pairs:pairs,V:NV,E:EDGES.length,F:Fc,
+  ok:!h.found&&bip&&pa!==pb&&ok3&&(NV-EDGES.length+Fc===2)};return VR;}
+function pos(i){
+ var layout=[[0.5,0.06],[0.5,0.94],[0.22,0.28],[0.78,0.28],[0.06,0.5],[0.94,0.5],
+  [0.14,0.72],[0.5,0.34],[0.86,0.72],[0.5,0.66],[0.5,0.5]];
+ return layout[i];}
+function drawGraph(g,x0,y0,w2,h2,highlight,v){
+ EDGES.forEach(function(e){
+  var a=pos(e[0]),b=pos(e[1]);
+  var inPath=false;
+  if(highlight)for(var k=0;k<highlight.length-1;k++)
+   if((highlight[k]===e[0]&&highlight[k+1]===e[1])||(highlight[k]===e[1]&&highlight[k+1]===e[0]))inPath=true;
+  ne(g,inPath?'#ffcf4a':'rgba(150,160,210,0.35)',inPath?2.2:1.1);
+  g.beginPath();g.moveTo(x0+a[0]*w2,y0+a[1]*h2);g.lineTo(x0+b[0]*w2,y0+b[1]*h2);g.stroke();ng(g);});
+ for(var i=0;i<NV;i++){var p=pos(i);
+  var c=v.color[i]===0?'#35ffb0':'#ff2fa6';
+  ndot(g,x0+p[0]*w2,y0+p[1]*h2,7,c);
+  nt(g,'#0a0a14',x0+p[0]*w2-3,y0+p[1]*h2+4,9,''+i);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'the Herschel graph \\u2014 bipartite, parts of '+v.pa+' and '+v.pb);
+ drawGraph(g,90,34,230,230,null,v);
+ nt(g,'#35ffb0',350,80,10,'green part: '+v.pa+' vertices');
+ nt(g,'#ff6ab0',350,104,10,'magenta part: '+v.pb+' vertices');
+ nt(g,'#ffcf4a',350,140,10,'a cycle must alternate');
+ nt(g,'#ffcf4a',350,162,10,'\\u2192 needs equal parts');
+ nt(g,'#9cf',350,196,10,'V='+v.V+' E='+v.E+' F='+v.F);
+ nt(g,'#8ad',10,H-8,9,'Tait 1884 \\u00b7 Herschel 1873 \\u00b7 Tutte 1946 killed the conjecture');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var len=2+(tryN%9);
+ var path=v.bestPath.slice(0,len);
+ nt(g,'#ff8a3c',12,20,12,'path of '+path.length+' vertices: '+path.join('\\u2192'));
+ drawGraph(g,70,40,244,200,path,v);
+ nt(g,'#9cf',16,268,11,'longest path found anywhere: '+v.longest+' of '+v.V+' vertices');
+ nt(g,'#ff6ab0',16,290,11,'a Hamiltonian cycle needs all '+v.V+' and a way home');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: no cycle \\u00b7 3-connected ('+v.pairs+' pairs) \\u00b7 parts '+v.pa+'/'+v.pb+' ('+v.ok+')');}
+document.getElementById('tan').onclick=function(){tryN++;drawW4();document.getElementById('taread').textContent='';};
+document.getElementById('tacheck').onclick=function(){var v=selftest();document.getElementById('taread').textContent='no Hamiltonian cycle exists: '+v.ok;};
+document.getElementById('taspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ nt(g,'#ff8a3c',10,18,10,'the best anyone can do: '+v.longest+' of '+v.V);
+ var n=Math.min(v.bestPath.length,2+Math.floor(ang*0.03)%10);
+ drawGraph(g,60,50,264,224,v.bestPath.slice(0,n),v);
+ nt(g,'#ffcf4a',14,300,10,'walked '+n+' vertices \\u2014 no way back to the start');
+ nt(g,'#35ffb0',10,H-52,11,'green: a path reaches all 11 \\u2014 but cannot close');nt(g,'#ff2fa6',10,H-34,10,'magenta: the closing edge, forbidden by parity');nt(g,'#8ad',10,H-14,10,'when search fails, find the invariant that forbids the answer');}
+drawW3();drawW4();window.__tait=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KELR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Tile space with identical cubes, any offsets you like. Keller conjectured in 1930 that <b>some two cubes must share a complete face</b> &mdash; you cannot stagger them all like brickwork forever. It is true in the plane, true in three dimensions, and true up to six. Then it dies. Lagarias and Shor found a counterexample in <b>dimension 10</b> in 1992; Mackey reached <b>dimension 8</b> in 2002; and dimension 7 held out until <b>2020</b>, when Brakensiek, Heule, Mackey and Narvaez settled it with a SAT proof whose certificate ran to <b>forty terabytes</b>. Only n &le; 6 survives. The whole question reduces to a graph: colour the points of {0,1,2,3}&#8319;, join two when they differ by 2 in some coordinate and differ in at least two coordinates, and a <b>clique of size 2&#8319;</b> is exactly a counterexample tiling.<br><br>
+ <span class="lit">LIT</span> verified live: the Keller graph is <b>constructed from its definition</b> for n = 2 and n = 3, its regularity confirmed (every vertex has the same degree, as vertex-transitivity demands), and a maximum-clique search run <b>exhaustively</b> &mdash; the largest cliques are 2 and 5, both short of the 2&#8319; = 4 and 8 needed. No counterexample exists in these dimensions, exactly as the surviving part of the theorem says (window.__keller).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i> &mdash; the boss: for ninety years everything funnelled through one plausible statement about stacking boxes, and the answer turned out to depend on <b>which dimension you are standing in</b> &mdash; true, true, true, true, true, true, then false forever. <b>AVAN (AI)</b> built the instrument: the {0,1,2,3}&#8319; vertex generator, the Keller adjacency rule, and the branch-and-bound clique search.<br><br>Credit as content: Ott-Heinrich Keller (1930); Oskar Perron (1940, n &le; 6 partial); Jeffrey Lagarias &amp; Peter Shor (1992, dimension 10); John Mackey (2002, dimension 8); Debroni et al. (2011, n = 6 confirmed); Brakensiek, Heule, Mackey &amp; Narvaez (2020, dimension 7). Only n = 2 and 3 are recomputed here; the rest is cited. The weave: David names the choke point; I build the graph from its definition and find no clique big enough.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the conjecture lives and where it dies, dimension by dimension.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The Keller graph at n = 2: 16 vertices, and the clique that isn&rsquo;t there.</div>
+   <div class="btns" style="margin-top:10px"><button id="kln">dimension ▶</button><button id="klcheck">verify ▶</button></div>
+   <div class="cap" id="klread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: staggered cubes, the brickwork that has to break — until it doesn&rsquo;t.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t trust intuition that was trained in three dimensions. The inverse of &lsquo;this is obviously true&rsquo; is &lsquo;obvious <b>where</b>?&rsquo; &mdash; Keller holds in every dimension a human can picture and fails in every dimension a human cannot. Our sense of the possible was fitted to n = 3. <b>Magenta</b> is dimension 7 and beyond, where the staggering never has to stop; <b>green</b> is the low country where the conjecture is a theorem. Geometric intuition is a local instrument, and nobody labels its range.</div>
+   <div class="btns" style="margin-top:10px"><button id="klspin">pause spin</button></div></div></div></div>"""
+KELR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,dim=0;
+function vertices(n){var out=[],total=Math.pow(4,n);
+ for(var i=0;i<total;i++){var v=[],x=i;
+  for(var k=0;k<n;k++){v.push(x%4);x=(x/4)|0;}
+  out.push(v);}
+ return out;}
+function adjacentK(u,v,n){var diff=0,hasTwo=false;
+ for(var k=0;k<n;k++)if(u[k]!==v[k]){diff++;
+  if(Math.abs(u[k]-v[k])===2)hasTwo=true;}
+ return diff>=2&&hasTwo;}
+function maxClique(n,cap){
+ var V=vertices(n),m=V.length,adj=[];
+ for(var i=0;i<m;i++)adj.push(new Uint8Array(m));
+ for(var i=0;i<m;i++)for(var j=i+1;j<m;j++){
+  var a=adjacentK(V[i],V[j],n)?1:0;
+  adj[i][j]=a;adj[j][i]=a;}
+ var best=0,bestSet=null,order=[];
+ for(var i=0;i<m;i++)order.push(i);
+ (function expand(cand,cur){
+  if(best>=cap)return;
+  if(cur.length>best){best=cur.length;bestSet=cur.slice();}
+  for(var idx=0;idx<cand.length;idx++){
+   if(cur.length+(cand.length-idx)<=best)return;
+   var v=cand[idx],next=[];
+   for(var k=idx+1;k<cand.length;k++)if(adj[v][cand[k]])next.push(cand[k]);
+   cur.push(v);expand(next,cur);cur.pop();}})(order,[]);
+ return {best:best,target:Math.pow(2,n),set:bestSet,V:V,adj:adj};}
+function selftest(){if(VR)return VR;
+ var rows=[],okLow=true;
+ [2,3].forEach(function(n){
+  var r=maxClique(n,Math.pow(2,n));
+  rows.push([n,r.best,r.target]);
+  if(r.best>=r.target)okLow=false;});
+ var V2=vertices(2),deg=null,okReg=true;
+ for(var i=0;i<V2.length;i++){var d=0;
+  for(var j=0;j<V2.length;j++)if(i!==j&&adjacentK(V2[i],V2[j],2))d++;
+  if(deg===null)deg=d;else if(d!==deg)okReg=false;}
+ VR={rows:rows,deg:deg,okReg:okReg,ok:okLow&&okReg};return VR;}
+var STATUS=[[1,'TRUE'],[2,'TRUE'],[3,'TRUE'],[4,'TRUE'],[5,'TRUE'],[6,'TRUE'],[7,'FALSE'],[8,'FALSE'],[9,'FALSE'],[10,'FALSE']];
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();nt(g,'#b06bff',10,16,10,'Keller by dimension \\u2014 true to 6, false from 7');
+ STATUS.forEach(function(st,i){
+  var x=30+i*46;
+  var alive=st[1]==='TRUE';
+  nf(g,alive?'rgba(53,255,176,0.75)':'#ff2fa6',x,90,38,90);
+  nt(g,'#0a0a14',x+14,140,12,''+st[0]);
+  nt(g,alive?'#35ffb0':'#ff6ab0',x+2,200,8,st[1]);});
+ nt(g,'#9cf',30,232,10,'n=2: max clique '+v.rows[0][1]+'/'+v.rows[0][2]+'  \\u00b7  n=3: '+v.rows[1][1]+'/'+v.rows[1][2]+'  (computed here)');
+ nt(g,'#8ad',10,H-8,9,'Keller 1930 \\u00b7 Lagarias\\u2013Shor 1992 (n=10) \\u00b7 n=7 fell in 2020 to a 40-TB SAT proof');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);var v=selftest();
+ var n=2+(dim%2);
+ var r=maxClique(n,Math.pow(2,n));
+ nt(g,'#b06bff',12,20,12,'Keller graph, n = '+n+' \\u00b7 '+r.V.length+' vertices');
+ if(n===2){
+  var m=r.V.length;
+  for(var i=0;i<m;i++)for(var j=i+1;j<m;j++){
+   if(!r.adj[i][j])continue;
+   var a=[60+(i%4)*70,60+((i/4)|0)*52],b=[60+(j%4)*70,60+((j/4)|0)*52];
+   ne(g,'rgba(150,160,210,0.22)',1);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+  for(var i=0;i<m;i++){
+   var inC=r.set&&r.set.indexOf(i)>=0;
+   ndot(g,60+(i%4)*70,60+((i/4)|0)*52,inC?7:4.5,inC?'#ffcf4a':'#35ffb0');}}
+ else nt(g,'#9cf',24,90,11,'64 vertices \\u2014 too dense to draw; searched exhaustively');
+ nt(g,'#ffcf4a',16,262,12,'largest clique found: '+r.best+' \\u00b7 needed for a counterexample: '+r.target);
+ nt(g,'#35ffb0',16,286,11,r.best<r.target?'no counterexample \\u2014 Keller holds here':'COUNTEREXAMPLE');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: n=2 and n=3 exhaustive \\u00b7 graph regular (deg '+v.deg+') ('+v.ok+')');}
+document.getElementById('kln').onclick=function(){dim++;drawW4();document.getElementById('klread').textContent='';};
+document.getElementById('klcheck').onclick=function(){var v=selftest();document.getElementById('klread').textContent='no clique big enough at n=2,3: '+v.ok;};
+document.getElementById('klspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#b06bff',10,18,10,'staggered cubes \\u2014 the brickwork that must break, until it doesn\\u2019t');
+ var off=(ang*0.01)%1;
+ for(var row=0;row<7;row++){
+  var shift=((row*0.37+off)%1)*46;
+  for(var c=-1;c<7;c++){
+   var x=30+c*46+shift,y=60+row*34;
+   if(x<20||x>W-40)continue;
+   var flush=(row>0&&Math.abs(((row*0.37+off)%1)-(((row-1)*0.37+off)%1))<0.02);
+   nf(g,flush?'#ff2fa6':'rgba(53,255,176,0.55)',x,y,42,30);
+   ne(g,'rgba(10,10,20,0.7)',1.2);g.strokeRect(x,y,42,30);ng(g);}}
+ nt(g,'#35ffb0',10,H-52,11,'green: the low country where Keller is a theorem');nt(g,'#ff2fa6',10,H-34,10,'magenta: dimension 7 and up, where staggering never stops');nt(g,'#8ad',10,H-14,10,'geometric intuition is a local instrument with no range label');}
+drawW3();drawW4();window.__keller=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 # ═══════════════════════ BATCH 200 · neon-noir · silicon-coding · THE HANDMADE OBJECTS (the spiral that stops at 17 · the bearing that never arrives · 331,776 wrong towers · seven pieces, 240 cubes · the piece that was never missing) ═══════════════════════
 THEO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
@@ -56399,6 +56887,46 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-fermat-primes","title":"THE FERMAT PRIMES","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ffcf4a","icon":"fermatprimes",
+  "kicker":"five in a row, then Euler",
+  "blurb":"Fermat saw 3, 5, 17, 257, 65537 — every 2^(2ⁿ)+1 he could compute was prime — and wrote in 1640 that he was convinced they all were. Ninety-two years later Euler took F₅ apart: 4,294,967,297 = 641 × 6,700,417, found not by trial division but by proving every factor must be 1 mod 2^(n+2). No sixth Fermat prime has ever been found.",
+  "lit":"Verified live in exact BigInt: F₀…F₄ all prime by deterministic Miller–Rabin; 641 × 6,700,417 = F₅ exactly and F₅ fails primality; Euler's sieve rule holds — both factors are 1 mod 128; and Landry's 274,177 × 67,280,421,310,721 = F₆ multiplies out exactly (window.__fermatprimes.ok).",
+  "fig":"Fermat, Euler and Landry credited as content. This is the first sphere in WORLD II to carry a DEAD stamp — the scheme comes from David's own rev5 instrument, which grades claims LIT (measured) / AMBER (assigned) / DEAD (tested, disproven). The AVAN inverse — ask how many cases you could even REACH: Fermat generalised from a sample of five because five was his entire arithmetic budget. A pattern spanning your whole budget says nothing past it.",
+  "dead":"Fermat's conjecture that every F<sub>n</sub> is prime. Killed by Euler in 1732 at the very first case Fermat could not compute. Exactly five Fermat primes are known and the modern expectation is that there are no more.",
+  "body":FRMT_BODY,"script":FRMT_SCRIPT},
+ {"slug":"the-polya-conjecture","title":"THE PÓLYA CONJECTURE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#b06bff","icon":"polyaconj",
+  "kicker":"a million confirmations, still false",
+  "blurb":"Sort every number by whether it has an even or odd count of prime factors. Pólya conjectured in 1919 that from n=2 the odd ones always lead — the running tally never goes positive. It holds for a million. It holds for nine hundred million. It is false: Haselgrove proved a counterexample must exist (1958) without producing one, and Tanaka pinned the first at n = 906,150,257 in 1980.",
+  "lit":"Verified live: a smallest-prime-factor sieve gives λ(n) to 300,000 in-page (a million offline); the running sum L(n) is ≤ 0 at every n from 2 upward, max value 0; λ is independently re-derived by direct factor counting on 400 sampled n (window.__polyaconj.ok).",
+  "fig":"Build note on the record: the first draft summed from n=1 and duly 'refuted' Pólya at n=1, because L(1) = λ(1) = +1 — which is exactly why the conjecture starts at n=2. The bug and its fix are part of the exhibit. Pólya 1919, Haselgrove 1958, Lehman 1960, Tanaka 1980 cited. The AVAN inverse — measure a claim by where the first place you could be wrong actually is: a million was never a test when failure lives at 9×10⁸.",
+  "dead":"Pólya's 1919 conjecture that L(n) ≤ 0 for all n ≥ 2. FALSE. This page verifies it hundreds of thousands of times and every one of those confirmations is worthless — the counterexample is roughly three thousand times further out than anything computed here.",
+  "body":PLYA_BODY,"script":PLYA_SCRIPT},
+ {"slug":"the-chinese-hypothesis","title":"THE CHINESE HYPOTHESIS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#21e6ff","icon":"chinesehyp",
+  "kicker":"the test that lets impostors through",
+  "blurb":"Every prime satisfies 2ⁿ ≡ 2 (mod n). The tempting converse would be a one-line primality test — and it is false, with a witness small enough to check by hand: 341 = 11 × 31 sails through. Worse are the Carmichael numbers, which pass for EVERY coprime base; 561 is the first, and there are infinitely many. The name is dead too: a 19th-century European idea misattributed to ancient China.",
+  "lit":"Verified live: every prime below 20,000 satisfies the congruence, as Fermat's little theorem requires; base-2 pseudoprimes below 20,000 are enumerated exhaustively and the smallest is 341 = 11 × 31; the first Carmichael numbers are found by testing every coprime base — 561, 1105, 1729, with 561 = 3 × 11 × 17 (window.__chinesehyp.ok).",
+  "fig":"Fermat, Sarrus 1819, Carmichael 1910, Alford–Granville–Pomerance 1994, and Needham on the misattribution are cited as content. The AVAN inverse — ask what ELSE could pass the test: enumerate everything with the property and see who shows up. A necessary condition wearing the costume of a sufficient one is the oldest bug in reasoning.",
+  "dead":"The converse of Fermat's little theorem — that passing 2ⁿ ≡ 2 (mod n) proves primality. Refuted by Sarrus in 1819; 36 composite numbers below 20,000 pass it. The attribution to ancient China is separately dead, traced by Needham to a misreading of Qin Jiushao.",
+  "body":CHNH_BODY,"script":CHNH_SCRIPT},
+ {"slug":"the-tait","title":"THE TAIT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff8a3c","icon":"tait",
+  "kicker":"the lemma that held up a theorem for 62 years",
+  "blurb":"In 1884 Tait announced a proof of the four-colour theorem resting on one obvious-looking assumption: every 3-connected planar cubic graph has a Hamiltonian cycle. It is false. Tutte killed it in 1946 with a 46-vertex counterexample, and the four-colour theorem stayed open until Appel–Haken in 1976. The smallest non-Hamiltonian polyhedral graph predates the conjecture: Herschel's, 1873.",
+  "lit":"Verified live on the fully-specified Herschel graph: V=11, E=18, so F=9 by Euler; it is 3-connected — all 55 vertex pairs removed, remainder still connected; it is bipartite with parts 6 and 5, and a Hamiltonian cycle must alternate so unequal parts forbid one; exhaustive depth-first search finds no Hamiltonian cycle at all (window.__tait.ok).",
+  "fig":"The Herschel graph is not cubic — it demonstrates non-Hamiltonicity in a polyhedral graph, while Tutte's 46-vertex counterexample is the one that actually refutes Tait; both are stated plainly. Tait 1884, Herschel 1873, Tutte 1946, Appel–Haken 1976 credited. The AVAN inverse — count the parity instead of searching harder: a one-line impossibility no amount of search would have produced.",
+  "dead":"Tait's 1884 conjecture that every 3-connected planar cubic graph is Hamiltonian, and with it his proof of the four-colour theorem. Killed by Tutte in 1946. The theorem it was supposed to establish waited another thirty years for a computer.",
+  "body":TAIT_BODY,"script":TAIT_SCRIPT},
+ {"slug":"the-keller","title":"THE KELLER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE-POINT","domain_slug":"the-choke-point","accent":"#b06bff","icon":"keller",
+  "kicker":"true until dimension seven",
+  "blurb":"Tile space with identical cubes at any offsets: Keller conjectured in 1930 that some two must share a complete face. True in the plane, true in 3D, true up to six dimensions — then it dies. Lagarias and Shor broke dimension 10 in 1992, Mackey reached 8 in 2002, and dimension 7 held until 2020, when a SAT proof with a forty-terabyte certificate finished it.",
+  "lit":"Verified live: the Keller graph is constructed from its definition for n=2 and n=3, its regularity confirmed (uniform degree, as vertex-transitivity demands), and maximum-clique search run exhaustively — largest cliques are 2 and 5, short of the 2ⁿ = 4 and 8 a counterexample needs. No counterexample in these dimensions, exactly as the surviving theorem says (window.__keller.ok).",
+  "fig":"Only n=2 and n=3 are recomputed here; dimensions 6–10 are cited, not reproduced. Keller 1930, Perron 1940, Lagarias–Shor 1992, Mackey 2002, Debroni et al. 2011, Brakensiek–Heule–Mackey–Narvaez 2020 credited. The AVAN inverse — ask 'obvious WHERE?': Keller holds in every dimension a human can picture and fails in every dimension a human cannot. Geometric intuition is a local instrument with no range label.",
+  "dead":"Keller's 1930 cube-tiling conjecture. FALSE from dimension 7 upward. It survived ninety years partly because every dimension anyone could visualise happens to be one where it is true.",
+  "body":KELR_BODY,"script":KELR_SCRIPT},
  {"slug":"the-spiral-of-theodorus","title":"THE SPIRAL OF THEODORUS","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#35ffb0","icon":"theodorus",
   "kicker":"the spiral that stops at 17",
