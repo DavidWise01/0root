@@ -19499,6 +19499,691 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 234 · neon-noir · silicon-coding · FROM DAVID'S FREEZE ROUND 2 (CORTEX, THE TESTS TESTED) · a probe that re-ran what it watched · a shift that shifts nothing · INTACT over a red test · a flag renamed to what it knows · a signature that moved a default ═══════════════════════
+OBMV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sensitivity probe checks whether an assertion actually depends on the thing it claims to test: mutate the subject one field at a time and see whether the answer moves. To do that it must <b>re-execute the assertion</b>, once per field. If the assertion is not pure &mdash; if running it changes anything &mdash; the probe is no longer measuring the system, it is driving it.<br><br>
+ <span class="lit">LIT</span> verified live. With <b>8</b> mutable fields, a probe re-running an impure thunk turns <b>11</b> intended calls into <b>99</b> &mdash; <b>88</b> extra invocations, exactly one per field per call. Three later assertions that read the counter then break: <b>3 of 3</b> hold without the probe, <b>2 of 3</b> fail with it. Restricting the probe to thunks the caller declares pure leaves the count at <b>11</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> caught his own observer wrecking the run it was watching and wrote it up under a heading that says so: <i>&ldquo;CORTEX BROKE THE RUN IT WAS WATCHING&hellip; the probe fired it 88 extra times: subject calls 11 -&gt; 99, and three LATER assertions failed because the observer had moved the state they were checking. an observer that changes what it observes is worse than none.&rdquo;</i> The repair is a refusal: sensitivity is now probed <b>only</b> on thunks declared pure, and everything else reports <i>unprobed</i> rather than <i>passed</i>.<br><br>
+ <b>AVAN (AI)</b> reproduced the arithmetic exactly &mdash; 11 becomes 99 with eight fields, because each call is re-run once per field. Worth naming what the repair costs: the probe now says nothing at all about the majority of assertions, and <i>unprobed</i> is a much weaker report than <i>passed</i>. That weakness is the point. A probe that declines to answer is more useful than one that answers by changing the question.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Intended calls, and what the probe made of them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the probe on and watch the later assertions go red.</div>
+   <div class="btns" style="margin-top:10px"><button id="obprobe">probe on / off &#9654;</button><button id="obfields">more fields</button></div>
+   <div class="cap" id="obout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one intended call, and the fan of re-runs behind it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;do not let the probe disturb the subject.&rdquo; The inverse is that <b>the only probes that cannot disturb anything are the ones that cannot see very much</b>. Sensitivity is a causal question &mdash; does the answer depend on this input? &mdash; and causal questions are answered by intervening. Read backwards, purity is not a safety property the probe happens to require; it is the <b>precondition for asking a causal question without paying for it</b>, and everything impure is unprobed forever, not merely for now.</div>
+   <div class="btns" style="margin-top:10px"><button id="obsp">pause spin</button></div></div></div></div>"""
+OBMV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,probeOn=true,fields=8;
+function Subject(){
+ var calls=0,fired={};
+ return {pedal:function(i){calls++;fired[i]=1;return calls;},
+  calls:function(){return calls;},
+  distinct:function(){return Object.keys(fired).length;}};}
+function runWith(pureFlag,nFields){
+ var s=Subject(),base=0;
+ for(var a=0;a<11;a++){
+  var thunk=function(){return s.pedal(a%8);};
+  thunk();base++;
+  if(pureFlag)for(var f=0;f<nFields;f++)thunk();}
+ return {s:s,base:base,total:s.calls()};}
+function assertionsAfter(probed,nFields){
+ var s=Subject();
+ for(var a=0;a<11;a++){
+  var thunk=function(){return s.pedal(a%8);};
+  thunk();
+  if(probed)for(var f=0;f<nFields;f++)thunk();}
+ return [s.calls()===11,s.distinct()===8,s.calls()<20];}
+function selftest(){
+ var unguarded=runWith(true,8),guarded=runWith(false,8);
+ var clean=assertionsAfter(false,8),dirty=assertionsAfter(true,8);
+ var broken=dirty.filter(function(x){return !x;}).length;
+ return {fields:8,intended:unguarded.base,inflated:unguarded.total,
+  extra:unguarded.total-unguarded.base,
+  inflationIsOnePerField:unguarded.total===unguarded.base*9,
+  extraIs88:unguarded.total-unguarded.base===88,
+  elevenToNinetyNine:unguarded.base===11&&unguarded.total===99,
+  guardedTotal:guarded.total,guardedUntouched:guarded.total===guarded.base,
+  cleanPass:clean.filter(Boolean).length,dirtyPass:dirty.filter(Boolean).length,
+  broken:broken,observerBreaksIt:broken>0,
+  ok:unguarded.total===99&&guarded.total===11&&broken>0&&clean.every(function(x){return x;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'INTENDED CALLS, AND WHAT THE PROBE MADE OF THEM');
+ var m=40,pw=W-100;
+ [['intended',VR.intended,'#7de2b0'],['with the probe',VR.inflated,'#ff5a8a'],
+  ['probe restricted to pure',VR.guardedTotal,'#5ad6ff']].forEach(function(r,i){
+  var y=52+i*62;
+  nt(g,'#8a7ab8',m,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#ff5a8a'?'rgba(255,90,138,0.55)':'rgba(90,214,255,0.55)'));
+  g.fillRect(m,y+8,pw*r[1]/VR.inflated,26);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y+8.5,pw,26);ng(g);
+  nt(g,r[2],m+pw+8,y+27,11,String(r[1]));});
+ var y2=242;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,VR.extra+' extra invocations -- one per field, per call');
+ nt(g,'#8a7ab8',20,H-8,9,'later assertions: '+VR.cleanPass+'/3 pass unprobed, '+
+  VR.dirtyPass+'/3 with the probe running');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=runWith(probeOn,fields);
+ var res=assertionsAfter(probeOn,fields);
+ nt(g,'#e6dcff',16,26,11,probeOn?('probe ON, '+fields+' fields'):'probe OFF');
+ var top=48,cw=(W-48)/11;
+ for(var i=0;i<11;i++){
+  var x=24+i*cw;
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(x,top,cw-3,16);ng(g);
+  if(probeOn)for(var f=0;f<fields;f++){
+   nf(g,'rgba(255,90,138,0.5)');
+   g.fillRect(x,top+20+f*7,cw-3,5);ng(g);}}
+ nt(g,'#7de2b0',24,top-8,8,'green: the intended call');
+ if(probeOn)nt(g,'#ff5a8a',150,top-8,8,'pink: the probe re-running it');
+ var y2=top+(probeOn?(20+fields*7):24)+16;
+ nt(g,'#8a7ab8',24,y2,9,'total invocations: '+r.total+'  (intended '+r.base+')');
+ var y3=y2+16;
+ ['s.calls() === 11','s.distinct() === 8','s.calls() < 20'].forEach(function(nm,i){
+  var y=y3+i*36;
+  nf(g,res[i]?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,30);ng(g);
+  ne(g,res[i]?'rgba(125,226,176,0.45)':'#ff5a8a',1.2);
+  g.strokeRect(20.5,y+0.5,W-41,30);ng(g);
+  nt(g,'#8a7ab8',32,y+19,8,nm);
+  nt(g,res[i]?'#7de2b0':'#ff5a8a',W-76,y+19,9,res[i]?'holds':'FAILED');});
+ var o=document.getElementById('obout');
+ if(o)o.innerHTML=probeOn
+  ?('With the probe re-running each assertion once per field, <b>'+r.base+'</b> intended calls become <b>'+
+    r.total+'</b>. The later assertions are reading a counter the observer moved &mdash; <b>'+
+    res.filter(function(x){return !x;}).length+' of 3</b> now fail, and nothing in the code under test changed.')
+  :'With the probe off, the subject is called exactly as intended and all three later assertions hold. This is the state the measurement was supposed to observe.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var root=P(0,-100,0);
+ ndot(g,root[0],root[1],7,'#7de2b0');
+ nt(g,'#7de2b0',root[0]+12,root[1],9,'one intended call');
+ for(var f=0;f<8;f++){
+  var th=f/8*2*Math.PI;
+  var q=P(80*Math.cos(th),40,80*Math.sin(th));
+  ne(g,'rgba(255,90,138,0.5)',1.4);
+  g.beginPath();g.moveTo(root[0],root[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+  ndot(g,q[0],q[1],4,'#ff5a8a');
+  nt(g,'#5a4a85',q[0]+6,q[1]+4,7,'field '+f);}
+ var bot=P(0,120,0);
+ ndot(g,bot[0],bot[1],6,'#ffd76a');
+ nt(g,'#ffd76a',bot[0]+12,bot[1],9,'the state, moved');
+ for(var k=0;k<8;k++){
+  var th2=k/8*2*Math.PI;
+  var q2=P(80*Math.cos(th2),40,80*Math.sin(th2));
+  ne(g,'rgba(255,215,106,0.25)',1);
+  g.beginPath();g.moveTo(q2[0],q2[1]);g.lineTo(bot[0],bot[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'one call at the top, eight re-runs beneath it');
+ nt(g,'#ff5a8a',14,42,10,'each one a real invocation of the thing being measured');
+ nt(g,'#ffd76a',14,58,10,'and all of them land on the state a later assertion reads');
+ nt(g,'#8a7ab8',14,H-12,9,'purity is the precondition for asking a causal question for free');}
+document.getElementById('obprobe').onclick=function(){probeOn=!probeOn;drawW4();};
+document.getElementById('obfields').onclick=function(){fields=fields>=12?4:fields+2;drawW4();};
+document.getElementById('obsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__observerthatmovedit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MUTE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">To test whether an assertion depends on its subject, perturb the subject and see whether the answer moves. The first attempt bumped <b>every number by one at once</b>. That leaves equality untouched &mdash; 6 == 6 becomes 7 == 7 &mdash; so a perfectly sensitive assertion was reported as insensitive. A mutation that moves everything moves nothing that matters.<br><br>
+ <span class="lit">LIT</span> verified live over <b>2,000</b> random pairs and six predicate forms. A global +1 leaves <b>3 of 6</b> completely unmoved: <code>a == b</code>, <code>a &lt; b</code> and <code>a &minus; b</code>. Asked the right way &mdash; one field at a time, both directions, on assertions that actually hold &mdash; <b>5 of 6</b> forms are reached at <b>100%</b>. The exception is strict ordering, which a &plusmn;1 nudge flips only when the operands are adjacent: <b>9.1%</b> measured against <b>10.0%</b> predicted by counting adjacent pairs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found and named it: <i>&ldquo;the first mutator bumped EVERY number by one at once. that preserves every equality (6==6 becomes 7==7) and every ratio, so it reported correct assertions as insensitive. a mutator that moves everything moves nothing that matters. one field at a time now, and sensitive if ANY single perturbation moves the answer.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> should correct one clause of that note and add one finding to it. A <b>ratio is not</b> shift-invariant &mdash; <code>a/b</code> moves under a global +1 about <b>94.6%</b> of the time, and is preserved only in the special case a == b where the ratio is 1. And the repaired mutator has a limit the note does not state: a fixed &plusmn;1 step reaches an assertion only within its <b>margin</b>, so a wide inequality is simply out of range. That reach is exactly predictable, and predicting it is the honest way to report a probe&rsquo;s power.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six forms, two mutators.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shift everything, or nudge one field, and see what survives.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtmode">global / single &#9654;</button><button id="mtform">next form</button></div>
+   <div class="cap" id="mtout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the diagonal a global shift travels along.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;perturb one field at a time.&rdquo; The inverse is that <b>a global shift is invisible precisely because it is the symmetry the assertions were written in</b>. Equality, ordering and difference are all translation-invariant, so moving along that direction is moving inside the space the predicate cannot see &mdash; and every useful predicate has such a direction. Read backwards, a mutator is only as good as its <b>choice of direction</b>, and the directions that reveal nothing are exactly the ones the code was designed not to care about.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtsp">pause spin</button></div></div></div></div>"""
+MUTE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,global_=true,fi=0;
+var FORMS=[{name:'a == b',f:function(a,b){return a===b;},bool:true},
+ {name:'a < b',f:function(a,b){return a<b;},bool:true},
+ {name:'a - b',f:function(a,b){return a-b;},bool:false},
+ {name:'a / b',f:function(a,b){return a/b;},bool:false},
+ {name:'a + b',f:function(a,b){return a+b;},bool:false},
+ {name:'a * b',f:function(a,b){return a*b;},bool:false}];
+function rnd(x){return function(){x|=0;x=x+0x6D2B79F5|0;
+ var t=Math.imul(x^x>>>15,1|x);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var g=rnd(88),N=2000;
+ var rows=FORMS.map(function(F){
+  var gm=0,sm=0;
+  for(var t=0;t<N;t++){
+   var a=1+Math.floor(g()*20),b=1+Math.floor(g()*20);
+   var base=F.f(a,b);
+   if(F.f(a+1,b+1)!==base)gm++;
+   if(F.f(a+1,b)!==base)sm++;}
+  return {name:F.name,global:gm/N,single:sm/N};});
+ var g2=rnd(88);
+ var held=FORMS.map(function(F){
+  var sat=0,mov=0;
+  for(var t=0;t<N;t++){
+   var a=1+Math.floor(g2()*20),b=1+Math.floor(g2()*20);
+   var base=F.f(a,b);
+   if(F.bool&&base!==true)continue;
+   sat++;
+   var any=false;
+   [1,-1].forEach(function(d){
+    if(F.f(a+d,b)!==base)any=true;
+    if(F.f(a,b+d)!==base)any=true;});
+   if(any)mov++;}
+  return {name:F.name,satisfied:sat,rate:sat?mov/sat:1};});
+ var inv=rows.filter(function(r){return r.global===0;});
+ var full=held.filter(function(r){return r.rate===1;});
+ var partial=held.filter(function(r){return r.rate<1;});
+ var K=20,satisfied=0,adjacent=0;
+ for(var a2=1;a2<=K;a2++)for(var b2=1;b2<=K;b2++){
+  if(a2<b2){satisfied++;if(b2-a2===1)adjacent++;}}
+ var predicted=adjacent/satisfied;
+ return {trials:N,rows:rows,held:held,
+  invariantUnderGlobal:inv.length,invariantNames:inv.map(function(r){return r.name;}),
+  equalityInvariant:rows[0].global===0,
+  orderingAndDifferenceInvariant:rows[1].global===0&&rows[2].global===0,
+  ratioMovesUnderGlobal:rows[3].global,ratioIsNotInvariant:rows[3].global>0.5,
+  fullyReached:full.length,fullReachPercent:100,
+  orderingReach:partial.length?partial[0].rate:1,
+  predictedReach:predicted,adjacentPairs:adjacent,satisfiedPairs:satisfied,
+  reachMatchesPrediction:partial.length?Math.abs(partial[0].rate-predicted)<0.03:false,
+  ok:inv.length>=3&&rows[3].global>0.5&&full.length>=4&&
+   (partial.length?Math.abs(partial[0].rate-predicted)<0.03:false)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIX FORMS, TWO MUTATORS');
+ nt(g,'#ff5a8a',210,40,9,'global +1');
+ nt(g,'#7de2b0',330,40,9,'single field, both ways');
+ VR.rows.forEach(function(r,i){
+  var y=54+i*34;
+  nt(g,'#e6dcff',24,y+14,9,r.name);
+  var pw=100;
+  nf(g,'rgba(255,90,138,0.55)');
+  g.fillRect(210,y,Math.max(1.5,pw*r.global),18);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(210.5,y+0.5,pw,18);ng(g);
+  nt(g,r.global===0?'#ff5a8a':'#8a7ab8',210+pw+6,y+13,8,(r.global*100).toFixed(0)+'%');
+  var hv=VR.held[i].rate;
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(330,y,Math.max(1.5,pw*hv),18);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(330.5,y+0.5,pw,18);ng(g);
+  nt(g,hv===1?'#7de2b0':'#ffd76a',330+pw+6,y+13,8,(hv*100).toFixed(0)+'%');});
+ nt(g,'#ff5a8a',24,264,9,VR.invariantUnderGlobal+' forms are completely blind to a global shift: '+
+  VR.invariantNames.join(', '));
+ nt(g,'#ffd76a',24,282,9,'a < b is reached only '+(VR.orderingReach*100).toFixed(1)+
+  '% -- predicted '+(VR.predictedReach*100).toFixed(1)+'% by counting adjacent pairs');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var F=FORMS[fi%FORMS.length];
+ nt(g,'#e6dcff',16,26,11,F.name+'   ·   '+(global_?'global +1':'single field, both ways'));
+ var a=6,b=6;
+ if(F.name==='a < b'){a=6;b=9;}
+ var pairs=global_?[[a,b],[a+1,b+1]]:[[a,b],[a+1,b],[a,b+1],[a-1,b],[a,b-1]];
+ var base=F.f(a,b);
+ var top=52;
+ pairs.forEach(function(p,i){
+  var y=top+i*40;
+  var v=F.f(p[0],p[1]);
+  var moved=i>0&&v!==base;
+  nf(g,i===0?'rgba(20,14,34,0.9)':(moved?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)'));
+  g.fillRect(20,y,W-40,34);ng(g);
+  ne(g,i===0?'rgba(150,110,230,0.4)':(moved?'#7de2b0':'#ff5a8a'),1.2);
+  g.strokeRect(20.5,y+0.5,W-41,34);ng(g);
+  nt(g,'#8a7ab8',32,y+14,8,i===0?'as written':('perturbed: a='+p[0]+', b='+p[1]));
+  nt(g,'#e6dcff',32,y+29,10,'a='+p[0]+' b='+p[1]+'   ->   '+String(v));
+  if(i>0)nt(g,moved?'#7de2b0':'#ff5a8a',W-84,y+22,9,moved?'MOVED':'unmoved');});
+ var anyMoved=pairs.slice(1).some(function(p){return F.f(p[0],p[1])!==base;});
+ var y2=top+pairs.length*40+12;
+ nf(g,anyMoved?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,anyMoved?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,anyMoved?'#7de2b0':'#ff5a8a',36,y2+26,12,
+  anyMoved?'SENSITIVE -- the answer moved':'reported INSENSITIVE');
+ nt(g,'#8a7ab8',36,y2+44,8,anyMoved?'the assertion does depend on its subject'
+  :'and the assertion is perfectly good');
+ var o=document.getElementById('mtout');
+ if(o)o.innerHTML=global_
+  ?('Bumping every number at once takes <b>'+F.name+'</b> along the direction the predicate cannot see. For equality, ordering and difference the answer does not move at all &mdash; and a correct assertion is reported insensitive.')
+  :('Nudging one field at a time, in both directions, moves <b>'+F.name+
+    '</b>'+(anyMoved?' immediately':' only when the operands are adjacent')+
+    '. That is the repaired probe: sensitive if ANY single perturbation moves the answer.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the a==b diagonal, which a global shift slides along
+ ne(g,'#ff5a8a',2);
+ g.beginPath();
+ for(var t=-8;t<=8;t++){
+  var p=P(t*14,0,t*14);
+  if(t===-8)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ for(var a=-6;a<=6;a++)for(var b=-6;b<=6;b++){
+  var q=P(a*14,0,b*14);
+  var onDiag=a===b;
+  ndot(g,q[0],q[1],onDiag?3.4:1.4,onDiag?'#ff5a8a':'rgba(125,226,176,0.4)');}
+ var s0=P(0,0,0),s1=P(14,0,14);
+ ne(g,'#ffd76a',2.2);
+ g.beginPath();g.moveTo(s0[0],s0[1]);g.lineTo(s1[0],s1[1]);g.stroke();ng(g);
+ nt(g,'#ffd76a',s1[0]+8,s1[1],8,'global +1');
+ var n0=P(0,0,0),n1=P(14,0,0);
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();g.moveTo(n0[0],n0[1]);g.lineTo(n1[0],n1[1]);g.stroke();ng(g);
+ nt(g,'#7de2b0',n1[0]+6,n1[1]-8,8,'single field');
+ nt(g,'#ff5a8a',14,24,11,'the pink diagonal is where a == b');
+ nt(g,'#ffd76a',14,42,10,'a global shift slides ALONG it and never leaves');
+ nt(g,'#7de2b0',14,58,10,'a single-field nudge steps off it immediately');
+ nt(g,'#8a7ab8',14,H-12,9,'the invisible direction is the symmetry the predicate was written in');}
+document.getElementById('mtmode').onclick=function(){global_=!global_;drawW4();};
+document.getElementById('mtform').onclick=function(){fi++;drawW4();};
+document.getElementById('mtsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__mutatorthatmovedeverything=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SRED_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A seal was written while the test suite was red. The verify afterwards reported <b>INTACT</b>, and it was telling the truth &mdash; the bytes were exactly what the ledger said they were. A seal answers <i>what the bytes were</i>. It has no opinion whatever on whether the work those bytes describe was any good, and the two questions are routinely conflated because both come back green.<br><br>
+ <span class="lit">LIT</span> verified live. Over <b>250</b> sealed trees whose suite is red, the seal flags <b>0</b> of them and the suite flags <b>250</b>. A seal over passing work verifies; a seal over failing work verifies identically; and both verdicts are correct. The seal&rsquo;s detection rate on work quality is <b>exactly zero</b>, not approximately zero &mdash; the property is not in the ledger to be checked.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed this against himself under <i>&ldquo;THE FREEZE ITSELF FAILED THE GATE&rdquo;</i>, and the sentence that matters is the concession: <i>&ldquo;the seal reported &#9670; SEAL INTACT over a failing test, and INTACT was true: the bytes were exactly what the ledger said. a seal proves WHAT the bytes were, never that the work was good. that line was already written in ud0-seal&rsquo;s own pitfalls, and it still happened here.&rdquo;</i> The rule added afterwards is the useful part: <b>an API change invalidates every suite that touches it &mdash; re-run before sealing, not after.</b><br><br>
+ <b>AVAN (AI)</b> should resist the tidy moral. The failure is not that anyone forgot the limitation; the limitation was <b>written down in the tool&rsquo;s own documentation</b> and the person who wrote it walked into it anyway. What that demonstrates is that a documented caveat is not a control. It changes nothing about the order operations happen in, and only a control that <b>sits in the path</b> &mdash; refusing to seal while a suite is red &mdash; would have stopped this.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two questions, both answered green.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Break the code, re-seal, and watch the seal stay happy.</div>
+   <div class="btns" style="margin-top:10px"><button id="srbreak">break the code &#9654;</button><button id="srreseal">re-seal</button></div>
+   <div class="cap" id="srout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the set of byte-states, with the seal cutting one out.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a seal does not check quality.&rdquo; The inverse is that <b>this is the only reason a seal is worth anything</b>. Because it certifies bytes and not judgements, it can be re-checked by someone who disagrees with every opinion in the repository and still means the same thing. Read backwards, the narrowness is the <b>transferable part</b>: a seal that vouched for quality would be a signature on somebody&rsquo;s taste, and would stop being verifiable the moment taste changed. What went wrong here was not the seal&rsquo;s scope but a reader supplying the other half from hope.</div>
+   <div class="btns" style="margin-top:10px"><button id="srsp">pause spin</button></div></div></div></div>"""
+SRED_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,broken=false,sealedAt='return 1';
+function sha(s){var h=2166136261;
+ for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+ return (h>>>0).toString(16);}
+function tree(body){return [{path:'lib.js',body:'function f(){'+body+'}'},
+ {path:'test.js',body:'assert(f()===1)'}];}
+function sealTree(files){return files.map(function(f){return {path:f.path,hash:sha(f.body)};});}
+function verifyTree(ledger,files){
+ var by={};files.forEach(function(f){by[f.path]=f;});
+ return ledger.every(function(e){return by[e.path]&&sha(by[e.path].body)===e.hash;});}
+function suitePasses(files){
+ var lib=files.find(function(f){return f.path==='lib.js';}).body;
+ return /return 1/.test(lib);}
+function selftest(){
+ var pass=tree('return 1'),fail=tree('return 2');
+ var lp=sealTree(pass),lf=sealTree(fail);
+ var cases=[],N=500;
+ for(var i=0;i<N;i++){
+  var red=i%2===0;
+  var files=red?fail:pass;
+  var ledger=sealTree(files);
+  cases.push({red:red,sealSays:verifyTree(ledger,files),suiteSays:suitePasses(files)});}
+ var redCount=cases.filter(function(c){return c.red;}).length;
+ var sealCaught=cases.filter(function(c){return c.red&&!c.sealSays;}).length;
+ var suiteCaught=cases.filter(function(c){return c.red&&!c.suiteSays;}).length;
+ return {trials:N,redTrees:redCount,
+  sealOverPassingVerifies:verifyTree(lp,pass),
+  sealOverFailingVerifies:verifyTree(lf,fail),
+  intactTrueBothWays:verifyTree(lp,pass)&&verifyTree(lf,fail),
+  sealCaught:sealCaught,suiteCaught:suiteCaught,
+  sealDetectionRate:sealCaught/redCount,suiteDetectionRate:suiteCaught/redCount,
+  sealDetectsNone:sealCaught===0,suiteDetectsAll:suiteCaught===redCount,
+  documentedCaveatIsNotAControl:true,
+  ok:sealCaught===0&&suiteCaught===redCount&&verifyTree(lp,pass)&&verifyTree(lf,fail)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO QUESTIONS, BOTH ANSWERED GREEN');
+ var qs=[['are the bytes what the ledger says?',1,'#7de2b0','the seal answers this'],
+  ['is the work any good?',0,'#ff5a8a','the seal has no opinion at all']];
+ qs.forEach(function(q,i){
+  var y=52+i*74;
+  nt(g,'#8a7ab8',24,y,9,q[0]);
+  var pw=W-180;
+  nf(g,q[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+  g.fillRect(24,y+10,Math.max(3,pw*q[1]),26);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+10.5,pw,26);ng(g);
+  nt(g,q[2],24+pw+10,y+29,11,q[1]?'answered':'not asked');
+  nt(g,'#5a4a85',24,y+52,8,q[3]);});
+ var y2=210;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ff5a8a',36,y2+22,10,'over '+VR.redTrees+' sealed trees whose suite is RED, the seal flags '+
+  VR.sealCaught);
+ nt(g,'#7de2b0',20,262,10,'the suite flags all '+VR.suiteCaught+
+  ' -- a different question, asked by a different tool');
+ nt(g,'#8a7ab8',20,282,9,'INTACT was true. it was also, on its own, worth nothing.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var body=broken?'return 2':'return 1';
+ var files=tree(body);
+ var ledger=sealTree(tree(sealedAt));
+ var sealOk=verifyTree(ledger,files);
+ var suiteOk=suitePasses(files);
+ nt(g,'#e6dcff',16,26,11,broken?'the code has been broken':'the code is correct');
+ var top=50;
+ files.forEach(function(f,i){
+  var y=top+i*46;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,40);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,40);ng(g);
+  nt(g,'#8a7ab8',32,y+16,8,f.path);
+  nt(g,'#e6dcff',32,y+32,9,f.body.slice(0,40));});
+ var y2=top+2*46+10;
+ nt(g,'#5a4a85',24,y2,8,'ledger was written when lib.js said: '+sealedAt);
+ var y3=y2+14;
+ [['seal verify',sealOk,'#7de2b0'],['test suite',suiteOk,'#ffd76a']].forEach(function(r,i){
+  var y=y3+i*58;
+  nf(g,r[1]?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,48);ng(g);
+  ne(g,r[1]?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y+0.5,W-41,48);ng(g);
+  nt(g,'#8a7ab8',34,y+18,9,r[0]);
+  nt(g,r[1]?'#7de2b0':'#ff5a8a',W-140,y+32,13,r[1]?'INTACT':'BROKEN');});
+ var o=document.getElementById('srout');
+ if(o)o.innerHTML=(!broken)
+  ?'Code correct, ledger matches, suite green. Everything agrees, and nothing here distinguishes the two questions.'
+  :(sealOk
+   ?'The code is broken and the suite is <b>red</b> &mdash; and because the ledger was re-sealed over the broken bytes, the seal says <b>INTACT</b>. It is telling the truth. The bytes ARE what the ledger says. That is the whole of what it knows.'
+   :'The code was broken <b>after</b> sealing, so the bytes no longer match and the seal correctly says BROKEN. Press <i>re-seal</i> to seal over the broken code and watch INTACT return.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(250);
+ for(var i=0;i<420;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=40+g2()*90;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var good=g2()<0.5;
+  ndot(g,q[0],q[1],1.6,good?'rgba(125,226,176,0.4)':'rgba(255,90,138,0.35)');}
+ var pt=P(0,0,0);
+ ndot(g,pt[0],pt[1],8,'#ffd76a');
+ nt(g,'#ffd76a',pt[0]+12,pt[1],9,'the sealed state');
+ ne(g,'rgba(255,215,106,0.5)',1.4);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(16*Math.cos(t),0,16*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',14,24,11,'the seal cuts out exactly one point');
+ nt(g,'#7de2b0',14,42,10,'green: byte-states whose work is good');
+ nt(g,'#ff5a8a',14,58,10,'pink: byte-states whose work is not -- the cut ignores the colour');
+ nt(g,'#8a7ab8',14,H-12,9,'the narrowness is what makes it transferable');}
+document.getElementById('srbreak').onclick=function(){broken=!broken;drawW4();};
+document.getElementById('srreseal').onclick=function(){sealedAt=broken?'return 2':'return 1';drawW4();};
+document.getElementById('srsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__sealoveraredtest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLGK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A probe that perturbs <b>numbers</b> cannot move an assertion about an array&rsquo;s length, a handle being non-null, or a string matching. When such an assertion did not respond, the probe flagged it <b>INSENSITIVE</b> &mdash; a word that accuses the assertion of a fault. It was renamed <b>UNMOVED-BY-NUMBERS</b>, which reports what the probe actually observed instead of what it implies.<br><br>
+ <span class="lit">LIT</span> verified live over seven assertions of four kinds. <b>4 of 7</b> are unmoved by any numeric perturbation, and every one of those four is over structure, nullness or a string &mdash; <b>0</b> of them numeric. Meanwhile <b>3 of 3</b> numeric assertions do respond, so the probe is not simply weak. The old name would have accused <b>4</b> perfectly good assertions of a defect that was a limit of the instrument.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> made the rename and gave the reason in one line: <i>&ldquo;the flag was called INSENSITIVE. the mutator moves NUMBERS, so an assertion over array length, nullness or a string is unmoved for a legitimate reason. renamed UNMOVED-BY-NUMBERS: the flag now says what the probe knows instead of what it implies.&rdquo;</i> He also set the posture for the whole tool: <i>&ldquo;cortex does not fail a suite. it annotates one. a flag is a question about an assertion, and some have good answers.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> classified the assertions to check that the rename is not merely gentler wording. It is not: the partition is clean. Every unmoved assertion is non-numeric and every numeric assertion moves, so the flag now separates <i>the probe could not reach this</i> from <i>the probe reached this and nothing happened</i> &mdash; two conditions the old name collapsed into one accusation. The distinction only exists because the scope got written into the name.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven assertions, and which the mutator can reach.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Perturb a field and see which assertions notice.</div>
+   <div class="btns" style="margin-top:10px"><button id="flfield">next field &#9654;</button><button id="flname">the old name</button></div>
+   <div class="cap" id="flout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reach of a numeric mutator inside the space of assertions.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;name the flag after what the probe knows.&rdquo; The inverse is that <b>every flag name is a claim about scope, and most of them are wrong in the same direction</b>. INSENSITIVE, FLAKY, UNUSED, DEAD &mdash; each asserts a property of the subject when what was observed is a property of <i>the looking</i>. Read backwards, the rename is not politeness but <b>type correctness</b>: the probe returns a fact about itself and the old name silently cast it into a fact about the code, which is a coercion no compiler would allow and no vocabulary prevents.</div>
+   <div class="btns" style="margin-top:10px"><button id="flsp">pause spin</button></div></div></div></div>"""
+FLGK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fieldIdx=0,oldName=false;
+var ASSERTIONS=[
+ {name:'count === 6',kind:'numeric',f:function(s){return s.count===6;}},
+ {name:'ratio > 1.5',kind:'numeric',f:function(s){return s.count/s.other>1.5;}},
+ {name:'list.length === 3',kind:'structural',f:function(s){return s.list.length===3;}},
+ {name:'handle !== null',kind:'nullness',f:function(s){return s.handle!==null;}},
+ {name:'name === "pedal"',kind:'string',f:function(s){return s.name==='pedal';}},
+ {name:'flags has "pure"',kind:'structural',f:function(s){return s.flags.indexOf('pure')>=0;}},
+ {name:'total === count+other',kind:'numeric',f:function(s){return s.total===s.count+s.other;}}];
+var NUMERIC_FIELDS=['count','other','total'];
+function subject(){return {count:6,other:3,total:9,list:[1,2,3],
+ handle:{},name:'pedal',flags:['pure']};}
+function mutate(field){
+ var s=subject();
+ if(typeof s[field]==='number')s[field]=s[field]+1;
+ return s;}
+function selftest(){
+ var rows=ASSERTIONS.map(function(A){
+  var base=A.f(subject()),moved=false;
+  NUMERIC_FIELDS.forEach(function(f){if(A.f(mutate(f))!==base)moved=true;});
+  return {name:A.name,kind:A.kind,moved:moved};});
+ var unmoved=rows.filter(function(r){return !r.moved;});
+ var numericUnmoved=unmoved.filter(function(r){return r.kind==='numeric';});
+ var numericTotal=rows.filter(function(r){return r.kind==='numeric';}).length;
+ var numericMoved=rows.filter(function(r){return r.kind==='numeric'&&r.moved;}).length;
+ return {assertions:rows.length,rows:rows,
+  unmoved:unmoved.length,unmovedKinds:unmoved.map(function(r){return r.kind;}),
+  numericUnmoved:numericUnmoved.length,
+  everyUnmovedIsNonNumeric:numericUnmoved.length===0,
+  numericMoved:numericMoved,numericTotal:numericTotal,
+  everyNumericMoves:numericMoved===numericTotal,
+  wouldHaveBeenAccused:unmoved.length,
+  limitNotDefect:numericUnmoved.length===0,
+  ok:unmoved.length>0&&numericUnmoved.length===0&&numericMoved===numericTotal};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVEN ASSERTIONS, AND WHICH THE MUTATOR CAN REACH');
+ var COL={numeric:'#7de2b0',structural:'#ffd76a',nullness:'#5ad6ff',string:'#b98cff'};
+ VR.rows.forEach(function(r,i){
+  var y=48+i*30;
+  nf(g,r.moved?'rgba(125,226,176,0.14)':'rgba(255,215,106,0.12)');
+  g.fillRect(20,y,W-40,26);ng(g);
+  ne(g,r.moved?'rgba(125,226,176,0.45)':'#ffd76a',1.1);
+  g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+  nt(g,'#e6dcff',32,y+17,9,r.name);
+  nt(g,COL[r.kind],200,y+17,8,r.kind);
+  nt(g,r.moved?'#7de2b0':'#ffd76a',300,y+17,8,
+   r.moved?'moved by a number':'UNMOVED-BY-NUMBERS');});
+ var y2=48+7*30+12;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,VR.unmoved+' unmoved, and '+VR.numericUnmoved+
+  ' of those are numeric -- the partition is clean');
+ nt(g,'#8a7ab8',20,H-8,9,'the old name would have accused '+VR.wouldHaveBeenAccused+
+  ' good assertions of a defect that belonged to the instrument');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var field=NUMERIC_FIELDS[fieldIdx%NUMERIC_FIELDS.length];
+ nt(g,'#e6dcff',16,26,11,'perturbing  '+field+'  by +1');
+ var s0=subject(),s1=mutate(field);
+ nt(g,'#8a7ab8',20,46,8,'before: count '+s0.count+', other '+s0.other+', total '+s0.total);
+ nt(g,'#ffd76a',20,60,8,'after:  count '+s1.count+', other '+s1.other+', total '+s1.total);
+ var top=76;
+ ASSERTIONS.forEach(function(A,i){
+  var y=top+i*32;
+  var base=A.f(s0),now=A.f(s1);
+  var moved=now!==base;
+  nf(g,moved?'rgba(125,226,176,0.16)':'rgba(60,45,95,0.6)');
+  g.fillRect(20,y,W-40,28);ng(g);
+  ne(g,moved?'#7de2b0':'rgba(150,110,230,0.35)',1.1);
+  g.strokeRect(20.5,y+0.5,W-41,28);ng(g);
+  nt(g,'#e6dcff',32,y+18,8,A.name);
+  nt(g,moved?'#7de2b0':(oldName?'#ff5a8a':'#ffd76a'),W-140,y+18,8,
+   moved?'MOVED':(oldName?'INSENSITIVE':'unmoved-by-numbers'));});
+ var y2=top+7*32+10;
+ var accused=ASSERTIONS.filter(function(A){
+  return A.f(s1)===A.f(s0)&&A.kind!=='numeric';}).length;
+ nf(g,oldName?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,oldName?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,oldName?'#ff5a8a':'#7de2b0',36,y2+27,11,
+  oldName?(accused+' assertions accused of a fault'):(accused+' assertions the probe cannot reach'));
+ var o=document.getElementById('flout');
+ if(o)o.innerHTML=oldName
+  ?'Under the old name, every assertion the numeric mutator could not reach was labelled <b>INSENSITIVE</b> &mdash; a word that says the assertion is at fault. Four of these seven are over structure, nullness or a string, and none of them is defective.'
+  :('Perturbing <b>'+field+'</b> moves the numeric assertions and leaves the rest alone. <b>UNMOVED-BY-NUMBERS</b> says exactly that, and stops short of the claim the old name made.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var COL={numeric:'#7de2b0',structural:'#ffd76a',nullness:'#5ad6ff',string:'#b98cff'};
+ VR.rows.forEach(function(r,i){
+  var th=i/VR.rows.length*2*Math.PI;
+  var rad=r.moved?46:110;
+  var q=P(rad*Math.cos(th),(i%3-1)*22,rad*Math.sin(th));
+  ndot(g,q[0],q[1],r.moved?5:3.4,COL[r.kind]);
+  nt(g,'#5a4a85',q[0]+7,q[1]+4,7,r.name.slice(0,14));});
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(70*Math.cos(t),0,70*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'inside the ring: what a numeric mutator can move');
+ nt(g,'#ffd76a',14,42,10,'outside: structure, nullness, strings -- out of reach');
+ nt(g,'#8a7ab8',14,58,10,'the ring is a property of the probe, not of the code');
+ nt(g,'#8a7ab8',14,H-12,9,'the old name cast a fact about the looking into a fact about the subject');}
+document.getElementById('flfield').onclick=function(){fieldIdx++;drawW4();};
+document.getElementById('flname').onclick=function(){oldName=!oldName;drawW4();};
+document.getElementById('flsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__flagthatsayswhatitknows=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+APIC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A function&rsquo;s fourth argument changed from a bare subject to an options object. Every call site kept compiling, kept running, and kept returning a well-formed result &mdash; while the meaning of half of them quietly inverted, because a bare subject now implies <code>pure: false</code> where it used to imply probing. A case that had been exercised stopped being exercised, and nothing anywhere reported it.<br><br>
+ <span class="lit">LIT</span> verified live on six call sites. <b>4 of 6</b> have their purity flag silently flipped by the signature change; the <b>2</b> that pass an explicit options object are unaffected. The number of assertions actually probed for sensitivity falls from <b>6</b> to <b>2</b>. No error is raised, no warning issued, and every call still returns a well-formed object.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> traced it precisely: <i>&ldquo;changing ok()&rsquo;s fourth argument from a bare subject to an options object meant `subject` alone now implies pure:false. case F &mdash; &lsquo;a constant thunk ignores the subject&rsquo; &mdash; stopped being flagged, because sensitivity was no longer probed at all. correct new behaviour, stale assertion.&rdquo;</i> He added a case G asserting that a bare subject leaves sensitivity <b>unprobed rather than assumed</b> &mdash; a regression test for exactly the hole &mdash; and a rule: <b>an API change invalidates every suite that touches it; re-run before sealing, not after.</b><br><br>
+ <b>AVAN (AI)</b> should be precise about who is at fault, because the natural reading blames the API. Nothing is wrong with the new signature; the defaults it chose are defensible and arguably safer. The fault is that a <b>positional argument changed shape</b>, which is invisible to a dynamic language at the call site, so the old suite kept passing while testing something else. A named argument or a version bump would have made the same change loud.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six call sites, before and after the signature moved.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Swap the signature under the same call sites.</div>
+   <div class="btns" style="margin-top:10px"><button id="apswap">old / new signature &#9654;</button></div>
+   <div class="cap" id="apout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: call sites unchanged, meanings moved beneath them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;re-run every suite an API change touches.&rdquo; The inverse is that <b>you cannot know which suites an API change touches without already having the tool the change broke</b>. The set of affected call sites is exactly what a static type system or a named-argument convention would tell you, and in their absence the only honest answer is <i>all of them</i>. Read backwards, the rule is not a discipline anybody can follow selectively &mdash; it is an argument for <b>making the change loud at the call site</b>, because a rule that requires re-running everything will, on a big enough repository, quietly become a rule that requires re-running nothing.</div>
+   <div class="btns" style="margin-top:10px"><button id="apsp">pause spin</button></div></div></div></div>"""
+APIC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useNew=true;
+var SITES=[{name:'A',bare:true},{name:'B',bare:true},{name:'C',bare:true},
+ {name:'D',bare:false},{name:'E',bare:false},{name:'F',bare:true}];
+function pureUnder(site,isNew){
+ if(!isNew)return true;
+ return site.bare?false:true;}
+function selftest(){
+ var before=SITES.map(function(s){return pureUnder(s,false);});
+ var after=SITES.map(function(s){return pureUnder(s,true);});
+ var changed=SITES.filter(function(s,i){return before[i]!==after[i];});
+ var pb=before.filter(Boolean).length,pa=after.filter(Boolean).length;
+ return {sites:SITES.length,
+  changed:changed.length,changedNames:changed.map(function(s){return s.name;}),
+  flipsBareSites:changed.length>0,
+  explicitUnaffected:changed.every(function(s){return s.name!=='D'&&s.name!=='E';}),
+  probedBefore:pb,probedAfter:pa,probingDrops:pa<pb,
+  droppedCount:pb-pa,dropEqualsChanged:pb-pa===changed.length,
+  silent:true,newBehaviourIsCorrect:true,
+  ok:changed.length>0&&pa<pb&&pb-pa===changed.length&&
+   changed.every(function(s){return s.name!=='D'&&s.name!=='E';})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIX CALL SITES, BEFORE AND AFTER THE SIGNATURE MOVED');
+ nt(g,'#8a7ab8',180,44,9,'old signature');
+ nt(g,'#8a7ab8',320,44,9,'new signature');
+ SITES.forEach(function(s,i){
+  var y=58+i*34;
+  var b=pureUnder(s,false),a=pureUnder(s,true);
+  nt(g,'#e6dcff',26,y+16,9,'ok("'+s.name+'", ..., '+(s.bare?'subject':'{subject, pure:true}')+')');
+  [[180,b],[320,a]].forEach(function(p){
+   nf(g,p[1]?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+   g.fillRect(p[0],y,70,20);ng(g);
+   nt(g,'#0d0818',p[0]+6,y+14,8,p[1]?'probed':'unprobed');});
+  if(b!==a){nt(g,'#ff5a8a',W-52,y+15,9,'FLIP');}});
+ var y2=58+6*34+12;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,VR.changed+' of '+VR.sites+
+  ' call sites silently flipped: '+VR.changedNames.join(', '));
+ nt(g,'#8a7ab8',20,H-10,9,'assertions probed for sensitivity: '+VR.probedBefore+' -> '+
+  VR.probedAfter+'   ·   no error, no warning');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,useNew?'the new signature: ok(name, cond, thunk, opts)'
+  :'the old signature: ok(name, cond, thunk, subject)');
+ var top=52;
+ SITES.forEach(function(s,i){
+  var y=top+i*38;
+  var p=pureUnder(s,useNew);
+  nf(g,p?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');
+  g.fillRect(20,y,W-40,32);ng(g);
+  ne(g,p?'rgba(125,226,176,0.45)':'#ff5a8a',1.1);
+  g.strokeRect(20.5,y+0.5,W-41,32);ng(g);
+  nt(g,'#8a7ab8',32,y+14,8,'case '+s.name+'   '+(s.bare?'passes a bare subject':'passes {subject, pure:true}'));
+  nt(g,p?'#7de2b0':'#ff5a8a',W-96,y+21,9,p?'probed':'unprobed');});
+ var probed=SITES.filter(function(s){return pureUnder(s,useNew);}).length;
+ var y2=top+6*38+12;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,'#ffd76a',36,y2+27,12,probed+' of '+SITES.length+' assertions probed');
+ var o=document.getElementById('apout');
+ if(o)o.innerHTML=useNew
+  ?('Under the new signature a <b>bare subject</b> implies pure:false, so only the <b>'+probed+
+    '</b> sites that pass an explicit options object are probed. The other four still run, still pass, and now test something narrower than they claim.')
+  :'Under the old signature every call site that supplied a subject was probed for sensitivity. The same six lines of source, and a different meaning.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ SITES.forEach(function(s,i){
+  var th=i/SITES.length*2*Math.PI;
+  var top=P(88*Math.cos(th),-80,88*Math.sin(th));
+  ndot(g,top[0],top[1],5,'#7de2b0');
+  nt(g,'#5a4a85',top[0]+8,top[1]+4,8,s.name);
+  var b=pureUnder(s,false),a=pureUnder(s,true);
+  var bp=P(88*Math.cos(th),20,88*Math.sin(th));
+  var ap=P(88*Math.cos(th),90,88*Math.sin(th));
+  ne(g,'rgba(125,226,176,0.4)',1.2);
+  g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(bp[0],bp[1]);g.stroke();ng(g);
+  ndot(g,bp[0],bp[1],3.4,b?'#7de2b0':'#ff5a8a');
+  ne(g,b!==a?'#ff5a8a':'rgba(150,110,230,0.25)',b!==a?1.8:1);
+  g.beginPath();g.moveTo(bp[0],bp[1]);g.lineTo(ap[0],ap[1]);g.stroke();ng(g);
+  ndot(g,ap[0],ap[1],3.4,a?'#7de2b0':'#ff5a8a');});
+ nt(g,'#7de2b0',14,24,11,'the call sites at the top never changed');
+ nt(g,'#ff5a8a',14,42,10,'the pink links are meanings that moved beneath them');
+ nt(g,'#8a7ab8',14,58,10,'same source, same output shape, different question asked');
+ nt(g,'#8a7ab8',14,H-12,9,'a rule to re-run everything becomes a rule to re-run nothing');}
+document.getElementById('apswap').onclick=function(){useNew=!useNew;drawW4();};
+document.getElementById('apsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theapichange=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 233 · neon-noir · silicon-coding · FROM DAVID'S FROZEN-TWO-RUN DROP (FREEZE.ascii + FROZEN.dlw) · same answer twice · a seal that could not re-read itself · a ratio pointing the wrong way · an invariant that lives in flight · the tails kept on purpose ═══════════════════════
 TWRG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Nothing enters the seal on one green run. It has to produce the <b>same result twice</b>, from the shipped copy, in separate invocations. The claim is deliberately narrow: a thing that passes once has passed once; a thing that passes twice has ruled out <b>the accidents that do not repeat</b> &mdash; and that is a smaller class than it sounds.<br><br>
@@ -80156,6 +80841,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-observer-that-moved-it","title":"THE OBSERVER THAT MOVED IT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff5a8a","icon":"\u25ce",
+  "kicker":"a probe that re-ran what it was watching",
+  "blurb":"A sensitivity probe must re-execute an assertion once per mutated field. If the assertion is not pure, the probe stops measuring the system and starts driving it.",
+  "lit":"with 8 mutable fields a probe re-running an impure thunk turns 11 intended calls into 99 - 88 extra invocations, exactly one per field per call; three later assertions that read the counter then break, holding 3 of 3 without the probe and failing 2 of 3 with it; and restricting the probe to thunks the caller declares pure leaves the count at 11",
+  "fig":"From David's FREEZE round 2, 2026-08-05. He caught his own observer wrecking the run it was watching and wrote it up under a heading that says so: 'CORTEX BROKE THE RUN IT WAS WATCHING ... the probe fired it 88 extra times: subject calls 11 -> 99, and three LATER assertions failed because the observer had moved the state they were checking. an observer that changes what it observes is worse than none.' The repair is a refusal - sensitivity is probed ONLY on thunks declared pure, everything else reports unprobed rather than passed. AVAN reproduced the arithmetic exactly and names what the repair costs: the probe now says nothing about the majority of assertions, and 'unprobed' is a much weaker report than 'passed'. That weakness is the point.",
+  "body":OBMV_BODY,"script":OBMV_SCRIPT},
+ {"slug":"the-mutator-that-moved-everything","title":"THE MUTATOR THAT MOVED EVERYTHING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#ffd76a","icon":"\u2194",
+  "kicker":"a shift that shifts nothing that matters",
+  "blurb":"Bump every number by one and equality survives untouched - 6 == 6 becomes 7 == 7. A perfectly sensitive assertion gets reported insensitive.",
+  "lit":"over 2,000 random pairs and six predicate forms, a global +1 leaves 3 of 6 completely unmoved - a == b, a < b and a - b; asked the right way, one field at a time in both directions on assertions that hold, 5 of 6 forms are reached at 100%; and the exception is strict ordering, which a plus-or-minus-one nudge flips only when the operands are adjacent, measured at 9.1% against 10.0% predicted by counting adjacent pairs",
+  "fig":"David found and named it: 'the first mutator bumped EVERY number by one at once. that preserves every equality (6==6 becomes 7==7) and every ratio, so it reported correct assertions as insensitive. a mutator that moves everything moves nothing that matters.' AVAN corrects one clause and adds one finding. A RATIO IS NOT shift-invariant - a/b moves under a global +1 about 94.6% of the time, and is preserved only in the special case a == b where the ratio is 1. And the repaired mutator has a limit the note does not state: a fixed step reaches an assertion only within its MARGIN, so a wide inequality is out of range. That reach is exactly predictable, and predicting it is the honest way to report a probe's power.",
+  "body":MUTE_BODY,"script":MUTE_SCRIPT},
+ {"slug":"the-seal-over-a-red-test","title":"THE SEAL OVER A RED TEST","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#7de2b0","icon":"\u25c6",
+  "kicker":"INTACT was true, and meant nothing",
+  "blurb":"The seal was written while the suite was red. The verify said INTACT and was telling the truth: the bytes were exactly what the ledger said.",
+  "lit":"over 250 sealed trees whose suite is red the seal flags 0 of them and the suite flags 250; a seal over passing work verifies and a seal over failing work verifies identically, both verdicts correct; so the seal's detection rate on work quality is exactly zero rather than approximately zero, the property not being in the ledger to check",
+  "fig":"David filed this against himself under 'THE FREEZE ITSELF FAILED THE GATE', and the sentence that matters is the concession: 'the seal reported SEAL INTACT over a failing test, and INTACT was true: the bytes were exactly what the ledger said. a seal proves WHAT the bytes were, never that the work was good. that line was already written in ud0-seal's own pitfalls, and it still happened here.' AVAN resists the tidy moral: the failure is not that anyone forgot the limitation - it was WRITTEN DOWN in the tool's own documentation and the person who wrote it walked into it anyway. A documented caveat is not a control. It changes nothing about the order operations happen in, and only a control that SITS IN THE PATH would have stopped this.",
+  "body":SRED_BODY,"script":SRED_SCRIPT},
+ {"slug":"the-flag-that-says-what-it-knows","title":"THE FLAG THAT SAYS WHAT IT KNOWS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#5ad6ff","icon":"\u2691",
+  "kicker":"INSENSITIVE, renamed",
+  "blurb":"A probe that perturbs numbers cannot move an assertion about an array length or a null check. Calling that INSENSITIVE accuses the assertion of a fault that belongs to the instrument.",
+  "lit":"over seven assertions of four kinds, 4 of 7 are unmoved by any numeric perturbation and every one of those four is over structure, nullness or a string with 0 of them numeric; meanwhile 3 of 3 numeric assertions do respond, so the probe is not simply weak; and the old name would have accused 4 perfectly good assertions of a defect",
+  "fig":"David made the rename and gave the reason in one line: 'the flag was called INSENSITIVE. the mutator moves NUMBERS, so an assertion over array length, nullness or a string is unmoved for a legitimate reason. renamed UNMOVED-BY-NUMBERS: the flag now says what the probe knows instead of what it implies.' He also set the posture for the tool: 'cortex does not fail a suite. it annotates one. a flag is a question about an assertion, and some have good answers.' AVAN classified the assertions to check the rename is not merely gentler wording. It is not - the partition is clean, and the flag now separates 'the probe could not reach this' from 'the probe reached this and nothing happened', two conditions the old name collapsed into one accusation.",
+  "body":FLGK_BODY,"script":FLGK_SCRIPT},
+ {"slug":"the-api-change","title":"THE API CHANGE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#b98cff","icon":"\u21c4",
+  "kicker":"a signature moved and a default came with it",
+  "blurb":"The fourth argument became an options object. Every call site kept compiling and running while the meaning of half of them quietly inverted.",
+  "lit":"on six call sites, 4 of 6 have their purity flag silently flipped by the signature change while the 2 that pass an explicit options object are unaffected; the number of assertions actually probed for sensitivity falls from 6 to 2; and no error is raised, no warning issued, and every call still returns a well-formed object",
+  "fig":"David traced it precisely: 'changing ok()'s fourth argument from a bare subject to an options object meant subject alone now implies pure:false. case F stopped being flagged, because sensitivity was no longer probed at all. correct new behaviour, stale assertion.' He added a case G asserting that a bare subject leaves sensitivity UNPROBED RATHER THAN ASSUMED - a regression test for exactly the hole - and the rule: an API change invalidates every suite that touches it, re-run before sealing, not after. AVAN is precise about the fault, because the natural reading blames the API: nothing is wrong with the new signature and its defaults are arguably safer. The fault is that a POSITIONAL argument changed SHAPE, which is invisible at the call site in a dynamic language, so the old suite kept passing while testing something else.",
+  "body":APIC_BODY,"script":APIC_SCRIPT},
  {"slug":"the-two-run-gate","title":"THE TWO-RUN GATE","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#7de2b0","icon":"\u21bb",
   "kicker":"nothing enters the seal on one green run",
