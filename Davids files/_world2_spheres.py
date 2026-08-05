@@ -19499,6 +19499,765 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 221 · neon-noir · silicon-coding · MECHANISMS AND THEIR PATHOLOGIES (more seats, fewer seats · where honesty is the dominant strategy · the exact cost of everyone choosing freely · the trade that cannot be gamed · winning as the evidence you were wrong) ═══════════════════════
+ALAB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Hamilton&rsquo;s method for dividing seats among states is the obvious one: give each its whole number of seats, then hand the leftovers to whoever has the largest fraction. It has a defect nobody predicted. <b>Enlarging the assembly can cost a state a seat.</b> The House noticed in 1880, when a clerk computed that Alabama would get 8 seats out of 299 and 7 out of 300, and the method has carried the name of the paradox since.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>20,000</b> random apportionments, adding one seat takes a seat away from some state in <b>826</b> of them &mdash; and the smallest example needs only three states. Populations <b>127, 132, 40</b> with 3 seats give <b>1, 1, 1</b>; with 4 seats they give <b>2, 2, 0</b>, and the third state is wiped out by the assembly getting <i>bigger</i>. Hamilton satisfies the quota rule in all <b>1,200</b> tested cases; a divisor method violates quota in <b>49</b> of them but shows the paradox <b>0</b> times in 20,000.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>ROLLBACK</i>: the total goes up and your share goes backwards.<br><br>
+ <b>AVAN (AI)</b> built the divisor comparison because without it the page would teach the wrong lesson. Shown alone, the paradox reads as &ldquo;apportionment is impossible&rdquo; &mdash; and it is not: a divisor method never exhibits it, in <b>20,000</b> attempts. What a divisor method does instead is <b>violate the quota rule</b>, handing a state more or fewer seats than its exact share rounds to, which happened in 49 of 1,200 cases here. That is the actual content: Balinski and Young proved in 1982 that <b>no method</b> can satisfy both quota and population monotonicity, so every apportionment scheme in use has chosen which failure to accept. The 1880 Alabama figures are <b>cited, not recomputed</b> &mdash; the census populations were not available to this page.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three states, one extra seat, and a delegation that vanishes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add seats one at a time and watch a delegation go down.</div>
+   <div class="btns" style="margin-top:10px"><button id="alup">one more seat &#9654;</button><button id="aldn">one fewer</button><button id="aldiv">divisor method</button></div>
+   <div class="cap" id="alout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: seat counts as the assembly grows, one line per state.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;Hamilton&rsquo;s method is flawed.&rdquo; The inverse is that <b>the flaw is in the leftovers, and the leftovers are where the method stopped being a method</b>. Everything up to the floor of each quota is forced; the remaining seats are handed out by a rule that <i>compares fractions across states of different sizes</i>, and a fraction of a large state is not the same object as a fraction of a small one. Read backwards, the paradox is not a bug in the arithmetic but the moment an algorithm ran out of principle and substituted a tiebreak &mdash; and Balinski and Young proved that every such algorithm must have such a moment somewhere.</div>
+   <div class="btns" style="margin-top:10px"><button id="alsp">pause spin</button></div></div></div></div>"""
+ALAB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seats=3,useDiv=false;
+var POP=[127,132,40];
+function alRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function hamilton(pop,n){
+ var tot=pop.reduce(function(a,b){return a+b;},0);
+ var q=pop.map(function(p){return p*n/tot;});
+ var base=q.map(Math.floor);
+ var left=n-base.reduce(function(a,b){return a+b;},0);
+ var order=q.map(function(v,i){return [v-Math.floor(v),i];})
+  .sort(function(a,b){return b[0]-a[0];});
+ var out=base.slice();
+ for(var k=0;k<left;k++)out[order[k][1]]++;
+ return out;}
+function divisor(pop,n){
+ var out=pop.map(function(){return 0;});
+ for(var s=0;s<n;s++){
+  var best=0,bv=-1;
+  pop.forEach(function(p,i){var v=p/(out[i]+1);
+   if(v>bv){bv=v;best=i;}});
+  out[best]++;}
+ return out;}
+function selftest(){
+ var g=alRnd(1880),sumOk=0,quotaOk=0,trials=0,divQuota=0;
+ for(var t=0;t<1200;t++){
+  var n=3+Math.floor(g()*5);
+  var pop=[];
+  for(var i=0;i<n;i++)pop.push(1+Math.floor(g()*900));
+  var st=n+Math.floor(g()*40);
+  var a=hamilton(pop,st),d=divisor(pop,st);
+  trials++;
+  if(a.reduce(function(x,y){return x+y;},0)===st)sumOk++;
+  var tot=pop.reduce(function(x,y){return x+y;},0);
+  var q=pop.map(function(p){return p*st/tot;});
+  if(a.every(function(v,i){return v>=Math.floor(q[i])&&v<=Math.ceil(q[i]);}))quotaOk++;
+  if(!d.every(function(v,i){return v>=Math.floor(q[i])&&v<=Math.ceil(q[i]);}))divQuota++;}
+ var g2=alRnd(299),found=0,scanned=0,ex=[];
+ for(var t2=0;t2<20000;t2++){
+  var n2=3+Math.floor(g2()*4),pop2=[];
+  for(var i2=0;i2<n2;i2++)pop2.push(1+Math.floor(g2()*200));
+  var st2=n2+Math.floor(g2()*25);
+  scanned++;
+  var a2=hamilton(pop2,st2),b2=hamilton(pop2,st2+1);
+  var loser=-1;
+  for(var k2=0;k2<n2;k2++)if(b2[k2]<a2[k2]){loser=k2;break;}
+  if(loser>=0){found++;
+   if(ex.length<3)ex.push({pop:pop2,seats:st2,before:a2,after:b2,loser:loser});}}
+ var g3=alRnd(77),divPar=0;
+ for(var t3=0;t3<20000;t3++){
+  var n3=3+Math.floor(g3()*4),pop3=[];
+  for(var i3=0;i3<n3;i3++)pop3.push(1+Math.floor(g3()*200));
+  var st3=n3+Math.floor(g3()*25);
+  var a3=divisor(pop3,st3),b3=divisor(pop3,st3+1);
+  if(a3.some(function(v,i){return b3[i]<v;}))divPar++;}
+ var demo3=hamilton(POP,3),demo4=hamilton(POP,4);
+ return {tested:trials,seatsAlwaysSum:sumOk===trials,
+  hamiltonQuotaOk:quotaOk,hamiltonAlwaysInQuota:quotaOk===trials,
+  divisorQuotaViolations:divQuota,divisorCanBreakQuota:divQuota>0,
+  scanned:scanned,paradoxFound:found,paradoxExists:found>0,
+  examples:ex,
+  demoPopulations:POP,demoAt3:demo3,demoAt4:demo4,
+  demoLosesASeat:demo4[2]<demo3[2],
+  divisorParadoxes:divPar,divisorNeverParadoxical:divPar===0,
+  ok:sumOk===trials&&quotaOk===trials&&found>0&&divPar===0&&demo4[2]<demo3[2]};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE STATES  \\u00b7  populations '+POP.join(', '));
+ var sets=[[3,VR.demoAt3,'#7de2b0'],[4,VR.demoAt4,'#ff5a8a']];
+ sets.forEach(function(sp,si){
+  var y=46+si*104;
+  nt(g,sp[2],28,y,11,sp[0]+' seats in the assembly');
+  sp[1].forEach(function(v,i){
+   var x=44+i*150;
+   nf(g,v===0?'rgba(255,90,138,0.25)':(si===0?'rgba(125,226,176,0.45)':'rgba(255,90,138,0.45)'));
+   g.fillRect(x,y+14,110,54);ng(g);
+   ne(g,v===0?'#ff5a8a':sp[2],1.4);g.strokeRect(x+0.5,y+14.5,110,54);ng(g);
+   nt(g,'#8a7ab8',x+12,y+32,9,'pop '+POP[i]);
+   nt(g,v===0?'#ff5a8a':'#e6dcff',x+46,y+58,20,''+v);});});
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(24,256,W-48,28);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(24.5,256.5,W-49,28);ng(g);
+ nt(g,'#ff5a8a',40,275,10,'the assembly grew by one seat and the third state lost its only one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=useDiv?divisor:hamilton;
+ var a=f(POP,seats),prev=seats>1?f(POP,seats-1):null;
+ nt(g,'#e6dcff',16,26,11,(useDiv?'divisor method':'Hamilton')+'   \\u00b7   '+seats+' seats');
+ var top=54;
+ a.forEach(function(v,i){
+  var y=top+i*74;
+  var lost=prev&&v<prev[i];
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,62);ng(g);
+  ne(g,lost?'#ff5a8a':'rgba(125,226,176,0.4)',lost?1.8:1.1);
+  g.strokeRect(20.5,y+0.5,W-41,62);ng(g);
+  nt(g,'#8a7ab8',34,y+20,9,'population '+POP[i]);
+  var tot=POP.reduce(function(x,y2){return x+y2;},0);
+  nt(g,'#8a7ab8',150,y+20,9,'quota '+(POP[i]*seats/tot).toFixed(3));
+  for(var k=0;k<v;k++){
+   nf(g,lost?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.6)');
+   g.fillRect(34+k*22,y+32,16,20);ng(g);}
+  if(v===0)nt(g,'#ff5a8a',34,y+48,11,'no seats');
+  nt(g,lost?'#ff5a8a':'#e6dcff',W-60,y+46,15,''+v);
+  if(lost)nt(g,'#ff5a8a',W-130,y+20,9,'LOST ONE');});
+ var yb=top+3*74+16;
+ nt(g,'#8a7ab8',24,yb,9,'total allocated: '+a.reduce(function(x,y2){return x+y2;},0));
+ var o=document.getElementById('alout');
+ if(o)o.innerHTML='With <b>'+seats+'</b> seats the '+(useDiv?'divisor method':'Hamilton method')+
+  ' gives <b>['+a.join(', ')+']</b>.'+
+  (prev&&a.some(function(v,i){return v<prev[i];})
+   ?' One state just went <b>down</b> while the assembly went <b>up</b>.'
+   :(useDiv?' A divisor method never reverses like this &mdash; it breaks the quota rule instead.':''));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+80,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.55-zr*0.32];}
+ var cols=['#7de2b0','#5ad6ff','#ff5a8a'];
+ for(var i=0;i<3;i++){
+  var prev=null;
+  for(var n=2;n<=22;n++){
+   var a=hamilton(POP,n);
+   var q=P(-100+200*(n-2)/20,a[i]*22,(i-1)*32);
+   if(prev){
+    var went=a[i]<hamilton(POP,n-1)[i];
+    ne(g,went?'#ff5a8a':cols[i],went?2.6:1.6);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+    if(went)ndot(g,q[0],q[1],4.4,'#ff5a8a');}
+   prev=q;}}
+ nt(g,'#7de2b0',14,24,11,'one line per state, as the assembly grows');
+ nt(g,'#ff5a8a',14,42,10,'pink: a step DOWN while the total went up');
+ nt(g,'#8a7ab8',14,58,10,'the leftovers are where the method ran out of principle');
+ nt(g,'#8a7ab8',14,H-12,9,'no scheme satisfies both quota and monotonicity - Balinski and Young, 1982');}
+document.getElementById('alup').onclick=function(){seats=Math.min(22,seats+1);drawW4();};
+document.getElementById('aldn').onclick=function(){seats=Math.max(1,seats-1);drawW4();};
+document.getElementById('aldiv').onclick=function(){useDiv=!useDiv;drawW4();};
+document.getElementById('alsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__alabama=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VICK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sealed bids, highest bidder wins &mdash; and pays the <b>second</b>-highest bid. That single change makes honesty a <b>dominant strategy</b>: whatever anyone else does, bidding exactly what the item is worth to you is never worse than bidding anything else. You cannot gain by shading down and you cannot gain by inflating, so there is nothing to strategise about, and the auction stops being a guessing game about other people. William Vickrey published it in 1961 and won a Nobel for it in 1996.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustive search over every combination of value, bid and highest opposing bid from 0 to 20 &mdash; all <b>9,261</b> triples: bidding your value is beaten <b>0</b> times, and is <b>strictly</b> better in <b>2,870</b> of them, so the dominance is not a tie. Overbidding produces a strictly negative payoff in <b>1,330</b> cases; underbidding forfeits a profitable auction in <b>1,540</b>. Under first-price rules, bidding your value pays exactly <b>0</b> with no exceptions, and shading below it is strictly better in <b>190</b> situations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HELLO WORLD</i>: the simplest honest thing you can say, and it is also the optimal one.<br><br>
+ <b>AVAN (AI)</b> checked <b>every</b> triple rather than sampling, because dominance is a universally-quantified claim and a sample cannot establish one. 9,261 is small enough to enumerate, so there is no reason to do anything weaker. The second gate matters as much as the first: a strategy that merely <i>ties</i> everywhere is dominant in a useless sense, and finding <b>2,870</b> cases where truth strictly wins establishes the property has content. The first-price comparison is included because &ldquo;auctions reward honesty&rdquo; is false as a general statement &mdash; under first-price rules truthful bidding is <i>strictly dominated</i>, guaranteeing zero profit, and every bidder must guess. What the Vickrey rule buys is not virtue but the removal of a guessing problem.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Payoff against your bid, for a fixed value. Flat where it matters, and never higher elsewhere.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The whole payoff surface. Try to find a bid that beats the truth.</div>
+   <div class="btns" style="margin-top:10px"><button id="vkval">change your value &#9654;</button><button id="vkfp">first-price rules</button></div>
+   <div class="cap" id="vkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: payoff over bid and opponent, with the truthful ridge lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the second-price rule makes honesty optimal.&rdquo; The inverse is that <b>it works by making your bid stop determining your price</b>. In a first-price auction the bid does two jobs &mdash; deciding whether you win and deciding what you pay &mdash; and the two pull in opposite directions, which is precisely what forces the guessing. Vickrey splits them: the bid decides only <i>whether</i>, and someone else&rsquo;s number decides <i>how much</i>. Read backwards, this is a design principle rather than an auction: when one control is serving two purposes that conflict, no amount of skill at setting it will help, and the fix is to give the second purpose its own input.</div>
+   <div class="btns" style="margin-top:10px"><button id="vksp">pause spin</button></div></div></div></div>"""
+VICK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,myVal=12,firstPrice=false;
+var V=20;
+function u2(v,b,m){return b>m?v-m:0;}
+function u1(v,b,m){return b>m?v-b:0;}
+function selftest(){
+ var dom=0,cases=0,strict=0,negOver=0,missed=0,fpNonZero=0,fpBetter=0,v,b,m;
+ for(v=0;v<=V;v++)for(b=0;b<=V;b++)for(m=0;m<=V;m++){
+  cases++;
+  if(u2(v,b,m)>u2(v,v,m))dom++;
+  if(u2(v,v,m)>u2(v,b,m))strict++;
+  if(b>v&&u2(v,b,m)<0)negOver++;
+  if(b<v&&u2(v,v,m)>0&&u2(v,b,m)===0)missed++;}
+ for(v=1;v<=V;v++)for(m=0;m<=V;m++){
+  if(u1(v,v,m)!==0)fpNonZero++;
+  for(b=0;b<v;b++)if(u1(v,b,m)>u1(v,v,m)){fpBetter++;break;}}
+ return {maxValue:V,triplesChecked:cases,
+  bidsThatBeatTruth:dom,truthIsDominant:dom===0,
+  triplesWhereTruthStrictlyWins:strict,dominanceHasContent:strict>0,
+  overbidNegativeCases:negOver,underbidForfeitCases:missed,
+  firstPriceNonZeroPayoffs:fpNonZero,firstPriceTruthAlwaysZero:fpNonZero===0,
+  firstPriceShadingBetter:fpBetter,firstPriceNotTruthful:fpBetter>0,
+  ok:dom===0&&strict>0&&negOver>0&&missed>0&&fpNonZero===0&&fpBetter>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'PAYOFF vs YOUR BID   \\u00b7   value 12, three different opponents');
+ var m=54,pw=W-m-46,top=48,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var zero=top+ph*0.66;
+ ne(g,'rgba(150,110,230,0.35)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,zero);g.lineTo(m+pw,zero);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#8a7ab8',m-22,zero+4,9,'0');
+ var opps=[[6,'#7de2b0'],[12,'#5ad6ff'],[17,'#ff5a8a']];
+ opps.forEach(function(sp){
+  ne(g,sp[1],2.2);
+  g.beginPath();
+  for(var b=0;b<=V;b++){
+   var y=zero-u2(12,b,sp[0])*8;
+   var px=m+pw*b/V;
+   if(b===0)g.moveTo(px,y);else g.lineTo(px,y);}
+  g.stroke();ng(g);
+  nt(g,sp[1],m+pw+6,zero-u2(12,V,sp[0])*8,9,'m='+sp[0]);});
+ var tx=m+pw*12/V;
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(tx,top);g.lineTo(tx,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',tx-24,top-6,9,'bid = 12');
+ nt(g,'#8a7ab8',m,top+ph+18,9,'bid 0');
+ nt(g,'#8a7ab8',m+pw-32,top+ph+18,9,'bid 20');
+ nt(g,'#e6dcff',20,242,10,'at bid = value the payoff is already at its maximum on every curve');
+ nt(g,'#8a7ab8',20,262,9,'checked over all '+VR.triplesChecked.toLocaleString()+' triples: 0 bids ever beat it');
+ nt(g,'#7de2b0',20,282,9,'and in '+VR.triplesWhereTruthStrictlyWins.toLocaleString()+' of them truth wins STRICTLY, so it is not a tie');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=firstPrice?u1:u2;
+ nt(g,'#e6dcff',16,26,11,(firstPrice?'first price':'second price')+'   \\u00b7   your value = '+myVal);
+ nt(g,'#8a7ab8',16,46,9,'rows: your bid   \\u00b7   columns: highest opposing bid');
+ var m=44,cell=(W-88)/(V+1),top=60;
+ for(var b=0;b<=V;b++)for(var mm=0;mm<=V;mm++){
+  var val=f(myVal,b,mm);
+  var col;
+  if(val>0)col='rgba(125,226,176,'+Math.min(0.9,0.2+val/20)+')';
+  else if(val<0)col='rgba(255,90,138,'+Math.min(0.9,0.2+(-val)/20)+')';
+  else col='rgba(60,50,90,0.35)';
+  nf(g,col);
+  g.fillRect(m+mm*cell,top+(V-b)*cell,cell-1,cell-1);ng(g);}
+ ne(g,'#ffd76a',1.8);
+ g.strokeRect(m-1,top+(V-myVal)*cell-1,(V+1)*cell,cell+1);ng(g);
+ nt(g,'#ffd76a',m+(V+1)*cell+4,top+(V-myVal)*cell+cell,9,'truth');
+ var yb=top+(V+1)*cell+22;
+ nt(g,'#7de2b0',24,yb,9,'green: profit    pink: loss    grey: no sale');
+ nt(g,'#e6dcff',24,yb+20,10,firstPrice
+  ?'the truthful row is entirely grey or zero \\u2014 no profit, ever'
+  :'no row anywhere dominates the gold one');
+ var o=document.getElementById('vkout');
+ if(o)o.innerHTML=firstPrice
+  ?'Under <b>first-price</b> rules the truthful row pays exactly <b>0</b> everywhere \\u2014 you either lose the auction or pay precisely what it was worth. Shading below your value is strictly better in <b>'+VR.firstPriceShadingBetter+'</b> situations, so honesty here is dominated, not dominant.'
+  :'Under <b>second-price</b> rules no row beats the gold one at any column. Bid above <b>'+myVal+'</b> and you risk the pink region; bid below and you forfeit sales you wanted. Exhaustive over all <b>'+VR.triplesChecked.toLocaleString()+'</b> triples: <b>0</b> exceptions.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+56,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.9-zr*0.34];}
+ for(var b=0;b<=V;b+=1){
+  var prev=null;
+  for(var mm=0;mm<=V;mm+=1){
+   var val=u2(12,b,mm);
+   var q=P((b-10)*7.4,val*3.4,(mm-10)*7.4);
+   if(prev){
+    var onTruth=b===12;
+    ne(g,onTruth?'#ffd76a':(val<0?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.35)'),onTruth?2.6:1);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}}
+ nt(g,'#ffd76a',14,24,11,'gold: the truthful ridge');
+ nt(g,'#7de2b0',14,42,10,'nothing rises above it, anywhere on the surface');
+ nt(g,'#8a7ab8',14,58,10,'your bid decides WHETHER, and someone else decides HOW MUCH');
+ nt(g,'#8a7ab8',14,H-12,9,'when one control serves two conflicting purposes, skill at setting it will not help');}
+document.getElementById('vkval').onclick=function(){myVal=(myVal+4)%(V+1);drawW4();};
+document.getElementById('vkfp').onclick=function(){firstPrice=!firstPrice;drawW4();};
+document.getElementById('vksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__vickrey=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+POAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Everyone picks the route that is fastest <i>for them</i>, and the result is worse for everyone than a route assignment a planner could have imposed. The question is how much worse, and for networks whose delays grow linearly with traffic the answer is a hard constant: selfish routing costs at most <b>4/3</b> of the optimum, no matter how large or tangled the network. Pigou&rsquo;s two-road example hits the bound exactly. Roughgarden and Tardos proved it in 2002.<br><br>
+ <span class="lit">LIT</span> verified live: on Pigou&rsquo;s network the equilibrium cost is <b>1</b> and the social optimum is <b>0.750000000</b> at a split of exactly one half, giving a ratio of <b>1.333333333333</b>. Across <b>4,000</b> random two-link linear instances the ratio never once exceeds 4/3 &mdash; the worst observed is <b>1.314671</b>. The bound is a property of linearity, not a universal constant: with latency x<sup>d</sup> the ratio climbs <b>1.333, 1.626, 2.151, 3.081, 4.727, 7.653</b> for d = 1, 2, 4, 8, 16, 32.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>SECOND WIND</i>: anarchy costs you a third and no more, which is a strange thing to find reassuring and is genuinely reassuring.<br><br>
+ <b>AVAN (AI)</b> ran the nonlinear ladder specifically to stop 4/3 being remembered as the price of anarchy. It is the price for <b>linear</b> latency, and at x<sup>32</sup> the same construction gives <b>7.65</b> and keeps climbing &mdash; there is no bound at all without a restriction on how delay responds to load. The random sweep is the other half: a single worked example proves a ratio is <i>attainable</i>, never that it is <i>maximal</i>, so 4,000 instances were checked against the bound and the worst came in at 1.314671, comfortably under. That is the shape of evidence a tight bound should have &mdash; one construction reaching it and a large sample failing to beat it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Total cost against how the traffic splits. Equilibrium sits at the wrong end.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Steepen the congestion and watch 4/3 stop being the answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="paup">steeper &#9654;</button><button id="padn">gentler</button></div>
+   <div class="cap" id="paout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cost surface, with the equilibrium and the optimum marked apart.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;selfishness is inefficient.&rdquo; The inverse is that <b>the equilibrium is not a failure of the drivers but of the signal they were given</b>. Each driver correctly minimises their own travel time; nobody is mistaken. What is missing is that using a road makes it worse for everyone else, and that cost appears in no driver&rsquo;s calculation because it lands on strangers. Read backwards, the price of anarchy is a measurement of <i>an absent term</i>, and the reason a toll of exactly the right size restores the optimum is that the toll is not a punishment &mdash; it is the missing number, put back where it can be read.</div>
+   <div class="btns" style="margin-top:10px"><button id="pasp">pause spin</button></div></div></div></div>"""
+POAN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,dd=1;
+function cost(x,d){return x*Math.pow(x,d)+(1-x)*1;}
+function optimum(d){
+ var best=Infinity,bx=0;
+ for(var i=0;i<=200000;i++){var x=i/200000,c=cost(x,d);
+  if(c<best){best=c;bx=x;}}
+ return {cost:best,x:bx};}
+function poRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var o1=optimum(1);
+ var g=poRnd(43),mx=0,over=0,n=0;
+ for(var t=0;t<4000;t++){
+  var a=g()*2,b=g()*2,c=0.1+g()*2;
+  var x=(c-b)/a;
+  x=Math.max(0,Math.min(1,isFinite(x)?x:1));
+  var nash=x*(a*x+b)+(1-x)*c;
+  var best=Infinity;
+  for(var i=0;i<=4000;i++){var y=i/4000;
+   var cc=y*(a*y+b)+(1-y)*c;
+   if(cc<best)best=cc;}
+  if(best>1e-12){n++;
+   var r=nash/best;
+   mx=Math.max(mx,r);
+   if(r>4/3+1e-6)over++;}}
+ var ladder=[1,2,4,8,16,32].map(function(d){
+  return {d:d,poa:1/optimum(d).cost};});
+ return {pigouEquilibriumCost:1,pigouOptimum:o1.cost,pigouSplit:o1.x,
+  optimumIsThreeQuarters:Math.abs(o1.cost-0.75)<1e-8,
+  splitIsOneHalf:Math.abs(o1.x-0.5)<1e-4,
+  priceOfAnarchy:1/o1.cost,
+  isExactlyFourThirds:Math.abs(1/o1.cost-4/3)<1e-8,
+  randomInstances:n,worstObserved:mx,instancesOverBound:over,
+  boundHolds:over===0,
+  ladder:ladder,
+  growsWithoutBound:ladder.every(function(r,i){return i===0||r.poa>ladder[i-1].poa;}),
+  notAUniversalConstant:ladder[5].poa>2,
+  ok:Math.abs(1/o1.cost-4/3)<1e-8&&over===0&&
+   ladder.every(function(r,i){return i===0||r.poa>ladder[i-1].poa;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TOTAL COST vs THE SPLIT   \\u00b7   Pigou\\u2019s two roads');
+ var m=60,pw=W-m-46,top=46,ph=158;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function Y(v){return top+ph-ph*(v-0.7)/0.36;}
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ for(var i=0;i<=400;i++){var x=i/400;
+  var px=m+pw*x,py=Y(cost(x,1));
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ndot(g,m+pw*0.5,Y(0.75),6,'#ffd76a');
+ nt(g,'#ffd76a',m+pw*0.5-56,Y(0.75)+22,10,'optimum 0.75');
+ ndot(g,m+pw,Y(1),6,'#ff5a8a');
+ nt(g,'#ff5a8a',m+pw-108,Y(1)-12,10,'equilibrium 1.00');
+ nt(g,'#8a7ab8',m-8,top+ph+18,9,'all on road A');
+ nt(g,'#8a7ab8',m+pw-70,top+ph+18,9,'all on road B');
+ nt(g,'#e6dcff',20,244,10,'ratio '+VR.priceOfAnarchy.toFixed(12)+'   =   4/3, exactly');
+ nt(g,'#8a7ab8',20,264,9,'and over '+VR.randomInstances.toLocaleString()+' random linear networks the worst seen is '+VR.worstObserved.toFixed(6));
+ nt(g,'#8a7ab8',20,282,9,'one construction reaching the bound, and a large sample failing to beat it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=optimum(dd),poa=1/o.cost;
+ nt(g,'#e6dcff',16,26,11,'latency x^'+dd+'   \\u00b7   price of anarchy '+poa.toFixed(6));
+ var m=44,pw=W-88,top=56,ph=126;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var lo=Math.min(o.cost,0.2),hi=1.05;
+ function Y(v){return top+ph-ph*(v-lo)/(hi-lo);}
+ ne(g,'#7de2b0',2.4);
+ g.beginPath();
+ for(var i=0;i<=300;i++){var x=i/300;
+  var px=m+pw*x,py=Y(cost(x,dd));
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ndot(g,m+pw*o.x,Y(o.cost),5.4,'#ffd76a');
+ ndot(g,m+pw,Y(1),5.4,'#ff5a8a');
+ nt(g,'#ffd76a',m+8,top+16,9,'optimum '+o.cost.toFixed(6)+' at x = '+o.x.toFixed(4));
+ nt(g,'#ff5a8a',m+8,top+34,9,'equilibrium 1.000000');
+ var yb=top+ph+34;
+ VR.ladder.forEach(function(r,i){
+  var x=28+i*58;
+  var hgt=Math.min(76,r.poa*10);
+  nf(g,r.d===dd?'rgba(255,215,106,0.7)':'rgba(125,226,176,0.35)');
+  g.fillRect(x,yb+80-hgt,42,hgt);ng(g);
+  nt(g,'#8a7ab8',x+8,yb+94,8,'d='+r.d);
+  nt(g,r.d===dd?'#ffd76a':'#7de2b0',x+2,yb+80-hgt-6,8,r.poa.toFixed(2));});
+ var o2=document.getElementById('paout');
+ if(o2)o2.innerHTML='With latency x<sup>'+dd+'</sup> the equilibrium costs <b>1</b> and the optimum <b>'+
+  o.cost.toFixed(6)+'</b>, a ratio of <b>'+poa.toFixed(6)+'</b>. '+
+  (dd===1?'This is the famous 4/3 &mdash; and it is the LINEAR case, not a universal constant.'
+   :'Well past 4/3. Steepen the congestion further and it keeps climbing; there is no bound without a restriction on latency.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+70,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.9-zr*0.32];}
+ for(var di=0;di<6;di++){
+  var d=[1,2,4,8,16,32][di];
+  var prev=null;
+  for(var i=0;i<=60;i++){
+   var x=i/60;
+   var q=P(-100+200*x,(cost(x,d)-0.5)*150,(di-2.5)*24);
+   if(prev){
+    ne(g,di===0?'#ffd76a':'rgba(125,226,176,'+(0.6-di*0.07)+')',di===0?2.4:1.2);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}
+  var o=optimum(d);
+  var mk=P(-100+200*o.x,(o.cost-0.5)*150,(di-2.5)*24);
+  ndot(g,mk[0],mk[1],3.4,'#ff5a8a');}
+ nt(g,'#ffd76a',14,24,11,'gold: the linear case, ratio 4/3');
+ nt(g,'#ff5a8a',14,42,10,'pink dots: where a planner would put the traffic');
+ nt(g,'#8a7ab8',14,58,10,'and the equilibrium is always at the right-hand edge');
+ nt(g,'#8a7ab8',14,H-12,9,'a toll is not a punishment, it is the missing number put back');}
+document.getElementById('paup').onclick=function(){
+ var L=[1,2,4,8,16,32];dd=L[Math.min(L.length-1,L.indexOf(dd)+1)];drawW4();};
+document.getElementById('padn').onclick=function(){
+ var L=[1,2,4,8,16,32];dd=L[Math.max(0,L.indexOf(dd)-1)];drawW4();};
+document.getElementById('pasp').onclick=function(){spin=!spin;};
+VR=selftest();window.__priceofanarchy=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TTCY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Everyone owns a house and everyone has an opinion about everyone else&rsquo;s. Point at the owner of your favourite house; the arrows must contain a cycle; execute every cycle, remove those people, repeat. Top Trading Cycles is one page of instructions, and what it produces is the <b>unique</b> allocation no group could improve on by trading among themselves &mdash; and no one can ever gain by lying about their preferences. Shapley and Scarf described it in 1974, crediting the algorithm to David Gale.<br><br>
+ <span class="lit">LIT</span> verified live on <b>60</b> random five-agent markets: the result is a permutation every time; it lies in the core in all <b>60</b>; and exhaustive search over all <b>120</b> possible allocations finds the core contains <b>exactly one</b>, which is always the one TTC produced. Across <b>3,840</b> misreports &mdash; every agent trying every possible false preference order in 40 four-agent markets &mdash; the number of times lying improved an agent&rsquo;s house is <b>0</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>CHECKPOINT ZERO</i>: everyone starts already owning something, and that starting point is what makes the whole thing work.<br><br>
+ <b>AVAN (AI)</b> tested the core property by <b>brute force over every coalition and every internal reallocation</b> &mdash; all 31 non-empty subsets of five agents and every permutation within each &mdash; rather than checking a characterisation. Core membership is a claim about what <i>cannot</i> happen, and the honest way to check one is to try everything. The same applies to strategy-proofness: each agent was given every one of the 24 possible orderings to submit, not a sample. Worth naming the hypothesis that does the work: agents <b>own their houses to begin with</b>. Remove the endowment and the result collapses &mdash; for the same problem with no initial ownership there is no mechanism that is both efficient and strategy-proof and treats agents symmetrically.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Point at your favourite. The arrows always close.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the rounds and watch cycles peel off one at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttnext">next round &#9654;</button><button id="ttnew">new market</button></div>
+   <div class="cap" id="ttout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the pointing graph, with the cycles that resolve it lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;TTC finds the unique core allocation.&rdquo; The inverse is that <b>the algorithm never searches for it &mdash; it makes the search unnecessary by only ever executing trades nobody could object to</b>. A cycle in which everyone receives their top remaining choice is unimprovable by construction, so the allocation is assembled entirely out of pieces that are already final. Read backwards, this is why it is strategy-proof: there is no stage at which anything is <i>traded off</i> against anything, so there is nothing for a lie to purchase. The mechanisms that can be gamed are the ones that balance competing claims, and TTC never balances anything.</div>
+   <div class="btns" style="margin-top:10px"><button id="ttsp">pause spin</button></div></div></div></div>"""
+TTCY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mseed=1974,round=0,MK=null;
+function ttRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function makeMarket(n,seed){
+ var g=ttRnd(seed),prefs=[];
+ for(var i=0;i<n;i++){
+  var a=[];
+  for(var j=0;j<n;j++)a.push(j);
+  for(var k=n-1;k>0;k--){var m=Math.floor(g()*(k+1));var t=a[k];a[k]=a[m];a[m]=t;}
+  prefs.push(a);}
+ return prefs;}
+function ttcRounds(prefs){
+ var n=prefs.length;
+ var active={},i;
+ for(i=0;i<n;i++)active[i]=1;
+ var alloc=[],rounds=[];
+ for(i=0;i<n;i++)alloc.push(-1);
+ var guard=0;
+ while(Object.keys(active).length&&guard++<50){
+  var point={},keys=Object.keys(active).map(Number);
+  keys.forEach(function(a2){
+   for(var k=0;k<prefs[a2].length;k++)
+    if(active[prefs[a2][k]]){point[a2]=prefs[a2][k];break;}});
+  var seen={},cur=keys[0],path=[];
+  while(seen[cur]===undefined){seen[cur]=path.length;path.push(cur);cur=point[cur];}
+  var cyc=path.slice(seen[cur]);
+  cyc.forEach(function(a2){alloc[a2]=point[a2];delete active[a2];});
+  rounds.push({point:point,cycle:cyc.slice(),remaining:Object.keys(active).map(Number)});}
+ return {alloc:alloc,rounds:rounds};}
+function perms(arr){
+ if(arr.length<=1)return [arr];
+ var out=[];
+ arr.forEach(function(v,i){
+  perms(arr.filter(function(_,j){return j!==i;})).forEach(function(p){
+   out.push([v].concat(p));});});
+ return out;}
+function selftest(){
+ var N=5,trials=0,coreOk=0,uniqueOk=0,isPerm=0;
+ var base=[];
+ for(var i=0;i<N;i++)base.push(i);
+ var ALL=perms(base);
+ for(var t=0;t<60;t++){
+  var prefs=makeMarket(N,1974+t*7);
+  var rank=prefs.map(function(p){var r=[];p.forEach(function(h,k){r[h]=k;});return r;});
+  var res=ttcRounds(prefs);
+  trials++;
+  var uniq={};res.alloc.forEach(function(v){uniq[v]=1;});
+  if(Object.keys(uniq).length===N&&res.alloc.every(function(v){return v>=0;}))isPerm++;
+  function blocked(alloc){
+   for(var mask=1;mask<(1<<N);mask++){
+    var S=[];
+    for(var i2=0;i2<N;i2++)if(mask&(1<<i2))S.push(i2);
+    var ps=perms(S);
+    for(var pi=0;pi<ps.length;pi++){
+     var p=ps[pi],allWeak=true,oneStrict=false;
+     for(var k=0;k<S.length;k++){
+      var ag=S[k],got=p[k];
+      if(rank[ag][got]>rank[ag][alloc[ag]]){allWeak=false;break;}
+      if(rank[ag][got]<rank[ag][alloc[ag]])oneStrict=true;}
+     if(allWeak&&oneStrict)return true;}}
+   return false;}
+  if(!blocked(res.alloc))coreOk++;
+  var cc=0;
+  for(var ai=0;ai<ALL.length;ai++)if(!blocked(ALL[ai]))cc++;
+  if(cc===1)uniqueOk++;}
+ var P4=perms([0,1,2,3]),gains=0,tested=0;
+ for(var t2=0;t2<40;t2++){
+  var pr=makeMarket(4,88+t2*13);
+  var rk=pr.map(function(p){var r=[];p.forEach(function(h,k){r[h]=k;});return r;});
+  var honest=ttcRounds(pr).alloc;
+  for(var ag2=0;ag2<4;ag2++)for(var li=0;li<P4.length;li++){
+   var alt=pr.map(function(p,k){return k===ag2?P4[li]:p;});
+   var res2=ttcRounds(alt).alloc;
+   tested++;
+   if(rk[ag2][res2[ag2]]<rk[ag2][honest[ag2]])gains++;}}
+ return {agents:N,markets:trials,allocationsSearched:ALL.length,
+  alwaysAPermutation:isPerm===trials,permutationCount:isPerm,
+  inCoreCount:coreOk,alwaysInCore:coreOk===trials,
+  coreIsUniqueCount:uniqueOk,coreAlwaysUnique:uniqueOk===trials,
+  misreportsTried:tested,profitableLies:gains,strategyProof:gains===0,
+  endowmentIsTheHypothesis:true,
+  ok:isPerm===trials&&coreOk===trials&&uniqueOk===trials&&gains===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY AGENT POINTS AT ONE OWNER  \\u2014  so a cycle must exist');
+ var prefs=makeMarket(5,1974);
+ var res=ttcRounds(prefs);
+ var cx=W/2-70,cy=150,R=88;
+ function pos(i){var th=i/5*2*Math.PI-Math.PI/2;
+  return [cx+R*Math.cos(th),cy+R*Math.sin(th)];}
+ var pt=res.rounds[0].point;
+ for(var i=0;i<5;i++){
+  var a=pos(i),b=pos(pt[i]);
+  var inCyc=res.rounds[0].cycle.indexOf(i)>=0;
+  ne(g,inCyc?'#ffd76a':'rgba(125,226,176,0.45)',inCyc?2.4:1.3);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  var mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+  ndot(g,mx,my,2.6,inCyc?'#ffd76a':'rgba(125,226,176,0.5)');}
+ for(var i2=0;i2<5;i2++){
+  var p=pos(i2);
+  ndot(g,p[0],p[1],8,res.rounds[0].cycle.indexOf(i2)>=0?'#ffd76a':'#7de2b0');
+  nt(g,'#e6dcff',p[0]-4,p[1]+4,10,''+i2);}
+ nt(g,'#ffd76a',W-190,70,10,'gold: the first cycle');
+ nt(g,'#8a7ab8',W-190,90,9,'they trade and leave');
+ nt(g,'#7de2b0',W-190,118,10,'core allocation');
+ nt(g,'#e6dcff',W-190,138,11,'['+res.alloc.join(', ')+']');
+ nt(g,'#8a7ab8',W-190,166,9,'1 of '+VR.allocationsSearched+' possible');
+ nt(g,'#e6dcff',20,258,10,'in the core in '+VR.inCoreCount+'/'+VR.markets+' markets, and the core holds exactly one allocation');
+ nt(g,'#8a7ab8',20,278,9,VR.misreportsTried.toLocaleString()+' misreports tried, '+VR.profitableLies+' of them profitable');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!MK)MK=ttcRounds(makeMarket(5,mseed));
+ var r=Math.min(round,MK.rounds.length-1);
+ var st=MK.rounds[r];
+ nt(g,'#e6dcff',16,26,11,'round '+(r+1)+' of '+MK.rounds.length);
+ var cx=W/2,cy=150,R=94;
+ function pos(i){var th=i/5*2*Math.PI-Math.PI/2;
+  return [cx+R*Math.cos(th),cy+R*Math.sin(th)];}
+ var gone={};
+ for(var k=0;k<r;k++)MK.rounds[k].cycle.forEach(function(a){gone[a]=1;});
+ for(var i=0;i<5;i++){
+  if(gone[i])continue;
+  if(st.point[i]===undefined)continue;
+  var a=pos(i),b=pos(st.point[i]);
+  var inCyc=st.cycle.indexOf(i)>=0;
+  ne(g,inCyc?'#ffd76a':'rgba(125,226,176,0.4)',inCyc?2.6:1.2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ for(var i2=0;i2<5;i2++){
+  var p=pos(i2);
+  var col=gone[i2]?'rgba(90,80,130,0.4)':(st.cycle.indexOf(i2)>=0?'#ffd76a':'#7de2b0');
+  ndot(g,p[0],p[1],8,col);
+  nt(g,gone[i2]?'#5a4a85':'#e6dcff',p[0]-4,p[1]+4,10,''+i2);
+  if(gone[i2])nt(g,'#5a4a85',p[0]-16,p[1]+22,8,'settled');}
+ var yb=268;
+ nt(g,'#ffd76a',24,yb,10,'this round\\u2019s cycle: '+st.cycle.join(' \\u2192 ')+' \\u2192 '+st.cycle[0]);
+ nt(g,'#8a7ab8',24,yb+20,9,'each of them receives their top REMAINING choice');
+ nt(g,'#7de2b0',24,yb+40,9,'final allocation ['+MK.alloc.join(', ')+']');
+ var o=document.getElementById('ttout');
+ if(o)o.innerHTML='Round <b>'+(r+1)+'</b>: the cycle <b>'+st.cycle.join(' &rarr; ')+
+  '</b> closes, and everyone in it takes their favourite house among those still available. '+
+  'Nobody in a cycle could do better under any reallocation, so the trade is final the moment it happens \\u2014 which is why nothing here can be gamed.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.32];}
+ var res=ttcRounds(makeMarket(7,mseed+3));
+ function pos(i){var th=i/7*2*Math.PI;
+  return P(96*Math.cos(th),0,96*Math.sin(th));}
+ res.rounds.forEach(function(st,ri){
+  Object.keys(st.point).forEach(function(k){
+   var i=+k,a=pos(i),b=pos(st.point[i]);
+   var inCyc=st.cycle.indexOf(i)>=0;
+   ne(g,inCyc?'#ffd76a':'rgba(125,226,176,0.28)',inCyc?2.2:1);
+   g.beginPath();g.moveTo(a[0],a[1]-ri*22);g.lineTo(b[0],b[1]-ri*22);g.stroke();ng(g);});
+  st.cycle.forEach(function(i){
+   var p=pos(i);
+   ndot(g,p[0],p[1]-ri*22,4.6,'#ffd76a');});});
+ for(var i=0;i<7;i++){var p=pos(i);
+  ndot(g,p[0],p[1],5,'#7de2b0');}
+ nt(g,'#ffd76a',14,24,11,'gold: cycles, one layer per round');
+ nt(g,'#7de2b0',14,42,10,'each layer is final the moment it forms');
+ nt(g,'#8a7ab8',14,58,10,'nothing is ever traded off against anything');
+ nt(g,'#8a7ab8',14,H-12,9,'so there is nothing for a lie to purchase');}
+document.getElementById('ttnext').onclick=function(){round++;drawW4();};
+document.getElementById('ttnew').onclick=function(){mseed+=11;round=0;MK=null;drawW4();};
+document.getElementById('ttsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__toptrading=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WCRS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Several bidders compete for something whose true value is the same for all of them &mdash; an oil lease, a spectrum licence, a company &mdash; and each has only a noisy private estimate. Everyone bids their estimate. The winner is, by construction, <b>the one who overestimated most</b>. Winning is therefore evidence that you were wrong, and the more competitors there are, the stronger that evidence gets. Capen, Clapp and Campbell named it in 1971 after watching oil companies lose money on tracts they had won.<br><br>
+ <span class="lit">LIT</span> verified live with a true value of 100 and estimates scattered &plusmn;30: over 40,000 auctions the winner&rsquo;s estimate exceeds the truth by <b>&minus;0.103</b> with one bidder, <b>10.057</b> with two, <b>15.090</b> with three, <b>20.055</b> with five, <b>24.562</b> with ten and <b>28.825</b> with fifty &mdash; against the exact value A(n&minus;1)/(n+1), which gives <b>0, 10, 15, 20, 24.545, 28.824</b>. The worst deviation anywhere is <b>0.103</b> on a scale of 30. Shading every bid by exactly that amount brings the expected profit back to zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>SUDDEN DEATH</i>: you won, and that is the problem.<br><br>
+ <b>AVAN (AI)</b> checked the simulation against a <b>closed form</b> rather than reporting a trend. For n estimates drawn uniformly on &plusmn;A, the expected maximum is exactly A(n&minus;1)/(n+1), and every measured value lands within 0.103 of it &mdash; which turns &ldquo;the curse grows with competition&rdquo; from an observation into a quantity you can price. The n = 1 row is the control and it matters: with no competition the curse is <b>&minus;0.103</b>, indistinguishable from zero and on the wrong side of it, confirming the effect comes from <i>selection by winning</i> and not from the noise itself. Nothing here says bidders are irrational. Each estimate is unbiased; it is the act of winning that conditions on the tail, and an unbiased estimator conditioned on being the largest is no longer unbiased.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The overestimate against the number of bidders, measured and exact.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run an auction. The estimates are honest; the winner is not.</div>
+   <div class="btns" style="margin-top:10px"><button id="wcrun">run an auction &#9654;</button><button id="wcn">more bidders</button><button id="wcshade">shade the bids</button></div>
+   <div class="cap" id="wcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: clouds of honest estimates, with the winning tail lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;winners overpay.&rdquo; The inverse is that <b>nobody in this story is biased and the bias is real anyway &mdash; it was manufactured by the selection rule</b>. Each estimate is centred on the truth; the auction then picks out the largest one and calls it the decision. Read backwards, the winner&rsquo;s curse is the same object as publication bias, as the best-performing fund, as the drug that looked strongest in trials: any process that keeps only the maximum of many unbiased estimates will report something too high, by an amount you can calculate in advance and almost nobody subtracts.</div>
+   <div class="btns" style="margin-top:10px"><button id="wcsp">pause spin</button></div></div></div></div>"""
+WCRS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nb2=5,shade=false,aseed=7,lastRun=null;
+var TRUE=100,A=30;
+function wcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function exact(n){return A*(n-1)/(n+1);}
+function selftest(){
+ var g=wcRnd(1971);
+ var NS=[1,2,3,5,10,20,50],REPS=40000;
+ var rows=NS.map(function(n){
+  var s=0;
+  for(var r=0;r<REPS;r++){
+   var best=-Infinity;
+   for(var i=0;i<n;i++){var sg=TRUE+(g()*2-1)*A;if(sg>best)best=sg;}
+   s+=best-TRUE;}
+  return {n:n,measured:s/REPS,exact:exact(n)};});
+ var worst=Math.max.apply(null,rows.map(function(r){return Math.abs(r.measured-r.exact);}));
+ return {trueValue:TRUE,noiseHalfWidth:A,auctions:REPS,
+  sizes:NS,rows:rows,worstDeviation:worst,
+  matchesClosedForm:worst<0.5,
+  growsWithBidders:rows.every(function(r,i){return i===0||r.measured>rows[i-1].measured;}),
+  noCurseAlone:Math.abs(rows[0].measured)<0.3,
+  naiveLosesMoney:rows.slice(1).every(function(r){return -r.measured<-1;}),
+  shadingBreaksEven:rows.every(function(r){return Math.abs(r.measured-r.exact)<0.5;}),
+  ok:worst<0.5&&rows.every(function(r,i){return i===0||r.measured>rows[i-1].measured;})&&
+   Math.abs(rows[0].measured)<0.3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE WINNER\\u2019S OVERESTIMATE  \\u2014  measured against A(n\\u22121)/(n+1)');
+ var m=58,pw=W-m-46,top=46,ph=156;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function X(i){return m+pw*i/(VR.rows.length-1);}
+ function Y(v){return top+ph-ph*v/A;}
+ ne(g,'#ffd76a',4);
+ g.beginPath();
+ VR.rows.forEach(function(r,i){if(i===0)g.moveTo(X(i),Y(r.exact));else g.lineTo(X(i),Y(r.exact));});
+ g.stroke();ng(g);
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ VR.rows.forEach(function(r,i){if(i===0)g.moveTo(X(i),Y(r.measured));else g.lineTo(X(i),Y(r.measured));});
+ g.stroke();ng(g);
+ VR.rows.forEach(function(r,i){
+  ndot(g,X(i),Y(r.measured),3.6,'#7de2b0');
+  nt(g,'#8a7ab8',X(i)-8,top+ph+18,9,'n='+r.n);});
+ ne(g,'rgba(255,90,138,0.35)',1.2);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,Y(A));g.lineTo(m+pw,Y(A));g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',m+pw-96,Y(A)-8,9,'the noise limit, '+A);
+ nt(g,'#ffd76a',m+16,top+18,10,'exact A(n\\u22121)/(n+1)');
+ nt(g,'#7de2b0',m+16,top+36,10,'measured over '+VR.auctions.toLocaleString()+' auctions');
+ nt(g,'#e6dcff',20,244,10,'worst deviation anywhere: '+VR.worstDeviation.toFixed(4)+' on a scale of '+A);
+ nt(g,'#8a7ab8',20,266,9,'with one bidder the curse is '+VR.rows[0].measured.toFixed(3)+' \\u2014 the control, and it is zero');
+ nt(g,'#8a7ab8',20,284,9,'so the bias comes from selection by winning, not from the noise');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!lastRun||lastRun.n!==nb2){
+  var g2=wcRnd(aseed),sg=[];
+  for(var i=0;i<nb2;i++)sg.push(TRUE+(g2()*2-1)*A);
+  lastRun={n:nb2,signals:sg};}
+ var sig=lastRun.signals;
+ var bids=sig.map(function(v){return shade?v-exact(nb2):v;});
+ var wi=0;
+ for(var i2=1;i2<bids.length;i2++)if(bids[i2]>bids[wi])wi=i2;
+ nt(g,'#e6dcff',16,26,11,nb2+' bidders   \\u00b7   '+(shade?'shaded by '+exact(nb2).toFixed(2):'bidding their estimates'));
+ var m=44,pw=W-88,top=64,ph=140;
+ function X(v){return m+pw*(v-(TRUE-A-6))/(2*A+12);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#ffd76a',2);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(X(TRUE),top);g.lineTo(X(TRUE),top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',X(TRUE)-30,top-6,9,'true value 100');
+ bids.forEach(function(b,i){
+  var y=top+16+i*(ph-24)/Math.max(1,nb2);
+  var win=i===wi;
+  ne(g,win?'#ff5a8a':'rgba(125,226,176,0.6)',win?2.6:1.4);
+  g.beginPath();g.moveTo(X(TRUE),y);g.lineTo(X(b),y);g.stroke();ng(g);
+  ndot(g,X(b),y,win?5.6:3.2,win?'#ff5a8a':'#7de2b0');});
+ var profit=TRUE-bids[wi];
+ var y2=top+ph+28;
+ nf(g,profit>=0?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,66);ng(g);
+ ne(g,profit>=0?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,66);ng(g);
+ nt(g,'#8a7ab8',36,y2+22,9,'winning bid '+bids[wi].toFixed(2)+'   true value '+TRUE);
+ nt(g,profit>=0?'#7de2b0':'#ff5a8a',36,y2+50,16,(profit>=0?'+':'')+profit.toFixed(2));
+ nt(g,'#8a7ab8',24,y2+84,9,'expected overestimate at n='+nb2+': '+exact(nb2).toFixed(3));
+ var o=document.getElementById('wcout');
+ if(o)o.innerHTML=shade
+  ?('Every bidder has subtracted <b>'+exact(nb2).toFixed(2)+'</b> before bidding, and the winner pays <b>'+
+    bids[wi].toFixed(2)+'</b> for something worth 100. Over many auctions that averages to zero \\u2014 the shade is exactly the expected maximum of the noise.')
+  :('The winner bid <b>'+bids[wi].toFixed(2)+'</b> for something worth <b>100</b>. Every estimate here is honest and unbiased; the auction simply hands the item to whoever was most wrong in the useful direction. Expected overestimate at n = '+nb2+' is <b>'+exact(nb2).toFixed(3)+'</b>.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+50,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.7-zr*0.32];}
+ var g2=wcRnd(404);
+ var NS=[2,3,5,10,20];
+ NS.forEach(function(n,ni){
+  var best=-Infinity,bp=null;
+  for(var i=0;i<n*10;i++){
+   var s=TRUE+(g2()*2-1)*A;
+   var q=P((s-TRUE)*3.2,ni*30,(i%10-5)*7);
+   var isMax=s>best;
+   if(isMax){best=s;bp=q;}
+   ndot(g,q[0],q[1],1.7,'rgba(125,226,176,0.4)');}
+  if(bp)ndot(g,bp[0],bp[1],5,'#ff5a8a');
+  var zero=P(0,ni*30,0);
+  ndot(g,zero[0],zero[1],2.6,'#ffd76a');});
+ var a=P(0,-14,0),b=P(0,160,0);
+ ne(g,'rgba(255,215,106,0.45)',1.4);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',14,24,11,'gold line: the truth');
+ nt(g,'#ff5a8a',14,42,10,'pink: the winner, further right on every layer');
+ nt(g,'#8a7ab8',14,58,10,'every estimate is centred; only the selection is not');
+ nt(g,'#8a7ab8',14,H-12,9,'the same object as publication bias, and as the best-performing fund');}
+document.getElementById('wcrun').onclick=function(){aseed+=13;lastRun=null;drawW4();};
+document.getElementById('wcn').onclick=function(){
+ var L=[2,3,5,10,20,50];nb2=L[(L.indexOf(nb2)+1)%L.length];lastRun=null;drawW4();};
+document.getElementById('wcshade').onclick=function(){shade=!shade;drawW4();};
+document.getElementById('wcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__winnerscurse=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 220 · neon-noir · silicon-coding · THE LAW THAT ISN'T EVIDENCE (monkeys writing Zipf · two right answers that disagree · the obvious theorem that took twenty years · the map that always comes home · the bits you pay for being wrong) ═══════════════════════
 ZIPF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Rank the words of any text by frequency and the counts fall off like 1/rank. Zipf&rsquo;s law turns up in language, city sizes, income, web traffic &mdash; and it has been taken as evidence of deep organising principles for eighty years. In 1957 George Miller pointed out the problem: <b>a monkey hitting random keys, including a space bar, produces Zipf&rsquo;s law too</b>. The law is not a fingerprint of meaning. It is what you get from any process that makes short things common and long things rare.<br><br>
@@ -70015,6 +70774,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-alabama-paradox","title":"THE ALABAMA PARADOX","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ff5a8a","icon":"\u21b6",
+  "kicker":"more seats, fewer seats",
+  "blurb":"Hamilton's apportionment method has a defect nobody predicted: enlarging the assembly can cost a state a seat. The House noticed in 1880.",
+  "lit":"over 20,000 random apportionments, adding one seat takes a seat away from some state in 826 of them, and the smallest example needs only three states - populations 127, 132, 40 with 3 seats give 1, 1, 1, and with 4 seats give 2, 2, 0, the third state wiped out by the assembly getting BIGGER; Hamilton satisfies the quota rule in all 1,200 tested cases; a divisor method violates quota in 49 of them but shows the paradox 0 times in 20,000",
+  "fig":"The divisor comparison was built because without it the page teaches the wrong lesson. Shown alone the paradox reads as 'apportionment is impossible' - and it is not: a divisor method never exhibits it in 20,000 attempts. What a divisor method does instead is VIOLATE THE QUOTA RULE, handing a state more or fewer seats than its exact share rounds to, in 49 of 1,200 cases. That is the actual content: Balinski and Young proved in 1982 that no method can satisfy both quota and population monotonicity, so every scheme in use has chosen which failure to accept. The 1880 Alabama figures are cited, not recomputed - the census populations were not available to this page.",
+  "body":ALAB_BODY,"script":ALAB_SCRIPT},
+ {"slug":"the-vickrey","title":"THE VICKREY","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#7de2b0","icon":"\u2713",
+  "kicker":"where honesty is the dominant strategy",
+  "blurb":"Highest bidder wins and pays the SECOND-highest bid. That one change makes bidding your true value never worse than anything else, whatever anyone else does.",
+  "lit":"by exhaustive search over every combination of value, bid and highest opposing bid from 0 to 20 - all 9,261 triples - bidding your value is beaten 0 times, and is strictly better in 2,870 of them, so the dominance is not a tie; overbidding produces a strictly negative payoff in 1,330 cases and underbidding forfeits a profitable auction in 1,540; under first-price rules bidding your value pays exactly 0 with no exceptions, and shading below it is strictly better in 190 situations",
+  "fig":"EVERY triple was checked rather than sampled, because dominance is a universally-quantified claim and a sample cannot establish one; 9,261 is small enough to enumerate, so there is no reason to do anything weaker. The second gate matters as much as the first: a strategy that merely TIES everywhere is dominant in a useless sense, and 2,870 cases where truth strictly wins establishes the property has content. The first-price comparison is included because 'auctions reward honesty' is false in general - under first-price rules truthful bidding is strictly dominated and guarantees zero profit. Vickrey, 1961.",
+  "body":VICK_BODY,"script":VICK_SCRIPT},
+ {"slug":"the-price-of-anarchy","title":"THE PRICE OF ANARCHY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffd76a","icon":"\u2442",
+  "kicker":"the exact cost of everyone choosing freely",
+  "blurb":"Everyone takes the route fastest for them, and everyone ends up worse off. For linear congestion the damage is bounded at exactly 4/3, no matter how tangled the network.",
+  "lit":"on Pigou's network the equilibrium cost is 1 and the social optimum is 0.750000000 at a split of exactly one half, giving a ratio of 1.333333333333; across 4,000 random two-link linear instances the ratio never once exceeds 4/3, the worst observed being 1.314671; and the bound is a property of linearity rather than a universal constant - with latency x^d the ratio climbs 1.333, 1.626, 2.151, 3.081, 4.727, 7.653 for d = 1, 2, 4, 8, 16, 32",
+  "fig":"The nonlinear ladder was run specifically to stop 4/3 being remembered as THE price of anarchy. It is the price for LINEAR latency; at x^32 the same construction gives 7.65 and keeps climbing, and there is no bound at all without a restriction on how delay responds to load. The random sweep is the other half: a single worked example proves a ratio is ATTAINABLE, never that it is MAXIMAL, so 4,000 instances were checked and the worst came in at 1.314671, comfortably under. That is the shape of evidence a tight bound should have. Roughgarden and Tardos, 2002.",
+  "body":POAN_BODY,"script":POAN_SCRIPT},
+ {"slug":"the-top-trading","title":"THE TOP TRADING","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#5ad6ff","icon":"\u21bb",
+  "kicker":"the trade that cannot be gamed",
+  "blurb":"Point at the owner of your favourite house; the arrows must contain a cycle; execute and repeat. One page of instructions gives the unique unimprovable allocation.",
+  "lit":"on 60 random five-agent markets the result is a permutation every time, lies in the core in all 60, and exhaustive search over all 120 possible allocations finds the core contains exactly one, always the one TTC produced; across 3,840 misreports - every agent trying every possible false preference order in 40 four-agent markets - the number of times lying improved an agent's house is 0",
+  "fig":"The core property was tested by BRUTE FORCE over every coalition and every internal reallocation - all 31 non-empty subsets of five agents and every permutation within each - rather than by checking a characterisation. Core membership is a claim about what CANNOT happen, and the honest way to check one is to try everything. Same for strategy-proofness: each agent was given all 24 possible orderings, not a sample. The hypothesis doing the work deserves naming: agents OWN their houses to begin with. Remove the endowment and the result collapses. Shapley and Scarf 1974, crediting the algorithm to David Gale.",
+  "body":TTCY_BODY,"script":TTCY_SCRIPT},
+ {"slug":"the-winners-curse","title":"THE WINNERS CURSE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#b98cff","icon":"\u2620",
+  "kicker":"winning as the evidence you were wrong",
+  "blurb":"When everyone bids their honest estimate of a common value, the winner is by construction the one who overestimated most. Winning is evidence against you.",
+  "lit":"with a true value of 100 and estimates scattered +-30, over 40,000 auctions the winner's estimate exceeds the truth by -0.103 with one bidder, 10.057 with two, 15.090 with three, 20.055 with five, 24.562 with ten and 28.825 with fifty - against the exact value A(n-1)/(n+1), which gives 0, 10, 15, 20, 24.545, 28.824; the worst deviation anywhere is 0.103 on a scale of 30; and shading every bid by exactly that amount brings expected profit back to zero",
+  "fig":"The simulation was checked against a CLOSED FORM rather than reported as a trend. For n estimates uniform on +-A the expected maximum is exactly A(n-1)/(n+1), and every measured value lands within 0.103 of it, which turns 'the curse grows with competition' from an observation into a quantity you can price. The n = 1 row is the control and it matters: with no competition the curse is -0.103, indistinguishable from zero and on the wrong side of it, confirming the effect comes from SELECTION BY WINNING and not from the noise. Nothing here says bidders are irrational - an unbiased estimator conditioned on being the largest is no longer unbiased. Capen, Clapp and Campbell, 1971.",
+  "body":WCRS_BODY,"script":WCRS_SCRIPT},
  {"slug":"the-zipf","title":"THE ZIPF","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#ff5a8a","icon":"\u2263",
   "kicker":"a law that is not evidence",
