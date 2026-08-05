@@ -106,3 +106,29 @@ Tower of Hanoi, gradient descent, backprop, memoization, SHA-256, Merkle tree, a
 ═══════════════════════════════════════════════════════════════════════
 NOTE: dedup — HyperLogLog (C3/D2), Wireworld (B8/E9), Zeckendorf (A11/C4) appear twice; build once.
 ~70 distinct concepts here = ~3.5 batches of 20. Re-run the keeper agents to refill when the bank runs low.
+
+═══════════════════════════════════════════════════════════════════════
+## VEIN F — REFILL (added 2026-08-04, batch 206). Veins A–E are EXHAUSTED.
+Batch 206 checked 53 candidates across veins A–E plus fresh esoterica; ALL of A–E were taken,
+as were 48 of the 53. The corpus is dense at 1165 — always run the three-way check
+(generator slug + fold.json + ud0/world2 file listing) before drafting anything.
+
+BUILT in batch 206: THE MONSKY, THE SHARKOVSKII, THE LOB, THE PRESBURGER, THE JORDAN CURVE.
+
+STILL FREE as of 2026-08-04 (verified three ways, logic/decision-theory vein is the open one):
+1. THE ELLSBERG — ambiguity aversion; the two-urn choice pair is inconsistent with ANY
+   probability assignment. CLAIM: exhaustively show no single P over the 90-ball urn makes both
+   modal choices rational (linear feasibility, checkable by enumeration).
+2. THE NEWCOMB — one-boxing vs two-boxing. CLAIM: build both decision tables and show causal
+   and evidential decision theory give provably OPPOSITE recommendations on the same payoff matrix.
+3. THE GENTZEN — sequent calculus cut-elimination. CLAIM: run the reduction on a proof WITH cuts,
+   verify the output is cut-free, proves the same sequent, and has the subformula property.
+4. THE HERBRAND — reduce a first-order validity to propositional. CLAIM: for a fixed formula,
+   the Herbrand expansion at depth k becomes propositionally unsatisfiable at a specific k,
+   verified by an actual SAT check.
+5. THE KREIN-MILMAN — a compact convex set is the hull of its extreme points. CLAIM: for random
+   polytopes, recompute the hull from extreme points alone and confirm it reproduces the set exactly.
+
+NOTE ON SKOLEM SEQUENCES: free by slug, but deliberately SKIPPED — too close to the already-built
+Langford pairing (same family). Near-duplicates are a real trap; batch 205 skipped `the-dither`
+for the same reason (batch 42 already ships Floyd–Steinberg dithering).
