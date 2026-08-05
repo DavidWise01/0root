@@ -238,11 +238,17 @@ function main() {
       if (reproduces(c, values)) continue;
       // A claim that names a value CLOSE to a live one but not equal is DRIFT.
       // A claim with no nearby live value at all is more likely a citation → UNMATCHED.
+      // How close must a live value be before we call the published number STALE rather than
+      // simply absent? Integer counts in LIT are usually search BOUNDS ("scanned to 10,000") —
+      // inputs, not outputs — so they need a genuine near-miss (10%) to be suspicious.
+      // Decimals read as measurements, so a looser 0.5x..2x band still counts as drift.
+      const lo = c.kind === 'intcount' ? 0.9 : 0.5;
+      const hi = c.kind === 'intcount' ? 1.1 : 2;
       let near = false;
       for (const x of values) {
         if (!isFinite(x) || x === 0) continue;
         const ratio = Math.abs(c.val) / Math.abs(x);
-        if (ratio > 0.5 && ratio < 2 && Math.abs(c.val - x) > 1e-12) { near = true; break; }
+        if (ratio > lo && ratio < hi && Math.abs(c.val - x) > 1e-12) { near = true; break; }
       }
       if (near) { drift++; driftRows.push([slug, c.raw, c.val]); }
       else { unmatched++; unmatchedRows.push([slug, c.raw]); }
