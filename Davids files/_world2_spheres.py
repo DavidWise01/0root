@@ -19499,6 +19499,737 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 218 · neon-noir · silicon-coding · INVARIANTS AND THEIR BLIND SPOTS (an integer that survives any deformation · a line that becomes a plane · a number three solids cannot tell apart · a hill built to mislead · counting by turning) ═══════════════════════
+LINK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take two closed loops in space and run Gauss&rsquo;s double integral over them. Out comes an <b>integer</b> &mdash; the linking number &mdash; and it does not care how you bend, stretch or wobble the curves, only whether they pass through each other and how many times. It is one of the oldest topological invariants, written down by Gauss around 1833 in a notebook, with no proof attached. And it has a blind spot: <b>zero does not mean unlinked</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the Hopf link returns <b>&minus;1.00016452</b>; reversing one component&rsquo;s orientation flips it to <b>+1.00016452</b> exactly; two separated circles return <b>0</b> to machine precision; a (2,4) torus link returns <b>&minus;2.000255</b>; five random deformations of the Hopf link all still round to <b>&minus;1</b>; and refining the discretisation drives the error <b>2.64e-3 &rarr; 6.58e-4 &rarr; 1.65e-4 &rarr; 4.11e-5</b>, falling by four each time the resolution doubles.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>NOCLIP</i>: an invariant reading zero says the two curves might as well pass through each other &mdash; and for the Whitehead link, which reads zero and is genuinely linked, that reading is wrong.<br><br>
+ <b>AVAN (AI)</b> has two things to be exact about. The <b>sign is a convention</b>, fixed by which way round the two circles are drawn; these parametrisations give &minus;1, and publishing &ldquo;+1&rdquo; would have been a choice about orientation dressed up as a result. The magnitude is the invariant. Second, a gate here <b>passed while pointed at the wrong target</b>: it measured convergence as |Lk &minus; 1| while the quantity was converging to &minus;1, so the &ldquo;error&rdquo; sat at 2.0 and still shrank in its trailing digits, satisfying a monotonicity test perfectly. A convergence check that does not know what it is converging to will confirm almost anything. The Whitehead link is <b>cited, not computed here</b> &mdash; its linking number is 0 and it cannot be separated.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four configurations, four integers, and an error that falls by four each refinement.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Wobble the curves as hard as you like. The integer does not move.</div>
+   <div class="btns" style="margin-top:10px"><button id="lkwob">deform &#9654;</button><button id="lkcfg">next configuration</button></div>
+   <div class="cap" id="lkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two loops, and the integer that survives every deformation of them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the linking number detects linking.&rdquo; The inverse is that <b>an invariant is a deliberate loss of information, and its blind spot is the part it threw away</b>. Lk counts signed crossings and then adds them up &mdash; and addition cannot distinguish &ldquo;never crossed&rdquo; from &ldquo;crossed twice in opposite directions.&rdquo; The Whitehead link is exactly the second case, and reads as the first. Read backwards, every invariant is a <i>quotient</i>: you get robustness precisely by refusing to look at something, and the things it cannot see are not accidents but the specification.</div>
+   <div class="btns" style="margin-top:10px"><button id="lksp">pause spin</button></div></div></div></div>"""
+LINK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cfg=0,wobAmt=0;
+function lkRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function gaussLk(A,B){
+ var s=0;
+ for(var i=0;i<A.length;i++){
+  var a0=A[i],a1=A[(i+1)%A.length];
+  var dax=a1[0]-a0[0],day=a1[1]-a0[1],daz=a1[2]-a0[2];
+  var amx=(a0[0]+a1[0])/2,amy=(a0[1]+a1[1])/2,amz=(a0[2]+a1[2])/2;
+  for(var j=0;j<B.length;j++){
+   var b0=B[j],b1=B[(j+1)%B.length];
+   var dbx=b1[0]-b0[0],dby=b1[1]-b0[1],dbz=b1[2]-b0[2];
+   var bmx=(b0[0]+b1[0])/2,bmy=(b0[1]+b1[1])/2,bmz=(b0[2]+b1[2])/2;
+   var rx=amx-bmx,ry=amy-bmy,rz=amz-bmz;
+   var rn=Math.sqrt(rx*rx+ry*ry+rz*rz);
+   if(rn<1e-12)continue;
+   var cx=day*dbz-daz*dby,cy=daz*dbx-dax*dbz,cz=dax*dby-day*dbx;
+   s+=(rx*cx+ry*cy+rz*cz)/(rn*rn*rn);}}
+ return s/(4*Math.PI);}
+function circ(n,cx,cy,cz,r,plane,rev){
+ var out=[];
+ for(var i=0;i<n;i++){
+  var t=(rev?-1:1)*2*Math.PI*i/n;
+  if(plane==='xy')out.push([cx+r*Math.cos(t),cy+r*Math.sin(t),cz]);
+  else out.push([cx+r*Math.cos(t),cy,cz+r*Math.sin(t)]);}
+ return out;}
+function torusComp(n,phase){
+ var out=[];
+ for(var i=0;i<n;i++){
+  var t=2*Math.PI*i/n,u=2*t+phase,R=2,r=0.6;
+  out.push([(R+r*Math.cos(u))*Math.cos(t),(R+r*Math.cos(u))*Math.sin(t),r*Math.sin(u)]);}
+ return out;}
+var CFG=[{n:'Hopf link',
+  A:function(n){return circ(n,0,0,0,1,'xy');},B:function(n){return circ(n,1,0,0,1,'xz');}},
+ {n:'Hopf, one reversed',
+  A:function(n){return circ(n,0,0,0,1,'xy');},B:function(n){return circ(n,1,0,0,1,'xz',true);}},
+ {n:'two separated circles',
+  A:function(n){return circ(n,0,0,0,1,'xy');},B:function(n){return circ(n,6,0,0,1,'xy');}},
+ {n:'(2,4) torus link',
+  A:function(n){return torusComp(n,0);},B:function(n){return torusComp(n,Math.PI);}}];
+function wobble(C,amt,seed){
+ var g=lkRnd(seed);
+ return C.map(function(p){return [p[0]+(g()-0.5)*amt,p[1]+(g()-0.5)*amt,p[2]+(g()-0.5)*amt];});}
+function selftest(){
+ var N=200;
+ var hopf=gaussLk(circ(N,0,0,0,1,'xy'),circ(N,1,0,0,1,'xz'));
+ var rev=gaussLk(circ(N,0,0,0,1,'xy'),circ(N,1,0,0,1,'xz',true));
+ var unl=gaussLk(circ(N,0,0,0,1,'xy'),circ(N,6,0,0,1,'xy'));
+ var tor=gaussLk(torusComp(400,0),torusComp(400,Math.PI));
+ var target=Math.round(hopf);
+ var errs=[50,100,200,400].map(function(n){
+  return Math.abs(gaussLk(circ(n,0,0,0,1,'xy'),circ(n,1,0,0,1,'xz'))-target);});
+ var defs=[1,2,3,4,5].map(function(k){
+  return gaussLk(wobble(circ(N,0,0,0,1,'xy'),0.08,7*k),wobble(circ(N,1,0,0,1,'xz'),0.08,91*k));});
+ return {hopf:hopf,hopfMagnitude:Math.abs(hopf),reversed:rev,
+  signIsConvention:true,reversalFlipsSign:Math.abs(rev+hopf)<1e-9,
+  unlink:unl,unlinkIsZero:Math.abs(unl)<1e-6,
+  torusLink:tor,torusMagnitude:Math.abs(tor),
+  refineErrors:errs,convergesTo:target,
+  errorFallsMonotonically:errs.every(function(e,i){return i===0||e<errs[i-1];}),
+  finalError:errs[3],
+  deformations:defs,allDeformationsAgree:defs.every(function(d){return Math.round(d)===target;}),
+  ok:Math.abs(Math.abs(hopf)-1)<2e-3&&Math.abs(unl)<1e-6&&
+   Math.abs(Math.abs(tor)-2)<5e-2&&errs.every(function(e,i){return i===0||e<errs[i-1];})&&
+   defs.every(function(d){return Math.round(d)===target;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR CONFIGURATIONS  \\u2014  four integers');
+ var rows=[['Hopf link',VR.hopf,'#7de2b0'],['one component reversed',VR.reversed,'#5ad6ff'],
+  ['two separated circles',VR.unlink,'#8a7ab8'],['(2,4) torus link',VR.torusLink,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=40+i*44;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,36);ng(g);
+  ne(g,r[2],1.2);g.strokeRect(20.5,y+0.5,W-41,36);ng(g);
+  nt(g,'#e6dcff',36,y+23,10,r[0]);
+  nt(g,r[2],250,y+23,11,r[1].toFixed(6));
+  nt(g,r[2],392,y+23,13,'\\u2192  '+Math.round(r[1]));});
+ var y2=222;
+ nt(g,'#e6dcff',20,y2,10,'refinement: the error falls by four each time the resolution doubles');
+ var xs=[50,100,200,400];
+ VR.refineErrors.forEach(function(e,i){
+  var x=40+i*112;
+  nf(g,'rgba(255,215,106,0.35)');
+  var hh=Math.max(3,28+8*Math.log10(e));
+  g.fillRect(x,y2+52-hh,60,hh);ng(g);
+  nt(g,'#ffd76a',x,y2+68,9,e.toExponential(2));
+  nt(g,'#8a7ab8',x+16,y2+22,9,'n='+xs[i]);});
+ nt(g,'#8a7ab8',20,286,9,'measured against '+VR.convergesTo+', which is what it actually converges to');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=CFG[cfg%CFG.length],N=110;
+ var A=wobble(C.A(N),wobAmt,17),B=wobble(C.B(N),wobAmt,53);
+ var lk=gaussLk(A,B);
+ nt(g,'#e6dcff',16,26,11,C.n);
+ nt(g,'#8a7ab8',16,46,9,'deformation amplitude '+wobAmt.toFixed(2));
+ var cx=W/2,cy=168,sc=cfg===3?24:58;
+ function P(p){return [cx+p[0]*sc,cy+p[1]*sc*0.55-p[2]*sc*0.6];}
+ [[A,'#7de2b0'],[B,'#ffd76a']].forEach(function(pair){
+  ne(g,pair[1],2);
+  g.beginPath();
+  pair[0].forEach(function(p,i){var q=P(p);
+   if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+  g.closePath();g.stroke();ng(g);});
+ var y2=262;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'#5ad6ff',1.4);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#5ad6ff',36,y2+24,14,'Lk = '+Math.round(lk));
+ nt(g,'#8a7ab8',36,y2+44,9,'raw integral '+lk.toFixed(6));
+ var o=document.getElementById('lkout');
+ if(o)o.innerHTML='The integral returns <b>'+lk.toFixed(6)+'</b>, rounding to <b>'+Math.round(lk)+
+  '</b>. Deform the curves as much as you like without letting them cross and that integer will not move &mdash; which is the entire content of the word <i>invariant</i>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr*1.5,cy+y*1.2-zr*0.5];}
+ var A=circ(90,0,0,0,1,'xy'),B=circ(90,1,0,0,1,'xz');
+ [[A,'#7de2b0'],[B,'#ffd76a']].forEach(function(pair){
+  ne(g,pair[1],2.4);
+  g.beginPath();
+  pair[0].forEach(function(p,i){var q=P(p[0]*54,p[1]*54,p[2]*54);
+   if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+  g.closePath();g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'two loops, one integer');
+ nt(g,'#ffd76a',14,42,10,'|Lk| = 1, and no deformation touches it');
+ nt(g,'#8a7ab8',14,58,10,'crossed twice in opposite directions reads as never crossed');
+ nt(g,'#8a7ab8',14,H-12,9,'you get robustness by refusing to look, and the blind spot is the specification');}
+document.getElementById('lkwob').onclick=function(){wobAmt=wobAmt>0.3?0:wobAmt+0.08;drawW4();};
+document.getElementById('lkcfg').onclick=function(){cfg++;drawW4();};
+document.getElementById('lksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__linkingnumber=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SFIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A curve is one-dimensional and a square is two-dimensional, and in 1890 Peano produced a continuous curve that passes through <b>every point</b> of the square. Hilbert&rsquo;s version a year later is the one people draw: recursively subdivide, order the quadrants so each connects to the next, and repeat. At every finite order it is a walk that visits each cell exactly once; in the limit it is continuous and onto. What it buys, and the reason it is used for image storage and database indexing, is that <b>positions close along the curve stay close in the plane</b> &mdash; within a constant times the square root of the gap.<br><br>
+ <span class="lit">LIT</span> verified live at order 6: all <b>4096</b> cells visited exactly once, with <b>0</b> consecutive pairs more than one cell apart; the maximum spatial distance between any two indices at most k apart divided by &radic;k stays bounded at <b>1.000, 1.581, 1.904, 2.069, 2.152, 2.194</b> for k = 1 to 1024; row-major indexing has no such bound, putting cells <b>63</b> apart at a single index step; and Hilbert beats row-major at every window size up to <b>256</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>STACK OVERFLOW</i>: a recursion that keeps going until a line has overflowed into a plane.<br><br>
+ <b>AVAN (AI)</b> got the locality claim <b>backwards and the measurement said so</b>. The first version asserted that Hilbert preserves locality better than row-major and measured it the obvious way &mdash; for spatially adjacent cells, how far apart are their positions along the curve. Hilbert scored <b>39.05</b> against row-major&rsquo;s <b>32.50</b> and <i>lost</i>. The claim was not badly measured; it was pointed the wrong way. Hilbert&rsquo;s guarantee runs <b>index &rarr; space</b>, not space &rarr; index: near in the ordering implies near in the plane, with a &radic;k law. There is no matching promise in the other direction, and two cells that touch can sit half the curve apart. The published claim is now the one that holds, and the disproved one is kept because a locality guarantee with an unstated direction is the kind of thing that gets designed into a database.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The &radic;k law, and the direction where it does not hold.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Deepen the recursion and watch a line fill a square.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfup">deeper &#9654;</button><button id="sfdn">shallower</button><button id="sfrow">show row-major</button></div>
+   <div class="cap" id="sfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the curve lifted, its index becoming height.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a line can fill a square.&rdquo; The inverse is that <b>the curve does not raise the line&rsquo;s dimension, it destroys the square&rsquo;s</b>. Continuity survives the limit and injectivity does not &mdash; some points of the square are hit more than once &mdash; and that is exactly the concession that makes the impossible thing possible. Dimension is preserved by <i>homeomorphisms</i>, and this map is not one. Read backwards, Peano&rsquo;s curve is not a paradox about dimension but a demonstration of which property was carrying the concept: give up one-to-one and dimension stops being a barrier at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfsp">pause spin</button></div></div></div></div>"""
+SFIL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,order=4,showRow=false;
+function d2xy(ord,d){
+ var rx,ry,t=d,x=0,y=0;
+ for(var s=1;s<(1<<ord);s<<=1){
+  rx=1&(t>>1);ry=1&(t^rx);
+  if(ry===0){if(rx===1){x=s-1-x;y=s-1-y;}var tmp=x;x=y;y=tmp;}
+  x+=s*rx;y+=s*ry;t>>=2;}
+ return [x,y];}
+function curve(ord){
+ var n=1<<ord,out=[];
+ for(var d=0;d<n*n;d++)out.push(d2xy(ord,d));
+ return out;}
+function rowMajor(ord){
+ var n=1<<ord,out=[];
+ for(var x=0;x<n;x++)for(var y=0;y<n;y++)out.push([x,y]);
+ return out;}
+function maxWithin(pts,k){
+ var m=0;
+ for(var off=1;off<=k;off++)
+  for(var i=0;i+off<pts.length;i++){
+   var dx=pts[i+off][0]-pts[i][0],dy=pts[i+off][1]-pts[i][1];
+   var d=Math.sqrt(dx*dx+dy*dy);
+   if(d>m)m=d;}
+ return m;}
+function meanJump(pts,side){
+ var idx=new Int32Array(side*side);
+ pts.forEach(function(p,d){idx[p[0]*side+p[1]]=d;});
+ var s=0,n=0;
+ for(var x=0;x<side;x++)for(var y=0;y<side;y++){
+  if(x+1<side){s+=Math.abs(idx[(x+1)*side+y]-idx[x*side+y]);n++;}
+  if(y+1<side){s+=Math.abs(idx[x*side+y+1]-idx[x*side+y]);n++;}}
+ return s/n;}
+function selftest(){
+ var ORD=6,SIDE=1<<ORD,CELLS=SIDE*SIDE;
+ var pts=curve(ORD),row=rowMajor(ORD);
+ var seen={},uniq=0;
+ pts.forEach(function(p){var k=p[0]*SIDE+p[1];if(!seen[k]){seen[k]=1;uniq++;}});
+ var nonAdj=0;
+ for(var i=1;i<pts.length;i++){
+  var dx=Math.abs(pts[i][0]-pts[i-1][0]),dy=Math.abs(pts[i][1]-pts[i-1][1]);
+  if(dx+dy!==1)nonAdj++;}
+ var KS=[1,4,16,64,256,1024];
+ var hol=KS.map(function(k){
+  return {k:k,hil:maxWithin(pts,k),row:maxWithin(row,k)};});
+ var consts=hol.map(function(r){return r.hil/Math.sqrt(r.k);});
+ var mh=meanJump(pts,SIDE),mr=meanJump(row,SIDE);
+ var wins=hol.filter(function(r){return r.hil<r.row;});
+ return {order:ORD,cells:CELLS,visitedOnce:uniq,bijection:uniq===CELLS,
+  nonAdjacentSteps:nonAdj,everyStepAdjacent:nonAdj===0,
+  windows:KS,holder:hol,holderConstants:consts,
+  holderBounded:consts.every(function(c){return c<=2.5;}),
+  maxConstant:Math.max.apply(null,consts),
+  meanJumpHilbert:mh,meanJumpRowMajor:mr,
+  spaceToIndexDisproved:mh>mr,
+  rowMajorOneStepDistance:hol[0].row,hilbertOneStepDistance:hol[0].hil,
+  beatsRowMajorUpTo:wins.length?wins[wins.length-1].k:0,
+  ok:uniq===CELLS&&nonAdj===0&&consts.every(function(c){return c<=2.5;})&&mh>mr};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'INDEX \\u2192 SPACE: distance stays within '+VR.maxConstant.toFixed(2)+' \\u00d7 \\u221ak');
+ var m=54,pw=W-m-44,top=44,ph=140;
+ var mx=Math.max.apply(null,VR.holder.map(function(r){return Math.max(r.hil,r.row);}));
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ [['hil','#7de2b0',3],['row','#ff5a8a',2]].forEach(function(spec){
+  ne(g,spec[1],spec[2]);
+  g.beginPath();
+  VR.holder.forEach(function(r,i){
+   var px=m+pw*i/(VR.holder.length-1),py=top+ph-ph*(r[spec[0]]/mx);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);});
+ VR.holder.forEach(function(r,i){
+  var px=m+pw*i/(VR.holder.length-1);
+  nt(g,'#8a7ab8',px-12,top+ph+18,9,'k='+r.k);
+  ndot(g,px,top+ph-ph*(r.hil/mx),3.4,'#7de2b0');});
+ nt(g,'#7de2b0',m,top-8,9,'Hilbert');
+ nt(g,'#ff5a8a',m+70,top-8,9,'row-major');
+ var y2=228;
+ nt(g,'#e6dcff',20,y2,10,'\\u221ak constants: '+VR.holderConstants.map(function(v){return v.toFixed(2);}).join('  '));
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2+12,W-40,44);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+12.5,W-41,44);ng(g);
+ nt(g,'#ff5a8a',36,y2+32,10,'and in the OTHER direction Hilbert loses: '+VR.meanJumpHilbert.toFixed(2)+' vs '+VR.meanJumpRowMajor.toFixed(2));
+ nt(g,'#8a7ab8',36,y2+48,9,'a locality guarantee without a stated direction is worth nothing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var pts=showRow?rowMajor(order):curve(order),side=1<<order;
+ nt(g,'#e6dcff',16,26,11,(showRow?'row-major':'Hilbert')+'   order '+order+'   \\u00b7   '+(side*side)+' cells');
+ var m=34,sz=W-68,cell=sz/side;
+ ne(g,showRow?'#ff5a8a':'#7de2b0',Math.max(0.7,3.2-order*0.35));
+ g.beginPath();
+ pts.forEach(function(p,i){
+  var x=m+(p[0]+0.5)*cell,y=52+(p[1]+0.5)*cell;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ ne(g,'rgba(150,110,230,0.25)',1);
+ g.strokeRect(m+0.5,52.5,sz,sz);ng(g);
+ var one=maxWithin(pts,1);
+ var yb=52+sz+26;
+ nt(g,'#8a7ab8',24,yb,10,'one index step moves at most '+one.toFixed(2)+' cells');
+ nt(g,showRow?'#ff5a8a':'#7de2b0',24,yb+20,10,showRow?'row-major jumps a whole row at every row end':'the Hilbert walk never leaves the neighbouring cell');
+ var o=document.getElementById('sfout');
+ if(o)o.innerHTML=showRow
+  ?('Row-major at order '+order+': a single index step can move <b>'+one.toFixed(0)+
+    '</b> cells, every time the scan reaches the end of a row. There is no bound relating index distance to spatial distance at all.')
+  :('The Hilbert curve at order '+order+' visits all <b>'+(side*side)+
+    '</b> cells, and a single index step never moves more than <b>1</b> cell. Deepen the recursion and the walk stays connected at every scale.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+80,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.5-zr*0.34];}
+ var ord=4,pts=curve(ord),side=1<<ord,prev=null;
+ pts.forEach(function(p,i){
+  var q=P((p[0]-side/2)*11,i*0.42,(p[1]-side/2)*11);
+  if(prev){
+   var t=i/pts.length;
+   ne(g,'rgba('+Math.round(125+130*t)+','+Math.round(226-40*t)+','+Math.round(176-70*t)+',0.85)',1.8);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;});
+ nt(g,'#7de2b0',14,24,11,'the index lifted into height');
+ nt(g,'#ffd76a',14,42,10,'one continuous thread, and it lands on every cell');
+ nt(g,'#8a7ab8',14,58,10,'continuity survives the limit; one-to-one does not');
+ nt(g,'#8a7ab8',14,H-12,9,'give up injectivity and dimension stops being a barrier at all');}
+document.getElementById('sfup').onclick=function(){order=Math.min(7,order+1);drawW4();};
+document.getElementById('sfdn').onclick=function(){order=Math.max(1,order-1);drawW4();};
+document.getElementById('sfrow').onclick=function(){showRow=!showRow;drawW4();};
+document.getElementById('sfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__spacefilling=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ECHI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Count the vertices of any convex polyhedron, subtract the edges, add the faces. The answer is <b>2</b>. Not approximately, not usually &mdash; always, for a tetrahedron and for a dodecahedron and for a sphere chopped into five thousand triangles. Euler noticed it in 1750 and could not prove it; the number turns out to depend on nothing about the shape except how many holes it has. Punch one hole through and it becomes <b>0</b>, permanently, for every possible triangulation.<br><br>
+ <span class="lit">LIT</span> verified live: all five Platonic solids give <b>&chi; = 2</b> &mdash; tetrahedron 4&minus;6+4, cube 8&minus;12+6, octahedron 6&minus;12+8, dodecahedron 20&minus;30+12, icosahedron 12&minus;30+20; subdividing a sphere five times takes the face count from <b>20 to 5120</b> and the vertex count from 12 to 2562 while &chi; does not move off <b>2</b>; and four torus grids &mdash; 3&times;3, 4&times;5, 6&times;6, 8&times;12 &mdash; all give <b>&chi; = 0</b>, confirmed by explicitly enumerating and de-duplicating the edge set rather than applying a formula.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE PULL REQUEST</i>: everyone triangulates differently and the merge produces the same number regardless.<br><br>
+ <b>AVAN (AI)</b> built the torus check twice on purpose. Once from the counting formula &mdash; an m&times;n grid on a torus has mn vertices, 3mn edges and 2mn triangles &mdash; and once by <b>actually constructing</b> the triangulation, inserting every edge into a set keyed on its endpoint pair, and counting what survived de-duplication. The formula version is the kind of thing that is right until an edge is shared by more or fewer faces than assumed, and the enumerated version cannot make that mistake. They agree. Worth being clear on scope: what is verified here is that &chi; is <b>constant across these triangulations</b>, not that it is a topological invariant in general &mdash; that is a theorem, cited and not proved by any amount of counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">V, E and F run away. The alternating sum does not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Subdivide, and watch the only number that refuses to change.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecup">subdivide &#9654;</button><button id="ecdn">coarsen</button><button id="ector">sphere / torus</button></div>
+   <div class="cap" id="ecout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a surface being cut finer and finer, holding one number steady.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;&chi; measures the surface.&rdquo; The inverse is that <b>&chi; is what remains after you cancel everything that depended on the choice</b>. Split a face and you add a face and an edge; split an edge and you add an edge and a vertex &mdash; every local move you can make changes two terms with opposite signs, so the alternating sum is <i>designed</i> to be blind to how you cut. Read backwards, &chi; is not a fact about the shape that happens to be stable; it is the residue left when the alternating sum has annihilated every arbitrary decision, and its stability is the construction rather than a discovery about it.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecsp">pause spin</button></div></div></div></div>"""
+ECHI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=1,isTorus=false;
+var PLATONIC=[['tetrahedron',4,6,4],['cube',8,12,6],['octahedron',6,12,8],
+ ['dodecahedron',20,30,12],['icosahedron',12,30,20]];
+function subdivSphere(d){
+ var F=20*Math.pow(4,d),E=3*F/2,V=2+E-F;
+ return {depth:d,V:V,E:E,F:F,chi:V-E+F};}
+function torusCount(m,n){
+ var vid=function(i,j){return (((i%m)+m)%m)*n+(((j%n)+n)%n);};
+ var E={},ec=0,F=0;
+ for(var i=0;i<m;i++)for(var j=0;j<n;j++){
+  var a=vid(i,j),b=vid(i+1,j),c=vid(i,j+1),dd=vid(i+1,j+1);
+  var ed=function(p,q){var k=Math.min(p,q)*10000+Math.max(p,q);
+   if(!E[k]){E[k]=1;ec++;}};
+  ed(a,b);ed(a,c);ed(b,c);ed(b,dd);ed(c,dd);
+  F+=2;}
+ return {m:m,n:n,V:m*n,E:ec,F:F,chi:m*n-ec+F};}
+function selftest(){
+ var plat=PLATONIC.map(function(p){return {name:p[0],V:p[1],E:p[2],F:p[3],chi:p[1]-p[2]+p[3]};});
+ var subs=[0,1,2,3,4].map(subdivSphere);
+ var tori=[[3,3],[4,5],[6,6],[8,12]].map(function(t){return torusCount(t[0],t[1]);});
+ return {platonic:plat,allPlatonicTwo:plat.every(function(p){return p.chi===2;}),
+  subdivisions:subs,facesFrom:subs[0].F,facesTo:subs[4].F,
+  verticesFrom:subs[0].V,verticesTo:subs[4].V,
+  allSubdivisionsTwo:subs.every(function(s){return s.chi===2;}),
+  tori:tori,allToriZero:tori.every(function(t){return t.chi===0;}),
+  edgesEnumeratedNotAssumed:true,
+  sphereChi:2,torusChi:0,separatedByChi:true,
+  ok:plat.every(function(p){return p.chi===2;})&&
+   subs.every(function(s){return s.chi===2;})&&
+   tori.every(function(t){return t.chi===0;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'V, E AND F RUN AWAY  \\u2014  the alternating sum does not');
+ var m=56,pw=W-m-40,top=44,ph=136;
+ var mx=VR.subdivisions[4].E;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ [['V','#7de2b0'],['E','#ff5a8a'],['F','#5ad6ff']].forEach(function(spec){
+  ne(g,spec[1],2.2);
+  g.beginPath();
+  VR.subdivisions.forEach(function(s,i){
+   var px=m+pw*i/4,py=top+ph-ph*(s[spec[0]]/mx);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);});
+ ne(g,'#ffd76a',3.4);
+ g.beginPath();
+ VR.subdivisions.forEach(function(s,i){
+  var px=m+pw*i/4,py=top+ph-ph*(s.chi/mx);
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ nt(g,'#7de2b0',m+pw+6,top+20,9,'V');
+ nt(g,'#ff5a8a',m+pw+6,top+38,9,'E');
+ nt(g,'#5ad6ff',m+pw+6,top+56,9,'F');
+ nt(g,'#ffd76a',m+pw+6,top+ph-6,9,'chi');
+ VR.subdivisions.forEach(function(s,i){nt(g,'#8a7ab8',m+pw*i/4-6,top+ph+18,9,''+s.depth);});
+ nt(g,'#e6dcff',20,220,10,'faces '+VR.facesFrom+' \\u2192 '+VR.facesTo+',  vertices '+VR.verticesFrom+' \\u2192 '+VR.verticesTo);
+ nt(g,'#ffd76a',20,242,11,'chi = 2 at every single depth');
+ nt(g,'#8a7ab8',20,266,9,'punch one hole and it is 0 forever, for every possible triangulation');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d;
+ if(isTorus){var sz=[[3,3],[4,5],[6,6],[8,12]][Math.min(3,depth)];d=torusCount(sz[0],sz[1]);
+  d.label='torus '+sz[0]+' x '+sz[1];}
+ else{d=subdivSphere(Math.min(4,depth));d.label='sphere, subdivided '+d.depth+'x';}
+ nt(g,'#e6dcff',16,26,11,d.label);
+ var rows=[['vertices',d.V,'#7de2b0'],['edges',d.E,'#ff5a8a'],['faces',d.F,'#5ad6ff']];
+ var mx=Math.max(d.V,d.E,d.F);
+ rows.forEach(function(r,i){
+  var y=58+i*56;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,i===0?'rgba(125,226,176,0.5)':(i===1?'rgba(255,90,138,0.5)':'rgba(90,214,255,0.5)'));
+  g.fillRect(24,y+8,(W-110)*(r[1]/mx),22);ng(g);
+  nt(g,r[2],W-76,y+25,12,''+r[1]);});
+ var y2=236;
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,y2,W-40,62);ng(g);
+ ne(g,'#ffd76a',1.6);g.strokeRect(20.5,y2+0.5,W-41,62);ng(g);
+ nt(g,'#ffd76a',36,y2+28,15,'V \\u2212 E + F  =  '+d.chi);
+ nt(g,'#8a7ab8',36,y2+50,9,isTorus?'zero, for every torus grid':'two, for every sphere triangulation');
+ var o=document.getElementById('ecout');
+ if(o)o.innerHTML='<b>'+d.V+'</b> vertices, <b>'+d.E+'</b> edges, <b>'+d.F+
+  '</b> faces \\u2014 and V &minus; E + F = <b>'+d.chi+'</b>. '+
+  (isTorus?'Every torus grid gives 0, with the edge set enumerated and de-duplicated rather than assumed.'
+   :'Subdivide as far as you like: all three counts explode and the alternating sum sits still.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(u,v,R,r){
+  var x=(R+r*Math.cos(v))*Math.cos(u),y=r*Math.sin(v),z=(R+r*Math.cos(v))*Math.sin(u);
+  var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.9-zr*0.35];}
+ var M=14,N=9;
+ for(var i=0;i<M;i++)for(var j=0;j<N;j++){
+  var u=i/M*2*Math.PI,v=j/N*2*Math.PI;
+  var u2=(i+1)/M*2*Math.PI,v2=(j+1)/N*2*Math.PI;
+  var a=P(u,v,86,34),b=P(u2,v,86,34),c2=P(u,v2,86,34);
+  ne(g,'rgba(125,226,176,0.4)',1);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(c2[0],c2[1]);g.stroke();
+  g.beginPath();g.moveTo(b[0],b[1]);g.lineTo(c2[0],c2[1]);g.stroke();ng(g);
+  ndot(g,a[0],a[1],1.7,'#ffd76a');}
+ nt(g,'#7de2b0',14,24,11,'a torus, triangulated');
+ nt(g,'#ffd76a',14,42,10,'chi = 0, however finely you cut it');
+ nt(g,'#8a7ab8',14,58,10,'every local move changes two terms with opposite signs');
+ nt(g,'#8a7ab8',14,H-12,9,'the residue left when the sum has annihilated every arbitrary decision');}
+document.getElementById('ecup').onclick=function(){depth=Math.min(4,depth+1);drawW4();};
+document.getElementById('ecdn').onclick=function(){depth=Math.max(0,depth-1);drawW4();};
+document.getElementById('ector').onclick=function(){isTorus=!isTorus;drawW4();};
+document.getElementById('ecsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__eulercharacteristic=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DECP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A deceptive landscape is one built so that following the gradient takes you <b>away</b> from the answer. The trap function is the cleanest example: reward is (L&minus;1) minus the number of ones, so every improving step removes a one and the climb ends at all-zeros &mdash; except that all-<i>ones</i>, the single point the whole landscape steers away from, pays more than anything else. The decoy is not a poor consolation prize either. It pays <b>90%</b> of the optimum, which is exactly what makes it convincing.<br><br>
+ <span class="lit">LIT</span> verified live on all <b>1024</b> ten-bit starting points: steepest-ascent hill climbing reaches the global optimum from exactly <b>11</b> of them &mdash; C(10,9) + 1, the optimum plus its ten immediate neighbours &mdash; and the other <b>1013</b> (<b>98.9%</b>) all land on the decoy, which scores <b>9</b> against the optimum&rsquo;s <b>10</b>. A one-max control on the same climber reaches the optimum from all <b>1024</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE EXPLOIT</i> &mdash; the landscape is the attacker here, and the search algorithm is the vulnerability.<br><br>
+ <b>AVAN (AI)</b> wrote &ldquo;every gradient points the wrong way&rdquo; and the exhaustive sweep <b>disproved it</b>. A string with nine ones scores 0 under the trap while all-ones scores 10, so from one flip away the optimum is not merely visible, it is overwhelmingly the best move. The basin is therefore not a single point but exactly <b>11</b> &mdash; the optimum and its ten neighbours &mdash; and the honest claim is narrower and more interesting than the one first written: the landscape is deceptive <i>everywhere except in immediate contact with the answer</i>. That distinction matters, because it is the difference between a problem no local search can solve and one that any local search solves the instant it stumbles within one step, which is a 1.07% chance per random restart. Goldberg introduced deceptive functions to genetic-algorithm theory in 1987.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The whole landscape. The prize is the spike on the far right, and everything leans left.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Drop a climber anywhere and watch it walk confidently away.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcdrop">drop a climber &#9654;</button><button id="dcnear">start next to the prize &#9654;</button><button id="dcctl">one-max control</button></div>
+   <div class="cap" id="dcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the hypercube of states, coloured by where the climb ends.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;some landscapes defeat hill climbing.&rdquo; The inverse is that <b>the landscape is not hostile, it is honest &mdash; and the climber is the thing making an assumption</b>. Every local reading the trap gives is correct: at that point, in that direction, reward really does increase. What fails is the inference from <i>local slope</i> to <i>global direction</i>, and no amount of measuring will repair it, because the measurements were never wrong. Read backwards, deception is not a property of a function but a <b>mismatch between a function and a searcher&rsquo;s prior</b> &mdash; which is the no-free-lunch theorem again, arriving from the other side and wearing a disguise.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcsp">pause spin</button></div></div></div></div>"""
+DECP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,path=[],useCtl=false,dropSeed=3;
+var L=10,NST=1<<L;
+function ones(x){var c=0;for(var i=0;i<L;i++)c+=(x>>i)&1;return c;}
+function trap(x){return ones(x)===L?L:(L-1)-ones(x);}
+function onemax(x){return ones(x);}
+function climbPath(f,start){
+ var cur=start,cf=f(start),out=[start],guard=0;
+ for(;;){
+  var b=cur,bf=cf;
+  for(var i=0;i<L;i++){var nb=cur^(1<<i),v=f(nb);if(v>bf){bf=v;b=nb;}}
+  if(b===cur)return out;
+  cur=b;cf=bf;out.push(cur);
+  if(++guard>200)return out;}
+ return out;}
+function dcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var hits=0,zero=0,byOnes={};
+ for(var s=0;s<NST;s++){
+  var p=climbPath(trap,s),e=p[p.length-1];
+  if(e===NST-1){hits++;byOnes[ones(s)]=(byOnes[ones(s)]||0)+1;}
+  if(e===0)zero++;}
+ var om=0;
+ for(var s2=0;s2<NST;s2++){var p2=climbPath(onemax,s2);
+  if(p2[p2.length-1]===NST-1)om++;}
+ return {bits:L,states:NST,
+  reachOptimum:hits,reachDecoy:zero,accountedFor:hits+zero===NST,
+  basinIsOptimumPlusNeighbours:hits===L+1,
+  successfulStartsByOnes:byOnes,
+  decoyPays:trap(0),optimumPays:trap(NST-1),
+  decoyFraction:trap(0)/trap(NST-1)*100,
+  deceivedPct:zero/NST*100,
+  oneMaxControl:om,controlSolvesAll:om===NST,
+  everyGradientWrong:false,
+  ok:hits===L+1&&zero===NST-L-1&&om===NST};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TRAP LANDSCAPE  \\u2014  fitness by number of ones');
+ var m=54,pw=W-m-40,top=48,ph=160;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ for(var k=0;k<=L;k++){
+  var v=k===L?L:(L-1)-k;
+  var x=m+pw*k/L,hh=ph*v/L;
+  nf(g,k===L?'rgba(255,215,106,0.8)':(k===0?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.4)'));
+  g.fillRect(x-14,top+ph-hh,28,hh);ng(g);
+  nt(g,'#8a7ab8',x-4,top+ph+18,9,''+k);}
+ nt(g,'#ff5a8a',m-6,top+ph+40,10,'the decoy: 0 ones, pays 9');
+ nt(g,'#ffd76a',m+pw-150,top+ph+40,10,'the prize: 10 ones, pays 10');
+ nt(g,'#e6dcff',20,262,10,'every improving step removes a one \\u2014 and the prize is at the other end');
+ nt(g,'#8a7ab8',20,282,9,'the decoy pays '+VR.decoyFraction.toFixed(0)+'% of the optimum, which is what makes it convincing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=useCtl?onemax:trap;
+ nt(g,'#e6dcff',16,26,11,useCtl?'one-max control':'the trap');
+ if(!path.length)path=climbPath(f,341);
+ var m=40,pw=W-80,top=56,ph=124;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ for(var k=0;k<=L;k++){
+  var v=f(k===L?NST-1:(NST-1)>>(L-k));
+  var vv=useCtl?k:(k===L?L:(L-1)-k);
+  var x=m+pw*k/L,hh=ph*vv/L;
+  nf(g,'rgba(125,226,176,0.18)');
+  g.fillRect(x-11,top+ph-hh,22,hh);ng(g);}
+ ne(g,'#ffd76a',2.4);
+ g.beginPath();
+ path.forEach(function(st,i){
+  var k=ones(st),vv=useCtl?k:(k===L?L:(L-1)-k);
+  var x=m+pw*k/L,y=top+ph-ph*vv/L;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.stroke();ng(g);
+ var s0=path[0],sN=path[path.length-1];
+ [[s0,'#5ad6ff','start'],[sN,'#ff5a8a','end']].forEach(function(spec){
+  var k=ones(spec[0]),vv=useCtl?k:(k===L?L:(L-1)-k);
+  var x=m+pw*k/L,y=top+ph-ph*vv/L;
+  ndot(g,x,y,6,spec[1]);
+  nt(g,spec[1],x-12,y-12,9,spec[2]);});
+ var won=sN===NST-1;
+ var y2=224;
+ nf(g,won?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,won?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,won?'#7de2b0':'#ff5a8a',36,y2+26,13,won?'REACHED THE OPTIMUM':'LANDED ON THE DECOY');
+ nt(g,'#8a7ab8',36,y2+46,9,'started with '+ones(s0)+' ones, ended with '+ones(sN)+', '+(path.length-1)+' steps');
+ nt(g,'#8a7ab8',20,304,9,VR.reachOptimum+' of '+VR.states+' starts succeed  \\u00b7  '+VR.reachDecoy+' are deceived');
+ var o=document.getElementById('dcout');
+ if(o)o.innerHTML=won
+  ?('From <b>'+ones(s0)+'</b> ones the climber reached the optimum. Under the trap that only happens from the optimum itself or its ten neighbours \\u2014 <b>'+VR.reachOptimum+'</b> of <b>'+VR.states+'</b> starts, or 1.07%.')
+  :('From <b>'+ones(s0)+'</b> ones the climber walked to the decoy in '+(path.length-1)+
+    ' steps, taking a genuinely improving step every time. <b>'+VR.reachDecoy+'</b> of <b>'+VR.states+'</b> starts end here.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.85-zr*0.32];}
+ for(var k=0;k<=L;k++){
+  var count=Math.min(22,Math.round(24*Math.exp(-Math.pow(k-5,2)/9)));
+  for(var i=0;i<count;i++){
+   var th=i/Math.max(1,count)*2*Math.PI;
+   var rad=18+count*2.6;
+   var p=P(rad*Math.cos(th),-128+k*26,rad*Math.sin(th));
+   var win=k>=L-1;
+   ndot(g,p[0],p[1],win?4.6:2.2,win?'#ffd76a':'rgba(125,226,176,0.45)');}}
+ var top=P(0,-128+L*26,0),bot=P(0,-128,0);
+ ndot(g,top[0],top[1],7,'#ffd76a');
+ ndot(g,bot[0],bot[1],7,'#ff5a8a');
+ nt(g,'#ffd76a',top[0]+12,top[1],9,'the prize');
+ nt(g,'#ff5a8a',bot[0]+12,bot[1],9,'the decoy');
+ nt(g,'#e6dcff',14,24,11,'gold: the 11 states that escape');
+ nt(g,'#8a7ab8',14,42,10,'green: the 1013 that do not');
+ nt(g,'#8a7ab8',14,58,10,'every local reading the trap gives is correct');
+ nt(g,'#8a7ab8',14,H-12,9,'deception is a mismatch between a function and a searcher\\u2019s prior');}
+document.getElementById('dcdrop').onclick=function(){
+ var g=dcRnd(dropSeed++);
+ var st=Math.floor(g()*NST);
+ path=climbPath(useCtl?onemax:trap,st);drawW4();};
+document.getElementById('dcnear').onclick=function(){
+ path=climbPath(useCtl?onemax:trap,NST-1-(1<<(dropSeed++%L)));drawW4();};
+document.getElementById('dcctl').onclick=function(){
+ useCtl=!useCtl;path=climbPath(useCtl?onemax:trap,341);drawW4();};
+document.getElementById('dcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__deceptive=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WIND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Walk a closed loop in the complex plane, feed every point through a polynomial, and watch where the output goes. Count how many times that output curve wraps around the origin &mdash; just accumulate the angle and divide by 2&pi;. That count is the <b>number of roots inside your loop</b>, multiplicity included. No root-finding, no algebra: you learn how many solutions are in a region by <b>counting turns</b>. This is the argument principle, and it is what root-finders use to decide where to look.<br><br>
+ <span class="lit">LIT</span> verified live: z&sup3;&minus;1 gives winding <b>3.0000000000</b> around |z|=2 and <b>7.07e-17</b> around |z|=0.5; (z&minus;0.3)&sup2;(z+0.6) gives <b>3</b> inside |z|=1 &mdash; counting the double root twice &mdash; and <b>2</b> inside |z|=0.4, where only the double root lies; an ellipse enclosing the same three roots returns <b>3</b> again; and nine radii from 0.2 to 5.0 return <b>0,0,0,0,3,3,3,3,3</b>, every one an exact integer, stepping only where the contour crosses the roots.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>DIVIDE BY ZERO</i>: the winding number is defined by an angle about a point, and it is exactly the point where the angle is undefined that the whole construction is measuring.<br><br>
+ <b>AVAN (AI)</b> notes what makes this a genuinely different kind of answer. Every numerical root-finder produces <i>approximate</i> roots and then has to decide whether a number near the boundary is inside or out. The argument principle returns an <b>integer</b> and no such decision is required &mdash; the accumulated angle is 3.0000000000 or it is 7.07e-17, never 2.6. That robustness has a precise price: it tells you <b>how many</b> and refuses to tell you <b>where</b>. Split the region and ask again to find out. The values here were computed with 4,000 contour samples, and the multiplicity result is the one worth dwelling on: a double root is genuinely two roots to this method, which is a statement about the polynomial and not an artefact of the counting.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine radii. The count steps only where the contour crosses a root.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the contour and watch the image curve pick up another loop.</div>
+   <div class="btns" style="margin-top:10px"><button id="wnup">grow &#9654;</button><button id="wndn">shrink</button><button id="wnpoly">next polynomial</button></div>
+   <div class="cap" id="wnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the image curve, wrapping the origin once per enclosed root.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;counting turns counts roots.&rdquo; The inverse is that <b>the integer is bought by discarding position, and the discard is what makes it exact</b>. An approximate root near a boundary forces a judgement call; a winding number cannot be near anything, because the set it lives in has no nearby values. Read backwards, this is the trade every topological method makes &mdash; it converts a question with a continuum of possible wrong answers into one with a discrete set of possible right ones, and the price is always the same: you may ask <i>how many</i> and you may not ask <i>which</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="wnsp">pause spin</button></div></div></div></div>"""
+WIND_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rad=2,pi=0;
+function cmul(a,b){return [a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];}
+function csub(a,b){return [a[0]-b[0],a[1]-b[1]];}
+function mkPoly(roots){return function(z){
+ var acc=[1,0];
+ for(var i=0;i<roots.length;i++)acc=cmul(acc,csub(z,roots[i]));
+ return acc;};}
+var POLYS=[{n:'z\\u00b3 \\u2212 1',roots:[[1,0],[-0.5,Math.sqrt(3)/2],[-0.5,-Math.sqrt(3)/2]]},
+ {n:'(z\\u22120.3)\\u00b2 (z+0.6)',roots:[[0.3,0],[0.3,0],[-0.6,0]]},
+ {n:'(z\\u22121.4)(z+1.4)(z\\u22120.2i)(z+0.2i)',roots:[[1.4,0],[-1.4,0],[0,0.2],[0,-0.2]]}];
+function circleC(r,n){
+ var out=[];
+ for(var i=0;i<n;i++){var t=2*Math.PI*i/n;out.push([r*Math.cos(t),r*Math.sin(t)]);}
+ return out;}
+function ellipseC(a,b,n){
+ var out=[];
+ for(var i=0;i<n;i++){var t=2*Math.PI*i/n;out.push([a*Math.cos(t),b*Math.sin(t)]);}
+ return out;}
+function winding(p,contour){
+ var tot=0,prev=null;
+ for(var i=0;i<=contour.length;i++){
+  var w=p(contour[i%contour.length]);
+  var th=Math.atan2(w[1],w[0]);
+  if(prev!==null){var d=th-prev;
+   while(d>Math.PI)d-=2*Math.PI;
+   while(d<-Math.PI)d+=2*Math.PI;
+   tot+=d;}
+  prev=th;}
+ return tot/(2*Math.PI);}
+function selftest(){
+ var cube=mkPoly(POLYS[0].roots),mult=mkPoly(POLYS[1].roots);
+ var w2=winding(cube,circleC(2,4000)),wh=winding(cube,circleC(0.5,4000));
+ var wa=winding(mult,circleC(1,4000)),wi=winding(mult,circleC(0.4,4000));
+ var we=winding(cube,ellipseC(2.5,1.6,4000));
+ var radii=[0.2,0.4,0.7,0.9,1.2,1.5,2.0,3.0,5.0];
+ var vals=radii.map(function(r){return winding(cube,circleC(r,4000));});
+ return {cubicOutside:w2,cubicInside:wh,
+  multAll:wa,multInner:wi,multiplicityCounted:Math.abs(wa-3)<1e-6&&Math.abs(wi-2)<1e-6,
+  ellipse:we,contourShapeIrrelevant:Math.abs(we-3)<1e-6,
+  radii:radii,windings:vals,rounded:vals.map(function(v){return Math.round(v);}),
+  allIntegers:vals.every(function(v){return Math.abs(v-Math.round(v))<1e-6;}),
+  samples:4000,
+  ok:Math.abs(w2-3)<1e-6&&Math.abs(wh)<1e-6&&Math.abs(wa-3)<1e-6&&
+   Math.abs(wi-2)<1e-6&&Math.abs(we-3)<1e-6&&
+   vals.every(function(v){return Math.abs(v-Math.round(v))<1e-6;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'z\\u00b3 \\u2212 1  \\u2014  roots enclosed, by contour radius');
+ var m=56,pw=W-m-40,top=54,ph=140;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',3);
+ g.beginPath();
+ VR.radii.forEach(function(r,i){
+  var px=m+pw*i/(VR.radii.length-1),py=top+ph-ph*(VR.rounded[i]/3);
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ VR.radii.forEach(function(r,i){
+  var px=m+pw*i/(VR.radii.length-1),py=top+ph-ph*(VR.rounded[i]/3);
+  ndot(g,px,py,4,'#ffd76a');
+  nt(g,'#8a7ab8',px-10,top+ph+18,8,''+r);});
+ nt(g,'#8a7ab8',m-30,top+6,9,'3');
+ nt(g,'#8a7ab8',m-30,top+ph+4,9,'0');
+ ne(g,'#ff5a8a',1.4);g.setLineDash([4,3]);
+ var xr=m+pw*4/(VR.radii.length-1)-16;
+ g.beginPath();g.moveTo(xr,top);g.lineTo(xr,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',xr+6,top+16,9,'the roots sit here, on |z| = 1');
+ nt(g,'#e6dcff',20,244,10,'0, 0, 0, 0, 3, 3, 3, 3, 3  \\u2014  every one an exact integer');
+ nt(g,'#8a7ab8',20,266,9,'it steps only where the contour crosses a root, and never in between');
+ nt(g,'#8a7ab8',20,284,9,'4,000 contour samples; the count is 3.0000000000 or 7.07e-17, never 2.6');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=POLYS[pi%POLYS.length],p=mkPoly(P.roots);
+ var cont=circleC(rad,600),img=cont.map(p);
+ var wn=winding(p,circleC(rad,4000));
+ nt(g,'#e6dcff',16,26,11,P.n+'   \\u00b7   contour |z| = '+rad.toFixed(2));
+ var cx=W/2,cy=150;
+ var mx=1;
+ img.forEach(function(q){mx=Math.max(mx,Math.abs(q[0]),Math.abs(q[1]));});
+ var sc=96/mx;
+ ne(g,'rgba(150,110,230,0.3)',1);
+ g.beginPath();g.moveTo(cx-110,cy);g.lineTo(cx+110,cy);g.stroke();
+ g.beginPath();g.moveTo(cx,cy-110);g.lineTo(cx,cy+110);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ img.forEach(function(q,i){
+  var x=cx+q[0]*sc,y=cy-q[1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.closePath();g.stroke();ng(g);
+ ndot(g,cx,cy,5,'#ff5a8a');
+ nt(g,'#ff5a8a',cx+8,cy-8,9,'origin');
+ var y2=272;
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,y2,W-40,48);ng(g);
+ ne(g,'#ffd76a',1.5);g.strokeRect(20.5,y2+0.5,W-41,48);ng(g);
+ nt(g,'#ffd76a',36,y2+30,15,'winding  =  '+Math.round(wn)+'   roots inside');
+ var o=document.getElementById('wnout');
+ if(o)o.innerHTML='The image curve wraps the origin <b>'+Math.round(wn)+
+  '</b> time'+(Math.round(wn)===1?'':'s')+', so <b>'+Math.round(wn)+
+  '</b> root'+(Math.round(wn)===1?' lies':'s lie')+' inside |z| = '+rad.toFixed(2)+
+  '. The raw accumulated angle is <b>'+wn.toFixed(8)+'</b> \\u2014 an integer to ten places, with no root-finding anywhere in the calculation.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ var p=mkPoly(POLYS[0].roots),cont=circleC(2,240);
+ var prev=null;
+ cont.forEach(function(z,i){
+  var w=p(z);
+  var q=P3(w[0]*13,-96+i*0.8,w[1]*13);
+  if(prev){
+   var t=i/cont.length;
+   ne(g,'rgba('+Math.round(125+130*t)+',226,'+Math.round(176-40*t)+',0.85)',1.7);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;});
+ var a=P3(0,-96,0),b=P3(0,96,0);
+ ne(g,'#ff5a8a',2);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',a[0]+10,a[1],9,'the origin, threaded 3 times');
+ nt(g,'#7de2b0',14,24,11,'the image curve, lifted');
+ nt(g,'#8a7ab8',14,42,10,'one wrap per root, and the wraps are countable');
+ nt(g,'#8a7ab8',14,58,10,'an integer cannot be near anything');
+ nt(g,'#8a7ab8',14,H-12,9,'you may ask how many, and you may not ask which');}
+document.getElementById('wnup').onclick=function(){rad=Math.min(5,rad+0.3);drawW4();};
+document.getElementById('wndn').onclick=function(){rad=Math.max(0.2,rad-0.3);drawW4();};
+document.getElementById('wnpoly').onclick=function(){pi++;drawW4();};
+document.getElementById('wnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__windingnumber=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 217 · neon-noir · silicon-coding · GUARANTEES AND WHAT THEY COST (a tie nobody can break · bounds that are right and useless · a fraction that forgets its parts · the error that only goes one way · a packing with no slack) ═══════════════════════
 NFL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Averaged over <b>every possible</b> objective function, all search algorithms perform identically. Not approximately &mdash; identically. Hill climbing, random search, your carefully tuned heuristic and a deliberately stupid one all have the same expected performance, because for every function where one wins there is another, equally admissible function where it loses by exactly as much. Wolpert and Macready proved it in 1997, and the result is quoted far more often than its hypothesis is.<br><br>
@@ -67625,6 +68356,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-linking-number","title":"THE LINKING NUMBER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#7de2b0","icon":"\u26ad",
+  "kicker":"an integer that survives any deformation",
+  "blurb":"Gauss's double integral returns an integer that no bending or stretching can move. And it has a blind spot: zero does not mean unlinked.",
+  "lit":"the Hopf link returns -1.00016452; reversing one component's orientation flips it to +1.00016452 exactly; two separated circles return 0 to machine precision; a (2,4) torus link returns -2.000255; five random deformations of the Hopf link all still round to -1; and refining the discretisation drives the error 2.64e-3 -> 6.58e-4 -> 1.65e-4 -> 4.11e-5, falling by four each time the resolution doubles",
+  "fig":"Two things to be exact about. The SIGN is a convention fixed by which way round the circles are drawn - these parametrisations give -1, and publishing '+1' would have been a choice about orientation dressed up as a result; the magnitude is the invariant. Second, a gate here PASSED while pointed at the wrong target: it measured convergence as |Lk - 1| while the quantity converged to -1, so the 'error' sat at 2.0 and still shrank in its trailing digits, satisfying a monotonicity test perfectly. A convergence check that does not know what it is converging to will confirm almost anything. The Whitehead link is cited, not computed here - its linking number is 0 and it cannot be separated.",
+  "body":LINK_BODY,"script":LINK_SCRIPT},
+ {"slug":"the-space-filling","title":"THE SPACE FILLING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#5ad6ff","icon":"\u21ff",
+  "kicker":"a line that becomes a plane",
+  "blurb":"A continuous curve passing through every point of the square. What it buys is that near in the ordering means near in the plane - within a constant times the square root of the gap.",
+  "lit":"at order 6, all 4096 cells visited exactly once with 0 consecutive pairs more than one cell apart; the maximum spatial distance between indices at most k apart, divided by sqrt(k), stays bounded at 1.000, 1.581, 1.904, 2.069, 2.152, 2.194 for k = 1 to 1024; row-major indexing has no such bound, putting cells 63 apart at a single index step; and Hilbert beats row-major at every window size up to 256",
+  "fig":"The locality claim was written BACKWARDS and the measurement said so. The first version asserted Hilbert preserves locality better than row-major and measured the obvious way - for spatially adjacent cells, how far apart along the curve. Hilbert scored 39.05 against row-major's 32.50 and LOST. The claim was not badly measured, it was pointed the wrong way: Hilbert's guarantee runs index -> space, not space -> index. There is no matching promise in the other direction, and two cells that touch can sit half the curve apart. The disproved claim is kept because a locality guarantee with an unstated direction is the kind of thing that gets designed into a database.",
+  "body":SFIL_BODY,"script":SFIL_SCRIPT},
+ {"slug":"the-euler-characteristic","title":"THE EULER CHARACTERISTIC","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#ffd76a","icon":"\u2b21",
+  "kicker":"a number three solids cannot tell apart",
+  "blurb":"V minus E plus F is 2 for every convex polyhedron, and 0 for every torus. It depends on nothing about the shape except how many holes it has.",
+  "lit":"all five Platonic solids give chi = 2 - tetrahedron 4-6+4, cube 8-12+6, octahedron 6-12+8, dodecahedron 20-30+12, icosahedron 12-30+20; subdividing a sphere five times takes the face count from 20 to 5120 and the vertex count from 12 to 2562 while chi does not move off 2; and four torus grids (3x3, 4x5, 6x6, 8x12) all give chi = 0, confirmed by explicitly enumerating and de-duplicating the edge set rather than applying a formula",
+  "fig":"The torus check was built twice on purpose: once from the counting formula (mn vertices, 3mn edges, 2mn triangles) and once by actually constructing the triangulation, inserting every edge into a set keyed on its endpoint pair, and counting what survived de-duplication. The formula version is right until an edge is shared by more or fewer faces than assumed; the enumerated version cannot make that mistake. They agree. Scope: what is verified is that chi is constant across THESE triangulations, not that it is a topological invariant in general - that is a theorem, cited and not proved by any amount of counting.",
+  "body":ECHI_BODY,"script":ECHI_SCRIPT},
+ {"slug":"the-deceptive","title":"THE DECEPTIVE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#ff5a8a","icon":"\u2934",
+  "kicker":"a hill built to mislead",
+  "blurb":"A landscape where following the gradient takes you away from the answer, and the decoy pays 90% of the optimum - which is exactly what makes it convincing.",
+  "lit":"on all 1024 ten-bit starting points, steepest-ascent hill climbing reaches the global optimum from exactly 11 of them - C(10,9) + 1, the optimum plus its ten immediate neighbours - and the other 1013 (98.9%) all land on the decoy, which scores 9 against the optimum's 10; a one-max control on the same climber reaches the optimum from all 1024",
+  "fig":"'Every gradient points the wrong way' was written, and the exhaustive sweep DISPROVED it. A string with nine ones scores 0 under the trap while all-ones scores 10, so from one flip away the optimum is overwhelmingly the best move. The basin is therefore not a single point but exactly 11, and the honest claim is narrower and more interesting: the landscape is deceptive everywhere EXCEPT in immediate contact with the answer. That is the difference between a problem no local search can solve and one that any local search solves the instant it stumbles within one step - a 1.07% chance per random restart. Goldberg introduced deceptive functions to GA theory in 1987.",
+  "body":DECP_BODY,"script":DECP_SCRIPT},
+ {"slug":"the-winding-number","title":"THE WINDING NUMBER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#b98cff","icon":"\u21bb",
+  "kicker":"counting roots by counting turns",
+  "blurb":"Accumulate the angle of a polynomial's image around a loop and divide by 2pi. That integer is how many roots are inside - no root-finding, no algebra.",
+  "lit":"z^3-1 gives winding 3.0000000000 around |z|=2 and 7.07e-17 around |z|=0.5; (z-0.3)^2(z+0.6) gives 3 inside |z|=1, counting the double root twice, and 2 inside |z|=0.4 where only the double root lies; an ellipse enclosing the same three roots returns 3 again; and nine radii from 0.2 to 5.0 return 0,0,0,0,3,3,3,3,3, every one an exact integer, stepping only where the contour crosses the roots",
+  "fig":"What makes this a different kind of answer: every numerical root-finder produces APPROXIMATE roots and then must decide whether a number near the boundary is inside or out. The argument principle returns an integer and no such decision is required - the accumulated angle is 3.0000000000 or 7.07e-17, never 2.6. That robustness has a precise price: it tells you HOW MANY and refuses to tell you WHERE. Computed with 4,000 contour samples. The multiplicity result is worth dwelling on: a double root is genuinely two roots to this method, a statement about the polynomial rather than an artefact of the counting.",
+  "body":WIND_BODY,"script":WIND_SCRIPT},
  {"slug":"the-no-free-lunch","title":"THE NO FREE LUNCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#7de2b0","icon":"\u2696",
   "kicker":"a tie nobody can break",
