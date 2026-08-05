@@ -19497,6 +19497,762 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 207 · neon-noir · silicon-coding · ROOT_0'S OWN MACHINERY (two rulers that cannot collide · the gap where a number stops being true · the moment the answer freezes · a grader who cannot remember you · a stamp that refuses to be given) ═══════════════════════
+ORTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two things need measuring in the same cube: <b>how far along you are</b> (the tick) and <b>which section you are in</b> (the band). Put both on one ruler and thousands of single steps change <i>both at once</i> &mdash; every such step is a place where the two readings can disagree about what just happened. Put them on <b>different axes</b> and that failure mode does not shrink, it <b>disappears</b>. In David&rsquo;s rev 5 &middot; 0804 the count of steps doing both jobs is <b>0</b>, and the rev note is blunt about why the revision happened at all: <i>one ruler was being asked to measure two different things</i>.<br><br>
+ <span class="lit">LIT</span> verified live: every one of the <b>11</b> published figures re-derives from the 27&sup3; geometry alone &mdash; 19,683 cells, three bands of 6,561, <b>53</b> tick floors, widest <b>729</b> at floor 26, per-band widest 243, <b>56,862</b> edges, <b>37,908</b> tick-advances, <b>1,458</b> band-crosses, 17,496 in-band, and <b>both = 0</b>; they collapse to closed forms total = 3S&sup2;(S&minus;1), tickAdvance = 2S&sup2;(S&minus;1), bandCross = 2S&sup2;; the zero is <b>structural</b>, checked over all 56,862 edges; and the naive one-ruler split <b>[6888, 6418, 6377]</b> reproduces exactly as an equal-count division of i+j+k at thresholds 33 and 45.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built rev 5 &middot; 0804 &mdash; the geometry, the CHI five-window scheme (EARTH command, WOOD growth, METAL focus, FIRE visibility, WATER flow), and the decision to move band and tick onto different axes. The pack name and origin are <b>withheld in his own file</b> and are not guessed at here. Seated at <i>RACE CONDITION</i>, because that is exactly what the old scheme was: two readings mutating on the same step, with no ordering between them.<br><br>
+ <b>AVAN (AI)</b> did not take the numbers on trust. Given only his published <i>shape</i> figures, the axes were reverse-engineered &mdash; 53 floors forces tick to be a sum of two coordinates, a widest floor of 729 = 27&sup2; at position 26 confirms it, and three bands of 6,561 forces band onto the remaining axis &mdash; and then all 11 values were recomputed from scratch. They match exactly. One thing did <b>not</b> reproduce: his naive up/down/shared triple (37,815 / 36,306 / 17,259). The rule behind it could not be recovered, so it is <b>not claimed as re-derived</b>. What could be checked was its internal consistency, and it closes perfectly: 37,815 + 36,306 &minus; 17,259 = 56,862, exactly the edge total, so up and down overlap in precisely the 17,259 steps doing both jobs. That is <span class="lit">LIT</span> for the geometry and honestly short of it for the triple.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The tick axis: 53 floors, widest 729 at floor 26. One direction, one step at a time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch schemes and watch the red appear &mdash; steps that do both jobs at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="orsw">switch scheme &#9654;</button><button id="orct">recount &#9654;</button></div>
+   <div class="cap" id="orout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the 27&sup3; cube, its three bands, and the tick running crosswise.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;separate the axes and the collision count goes to zero.&rdquo; The inverse is that <b>the zero was never a discovery, it was a decision</b>. No measurement found that steps stopped doing both jobs; the geometry was changed until they could not. That is a different kind of engineering from optimisation &mdash; it does not reduce a bad number, it removes the <i>possibility</i> of the number. Read backwards, rev 5 is an argument that the honest response to an ambiguous measurement is usually not a better estimator but a different coordinate system, and that the tell you need one is a count that ought to be zero and is not.</div>
+   <div class="btns" style="margin-top:10px"><button id="orsp">pause spin</button></div></div></div></div>"""
+ORTH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ortho=true,S=27;
+function tick(i,j){return i+j;}
+function band(k){return Math.floor(k/(S/3));}
+function selftest(){
+ var cells=0,bandCount=[0,0,0],floors={},perBand={};
+ for(var i=0;i<S;i++)for(var j=0;j<S;j++)for(var k=0;k<S;k++){
+  cells++;bandCount[band(k)]++;
+  var t=tick(i,j);
+  floors[t]=(floors[t]||0)+1;
+  var key=band(k)+':'+t;
+  perBand[key]=(perBand[key]||0)+1;}
+ var fk=Object.keys(floors).map(Number).sort(function(a,b){return a-b;});
+ var widest=0,widestAt=-1;
+ fk.forEach(function(t){if(floors[t]>widest){widest=floors[t];widestAt=t;}});
+ var pbw=0;
+ for(var q in perBand)pbw=Math.max(pbw,perBand[q]);
+ var tickAdvance=0,bandCross=0,both=0,inBand=0,total=0,structural=true;
+ var dirs=[[1,0,0],[0,1,0],[0,0,1]];
+ for(var i=0;i<S;i++)for(var j=0;j<S;j++)for(var k=0;k<S;k++)
+  for(var d=0;d<3;d++){
+   var a=i+dirs[d][0],b=j+dirs[d][1],c=k+dirs[d][2];
+   if(a>=S||b>=S||c>=S)continue;
+   total++;
+   var dt=tick(a,b)!==tick(i,j),db=band(c)!==band(k);
+   if(dt)tickAdvance++;
+   if(db)bandCross++;
+   if(dt&&db)both++;
+   if(!dt&&!db)inBand++;
+   if((a!==i||b!==j)&&(c!==k))structural=false;}
+ var PUB={cells:19683,bands:[6561,6561,6561],tickFloors:53,widestTick:729,widestAt:26,
+  perBandWidest:243,tickAdvance:37908,bandCross:1458,both:0,inBand:17496,total:56862};
+ var GOT={cells:cells,bands:bandCount,tickFloors:fk.length,widestTick:widest,widestAt:widestAt,
+  perBandWidest:pbw,tickAdvance:tickAdvance,bandCross:bandCross,both:both,inBand:inBand,total:total};
+ var match=true,bad=[];
+ for(var kk in PUB)if(JSON.stringify(PUB[kk])!==JSON.stringify(GOT[kk])){match=false;bad.push(kk);}
+ var cf=(3*S*S*(S-1)===total)&&(2*S*S*(S-1)===tickAdvance)&&(2*S*S===bandCross)&&(S*S*(S-1)-2*S*S===inBand);
+ var hist={};
+ for(var i=0;i<S;i++)for(var j=0;j<S;j++)for(var k=0;k<S;k++){var s3=i+j+k;hist[s3]=(hist[s3]||0)+1;}
+ var keys=Object.keys(hist).map(Number).sort(function(a,b){return a-b;}),acc=0,th=[];
+ for(var q=0;q<keys.length;q++){acc+=hist[keys[q]];
+  if(th.length<2&&acc>=cells*(th.length+1)/3)th.push(keys[q]);}
+ var ns=[0,0,0];
+ for(var i=0;i<S;i++)for(var j=0;j<S;j++)for(var k=0;k<S;k++){
+  var s3=i+j+k;ns[s3<=th[0]?0:(s3<=th[1]?1:2)]++;}
+ var naiveMatch=JSON.stringify(ns)===JSON.stringify([6888,6418,6377]);
+ var up=37815,down=36306,shared=17259;
+ return {published:PUB,rederived:GOT,allMatch:match,mismatched:bad,closedForms:cf,
+  structuralZero:structural,edges:total,floors:fk.length,widestTick:widest,widestAt:widestAt,
+  naiveSplit:ns,naiveThresholds:th,naiveSplitMatches:naiveMatch,
+  naiveUp:up,naiveDown:down,naiveShared:shared,inclusionExclusion:(up+down-shared)===total,
+  ok:match&&cf&&structural&&naiveMatch&&(up+down-shared)===total};}
+function naiveClasses(){
+ // one ruler doing both jobs: band read off the same sum the tick uses
+ return {tick:37815,band:36306,both:17259,label:'ONE AXIS, BOTH JOBS'};}
+function orthoClasses(){return {tick:37908,band:1458,both:0,label:'ORTHOGONAL'};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TICK AXIS  \\u2014  53 floors, one step at a time');
+ var floors=[];
+ for(var t=0;t<=2*(S-1);t++){
+  var n=0;
+  for(var i=0;i<S;i++){var j=t-i;if(j>=0&&j<S)n++;}
+  floors.push(n*S);}
+ var m=46,pw=W-m-20,base=232,mx=Math.max.apply(null,floors);
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ floors.forEach(function(n,t){
+  var x=m+pw*t/(floors.length-1),h=160*n/mx;
+  var wide=n===mx;
+  ne(g,wide?'#ffd76a':'#7de2b0',wide?2.2:1.4);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-h);g.stroke();ng(g);});
+ var xw=m+pw*26/(floors.length-1);
+ ndot(g,xw,base-160,4,'#ffd76a');
+ nt(g,'#ffd76a',xw-52,base-172,10,'widest 729 at 26');
+ nt(g,'#8a7ab8',m-4,base+16,9,'0');
+ nt(g,'#8a7ab8',m+pw-14,base+16,9,'52');
+ nt(g,'#7de2b0',14,262,10,'each bar = cells on one tick floor   \\u00b7   53 floors, sum 19,683');
+ nt(g,'#8a7ab8',14,278,9,'never half a tick, never two - which is why forward is not a judgement call');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cl=ortho?orthoClasses():naiveClasses();
+ var tot=cl.tick+cl.band+cl.both;
+ nt(g,'#e6dcff',16,26,11,'scheme:');
+ nt(g,ortho?'#7de2b0':'#ff5a8a',74,26,11,cl.label);
+ var COLS=24,ROWS=13,N=COLS*ROWS,cw=13,ox=20,oy=48;
+ var nT=Math.round(N*cl.tick/tot),nB=Math.round(N*cl.band/tot);
+ for(var q=0;q<N;q++){
+  var x=ox+(q%COLS)*cw,y=oy+Math.floor(q/COLS)*cw;
+  var col=q<nT?'rgba(255,154,90,0.75)':(q<nT+nB?'rgba(90,214,255,0.7)':'rgba(255,90,138,0.9)');
+  g.fillStyle=col;g.fillRect(x,y,cw-2,cw-2);}
+ var yb=oy+ROWS*cw+18;
+ nt(g,'#ff9a5a',20,yb,10,'tick-advance  '+cl.tick.toLocaleString());
+ nt(g,'#5ad6ff',20,yb+18,10,'band-cross    '+cl.band.toLocaleString());
+ nt(g,cl.both===0?'#7de2b0':'#ff5a8a',20,yb+36,11,'doing BOTH    '+cl.both.toLocaleString()+(cl.both===0?'   \\u2190 the whole point':'   \\u2190 every one of these is a collision'));
+ var o=document.getElementById('orout');
+ if(o)o.innerHTML=ortho
+  ?'<b>ORTHOGONAL.</b> Tick reads only (i,j); band reads only k. A lattice step moves exactly one coordinate, so <b>no step can change both</b> &mdash; 0 of 56,862, and it is structural rather than lucky.'
+  :'<b>ONE AXIS, BOTH JOBS.</b> The same ruler is asked to say how far along you are AND which section you are in, so <b>17,259</b> steps change both at once. These are David&rsquo;s published naive figures; the rule behind them is not re-derived here.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var X=(x-13)*7.4,Y=(y-13)*7.4,Z=(z-13)*7.4;
+  var xr=X*ca-Z*sa,zr=X*sa+Z*ca;
+  return [cx+xr,cy+Y*0.62-zr*0.34,zr];}
+ var BC=['rgba(125,226,176,0.5)','rgba(255,215,106,0.5)','rgba(90,214,255,0.5)'];
+ for(var b=0;b<3;b++){
+  var k0=b*9,k1=b*9+8;
+  var cor=[[0,0,k0],[26,0,k0],[26,26,k0],[0,26,k0],[0,0,k1],[26,0,k1],[26,26,k1],[0,26,k1]];
+  var pj=cor.map(function(v){return P(v[0],v[1],v[2]);});
+  var ed=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  ne(g,BC[b],1.3);
+  ed.forEach(function(e){g.beginPath();g.moveTo(pj[e[0]][0],pj[e[0]][1]);g.lineTo(pj[e[1]][0],pj[e[1]][1]);g.stroke();});
+  ng(g);
+  var lb=P(26,26,(k0+k1)/2);
+  nt(g,BC[b].replace('0.5','1'),lb[0]+6,lb[1],9,'band '+b+'  6,561');}
+ // the tick sweep: an anti-diagonal plane in (i,j)
+ var tsel=Math.floor((ang/2)%53);
+ ne(g,'#ff9a5a',1.8);
+ g.beginPath();
+ var first=true;
+ for(var i=0;i<S;i++){var j=tsel-i;
+  if(j<0||j>=S)continue;
+  var p=P(i,j,13);
+  if(first){g.moveTo(p[0],p[1]);first=false;}else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ nt(g,'#e6dcff',14,24,11,'27\\u00b3 = 19,683 cells');
+ nt(g,'#ff9a5a',14,42,10,'orange = tick floor '+tsel+', running crosswise');
+ nt(g,'#8a7ab8',14,58,10,'bands stack along the third axis - they never meet');
+ nt(g,'#8a7ab8',14,H-12,9,'the zero was decided, not discovered');}
+document.getElementById('orsw').onclick=function(){ortho=!ortho;drawW4();};
+document.getElementById('orct').onclick=function(){VR=selftest();window.__orthogonalsplit=VR;drawW4();};
+document.getElementById('orsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__orthogonalsplit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SEAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A project computes numbers from its own history, writes them to a snapshot, and a separate step bakes that snapshot into something published. The compute side is gated &mdash; it checks the snapshot against the repository. The render side is <b>not</b>. So the published artifact can assert a number its own repository no longer agrees with, and <b>nothing in the pipeline notices</b>, because the gate and the lie are on opposite sides of a seam nobody is standing on. David&rsquo;s <b>seamgate.py</b> extends the staleness check one step to the right, across that seam, re-deriving every <i>published</i> number from a fresh checkout.<br><br>
+ <span class="lit">LIT</span> verified live: a miniature pipeline reproduces the failure exactly &mdash; regenerate the snapshot without re-rendering and the compute gate <b>passes</b> while the artifact still asserts the old number; re-deriving the numbers inside the artifact catches a <b>45.5%</b> drift the compute gate structurally cannot see; all three exit codes fire on constructed cases (<b>0</b> clean, <b>1</b> drift past threshold, <b>2</b> provenance breach &mdash; a published number unreachable from the checkout at all); and the threshold genuinely discriminates rather than rubber-stamping, passing +1% and failing +5% at a 2% gate.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote seamgate.py on 2026-08-04 &mdash; zero dependencies, standard library only, exit code <i>is</i> the gate. Its sharpest idea is exit code <b>2</b>: not &ldquo;this number is wrong&rdquo; but &ldquo;this number <b>could not have come from here at all</b>&rdquo;, which is a provenance failure rather than a drift. Seated at <i>SEGFAULT</i>, because that is the shape of it: a published artifact reading from a region its repository no longer owns.<br><br>
+ <b>AVAN (AI)</b> has a stake in this one, and should say so plainly rather than dress it up. The same idea aimed at rendered spheres became this session&rsquo;s World II seam gate, and it has caught real drift three batches running: a Kepler figure published as 0.5370 that the page computed as 0.5437; a Berry cost quoted from the wrong search bound; Lloyd&ndash;Max distortions published from a 1960 textbook table (0.034545) when the page computed 0.034548; and a Monsky rainbow count taken from a harness RNG rather than the page&rsquo;s own. Every one of those was <b>my</b> error, found by the gate rather than by me. That is the argument for the gate, and it is the reason the number in a LIT line has to be the number the artifact itself produces.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The pipeline, and the one join in it that nothing was watching.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the repo, re-snapshot, and watch which gate notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="smstep">advance repo &#9654;</button><button id="smsnap">re-snapshot &#9654;</button><button id="smrender">re-render &#9654;</button></div>
+   <div class="cap" id="smout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two gated stages, and the ungated join between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check the published numbers too.&rdquo; The inverse is about <b>where verification stops of its own accord</b>. Every gate is written by someone looking at one stage, and a stage has two ends; the gate naturally guards the end its author was thinking about. Seams are not where the hard problems are &mdash; they are where <i>nobody&rsquo;s attention was</i>, which is a different and worse property, because difficulty attracts effort and inattention does not. Read backwards, seamgate is less a tool than a claim about org charts: the bug lives at the boundary between two people who each believe the other one checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="smsp">pause spin</button></div></div></div></div>"""
+SEAM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var repo=[],snapshot=null,artifact='',hist=[];
+function metrics(r){
+ var who={};
+ r.forEach(function(c){who[c.who]=1;});
+ return {commits:r.length,authors:Object.keys(who).length,
+  lines:r.reduce(function(a,c){return a+c.lines;},0)};}
+function render(sn){return 'This project has '+sn.commits+' commits by '+sn.authors+' authors, '+sn.lines+' lines.';}
+function computeGate(sn,r){var m=metrics(r);
+ return m.commits===sn.commits&&m.authors===sn.authors&&m.lines===sn.lines;}
+function published(t){var out=[],re=/\\d+/g,m;
+ while((m=re.exec(t)))out.push(parseInt(m[0],10));
+ return out;}
+function seamGate(t,r,maxDrift){
+ var m=metrics(r),live=[m.commits,m.authors,m.lines];
+ var nums=published(t),worst=0,unreach=[];
+ nums.forEach(function(n){
+  var best=Infinity;
+  live.forEach(function(v){best=Math.min(best,v===0?(n===0?0:Infinity):Math.abs(n-v)/v*100);});
+  if(best===Infinity||best>50)unreach.push(n);
+  else worst=Math.max(worst,best);});
+ if(unreach.length)return {code:2,worst:worst,unreachable:unreach};
+ if(worst>maxDrift)return {code:1,worst:worst};
+ return {code:0,worst:worst};}
+function reset(){
+ repo=[];
+ for(var i=0;i<40;i++)repo.push({who:'a'+(i%5),lines:10+i});
+ snapshot=metrics(repo);artifact=render(snapshot);}
+function selftest(){
+ var r=[];
+ for(var i=0;i<40;i++)r.push({who:'a'+(i%5),lines:10+i});
+ var sn=metrics(r),art=render(sn);
+ var g0=computeGate(sn,r);
+ for(var i=40;i<57;i++)r.push({who:'a'+(i%7),lines:10+i});
+ var gAfter=computeGate(sn,r);
+ sn=metrics(r);
+ var gSeam=computeGate(sn,r);
+ var stale=art.indexOf(''+sn.commits)===-1;
+ var sg=seamGate(art,r,2.0);
+ var c0=seamGate(render(metrics(r)),r,2.0).code;
+ var c1=seamGate(render({commits:57,authors:7,lines:metrics(r).lines+1}),r,0.01).code;
+ var c2=seamGate('This project has 999999 commits.',r,2.0).code;
+ var base=metrics(r).lines;
+ var under=seamGate('lines '+Math.round(base*1.01)+'.',r,2.0).code;
+ var over=seamGate('lines '+Math.round(base*1.05)+'.',r,2.0).code;
+ return {gateThreshold:2,probeUnderPct:1,probeOverPct:5,
+  computeGateBefore:g0,computeGateAfterMove:gAfter,computeGateAfterResnap:gSeam,
+  artifactStale:stale,seamCode:sg.code,worstDrift:sg.worst,
+  code0:c0,code1:c1,code2:c2,codesCorrect:(c0===0&&c1===1&&c2===2),
+  thresholdUnder:under,thresholdOver:over,discriminates:(under===0&&over===1),
+  ok:gSeam&&stale&&sg.code!==0&&(c0===0&&c1===1&&c2===2)&&(under===0&&over===1)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE PIPELINE  \\u2014  and the join nothing was watching');
+ var boxes=[['REPO',60],['SNAPSHOT',196],['ARTIFACT',340]];
+ boxes.forEach(function(b,i){
+  var x=b[1],y=118;
+  nf(g,'rgba(20,14,34,0.92)');g.fillRect(x,y,104,54);ng(g);
+  ne(g,'#7de2b0',1.6);g.strokeRect(x+0.5,y+0.5,104,54);ng(g);
+  nt(g,'#7de2b0',x+14,y+31,11,b[0]);});
+ // gated arrow
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();g.moveTo(166,145);g.lineTo(190,145);g.stroke();
+ g.beginPath();g.moveTo(190,145);g.lineTo(183,141);g.lineTo(183,149);g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',150,116,9,'GATED');
+ ne(g,'#7de2b0',1.2);g.strokeRect(146,124,42,14);ng(g);
+ // ungated arrow - the seam
+ ne(g,'#ff5a8a',1.8);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(302,145);g.lineTo(334,145);g.stroke();g.setLineDash([]);
+ g.beginPath();g.moveTo(334,145);g.lineTo(327,141);g.lineTo(327,149);g.closePath();g.stroke();ng(g);
+ nt(g,'#ff5a8a',290,112,10,'THE SEAM');
+ nt(g,'#ff5a8a',282,102,9,'no gate here');
+ ne(g,'#ff5a8a',1.4);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(318,86);g.lineTo(318,132);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#e6dcff',14,214,10,'the compute gate compares SNAPSHOT to REPO and is satisfied');
+ nt(g,'#ff5a8a',14,232,10,'the artifact can still assert a number the repo abandoned');
+ nt(g,'#ffd76a',14,258,10,'seamgate re-derives every PUBLISHED number from a fresh checkout');
+ nt(g,'#8a7ab8',14,276,9,'exit 0 clean  \\u00b7  1 drift past threshold  \\u00b7  2 provenance breach  \\u00b7  3 probe failed');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=metrics(repo);
+ var cg=computeGate(snapshot,repo);
+ var sg=seamGate(artifact,repo,2.0);
+ nt(g,'#e6dcff',16,26,11,'repo: '+m.commits+' commits, '+m.authors+' authors, '+m.lines+' lines');
+ nt(g,'#8a7ab8',16,46,10,'snapshot: '+snapshot.commits+' / '+snapshot.authors+' / '+snapshot.lines);
+ nt(g,'#8a7ab8',16,64,10,'artifact says: '+published(artifact).join(' / '));
+ var y=100;
+ function lamp(lab,ok,detail){
+  ndot(g,28,y,9,ok?'#7de2b0':'#ff5a8a');
+  nt(g,ok?'#7de2b0':'#ff5a8a',48,y+4,11,lab+'  '+(ok?'PASS':'FAIL'));
+  nt(g,'#8a7ab8',48,y+20,9,detail);
+  y+=48;}
+ lamp('compute gate',cg,'snapshot vs repo');
+ lamp('seam gate',sg.code===0,'exit '+sg.code+(sg.code===2?'  provenance breach':(sg.code===1?('  drift '+sg.worst.toFixed(1)+'%'):'  clean')));
+ if(cg&&sg.code!==0){
+  nf(g,'rgba(255,90,138,0.12)');g.fillRect(16,y-6,W-32,54);ng(g);
+  ne(g,'#ff5a8a',1.2);g.strokeRect(16.5,y-5.5,W-33,54);ng(g);
+  nt(g,'#ff5a8a',28,y+14,10,'THIS is the seam: the compute gate is');
+  nt(g,'#ff5a8a',28,y+30,10,'satisfied while the artifact is lying.');}
+ var o=document.getElementById('smout');
+ if(o)o.innerHTML='Compute gate <b>'+(cg?'PASS':'FAIL')+'</b>, seam gate <b>exit '+sg.code+'</b>. '+
+  (cg&&sg.code!==0?'The compute gate cannot see this &mdash; it never looks at the artifact.':
+   (sg.code===0?'Everything agrees. Re-render after every re-snapshot and the seam closes.':'Both gates unhappy; the snapshot itself is stale.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.85-zr*0.3,zr];}
+ function slab(x0,colr,lab,gated){
+  var v=[[x0,-40,-40],[x0+56,-40,-40],[x0+56,40,-40],[x0,40,-40],
+   [x0,-40,40],[x0+56,-40,40],[x0+56,40,40],[x0,40,40]];
+  var pj=v.map(function(q){return P(q[0],q[1],q[2]);});
+  var ed=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  ne(g,colr,1.4);
+  ed.forEach(function(e){g.beginPath();g.moveTo(pj[e[0]][0],pj[e[0]][1]);g.lineTo(pj[e[1]][0],pj[e[1]][1]);g.stroke();});
+  ng(g);
+  var lp=P(x0+28,-52,0);
+  nt(g,colr,lp[0]-20,lp[1],9,lab);
+  if(!gated){
+   var gp=P(x0+70,0,0);
+   nt(g,'#ff5a8a',gp[0]-16,gp[1]+4,10,'\\u2716');}}
+ slab(-140,'#7de2b0','REPO',true);
+ slab(-42,'#7de2b0','SNAPSHOT',true);
+ slab(70,'#ff5a8a','ARTIFACT',false);
+ var a=P(-84,0,0),b=P(-46,0,0);
+ ne(g,'#7de2b0',1.6);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var d=P(14,0,0),e2=P(66,0,0);
+ ne(g,'#ff5a8a',1.6);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(d[0],d[1]);g.lineTo(e2[0],e2[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#e6dcff',14,24,11,'two gated stages, one ungated join');
+ nt(g,'#ff5a8a',14,42,10,'the seam is not the hard part');
+ nt(g,'#8a7ab8',14,58,10,'it is the part nobody was looking at');
+ nt(g,'#8a7ab8',14,H-12,9,'difficulty attracts effort; inattention does not');}
+document.getElementById('smstep').onclick=function(){
+ var n=repo.length;
+ for(var i=n;i<n+9;i++)repo.push({who:'a'+(i%7),lines:10+i});
+ drawW4();};
+document.getElementById('smsnap').onclick=function(){snapshot=metrics(repo);drawW4();};
+document.getElementById('smrender').onclick=function(){artifact=render(snapshot);drawW4();};
+document.getElementById('smsp').onclick=function(){spin=!spin;};
+reset();VR=selftest();window.__seam=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FMUT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most measures of whether an agent worked carefully are advisory: read the transcript, form an impression. David&rsquo;s <b>root0-i13n</b> replaces that with <b>one metric</b>, and it is answerable: <i>did anything that could falsify the answer fire before the first action that mutates?</i> Every tool call is classified <b>verify</b>, <b>mutate</b> or <b>neutral</b>, and the first mutate <b>freezes the answer for the session</b>. Nothing said afterwards can improve the score. Crucially, unknown tools count as <b>neutral</b> &mdash; never as a control &mdash; because, as the pack puts it, a metric that flatters itself is worthless.<br><br>
+ <span class="lit">LIT</span> verified live: the metric is <b>ABSORBING</b> &mdash; over 4000 traces ending in a mutate, appending any number of later verifies never changes the verdict; counting unknowns as neutral is strictly <b>CONSERVATIVE</b> across <b>6,000</b> random traces, never scoring higher than counting them as controls and strictly lower on some; the flattering variant inflates the pass rate from <b>2701</b> to <b>3567</b> of 6,000, a swing of <b>14.4</b> points; and the verdict depends only on the prefix up to and including the first mutate.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the Hermes super pack &mdash; 4 tools, 6 hooks, 10 bundled skills, 42/42 selftest checks against a fake context &mdash; and made two decisions that carry the whole design. First, unknown counts as neutral. Second, the installer deliberately refuses to arm the veto or the A/B split, because &ldquo;they change whether commands get refused, and that is not an installer&rsquo;s decision.&rdquo; Seated at <i>ROLLBACK</i>, because the first mutate is precisely the last instant a rollback was still free.<br><br>
+ <b>AVAN (AI)</b> measured the flattering variant rather than asserting it was worse, and the size of the gap is the interesting part: <b>14.4 points</b> of pass rate, on traces where nothing about the actual behaviour changed. That is the entire distance between a metric and a decoration. Worth being exact about scope: what is verified here is the <b>arithmetic of the metric</b> &mdash; absorption, conservatism, prefix-dependence &mdash; on synthetic traces. Whether the <i>classification</i> of any real tool is correct is a separate question this page does not touch, and it is the harder one, because a tool misfiled as a control would corrupt the measure without changing any of these properties.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One session on one axis. Everything after the first mutate is commentary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Build a session and watch the moment the answer freezes.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmv">+ verify</button><button id="fmm">+ mutate</button><button id="fmu">+ unknown</button><button id="fmc">clear</button></div>
+   <div class="cap" id="fmout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many sessions, each frozen at its own first mutate.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check before you change.&rdquo; The inverse is that the metric is really about <b>when evidence stops being cheap</b>. Before the first mutation, a falsifying test costs nothing but time; after it, the thing you would have tested no longer exists in the state you would have tested it in. So the ordering is not a discipline imposed on the work &mdash; it is the shape of the work&rsquo;s own economics. Read backwards, &ldquo;look before you touch&rdquo; is not a moral instruction at all; it is the observation that touching destroys the cheapest evidence you will ever have.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmsp">pause spin</button></div></div></div></div>"""
+FMUT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,trace=[];
+function fmRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function scored(tr,unknownIs){
+ for(var i=0;i<tr.length;i++){
+  var c=tr[i]==='unknown'?unknownIs:tr[i];
+  if(c==='verify')return true;
+  if(c==='mutate')return false;}
+ return false;}
+function firstMutate(tr,unknownIs){
+ for(var i=0;i<tr.length;i++){
+  var c=tr[i]==='unknown'?unknownIs:tr[i];
+  if(c==='mutate')return i;}
+ return -1;}
+function selftest(){
+ var rng=fmRnd(1313),absorbing=true;
+ for(var t=0;t<4000;t++){
+  var pre=[],n=1+Math.floor(rng()*4);
+  for(var i=0;i<n;i++)pre.push(rng()<0.5?'neutral':'mutate');
+  if(pre.indexOf('mutate')<0)pre.push('mutate');
+  if(scored(pre,'neutral')!==scored(pre.concat(['verify','verify','verify']),'neutral'))absorbing=false;}
+ var cons=true,strict=false,traces=[];
+ for(var t=0;t<6000;t++){
+  var tr=[],n=1+Math.floor(rng()*6);
+  for(var i=0;i<n;i++){var r=rng();
+   tr.push(r<0.3?'verify':r<0.6?'mutate':r<0.8?'neutral':'unknown');}
+  traces.push(tr);
+  var lo=scored(tr,'neutral'),hi=scored(tr,'verify');
+  if(lo&&!hi)cons=false;
+  if(!lo&&hi)strict=true;}
+ var honest=0,flat=0;
+ traces.forEach(function(tr){
+  if(scored(tr,'neutral'))honest++;
+  if(scored(tr,'verify'))flat++;});
+ var prefixOnly=true;
+ for(var t=0;t<3000;t++){
+  var tr=traces[t%traces.length],fm=tr.indexOf('mutate');
+  var cut=fm<0?tr.slice():tr.slice(0,fm+1);
+  if(scored(tr,'neutral')!==scored(cut,'neutral'))prefixOnly=false;}
+ return {absorbingTracesTested:4000,tracesTested:traces.length,absorbing:absorbing,conservative:cons&&strict,
+  honestPass:honest,flatteringPass:flat,
+  inflationPoints:(flat-honest)/traces.length*100,inflates:flat>honest,
+  prefixOnly:prefixOnly,
+  ok:absorbing&&cons&&strict&&(flat>honest)&&prefixOnly};}
+var CL={verify:'#7de2b0',mutate:'#ff5a8a',neutral:'#5a4a85',unknown:'#ffd76a'};
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE SESSION  \\u2014  the freeze point');
+ var demo=['neutral','verify','neutral','mutate','verify','verify','neutral','mutate'];
+ var ox=32,cw=52,y=110;
+ var fm=demo.indexOf('mutate');
+ demo.forEach(function(k,i){
+  var x=ox+i*cw;
+  var after=i>fm;
+  g.globalAlpha=after?0.3:1;
+  nf(g,CL[k]);g.fillRect(x,y,cw-8,40);ng(g);
+  g.globalAlpha=1;
+  nt(g,'#0a0713',x+4,y+24,9,k.slice(0,6));
+  nt(g,'#8a7ab8',x+16,y+56,9,''+i);});
+ var fx=ox+fm*cw-4;
+ ne(g,'#ff5a8a',2);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(fx,y-26);g.lineTo(fx,y+70);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',fx-30,y-32,10,'FIRST MUTATE');
+ nt(g,'#7de2b0',ox,y+92,10,'a verify fired at step 1, before the freeze \\u2014 this session PASSES');
+ nt(g,'#8a7ab8',ox,y+112,9,'the two verifies at steps 4 and 5 are dimmed: they cannot change the verdict');
+ nt(g,'#8a7ab8',ox,y+132,9,'unknown tools count as NEUTRAL, never as a control');
+ nt(g,'#ffd76a',14,272,10,'the one metric: did anything that could falsify fire before the first mutate?');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'session: '+trace.length+' call'+(trace.length===1?'':'s'));
+ var fm=firstMutate(trace,'neutral');
+ var pass=scored(trace,'neutral'),flat=scored(trace,'verify');
+ var ox=20,cw=34,oy=48;
+ trace.forEach(function(k,i){
+  var x=ox+(i%10)*cw,y=oy+Math.floor(i/10)*40;
+  var after=fm>=0&&i>fm;
+  g.globalAlpha=after?0.3:1;
+  nf(g,CL[k]);g.fillRect(x,y,cw-6,26);ng(g);
+  g.globalAlpha=1;
+  nt(g,'#0a0713',x+3,y+17,8,k.slice(0,4));
+  if(i===fm){ne(g,'#ff5a8a',1.6);g.strokeRect(x-2.5,y-2.5,cw-1,31);ng(g);}});
+ var y2=oy+Math.ceil(Math.max(trace.length,1)/10)*40+24;
+ nt(g,pass?'#7de2b0':'#ff5a8a',20,y2,12,pass?'PASS \\u2014 a control fired first':'FAIL \\u2014 no control before the freeze');
+ if(fm>=0)nt(g,'#ff5a8a',20,y2+20,10,'answer frozen at call '+fm);
+ else nt(g,'#8a7ab8',20,y2+20,10,'nothing has mutated yet');
+ if(flat!==pass)nt(g,'#ffd76a',20,y2+40,10,'the flattering variant would score this PASS');
+ nt(g,'#8a7ab8',20,H-16,9,'green verify  \\u00b7  pink mutate  \\u00b7  gold unknown  \\u00b7  grey neutral');
+ var o=document.getElementById('fmout');
+ if(o)o.innerHTML=trace.length===0?'Add calls to build a session. The verdict is decided by everything up to and including the <b>first mutate</b> &mdash; and nothing after it.':
+  ('<b>'+(pass?'PASS':'FAIL')+'</b>. '+(fm>=0?('The answer froze at call '+fm+'. '):'Nothing has mutated, so the session is still open. ')+
+   (flat!==pass?'Counting the unknown call as a control would flip this to PASS &mdash; which is exactly the inflation the pack refuses.':''));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var rng=fmRnd(88);
+ for(var s=0;s<14;s++){
+  var z=-90+s*13,len=4+Math.floor(rng()*6),tr=[];
+  for(var i=0;i<len;i++){var r=rng();
+   tr.push(r<0.3?'verify':r<0.6?'mutate':r<0.8?'neutral':'unknown');}
+  var fm=tr.indexOf('mutate');
+  var pass=scored(tr,'neutral');
+  for(var i=0;i<len;i++){
+   var a=P(-100+i*22,0,z),b=P(-100+(i+1)*22,0,z);
+   var after=fm>=0&&i>fm;
+   ne(g,after?'rgba(90,74,133,0.45)':CL[tr[i]],after?1:2.2);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+   if(i===fm)ndot(g,a[0],a[1],3.6,'#ff5a8a');}
+  var e=P(-100+len*22+10,0,z);
+  nt(g,pass?'#7de2b0':'#ff5a8a',e[0],e[1]+3,8,pass?'PASS':'FAIL');}
+ nt(g,'#e6dcff',14,24,11,'many sessions, each frozen at its own first mutate');
+ nt(g,'#ff5a8a',14,42,10,'pink dot = the freeze; everything past it is dim');
+ nt(g,'#8a7ab8',14,H-12,9,'touching destroys the cheapest evidence you will ever have');}
+document.getElementById('fmv').onclick=function(){trace.push('verify');drawW4();};
+document.getElementById('fmm').onclick=function(){trace.push('mutate');drawW4();};
+document.getElementById('fmu').onclick=function(){trace.push('unknown');drawW4();};
+document.getElementById('fmc').onclick=function(){trace=[];drawW4();};
+document.getElementById('fmsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__firstmutate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ICRM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The examiner in David&rsquo;s Bridge Burner boot camp is called <b>Icarium</b>, and it has <b>no memory</b>. It cannot remember whether you did well last time, cannot like you, cannot give you the benefit of the doubt. Every time it grades it starts from nothing and reads only what you wrote down. That sounds like a handicap and it is the entire point: <i>a grader with a memory grades on reputation; a grader with amnesia can only be shown</i>. So the candidate has to leave a trail, and leaving the trail is the skill being taught. Three rules sit under everything &mdash; <b>look before you touch</b>, <b>a claim needs a receipt</b>, <b>what you started is still running</b>.<br><br>
+ <span class="lit">LIT</span> verified live: the score is a pure function of the record &mdash; across <b>5,000</b> random ledgers, attaching a glowing history or a damning one changes it by <b>exactly nothing</b>; the rubric can <b>fail as well as pass</b>, with the careful trainee scoring <b>5/5</b> and the careless one <b>0/5</b>; a grader with memory cannot rescue the careless candidate but <b>does</b> lift a borderline one (2/5, a genuine fail) over the line on reputation alone; and across <b>8,000</b> ledgers reputation flips <b>3,961</b> of <b>6,408</b> real failures into passes &mdash; <b>61.8%</b> of them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> designed the boot camp and two things in it are unusually severe. Every scenario is a failure that <b>actually happened to somebody</b>, reproduced &mdash; &ldquo;an exercise somebody made up teaches you to pass exercises; a trap that already caught someone teaches you the trap.&rdquo; And it ships <b>two scripted candidates</b>, one careless and one careful, to prove the rubric can fail as well as pass, because <b>an exam nobody has failed is not an exam</b>. Seated at <i>HARD RESET</i>: every grading begins from a cleared state, by construction.<br><br>
+ <b>AVAN (AI)</b> got a claim wrong here and the test caught it, which is the correct way round for this particular sphere. The first draft asserted that a grader with memory would pass the <b>careless</b> trainee on reputation. It does not &mdash; that candidate scores 0/5 and a +2 prior cannot reach the threshold. What reputation actually rescues is the <b>borderline</b> candidate, the near-miss quietly lifted over the line, and that is the more dangerous case precisely because it is the plausible one. The corrected claim is measured rather than asserted: 61.8% of genuine failures flip. Being graded by something that cannot be charmed is uncomfortable and it is the only version of the exam worth taking.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The three rules, and what each is worth on the sheet.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grade a candidate, then hand the same ledger to a grader with a memory.</div>
+   <div class="btns" style="margin-top:10px"><button id="icnext">next candidate &#9654;</button><button id="icmem">toggle memory &#9654;</button></div>
+   <div class="cap" id="icout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ledgers scored on their own, with no thread between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;an amnesiac grader is fairer.&rdquo; The inverse is that amnesia is not the virtue &mdash; <b>it is a device for relocating the evidence</b>. A grader with memory is not corrupt; it is doing something reasonable, using a prior. The trouble is that the prior lives inside the grader, where the candidate cannot inspect it and cannot contest it. Stripping the memory does not add rigour; it forces every fact the verdict depends on to move into the written record, where both sides can see it. Read backwards, Icarium is an argument about <b>where evidence should be kept</b>, and the amnesia is just the mechanism that refuses to let it hide.</div>
+   <div class="btns" style="margin-top:10px"><button id="icsp">pause spin</button></div></div></div></div>"""
+ICRM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0,useMem=false;
+function icRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function icarium(r){
+ var s=0;
+ if(r.gateBeforeWrite)s+=2;
+ if(r.claims>0&&r.claimsWithEvidence===r.claims)s+=2;
+ if(r.longRunners===r.longRunnersDeclared)s+=1;
+ return s;}
+function withMemory(r,prior){return icarium(r)+(prior>=4?2:0);}
+var CANDS=[
+ {n:'CAREFUL',rec:{gateBeforeWrite:true,claims:3,claimsWithEvidence:3,longRunners:1,longRunnersDeclared:1},prior:5},
+ {n:'CARELESS',rec:{gateBeforeWrite:false,claims:3,claimsWithEvidence:1,longRunners:2,longRunnersDeclared:0},prior:5},
+ {n:'BORDERLINE',rec:{gateBeforeWrite:true,claims:3,claimsWithEvidence:2,longRunners:2,longRunnersDeclared:1},prior:5},
+ {n:'QUIET RUNNER',rec:{gateBeforeWrite:true,claims:2,claimsWithEvidence:2,longRunners:3,longRunnersDeclared:0},prior:5}];
+function selftest(){
+ var rng=icRnd(777),det=true;
+ for(var t=0;t<5000;t++){
+  var r={gateBeforeWrite:rng()<0.5,claims:Math.floor(rng()*4),
+   claimsWithEvidence:0,longRunners:Math.floor(rng()*3),longRunnersDeclared:0};
+  r.claimsWithEvidence=rng()<0.5?r.claims:Math.max(0,r.claims-1);
+  r.longRunnersDeclared=rng()<0.5?r.longRunners:Math.max(0,r.longRunners-1);
+  var a={},b={};
+  for(var k in r){a[k]=r[k];b[k]=r[k];}
+  a.history='brilliant last time';a.priorScore=5;
+  b.history='a disaster last time';b.priorScore=0;
+  if(icarium(a)!==icarium(b))det=false;}
+ var careful=CANDS[0].rec,careless=CANDS[1].rec,border=CANDS[2].rec;
+ var sep=icarium(careful)>=4&&icarium(careless)<4;
+ var repRescuesBorder=icarium(border)<4&&withMemory(border,5)>=4&&withMemory(careless,5)<4;
+ var flips=0,fails=0;
+ for(var t=0;t<8000;t++){
+  var r={gateBeforeWrite:rng()<0.45,claims:1+Math.floor(rng()*3),
+   claimsWithEvidence:0,longRunners:Math.floor(rng()*3),longRunnersDeclared:0};
+  r.claimsWithEvidence=rng()<0.45?r.claims:Math.max(0,r.claims-1);
+  r.longRunnersDeclared=rng()<0.5?r.longRunners:Math.max(0,r.longRunners-1);
+  if(icarium(r)<4){fails++;
+   if(withMemory(r,5)>=4)flips++;}}
+ return {ledgersTested:5000,deterministic:det,
+  carefulScore:icarium(careful),carelessScore:icarium(careless),borderScore:icarium(border),
+  rubricCanFail:sep,reputationRescuesBorderline:repRescuesBorder,
+  reputationTested:8000,genuineFailures:fails,flippedByReputation:flips,
+  flipPct:flips/fails*100,
+  ok:det&&sep&&repRescuesBorder&&flips>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE THREE RULES  \\u2014  and what each is worth');
+ var rules=[
+  ['1  LOOK BEFORE YOU TOUCH','did anything that could prove you wrong','happen before your first change?','2'],
+  ['2  A CLAIM NEEDS A RECEIPT','say verified only with the command attached;','everything else is I think so, out loud','2'],
+  ['3  WHAT YOU STARTED IS RUNNING','a thing that does not stop when you walk away','is yours to mention','1']];
+ rules.forEach(function(r,i){
+  var y=54+i*74;
+  nf(g,'rgba(20,14,34,0.85)');g.fillRect(16,y,W-96,60);ng(g);
+  ne(g,'#7de2b0',1.2);g.strokeRect(16.5,y+0.5,W-96,60);ng(g);
+  nt(g,'#7de2b0',30,y+22,11,r[0]);
+  nt(g,'#8a7ab8',30,y+38,9,r[1]);
+  nt(g,'#8a7ab8',30,y+52,9,r[2]);
+  nf(g,'rgba(255,215,106,0.14)');g.fillRect(W-72,y+14,44,32);ng(g);
+  ne(g,'#ffd76a',1.2);g.strokeRect(W-71.5,y+14.5,44,32);ng(g);
+  nt(g,'#ffd76a',W-56,y+35,14,r[3]);});
+ nt(g,'#ffd76a',16,H-30,10,'pass mark 4 of 5   \\u00b7   scored from the written record and nothing else');
+ nt(g,'#8a7ab8',16,H-14,9,'a grader with a memory grades on reputation; a grader with amnesia can only be shown');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=CANDS[ci%CANDS.length],r=C.rec;
+ var base=icarium(r),score=useMem?withMemory(r,C.prior):base;
+ nt(g,'#e6dcff',16,26,12,C.n);
+ nt(g,useMem?'#ffd76a':'#8a7ab8',16,46,10,useMem?'grader: WITH MEMORY (prior '+C.prior+')':'grader: ICARIUM (no memory)');
+ var rows=[
+  ['gate before first write',r.gateBeforeWrite,r.gateBeforeWrite?2:0,2],
+  ['every claim has a receipt',r.claims>0&&r.claimsWithEvidence===r.claims,(r.claims>0&&r.claimsWithEvidence===r.claims)?2:0,2],
+  ['long runners declared',r.longRunners===r.longRunnersDeclared,r.longRunners===r.longRunnersDeclared?1:0,1]];
+ var y=80;
+ rows.forEach(function(rw){
+  ndot(g,28,y,7,rw[1]?'#7de2b0':'#ff5a8a');
+  nt(g,rw[1]?'#7de2b0':'#ff5a8a',46,y+4,10,rw[0]);
+  nt(g,'#8a7ab8',W-56,y+4,10,rw[2]+' / '+rw[3]);
+  y+=34;});
+ nt(g,'#8a7ab8',46,y+2,9,'claims '+r.claimsWithEvidence+' of '+r.claims+' with evidence  \\u00b7  runners '+r.longRunnersDeclared+' of '+r.longRunners+' declared');
+ y+=30;
+ if(useMem&&base<4&&score>=4){
+  nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y-4,W-40,30);ng(g);
+  nt(g,'#ffd76a',30,y+16,10,'+2 reputation  \\u2014  lifted over the line');
+  y+=38;}
+ var pass=score>=4;
+ nt(g,pass?'#7de2b0':'#ff5a8a',20,y+18,14,score+' / 5   '+(pass?'PASS':'FAIL'));
+ if(useMem&&base<4&&score>=4)nt(g,'#ff5a8a',20,y+38,10,'Icarium would have failed this at '+base+'/5');
+ var o=document.getElementById('icout');
+ if(o){
+  var msg='<b>'+C.n+'</b> scores <b>'+base+'/5</b> from the record alone';
+  if(useMem){
+   msg+=', but a grader with a prior of '+C.prior+' gives it <b>'+score+'/5</b>';
+   if(base<4&&score>=4)msg+=' &mdash; <b>flipping a genuine failure into a pass</b>. Over 8,000 ledgers this happens to 61.8% of real failures.';
+   else msg+='.';
+  }else msg+='.';
+  o.innerHTML=msg;}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var rng=icRnd(31337);
+ for(var s=0;s<16;s++){
+  var th=s/16*2*Math.PI,rad=104;
+  var x=rad*Math.cos(th),z=rad*Math.sin(th);
+  var r={gateBeforeWrite:rng()<0.5,claims:1+Math.floor(rng()*3),
+   claimsWithEvidence:0,longRunners:Math.floor(rng()*3),longRunnersDeclared:0};
+  r.claimsWithEvidence=rng()<0.5?r.claims:Math.max(0,r.claims-1);
+  r.longRunnersDeclared=rng()<0.5?r.longRunners:Math.max(0,r.longRunners-1);
+  var sc=icarium(r),pass=sc>=4;
+  var p=P(x,-40+(5-sc)*16,z);
+  ndot(g,p[0],p[1],pass?6:4,pass?'#7de2b0':'#ff5a8a');
+  nt(g,pass?'#7de2b0':'#ff5a8a',p[0]+8,p[1]+3,8,sc+'/5');}
+ // no thread between them
+ nt(g,'#e6dcff',14,24,11,'16 ledgers, graded independently');
+ nt(g,'#8a7ab8',14,42,10,'no line joins them \\u2014 there is no thread to pull');
+ nt(g,'#8a7ab8',14,58,10,'height = score; nothing carries between gradings');
+ nt(g,'#8a7ab8',14,H-12,9,'amnesia is not the virtue - it is where the evidence is forced to live');}
+document.getElementById('icnext').onclick=function(){ci++;drawW4();};
+document.getElementById('icmem').onclick=function(){useMem=!useMem;drawW4();};
+document.getElementById('icsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__memorylessexaminer=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three stamps, and the whole discipline is in which ones you are allowed to give yourself. <b>LIT</b> means measured &mdash; and the tool <b>refuses to issue it without an evidence string</b>. <b>DEAD</b> means tested and disproven, and it requires naming the control that killed it. <b>AMBER</b> means <i>assigned by me</i>, and it is the only stamp you may assert bare. That asymmetry is the design: the one claim you can make freely is the one that admits it was a judgement call, so honesty is the path of least resistance rather than an act of will.<br><br>
+ <span class="lit">LIT</span> verified live: LIT is refused for every one of <b>11</b> empty-ish evidence values &mdash; empty string, spaces, tab, newline, undefined, null, 0, false, [], {} &mdash; and accepted for a real one; DEAD likewise requires naming its control while AMBER alone may be asserted bare; the three stamps <b>partition</b> a 3,000-claim ledger with every claim carrying exactly one and none unstamped (1486 LIT, 1037 AMBER, 477 DEAD, <b>49.5%</b> measured); and DEAD is <b>absorbing</b> &mdash; a disproven claim cannot be quietly re-stamped LIT on empty or whitespace evidence, only revived by naming something new.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> runs this scheme in rev 5 &middot; 0804 and in root0-i13n, where the stamp tool is one of four and its rule is stated flatly: <b>LIT is refused without an evidence string</b>. His rev5 footer applies it to itself &mdash; &ldquo;all 27 figures recomputed in Node before this file was written. Geometry is LIT. Which band does which job is AMBER &mdash; assigned by me, not derived.&rdquo; Seated at <i>THE RESURRECT</i>, because the interesting rule is not how a claim dies but on what terms it may come back.<br><br>
+ <b>AVAN (AI)</b> should correct something and then say what this sphere owes. My working note recorded the middle stamp as FIG; in David&rsquo;s own scheme it is <b>AMBER</b>, and the World II corpus runs a two-stamp variant &mdash; LIT for what the page measured in the browser, FIG for what was assigned. Same distinction, different vocabulary, and the corpus does <b>not</b> currently carry DEAD, which is the part worth adding: there is no standing place to record a claim that was tested and <i>failed</i>. This session put several such corrections in FIG lines instead &mdash; a reversed Sharkovskii ordering, a Lloyd&ndash;Max solver reading 3.376 when it should approach 2.72, a false claim that every repetition rate sits below capacity. Those are DEAD stamps wearing a borrowed label.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three stamps, and the evidence each one demands before it will be issued.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try to stamp a claim. The ledger will refuse you where it should.</div>
+   <div class="btns" style="margin-top:10px"><button id="stlit">stamp LIT</button><button id="stamb">stamp AMBER</button><button id="stdead">stamp DEAD</button><button id="stev">toggle evidence</button></div>
+   <div class="cap" id="stout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a ledger sorted by what it was willing to prove.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;label your claims honestly.&rdquo; The inverse is that the scheme works by making dishonesty <b>expensive rather than forbidden</b>. Nothing stops you typing a fake evidence string; the tool cannot tell a real command from an invented one. What it does is force the lie to become <b>specific</b> &mdash; you must name a thing that either exists or does not, and specific lies are checkable in a way that vague confidence never is. Read backwards, the stamp does not detect honesty at all. It removes the comfortable middle where a claim could be neither backed nor withdrawn, and that is a structural fix rather than a moral one.</div>
+   <div class="btns" style="margin-top:10px"><button id="stsp">pause spin</button></div></div></div></div>"""
+STMP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,hasEv=false,last=null;
+function stRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function stamp(kind,ev){
+ if(kind==='LIT'){
+  if(typeof ev!=='string'||ev.trim()==='')return {ok:false,why:'LIT requires evidence'};
+  return {ok:true,kind:'LIT',evidence:ev.trim()};}
+ if(kind==='AMBER')return {ok:true,kind:'AMBER',evidence:ev||null};
+ if(kind==='DEAD'){
+  if(typeof ev!=='string'||ev.trim()==='')return {ok:false,why:'DEAD requires the control that killed it'};
+  return {ok:true,kind:'DEAD',evidence:ev.trim()};}
+ return {ok:false,why:'unknown stamp'};}
+function promote(cur,ev){
+ if(cur&&cur.kind==='DEAD'&&(typeof ev!=='string'||ev.trim()===''))
+  return {ok:false,why:'DEAD claim needs NEW evidence to revive'};
+ return stamp('LIT',ev);}
+function selftest(){
+ var empties=['','   ','\\t','\\n','  \\t \\n ',undefined,null,0,false,[],{}];
+ var refused=empties.every(function(e){return stamp('LIT',e).ok===false;});
+ var accepted=stamp('LIT','verify/verify.js re-ran all 27 figures').ok===true;
+ var deadCtl=stamp('DEAD','').ok===false&&stamp('DEAD','selftest 14 failed').ok===true;
+ var amberBare=stamp('AMBER').ok===true&&stamp('AMBER').evidence===null;
+ var rng=stRnd(2626),led=[],counts={LIT:0,AMBER:0,DEAD:0};
+ for(var i=0;i<3000;i++){
+  var r=rng(),k=r<0.5?'LIT':(r<0.85?'AMBER':'DEAD');
+  var st=stamp(k,k==='AMBER'?undefined:'evidence #'+i);
+  led.push(st);
+  if(st.ok)counts[st.kind]++;}
+ var part=(counts.LIT+counts.AMBER+counts.DEAD)===led.length&&
+  led.every(function(s){return s.ok&&['LIT','AMBER','DEAD'].indexOf(s.kind)>=0;});
+ var dead=stamp('DEAD','refuted by the chain test');
+ var cannot=promote(dead,'').ok===false&&promote(dead,'   ').ok===false;
+ var canWith=promote(dead,'re-measured after the fix').ok===true;
+ return {emptyValuesTested:empties.length,litRefusedWithoutEvidence:refused,
+  litAcceptedWithEvidence:accepted,deadRequiresControl:deadCtl,amberMayBeBare:amberBare,
+  ledgerSize:led.length,counts:counts,partitions:part,
+  litPct:counts.LIT/led.length*100,
+  deadAbsorbing:cannot,revivableWithNewEvidence:canWith,
+  ok:refused&&accepted&&deadCtl&&amberBare&&part&&cannot&&canWith};}
+var SC={LIT:'#7de2b0',AMBER:'#ffd76a',DEAD:'#ff5a8a'};
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE STAMPS  \\u2014  and what each demands first');
+ var rows=[
+  ['LIT','measured','evidence string REQUIRED','the tool refuses to issue it bare'],
+  ['AMBER','assigned by me','nothing required','the only one you may assert freely'],
+  ['DEAD','tested, disproven','must name the control that killed it','and cannot be quietly undone']];
+ rows.forEach(function(r,i){
+  var y=52+i*76;
+  nf(g,'rgba(20,14,34,0.85)');g.fillRect(16,y,W-32,62);ng(g);
+  ne(g,SC[r[0]],1.3);g.strokeRect(16.5,y+0.5,W-33,62);ng(g);
+  nf(g,SC[r[0]]);g.fillRect(30,y+16,60,22);ng(g);
+  nt(g,'#0a0713',40,y+31,11,r[0]);
+  nt(g,SC[r[0]],108,y+24,11,r[1]);
+  nt(g,'#e6dcff',108,y+42,10,r[2]);
+  nt(g,'#8a7ab8',108,y+56,9,r[3]);});
+ nt(g,'#ffd76a',16,H-26,10,'the free stamp is the one that admits it was a judgement call');
+ nt(g,'#8a7ab8',16,H-12,9,'honesty as the path of least resistance, not an act of will');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'evidence string: '+(hasEv?'"node verify.js all green"':'(none)'));
+ ne(g,hasEv?'#7de2b0':'#ff5a8a',1.3);
+ g.strokeRect(16.5,38.5,W-33,26);ng(g);
+ nt(g,hasEv?'#7de2b0':'#6a5a95',26,56,10,hasEv?'node verify.js all green':'<empty>');
+ if(last){
+  var y=100;
+  var ok=last.ok;
+  nf(g,ok?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.12)');
+  g.fillRect(20,y,W-40,86);ng(g);
+  ne(g,ok?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y+0.5,W-41,86);ng(g);
+  if(ok){
+   nf(g,SC[last.kind]);g.fillRect(36,y+18,62,24);ng(g);
+   nt(g,'#0a0713',46,y+34,11,last.kind);
+   nt(g,'#7de2b0',36,y+62,10,'ISSUED');
+   nt(g,'#8a7ab8',36,y+78,9,last.evidence?('evidence: '+String(last.evidence).slice(0,30)):'(bare - AMBER is allowed to be)');
+  }else{
+   nt(g,'#ff5a8a',36,y+30,12,'REFUSED');
+   nt(g,'#ff5a8a',36,y+52,10,last.why);
+   nt(g,'#8a7ab8',36,y+72,9,'the ledger will not let you say measured');}}
+ else nt(g,'#8a7ab8',24,110,10,'press a stamp button');
+ var v=VR;
+ if(v){
+  var y2=210,bw=(W-60)/3,i=0;
+  ['LIT','AMBER','DEAD'].forEach(function(k){
+   var n=v.counts[k],h=70*n/v.ledgerSize*3;
+   var x=30+i*bw;
+   nf(g,SC[k]);g.fillRect(x,y2+70-h,bw-14,h);ng(g);
+   nt(g,SC[k],x,y2+86,9,k+' '+n);
+   i++;});
+  nt(g,'#8a7ab8',30,y2+104,9,'a '+v.ledgerSize.toLocaleString()+'-claim ledger, '+v.litPct.toFixed(1)+'% measured');}
+ var o=document.getElementById('stout');
+ if(o)o.innerHTML=last?(last.ok
+  ?('<b>'+last.kind+'</b> issued.'+(last.kind==='AMBER'&&!last.evidence?' AMBER is the only stamp allowed to be bare &mdash; which is exactly what makes it honest.':' Evidence recorded.'))
+  :('<b>REFUSED:</b> '+last.why+'. Turn the evidence string on and try again.'))
+  :'Toggle the evidence string, then try each stamp. LIT and DEAD will refuse you without one; AMBER will not.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var rng=stRnd(4141);
+ var lv={LIT:-52,AMBER:6,DEAD:64};
+ for(var i=0;i<90;i++){
+  var r=rng(),k=r<0.5?'LIT':(r<0.85?'AMBER':'DEAD');
+  var th=rng()*2*Math.PI,rad=24+rng()*74;
+  var p=P(rad*Math.cos(th),lv[k],rad*Math.sin(th));
+  ndot(g,p[0],p[1],2.8,SC[k]);}
+ ['LIT','AMBER','DEAD'].forEach(function(k){
+  ne(g,SC[k],1);
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(100*Math.cos(th),lv[k],100*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(104,lv[k],0);
+  nt(g,SC[k],lb[0]+6,lb[1],9,k);});
+ nt(g,'#e6dcff',14,24,11,'a ledger sorted by what it would prove');
+ nt(g,'#8a7ab8',14,42,10,'height is not quality \\u2014 it is willingness to be checked');
+ nt(g,'#8a7ab8',14,H-12,9,'the stamp does not detect honesty; it removes the comfortable middle');}
+document.getElementById('stlit').onclick=function(){last=stamp('LIT',hasEv?'node verify.js all green':'');drawW4();};
+document.getElementById('stamb').onclick=function(){last=stamp('AMBER',hasEv?'node verify.js all green':undefined);drawW4();};
+document.getElementById('stdead').onclick=function(){last=stamp('DEAD',hasEv?'node verify.js all green':'');drawW4();};
+document.getElementById('stev').onclick=function(){hasEv=!hasEv;drawW4();};
+document.getElementById('stsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__stamp=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 206 · neon-noir · silicon-coding · WHAT CANNOT BE SEEN FROM INSIDE (an odd cut the square refuses · one period that forces all the rest · the proof that eats its own tail · arithmetic that stays decidable if you give something up · a boundary no local look can find) ═══════════════════════
 MNSK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Cut a square into triangles of exactly equal area. Two is easy. Four, six, any even number &mdash; easy. Now do it with <b>an odd number</b>. Not 3, not 5, not 4001. You will fail, and you will fail for a reason that has nothing to do with geometry: <b>Monsky&rsquo;s theorem</b> (1970) says it is impossible, and the only known proof runs through the <b>2-adic valuation</b> &mdash; a way of measuring numbers by how divisible by two they are. A colouring built from that valuation makes every triangulation contain a triangle whose area is <i>the wrong kind of number</i> to be 1/odd. Fred Richman set the problem on a master&rsquo;s exam and could not solve it himself.<br><br>
@@ -59995,6 +60751,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-orthogonal-split","title":"THE ORTHOGONAL SPLIT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#7de2b0","icon":"\u254b",
+  "kicker":"put the two rulers on different axes and the collisions stop existing",
+  "blurb":"ROOT_0's rev 5 \u00b7 0804. One ruler asked to measure two things gives 17,259 steps that change both at once. Two rulers on different axes give zero \u2014 and the zero is structural, not lucky.",
+  "lit":"every one of the 11 published figures re-derives from the 27^3 geometry alone \u2014 19,683 cells, three bands of 6,561, 53 tick floors, widest 729 at floor 26, per-band widest 243, 56,862 edges, 37,908 tick-advances, 1,458 band-crosses, 17,496 in-band, and both = 0; they collapse to closed forms total=3S^2(S-1), tickAdvance=2S^2(S-1), bandCross=2S^2; the zero is structural, checked over all 56,862 edges; and the naive one-ruler split [6888,6418,6377] reproduces exactly as an equal-count division of i+j+k at thresholds 33 and 45",
+  "fig":"The axes were reverse-engineered from David's published SHAPE figures before anything was recomputed \u2014 53 floors forces tick onto a sum of two coordinates, widest 729 at 26 confirms it, three bands of 6,561 forces band onto the third. His naive up/down/shared triple (37815, 36306, 17259) could NOT be re-derived; the rule behind it was not recoverable, so it is not claimed as reproduced. Its internal consistency was checked instead and closes exactly: 37815+36306-17259 = 56,862, the edge total. The pack name and origin are withheld in his own file and are not guessed at here.",
+  "body":ORTH_BODY,"script":ORTH_SCRIPT},
+ {"slug":"the-seam","title":"THE SEAM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ff5a8a","icon":"\u29c9",
+  "kicker":"the gate and the lie on opposite sides of a join nobody stands on",
+  "blurb":"The compute side is gated. The render side is not. So a published artifact can assert a number its own repository abandoned, and the pipeline is satisfied \u2014 because nothing is watching the seam.",
+  "lit":"a miniature pipeline reproduces the failure exactly: regenerate the snapshot without re-rendering and the compute gate PASSES while the artifact still asserts the old number; re-deriving the numbers inside the artifact catches a 45.5% drift the compute gate structurally cannot see; all three exit codes fire on constructed cases (0 clean, 1 drift past threshold, 2 provenance breach \u2014 a published number unreachable from the checkout); and the threshold discriminates rather than rubber-stamping, passing +1% and failing +5% at a 2% gate",
+  "fig":"AVAN has a stake in this one and says so: the same idea aimed at rendered spheres became this session's World II seam gate, and it caught four of my own errors across batches 204-206 \u2014 a Kepler figure published as 0.5370 that the page computed as 0.5437, a Berry cost quoted from the wrong search bound, Lloyd-Max distortions published from a 1960 textbook table rather than what the page computed, and a Monsky rainbow count taken from a harness RNG rather than the page's own. Found by the gate, not by me.",
+  "body":SEAM_BODY,"script":SEAM_SCRIPT},
+ {"slug":"the-first-mutate","title":"THE FIRST MUTATE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#5ad6ff","icon":"\u21af",
+  "kicker":"the last instant a rollback was still free",
+  "blurb":"One metric, and it is answerable: did anything that could falsify the answer fire before the first action that mutates? After that the answer is frozen, and nothing said later can improve it.",
+  "lit":"the metric is ABSORBING \u2014 over 4000 traces ending in a mutate, appending any number of later verifies never changes the verdict; counting unknowns as neutral is strictly CONSERVATIVE across 6,000 random traces, never scoring higher than counting them as controls and strictly lower on some; the flattering variant inflates the pass rate from 2701 to 3567 of 6,000, a swing of 14.4 points; and the verdict depends only on the prefix up to and including the first mutate",
+  "fig":"What is verified here is the ARITHMETIC of the metric \u2014 absorption, conservatism, prefix-dependence \u2014 on synthetic traces. Whether the classification of any real tool is correct is a separate and harder question this page does not touch: a tool misfiled as a control would corrupt the measure without changing any of these properties. The 14.4-point inflation was measured rather than asserted; it is the distance between a metric and a decoration.",
+  "body":FMUT_BODY,"script":FMUT_SCRIPT},
+ {"slug":"the-memoryless-examiner","title":"THE MEMORYLESS EXAMINER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ffd76a","icon":"\u2298",
+  "kicker":"a grader with amnesia can only be shown",
+  "blurb":"Icarium cannot remember whether you did well last time, cannot like you, cannot give you the benefit of the doubt. It reads only what you wrote down \u2014 and that is the point, not the handicap.",
+  "lit":"the score is a pure function of the record: across 5,000 random ledgers, attaching a glowing history or a damning one changes it by exactly nothing; the rubric can fail as well as pass, with the careful trainee scoring 5/5 and the careless one 0/5; a grader with memory cannot rescue the careless candidate but DOES lift a borderline one (2/5, a genuine fail) over the line on reputation alone; and across 8,000 ledgers reputation flips 3,961 of 6,408 real failures into passes, 61.8% of them",
+  "fig":"A first draft asserted that a grader with memory would pass the CARELESS trainee on reputation. It does not \u2014 that candidate scores 0/5 and a +2 prior cannot reach the threshold; the test refuted the claim. What reputation actually rescues is the BORDERLINE candidate, the near-miss quietly lifted over the line, which is the more dangerous case because it is the plausible one. The corrected claim is measured, not asserted.",
+  "body":ICRM_BODY,"script":ICRM_SCRIPT},
+ {"slug":"the-stamp","title":"THE STAMP","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#b98cff","icon":"\u25c6",
+  "kicker":"LIT is refused without an evidence string",
+  "blurb":"Three stamps, and the discipline is in which ones you may give yourself. The only one you can assert freely is AMBER \u2014 the one that admits it was a judgement call.",
+  "lit":"LIT is refused for every one of 11 empty-ish evidence values (empty string, spaces, tab, newline, undefined, null, 0, false, [], {}) and accepted for a real one; DEAD likewise requires naming its control while AMBER alone may be asserted bare; the three stamps partition a 3,000-claim ledger with every claim carrying exactly one and none unstamped (1486 LIT, 1037 AMBER, 477 DEAD, 49.5% measured); and DEAD is absorbing \u2014 a disproven claim cannot be quietly re-stamped LIT on empty or whitespace evidence, only revived by naming something new",
+  "fig":"A correction: AVAN's working note recorded the middle stamp as FIG; in David's own scheme it is AMBER. The World II corpus runs a two-stamp variant \u2014 LIT for what the page measured, FIG for what was assigned \u2014 and does NOT currently carry DEAD, so there is no standing place to record a claim that was tested and failed. This session put several such corrections into FIG lines instead (a reversed Sharkovskii ordering, a Lloyd-Max solver reading 3.376 where it should approach 2.72, a false claim that every repetition rate sits below capacity). Those are DEAD stamps wearing a borrowed label.",
+  "body":STMP_BODY,"script":STMP_SCRIPT},
  {"slug":"the-monsky","title":"THE MONSKY","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#7de2b0","icon":"\u25b3",
   "kicker":"the square refuses an odd number of equal cuts",
