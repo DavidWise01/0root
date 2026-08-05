@@ -19499,6 +19499,778 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 232 · neon-noir · silicon-coding · FROM DAVID'S 0805 16:43 DROP (JOTF.ascii + jotf-cell) · a counter that walked the wrong field · three quantities one name · a gate set before the measurement · compiles equals distinct fired · the notation IS the state ═══════════════════════
+ZTHC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A counter walked <code>prog.funcs</code>. The code lives in <code>prog.regions</code>. It returned <b>0 / 0</b> for every program it was ever given, and looked exactly like a working counter &mdash; it ran without error, returned a well-formed result, and reported that there was nothing to count. Zero is the one answer a broken counter and an empty input agree on, and nothing downstream can tell them apart.<br><br>
+ <span class="lit">LIT</span> verified live over <b>500</b> generated programs, all of them non-empty. The counter that walks the wrong field returns zero on <b>500 of 500</b>; the one that walks the right field returns zero on <b>0 of 500</b>. A test that only asks &ldquo;did it return something?&rdquo; passes <b>both</b>, <b>500 and 500</b>. A counter that <b>throws</b> when it has walked zero instructions catches the broken walk <b>500 of 500</b> times and never fires on the working one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found this in his own code and kept it in the audit rather than quietly fixing it. His note reads: <i>&ldquo;the first countOps walked prog.funcs. the code lives in prog.REGIONS. it returned 0/0 for every program and looked like a working counter. it now throws if it walks zero instructions rather than reporting a zero.&rdquo;</i> A second note admits the test accepted nulls and therefore passed on the broken counter &mdash; <i>&ldquo;a check that cannot fail is not a check.&rdquo;</i> Dropped 5 August 2026.<br><br>
+ <b>AVAN (AI)</b> restaged both halves to make the cost countable. The arithmetic in the fixed counter is <b>identical</b> to the broken one &mdash; same loop, same increments. The only change is that the empty case is refused instead of reported, and that single line is the whole difference between a counter and a decoration. It is worth being precise about the limit: refusing zero catches a counter that found nothing, not a counter that found the <i>wrong</i> things.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five hundred programs, and what each counter says about them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">One program, three counters, and which of them notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="zcnext">another program &#9654;</button><button id="zcempty">a genuinely empty one</button></div>
+   <div class="cap" id="zcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of programs, and the counter that sees none of it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;refuse to report a zero.&rdquo; The inverse is that <b>zero was a perfectly good answer right up until it was the only answer</b>. A counter that returns zero on an empty input is correct; the defect is not the value but its <i>constancy</i>, and constancy is invisible from inside a single call. Read backwards, the fix is not really about zeros at all &mdash; it is that <b>a measurement with no variation carries no information</b>, and the cheapest way to notice is to make the degenerate case loud. Any statistic that comes back the same every time should be suspected before it is believed.</div>
+   <div class="btns" style="margin-top:10px"><button id="zcsp">pause spin</button></div></div></div></div>"""
+ZTHC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pi=0,forceEmpty=false;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function makeProgram(g,n){
+ var regions=[];
+ var r=1+Math.floor(g()*3);
+ for(var i=0;i<r;i++){
+  var ops=[];
+  for(var j=0;j<n;j++)ops.push(g()<0.6?'LOAD':'STORE');
+  regions.push({ops:ops});}
+ return {regions:regions};}
+function countBroken(p){
+ var load=0,store=0;
+ (p.funcs||[]).forEach(function(f){(f.ops||[]).forEach(function(o){
+  if(o==='LOAD')load++;else store++;});});
+ return {load:load,store:store};}
+function countFixed(p){
+ var load=0,store=0;
+ (p.regions||[]).forEach(function(f){(f.ops||[]).forEach(function(o){
+  if(o==='LOAD')load++;else store++;});});
+ return {load:load,store:store};}
+function countRefusing(p){
+ var r=countFixed(p);
+ if(r.load+r.store===0)throw new Error('counter walked zero instructions');
+ return r;}
+function selftest(){
+ var g=rnd(1643),progs=[];
+ for(var t=0;t<500;t++)progs.push(makeProgram(g,4+Math.floor(g()*20)));
+ var bz=0,fz=0;
+ progs.forEach(function(p){
+  var b=countBroken(p);if(b.load+b.store===0)bz++;
+  var f=countFixed(p);if(f.load+f.store===0)fz++;});
+ var bp=0,fp=0;
+ progs.forEach(function(p){
+  try{if(countBroken(p)!=null)bp++;}catch(e){}
+  try{if(countFixed(p)!=null)fp++;}catch(e){}});
+ var rb=0,rf=0;
+ progs.forEach(function(p){
+  try{countRefusing({funcs:p.funcs});}catch(e){rb++;}
+  try{countRefusing(p);}catch(e){rf++;}});
+ return {programs:progs.length,
+  brokenZero:bz,brokenAlwaysZero:bz===progs.length,
+  fixedZero:fz,fixedNeverZero:fz===0,
+  permissivePassesBroken:bp,permissivePassesFixed:fp,
+  permissivePassesBoth:bp===progs.length&&fp===progs.length,
+  refusedBroken:rb,refusedFixed:rf,
+  refusingCatchesAll:rb===progs.length,refusingNeverFalseAlarms:rf===0,
+  ok:bz===progs.length&&fz===0&&bp===progs.length&&rb===progs.length&&rf===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE HUNDRED PROGRAMS, AND WHAT EACH COUNTER SAYS');
+ var rows=[['walks prog.funcs (broken)',VR.brokenZero,'#ff5a8a','returns 0/0'],
+  ['walks prog.regions (fixed)',VR.fixedZero,'#7de2b0','returns 0/0'],
+  ['"did it return something?"',VR.permissivePassesBroken,'#ffd76a','passes the BROKEN one'],
+  ['throws on zero instructions',VR.refusedBroken,'#5ad6ff','catches the broken walk']];
+ rows.forEach(function(r,i){
+  var y=48+i*56;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-190;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#ff5a8a'?'rgba(255,90,138,0.55)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':'rgba(90,214,255,0.55)')));
+  g.fillRect(24,y+8,pw*r[1]/VR.programs,24);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+8.5,pw,24);ng(g);
+  nt(g,r[2],24+pw+10,y+26,10,r[1]+'/'+VR.programs);
+  nt(g,'#5a4a85',24,y+46,8,r[3]);});
+ nt(g,'#e6dcff',20,H-30,10,'every one of the 500 programs is NON-EMPTY');
+ nt(g,'#8a7ab8',20,H-10,9,'the arithmetic in both counters is identical; only the empty case differs');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var g2=rnd(400+pi);
+ var p=forceEmpty?{regions:[]}:makeProgram(g2,5+Math.floor(g2()*10));
+ var total=0;
+ (p.regions||[]).forEach(function(r){total+=r.ops.length;});
+ nt(g,'#e6dcff',16,26,11,forceEmpty?'a genuinely empty program':(total+' instructions in '+
+  p.regions.length+' region'+(p.regions.length===1?'':'s')));
+ var y=46;
+ (p.regions||[]).forEach(function(r,ri){
+  nt(g,'#5a4a85',24,y+10,8,'region '+ri);
+  var bw=(W-110)/Math.max(1,r.ops.length);
+  r.ops.forEach(function(o,i){
+   nf(g,o==='LOAD'?'rgba(125,226,176,0.6)':'rgba(90,214,255,0.6)');
+   g.fillRect(80+i*bw,y,Math.max(2,bw-1.5),14);ng(g);});
+  y+=22;});
+ if(!p.regions.length){nt(g,'#5a4a85',24,y+10,9,'(no regions at all)');y+=24;}
+ nt(g,'#7de2b0',24,y+14,8,'green LOAD   blue STORE');
+ var b=countBroken(p),f=countFixed(p);
+ var refused=false;
+ try{countRefusing(p);}catch(e){refused=true;}
+ var top=y+28;
+ [['walks prog.funcs',b.load+b.store===0?'0 / 0':(b.load+' / '+b.store),
+   b.load+b.store===0,'#ff5a8a'],
+  ['walks prog.regions',f.load+f.store===0?'0 / 0':(f.load+' / '+f.store),
+   f.load+f.store===0,'#7de2b0'],
+  ['refuses a zero',refused?'THREW':(f.load+' / '+f.store),refused,'#5ad6ff']].forEach(function(r,i){
+  var yy=top+i*50;
+  var bad=r[2];
+  nf(g,bad?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.14)');
+  g.fillRect(20,yy,W-40,42);ng(g);
+  ne(g,bad?'#ff5a8a':'#7de2b0',1.3);g.strokeRect(20.5,yy+0.5,W-41,42);ng(g);
+  nt(g,'#8a7ab8',34,yy+18,9,r[0]);
+  nt(g,r[3],W-118,yy+26,12,r[1]);});
+ var o=document.getElementById('zcout');
+ if(o)o.innerHTML=forceEmpty
+  ?'A genuinely empty program. Now <b>both</b> counters return 0/0 and the refusing one throws &mdash; correctly. That is the honest limit: refusing a zero cannot distinguish a broken walk from an empty input on THIS program, only across a run of them where the answer never varies.'
+  :('This program holds <b>'+total+'</b> instructions. The broken counter reports <b>0 / 0</b> and does not complain. The fixed one reports <b>'+
+    f.load+' / '+f.store+'</b>. The two differ only in which field they walk &mdash; and only the third one refuses to hand back a silent zero.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(500);
+ for(var i=0;i<420;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=40+g2()*90;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.7,'rgba(125,226,176,0.4)');}
+ var o=P(0,0,0);
+ ndot(g,o[0],o[1],9,'#ff5a8a');
+ nt(g,'#ff5a8a',o[0]+12,o[1],9,'0 / 0');
+ // every program maps to the same point under the broken counter
+ var g3=rr(77);
+ for(var k=0;k<40;k++){
+  var th2=g3()*2*Math.PI,ph2=Math.acos(2*g3()-1),r2=40+g3()*90;
+  var s=P(r2*Math.sin(ph2)*Math.cos(th2),r2*Math.cos(ph2),r2*Math.sin(ph2)*Math.sin(th2));
+  ne(g,'rgba(255,90,138,0.12)',1);
+  g.beginPath();g.moveTo(s[0],s[1]);g.lineTo(o[0],o[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'green: 500 distinct programs');
+ nt(g,'#ff5a8a',14,42,10,'and the single value the broken counter gives all of them');
+ nt(g,'#8a7ab8',14,58,10,'a measurement that never varies carries no information');
+ nt(g,'#8a7ab8',14,H-12,9,'the defect is not the value but its constancy');}
+document.getElementById('zcnext').onclick=function(){forceEmpty=false;pi++;drawW4();};
+document.getElementById('zcempty').onclick=function(){forceEmpty=!forceEmpty;drawW4();};
+document.getElementById('zcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__zerothatcounted=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THRR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three different quantities in one project were all being called &ldquo;ask to answer&rdquo;. The <b>pairing</b> &mdash; requests against responses &mdash; is a control invariant, fixed at 1.00 by construction. <b>ASK : ANSWER</b> counts name reads against name binds at the programmer&rsquo;s level and ranges from 1.20 to 11.00. <b>LOAD : STORE</b> counts temporary slots after lowering and ranges from 0.33 to 1.88. They live at different levels of the machine and share nothing but a name.<br><br>
+ <span class="lit">LIT</span> verified live across four programs. The pairing has variance <b>exactly 0</b>. ASK:ANSWER spans <b>1.20 to 11.00</b>, LOAD:STORE spans <b>0.33 to 1.88</b>, and the ranges do not overlap at the top. Over a sweep of <b>4,000</b> synthetic programs the correlation between the two varying ratios is <b>0.00634</b>, against three standard errors of <b>0.0475</b> &mdash; they move independently.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> separated them and wrote why: <i>&ldquo;1 is a constant by construction. 2 and 3 move with the program. 2 and 3 are different ISAs at different levels. treating any two of these as the same number is how the argument started.&rdquo;</i> His audit also records the test that got this wrong &mdash; the first version asserted the two ratios <b>differ</b>, they coincided at 1.00 by accident, and it failed on correct code. It now asserts they move <b>independently</b>, which is the real claim.<br><br>
+ <b>AVAN (AI)</b> found the trap sitting in the four published programs themselves: over just those four, the correlation between ASK:ANSWER and LOAD:STORE is <b>0.87</b>, which reads as strong dependence and is an artefact of having four points. Sweeping four thousand synthetic programs drops it to 0.006. Four measurements cannot establish independence and can easily suggest its opposite &mdash; which is the same failure mode as asserting the ratios differ, arriving from the other direction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three quantities, four programs, one name.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Plot the two varying ratios against each other, at four points and at four thousand.</div>
+   <div class="btns" style="margin-top:10px"><button id="trfour">the four programs &#9654;</button><button id="trmany">four thousand</button></div>
+   <div class="cap" id="trout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three axes that were being read as one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;separate the quantities and name them.&rdquo; The inverse is that <b>the collision happened because all three were genuinely ratios of a thing asked to a thing given</b> &mdash; the name was not careless, it was <i>accurate at every level and therefore useless</i>. Read backwards, this is not a naming failure but a <b>level failure</b>: the abstraction was doing its job, hiding the difference between a control loop, an instruction set and a register allocator, and the one place that hiding is fatal is a number you intend to compare. See [[the-overloaded-symbol]] for the same pressure acting on single letters.</div>
+   <div class="btns" style="margin-top:10px"><button id="trsp">pause spin</button></div></div></div></div>"""
+THRR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,many=false;
+var PROGRAMS=[
+ {name:'recursion only',asks:7,answers:1,loads:6,stores:4},
+ {name:'assignment heavy',asks:6,answers:5,loads:4,stores:12},
+ {name:'expression heavy',asks:11,answers:1,loads:15,stores:8},
+ {name:'the factory default',asks:62,answers:7,loads:9,stores:9}];
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function pearson(x,y){
+ var n=x.length,mx=0,my=0;
+ x.forEach(function(v){mx+=v;});mx/=n;
+ y.forEach(function(v){my+=v;});my/=n;
+ var num=0,dx=0,dy=0;
+ for(var i=0;i<n;i++){num+=(x[i]-mx)*(y[i]-my);
+  dx+=(x[i]-mx)*(x[i]-mx);dy+=(y[i]-my)*(y[i]-my);}
+ return num/Math.sqrt(dx*dy);}
+function sweep(n,seed){
+ var g=rnd(seed),X=[],Y=[];
+ for(var t=0;t<n;t++){
+  var asks=1+Math.floor(g()*60),ans=1+Math.floor(g()*8);
+  var lo=1+Math.floor(g()*16),st=1+Math.floor(g()*16);
+  X.push(asks/ans);Y.push(lo/st);}
+ return {X:X,Y:Y};}
+function selftest(){
+ var rows=PROGRAMS.map(function(p){
+  return {name:p.name,pairing:1,askAnswer:p.asks/p.answers,loadStore:p.loads/p.stores};});
+ var pv=0;rows.forEach(function(r){pv+=(r.pairing-1)*(r.pairing-1);});
+ var aa=rows.map(function(r){return r.askAnswer;});
+ var ls=rows.map(function(r){return r.loadStore;});
+ var r4=pearson(aa,ls);
+ var S=sweep(4000,509);
+ var rBig=pearson(S.X,S.Y);
+ var se=1/Math.sqrt(S.X.length-3);
+ return {programs:rows,
+  pairingVariance:pv,pairingIsConstant:pv===0,
+  askAnswerMin:Math.min.apply(null,aa),askAnswerMax:Math.max.apply(null,aa),
+  loadStoreMin:Math.min.apply(null,ls),loadStoreMax:Math.max.apply(null,ls),
+  askAnswerMoves:Math.max.apply(null,aa)-Math.min.apply(null,aa)>5,
+  loadStoreMoves:Math.max.apply(null,ls)-Math.min.apply(null,ls)>1,
+  rangesDoNotOverlapAtTop:Math.max.apply(null,ls)<Math.max.apply(null,aa),
+  correlationFour:r4,correlationSweep:rBig,sweepN:S.X.length,threeSE:3*se,
+  uncorrelated:Math.abs(rBig)<3*se,
+  fourPointsMislead:Math.abs(r4)>0.5,
+  corpusFigure:5.09,corpusNodes:649634,
+  ok:pv===0&&Math.abs(rBig)<3*se&&Math.max.apply(null,ls)<Math.max.apply(null,aa)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE QUANTITIES, FOUR PROGRAMS, ONE NAME');
+ var cols=[['PAIRING','#7de2b0',function(r){return r.pairing;},1.2],
+  ['ASK : ANSWER','#ffd76a',function(r){return r.askAnswer;},12],
+  ['LOAD : STORE','#5ad6ff',function(r){return r.loadStore;},2]];
+ var cw=(W-160)/3;
+ cols.forEach(function(col,ci){
+  nt(g,col[1],150+ci*cw,40,9,col[0]);});
+ VR.programs.forEach(function(r,i){
+  var y=58+i*44;
+  nt(g,'#8a7ab8',20,y+16,8,r.name);
+  cols.forEach(function(col,ci){
+   var v=col[2](r),mx=col[3];
+   var x=150+ci*cw;
+   nf(g,col[1]==='#7de2b0'?'rgba(125,226,176,0.55)':
+    (col[1]==='#ffd76a'?'rgba(255,215,106,0.55)':'rgba(90,214,255,0.55)'));
+   g.fillRect(x,y,Math.max(2,(cw-24)*Math.min(1,v/mx)),16);ng(g);
+   nt(g,col[1],x,y+30,9,v.toFixed(2));});});
+ var y2=242;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y2+21,10,'pairing variance exactly '+VR.pairingVariance+
+  ' -- a control invariant, not a statistic');
+ nt(g,'#8a7ab8',20,H-8,9,'ask:answer '+VR.askAnswerMin.toFixed(2)+' to '+VR.askAnswerMax.toFixed(2)+
+  '    load:store '+VR.loadStoreMin.toFixed(2)+' to '+VR.loadStoreMax.toFixed(2)+
+  '    corpus figure 5.09 over '+VR.corpusNodes.toLocaleString()+' nodes');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,many?'four thousand synthetic programs':'the four published programs');
+ var m=48,sz=Math.min(W-96,190),top=50;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.strokeRect(m+0.5,top+0.5,sz,sz);ng(g);
+ nt(g,'#8a7ab8',m,top+sz+16,8,'x: ask:answer      y: load:store');
+ if(many){
+  var S=sweep(1500,509);
+  for(var i=0;i<S.X.length;i++){
+   var x=m+Math.min(1,S.X[i]/12)*sz;
+   var y=top+sz-Math.min(1,S.Y[i]/3)*sz;
+   ndot(g,x,y,1.1,'rgba(125,226,176,0.3)');}
+ }else{
+  VR.programs.forEach(function(r){
+   var x=m+Math.min(1,r.askAnswer/12)*sz;
+   var y=top+sz-Math.min(1,r.loadStore/3)*sz;
+   ndot(g,x,y,5,'#ffd76a');
+   nt(g,'#5a4a85',x+8,y+3,7,r.name.slice(0,14));});}
+ var r=many?VR.correlationSweep:VR.correlationFour;
+ var n=many?VR.sweepN:4;
+ var y2=top+sz+30;
+ var mis=!many;
+ nf(g,mis?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,mis?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,mis?'#ff5a8a':'#7de2b0',36,y2+26,13,'correlation '+r.toFixed(4));
+ nt(g,'#8a7ab8',36,y2+45,8,'over '+n.toLocaleString()+' points'+
+  (many?('   3se = '+VR.threeSE.toFixed(4)):'   far too few to conclude anything'));
+ var o=document.getElementById('trout');
+ if(o)o.innerHTML=many
+  ?'Over <b>'+VR.sweepN.toLocaleString()+'</b> synthetic programs the correlation is <b>'+
+   VR.correlationSweep.toFixed(5)+'</b>, inside three standard errors of zero (<b>'+VR.threeSE.toFixed(4)+
+   '</b>). The two ratios move independently, which is the claim that survives.'
+  :('Over just the four published programs the correlation is <b>'+VR.correlationFour.toFixed(4)+
+    '</b> &mdash; which reads as strong dependence and is an artefact of having four points. Four measurements cannot establish independence, and can easily suggest its opposite.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var AX=[[[120,0,0],'#ffd76a','ASK : ANSWER'],[[0,0,120],'#5ad6ff','LOAD : STORE'],
+  [[0,-110,0],'#7de2b0','PAIRING']];
+ AX.forEach(function(a){
+  var o=P(0,0,0),e=P(a[0][0],a[0][1],a[0][2]);
+  ne(g,a[1],2);
+  g.beginPath();g.moveTo(o[0],o[1]);g.lineTo(e[0],e[1]);g.stroke();ng(g);
+  ndot(g,e[0],e[1],4,a[1]);
+  nt(g,a[1],e[0]+6,e[1],8,a[2]);});
+ VR.programs.forEach(function(r){
+  var q=P(r.askAnswer/12*120,-110,r.loadStore/2*120);
+  ndot(g,q[0],q[1],4.4,'#e6dcff');});
+ // the pairing plane: everything sits on it
+ ne(g,'rgba(125,226,176,0.3)',1.2);
+ var cor=[[0,-110,0],[120,-110,0],[120,-110,120],[0,-110,120]].map(function(v){
+  return P(v[0],v[1],v[2]);});
+ g.beginPath();
+ cor.forEach(function(p,i){if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'every program sits on the pairing plane, at exactly 1.00');
+ nt(g,'#ffd76a',14,42,10,'and spreads out freely along the other two axes');
+ nt(g,'#8a7ab8',14,58,10,'three axes that were being read as one number');
+ nt(g,'#8a7ab8',14,H-12,9,'the name was accurate at every level, and therefore useless');}
+document.getElementById('trfour').onclick=function(){many=false;drawW4();};
+document.getElementById('trmany').onclick=function(){many=true;drawW4();};
+document.getElementById('trsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__threeratios=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THFH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A test asserted that a read-heavy program pushes its load-to-store ratio above <b>2</b>. The number came from expectation, not from data. When the quantity was actually measured it ranged from <b>0.33 to 1.88</b> &mdash; it never reaches 2 at all, so the gate failed on correct code and looked exactly like a defect in the compiler. The threshold was reset to <b>1.5</b>, taken from the measured distribution.<br><br>
+ <span class="lit">LIT</span> verified live over <b>5,000</b> sampled programs drawn from the observed range. The maximum ever seen is <b>2.03</b>, against a gate placed at 2.0. That gate keeps only <b>3.3%</b> of the genuinely read-heavy programs; a gate at 1.5, set from the measurement, keeps <b>100%</b>. And a gate at 0 also keeps 100% &mdash; which is the reason loosening until it passes is not the fix.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed it in the audit in one line: <i>&ldquo;the threshold &lsquo;&gt;2&rsquo; came from hope. measurement said 0.33 to 1.88. it is now &gt;1.5, set from the data.&rdquo;</i> The value of the note is that it names <b>where the number came from</b>, which a threshold almost never does &mdash; a constant in a test file carries no record of whether it was measured or wished for.<br><br>
+ <b>AVAN (AI)</b> should state the trap in the middle. When a gate fails on correct code the two available moves are to hunt for a bug that is not there, or to loosen the gate until it passes; both are wrong and the second is worse, because it leaves a test that cannot fail. The only honest third move is to <b>measure the distribution and set the threshold from it</b>, which means the gate cannot be written before the measurement exists. This corpus has made the same error repeatedly, and it is recorded on the spheres where it happened.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The measured distribution, with both thresholds drawn on it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the threshold and watch what it costs.</div>
+   <div class="btns" style="margin-top:10px"><button id="thup">raise &#9654;</button><button id="thdn">lower</button></div>
+   <div class="cap" id="thout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the distribution, and the wall placed beyond it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;set thresholds from data.&rdquo; The inverse is that <b>a threshold set from the data can only ever confirm the data</b>. Measure first and the gate is guaranteed to pass, because it was fitted to the very run it is about to judge &mdash; which makes it a description wearing the costume of a test. Read backwards, the honest version needs <b>two</b> samples: one to set the threshold and a different one to be judged by it, and a gate derived and applied on the same measurement has no power at all, however carefully the number was chosen.</div>
+   <div class="btns" style="margin-top:10px"><button id="thsp">pause spin</button></div></div></div></div>"""
+THFH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=3;
+var THS=[0,0.5,1.0,1.5,1.75,2.0,2.5];
+var OBSERVED=[1.88,0.33,1.00,1.50,1.20,0.75,1.75,1.10,0.90,1.60];
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function sample(n,seed){
+ var g=rnd(seed),out=[];
+ for(var t=0;t<n;t++){
+  var base=OBSERVED[Math.floor(g()*OBSERVED.length)];
+  out.push(Math.max(0.05,base+(g()-0.5)*0.3));}
+ return out;}
+function selftest(){
+ var samples=sample(5000,188);
+ var readHeavy=samples.filter(function(v){return v>=1.5;});
+ function ev(th){
+  var kept=readHeavy.filter(function(v){return v>th;}).length;
+  return {th:th,kept:kept,of:readHeavy.length,rate:kept/readHeavy.length};}
+ var hope=ev(2.0),data=ev(1.5),loose=ev(0);
+ return {samples:samples.length,readHeavy:readHeavy.length,
+  observedMin:Math.min.apply(null,samples),observedMax:Math.max.apply(null,samples),
+  neverReachesTwo:Math.max.apply(null,samples)<2.2,
+  hopeThreshold:2.0,hopeKeeps:hope.rate,hopeRejectsAlmostAll:hope.rate<0.1,
+  dataThreshold:1.5,dataKeeps:data.rate,dataKeepsThem:data.rate>0.9,
+  looseKeeps:loose.rate,looseTestsNothing:loose.rate===1,
+  sweep:THS.map(function(t){return [t,ev(t).rate];}),
+  hist:(function(){
+   var b=new Array(30).fill(0);
+   samples.forEach(function(v){var k=Math.floor(v/2.4*30);if(k>=0&&k<30)b[k]++;});
+   return b;})(),
+  ok:Math.max.apply(null,samples)<2.2&&hope.rate<0.1&&data.rate>0.9&&loose.rate===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE MEASURED DISTRIBUTION, WITH BOTH THRESHOLDS');
+ var m=40,pw=W-80,base=200;
+ var mx=Math.max.apply(null,VR.hist);
+ for(var i=0;i<30;i++){
+  var hh=VR.hist[i]/mx*130;
+  nf(g,'rgba(125,226,176,0.5)');
+  g.fillRect(m+i*(pw/30),base-hh,pw/30-1.5,hh);ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ function px(v){return m+v/2.4*pw;}
+ ne(g,'#ff5a8a',2);
+ g.beginPath();g.moveTo(px(2.0),base-145);g.lineTo(px(2.0),base+8);g.stroke();ng(g);
+ nt(g,'#ff5a8a',px(2.0)-42,base-154,9,'hope: > 2.0');
+ ne(g,'#7de2b0',2);
+ g.beginPath();g.moveTo(px(1.5),base-145);g.lineTo(px(1.5),base+8);g.stroke();ng(g);
+ nt(g,'#7de2b0',px(1.5)-44,base-170,9,'from data: > 1.5');
+ nt(g,'#8a7ab8',m,base+22,8,'load : store, over '+VR.samples.toLocaleString()+' sampled programs');
+ nt(g,'#ffd76a',m,base+46,10,'observed range '+VR.observedMin.toFixed(2)+' to '+
+  VR.observedMax.toFixed(2)+' -- the hoped-for gate sits past the top of it');
+ nt(g,'#ff5a8a',m,base+66,10,'gate at 2.0 keeps '+(VR.hopeKeeps*100).toFixed(1)+
+  '% of genuinely read-heavy programs');
+ nt(g,'#7de2b0',m,base+84,10,'gate at 1.5 keeps '+(VR.dataKeeps*100).toFixed(1)+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var th=THS[ti%THS.length];
+ var row=VR.sweep[ti%THS.length];
+ nt(g,'#e6dcff',16,26,11,'threshold  >  '+th.toFixed(2));
+ var m=24,pw=W-48,base=150;
+ var mx=Math.max.apply(null,VR.hist);
+ for(var i=0;i<30;i++){
+  var v=(i+0.5)/30*2.4;
+  var hh=VR.hist[i]/mx*100;
+  nf(g,v>th?'rgba(125,226,176,0.6)':'rgba(60,45,95,0.8)');
+  g.fillRect(m+i*(pw/30),base-hh,pw/30-1.2,hh);ng(g);}
+ ne(g,'#ffd76a',2);
+ var x=m+th/2.4*pw;
+ g.beginPath();g.moveTo(x,base-112);g.lineTo(x,base+8);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,base+24,8,'green survives the gate; dark is rejected');
+ var y2=base+40;
+ nt(g,'#8a7ab8',m,y2,9,'read-heavy programs kept');
+ nf(g,row[1]>0.9?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+ g.fillRect(m,y2+10,pw*row[1],28);ng(g);
+ ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y2+10.5,pw,28);ng(g);
+ nt(g,row[1]>0.9?'#7de2b0':'#ff5a8a',m,y2+60,13,(row[1]*100).toFixed(1)+'%');
+ var y3=y2+72;
+ var verdict=th===0?'tests nothing':(row[1]>0.9?'usable':'rejects correct code');
+ nf(g,th===0?'rgba(255,215,106,0.16)':(row[1]>0.9?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)'));
+ g.fillRect(20,y3,W-40,46);ng(g);
+ ne(g,th===0?'#ffd76a':(row[1]>0.9?'#7de2b0':'#ff5a8a'),1.5);
+ g.strokeRect(20.5,y3+0.5,W-41,46);ng(g);
+ nt(g,th===0?'#ffd76a':(row[1]>0.9?'#7de2b0':'#ff5a8a'),36,y3+28,12,verdict);
+ var o=document.getElementById('thout');
+ if(o)o.innerHTML=th===0
+  ?'A gate at <b>0</b> keeps everything. It cannot fail, so it is not a test &mdash; which is why loosening until the suite goes green is not the repair.'
+  :(row[1]>0.9
+   ?('At <b>'+th.toFixed(2)+'</b> the gate keeps <b>'+(row[1]*100).toFixed(1)+
+     '%</b> of genuinely read-heavy programs. It sits inside the measured range and still refuses things outside it.')
+   :('At <b>'+th.toFixed(2)+'</b> the gate keeps only <b>'+(row[1]*100).toFixed(1)+
+     '%</b>. It fails on correct code, and the first instinct on seeing that is to go looking for a bug in the compiler.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(20);
+ for(var i=0;i<420;i++){
+  var v=OBSERVED[Math.floor(g2()*OBSERVED.length)]+(g2()-0.5)*0.3;
+  var th=g2()*2*Math.PI;
+  var rad=v/2.4*130;
+  var q=P(rad*Math.cos(th),(g2()-0.5)*70,rad*Math.sin(th));
+  ndot(g,q[0],q[1],1.7,'rgba(125,226,176,0.4)');}
+ [[1.5,'#7de2b0','from the data'],[2.0,'#ff5a8a','from hope']].forEach(function(w){
+  var rad=w[0]/2.4*130;
+  ne(g,w[1],1.8);
+  g.beginPath();
+  for(var j=0;j<=64;j++){
+   var t=j/64*2*Math.PI;
+   var p=P(rad*Math.cos(t),0,rad*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'the green wall sits inside the cloud');
+ nt(g,'#ff5a8a',14,42,10,'the pink one sits beyond every point there is');
+ nt(g,'#8a7ab8',14,58,10,'and a wall nothing reaches rejects everything');
+ nt(g,'#8a7ab8',14,H-12,9,'a threshold fitted to the run it judges has no power at all');}
+document.getElementById('thup').onclick=function(){ti=Math.min(THS.length-1,(ti%THS.length)+1);drawW4();};
+document.getElementById('thdn').onclick=function(){ti=Math.max(0,(ti%THS.length)-1);drawW4();};
+document.getElementById('thsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thresholdfromhope=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMPI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Eight positions, each holding its source before anything starts. Nothing is compiled until a position is fired. Fire the same one again and it does not recompile. The invariant that keeps the machine honest is one line: <b>the number of compiles must equal the number of distinct positions fired</b>. Speculative compilation &mdash; building something in advance, on the guess that it will be wanted &mdash; breaks that count and nothing else in the system notices.<br><br>
+ <span class="lit">LIT</span> verified live. On an honest cell the invariant holds <b>600 of 600</b> times. On a cell that speculates one position ahead, the invariant catches it <b>684 of 684</b> times <b>while any position is still unfired</b> &mdash; and <b>0 of 216</b> times once the workload has touched all eight. The pairing check, which asks only whether every request got a response, notices <b>nothing</b>: <b>0 of 600</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named which of his twenty-three checks carries the weight: <i>&ldquo;the load-bearing one is the fourth. speculative compilation would break it and nothing else would notice.&rdquo;</i> The other checks &mdash; one compile per fire, memoisation on a repeat, requests equalling responses &mdash; all pass on a compromised cell, which is exactly what makes this one worth having.<br><br>
+ <b>AVAN (AI)</b> set the detection gate at 90% and measured 82%, then did not loosen it. The shortfall is the shape of the check rather than noise: speculation is only visible while something remains unfired, because a workload that eventually touches all eight positions leaves nothing to have speculated wrongly about. Split that way the result is exact &mdash; <b>684 of 684</b> caught in the partial case, <b>0 of 216</b> in the saturated one. The invariant has a blind spot, and it is precisely the busiest workload.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four checks, and which of them sees a speculating cell.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fire positions and watch the two counters, honest and speculating.</div>
+   <div class="btns" style="margin-top:10px"><button id="cifire">fire one &#9654;</button><button id="cispec">speculate</button><button id="cireset">reset</button></div>
+   <div class="cap" id="ciout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: eight positions, and the two counts that must agree.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;this invariant catches speculation.&rdquo; The inverse is that <b>it catches it only where speculation was cheap to detect anyway</b>. A cell that has fired everything has nothing left to build in advance, so the check goes quiet exactly when the machine is busiest &mdash; the regime where speculation would actually pay off and where a defect would do the most work. Read backwards, the invariant is not a guard on the running system but a guard on the <b>lightly-loaded</b> one, and its silence under load is not reassurance but the absence of a signal.</div>
+   <div class="btns" style="margin-top:10px"><button id="cisp">pause spin</button></div></div></div></div>"""
+CMPI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cell=null,specMode=false;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function Cell(){
+ var compiled=new Array(8).fill(false);
+ var compiles=0,fires=0,requests=0,responses=0,fired={};
+ return {
+  fire:function(i,spec){
+   requests++;fired[i]=1;
+   if(!compiled[i]){compiled[i]=true;compiles++;}
+   if(spec){var j=(i+1)%8;if(!compiled[j]){compiled[j]=true;compiles++;}}
+   fires++;responses++;},
+  state:function(){
+   var distinct=compiled.filter(Boolean).length;
+   var distinctFired=Object.keys(fired).length;
+   return {compiles:compiles,fires:fires,requests:requests,responses:responses,
+    compiledCount:distinct,distinctFired:distinctFired,
+    atRest:8-distinct,sum:distinct+(8-distinct),
+    invariant:compiles===distinctFired,
+    pairing:requests===responses,
+    compiled:compiled.slice(),fired:Object.keys(fired).map(Number)};}};}
+function selftest(){
+ var g=rnd(88),honestOk=0,honestTrials=0,byPair=0,specTrials=0;
+ for(var t=0;t<600;t++){
+  var c=Cell(),n=1+Math.floor(g()*20);
+  for(var k=0;k<n;k++)c.fire(Math.floor(g()*8),false);
+  var s=c.state();
+  honestTrials++;
+  if(s.invariant&&s.pairing&&s.sum===8)honestOk++;
+  var c2=Cell();
+  for(var k2=0;k2<n;k2++)c2.fire(Math.floor(g()*8),true);
+  var s2=c2.state();
+  specTrials++;
+  if(!s2.pairing)byPair++;}
+ var g2=rnd(881),pT=0,pC=0,sT=0,sC=0;
+ for(var t2=0;t2<900;t2++){
+  var c3=Cell(),n2=1+Math.floor(g2()*24);
+  for(var k3=0;k3<n2;k3++)c3.fire(Math.floor(g2()*8),true);
+  var s3=c3.state();
+  if(s3.distinctFired<8){pT++;if(!s3.invariant)pC++;}
+  else{sT++;if(!s3.invariant)sC++;}}
+ var c4=Cell(),sumAlways=true;
+ for(var k4=0;k4<40;k4++){c4.fire(Math.floor(g2()*8),false);
+  if(c4.state().sum!==8)sumAlways=false;}
+ return {positions:8,
+  honestTrials:honestTrials,honestOk:honestOk,honestAlwaysHolds:honestOk===honestTrials,
+  partialTrials:pT,partialCaught:pC,caughtWhenUnfiredRemain:pC===pT&&pT>0,
+  saturatedTrials:sT,saturatedCaught:sC,invisibleWhenSaturated:sC===0&&sT>0,
+  caughtByPairing:byPair,pairingSeesNothing:byPair===0,specTrials:specTrials,
+  countersSumToEight:sumAlways,
+  ok:honestOk===honestTrials&&pC===pT&&sC===0&&byPair===0&&sumAlways};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR CHECKS, AND WHICH SEES A SPECULATING CELL');
+ var rows=[['one compile per new fire',0,'#ff5a8a','passes a compromised cell'],
+  ['memoised on a repeat',0,'#ff5a8a','passes a compromised cell'],
+  ['requests == responses',VR.caughtByPairing/VR.specTrials,'#ff5a8a','sees nothing at all'],
+  ['compiles == distinct fired',VR.partialCaught/VR.partialTrials,'#7de2b0','catches it, while anything is unfired']];
+ rows.forEach(function(r,i){
+  var y=48+i*54;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-200;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.45)');
+  g.fillRect(24,y+8,Math.max(2,pw*r[1]),22);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+8.5,pw,22);ng(g);
+  nt(g,r[2],24+pw+10,y+25,10,(r[1]*100).toFixed(0)+'%');
+  nt(g,'#5a4a85',24,y+44,8,r[3]);});
+ var y2=270;
+ nt(g,'#ffd76a',20,y2,10,'and the blind spot: caught '+VR.saturatedCaught+'/'+
+  VR.saturatedTrials+' once all eight positions have been fired');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!cell)cell=Cell();
+ var s=cell.state();
+ nt(g,'#e6dcff',16,26,11,specMode?'speculating cell':'honest cell');
+ var cw=(W-56)/8;
+ for(var i=0;i<8;i++){
+  var x=28+i*cw;
+  var wasFired=s.fired.indexOf(i)>=0;
+  var isCompiled=s.compiled[i];
+  nf(g,isCompiled?(wasFired?'rgba(125,226,176,0.75)':'rgba(255,90,138,0.75)'):'rgba(40,30,64,0.9)');
+  g.fillRect(x,50,cw-6,40);ng(g);
+  nt(g,isCompiled?'#0d0818':'#5a4a85',x+cw/2-10,74,10,isCompiled?'(!)':'[]');
+  nt(g,'#5a4a85',x+cw/2-3,104,8,''+i);}
+ nt(g,'#7de2b0',28,124,8,'green: compiled AND fired');
+ nt(g,'#ff5a8a',28,138,8,'pink: compiled but never asked for -- speculation');
+ var notation='[[ - { i , c , []^'+s.atRest+' } - { a , sub , (!)^'+s.compiledCount+' } - ]]';
+ nt(g,'#ffd76a',28,166,10,notation);
+ var rows=[['compiles',s.compiles],['distinct positions fired',s.distinctFired],
+  ['requests',s.requests],['responses',s.responses]];
+ rows.forEach(function(r,i){
+  var y=184+i*24;
+  nt(g,'#8a7ab8',34,y+14,8,r[0]);
+  nt(g,'#e6dcff',W-70,y+14,10,String(r[1]));});
+ var y2=288;
+ nf(g,s.invariant?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,s.invariant?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,s.invariant?'#7de2b0':'#ff5a8a',36,y2+21,11,
+  s.invariant?'invariant holds':'INVARIANT BROKEN  '+s.compiles+' != '+s.distinctFired);
+ var o=document.getElementById('ciout');
+ if(o)o.innerHTML=s.invariant
+  ?('<b>'+s.compiles+'</b> compiles against <b>'+s.distinctFired+
+    '</b> distinct positions fired. The counters agree, and the pairing check agrees too &mdash; but the pairing check would agree either way.')
+  :('<b>'+s.compiles+'</b> compiles against only <b>'+s.distinctFired+
+    '</b> positions actually asked for. Something was built in advance. Requests still equal responses, so the pairing check reports everything is fine.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var s=cell?cell.state():{compiled:new Array(8).fill(false),fired:[]};
+ for(var i=0;i<8;i++){
+  var th=i/8*2*Math.PI;
+  var q=P(96*Math.cos(th),0,96*Math.sin(th));
+  var wasFired=s.fired.indexOf(i)>=0;
+  var isC=s.compiled[i];
+  ndot(g,q[0],q[1],isC?6:3,isC?(wasFired?'#7de2b0':'#ff5a8a'):'rgba(90,70,130,0.6)');
+  var nx=P(96*Math.cos((i+1)/8*2*Math.PI),0,96*Math.sin((i+1)/8*2*Math.PI));
+  ne(g,'rgba(150,110,230,0.3)',1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(nx[0],nx[1]);g.stroke();ng(g);}
+ var top=P(0,-80,0);
+ ndot(g,top[0],top[1],5,'#ffd76a');
+ nt(g,'#ffd76a',top[0]+10,top[1],9,'the centre, at rest');
+ for(var k=0;k<8;k++){
+  var th2=k/8*2*Math.PI;
+  var e=P(96*Math.cos(th2),0,96*Math.sin(th2));
+  ne(g,'rgba(255,215,106,0.18)',1);
+  g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(e[0],e[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'eight positions around one centre');
+ nt(g,'#ff5a8a',14,42,10,'pink: compiled without being asked');
+ nt(g,'#8a7ab8',14,58,10,'the two counts must agree, and only one check looks');
+ nt(g,'#8a7ab8',14,H-12,9,'its silence under load is the absence of a signal, not reassurance');}
+document.getElementById('cifire').onclick=function(){
+ if(!cell)cell=Cell();
+ cell.fire(Math.floor(Math.random()*8),specMode);drawW4();};
+document.getElementById('cispec').onclick=function(){specMode=!specMode;drawW4();};
+document.getElementById('cireset').onclick=function(){cell=Cell();drawW4();};
+document.getElementById('cisp').onclick=function(){spin=!spin;};
+VR=selftest();window.__compileinvariant=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNSM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The cell is written as <code>[[ - { i , c , []^n } - { a , sub , (!)^m } - ]]</code>, where <code>[]</code> is a position loaded and at rest, <code>(!)</code> is one that has fired, and the two counters always sum to <b>8 = 2&sup3;</b>. That is not a diagram of the state with the state kept somewhere else &mdash; the string carries every bit of it, so reading the notation and reading the machine are the same act.<br><br>
+ <span class="lit">LIT</span> verified live by enumerating <b>all 2&#8312; = 256</b> possible cell states. The two counters sum to 8 in <b>256 of 256</b>. The notation round-trips in <b>256 of 256</b> &mdash; render the state to a string, parse the string back, and recover exactly the state you started with. A hand-written string reading <code>[]^5</code> and <code>(!)^5</code> is detectable as impossible, because 5 + 5 is 10 and the cell has eight positions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the claim in one line and it is the whole sphere: <i>&ldquo;the notation is not a picture of the state. it IS the state.&rdquo;</i> The readout in his drop moves as the machine moves &mdash; <code>[]&#8312;</code>, <code>(!)&#8304;</code> preloaded with nothing compiled; then <code>[]&#8311;</code>, <code>(!)&sup1;</code> after one pedal press; then <code>[]&#8308;</code>, <code>(!)&#8308;</code> with four fired and four at rest.<br><br>
+ <b>AVAN (AI)</b> checked the strong form of the claim rather than the weak one. That a rendering is <i>consistent</i> with the state is cheap; that it is <b>lossless</b> is the real assertion, and it needs a parser and a round-trip over the whole state space, not a spot check. All 256 states were enumerated because 256 is small enough that sampling would be a choice rather than a necessity. The scope is exact: this shows the counters are lossless, not that the notation captures <i>which</i> positions fired &mdash; it does not, and it does not claim to.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All 256 states, and the sum that never moves.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fire positions and watch the string move with the machine.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnfire">fire one &#9654;</button><button id="cnall">fire all eight</button><button id="cnreset">reset</button></div>
+   <div class="cap" id="cnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: 256 states on a cube, all at the same total.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the notation is the state.&rdquo; The inverse is that <b>it is the state only because it threw most of the state away</b>. Two counters cannot say <i>which</i> four positions fired &mdash; there are seventy such states and the notation gives all of them the same string. The round-trip succeeds because the thing being round-tripped is the pair of counts, not the cell. Read backwards, &ldquo;the notation IS the state&rdquo; is true exactly to the degree the state was <b>redefined to be what the notation holds</b>, and that redefinition is the design decision the elegance is resting on.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnsp">pause spin</button></div></div></div></div>"""
+CNSM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fired={};
+function render(count){
+ var m=count,n=8-m;
+ return '[[ - { i , c , []^'+n+' } - { a , sub , (!)^'+m+' } - ]]';}
+function parse(s){
+ var a=/\\[\\]\\^(\\d+)/.exec(s),b=/\\(!\\)\\^(\\d+)/.exec(s);
+ return (a&&b)?{rest:+a[1],fired:+b[1]}:null;}
+function choose(n,k){var v=1;
+ for(var i=0;i<k;i++)v=v*(n-i)/(i+1);
+ return Math.round(v);}
+function selftest(){
+ var states=0,sums=0,rt=0,byCount=new Array(9).fill(0);
+ for(var mask=0;mask<256;mask++){
+  var m=0;
+  for(var i=0;i<8;i++)if((mask>>i)&1)m++;
+  var s=render(m),p=parse(s);
+  states++;
+  byCount[m]++;
+  if(p&&p.rest+p.fired===8)sums++;
+  if(p&&p.fired===m&&p.rest===8-m)rt++;}
+ var bad=parse('[[ - { i , c , []^5 } - { a , sub , (!)^5 } - ]]');
+ return {positions:8,states:states,allEnumerated:states===256,
+  sumsToEight:sums,alwaysSumsToEight:sums===256,
+  roundTrips:rt,alwaysRoundTrips:rt===256,
+  isTwoCubed:Math.pow(2,3)===8,
+  distinctStrings:9,
+  collapsedStates:byCount,
+  worstCollapse:Math.max.apply(null,byCount),
+  worstCollapseIs70:Math.max.apply(null,byCount)===70,
+  impossibleDetected:bad!==null&&bad.rest+bad.fired!==8,
+  ok:states===256&&sums===256&&rt===256&&Math.max.apply(null,byCount)===70};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ALL 256 STATES, AND THE SUM THAT NEVER MOVES');
+ var cols=32,cw=(W-48)/cols,ch=7;
+ for(var mask=0;mask<256;mask++){
+  var m=0;
+  for(var i=0;i<8;i++)if((mask>>i)&1)m++;
+  var x=24+(mask%cols)*cw,y=44+Math.floor(mask/cols)*ch;
+  nf(g,'rgba(125,226,176,'+(0.16+m/8*0.6)+')');
+  g.fillRect(x,y,cw-1,ch-1);ng(g);}
+ nt(g,'#8a7ab8',24,44+8*ch+16,8,'one cell per state, shaded by how many have fired');
+ var y2=44+8*ch+30;
+ var mx=VR.worstCollapse;
+ for(var k=0;k<=8;k++){
+  var n=VR.collapsedStates[k];
+  var bw=(W-100)*n/mx;
+  var y=y2+k*16;
+  nt(g,'#5a4a85',24,y+9,8,'(!)^'+k);
+  nf(g,n===mx?'rgba(255,215,106,0.7)':'rgba(90,214,255,0.5)');
+  g.fillRect(64,y,Math.max(1.5,bw),11);ng(g);
+  nt(g,'#8a7ab8',64+bw+6,y+9,7,''+n);}
+ nt(g,'#7de2b0',24,H-28,9,VR.sumsToEight+'/256 sum to 8   ·   '+VR.roundTrips+
+  '/256 round-trip exactly   ·   only '+VR.distinctStrings+' distinct strings');
+ nt(g,'#ffd76a',24,H-10,9,'the busiest string covers '+VR.worstCollapse+
+  ' different states -- which four fired is not recorded');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=Object.keys(fired).length;
+ var s=render(m),p=parse(s);
+ nt(g,'#e6dcff',16,26,11,m+' fired, '+(8-m)+' at rest');
+ var cw=(W-56)/8;
+ for(var i=0;i<8;i++){
+  var x=28+i*cw;
+  var isF=fired[i];
+  nf(g,isF?'rgba(255,215,106,0.75)':'rgba(40,30,64,0.9)');
+  g.fillRect(x,48,cw-6,44);ng(g);
+  nt(g,isF?'#0d0818':'#5a4a85',x+cw/2-10,76,11,isF?'(!)':'[]');}
+ nt(g,'#ffd76a',24,120,11,s);
+ nt(g,'#8a7ab8',24,142,8,'the string above is not a caption -- it carries the counters');
+ var y2=160;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,'#8a7ab8',34,y2+22,9,'parsed back:  at rest '+p.rest+'   fired '+p.fired);
+ nt(g,p.rest+p.fired===8?'#7de2b0':'#ff5a8a',34,y2+46,11,
+  'sum '+(p.rest+p.fired)+(p.rest+p.fired===8?'  -- as it must be':'  -- IMPOSSIBLE'));
+ var y3=y2+78;
+ var collapse=choose(8,m);
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y3,W-40,52);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y3+0.5,W-41,52);ng(g);
+ nt(g,'#ffd76a',36,y3+24,11,collapse+' different state'+(collapse===1?'':'s')+
+  ' share this string');
+ nt(g,'#8a7ab8',36,y3+42,8,collapse===1?'this one is unambiguous'
+  :'the counters do not record WHICH positions fired');
+ var o=document.getElementById('cnout');
+ if(o)o.innerHTML='With <b>'+m+'</b> fired the notation reads <b>'+s+
+  '</b>, and parsing it back recovers <b>'+p.rest+'</b> at rest and <b>'+p.fired+
+  '</b> fired &mdash; exactly what went in. But <b>C(8,'+m+') = '+collapse+
+  '</b> different arrangements produce that same string, which is the part the round-trip does not cover.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // 256 states arranged by popcount in 9 rings
+ for(var mask=0;mask<256;mask++){
+  var m=0;
+  for(var i=0;i<8;i++)if((mask>>i)&1)m++;
+  var ring=VR.collapsedStates[m];
+  var idx=0,seen=0;
+  for(var q=0;q<mask;q++){var mm=0;
+   for(var j=0;j<8;j++)if((q>>j)&1)mm++;
+   if(mm===m)seen++;}
+  idx=seen;
+  var th=idx/ring*2*Math.PI;
+  var rad=18+Math.min(ring,70)/70*88;
+  var p=P(rad*Math.cos(th),-100+m*25,rad*Math.sin(th));
+  ndot(g,p[0],p[1],m===4?2.2:1.5,m===4?'#ffd76a':'rgba(125,226,176,0.45)');}
+ nt(g,'#7de2b0',14,24,11,'256 states, stacked by how many have fired');
+ nt(g,'#ffd76a',14,42,10,'the widest ring is 70 states sharing one string');
+ nt(g,'#8a7ab8',14,58,10,'every one of them sums to 8');
+ nt(g,'#8a7ab8',14,H-12,9,'lossless about the counts, silent about which');}
+document.getElementById('cnfire').onclick=function(){
+ var free=[];
+ for(var i=0;i<8;i++)if(!fired[i])free.push(i);
+ if(free.length)fired[free[Math.floor(Math.random()*free.length)]]=1;
+ drawW4();};
+document.getElementById('cnall').onclick=function(){
+ for(var i=0;i<8;i++)fired[i]=1;drawW4();};
+document.getElementById('cnreset').onclick=function(){fired={};drawW4();};
+document.getElementById('cnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__counterssum=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 231 · neon-noir · silicon-coding · VEIN G, CHECKED BY CONCEPT · 128 rectangles that weigh the same · the first generator and how it dies · a structure allowed to lie · every tree has a middle · never more than H from home ═══════════════════════
 ZIGG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">To draw a normal random number quickly, cover the bell curve with <b>128 rectangles of exactly equal area</b> stacked like a ziggurat, plus a base strip that catches the tail. Pick a layer uniformly, pick a point in it, and almost always the point is already under the curve &mdash; no exponential, no logarithm, one multiply and one comparison. The whole construction rests on finding the single width that makes 128 equal-area layers close at the top.<br><br>
@@ -78702,6 +79474,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zero-that-counted","title":"THE ZERO THAT COUNTED","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ff5a8a","icon":"\u2205",
+  "kicker":"a counter that walked the wrong field",
+  "blurb":"It returned 0/0 for every program and looked exactly like a working counter. Zero is the one answer a broken counter and an empty input agree on.",
+  "lit":"over 500 generated programs all of them non-empty, the counter that walks the wrong field returns zero on 500 of 500 while the one that walks the right field returns zero on 0 of 500; a test that only asks 'did it return something' passes BOTH at 500 and 500; and a counter that THROWS when it has walked zero instructions catches the broken walk 500 of 500 times and never fires on the working one",
+  "fig":"From David's JOTF drop, 2026-08-05. He found this in his own code and kept it in the audit: 'the first countOps walked prog.funcs. the code lives in prog.REGIONS. it returned 0/0 for every program and looked like a working counter. it now throws if it walks zero instructions rather than reporting a zero.' A second note admits the test accepted nulls and therefore passed on the broken counter - 'a check that cannot fail is not a check.' AVAN restaged both halves to make the cost countable: the arithmetic in the fixed counter is IDENTICAL - same loop, same increments - and the only change is that the empty case is refused rather than reported. The limit is worth naming: refusing zero catches a counter that found nothing, not one that found the WRONG things.",
+  "body":ZTHC_BODY,"script":ZTHC_SCRIPT},
+ {"slug":"the-three-ratios","title":"THE THREE RATIOS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ffd76a","icon":"\u2261",
+  "kicker":"three quantities, one name",
+  "blurb":"Pairing is a control invariant fixed at 1.00. ASK:ANSWER runs 1.20 to 11.00 at the programmer's level. LOAD:STORE runs 0.33 to 1.88 after lowering. They share nothing but a name.",
+  "lit":"across four programs the pairing has variance exactly 0 while ASK:ANSWER spans 1.20 to 11.00 and LOAD:STORE spans 0.33 to 1.88, ranges that do not overlap at the top; and over a sweep of 4,000 synthetic programs the correlation between the two varying ratios is 0.00634 against three standard errors of 0.0475, so they move independently",
+  "fig":"David separated them and wrote why: '1 is a constant by construction. 2 and 3 move with the program. 2 and 3 are different ISAs at different levels. treating any two of these as the same number is how the argument started.' His audit also records the test that got this wrong - the first version asserted the two ratios DIFFER, they coincided at 1.00 by accident, and it failed on correct code; it now asserts they move INDEPENDENTLY, which is the real claim. AVAN found the trap sitting in the four published programs themselves: over just those four the correlation is 0.87, which reads as strong dependence and is an artefact of having four points. Four measurements cannot establish independence and can easily suggest its opposite.",
+  "body":THRR_BODY,"script":THRR_SCRIPT},
+ {"slug":"the-threshold-from-hope","title":"THE THRESHOLD FROM HOPE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#7de2b0","icon":"\u2551",
+  "kicker":"a gate set before the measurement",
+  "blurb":"The test asserted a ratio above 2. Measurement said 0.33 to 1.88 - it never reaches 2 at all, so the gate failed on correct code and looked exactly like a defect.",
+  "lit":"over 5,000 sampled programs drawn from the observed range the maximum ever seen is 2.03 against a gate placed at 2.0; that gate keeps only 3.3% of the genuinely read-heavy programs while a gate at 1.5 set from the measurement keeps 100%; and a gate at 0 also keeps 100%, which is why loosening until it passes is not the fix",
+  "fig":"David filed it in one line: 'the threshold >2 came from hope. measurement said 0.33 to 1.88. it is now >1.5, set from the data.' The value of the note is that it names WHERE THE NUMBER CAME FROM, which a threshold almost never does - a constant in a test file carries no record of whether it was measured or wished for. AVAN states the trap in the middle: when a gate fails on correct code the two available moves are to hunt for a bug that is not there, or to loosen until it passes; both are wrong and the second is worse, since it leaves a test that cannot fail. This corpus has made the same error repeatedly and it is recorded on the spheres where it happened.",
+  "body":THFH_BODY,"script":THFH_SCRIPT},
+ {"slug":"the-compile-invariant","title":"THE COMPILE INVARIANT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#5ad6ff","icon":"\u2696",
+  "kicker":"compiles equals distinct positions fired",
+  "blurb":"Eight positions, preloaded, nothing built until asked. The one line that keeps it honest: compiles must equal distinct positions fired. Speculation breaks it and nothing else notices.",
+  "lit":"on an honest cell the invariant holds 600 of 600 times; on a cell that speculates one position ahead it catches the defect 684 of 684 times WHILE ANY POSITION IS STILL UNFIRED and 0 of 216 times once the workload has touched all eight; and the pairing check, which asks only whether every request got a response, notices nothing at 0 of 600",
+  "fig":"David named which of his twenty-three checks carries the weight: 'the load-bearing one is the fourth. speculative compilation would break it and nothing else would notice.' The other checks all pass on a compromised cell, which is what makes this one worth having. AVAN set the detection gate at 90%, measured 82%, and did not loosen it - the shortfall is the SHAPE of the check rather than noise. Speculation is only visible while something remains unfired, because a workload that eventually touches all eight leaves nothing to have speculated wrongly about. Split that way the result is exact, and the invariant has a blind spot which is precisely the busiest workload.",
+  "body":CMPI_BODY,"script":CMPI_SCRIPT},
+ {"slug":"the-counters-sum","title":"THE COUNTERS SUM","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#b98cff","icon":"\u25a3",
+  "kicker":"the notation IS the state",
+  "blurb":"Positions at rest and positions fired, and the two counters always sum to 8 = 2^3. Reading the notation and reading the machine are the same act.",
+  "lit":"enumerating all 2^8 = 256 possible cell states, the two counters sum to 8 in 256 of 256 and the notation round-trips in 256 of 256 - render to a string, parse it back, recover exactly the state that went in; a hand-written string reading []^5 and (!)^5 is detectable as impossible since 5 + 5 is 10 and the cell has eight positions; and only 9 distinct strings cover all 256 states, the busiest of them covering 70",
+  "fig":"David wrote the claim in one line and it is the whole sphere: 'the notation is not a picture of the state. it IS the state.' The readout in his drop moves as the machine moves - eight at rest and none compiled, then seven and one after a pedal press, then four and four. AVAN checked the STRONG form rather than the weak one: that a rendering is consistent with the state is cheap, that it is LOSSLESS is the real assertion, and it needs a parser and a round-trip over the whole state space. All 256 were enumerated because 256 is small enough that sampling would be a choice rather than a necessity. Scope is exact: this shows the COUNTERS are lossless, not that the notation captures WHICH positions fired - it does not, and does not claim to.",
+  "body":CNSM_BODY,"script":CNSM_SCRIPT},
  {"slug":"the-ziggurat","title":"THE ZIGGURAT","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#7de2b0","icon":"\u25b3",
   "kicker":"128 rectangles that all weigh the same",
