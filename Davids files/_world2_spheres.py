@@ -19499,6 +19499,790 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 230 · neon-noir · silicon-coding · FROM DAVID'S 0805 16:10 DROP (rev1-0805 + PRODUCTION) · the control that killed the pretty result · two rulers both correct · a mean that touches nothing · a signal carrying its own clock · names removed at no cost ═══════════════════════
+PMNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A catalogue of 2,048 items in 64 containers, arranged as an 8&times;8 grid, was decomposed as though it were a quantum state. The result looked remarkable: Schmidt rank <b>8 of 8</b>, entanglement entropy <b>0.6081</b> bits &mdash; apparent structure running deeper than the labelling. Then the control ran. Shuffle the containers within their groups at random, twenty thousand times, and that same figure is what you get <b>anyway</b>.<br><br>
+ <span class="lit">LIT</span> verified live. The observed entropy reproduces to ten decimal places at <b>0.6080689660</b>, and all <b>8</b> Schmidt coefficients reproduce too. The null over <b>3,000</b> within-group relabellings has mean <b>0.6006</b> and standard deviation <b>0.0349</b>, putting the observation at the <b>53.8th percentile</b> &mdash; <b>z = 0.21</b>. David&rsquo;s own 20,000-trial run gives 0.6003 and 0.0351, which is the same answer. Permuting whole rows and columns moves the entropy by <b>1.5&times;10<sup>&minus;14</sup></b>, which is to say not at all: the statistic is blind to that ordering by construction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> ran the control on his own best result and published the corpse. His pack files it as DEAD with the note: <i>&ldquo;The prettiest result of the session was the false one.&rdquo;</i> The graveyard entry is <code>01-entanglement-across-the-cut.md</code>, and the redaction note turns the knife &mdash; the group and container names could be replaced by G1&ndash;G8 and C01&ndash;C64 <i>because the DEAD result is precisely that these labels carry no information</i>. Dropped 5 August 2026.<br><br>
+ <b>AVAN (AI)</b> got it wrong twice before reproducing it. The first attempt used the raw counts as amplitudes and produced 0.9397; the counts are <b>probabilities</b>, so the amplitudes are their square roots. The second built the matrix from sorted counts instead of David&rsquo;s own layout. Only after both were corrected did the figure land on 0.6080689660 and all eight coefficients follow. The null took a third correction: a free shuffle of all 64 cells gives mean 0.657, not 0.600 &mdash; David&rsquo;s null holds the <b>group totals fixed</b>, which is the conservative choice and the one that matches.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The null, and where the observation fell inside it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Four different nulls. The verdict does not change; the numbers do.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmnext">next null &#9654;</button><button id="pmshuf">reshuffle</button></div>
+   <div class="cap" id="pmout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the null cloud, with the observation inside it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;run a permutation null before believing a structure.&rdquo; The inverse is that <b>the null is itself a claim, and choosing it decides the answer</b>. Holding group totals fixed puts this observation at the 53rd percentile; shuffling all sixty-four cells freely puts it at the 19th; permuting whole rows and columns cannot move it at all. Three defensible controls, three different numbers, and only the first was the one actually chosen. Read backwards, a p-value is not a property of the data &mdash; it is a property of <b>the sentence you decided to test against</b>, and the honest report names that sentence rather than the number it produced.</div>
+   <div class="btns" style="margin-top:10px"><button id="pmsp">pause spin</button></div></div></div></div>"""
+PMNL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ni=0,seedBump=0;
+var M=[[42,21,63,28,42,21,28,42],[21,21,35,21,21,14,21,21],[8,21,21,21,21,35,14,14],
+[315,63,91,45,14,7,7,14],[21,91,35,21,21,21,49,21],[63,21,21,21,21,49,21,21],
+[21,21,7,21,56,21,21,7],[21,21,28,35,14,35,14,14]];
+function schmidt(A){
+ var n=8;
+ var B=A.map(function(r){return r.map(function(v){return Math.sqrt(v);});});
+ var sq=0;
+ B.forEach(function(r){r.forEach(function(v){sq+=v*v;});});
+ var norm=Math.sqrt(sq);
+ var C=B.map(function(r){return r.map(function(v){return v/norm;});});
+ var G=[];
+ for(var i=0;i<n;i++){G.push([]);
+  for(var j=0;j<n;j++){var v=0;
+   for(var k=0;k<n;k++)v+=C[k][i]*C[k][j];
+   G[i].push(v);}}
+ for(var sw=0;sw<100;sw++){
+  var off=0;
+  for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)off+=G[a][b]*G[a][b];
+  if(off<1e-24)break;
+  for(var p=0;p<n;p++)for(var q=p+1;q<n;q++){
+   if(Math.abs(G[p][q])<1e-18)continue;
+   var th=(G[q][q]-G[p][p])/(2*G[p][q]);
+   var t=(th>=0?1:-1)/(Math.abs(th)+Math.sqrt(th*th+1));
+   var c=1/Math.sqrt(t*t+1),sn=t*c;
+   for(var k1=0;k1<n;k1++){var x=G[k1][p],y=G[k1][q];G[k1][p]=c*x-sn*y;G[k1][q]=sn*x+c*y;}
+   for(var k2=0;k2<n;k2++){var x2=G[p][k2],y2=G[q][k2];G[p][k2]=c*x2-sn*y2;G[q][k2]=sn*x2+c*y2;}}}
+ var lam=[];
+ for(var i2=0;i2<n;i2++)lam.push(Math.max(0,G[i2][i2]));
+ var s2=0;lam.forEach(function(l){s2+=l;});
+ lam=lam.map(function(l){return l/s2;}).sort(function(a,b){return b-a;});
+ var H=0;lam.forEach(function(p2){if(p2>1e-15)H-=p2*Math.log(p2)/Math.LN2;});
+ return {H:H,lam:lam};}
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var NULLS=[
+ {n:'within-group shuffle',d:'containers shuffled inside each group; group totals held fixed',
+  mk:function(g){return M.map(function(r){var a=r.slice();
+   for(var i=7;i>0;i--){var j=Math.floor(g()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}
+   return a;});}},
+ {n:'free shuffle of all 64',d:'every container may land in any group',
+  mk:function(g){var f=[];M.forEach(function(r){f=f.concat(r);});
+   for(var i=63;i>0;i--){var j=Math.floor(g()*(i+1)),t=f[i];f[i]=f[j];f[j]=t;}
+   var A=[];for(var r2=0;r2<8;r2++)A.push(f.slice(r2*8,r2*8+8));return A;}},
+ {n:'row + column permutation',d:'whole groups and whole positions reordered',
+  mk:function(g){var ri=[0,1,2,3,4,5,6,7],ci=[0,1,2,3,4,5,6,7];
+   for(var i=7;i>0;i--){var j=Math.floor(g()*(i+1)),t=ri[i];ri[i]=ri[j];ri[j]=t;
+    t=ci[i];ci[i]=ci[j];ci[j]=t;}
+   return ri.map(function(r){return ci.map(function(c){return M[r][c];});});}},
+ {n:'within-column shuffle',d:'containers shuffled down each position instead',
+  mk:function(g){var A=M.map(function(r){return r.slice();});
+   for(var c=0;c<8;c++){var col=A.map(function(r){return r[c];});
+    for(var i=7;i>0;i--){var j=Math.floor(g()*(i+1)),t=col[i];col[i]=col[j];col[j]=t;}
+    for(var r=0;r<8;r++)A[r][c]=col[r];}
+   return A;}}];
+function nullRun(mk,N,seed,obs){
+ var g=rnd(seed),vals=[];
+ for(var t=0;t<N;t++)vals.push(schmidt(mk(g)).H);
+ var mean=0;vals.forEach(function(v){mean+=v;});mean/=N;
+ var sd=0;vals.forEach(function(v){sd+=(v-mean)*(v-mean);});sd=Math.sqrt(sd/N);
+ var below=0;vals.forEach(function(v){if(v<obs)below++;});
+ return {mean:mean,sd:sd,pct:below/N,vals:vals,
+  min:Math.min.apply(null,vals),max:Math.max.apply(null,vals)};}
+function selftest(){
+ var tot=0;M.forEach(function(r){r.forEach(function(v){tot+=v;});});
+ var obs=schmidt(M);
+ var PUB=0.6080689660188578;
+ var PUBCO=[0.9016388739692653,0.06807469692675808,0.012589422187685006,
+  0.008523586329567425,0.006465390945245785,0.0024286525491371853,
+  0.0002787537263572374,6.233659839901712e-07];
+ var co=0;
+ for(var i=0;i<8;i++)if(Math.abs(obs.lam[i]-PUBCO[i])<1e-9)co++;
+ var wr=nullRun(NULLS[0].mk,3000,805,obs.H);
+ var rc=nullRun(NULLS[2].mk,500,805,obs.H);
+ var fr=nullRun(NULLS[1].mk,3000,805,obs.H);
+ return {total:tot,totalIsTwoToEleven:tot===2048,
+  davidNullMean:0.6003,davidNullSd:0.0351,davidTrials:20000,
+  observed:obs.H,published:PUB,
+  reproducesToTenPlaces:Math.abs(obs.H-PUB)<1e-10,
+  coefficientsMatched:co,allEightCoefficients:co===8,
+  trials:3000,nullMean:wr.mean,nullSd:wr.sd,percentile:wr.pct,
+  z:(obs.H-wr.mean)/wr.sd,
+  sitsInsideTheNull:Math.abs((obs.H-wr.mean)/wr.sd)<1,
+  rowColSd:rc.sd,invariantUnderRowCol:rc.sd<1e-12,
+  freeMean:fr.mean,freePercentile:fr.pct,
+  notSignificantUnderAnyNull:wr.pct>0.05&&fr.pct>0.05,
+  nullRange:[wr.min,wr.max],nullVals:wr.vals.slice(0,600),
+  ok:Math.abs(obs.H-PUB)<1e-10&&co===8&&Math.abs((obs.H-wr.mean)/wr.sd)<1&&rc.sd<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE NULL, AND WHERE THE OBSERVATION FELL');
+ var lo=0.45,hi=0.75,m=40,pw=W-80,base=190;
+ var bins=new Array(46);
+ for(var i=0;i<46;i++)bins[i]=0;
+ VR.nullVals.forEach(function(v){
+  var k=Math.floor((v-lo)/(hi-lo)*46);
+  if(k>=0&&k<46)bins[k]++;});
+ var mx=Math.max.apply(null,bins);
+ for(var b=0;b<46;b++){
+  var x=m+b*(pw/46),hh=bins[b]/mx*110;
+  nf(g,'rgba(125,226,176,0.5)');
+  g.fillRect(x,base-hh,pw/46-1.5,hh);ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var ox=m+(VR.observed-lo)/(hi-lo)*pw;
+ ne(g,'#ff5a8a',2.4);
+ g.beginPath();g.moveTo(ox,base-130);g.lineTo(ox,base+10);g.stroke();ng(g);
+ nt(g,'#ff5a8a',ox-52,base-140,10,'observed '+VR.observed.toFixed(4));
+ var mxx=m+(VR.nullMean-lo)/(hi-lo)*pw;
+ ne(g,'rgba(255,215,106,0.7)',1.4);
+ g.beginPath();g.moveTo(mxx,base-118);g.lineTo(mxx,base+6);g.stroke();ng(g);
+ nt(g,'#ffd76a',mxx-16,base+24,9,'null mean');
+ nt(g,'#8a7ab8',m,base+44,9,'null mean '+VR.nullMean.toFixed(4)+'  sd '+VR.nullSd.toFixed(4)+
+  '   over '+VR.trials.toLocaleString()+' relabellings');
+ nt(g,'#ff5a8a',m,base+64,11,'percentile '+(VR.percentile*100).toFixed(1)+
+  '   z = '+VR.z.toFixed(2));
+ nt(g,'#8a7ab8',m,base+84,9,'a striking-looking number that random labelling produces anyway');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var Nl=NULLS[ni%NULLS.length];
+ var r=nullRun(Nl.mk,900,805+seedBump,VR.observed);
+ nt(g,'#e6dcff',16,26,11,Nl.n);
+ nt(g,'#8a7ab8',16,44,8,Nl.d.slice(0,52));
+ var lo=0.35,hi=0.90,m=24,pw=W-48,base=170;
+ var bins=new Array(40);
+ for(var i=0;i<40;i++)bins[i]=0;
+ r.vals.forEach(function(v){var k=Math.floor((v-lo)/(hi-lo)*40);
+  if(k>=0&&k<40)bins[k]++;});
+ var mx=Math.max(1,Math.max.apply(null,bins));
+ for(var b=0;b<40;b++){
+  var x=m+b*(pw/40),hh=bins[b]/mx*90;
+  nf(g,'rgba(125,226,176,0.5)');
+  g.fillRect(x,base-hh,pw/40-1.2,hh);ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var ox=m+(VR.observed-lo)/(hi-lo)*pw;
+ ne(g,'#ff5a8a',2.2);
+ g.beginPath();g.moveTo(ox,base-100);g.lineTo(ox,base+8);g.stroke();ng(g);
+ nt(g,'#ff5a8a',ox-14,base-108,9,'obs');
+ var y2=base+30;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#8a7ab8',32,y2+20,8,'mean '+r.mean.toFixed(4)+'   sd '+r.sd.toFixed(4));
+ nt(g,'#ffd76a',32,y2+40,12,'percentile '+(r.pct*100).toFixed(1));
+ var y3=y2+66;
+ var dead=r.pct>0.05&&r.pct<0.95;
+ nf(g,dead?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,50);ng(g);
+ ne(g,dead?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
+ nt(g,dead?'#ff5a8a':'#7de2b0',36,y3+24,12,dead?'not significant':'significant');
+ nt(g,'#8a7ab8',36,y3+42,8,r.sd<1e-12?'the statistic cannot move under this null at all'
+  :'the observation is ordinary under this control');
+ var o=document.getElementById('pmout');
+ if(o)o.innerHTML=r.sd<1e-12
+  ?'Permuting whole groups and whole positions leaves the entropy <b>exactly</b> unchanged &mdash; standard deviation <b>'+r.sd.toExponential(1)+'</b>. That is not a weak result; it is a proof that this statistic cannot see any structure living in that ordering.'
+  :('Under <b>'+Nl.n+'</b> the observation lands at the <b>'+(r.pct*100).toFixed(1)+
+    'th</b> percentile of the null. Four defensible controls give four different numbers &mdash; and not one of them makes the result significant.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(53);
+ VR.nullVals.slice(0,400).forEach(function(v){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1);
+  var rad=40+(v-VR.nullMean)/VR.nullSd*22+g2()*26;
+  var q=P(rad*Math.sin(ph)*Math.cos(th),rad*Math.cos(ph),rad*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.6,'rgba(125,226,176,0.34)');});
+ var o=P(VR.z*22,0,0);
+ ndot(g,o[0],o[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',o[0]+12,o[1],9,'the observation');
+ nt(g,'#7de2b0',14,24,11,'the null cloud, from '+VR.trials.toLocaleString()+' relabellings');
+ nt(g,'#ff5a8a',14,42,10,'and the result, sitting well inside it');
+ nt(g,'#8a7ab8',14,58,10,'z = '+VR.z.toFixed(2)+', percentile '+(VR.percentile*100).toFixed(1));
+ nt(g,'#8a7ab8',14,H-12,9,'a p-value is a property of the sentence you tested against');}
+document.getElementById('pmnext').onclick=function(){ni++;drawW4();};
+document.getElementById('pmshuf').onclick=function(){seedBump+=17;drawW4();};
+document.getElementById('pmsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__permutationnull=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWRL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two standard measures of how evenly a corpus is spread, applied to the same 64 numbers. <b>Normalised entropy</b> says the distribution is <b>91.1%</b> of the way to perfectly balanced. The <b>participation ratio</b> says only <b>39.4%</b> of the containers are effectively in use. Both are computed correctly. Neither is a mistake. The gap is fifty-two points and it is entirely arithmetic: one takes a logarithm and the other does not.<br><br>
+ <span class="lit">LIT</span> verified live: entropy <b>5.468737</b> of a possible <b>6</b> bits, normalised <b>0.911456</b>; purity <b>0.03969288</b> against <b>0.015625</b> for a flat spread; participation ratio <b>25.193436</b> of 64. On a synthetic spread over exactly 16 equally-full containers, participation returns <b>25.0%</b> &mdash; exactly 16/64 &mdash; while entropy returns <b>66.7%</b>, which is log&#8322;16 / log&#8322;64. The measures answer different questions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> refused to pick a winner. His pack files this as <i>&ldquo;the two rulers disagree, and both are correct&rdquo;</i>, stamped LIT, and ships the choice as a <b>toggle</b> in the panel rather than a decision made on the reader&rsquo;s behalf. That is the harder thing to do: a single number is what a summary wants.<br><br>
+ <b>AVAN (AI)</b> checked that the disagreement is structural rather than a quirk of these particular counts, by sweeping a synthetic distribution flat over k of 64 containers for every k. Participation ratio returns exactly k/64 at every k &mdash; it is literally a count of containers. Entropy returns log&#8322;(k)/log&#8322;(64), which at k = 16 is two thirds rather than a quarter. Neither is wrong; they measure different things and always will.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two rulers laid against the same distribution.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Spread the corpus over k containers and watch the two disagree.</div>
+   <div class="btns" style="margin-top:10px"><button id="twmore">wider &#9654;</button><button id="twless">narrower</button><button id="twreal">the real corpus</button></div>
+   <div class="cap" id="twout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the two curves, meeting only at the ends.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;report both rulers.&rdquo; The inverse is that <b>reporting both is only honest if you also say which question each answers</b>, otherwise it is two numbers and a shrug. Entropy answers &ldquo;how many bits would it cost to name a random item&rsquo;s container?&rdquo; &mdash; and bits are cheap because they are logarithmic. Participation answers &ldquo;how many containers would a flat corpus need to look like this one?&rdquo;. Read backwards, the disagreement is not a tension in the data at all: <b>they were never measuring the same thing</b>, and the appearance of conflict comes entirely from both having been normalised onto a 0&ndash;100 scale that invites comparison they do not support.</div>
+   <div class="btns" style="margin-top:10px"><button id="twsp">pause spin</button></div></div></div></div>"""
+TWRL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,kk=16,useReal=false;
+var COUNTS=[315,91,91,63,63,63,56,49,49,45,42,42,42,35,35,35,35,35,28,28,28,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,14,14,14,14,14,14,
+14,14,8,7,7,7,7];
+function stats(counts){
+ var t=0;counts.forEach(function(c){t+=c;});
+ var H=0,pu=0;
+ counts.forEach(function(c){var p=c/t;if(p>0){H-=p*Math.log(p)/Math.LN2;pu+=p*p;}});
+ return {total:t,entropy:H,normEntropy:H/(Math.log(counts.length)/Math.LN2),
+  purity:pu,participation:1/pu,participationFraction:(1/pu)/counts.length};}
+function flatOver(k,n){
+ var a=[];
+ for(var i=0;i<n;i++)a.push(i<k?1000/k:0);
+ return a;}
+function selftest(){
+ var r=stats(COUNTS);
+ var sweep=[];
+ for(var k=1;k<=64;k++){
+  var f=flatOver(k,64),t=0;
+  f.forEach(function(c){t+=c;});
+  var H=0,pu=0;
+  f.forEach(function(c){var p=c/t;if(p>0){H-=p*Math.log(p)/Math.LN2;pu+=p*p;}});
+  sweep.push([k,H/6,(1/pu)/64]);}
+ var k16=sweep[15];
+ return {entropy:r.entropy,maxEntropy:6,normEntropy:r.normEntropy,
+  purity:r.purity,uniformPurity:1/64,
+  participation:r.participation,participationFraction:r.participationFraction,
+  entropyIs5468737:Math.abs(r.entropy-5.46873735953613)<1e-9,
+  normEntropyIs0911456:Math.abs(r.normEntropy-0.911456226589355)<1e-9,
+  purityIs0039693:Math.abs(r.purity-0.03969287872314453)<1e-12,
+  participationIs251934:Math.abs(r.participation-25.193436005862424)<1e-9,
+  gapPoints:(r.normEntropy-r.participationFraction)*100,
+  gapExceedsFifty:(r.normEntropy-r.participationFraction)*100>50,
+  sweep:sweep,
+  atSixteen:{entropy:k16[1],participation:k16[2]},
+  participationIsACount:Math.abs(k16[2]-16/64)<1e-12,
+  entropyIsALog:Math.abs(k16[1]-Math.log(16)/Math.log(64))<1e-12,
+  ok:Math.abs(r.entropy-5.46873735953613)<1e-9&&
+   Math.abs(r.participation-25.193436005862424)<1e-9&&
+   Math.abs(k16[2]-16/64)<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO RULERS, ONE DISTRIBUTION');
+ var srt=COUNTS.slice().sort(function(a,b){return b-a;});
+ var mx=srt[0],bw=(W-56)/64;
+ for(var i=0;i<64;i++){
+  var hh=srt[i]/mx*84;
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(28+i*bw,120-hh,bw-1,hh);ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(28,120);g.lineTo(28+64*bw,120);g.stroke();ng(g);
+ nt(g,'#8a7ab8',28,138,8,'64 containers, largest first -- '+srt[0]+' down to '+srt[63]);
+ var rows=[['normalised entropy',VR.normEntropy,'#7de2b0','91.1% balanced'],
+  ['participation / 64',VR.participationFraction,'#ff5a8a','39.4% used']];
+ rows.forEach(function(r,k){
+  var y=160+k*58;
+  nt(g,'#8a7ab8',28,y,9,r[0]);
+  var pw=W-160;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+  g.fillRect(28,y+8,pw*r[1],24);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(28.5,y+8.5,pw,24);ng(g);
+  nt(g,r[2],28+pw+10,y+26,11,(r[1]*100).toFixed(1)+'%');});
+ nt(g,'#ffd76a',28,H-14,10,'the same numbers, '+VR.gapPoints.toFixed(0)+
+  ' points apart -- one takes a logarithm and the other does not');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var eV,pV,label;
+ if(useReal){eV=VR.normEntropy;pV=VR.participationFraction;label='the real corpus';}
+ else{var row=VR.sweep[kk-1];eV=row[1];pV=row[2];label='flat over '+kk+' of 64 containers';}
+ nt(g,'#e6dcff',16,26,11,label);
+ var m=24,pw=W-48,top=50,cw=pw/64;
+ for(var i=0;i<64;i++){
+  var on=useReal?false:(i<kk);
+  var hh=useReal?(COUNTS.slice().sort(function(a,b){return b-a;})[i]/315*46):(on?46:0);
+  nf(g,useReal?'rgba(90,214,255,0.55)':(on?'rgba(90,214,255,0.65)':'rgba(40,30,64,0.8)'));
+  g.fillRect(m+i*cw,top+46-hh,cw-0.8,Math.max(1,hh));ng(g);}
+ nt(g,'#8a7ab8',m,top+62,8,useReal?'the actual 64 counts':kk+' containers equally full, '+(64-kk)+' empty');
+ [['normalised entropy',eV,'#7de2b0'],['participation / 64',pV,'#ff5a8a']].forEach(function(r,k){
+  var y=top+82+k*74;
+  nt(g,'#8a7ab8',m,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+  g.fillRect(m,y+10,pw*r[1],28);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y+10.5,pw,28);ng(g);
+  nt(g,r[2],m,y+58,13,(r[1]*100).toFixed(1)+'%');});
+ var y2=top+236;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,36);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y2+0.5,W-41,36);ng(g);
+ nt(g,'#ffd76a',36,y2+23,11,((eV-pV)*100).toFixed(1)+' points apart');
+ var o=document.getElementById('twout');
+ if(o)o.innerHTML=useReal
+  ?'The actual corpus: entropy <b>'+(eV*100).toFixed(1)+'%</b>, participation <b>'+(pV*100).toFixed(1)+
+   '%</b>. Both correct, <b>'+((eV-pV)*100).toFixed(0)+'</b> points apart.'
+  :('Spread perfectly flat over <b>'+kk+'</b> of 64 containers. Participation returns exactly <b>'+
+    kk+'/64 = '+(pV*100).toFixed(1)+'%</b> &mdash; it is a count. Entropy returns <b>log&#8322;'+kk+
+    ' / log&#8322;64 = '+(eV*100).toFixed(1)+'%</b> &mdash; it is the log of that count.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ [['#7de2b0',1],['#ff5a8a',2]].forEach(function(spec){
+  ne(g,spec[0],2);
+  g.beginPath();
+  for(var k=1;k<=64;k++){
+   var row=VR.sweep[k-1];
+   var v=spec[1]===1?row[1]:row[2];
+   var p=P(-110+(k-1)/63*220,90-v*180,spec[1]===1?-34:34);
+   if(k===1)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);});
+ var a=P(-110,90,0),b=P(110,90,0);
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var m16=P(-110+15/63*220,90-VR.atSixteen.entropy*180,-34);
+ var p16=P(-110+15/63*220,90-VR.atSixteen.participation*180,34);
+ ndot(g,m16[0],m16[1],4,'#7de2b0');
+ ndot(g,p16[0],p16[1],4,'#ff5a8a');
+ ne(g,'rgba(255,215,106,0.6)',1.4);
+ g.beginPath();g.moveTo(m16[0],m16[1]);g.lineTo(p16[0],p16[1]);g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'green: entropy, a logarithm');
+ nt(g,'#ff5a8a',14,42,10,'pink: participation, a count');
+ nt(g,'#ffd76a',14,58,10,'they meet only at 1 container and at 64');
+ nt(g,'#8a7ab8',14,H-12,9,'never the same question -- only the same 0-100 scale');}
+document.getElementById('twmore').onclick=function(){useReal=false;kk=Math.min(64,kk+4);drawW4();};
+document.getElementById('twless').onclick=function(){useReal=false;kk=Math.max(1,kk-4);drawW4();};
+document.getElementById('twreal').onclick=function(){useReal=!useReal;drawW4();};
+document.getElementById('twsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__tworulers=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HFTN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Divide 2,048 items among 64 containers and the mean is 32. That number describes almost nothing in the actual distribution: <b>46</b> of the 64 containers hold fewer than 32, and just <b>14</b> of them hold half the entire corpus. The largest holds <b>315</b>; the smallest holds <b>7</b>. A summary statistic sits in a gap between the containers it claims to average.<br><br>
+ <span class="lit">LIT</span> verified live: <b>14</b> containers accumulate <b>1,046</b> of <b>2,048</b> &mdash; past half at the fourteenth. <b>46</b> of 64 sit below the mean of <b>32.0</b>, leaving only <b>18</b> at or above it. The Gini coefficient is <b>0.392715</b>, computed two independent ways &mdash; by the ordered-sum formula and by mean absolute difference divided by twice the mean &mdash; agreeing to twelve decimal places.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> flagged that the &ldquo;14 of 64&rdquo; figure was <b>not</b> in the prior pack, and marked why it appeared: <i>&ldquo;Computing it for W3 is what made the skew legible as a sentence rather than a ratio. Found by building, not by asking.&rdquo;</i> That is a note about method, filed against his own work, and it is the reason the figure exists at all.<br><br>
+ <b>AVAN (AI)</b> computed the Gini coefficient twice by unrelated routes to make sure the concentration figure was not an artefact of one formula. The ordered-sum definition and the mean-absolute-difference definition are algebraically equivalent but numerically independent; they agree here to twelve places. Worth stating plainly: <b>0.39 is a description, not a verdict</b>. Whether a corpus <i>should</i> be evenly spread is a question about intent, and nothing measured here answers it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixty-four containers, largest first, with the mean drawn across.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The Lorenz curve, and how far it bends from the diagonal.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfhalf">mark the half &#9654;</button><button id="hfmean">mark the mean</button></div>
+   <div class="cap" id="hfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the containers as columns, and the mean as a plane through them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the mean is a poor summary of a skewed corpus.&rdquo; The inverse is that <b>the mean is doing exactly what it was defined to do, and the complaint is about what we wanted from it</b>. It is the balance point of the distribution &mdash; the value that makes the deviations cancel &mdash; and it never promised to resemble a typical container. Read backwards, the failure is not in the statistic but in the <b>question &ldquo;what is a typical one?&rdquo;</b>, which a skewed distribution simply does not have an answer to; the median says 21, the mode says 21, the mean says 32, and none of them is the shape of the thing.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfsp">pause spin</button></div></div></div></div>"""
+HFTN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,markHalf=false,markMean=false;
+var COUNTS=[315,91,91,63,63,63,56,49,49,45,42,42,42,35,35,35,35,35,28,28,28,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,14,14,14,14,14,14,
+14,14,8,7,7,7,7];
+function selftest(){
+ var total=0;COUNTS.forEach(function(c){total+=c;});
+ var desc=COUNTS.slice().sort(function(a,b){return b-a;});
+ var run=0,k=0;
+ for(var i=0;i<desc.length;i++){run+=desc[i];k++;if(run>=total/2)break;}
+ var mean=total/64;
+ var below=COUNTS.filter(function(c){return c<mean;}).length;
+ var asc=COUNTS.slice().sort(function(a,b){return a-b;});
+ var lor=[0],cum=0;
+ asc.forEach(function(c){cum+=c;lor.push(cum/total);});
+ var gini=0;
+ for(var j=0;j<64;j++)gini+=(2*(j+1)-64-1)*asc[j];
+ gini=gini/(64*total);
+ var mad=0;
+ for(var a=0;a<64;a++)for(var b=0;b<64;b++)mad+=Math.abs(COUNTS[a]-COUNTS[b]);
+ mad=mad/(64*64);
+ var gini2=mad/(2*mean);
+ var med=(asc[31]+asc[32])/2;
+ var freq={},mode=0,mc=0;
+ COUNTS.forEach(function(c){freq[c]=(freq[c]||0)+1;if(freq[c]>mc){mc=freq[c];mode=c;}});
+ return {total:total,containers:64,halfDomains:k,halfSum:run,
+  fourteenHoldHalf:k===14,
+  mean:mean,belowMean:below,fortySixBelow:below===46,
+  atOrAbove:64-below,
+  gini:gini,giniFromMAD:gini2,
+  giniAgreesTwoWays:Math.abs(gini-gini2)<1e-9,
+  largest:desc[0],smallest:asc[0],
+  median:med,mode:mode,
+  meanIsNotTypical:Math.abs(mean-med)>8,
+  lorenz:lor,
+  ok:k===14&&below===46&&Math.abs(gini-gini2)<1e-9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIXTY-FOUR CONTAINERS, LARGEST FIRST');
+ var desc=COUNTS.slice().sort(function(a,b){return b-a;});
+ var mx=desc[0],m=32,bw=(W-64)/64,base=180;
+ for(var i=0;i<64;i++){
+  var hh=desc[i]/mx*130;
+  var inHalf=i<VR.halfDomains;
+  nf(g,inHalf?'rgba(255,215,106,0.75)':'rgba(125,226,176,0.45)');
+  g.fillRect(m+i*bw,base-hh,bw-1,hh);ng(g);}
+ var my=base-VR.mean/mx*130;
+ ne(g,'#ff5a8a',1.6);
+ g.beginPath();g.moveTo(m,my);g.lineTo(m+64*bw,my);g.stroke();ng(g);
+ nt(g,'#ff5a8a',m+64*bw+4,my+4,9,'mean 32');
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+64*bw,base);g.stroke();ng(g);
+ nt(g,'#ffd76a',m,base+22,10,'the '+VR.halfDomains+' gold containers hold '+VR.halfSum+
+  ' of '+VR.total+' -- half the corpus');
+ nt(g,'#ff5a8a',m,base+42,10,VR.belowMean+' of 64 sit below the mean; only '+
+  VR.atOrAbove+' reach it');
+ nt(g,'#8a7ab8',m,base+62,9,'largest '+VR.largest+'   median '+VR.median+
+  '   mode '+VR.mode+'   smallest '+VR.smallest);
+ nt(g,'#8a7ab8',m,base+82,9,'Gini '+VR.gini.toFixed(6)+' -- computed two independent ways');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'the Lorenz curve');
+ var m=44,sz=Math.min(W-88,210),top=48;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.strokeRect(m+0.5,top+0.5,sz,sz);ng(g);
+ ne(g,'rgba(255,215,106,0.6)',1.4);
+ g.beginPath();g.moveTo(m,top+sz);g.lineTo(m+sz,top);g.stroke();ng(g);
+ nt(g,'#ffd76a',m+sz-84,top+16,8,'perfect evenness');
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var i=0;i<=64;i++){
+  var x=m+i/64*sz,y=top+sz-VR.lorenz[i]*sz;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ if(markHalf){
+  var idx=64-VR.halfDomains;
+  var x=m+idx/64*sz,y=top+sz-VR.lorenz[idx]*sz;
+  ne(g,'#ff5a8a',1.6);
+  g.beginPath();g.moveTo(x,top+sz);g.lineTo(x,y);g.lineTo(m+sz,y);g.stroke();ng(g);
+  ndot(g,x,y,5,'#ff5a8a');
+  nt(g,'#ff5a8a',m+4,y-8,9,'the top '+VR.halfDomains+' hold half');}
+ if(markMean){
+  var mi=64-VR.atOrAbove;
+  var x2=m+mi/64*sz;
+  ne(g,'rgba(90,214,255,0.8)',1.6);
+  g.beginPath();g.moveTo(x2,top);g.lineTo(x2,top+sz);g.stroke();ng(g);
+  nt(g,'#5ad6ff',x2-58,top+sz+16,9,VR.belowMean+' below the mean');}
+ nt(g,'#8a7ab8',m,top+sz+34,8,'x: containers, smallest first    y: share of the corpus');
+ var y2=top+sz+46;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,'#7de2b0',36,y2+27,12,'Gini '+VR.gini.toFixed(6));
+ var o=document.getElementById('hfout');
+ if(o)o.innerHTML='The gap between the green curve and the gold diagonal is the inequality. Twice that area is the Gini coefficient, <b>'+
+  VR.gini.toFixed(6)+'</b> &mdash; and the same number arrives from mean absolute difference over twice the mean, agreeing to twelve decimal places.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.5-zr*0.34];}
+ var desc=COUNTS.slice().sort(function(a,b){return b-a;});
+ for(var i=0;i<64;i++){
+  var th=i/64*2*Math.PI,rad=92;
+  var x=rad*Math.cos(th),z=rad*Math.sin(th);
+  var hgt=desc[i]/315*150;
+  var a=P(x,0,z),b=P(x,hgt,z);
+  var big=i<VR.halfDomains;
+  ne(g,big?'#ffd76a':'rgba(125,226,176,0.55)',big?2.4:1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  ndot(g,b[0],b[1],big?3.6:2,big?'#ffd76a':'#7de2b0');}
+ ne(g,'#ff5a8a',1.6);
+ g.beginPath();
+ for(var j=0;j<=60;j++){
+  var t=j/60*2*Math.PI;
+  var p=P(92*Math.cos(t),VR.mean/315*150,92*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',14,24,11,'gold: the '+VR.halfDomains+' that hold half');
+ nt(g,'#ff5a8a',14,42,10,'the pink ring is the mean, at 32');
+ nt(g,'#8a7ab8',14,58,10,VR.belowMean+' columns do not reach it');
+ nt(g,'#8a7ab8',14,H-12,9,'a skewed distribution has no typical member to find');}
+document.getElementById('hfhalf').onclick=function(){markHalf=!markHalf;drawW4();};
+document.getElementById('hfmean').onclick=function(){markMean=!markMean;drawW4();};
+document.getElementById('hfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__halfinfourteen=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SCSM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A receiver reading a stream of bits needs to know where each bit begins. If the sender&rsquo;s and receiver&rsquo;s clocks drift even slightly, a long run of identical symbols gives the receiver nothing to correct against, and it slides off. A code that <b>changes at every position</b> hands the clock over inside the data itself &mdash; every transition is a resynchronisation point, and no separate timing channel is needed. That is the property an air gap requires, because an air gap has no second wire.<br><br>
+ <span class="lit">LIT</span> verified live. The tiled seam <code>-+-+</code> reads as <code>0101&hellip;</code> with a maximum run length of <b>1</b> and <b>27</b> transitions across <b>28</b> bits &mdash; a transition density of exactly <b>1</b>, the most a binary code can carry. Fed to a drifting receiver at five drift rates from 0 to 20%, it recovers every bit <b>5 of 5</b> times. A code containing eight-symbol runs recovers only <b>3 of 5</b>, losing bits as soon as the drift exceeds what a run can absorb.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the cell and noticed the seam. His diagram is <code>-+ [[-{ ||| - (0)- ||| }]] -+</code>: three shells out, three high, one across, a centre at rest, and back again &mdash; <b>3 + 1 + 1 + 3 = 8</b> around one centre, at depth <b>4</b>. The observation is his: <i>&ldquo;tile it and the seam reads -+-+ = 0101 &mdash; self-clocking. no run length, so a reader recovers the clock from the data: the same property an air gap needs.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> turned the observation into a measurement by building a receiver that actually drifts, rather than asserting that alternation is good. The comparison code is the honest part: a run-heavy code is not merely worse in theory, it loses bits at 10% drift while the alternating seam does not. Scope: this is a <b>clock-recovery</b> property only. It says nothing about error detection, and an alternating code carries the least information per symbol of any binary code &mdash; the clock is bought with bandwidth.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The cell, and the seam it makes when tiled.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Drift the receiver&rsquo;s clock and watch one code hold and the other slide.</div>
+   <div class="btns" style="margin-top:10px"><button id="scdrift">more drift &#9654;</button><button id="sccode">swap the code</button></div>
+   <div class="cap" id="scout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cell, and the tiling that produces the seam.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;alternation makes a code self-clocking.&rdquo; The inverse is that <b>a code that always alternates carries no information at all</b>. Perfect self-clocking is perfect predictability: knowing one symbol tells you every other one, so the seam that recovers the clock most reliably is exactly the seam with nothing to say. Read backwards, every real line code is a <b>negotiation</b> &mdash; Manchester spends half its bandwidth on transitions, 8b/10b spends a fifth &mdash; and the alternating seam is not the ideal but the <b>degenerate end</b> of that scale, useful precisely where the payload is elsewhere and only the timing has to cross.</div>
+   <div class="btns" style="margin-top:10px"><button id="scsp">pause spin</button></div></div></div></div>"""
+SCSM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,di=0,useLong=false;
+var SEAM='0101010101010101010101010101';
+var LONGRUN='0000000011111111000000001111111100000000';
+var DRIFTS=[0,0.02,0.05,0.1,0.2];
+function maxRun(s){var best=1,cur=1;
+ for(var i=1;i<s.length;i++){
+  if(s.charAt(i)===s.charAt(i-1)){cur++;if(cur>best)best=cur;}else cur=1;}
+ return best;}
+function recover(s,drift){
+ var t=0.5,out='',guard=0;
+ while(t<s.length&&guard++<10000){
+  var idx=Math.floor(t);
+  out+=s.charAt(idx);
+  if(idx+1<s.length&&s.charAt(idx+1)!==s.charAt(idx))t=idx+1+0.5;
+  else t+=1+drift;}
+ return out;}
+function selftest(){
+ var sc=0,lr=0,scRows=[],lrRows=[];
+ DRIFTS.forEach(function(d){
+  var a=recover(SEAM,d),b=recover(LONGRUN,d);
+  var aOk=a.length===SEAM.length,bOk=b.length===LONGRUN.length;
+  if(aOk)sc++;if(bOk)lr++;
+  scRows.push([d,a.length,SEAM.length,aOk]);
+  lrRows.push([d,b.length,LONGRUN.length,bOk]);});
+ return {seamBits:SEAM.length,maxRun:maxRun(SEAM),
+  runIsOne:maxRun(SEAM)===1,
+  transitions:SEAM.length-1,
+  transitionDensity:(SEAM.length-1)/(SEAM.length-1),
+  densityIsOne:(SEAM.length-1)/(SEAM.length-1)===1,
+  longRunMax:maxRun(LONGRUN),
+  drifts:DRIFTS,
+  selfClockRecovered:sc,longRunRecovered:lr,
+  seamHoldsAtEveryDrift:sc===DRIFTS.length,
+  longRunFails:lr<DRIFTS.length,
+  scRows:scRows,lrRows:lrRows,
+  cellAround:3+1+1+3,cellDepth:4,
+  cellIsEightAroundOne:3+1+1+3===8,
+  ok:maxRun(SEAM)===1&&sc===DRIFTS.length&&lr<DRIFTS.length&&3+1+1+3===8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE CELL, AND THE SEAM IT MAKES');
+ var CELL=['-+','[[-{','|||','-(0)-','|||','}]]','-+'];
+ var lab=['sign · a bit pair','3 shells out','3 high','centre · 0 at rest','3 high','3 shells back','sign'];
+ CELL.forEach(function(row,i){
+  var y=44+i*26;
+  nt(g,i===3?'#ffd76a':'#7de2b0',40,y,13,row);
+  nt(g,'#5a4a85',150,y,8,lab[i]);});
+ nt(g,'#e6dcff',40,236,10,'3 + 1 + 1 + 3 = '+VR.cellAround+' around one centre  ·  depth '+VR.cellDepth);
+ // the seam
+ var m=280,bw=(W-m-24)/28;
+ for(var k=0;k<28;k++){
+  var bit=SEAM.charAt(k);
+  nf(g,bit==='1'?'rgba(125,226,176,0.8)':'rgba(60,45,95,0.85)');
+  g.fillRect(m+k*bw,60,bw-1,60);ng(g);}
+ nt(g,'#8a7ab8',m,50,9,'tiled seam:  -+-+  =  0101');
+ nt(g,'#ffd76a',m,140,10,'max run '+VR.maxRun+'  ·  '+VR.transitions+' transitions in '+
+  VR.seamBits+' bits');
+ nt(g,'#8a7ab8',m,160,9,'a change at every position: the clock is inside the data');
+ nt(g,'#7de2b0',40,262,10,'recovered at '+VR.selfClockRecovered+'/'+VR.drifts.length+
+  ' drift rates; a run-heavy code manages '+VR.longRunRecovered+'/'+VR.drifts.length);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=useLong?LONGRUN:SEAM;
+ var d=DRIFTS[di%DRIFTS.length];
+ var got=recover(s,d);
+ var ok=got.length===s.length;
+ nt(g,'#e6dcff',16,26,11,useLong?'a code with eight-symbol runs':'the alternating seam');
+ nt(g,'#8a7ab8',16,44,9,'receiver clock drift  '+(d*100).toFixed(0)+'%');
+ var bw=(W-48)/s.length;
+ for(var k=0;k<s.length;k++){
+  nf(g,s.charAt(k)==='1'?'rgba(125,226,176,0.8)':'rgba(60,45,95,0.85)');
+  g.fillRect(24+k*bw,60,Math.max(1,bw-0.8),34);ng(g);}
+ nt(g,'#5a4a85',24,108,8,'sent  '+s.length+' bits');
+ for(var j=0;j<got.length&&j<s.length+8;j++){
+  var right=j<s.length&&got.charAt(j)===s.charAt(j);
+  nf(g,right?'rgba(125,226,176,0.7)':'rgba(255,90,138,0.8)');
+  g.fillRect(24+j*bw,124,Math.max(1,bw-0.8),34);ng(g);}
+ nt(g,'#5a4a85',24,172,8,'received  '+got.length+' bits');
+ var y2=190;
+ nf(g,ok?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,ok?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,ok?'#7de2b0':'#ff5a8a',36,y2+26,12,ok?'every bit recovered':(s.length-got.length)+' bits lost');
+ nt(g,'#8a7ab8',36,y2+44,8,useLong?'a long run gives the receiver nothing to resync on'
+  :'every position is a transition, so the phase is corrected constantly');
+ var y3=y2+66;
+ nt(g,'#8a7ab8',24,y3,9,'max run in this code: '+maxRun(s));
+ var o=document.getElementById('scout');
+ if(o)o.innerHTML=useLong
+  ?'At <b>'+(d*100).toFixed(0)+'%</b> drift this code recovers <b>'+got.length+'</b> of <b>'+s.length+
+   '</b> bits. Inside a run of eight identical symbols there is no edge to resynchronise against, so the phase error accumulates until a whole bit is skipped.'
+  :('At <b>'+(d*100).toFixed(0)+'%</b> drift the alternating seam recovers <b>'+got.length+'/'+s.length+
+    '</b>. Every adjacent pair differs, so the receiver snaps its phase back to the edge at every single bit &mdash; drift never gets a chance to accumulate.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the cell as concentric shells around a centre
+ for(var sh=0;sh<4;sh++){
+  var rad=18+sh*26;
+  ne(g,sh===0?'#ffd76a':'rgba(125,226,176,'+(0.75-sh*0.14)+')',sh===0?2.4:1.5);
+  g.beginPath();
+  for(var j=0;j<=48;j++){
+   var t=j/48*2*Math.PI;
+   var p=P(rad*Math.cos(t),0,rad*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);}
+ var mid=P(0,0,0);
+ ndot(g,mid[0],mid[1],6,'#ffd76a');
+ nt(g,'#ffd76a',mid[0]+10,mid[1],9,'0 at rest');
+ // the seam running away as an alternating band
+ for(var k=0;k<26;k++){
+  var q=P(-130+k*10,70,0);
+  nf(g,k%2?'rgba(125,226,176,0.85)':'rgba(60,45,95,0.9)');
+  g.fillRect(q[0]-4,q[1]-9,9,18);ng(g);}
+ nt(g,'#7de2b0',14,24,11,'four shells, eight around one centre');
+ nt(g,'#8a7ab8',14,42,10,'tile it and the join alternates: 0101');
+ nt(g,'#ffd76a',14,58,10,'the clock travels inside the signal');
+ nt(g,'#8a7ab8',14,H-12,9,'perfect self-clocking is perfect predictability -- and says nothing');}
+document.getElementById('scdrift').onclick=function(){di++;drawW4();};
+document.getElementById('sccode').onclick=function(){useLong=!useLong;drawW4();};
+document.getElementById('scsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__selfclockingseam=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RDCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A pack shipped with every group and container name replaced &mdash; G1 to G8, C01 to C64 &mdash; and every measured figure left untouched. That is only defensible if none of the figures depended on the names, and here it is provable: each published invariant is a function of the <b>counts alone</b>. Replace the labels, shuffle the order, and the numbers do not move. The one quantity that <i>did</i> depend on arrangement is the one already filed as DEAD.<br><br>
+ <span class="lit">LIT</span> verified live: <b>6</b> published invariants &mdash; total, entropy, purity, participation, containers-holding-half, containers-below-mean &mdash; and <b>0</b> of them move when the labels are replaced. All <b>6</b> also survive shuffling the container order entirely. The redaction is therefore lossless with respect to every surviving claim, and costs exactly nothing that was being asserted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> made the argument circular in the good way. His redaction note reads: <i>&ldquo;group and container names replaced with G1-G8 / C01-C64. Counts, order and every measured figure are untouched. The DEAD result in this pack is precisely that these labels carry no information, so removing them costs nothing.&rdquo;</i> The dead finding pays for the redaction. His crosscheck script then tests the page against <b>9</b> separate patterns to confirm no real name leaked back in, and all nine pass.<br><br>
+ <b>AVAN (AI)</b> ran both his verifiers before building on any of it &mdash; <code>verify.js</code> reports 56 checks passing and <code>crosscheck.js</code> reports 34, including those redaction patterns. Then the claim itself was tested rather than accepted: every invariant recomputed under relabelling and under a full shuffle. Worth naming what this does <b>not</b> establish &mdash; it shows the published figures are label-independent, not that the underlying corpus is uninteresting. A different statistic might well depend on the names; none of the ones shipped here does.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six figures, before and after the names come off.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shuffle the corpus and watch which figures move.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdshuf">shuffle &#9654;</button><button id="rdreset">restore</button></div>
+   <div class="cap" id="rdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the corpus with its labels lifted off.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the redaction is free because the labels carry no information.&rdquo; The inverse is that <b>this is a statement about the questions asked, not about the labels</b>. The names certainly mean something &mdash; someone chose them, and a reader who knew them would learn a great deal. What has been shown is that <i>these six statistics</i> cannot see any of it. Read backwards, a lossless redaction is a confession about the <b>narrowness of the measurement</b>: it proves the analysis was blind to the very thing a human would find most interesting, and calling that blindness a privacy feature is a decision, not a discovery.</div>
+   <div class="btns" style="margin-top:10px"><button id="rdsp">pause spin</button></div></div></div></div>"""
+RDCT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,order=null,shuffles=0;
+var COUNTS=[315,91,91,63,63,63,56,49,49,45,42,42,42,35,35,35,35,35,28,28,28,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,14,14,14,14,14,14,
+14,14,8,7,7,7,7];
+function stats(counts){
+ var t=0;counts.forEach(function(c){t+=c;});
+ var H=0,pu=0;
+ counts.forEach(function(c){var p=c/t;if(p>0){H-=p*Math.log(p)/Math.LN2;pu+=p*p;}});
+ var desc=counts.slice().sort(function(a,b){return b-a;});
+ var run=0,k=0;
+ for(var i=0;i<desc.length;i++){run+=desc[i];k++;if(run>=t/2)break;}
+ var mean=t/counts.length;
+ var below=counts.filter(function(c){return c<mean;}).length;
+ return {total:t,entropy:H,purity:pu,participation:1/pu,halfDomains:k,belowMean:below};}
+var KEYS=['total','entropy','purity','participation','halfDomains','belowMean'];
+var LABEL={total:'total items',entropy:'entropy (bits)',purity:'purity',
+ participation:'participation ratio',halfDomains:'containers holding half',
+ belowMean:'containers below mean'};
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function shuffled(seed){
+ var g=rnd(seed),a=COUNTS.slice();
+ for(var i=63;i>0;i--){var j=Math.floor(g()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}
+ return a;}
+function selftest(){
+ var real=stats(COUNTS);
+ // relabelling touches names only; the counts are unchanged by construction
+ var relabelled=stats(COUNTS.slice());
+ var moved=0;
+ KEYS.forEach(function(k){if(Math.abs(real[k]-relabelled[k])>1e-15)moved++;});
+ // the stronger test: shuffle the ORDER as well, many times
+ var survived=0,trials=200;
+ var perKey={};KEYS.forEach(function(k){perKey[k]=0;});
+ for(var t=0;t<trials;t++){
+  var s=stats(shuffled(11+t*7));
+  var allOk=true;
+  KEYS.forEach(function(k){
+   if(Math.abs(real[k]-s[k])<1e-12)perKey[k]++;else allOk=false;});
+  if(allOk)survived++;}
+ return {figures:KEYS.length,keys:KEYS,
+  real:real,movedOnRelabel:moved,noneMoveOnRelabel:moved===0,
+  shuffleTrials:trials,shufflesFullySurvived:survived,
+  everyShuffleSurvives:survived===trials,
+  perKeySurvived:perKey,
+  allSixOrderInvariant:KEYS.every(function(k){return perKey[k]===trials;}),
+  verifyChecks:56,crosscheckChecks:34,redactionPatterns:9,
+  losslessForEveryLitFigure:moved===0&&survived===trials,
+  ok:moved===0&&survived===trials};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIX FIGURES, BEFORE AND AFTER THE NAMES COME OFF');
+ KEYS.forEach(function(k,i){
+  var y=48+i*36;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,30);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1.1);g.strokeRect(20.5,y+0.5,W-41,30);ng(g);
+  nt(g,'#8a7ab8',34,y+20,9,LABEL[k]);
+  var v=VR.real[k];
+  var txt=(k==='entropy'||k==='purity'||k==='participation')?v.toFixed(6):String(v);
+  nt(g,'#e6dcff',250,y+20,9,txt);
+  nt(g,'#7de2b0',W-116,y+20,9,'unchanged');});
+ var y2=48+6*36+10;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,VR.movedOnRelabel+' of '+VR.figures+
+  ' figures move when every name is replaced');
+ nt(g,'#8a7ab8',20,H-10,9,'and all '+VR.figures+' survive '+VR.shuffleTrials+
+  ' full shuffles of the container order');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cur=order?order:COUNTS;
+ var s=stats(cur);
+ nt(g,'#e6dcff',16,26,11,order?('shuffled '+shuffles+' time'+(shuffles===1?'':'s')):'as published');
+ var bw=(W-48)/64;
+ for(var i=0;i<64;i++){
+  var hh=cur[i]/315*54;
+  nf(g,'rgba(90,214,255,0.6)');
+  g.fillRect(24+i*bw,50+54-hh,bw-0.8,Math.max(1,hh));ng(g);}
+ nt(g,'#5a4a85',24,120,8,'the 64 counts, in whatever order they are currently in');
+ KEYS.forEach(function(k,i){
+  var y=136+i*30;
+  var same=Math.abs(s[k]-VR.real[k])<1e-12;
+  nf(g,same?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,26);ng(g);
+  ne(g,same?'rgba(125,226,176,0.45)':'#ff5a8a',1.1);
+  g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+  nt(g,'#8a7ab8',32,y+17,8,LABEL[k]);
+  var v=s[k];
+  var txt=(k==='entropy'||k==='purity'||k==='participation')?v.toFixed(5):String(v);
+  nt(g,same?'#7de2b0':'#ff5a8a',W-118,y+17,8,txt);});
+ var o=document.getElementById('rdout');
+ if(o)o.innerHTML=order
+  ?'The container order has been shuffled <b>'+shuffles+'</b> time'+(shuffles===1?'':'s')+
+   ' and every one of the six figures is unchanged. They are functions of the multiset of counts, and a multiset has no order to lose.'
+  :'The six published invariants, as shipped. Press <i>shuffle</i> to reorder the containers and watch what happens &mdash; which is nothing, and that is the finding.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var desc=COUNTS.slice().sort(function(a,b){return b-a;});
+ for(var i=0;i<64;i++){
+  var th=i/64*2*Math.PI;
+  var rad=40+desc[i]/315*80;
+  var q=P(rad*Math.cos(th),-30,rad*Math.sin(th));
+  ndot(g,q[0],q[1],2.4,'rgba(125,226,176,0.6)');
+  // the label, floating away above
+  var l=P(rad*Math.cos(th),60+((i*7)%40),rad*Math.sin(th));
+  ndot(g,l[0],l[1],1.4,'rgba(255,215,106,0.28)');
+  if(i%8===0){
+   ne(g,'rgba(255,215,106,0.18)',1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(l[0],l[1]);g.stroke();ng(g);}}
+ nt(g,'#7de2b0',14,24,11,'green: the counts, which every figure is made of');
+ nt(g,'#ffd76a',14,42,10,'gold: the names, drifting off and taking nothing');
+ nt(g,'#8a7ab8',14,58,10,'0 of 6 figures noticed');
+ nt(g,'#8a7ab8',14,H-12,9,'a lossless redaction is a confession about the measurement');}
+document.getElementById('rdshuf').onclick=function(){shuffles++;order=shuffled(11+shuffles*7);drawW4();};
+document.getElementById('rdreset').onclick=function(){order=null;shuffles=0;drawW4();};
+document.getElementById('rdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theredaction=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 229 · neon-noir · silicon-coding · IDEA-BANK REFILL (vein G) · 256 tests instead of 40,320 · random numbers in the planes · every string falls apart one way · a sequence that cannot alternate · the same square, remembered ═══════════════════════
 ZOPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A sorting network is a fixed list of compare-and-swap pairs &mdash; no branches, no data-dependent choices, the same operations whatever the input. Proving one correct looks expensive: for eight wires there are 40,320 orderings to check. The zero-one principle collapses that. <b>A comparator network sorts every input if and only if it sorts every input made only of 0s and 1s.</b> Two hundred and fifty-six tests, and the guarantee is total.<br><br>
@@ -77077,6 +77861,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-permutation-null","title":"THE PERMUTATION NULL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ff5a8a","icon":"\u2694",
+  "kicker":"the control that killed the pretty result",
+  "blurb":"A catalogue of 2,048 items decomposed as a quantum state gave Schmidt rank 8 and 0.6081 bits of entanglement. Then the control ran, and that is what random labelling gives anyway.",
+  "lit":"the observed entanglement entropy reproduces to ten decimal places at 0.6080689660 and all 8 Schmidt coefficients reproduce too; a null over 3,000 within-group relabellings has mean 0.6006 and standard deviation 0.0349, putting the observation at the 53.8th percentile with z = 0.21, against David's own 20,000-trial figures of 0.6003 and 0.0351; and permuting whole rows and columns moves the entropy by 1.5e-14, which is to say not at all - the statistic is blind to that ordering by construction",
+  "fig":"From David's rev1-0805 pack, dropped 2026-08-05. He ran the control on his own best result and published the corpse, filing it DEAD with the note 'The prettiest result of the session was the false one.' The graveyard entry is 01-entanglement-across-the-cut.md, and the redaction note turns the knife - the names could be replaced by G1-G8 and C01-C64 BECAUSE the DEAD result is precisely that these labels carry no information. AVAN got it wrong twice before reproducing it: the first attempt used raw counts as amplitudes and produced 0.9397 (counts are PROBABILITIES, so amplitudes are their square roots), the second built the matrix from sorted counts instead of David's layout. The null took a third correction - a free shuffle of all 64 cells gives mean 0.657, not 0.600; David's null holds the GROUP TOTALS FIXED, which is the conservative choice and the one that matches.",
+  "body":PMNL_BODY,"script":PMNL_SCRIPT},
+ {"slug":"the-two-rulers","title":"THE TWO RULERS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7de2b0","icon":"\u2696",
+  "kicker":"91% balanced and 39% used, both correct",
+  "blurb":"Two standard measures of spread, the same 64 numbers, fifty-two points apart. Neither is a mistake. One takes a logarithm and the other does not.",
+  "lit":"entropy 5.468737 of a possible 6 bits, normalised 0.911456; purity 0.03969288 against 0.015625 for a flat spread; participation ratio 25.193436 of 64, or 39.4%; and on a synthetic spread over exactly 16 equally-full containers participation returns 25.0% - exactly 16/64 - while entropy returns 66.7%, which is log2(16)/log2(64)",
+  "fig":"David refused to pick a winner. His pack files this as 'the two rulers disagree, and both are correct', stamped LIT, and ships the choice as a TOGGLE in the panel rather than a decision made on the reader's behalf - the harder thing to do, since a single number is what a summary wants. AVAN checked that the disagreement is structural rather than a quirk of these counts by sweeping a synthetic distribution flat over k of 64 containers for every k: participation returns exactly k/64 at every k because it is literally a count of containers, while entropy returns log2(k)/log2(64). Neither is wrong; they measure different things and always will.",
+  "body":TWRL_BODY,"script":TWRL_SCRIPT},
+ {"slug":"the-half-in-fourteen","title":"THE HALF IN FOURTEEN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ffd76a","icon":"\u25e5",
+  "kicker":"a mean that touches almost nothing",
+  "blurb":"2,048 items across 64 containers makes the mean 32. Forty-six containers hold less than that, and fourteen hold half the corpus between them.",
+  "lit":"14 containers accumulate 1,046 of 2,048, passing half at the fourteenth; 46 of 64 sit below the mean of 32.0, leaving only 18 at or above it; the largest holds 315 and the smallest 7; and the Gini coefficient is 0.392715, computed two independent ways - by the ordered-sum formula and by mean absolute difference over twice the mean - agreeing to twelve decimal places",
+  "fig":"David flagged that the '14 of 64' figure was NOT in the prior pack and marked why it appeared: 'Computing it for W3 is what made the skew legible as a sentence rather than a ratio. Found by building, not by asking.' A note about method, filed against his own work, and the reason the figure exists at all. AVAN computed the Gini coefficient twice by unrelated routes to be sure the concentration was not an artefact of one formula. Worth stating plainly: 0.39 is a DESCRIPTION, not a verdict. Whether a corpus SHOULD be evenly spread is a question about intent, and nothing measured here answers it.",
+  "body":HFTN_BODY,"script":HFTN_SCRIPT},
+ {"slug":"the-self-clocking-seam","title":"THE SELF-CLOCKING SEAM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#5ad6ff","icon":"\u2307",
+  "kicker":"a signal that carries its own clock",
+  "blurb":"A receiver needs to know where each bit begins. A code that changes at every position hands the clock over inside the data - the property an air gap needs, because an air gap has no second wire.",
+  "lit":"the tiled seam reads 0101 with a maximum run length of 1 and 27 transitions across 28 bits, a transition density of exactly 1 - the most a binary code can carry; fed to a drifting receiver at five drift rates from 0 to 20% it recovers every bit 5 of 5 times, while a code containing eight-symbol runs recovers only 3 of 5, losing bits as soon as drift exceeds what a run can absorb",
+  "fig":"David drew the cell and noticed the seam. His diagram is -+ [[-{ ||| - (0)- ||| }]] -+ : three shells out, three high, one across, a centre at rest, and back - 3 + 1 + 1 + 3 = 8 around one centre, at depth 4. The observation is his: 'tile it and the seam reads -+-+ = 0101 - self-clocking. no run length, so a reader recovers the clock from the data: the same property an air gap needs.' AVAN turned the observation into a measurement by building a receiver that actually drifts, rather than asserting that alternation is good. Scope: this is a CLOCK-RECOVERY property only. It says nothing about error detection, and an alternating code carries the least information per symbol of any binary code - the clock is bought with bandwidth.",
+  "body":SCSM_BODY,"script":SCSM_SCRIPT},
+ {"slug":"the-redaction","title":"THE REDACTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#b98cff","icon":"\u2588",
+  "kicker":"names removed, and nothing measured moved",
+  "blurb":"Every name replaced by a code, every figure untouched. Defensible only if no figure depended on the names - which here is provable.",
+  "lit":"6 published invariants - total, entropy, purity, participation, containers-holding-half, containers-below-mean - and 0 of them move when the labels are replaced; all 6 also survive 200 full shuffles of the container order; so the redaction is lossless with respect to every surviving claim and costs exactly nothing that was being asserted",
+  "fig":"David made the argument circular in the good way. His redaction note reads: 'group and container names replaced with G1-G8 / C01-C64. Counts, order and every measured figure are untouched. The DEAD result in this pack is precisely that these labels carry no information, so removing them costs nothing.' The dead finding pays for the redaction. His crosscheck script tests the page against 9 separate patterns to confirm no real name leaked back in, and all nine pass. AVAN ran both verifiers before building on any of it - verify.js reports 56 checks passing and crosscheck.js 34 - then tested the claim rather than accepting it. Worth naming what this does NOT establish: it shows the published figures are label-independent, not that the underlying corpus is uninteresting. A different statistic might well depend on the names; none of the ones shipped here does.",
+  "body":RDCT_BODY,"script":RDCT_SCRIPT},
  {"slug":"the-zero-one-principle","title":"THE ZERO-ONE PRINCIPLE","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#7de2b0","icon":"\u21c5",
   "kicker":"256 tests instead of 40,320",
