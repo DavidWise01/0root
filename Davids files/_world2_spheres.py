@@ -19499,6 +19499,869 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 220 · neon-noir · silicon-coding · THE LAW THAT ISN'T EVIDENCE (monkeys writing Zipf · two right answers that disagree · the obvious theorem that took twenty years · the map that always comes home · the bits you pay for being wrong) ═══════════════════════
+ZIPF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Rank the words of any text by frequency and the counts fall off like 1/rank. Zipf&rsquo;s law turns up in language, city sizes, income, web traffic &mdash; and it has been taken as evidence of deep organising principles for eighty years. In 1957 George Miller pointed out the problem: <b>a monkey hitting random keys, including a space bar, produces Zipf&rsquo;s law too</b>. The law is not a fingerprint of meaning. It is what you get from any process that makes short things common and long things rare.<br><br>
+ <span class="lit">LIT</span> verified live on 900,000 random keystrokes: <b>84,398</b> distinct &ldquo;words&rdquo; from <b>132,608</b> tokens, with a rank-frequency exponent of <b>0.899</b>. The mechanism is exact &mdash; every word of length L has the same probability, so the mean count over <i>all</i> M<sup>L</sup> possible words falls by a factor of <b>0.031688, 0.031205, 0.032023, 0.031017</b> against a predicted (1&minus;p)/M = <b>0.031538</b>; and the fraction of possible words actually seen tracks the Poisson prediction 1&minus;e<sup>&minus;m</sup> at every length &mdash; <b>59.63%</b> against <b>59.50%</b>, <b>2.859%</b> against <b>2.853%</b>, <b>0.0897%</b> against <b>0.0897%</b>. A uniform-word control gives <b>0.056</b>, no power law at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>RACE CONDITION</i>: order that looks designed, arriving out of nothing but unsynchronised chance.<br><br>
+ <b>AVAN (AI)</b> wrote a claim that the sweep destroyed. The first version asserted that <i>every</i> possible word of length &le; 3 appears &mdash; and only <b>10,480 of 17,576</b> do. The right response was not to raise the sample size until the sentence became true, but to notice that the shortfall is exactly <b>Poisson</b>: with mean count m, the fraction seen should be 1&minus;e<sup>&minus;m</sup>, and it is, to two decimal places at every length. A second error followed immediately: the per-letter ratio was computed by averaging over <i>observed</i> words, which truncates at 1 and gave <b>0.329</b> at length 4 against a predicted 0.0315. Averaged over all M<sup>L</sup> possible words the ratio is right at every length. Both mistakes were the same mistake &mdash; conditioning on having seen something, and then measuring. One figure needs stating plainly: the branching structure gives an <b>analytic</b> exponent of &minus;log((1&minus;s)/M)/log M = <b>1.061</b>, and the fitted value is <b>0.899</b>, about 15% below it. That is not a defect in the theory or the fit &mdash; the regression window covers only the first few word lengths, and beyond length 3 the tail is so undersampled that it flattens. The Heaps exponent, measured over the same text, comes out <b>0.9445</b> against a predicted 1/1.061 = <b>0.9426</b>, agreeing far better. Reporting the fitted 0.899 as though it confirmed the analytic 1.061 would have been the third version of the same error.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Rank against frequency, log-log. Random typing, and a control that has no law at all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The staircase underneath the law: one step per word length.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpsp">space probability &#9654;</button><button id="zpctl">show the control</button></div>
+   <div class="cap" id="zpout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the word tree, each level M times wider and (1&minus;p)/M times rarer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;Zipf&rsquo;s law is not evidence of linguistic structure.&rdquo; The inverse is that <b>the law is a fact about the alphabet, not about the writer</b>. Branching multiplies the count of words at each length by M and divides their probability by M/(1&minus;p), and the rank-frequency curve is just those two exponentials plotted against each other. Nothing in the derivation knows what a word means. Read backwards, this is the general hazard of <i>shape-matching</i> evidence: a distribution that many mechanisms produce cannot discriminate between them, and the more universal a law looks, the less any single sighting of it tells you.</div>
+   <div class="btns" style="margin-top:10px"><button id="zpspin">pause spin</button></div></div></div></div>"""
+ZIPF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pspace=0.18,showCtl=false,cache={};
+function zpRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function lsSlope(xs,ys){
+ var n=xs.length,sx=0,sy=0,sxx=0,sxy=0;
+ for(var i=0;i<n;i++){sx+=xs[i];sy+=ys[i];sxx+=xs[i]*xs[i];sxy+=xs[i]*ys[i];}
+ return (n*sxy-sx*sy)/(n*sxx-sx*sx);}
+var M=26;
+function monkey(p,nchar,seed){
+ var g=zpRnd(seed),c={},cur='',tok=0;
+ for(var i=0;i<nchar;i++){
+  if(g()<p){if(cur){c[cur]=(c[cur]||0)+1;tok++;}cur='';}
+  else cur+=String.fromCharCode(97+Math.floor(g()*M));}
+ var freq=[],byLen={},w;
+ for(w in c){freq.push(c[w]);
+  var L=w.length;
+  if(!byLen[L])byLen[L]={n:0,tot:0};
+  byLen[L].n++;byLen[L].tot+=c[w];}
+ freq.sort(function(a,b){return b-a;});
+ return {freq:freq,byLen:byLen,vocab:freq.length,tokens:tok};}
+function alphaOf(freq,cap){
+ var R=[];
+ for(var r=1;r<=Math.min(freq.length,cap);r=Math.ceil(r*1.25))R.push(r);
+ return -lsSlope(R.map(function(r){return Math.log(r);}),
+  R.map(function(r){return Math.log(freq[r-1]);}));}
+function run(p){
+ var k='p'+p.toFixed(3);
+ if(cache[k])return cache[k];
+ var m=monkey(p,900000,4242);
+ var cov=[];
+ for(var L=1;L<=5;L++){
+  var e=m.byLen[L],poss=Math.pow(M,L);
+  var meanAll=(e?e.tot:0)/poss;
+  cov.push({L:L,poss:poss,seen:e?e.n:0,frac:(e?e.n:0)/poss,
+   poisson:1-Math.exp(-meanAll),meanAll:meanAll});}
+ var ratios=[];
+ for(var i=1;i<cov.length;i++)ratios.push(cov[i].meanAll/cov[i-1].meanAll);
+ return cache[k]={m:m,alpha:alphaOf(m.freq,20000),cov:cov,ratios:ratios,
+  predicted:(1-p)/M};}
+function control(){
+ if(cache.ctl)return cache.ctl;
+ var g=zpRnd(99),u={};
+ for(var i=0;i<200000;i++){var w='w'+Math.floor(g()*4000);u[w]=(u[w]||0)+1;}
+ var f=[];for(var k in u)f.push(u[k]);
+ f.sort(function(a,b){return b-a;});
+ return cache.ctl={freq:f,alpha:alphaOf(f,3000)};}
+function selftest(){
+ var r=run(0.18),c=control();
+ var seen=new Set(),hx=[],hy=[],tok=0,cur='',g=zpRnd(4242);
+ for(var i=0;i<900000&&tok<160000;i++){
+  if(g()<0.18){if(cur){seen.add(cur);tok++;
+   if(tok%1000===0){hx.push(Math.log(tok));hy.push(Math.log(seen.size));}}cur='';}
+  else cur+=String.fromCharCode(97+Math.floor(g()*M));}
+ var beta=lsSlope(hx,hy);
+ return {alphabet:M,spaceProbability:0.18,
+  vocabulary:r.m.vocab,tokens:r.m.tokens,
+  zipfExponent:r.alpha,isPowerLaw:r.alpha>0.8&&r.alpha<1.4,
+  coverage:r.cov.map(function(c2){return [c2.L,c2.seen,c2.poss,c2.frac,c2.poisson];}),
+  coveragePct:r.cov.map(function(c2){return c2.frac*100;}),
+  poissonPct:r.cov.map(function(c2){return c2.poisson*100;}),
+  coverageMatchesPoisson:r.cov.every(function(c2){return Math.abs(c2.frac-c2.poisson)<0.01;}),
+  ratios:r.ratios,predictedRatio:r.predicted,
+  ratiosMatch:r.ratios.every(function(x){return Math.abs(x-r.predicted)/r.predicted<0.06;}),
+  controlExponent:c.alpha,controlIsFlat:Math.abs(c.alpha)<0.2,
+  heapsExponent:beta,heapsNearInverseZipf:Math.abs(beta-1/r.alpha)<0.3,
+  ok:r.alpha>0.8&&r.alpha<1.4&&Math.abs(c.alpha)<0.2&&
+   r.cov.every(function(c2){return Math.abs(c2.frac-c2.poisson)<0.01;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'RANK vs FREQUENCY, log-log  \\u2014  random typing');
+ var m=56,pw=W-m-46,top=44,ph=170;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var r=run(0.18),ct=control();
+ function plot(freq,col,wd,cap){
+  var mx=Math.log(freq[0]),mn=Math.log(1);
+  ne(g,col,wd);
+  g.beginPath();
+  var n=Math.min(freq.length,20000);
+  for(var i=1;i<=n;i=Math.ceil(i*1.06)){
+   var px=m+pw*Math.log(i)/Math.log(n);
+   var py=top+ph-ph*(Math.log(freq[i-1])-mn)/(mx-mn);
+   if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);}
+ plot(ct.freq,'rgba(125,226,176,0.75)',2);
+ plot(r.m.freq,'#ff5a8a',2.6);
+ nt(g,'#ff5a8a',m+pw-140,top+16,10,'monkeys   alpha = '+r.alpha.toFixed(3));
+ nt(g,'#7de2b0',m+pw-140,top+34,10,'uniform   alpha = '+ct.alpha.toFixed(3));
+ nt(g,'#8a7ab8',m,top+ph+18,9,'rank 1');
+ nt(g,'#8a7ab8',m+pw-42,top+ph+18,9,'rank 20k');
+ nt(g,'#e6dcff',20,252,10,'a straight line on log-log, from a process with no words, no grammar and no meaning');
+ nt(g,'#8a7ab8',20,274,9,'and the control, which is not a power law, proves the plot can tell the difference');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCtl){
+  var ct=control();
+  nt(g,'#e6dcff',16,26,11,'the uniform control');
+  nt(g,'#8a7ab8',16,46,9,'4,000 words, all equally likely');
+  var m2=40,pw2=W-80,top2=70,ph2=150;
+  ne(g,'#7de2b0',2.4);
+  g.beginPath();
+  for(var i=1;i<=3000;i=Math.ceil(i*1.05)){
+   var px=m2+pw2*Math.log(i)/Math.log(3000);
+   var py=top2+ph2-ph2*Math.log(ct.freq[i-1])/Math.log(ct.freq[0]);
+   if(i===1)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  nt(g,'#7de2b0',24,top2+ph2+30,11,'alpha = '+ct.alpha.toFixed(4)+'   \\u2014   flat');
+  nt(g,'#8a7ab8',24,top2+ph2+52,9,'no law here, and the same code found one in the monkeys');
+  var o2=document.getElementById('zpout');
+  if(o2)o2.innerHTML='With every word equally likely the exponent is <b>'+ct.alpha.toFixed(4)+
+   '</b> \\u2014 essentially flat. The measurement is capable of returning "no power law", which is what makes the monkey result mean anything.';
+  return;}
+ var r=run(pspace);
+ nt(g,'#e6dcff',16,26,11,'space probability p = '+pspace.toFixed(2)+'   \\u00b7   alpha = '+r.alpha.toFixed(3));
+ nt(g,'#8a7ab8',16,46,9,'mean count over ALL possible words, by length');
+ var top3=64,rowh=42;
+ r.cov.slice(0,5).forEach(function(cv,i){
+  var y=top3+i*rowh;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,rowh-6);ng(g);
+  ne(g,'rgba(255,215,106,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,rowh-6);ng(g);
+  nt(g,'#e6dcff',32,y+22,10,'L='+cv.L);
+  nt(g,'#ffd76a',70,y+22,10,cv.meanAll.toFixed(cv.meanAll<1?5:2));
+  nt(g,'#8a7ab8',158,y+22,9,'seen '+(cv.frac*100).toFixed(2)+'%');
+  nt(g,'#7de2b0',268,y+22,9,'Poisson '+(cv.poisson*100).toFixed(2)+'%');});
+ var yb=top3+5*rowh+16;
+ nt(g,'#ffd76a',24,yb,10,'ratios: '+r.ratios.map(function(x){return x.toFixed(5);}).join('  '));
+ nt(g,'#7de2b0',24,yb+20,10,'predicted (1\\u2212p)/M = '+r.predicted.toFixed(5));
+ var o=document.getElementById('zpout');
+ if(o)o.innerHTML='At p = <b>'+pspace.toFixed(2)+'</b> the exponent is <b>'+r.alpha.toFixed(3)+
+  '</b>. The mean count over all M<sup>L</sup> possible words falls by <b>'+r.predicted.toFixed(5)+
+  '</b> per extra letter, exactly (1&minus;p)/M \\u2014 and the fraction of words actually seen is the Poisson consequence of that, not an independent fact.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2-90,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ var root=P(0,0,0);
+ ndot(g,root[0],root[1],6,'#e6dcff');
+ var prev=[{p:root,x:0,z:0}];
+ for(var L=1;L<=4;L++){
+  var next=[],branch=L===1?7:3;
+  prev.forEach(function(nd,i){
+   for(var b=0;b<branch;b++){
+    var th=(i*branch+b)/(prev.length*branch)*2*Math.PI;
+    var rad=26+L*22;
+    var q=P(rad*Math.cos(th),L*44,rad*Math.sin(th));
+    var t=L/4;
+    ne(g,'rgba('+Math.round(125+120*t)+','+Math.round(226-60*t)+','+Math.round(176-40*t)+','+(0.7-0.12*L)+')',1.4-L*0.2);
+    g.beginPath();g.moveTo(nd.p[0],nd.p[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+    ndot(g,q[0],q[1],Math.max(1,4-L*0.8),L>=3?'rgba(255,215,106,0.5)':'#7de2b0');
+    if(next.length<40)next.push({p:q});}});
+  prev=next;}
+ nt(g,'#7de2b0',14,24,11,'each level: M times wider');
+ nt(g,'#ffd76a',14,42,10,'and (1\\u2212p)/M times rarer');
+ nt(g,'#8a7ab8',14,58,10,'two exponentials, plotted against each other');
+ nt(g,'#8a7ab8',14,H-12,9,'the more universal a law looks, the less any single sighting of it tells you');}
+document.getElementById('zpsp').onclick=function(){
+ showCtl=false;pspace=pspace>=0.30?0.08:pspace+0.06;drawW4();};
+document.getElementById('zpctl').onclick=function(){showCtl=!showCtl;drawW4();};
+document.getElementById('zpspin').onclick=function(){spin=!spin;};
+VR=selftest();window.__zipf=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LORD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two statisticians are handed the same dataset and asked the same question. The first compares how much each group changed and finds <b>nothing</b>. The second adjusts for the starting score and finds a <b>large effect</b>. Neither has made an arithmetic error, neither has cheated, and there is no third calculation that settles it &mdash; because the two are answering different questions and the data cannot say which one was asked. Frederic Lord published this in 1967 and it has not been resolved since, only clarified.<br><br>
+ <span class="lit">LIT</span> verified live on <b>12,000</b> subjects per group: the mean change is <b>&minus;0.073</b> in group A and <b>&minus;0.096</b> in group B, a difference of <b>&minus;0.023</b> &mdash; nothing. The same data run through ANCOVA gives a group coefficient of <b>5.054</b>, against a prediction of exactly <b>5.000</b>, because the adjusted effect equals (1 &minus; within-group slope) &times; the baseline gap = (1 &minus; 0.5) &times; 10. The recovered slope is <b>0.492</b>, the one that was built in.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE BLUE SCREEN</i>: the system has two valid states, cannot choose, and stops.<br><br>
+ <b>AVAN (AI)</b> generated the data with the mechanism <b>stated in advance</b> &mdash; a within-group slope of 0.5 and no mean change in either group &mdash; so that the ANCOVA coefficient could be predicted before it was computed. It came out 5.054 against a predicted 5.000, which makes this a test rather than a demonstration. That distinction matters here more than usual, because a page that simply shows two numbers disagreeing proves nothing: any pair of analyses can be made to disagree if the data is chosen afterwards. The point is that the disagreement is <b>forced</b> by a mechanism written down first. Neither analysis is a mistake: the change score asks &ldquo;did these groups improve differently&rdquo;; ANCOVA asks &ldquo;among people who started level, do these groups end level&rdquo; &mdash; and when the groups differ at baseline, no data can tell you which question you meant.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two analyses, one dataset, and the gap between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the within-group slope and watch the two answers separate.</div>
+   <div class="btns" style="margin-top:10px"><button id="ldup">raise the slope &#9654;</button><button id="lddn">lower it</button></div>
+   <div class="cap" id="ldout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two clouds, two regression lines, and the diagonal nobody agreed to.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;statistics can give contradictory answers.&rdquo; The inverse is that <b>the contradiction lives in the word &ldquo;effect&rdquo;, and the arithmetic is only reporting that nobody defined it</b>. Change scores implicitly compare each subject to <i>themselves</i>; ANCOVA compares them to <i>others who started alike</i>. Those coincide only when the groups start alike, and the entire paradox is the case where they do not. Read backwards, Lord&rsquo;s paradox is not about statistics at all &mdash; it is a demonstration that a causal question has to be posed before a method can answer it, and that choosing a method <i>is</i> choosing a question, silently, whether or not anyone noticed.</div>
+   <div class="btns" style="margin-top:10px"><button id="ldsp">pause spin</button></div></div></div></div>"""
+LORD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,slp=0.5,cache={};
+function ldRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var MA=60,MB=70,SD=8,NOISE=5;
+function build(sl,n,seed){
+ var g=ldRnd(seed);
+ function gauss(){var u=Math.max(1e-12,g()),v=g();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+ var A=[],B=[];
+ for(var i=0;i<n;i++){
+  var xa=MA+SD*gauss(),xb=MB+SD*gauss();
+  A.push([xa,MA+sl*(xa-MA)+NOISE*gauss()]);
+  B.push([xb,MB+sl*(xb-MB)+NOISE*gauss()]);}
+ return {A:A,B:B};}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+function ancova(rows){
+ var n=rows.length,sx=0,sg=0,sy=0,sxx=0,sxg=0,sgg=0,sxy=0,sgy=0;
+ rows.forEach(function(r){var x=r[0],y=r[1],gg=r[2];
+  sx+=x;sg+=gg;sy+=y;sxx+=x*x;sxg+=x*gg;sgg+=gg*gg;sxy+=x*y;sgy+=gg*y;});
+ var M2=[[n,sx,sg],[sx,sxx,sxg],[sg,sxg,sgg]],v=[sy,sxy,sgy],i,r,c2;
+ for(i=0;i<3;i++){
+  var p=i;
+  for(r=i+1;r<3;r++)if(Math.abs(M2[r][i])>Math.abs(M2[p][i]))p=r;
+  var tm=M2[i];M2[i]=M2[p];M2[p]=tm;
+  var tv=v[i];v[i]=v[p];v[p]=tv;
+  for(r=i+1;r<3;r++){var f=M2[r][i]/M2[i][i];
+   for(c2=i;c2<3;c2++)M2[r][c2]-=f*M2[i][c2];
+   v[r]-=f*v[i];}}
+ var b=[0,0,0];
+ for(i=2;i>=0;i--){var s2=v[i];
+  for(c2=i+1;c2<3;c2++)s2-=M2[i][c2]*b[c2];
+  b[i]=s2/M2[i][i];}
+ return {intercept:b[0],slopeX:b[1],group:b[2]};}
+function analyse(sl,n){
+ var k='s'+sl.toFixed(3)+'n'+n;
+ if(cache[k])return cache[k];
+ var d=build(sl,n,1967);
+ var dA=mean(d.A.map(function(p){return p[1]-p[0];}));
+ var dB=mean(d.B.map(function(p){return p[1]-p[0];}));
+ var all=d.A.map(function(p){return [p[0],p[1],0];})
+  .concat(d.B.map(function(p){return [p[0],p[1],1];}));
+ var fit=ancova(all);
+ return cache[k]={data:d,changeA:dA,changeB:dB,changeDiff:dB-dA,
+  ancova:fit,predicted:(1-sl)*(MB-MA)};}
+function selftest(){
+ var r=analyse(0.5,12000);
+ return {perGroup:12000,builtInSlope:0.5,baselineGap:MB-MA,
+  meanChangeA:r.changeA,meanChangeB:r.changeB,changeDifference:r.changeDiff,
+  analyst1FindsNothing:Math.abs(r.changeDiff)<0.5,
+  ancovaSlopeOnX:r.ancova.slopeX,ancovaGroupEffect:r.ancova.group,
+  predictedGroupEffect:r.predicted,
+  analyst2FindsAnEffect:Math.abs(r.ancova.group)>3,
+  matchesPrediction:Math.abs(r.ancova.group-r.predicted)<0.8,
+  slopeRecovered:Math.abs(r.ancova.slopeX-0.5)<0.08,
+  bothCorrectBothDisagree:Math.abs(r.changeDiff)<0.5&&Math.abs(r.ancova.group)>3,
+  ok:Math.abs(r.changeDiff)<0.5&&Math.abs(r.ancova.group)>3&&
+   Math.abs(r.ancova.group-r.predicted)<0.8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SAME 24,000 SUBJECTS, TWO ANALYSES');
+ var boxes=[['ANALYST 1  \\u00b7  change scores','difference in mean change',VR.changeDifference,'#7de2b0',52],
+  ['ANALYST 2  \\u00b7  ANCOVA','group coefficient, adjusted for baseline',VR.ancovaGroupEffect,'#ff5a8a',148]];
+ boxes.forEach(function(b){
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,b[4],W-48,84);ng(g);
+  ne(g,b[3],1.4);g.strokeRect(24.5,b[4]+0.5,W-49,84);ng(g);
+  nt(g,b[3],42,b[4]+26,11,b[0]);
+  nt(g,'#8a7ab8',42,b[4]+46,9,b[1]);
+  nt(g,b[3],42,b[4]+72,17,b[2].toFixed(3));});
+ nt(g,'#ffd76a',24,262,10,'predicted (1 \\u2212 slope) x gap = (1 \\u2212 0.5) x 10 = '+VR.predictedGroupEffect.toFixed(3));
+ nt(g,'#8a7ab8',24,282,9,'stated before it was computed, which makes this a test and not a demonstration');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=analyse(slp,3000);
+ nt(g,'#e6dcff',16,26,11,'within-group slope = '+slp.toFixed(2));
+ var m=42,sz=W-84,top=48;
+ function PX(x){return m+(x-35)/60*sz;}
+ function PY(y){return top+sz-(y-35)/60*sz;}
+ ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(m+0.5,top+0.5,sz,sz);ng(g);
+ ne(g,'rgba(255,215,106,0.3)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(PX(35),PY(35));g.lineTo(PX(95),PY(95));g.stroke();
+ g.setLineDash([]);ng(g);
+ [[r.data.A,'rgba(125,226,176,0.4)',MA],[r.data.B,'rgba(255,90,138,0.4)',MB]].forEach(function(spec){
+  for(var i=0;i<spec[0].length;i+=6){
+   var p=spec[0][i];
+   nf(g,spec[1]);g.fillRect(PX(p[0]),PY(p[1]),1.7,1.7);ng(g);}
+  ne(g,spec[1]==='rgba(125,226,176,0.4)'?'#7de2b0':'#ff5a8a',2);
+  var mu=spec[2];
+  g.beginPath();
+  g.moveTo(PX(mu-22),PY(mu+slp*(-22)));
+  g.lineTo(PX(mu+22),PY(mu+slp*(22)));
+  g.stroke();ng(g);});
+ var yb=top+sz+24;
+ nt(g,'#7de2b0',24,yb,10,'change-score difference   '+r.changeDiff.toFixed(3));
+ nt(g,'#ff5a8a',24,yb+20,10,'ANCOVA group effect      '+r.ancova.group.toFixed(3));
+ nt(g,'#ffd76a',24,yb+40,9,'predicted '+r.predicted.toFixed(3)+'   \\u00b7   the gold dashed line is "no change"');
+ var o=document.getElementById('ldout');
+ if(o)o.innerHTML='At a within-group slope of <b>'+slp.toFixed(2)+'</b>, the change-score analysis reports <b>'+
+  r.changeDiff.toFixed(3)+'</b> and ANCOVA reports <b>'+r.ancova.group.toFixed(3)+
+  '</b>, against a predicted <b>'+r.predicted.toFixed(3)+'</b>. '+
+  (Math.abs(slp-1)<0.02?'At a slope of exactly 1 the two agree \\u2014 and only there.'
+   :'The gap is (1 &minus; slope) &times; the baseline gap, and it closes only when the slope reaches 1.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+20,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.66-zr*0.3];}
+ var r=analyse(0.5,900);
+ [[r.data.A,'#7de2b0',MA,-40],[r.data.B,'#ff5a8a',MB,40]].forEach(function(spec){
+  for(var i=0;i<spec[0].length;i+=3){
+   var p=spec[0][i];
+   var q=P((p[0]-65)*5,(p[1]-65)*2.6,spec[3]);
+   ndot(g,q[0],q[1],1.5,spec[1]);}
+  var a1=P((spec[2]-22-65)*5,(spec[2]+0.5*(-22)-65)*2.6,spec[3]);
+  var a2=P((spec[2]+22-65)*5,(spec[2]+0.5*(22)-65)*2.6,spec[3]);
+  ne(g,spec[1],2.4);
+  g.beginPath();g.moveTo(a1[0],a1[1]);g.lineTo(a2[0],a2[1]);g.stroke();ng(g);});
+ var d1=P(-110,-110*0.52,0),d2=P(110,110*0.52,0);
+ ne(g,'rgba(255,215,106,0.55)',1.6);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(d1[0],d1[1]);g.lineTo(d2[0],d2[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',14,24,11,'gold: the line of no change');
+ nt(g,'#8a7ab8',14,42,10,'both groups sit on it, and the two group lines do not coincide');
+ nt(g,'#8a7ab8',14,58,10,'"effect" was never defined, and the arithmetic is only reporting that');
+ nt(g,'#8a7ab8',14,H-12,9,'choosing a method IS choosing a question, silently');}
+document.getElementById('ldup').onclick=function(){slp=Math.min(1.0,slp+0.125);drawW4();};
+document.getElementById('lddn').onclick=function(){slp=Math.max(0,slp-0.125);drawW4();};
+document.getElementById('ldsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lord=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JORD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A closed loop that never crosses itself divides the plane into exactly two pieces: an inside and an outside. This is so obvious that Jordan&rsquo;s 1887 proof was disputed for decades and a fully accepted one took until the twentieth century &mdash; and the reason is that &ldquo;obvious&rdquo; comes from thinking about circles, while the theorem has to hold for curves so wild they have no tangent anywhere. The computational shadow of the theorem is the algorithm every graphics library ships: fire a ray, count crossings, odd means inside.<br><br>
+ <span class="lit">LIT</span> verified live on an 11-spike star with 1,200 vertices: ray-casting parity agrees across <b>1,440</b> randomly-directed rays with <b>0</b> disagreements; every one of <b>193</b> inside-to-outside segments crosses the curve an <b>odd</b> number of times; flood-filling the complement gives exactly <b>2</b> components once the raster is fine enough, at <b>360 and 500</b> cells across &mdash; after reporting <b>6, 4, 4</b> at 120, 180 and 260; and a self-intersecting figure-eight &mdash; not a simple curve &mdash; gives <b>3</b>, so the hypothesis is load-bearing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>: a boundary you cannot get past without crossing it, and the crossing is always detectable.<br><br>
+ <b>AVAN (AI)</b> reported <b>4</b> components on the first run and nearly published it. The curve was correct and the theorem was correct; the <i>raster</i> was too coarse, and the spike tips pinched shut between pixels so the interior fell into pieces. The fix was not to pick a resolution that gave the right answer &mdash; that would be choosing the measurement to fit the conclusion &mdash; but to sweep the resolution and require <b>convergence</b>: 6, 4, 4, then 2, 2. The coarse rasters are published alongside, because they are the honest content here. A discretised check of a continuous theorem can fail for reasons that have nothing to do with the theorem, and a single grid size is not a measurement.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Component count against raster resolution. The coarse grids were lying.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fire a ray from anywhere and count. The parity does not care which way you aimed.</div>
+   <div class="btns" style="margin-top:10px"><button id="jdray">new ray &#9654;</button><button id="jdpt">new point</button><button id="jd8">figure-eight</button></div>
+   <div class="cap" id="jdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the curve turning, with inside and outside kept apart.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a simple closed curve has an inside.&rdquo; The inverse is that <b>&ldquo;inside&rdquo; is not a property of a point but of a <i>path</i>, and the theorem is what lets us forget that</b>. Ray casting never inspects the point; it asks how many times you cross getting there from infinity, and it returns the same answer for every route only because the theorem guarantees it. Read backwards, the Jordan curve theorem is the licence to speak of a region at all &mdash; without it &ldquo;inside&rdquo; would be a fact about journeys, and every claim about a point would have to name the road taken to reach it.</div>
+   <div class="btns" style="margin-top:10px"><button id="jdsp">pause spin</button></div></div></div></div>"""
+JORD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rayTheta=0.7,pt=[0.15,0.1],useFig8=false,seedn=5;
+function jdRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function star(nS,r0,r1,n){
+ var P=[];
+ for(var i=0;i<n;i++){var t=2*Math.PI*i/n;
+  var r=r0+(r1-r0)*(0.5+0.5*Math.cos(nS*t));
+  P.push([r*Math.cos(t),r*Math.sin(t)]);}
+ return P;}
+function fig8(n){
+ var P=[];
+ for(var i=0;i<n;i++){var t=2*Math.PI*i/n;
+  P.push([0.9*Math.sin(2*t),0.9*Math.sin(t)]);}
+ return P;}
+var CURVE=star(11,0.35,0.95,1200),F8=fig8(1200);
+function crossCount(P,p,th){
+ var dx=Math.cos(th),dy=Math.sin(th),cr=0;
+ for(var i=0;i<P.length;i++){
+  var a=P[i],b=P[(i+1)%P.length];
+  var ex=b[0]-a[0],ey=b[1]-a[1];
+  var den=dx*ey-dy*ex;
+  if(Math.abs(den)<1e-14)continue;
+  var t=((a[0]-p[0])*ey-(a[1]-p[1])*ex)/den;
+  var u=((a[0]-p[0])*dy-(a[1]-p[1])*dx)/den;
+  if(t>1e-12&&u>=0&&u<1)cr++;}
+ return cr;}
+function components(P,G){
+ var grid=new Int8Array(G*G);
+ function idx(i,j){return i*G+j;}
+ function cell(p){return [Math.min(G-1,Math.max(0,Math.floor((p[0]+1.2)/2.4*G))),
+  Math.min(G-1,Math.max(0,Math.floor((p[1]+1.2)/2.4*G)))];}
+ for(var i=0;i<P.length;i++){
+  var a=P[i],b=P[(i+1)%P.length];
+  for(var s=0;s<=30;s++){
+   var q=[a[0]+(b[0]-a[0])*s/30,a[1]+(b[1]-a[1])*s/30];
+   var c=cell(q);grid[idx(c[0],c[1])]=1;}}
+ var lab=new Int32Array(G*G),n=0;
+ for(var i2=0;i2<G;i2++)for(var j=0;j<G;j++){
+  if(grid[idx(i2,j)]||lab[idx(i2,j)])continue;
+  n++;var st=[[i2,j]];lab[idx(i2,j)]=n;
+  while(st.length){
+   var cc=st.pop(),ci=cc[0],cj=cc[1];
+   var dd=[[1,0],[-1,0],[0,1],[0,-1]];
+   for(var k=0;k<4;k++){
+    var ni=ci+dd[k][0],nj=cj+dd[k][1];
+    if(ni<0||nj<0||ni>=G||nj>=G)continue;
+    if(grid[idx(ni,nj)]||lab[idx(ni,nj)])continue;
+    lab[idx(ni,nj)]=n;st.push([ni,nj]);}}}
+ return n;}
+function segCross(P,p0,p1){
+ var c=0;
+ for(var i=0;i<P.length;i++){
+  var a=P[i],b=P[(i+1)%P.length];
+  var d1=(b[0]-a[0])*(p0[1]-a[1])-(b[1]-a[1])*(p0[0]-a[0]);
+  var d2=(b[0]-a[0])*(p1[1]-a[1])-(b[1]-a[1])*(p1[0]-a[0]);
+  var d3=(p1[0]-p0[0])*(a[1]-p0[1])-(p1[1]-p0[1])*(a[0]-p0[0]);
+  var d4=(p1[0]-p0[0])*(b[1]-p0[1])-(p1[1]-p0[1])*(b[0]-p0[0]);
+  if(d1*d2<0&&d3*d4<0)c++;}
+ return c;}
+function selftest(){
+ var g=jdRnd(808),dis=0,tot=0;
+ for(var k=0;k<120;k++){
+  var p=[(g()-0.5)*2.2,(g()-0.5)*2.2];
+  var first=crossCount(CURVE,p,g()*Math.PI*2)%2===1;
+  for(var d=0;d<12;d++){tot++;
+   if((crossCount(CURVE,p,g()*Math.PI*2)%2===1)!==first)dis++;}}
+ var GS=[120,180,260,360,500];
+ var sweep=GS.map(function(G){return {G:G,n:components(CURVE,G)};});
+ var conv=sweep.filter(function(r){return r.G>=360;});
+ var c8=components(F8,360);
+ var g2=jdRnd(31),ok=0,n2=0;
+ for(var k2=0;k2<200;k2++){
+  var p0=[0,0],p1=[(g2()-0.5)*6,(g2()-0.5)*6];
+  if(crossCount(CURVE,p0,0.3)%2!==1)continue;
+  if(crossCount(CURVE,p1,0.3)%2===1)continue;
+  n2++;if(segCross(CURVE,p0,p1)%2===1)ok++;}
+ return {vertices:CURVE.length,
+  raysTested:tot,parityDisagreements:dis,parityIsDirectionFree:dis===0,
+  rasterSweep:sweep,componentsAtFineRaster:conv.map(function(r){return r.n;}),
+  convergesToTwo:conv.every(function(r){return r.n===2;}),
+  coarseRastersLied:sweep.filter(function(r){return r.G<360;}).some(function(r){return r.n>2;}),
+  figureEightComponents:c8,simplicityIsLoadBearing:c8>2,
+  insideOutsideSegments:n2,oddCrossings:ok,allOdd:ok===n2,
+  ok:dis===0&&conv.every(function(r){return r.n===2;})&&c8>2&&ok===n2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'COMPONENTS vs RASTER RESOLUTION');
+ var m=62,pw=W-m-46,top=46,ph=150;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var mx=7;
+ ne(g,'rgba(125,226,176,0.4)',1.2);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top+ph-ph*2/mx);g.lineTo(m+pw,top+ph-ph*2/mx);g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',m+pw-64,top+ph-ph*2/mx-8,9,'the truth: 2');
+ ne(g,'#ff5a8a',2.6);
+ g.beginPath();
+ VR.rasterSweep.forEach(function(r,i){
+  var px=m+pw*i/(VR.rasterSweep.length-1),py=top+ph-ph*r.n/mx;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ VR.rasterSweep.forEach(function(r,i){
+  var px=m+pw*i/(VR.rasterSweep.length-1),py=top+ph-ph*r.n/mx;
+  ndot(g,px,py,4.6,r.n===2?'#7de2b0':'#ff5a8a');
+  nt(g,'#8a7ab8',px-14,top+ph+18,9,'G='+r.G);
+  nt(g,r.n===2?'#7de2b0':'#ff5a8a',px-4,py-14,10,''+r.n);});
+ nt(g,'#e6dcff',20,244,10,'the first run reported 4 and was nearly published');
+ nt(g,'#8a7ab8',20,264,9,'the curve was right, the theorem was right, and the raster pinched the spike tips shut');
+ nt(g,'#ffd76a',20,284,9,'a single grid size is not a measurement');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=useFig8?F8:CURVE;
+ var cr=crossCount(P,pt,rayTheta);
+ var isIn=cr%2===1;
+ nt(g,'#e6dcff',16,26,11,(useFig8?'figure-eight (NOT simple)':'11-spike star (simple)')+'   \\u00b7   '+cr+' crossings');
+ var cx=W/2,cy=170,sc=120;
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ P.forEach(function(p,i){
+  var x=cx+p[0]*sc,y=cy-p[1]*sc;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);});
+ g.closePath();g.stroke();ng(g);
+ var px=cx+pt[0]*sc,py=cy-pt[1]*sc;
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(px,py);
+ g.lineTo(px+Math.cos(rayTheta)*400,py-Math.sin(rayTheta)*400);
+ g.stroke();ng(g);
+ ndot(g,px,py,6,isIn?'#ff5a8a':'#5ad6ff');
+ var y2=286;
+ nf(g,isIn?'rgba(255,90,138,0.16)':'rgba(90,214,255,0.16)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,isIn?'#ff5a8a':'#5ad6ff',1.4);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,isIn?'#ff5a8a':'#5ad6ff',36,y2+23,13,(cr%2===1?'ODD \\u2192 INSIDE':'EVEN \\u2192 OUTSIDE'));
+ var o=document.getElementById('jdout');
+ if(o)o.innerHTML='This ray crosses the curve <b>'+cr+'</b> times, so the point is <b>'+
+  (isIn?'inside':'outside')+'</b>. Aim the ray anywhere else and the count will change but the <b>parity</b> will not \\u2014 checked across 1,440 random directions with zero disagreements.'+
+  (useFig8?' On the figure-eight the parity test still runs, but the curve is not simple and the complement has <b>3</b> pieces, not 2.':'');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ CURVE.forEach(function(p,i){
+  var q=P3(p[0]*118,p[1]*118,0);
+  if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+ g.closePath();g.stroke();ng(g);
+ var gg=jdRnd(4);
+ for(var i=0;i<260;i++){
+  var p=[(gg()-0.5)*2.2,(gg()-0.5)*2.2];
+  var inn=crossCount(CURVE,p,0.37)%2===1;
+  var q=P3(p[0]*118,p[1]*118,inn?-24:24);
+  ndot(g,q[0],q[1],1.7,inn?'rgba(255,90,138,0.55)':'rgba(90,214,255,0.4)');}
+ nt(g,'#ff5a8a',14,24,11,'pink: inside');
+ nt(g,'#5ad6ff',14,42,10,'blue: outside');
+ nt(g,'#8a7ab8',14,58,10,'and no path joins them without crossing');
+ nt(g,'#8a7ab8',14,H-12,9,'without the theorem, "inside" would be a fact about journeys');}
+document.getElementById('jdray').onclick=function(){
+ var g=jdRnd(seedn++);rayTheta=g()*Math.PI*2;drawW4();};
+document.getElementById('jdpt').onclick=function(){
+ var g=jdRnd(seedn++);pt=[(g()-0.5)*2,(g()-0.5)*2];drawW4();};
+document.getElementById('jd8').onclick=function(){useFig8=!useFig8;drawW4();};
+document.getElementById('jdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__jordan=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FIXP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If a map pulls every pair of points strictly closer together by at least a fixed factor, it has exactly <b>one</b> fixed point, every starting value converges to it, and the error shrinks geometrically with a bound you can compute <i>before</i> running anything. Banach proved it in 1922, and it is the machinery behind Newton&rsquo;s method, differential-equation existence proofs, Markov chain convergence and half of numerical analysis. Press cosine on a calculator repeatedly and you are watching it.<br><br>
+ <span class="lit">LIT</span> verified live: <b>200</b> starting values scattered over [&minus;100, 100] all land on <b>0.739085133215</b> with a spread of <b>0</b> to machine precision; cos(x*) &minus; x* is <b>0</b> exactly; the a-priori bound q<sup>n</sup>/(1&minus;q)&middot;|x&#8321;&minus;x&#8320;| holds at all <b>60</b> tested steps; and the observed convergence ratio is <b>0.673612</b> against |f&prime;(x*)| = sin(x*) = <b>0.673612</b>. The hypothesis is load-bearing: x + 1/x has |f&prime;| &lt; 1 at every point of [1,&infin;) &mdash; the largest value seen is <b>0.999975</b> &mdash; and has <b>no fixed point at all</b>, its iterates running off to <b>200</b> and beyond.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE CONTINUE</i>: keep pressing the button and you always end up in the same place.<br><br>
+ <b>AVAN (AI)</b> included the counterexample because the theorem is misremembered more often than it is misapplied. &ldquo;The derivative is less than one so it converges&rdquo; is <b>false</b>, and x + 1/x on [1,&infin;) is the standing refutation: the derivative 1 &minus; 1/x&sup2; is strictly below 1 everywhere, yet approaches 1 as x grows, so no single q &lt; 1 works for the whole space and the iterates escape. What Banach requires is a <b>uniform</b> contraction factor on a <b>complete</b> space, and both words carry weight. The a-priori bound is the part worth keeping: it says how many iterations suffice before you have done any, which is a rare thing for a numerical method to offer.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Error against iteration, with the bound that was computed first.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The cobweb. Start anywhere and watch it spiral into the same corner.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpstart">new start &#9654;</button><button id="fpbad">the counterexample &#9654;</button></div>
+   <div class="cap" id="fpout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many trajectories, one destination.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a contraction has a unique fixed point.&rdquo; The inverse is that <b>the theorem does not find the point, it destroys every alternative</b>. The proof shows the iterates form a Cauchy sequence and that two fixed points would have to be closer together than themselves &mdash; it never constructs anything, it forecloses. That is why the same argument proves existence for differential equations nobody can solve: it is an argument from <i>shrinking</i>, and shrinking does not care what is being shrunk. Read backwards, Banach&rsquo;s theorem is a machine for converting &ldquo;this process loses information at a steady rate&rdquo; into &ldquo;this process has exactly one answer&rdquo;, and the loss is the whole engine.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpsp">pause spin</button></div></div></div></div>"""
+FIXP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,x0=2.4,showBad=false,sd=3;
+function fpRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var g=fpRnd(555),ends=[],k;
+ for(k=0;k<200;k++){
+  var x=(g()-0.5)*200;
+  for(var i=0;i<400;i++)x=Math.cos(x);
+  ends.push(x);}
+ var star=ends[0];
+ var spread=Math.max.apply(null,ends)-Math.min.apply(null,ends);
+ var q=Math.sin(1);
+ var a=1,b=Math.cos(a),d0=Math.abs(b-a),x2=b,holds=0,checked=0,worst=0;
+ for(var n=1;n<=60;n++){
+  var bound=Math.pow(q,n)/(1-q)*d0,err=Math.abs(x2-star);
+  checked++;
+  if(err<=bound+1e-18)holds++;
+  if(bound>0)worst=Math.max(worst,err/bound);
+  x2=Math.cos(x2);}
+ var y=0.2,prev=Math.abs(y-star),rs=[];
+ for(var n2=0;n2<60;n2++){y=Math.cos(y);
+  var e=Math.abs(y-star);
+  if(n2>30&&prev>1e-15)rs.push(e/prev);
+  prev=e;}
+ var obs=rs.slice(0,10).reduce(function(s,v){return s+v;},0)/Math.max(1,Math.min(10,rs.length));
+ var z=1,md=0;
+ for(var i2=0;i2<20000;i2++){md=Math.max(md,Math.abs(1-1/(z*z)));z=z+1/z;}
+ return {starts:200,fixedPoint:star,spread:spread,
+  allStartsAgree:spread<1e-12,
+  residual:Math.abs(Math.cos(star)-star),
+  satisfiesCosXEqualsX:Math.abs(Math.cos(star)-star)<1e-15,
+  isDottieNumber:Math.abs(star-0.7390851332151607)<1e-14,
+  q:q,boundHolds:holds,boundChecked:checked,aPrioriBoundHolds:holds===checked,
+  worstErrOverBound:worst,
+  observedRatio:obs,theoreticalRatio:Math.sin(star),
+  ratioMatches:Math.abs(obs-Math.sin(star))<0.02,
+  counterexampleMaxDeriv:md,counterexampleIterate:z,
+  pointwiseIsNotEnough:md<1&&z>100,
+  ok:spread<1e-12&&Math.abs(Math.cos(star)-star)<1e-15&&holds===checked&&md<1&&z>100};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ERROR vs ITERATION  \\u2014  and the bound computed beforehand');
+ var m=58,pw=W-m-46,top=46,ph=162;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var q=VR.q,star=VR.fixedPoint;
+ var a=1,b=Math.cos(a),d0=Math.abs(b-a),x=b;
+ var errs=[],bnds=[];
+ for(var n=1;n<=40;n++){
+  errs.push(Math.abs(x-star));
+  bnds.push(Math.pow(q,n)/(1-q)*d0);
+  x=Math.cos(x);}
+ function Y(v){var lv=Math.log10(Math.max(1e-17,v));
+  return top+ph-ph*(lv+17)/17.4;}
+ ne(g,'#ffd76a',2.4);
+ g.beginPath();
+ bnds.forEach(function(v,i){var px=m+pw*i/39;
+  if(i===0)g.moveTo(px,Y(v));else g.lineTo(px,Y(v));});
+ g.stroke();ng(g);
+ ne(g,'#7de2b0',2.4);
+ g.beginPath();
+ errs.forEach(function(v,i){var px=m+pw*i/39;
+  if(i===0)g.moveTo(px,Y(v));else g.lineTo(px,Y(v));});
+ g.stroke();ng(g);
+ nt(g,'#ffd76a',m+pw-118,top+16,10,'a-priori bound');
+ nt(g,'#7de2b0',m+pw-118,top+34,10,'actual error');
+ nt(g,'#8a7ab8',m-40,top+4,9,'1e0');
+ nt(g,'#8a7ab8',m-44,top+ph+4,9,'1e-17');
+ nt(g,'#8a7ab8',m,top+ph+18,9,'n = 1');
+ nt(g,'#8a7ab8',m+pw-28,top+ph+18,9,'n = 40');
+ nt(g,'#e6dcff',20,240,10,'the bound holds at all '+VR.boundChecked+' tested steps, worst ratio '+VR.worstErrOverBound.toFixed(4));
+ nt(g,'#8a7ab8',20,262,9,'and it was computable before a single iteration was run');
+ nt(g,'#7de2b0',20,282,9,'observed ratio '+VR.observedRatio.toFixed(6)+'  =  sin(x*) '+VR.theoreticalRatio.toFixed(6));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showBad){
+  nt(g,'#e6dcff',16,26,11,'f(x) = x + 1/x  on [1, \\u221e)');
+  var m2=44,sz=W-88,top2=54;
+  function PX2(v){return m2+(v-1)/5*sz;}
+  function PY2(v){return top2+sz-(v-1)/5*sz;}
+  ne(g,'rgba(255,215,106,0.4)',1.2);g.setLineDash([3,3]);
+  g.beginPath();g.moveTo(PX2(1),PY2(1));g.lineTo(PX2(6),PY2(6));g.stroke();
+  g.setLineDash([]);ng(g);
+  ne(g,'#ff5a8a',2.2);
+  g.beginPath();
+  for(var i=0;i<=200;i++){var v=1+5*i/200;
+   var px=PX2(v),py=PY2(v+1/v);
+   if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  var z=1.2;
+  ne(g,'#5ad6ff',1.5);
+  g.beginPath();g.moveTo(PX2(z),PY2(z));
+  for(var k=0;k<9;k++){var nz=z+1/z;
+   g.lineTo(PX2(z),PY2(nz));g.lineTo(PX2(nz),PY2(nz));z=nz;
+   if(z>6)break;}
+  g.stroke();ng(g);
+  nt(g,'#ff5a8a',24,top2+sz+26,10,'the curve never meets the diagonal');
+  nt(g,'#8a7ab8',24,top2+sz+46,9,'sup |f\\u2032| seen = '+VR.counterexampleMaxDeriv.toFixed(9)+', strictly below 1 everywhere');
+  nt(g,'#ffd76a',24,top2+sz+66,9,'and the iterates ran to '+VR.counterexampleIterate.toFixed(0));
+  var o2=document.getElementById('fpout');
+  if(o2)o2.innerHTML='Here |f&prime;| is <b>below 1 at every single point</b> \\u2014 the largest value seen is <b>'+
+   VR.counterexampleMaxDeriv.toFixed(9)+'</b> \\u2014 and there is no fixed point whatever. It approaches 1 as x grows, so no single q &lt; 1 covers the space, and Banach does not apply. "The derivative is less than one" is not the hypothesis.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'f(x) = cos x   \\u00b7   start at '+x0.toFixed(3));
+ var m=44,sz=W-88,top=54;
+ function PX(v){return m+(v+1.6)/3.6*sz;}
+ function PY(v){return top+sz-(v+1.6)/3.6*sz;}
+ ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(m+0.5,top+0.5,sz,sz);ng(g);
+ ne(g,'rgba(255,215,106,0.4)',1.2);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(PX(-1.6),PY(-1.6));g.lineTo(PX(2),PY(2));g.stroke();
+ g.setLineDash([]);ng(g);
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var i=0;i<=240;i++){var v=-1.6+3.6*i/240;
+  var px=PX(v),py=PY(Math.cos(v));
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var x=x0;
+ ne(g,'#5ad6ff',1.4);
+ g.beginPath();g.moveTo(PX(x),PY(x));
+ for(var k=0;k<26;k++){var nx=Math.cos(x);
+  g.lineTo(PX(x),PY(nx));g.lineTo(PX(nx),PY(nx));x=nx;}
+ g.stroke();ng(g);
+ ndot(g,PX(VR.fixedPoint),PY(VR.fixedPoint),5,'#ff5a8a');
+ nt(g,'#ff5a8a',24,top+sz+26,11,'x* = '+VR.fixedPoint.toFixed(12));
+ nt(g,'#8a7ab8',24,top+sz+46,9,'200 starts across [\\u2212100, 100], spread 0 to machine precision');
+ var o=document.getElementById('fpout');
+ if(o)o.innerHTML='Starting from <b>'+x0.toFixed(3)+'</b> the cobweb spirals into <b>'+
+  VR.fixedPoint.toFixed(12)+'</b> \\u2014 the Dottie number, the unique solution of cos x = x. Every start does this; the theorem forbids a second destination.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.32];}
+ var gg=fpRnd(17);
+ for(var t=0;t<26;t++){
+  var x=(gg()-0.5)*14,prev=null;
+  for(var n=0;n<26;n++){
+   var q=P(x*13,n*7.4,(t-13)*5.4);
+   if(prev){
+    ne(g,n>8?'#7de2b0':'rgba(90,214,255,0.55)',1.3);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;x=Math.cos(x);}}
+ var tip=P(VR.fixedPoint*13,26*7.4,0);
+ ndot(g,tip[0],tip[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',tip[0]+10,tip[1],9,'x*');
+ nt(g,'#5ad6ff',14,24,11,'26 starts, scattered wide');
+ nt(g,'#7de2b0',14,42,10,'and they are indistinguishable within a dozen steps');
+ nt(g,'#8a7ab8',14,58,10,'the proof never constructs the point, it forecloses the alternatives');
+ nt(g,'#8a7ab8',14,H-12,9,'shrinking does not care what is being shrunk');}
+document.getElementById('fpstart').onclick=function(){
+ var g=fpRnd(sd++);x0=(g()-0.5)*3;showBad=false;drawW4();};
+document.getElementById('fpbad').onclick=function(){showBad=!showBad;drawW4();};
+document.getElementById('fpsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__fixedpoint=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+XENT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Entropy is the shortest average message length achievable if you know the true distribution. <b>Cross-entropy</b> is what you actually pay when you encode using the <i>wrong</i> distribution, and the difference between them is the KL divergence &mdash; the surcharge, in bits, for believing something false. It is never negative, and it is zero only if your model is exactly right. This is the loss function almost every neural network is trained on, and the number it reports is a literal price in bits.<br><br>
+ <span class="lit">LIT</span> verified live: for a 12-symbol source, H(p) = <b>2.738243</b> bits, H(p,q) = <b>3.312595</b> and KL(p&#8214;q) = <b>0.574352</b>, with H(p,q) &minus; H(p) &minus; KL equal to <b>0</b> exactly. Encoding <b>120,000</b> actual draws costs <b>3.314950</b> bits per symbol with the wrong model and <b>2.749046</b> with the right one &mdash; a measured surcharge of <b>0.5659</b> bits against a predicted <b>0.5744</b>. Across <b>2,000</b> random models there are <b>0</b> negative divergences, KL(p&#8214;p) is <b>0</b> exactly, and the divergence is not symmetric: <b>0.5744</b> one way, <b>0.6171</b> the other.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>: the KL gap is exactly the wasted bits, and nothing else in the calculation is waste.<br><br>
+ <b>AVAN (AI)</b> measured the code length by <b>actually spending it</b> rather than by evaluating the formula twice. Drawing 120,000 symbols from p and summing &minus;log&#8322;q(x) is the ideal code length an arithmetic coder would pay, and its average converges to H(p,q) by definition &mdash; so agreement to three decimals is a check on the identity, not a restatement of it. Huffman coding was deliberately <b>not</b> used for this: it is only guaranteed within 1 bit of the entropy, so it would have introduced a discrepancy that has nothing to do with the claim and would need explaining away. The asymmetry is worth dwelling on, because it is why &ldquo;distance&rdquo; is the wrong word: KL(p&#8214;q) punishes assigning low probability to things that happen, and KL(q&#8214;p) punishes something else entirely.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Entropy, cross-entropy, and the gap you pay in bits.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the model away from the truth and watch the surcharge appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="xewrong">wrong-er &#9654;</button><button id="xeright">closer to p</button><button id="xeswap">swap the arguments</button></div>
+   <div class="cap" id="xeout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the simplex of models, with the surcharge as height above the truth.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;cross-entropy measures how wrong your model is.&rdquo; The inverse is that <b>it measures how wrong your model is <i>about the things that actually happen</i>, and is entirely indifferent to the rest</b>. Every term is weighted by p, so a model can be arbitrarily deranged about events of probability zero and pay nothing at all. That is why the asymmetry exists and why it matters which way round you train: minimising KL(p&#8214;q) makes q cover everything p does, and minimising KL(q&#8214;p) lets q pick one mode and ignore the others. Read backwards, the loss function is not measuring truth &mdash; it is measuring <i>usefulness under a fixed sampling of the world</i>, and it will never charge you for a question nobody asks.</div>
+   <div class="btns" style="margin-top:10px"><button id="xesp">pause spin</button></div></div></div></div>"""
+XENT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mix=0.5,swapped=false;
+function xeRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var K=12;
+function norm(a){var s=0,i;
+ for(i=0;i<a.length;i++)s+=a[i];
+ return a.map(function(v){return v/s;});}
+var P=(function(){var a=[];
+ for(var i=0;i<K;i++)a.push(Math.pow(i+1,-1.3));
+ return norm(a);})();
+var Q=(function(){var g=xeRnd(2718),a=[];
+ for(var i=0;i<K;i++)a.push(0.05+g());
+ return norm(a);})();
+function H(d){var s=0;
+ for(var i=0;i<d.length;i++)if(d[i]>0)s-=d[i]*Math.log2(d[i]);
+ return s;}
+function Hpq(a,b){var s=0;
+ for(var i=0;i<a.length;i++)if(a[i]>0)s-=a[i]*Math.log2(b[i]);
+ return s;}
+function KL(a,b){var s=0;
+ for(var i=0;i<a.length;i++)if(a[i]>0)s+=a[i]*Math.log2(a[i]/b[i]);
+ return s;}
+function blend(t){
+ var a=[];
+ for(var i=0;i<K;i++)a.push((1-t)*P[i]+t*Q[i]);
+ return norm(a);}
+function selftest(){
+ var Hp=H(P),cross=Hpq(P,Q),kl=KL(P,Q);
+ var g=xeRnd(2718),cum=[],acc=0,i;
+ for(i=0;i<K;i++){acc+=P[i];cum.push(acc);}
+ function draw(){var u=g();
+  for(var j=0;j<K;j++)if(u<=cum[j])return j;
+  return K-1;}
+ var NS=120000,bq=0,bp=0;
+ for(i=0;i<NS;i++){var x=draw();
+  bq+=-Math.log2(Q[x]);bp+=-Math.log2(P[x]);}
+ var mq=bq/NS,mp=bp/NS;
+ var g2=xeRnd(31),neg=0;
+ for(var t=0;t<2000;t++){
+  var r=[];
+  for(i=0;i<K;i++)r.push(0.01+g2());
+  if(KL(P,norm(r))<-1e-12)neg++;}
+ return {symbols:K,samples:NS,
+  entropy:Hp,crossEntropy:cross,divergence:kl,
+  identityResidual:Math.abs(cross-(Hp+kl)),
+  identityExact:Math.abs(cross-(Hp+kl))<1e-12,
+  crossNeverBelowEntropy:cross>Hp,
+  measuredWithWrongModel:mq,measuredWithTrueModel:mp,
+  measuredSurcharge:mq-mp,
+  measurementMatchesKL:Math.abs((mq-mp)-kl)<0.03,
+  reverseDivergence:KL(Q,P),
+  notSymmetric:Math.abs(KL(P,Q)-KL(Q,P))>1e-6,
+  randomModelsTested:2000,negativeDivergences:neg,
+  selfDivergence:KL(P,P),
+  ok:Math.abs(cross-(Hp+kl))<1e-12&&cross>Hp&&neg===0&&
+   Math.abs((mq-mp)-kl)<0.03&&Math.abs(KL(P,P))<1e-15};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#b98cff',14,20,11,'BITS PER SYMBOL  \\u2014  formula and measurement');
+ var m=48,pw=W-m-40,top=48;
+ var mx=3.6;
+ var rows=[['H(p)  \\u2014  the floor',VR.entropy,'#7de2b0'],
+  ['measured with the TRUE model',VR.measuredWithTrueModel,'#5ad6ff'],
+  ['H(p,q)  \\u2014  the wrong model',VR.crossEntropy,'#ffd76a'],
+  ['measured with the WRONG model',VR.measuredWithWrongModel,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=top+i*48;
+  nt(g,'#8a7ab8',m,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.5)':(r[2]==='#5ad6ff'?'rgba(90,214,255,0.5)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.5)':'rgba(255,90,138,0.5)')));
+  g.fillRect(m,y+8,pw*r[1]/mx,20);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y+8.5,pw,20);ng(g);
+  nt(g,r[2],m+pw*r[1]/mx+8,y+24,11,r[1].toFixed(6));});
+ var y2=top+4*48+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(m,y2,pw,52);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(m+0.5,y2+0.5,pw,52);ng(g);
+ nt(g,'#ffd76a',m+16,y2+22,11,'KL(p\\u2016q) = '+VR.divergence.toFixed(6)+' bits');
+ nt(g,'#8a7ab8',m+16,y2+40,9,'measured surcharge '+VR.measuredSurcharge.toFixed(4)+
+  '   \\u00b7   H(p,q) \\u2212 H(p) \\u2212 KL = '+VR.identityResidual.toExponential(1));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var M=blend(mix);
+ var kl=swapped?KL(M,P):KL(P,M);
+ var cross=swapped?Hpq(M,P):Hpq(P,M);
+ var base=swapped?H(M):H(P);
+ nt(g,'#e6dcff',16,26,11,swapped?'KL(model \\u2016 p)':'KL(p \\u2016 model)');
+ nt(g,'#8a7ab8',16,46,9,'model = '+(1-mix).toFixed(2)+'\\u00b7p + '+mix.toFixed(2)+'\\u00b7q');
+ var m=30,pw=W-60,top=62,ph=112;
+ var mxv=Math.max.apply(null,P.concat(M));
+ for(var i=0;i<K;i++){
+  var bw=pw/K-3;
+  var x=m+i*(pw/K);
+  nf(g,'rgba(125,226,176,0.5)');
+  g.fillRect(x,top+ph-ph*P[i]/mxv,bw/2,ph*P[i]/mxv);ng(g);
+  nf(g,'rgba(255,90,138,0.5)');
+  g.fillRect(x+bw/2,top+ph-ph*M[i]/mxv,bw/2,ph*M[i]/mxv);ng(g);}
+ ne(g,'rgba(150,110,230,0.3)',1);
+ g.beginPath();g.moveTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ nt(g,'#7de2b0',m,top+ph+18,9,'green: p (the truth)');
+ nt(g,'#ff5a8a',m+150,top+ph+18,9,'pink: the model');
+ var y2=top+ph+34;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,80);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,80);ng(g);
+ nt(g,'#8a7ab8',36,y2+22,9,'entropy '+base.toFixed(6)+'   cross '+cross.toFixed(6));
+ nt(g,'#ffd76a',36,y2+50,15,'KL = '+kl.toFixed(6)+' bits');
+ nt(g,'#8a7ab8',36,y2+70,9,mix<0.005?'the model IS p, and the surcharge is exactly zero':'the surcharge for believing the model instead');
+ var o=document.getElementById('xeout');
+ if(o)o.innerHTML=mix<0.005
+  ?'The model equals p exactly and the divergence is <b>'+kl.toExponential(2)+'</b> \\u2014 zero, as it must be. This is the only point where it vanishes.'
+  :('Blending <b>'+(mix*100).toFixed(0)+'%</b> of the wrong model in costs <b>'+kl.toFixed(6)+
+    '</b> bits per symbol. '+(swapped?'With the arguments swapped it is a different number \\u2014 KL is not a distance.'
+     :'Swap the arguments and you get a different number.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var cx=W/2,cy=H2/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.68-zr*0.34];}
+ var gg=xeRnd(9);
+ for(var t=0;t<300;t++){
+  var a=gg(),b=gg()*(1-a);
+  var r=[];
+  for(var i=0;i<K;i++)r.push(P[i]*(1-a-b)+Q[i]*a+(1/K)*b);
+  var mdl=norm(r);
+  var kl=KL(P,mdl);
+  var q=P3((a-0.33)*220,kl*80,(b-0.33)*220);
+  var hot=kl>0.4;
+  ndot(g,q[0],q[1],hot?2.6:1.8,hot?'#ff5a8a':'rgba(125,226,176,0.5)');}
+ var base=P3(-0.33*220+0.33*220,0,-0.33*220+0.33*220);
+ var origin=P3(-72,0,-72);
+ ndot(g,origin[0],origin[1],7,'#ffd76a');
+ nt(g,'#ffd76a',origin[0]+10,origin[1],9,'p  \\u00b7  KL = 0');
+ nt(g,'#7de2b0',14,24,11,'the simplex of models');
+ nt(g,'#ff5a8a',14,42,10,'height is the surcharge in bits');
+ nt(g,'#8a7ab8',14,58,10,'one point on the floor, and everywhere else costs');
+ nt(g,'#8a7ab8',14,H2-12,9,'it will never charge you for a question nobody asks');}
+document.getElementById('xewrong').onclick=function(){mix=Math.min(1,mix+0.2);drawW4();};
+document.getElementById('xeright').onclick=function(){mix=Math.max(0,mix-0.2);drawW4();};
+document.getElementById('xeswap').onclick=function(){swapped=!swapped;drawW4();};
+document.getElementById('xesp').onclick=function(){spin=!spin;};
+VR=selftest();window.__crossentropy=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 219 · neon-noir · silicon-coding · WHAT THE AVERAGE CANNOT FIX (a mean that never settles · a correlation made of nothing but who was let in · one over k, whatever the world · any order, one answer · the invariant that finally sees the mirror) ═══════════════════════
 CAUY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Average a thousand measurements and the noise falls away &mdash; that is the one thing everybody knows about statistics. The Cauchy distribution is the counterexample. Its tails are heavy enough that it has <b>no mean at all</b>, and the consequence is exact rather than approximate: the average of n Cauchy draws is distributed <i>identically</i> to a single draw. Not almost. Identically. A thousand measurements tell you precisely as much as one, forever.<br><br>
@@ -69152,6 +70015,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zipf","title":"THE ZIPF","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#ff5a8a","icon":"\u2263",
+  "kicker":"a law that is not evidence",
+  "blurb":"Zipf's law has been read as a fingerprint of deep structure for eighty years. A monkey with a space bar produces it too.",
+  "lit":"on 900,000 random keystrokes: 84,398 distinct 'words' from 132,608 tokens, with a rank-frequency exponent of 0.899; every word of length L has the same probability, so the mean count over ALL M^L possible words falls by 0.031688, 0.031205, 0.032023, 0.031017 against a predicted (1-p)/M = 0.031538; the fraction of possible words actually seen tracks the Poisson prediction 1-e^-m at every length (59.63% vs 59.50, 2.859% vs 2.853, 0.0897% vs 0.0897); and a uniform-word control gives 0.056, no power law at all",
+  "fig":"A claim was written and the sweep destroyed it. The first version asserted that EVERY possible word of length <= 3 appears - only 10,480 of 17,576 do. The right response was not to raise the sample size until the sentence became true, but to notice the shortfall is exactly Poisson: with mean count m the fraction seen should be 1-e^-m, and it is, to two decimals at every length. A second error followed at once: the per-letter ratio was computed over OBSERVED words, which truncates at 1 and gave 0.329 at length 4 against a predicted 0.0315. Both mistakes were the same mistake - conditioning on having seen something, then measuring. One figure needs stating plainly: the branching structure gives an ANALYTIC exponent of -log((1-s)/M)/log M = 1.061, and the fitted value is 0.899, about 15% below it. The regression window covers only the first few word lengths and beyond length 3 the tail is so undersampled it flattens. The Heaps exponent comes out 0.9445 against a predicted 1/1.061 = 0.9426, agreeing far better. Reporting 0.899 as though it confirmed 1.061 would have been the third version of the same error. Miller made the point in 1957.",
+  "body":ZIPF_BODY,"script":ZIPF_SCRIPT},
+ {"slug":"the-lord","title":"THE LORD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#5ad6ff","icon":"\u21c4",
+  "kicker":"two right answers that disagree",
+  "blurb":"Two statisticians, one dataset, one question. One finds nothing, the other finds a large effect, and there is no third calculation that settles it.",
+  "lit":"on 12,000 subjects per group the mean change is -0.073 in group A and -0.096 in group B, a difference of -0.023 - nothing; the same data through ANCOVA gives a group coefficient of 5.054 against a prediction of exactly 5.000, because the adjusted effect equals (1 - within-group slope) x the baseline gap = (1 - 0.5) x 10; and the recovered slope is 0.492, the one that was built in",
+  "fig":"The data was generated with the mechanism STATED IN ADVANCE - a within-group slope of 0.5 and no mean change in either group - so the ANCOVA coefficient could be predicted before it was computed. It came out 5.054 against a predicted 5.000, which makes this a test rather than a demonstration. That matters here more than usual: a page that simply shows two numbers disagreeing proves nothing, since any pair of analyses can be made to disagree if the data is chosen afterwards. Neither analysis is a mistake - the change score asks 'did these groups improve differently', ANCOVA asks 'among people who started level, do these groups end level'. Lord, 1967.",
+  "body":LORD_BODY,"script":LORD_SCRIPT},
+ {"slug":"the-jordan","title":"THE JORDAN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#7de2b0","icon":"\u25cc",
+  "kicker":"the obvious theorem that took twenty years",
+  "blurb":"A loop that never crosses itself has an inside and an outside. So obvious that the 1887 proof was disputed for decades - because obvious comes from circles, and the theorem must hold for curves with no tangent anywhere.",
+  "lit":"on an 11-spike star with 1,200 vertices, ray-casting parity agrees across 1,440 randomly-directed rays with 0 disagreements; every one of 193 inside-to-outside segments crosses the curve an odd number of times; flood-filling the complement gives exactly 2 components once the raster is fine enough, at 360 and 500 cells across - after reporting 6, 4, 4 at 120, 180 and 260; and a self-intersecting figure-eight gives 3, so the hypothesis is load-bearing",
+  "fig":"The first run reported 4 components and was nearly published. The curve was correct and the theorem was correct; the RASTER was too coarse, and the spike tips pinched shut between pixels so the interior fell into pieces. The fix was not to pick a resolution that gave the right answer - that is choosing the measurement to fit the conclusion - but to sweep the resolution and require convergence: 6, 4, 4, then 2, 2. The coarse rasters are published alongside, because they are the honest content: a discretised check of a continuous theorem can fail for reasons that have nothing to do with the theorem, and a single grid size is not a measurement.",
+  "body":JORD_BODY,"script":JORD_SCRIPT},
+ {"slug":"the-fixed-point","title":"THE FIXED POINT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ffd76a","icon":"\u21ba",
+  "kicker":"the map that always comes home",
+  "blurb":"A map that pulls every pair of points closer has exactly one fixed point, and you can bound the error before running anything. Press cosine repeatedly and you are watching it.",
+  "lit":"200 starting values scattered over [-100, 100] all land on 0.739085133215 with a spread of 0 to machine precision; cos(x*) - x* is 0 exactly; the a-priori bound q^n/(1-q)*|x1-x0| holds at all 60 tested steps; and the observed convergence ratio is 0.673612 against |f'(x*)| = sin(x*) = 0.673612; the hypothesis is load-bearing - x + 1/x has |f'| < 1 at every point of [1,inf), the largest value seen being 0.999975, and has NO fixed point at all, its iterates running to 200 and beyond",
+  "fig":"The counterexample is included because the theorem is misremembered more often than it is misapplied. 'The derivative is less than one so it converges' is FALSE, and x + 1/x on [1,inf) is the standing refutation: 1 - 1/x^2 is strictly below 1 everywhere yet approaches 1 as x grows, so no single q < 1 works for the whole space and the iterates escape. Banach requires a UNIFORM contraction factor on a COMPLETE space, and both words carry weight. The a-priori bound is the part worth keeping - it says how many iterations suffice before you have done any.",
+  "body":FIXP_BODY,"script":FIXP_SCRIPT},
+ {"slug":"the-cross-entropy","title":"THE CROSS ENTROPY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#b98cff","icon":"\u2696",
+  "kicker":"the bits you pay for being wrong",
+  "blurb":"The surcharge, in literal bits, for encoding the world with a model that is false. Never negative, zero only if you are exactly right.",
+  "lit":"for a 12-symbol source, H(p) = 2.738243 bits, H(p,q) = 3.312595 and KL(p||q) = 0.574352, with H(p,q) - H(p) - KL equal to 0 exactly; encoding 120,000 actual draws costs 3.314950 bits per symbol with the wrong model and 2.749046 with the right one, a measured surcharge of 0.5659 against a predicted 0.5744; across 2,000 random models there are 0 negative divergences, KL(p||p) is 0 exactly, and the divergence is not symmetric - 0.5744 one way, 0.6171 the other",
+  "fig":"The code length was measured by ACTUALLY SPENDING IT rather than by evaluating the formula twice. Drawing 120,000 symbols from p and summing -log2 q(x) is the ideal code length an arithmetic coder would pay, and its average converges to H(p,q) by definition, so agreement to three decimals is a check on the identity rather than a restatement of it. Huffman coding was deliberately NOT used: it is only guaranteed within 1 bit of the entropy, so it would introduce a discrepancy with nothing to do with the claim. The asymmetry is why 'distance' is the wrong word.",
+  "body":XENT_BODY,"script":XENT_SCRIPT},
  {"slug":"the-cauchy","title":"THE CAUCHY","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff5a8a","icon":"\u221e",
   "kicker":"a mean that never settles",
