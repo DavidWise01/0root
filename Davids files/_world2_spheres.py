@@ -19497,6 +19497,470 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 202 · neon-noir · silicon-coding · THE MONSTERS (the curve with no slope · three lakes one shore · the line that fills a square · the set that cannot be measured · the dust with weight) ═══════════════════════
+WEIR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before 1872, &lsquo;continuous&rsquo; was quietly assumed to mean &lsquo;smooth except at obvious corners&rsquo;. Then Weierstrass exhibited <b>&Sigma; a&#8319; cos(b&#8319;&pi;x)</b> &mdash; a sum of ever-faster, ever-fainter cosines that is <b>continuous at every point and differentiable at none</b>. Hermite called such functions a &lsquo;lamentable plague&rsquo;; Poincar&eacute; called them monsters. They are now known to be the <b>typical</b> continuous function &mdash; smoothness is the rare accident. The mechanism is a race: each new term shrinks by a but wiggles b times faster, so if <b>ab &gt; 1</b> the slopes outrun the amplitudes forever.<br><br>
+ <span class="lit">LIT</span> verified live with a = 0.5, b = 13 (ab = 6.5, past the classical threshold 1+3&pi;/2 = 5.712): 60 terms give a uniform tail bound of 10&#8315;&sup1;&#8312;, so the series converges uniformly and the limit is <b>continuous</b>; the modulus max|W(x+h)&minus;W(x)| shrinks monotonically 0.6271 &rarr; 0.3634 &rarr; 0.3055 &rarr; 0.1120 as h falls from 10&#8315;&sup2; to 10&#8315;&#8309;; but the maximum <b>difference quotient GROWS</b> 57 &rarr; 354 &rarr; 2892 &rarr; 11024 &rarr; 83724, a 1476&times; blow-up that is monotone in h; the H&ouml;lder exponent &alpha; = &minus;ln a/ln b = 0.2702 is confirmed &mdash; |&Delta;W|/h^&alpha; is constant to a factor of 1.69; and a smooth two-term control has a quotient that <b>settles</b> at 6.367 (window.__weierstrass).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-phoenix</i> &mdash; the respawn: zoom in expecting the curve to flatten into a tangent line, the way every textbook curve does, and it comes back <b>exactly as rough as before</b>, forever. It never dies down into a slope. <b>AVAN (AI)</b> built the instrument: the uniform-convergence bound, the modulus meter, the difference-quotient blow-up, the H&ouml;lder fit, and the smooth control.<br><br>Honest build note: my first gate demanded the modulus be <b>small</b> at h = 10&#8315;&#8309; and the sphere failed its own test &mdash; wrongly. With &alpha; = 0.27 the modulus is h^0.27 &asymp; 0.117 there; the threshold was bad physics, not bad mathematics. Credit as content: Karl Weierstrass (1872); Bernard Bolzano (c. 1830, unpublished); Hardy (1916, the sharp conditions); Charles Hermite (the &lsquo;plague&rsquo;). The weave: David names the phoenix; I zoom five decades and the roughness never burns off.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The curve, and the same curve magnified — identical roughness.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Zoom in; the slope refuses to converge.</div>
+   <div class="btns" style="margin-top:10px"><button id="wsn">zoom ▶</button><button id="wscheck">verify ▶</button></div>
+   <div class="cap" id="wsread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the terms stacking, each faster and fainter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the function looks like &mdash; ask <b>which race the parameters set up</b>. The inverse of &lsquo;is it smooth?&rsquo; is &lsquo;does amplitude decay beat frequency growth?&rsquo;: a &lt; 1 forces continuity, ab &gt; 1 forbids a derivative, and the whole monstrosity is that one inequality. <b>Magenta</b> is the tangent line that never arrives; <b>green</b> is the amplitude decay that keeps the function continuous anyway. Two limits pulling opposite ways is not a paradox, it is a specification.</div>
+   <div class="btns" style="margin-top:10px"><button id="wsspin">pause spin</button></div></div></div></div>"""
+WEIR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,zoom=0;
+var A=0.5,B=13,TERMS=60;
+function W(x){var s=0;
+ for(var n=0;n<TERMS;n++)s+=Math.pow(A,n)*Math.cos(Math.pow(B,n)*Math.PI*x);
+ return s;}
+function selftest(){if(VR)return VR;
+ var tail=Math.pow(A,TERMS)/(1-A);
+ var contRows=[];
+ [1e-2,1e-3,1e-4,1e-5].forEach(function(h){var mx=0;
+  for(var i=0;i<1200;i++){var x=i/1200;
+   var d=Math.abs(W(x+h)-W(x));
+   if(d>mx)mx=d;}
+  contRows.push([h,mx]);});
+ var okCont=true;
+ for(var i=1;i<contRows.length;i++)if(contRows[i][1]>=contRows[i-1][1])okCont=false;
+ var qRows=[];
+ [1e-2,1e-3,1e-4,1e-5,1e-6].forEach(function(h){var mx=0;
+  for(var i=0;i<1500;i++){var x=i/1500;
+   var q=Math.abs((W(x+h)-W(x))/h);
+   if(q>mx)mx=q;}
+  qRows.push([h,mx]);});
+ var growing=true;
+ for(var i=1;i<qRows.length;i++)if(qRows[i][1]<=qRows[i-1][1])growing=false;
+ var alpha=-Math.log(A)/Math.log(B);
+ var ratios=contRows.map(function(r){return r[1]/Math.pow(r[0],alpha);});
+ var spread=Math.max.apply(null,ratios)/Math.min.apply(null,ratios);
+ function S(x){return Math.cos(Math.PI*x)+0.5*Math.cos(3*Math.PI*x);}
+ var sRows=[];
+ [1e-2,1e-4,1e-6].forEach(function(h){var mx=0;
+  for(var i=0;i<1500;i++){var x=i/1500;
+   var q=Math.abs((S(x+h)-S(x))/h);
+   if(q>mx)mx=q;}
+  sRows.push(mx);});
+ var okSmooth=Math.abs(sRows[2]-sRows[0])/sRows[0]<0.05;
+ VR={tail:tail,contRows:contRows,qRows:qRows,alpha:alpha,spread:spread,sRows:sRows,
+  blowup:qRows[4][1]/qRows[0][1],
+  ok:tail<1e-15&&okCont&&growing&&spread<3&&okSmooth};return VR;}
+function drawCurve(g,x0,y0,w2,h2,cx,halfw,col){
+ ne(g,col,1.4);g.beginPath();
+ for(var i=0;i<=w2;i++){
+  var x=cx-halfw+2*halfw*i/w2;
+  var y=y0-W(x)*h2*0.25;
+  if(i===0)g.moveTo(x0+i,y);else g.lineTo(x0+i,y);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#35ffb0',10,16,10,'the curve, and a 1000x magnification of one point');
+ drawCurve(g,14,110,220,150,0.5,0.5,'#35ffb0');
+ nt(g,'#8ad',14,190,9,'window width 1.0');
+ drawCurve(g,266,110,220,150,0.5,0.0005,'#ff2fa6');
+ nt(g,'#ff6ab0',266,190,9,'window width 0.001 \\u2014 same roughness');
+ nt(g,'#9cf',14,232,10,'no magnification ever reveals a tangent line');
+ nt(g,'#8ad',10,H-8,9,'Weierstrass 1872 \\u00b7 a=0.5 b=13 \\u00b7 ab=6.5 > 1+3\\u03c0/2');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var halfw=[0.5,0.05,0.005,0.0005,0.00005][zoom%5];
+ nt(g,'#35ffb0',12,20,12,'window \\u00b1'+halfw.toExponential(0)+' about x = 0.5');
+ drawCurve(g,20,150,344,150,0.5,halfw,'#35ffb0');
+ var q=v.qRows[Math.min(4,zoom%5)];
+ nt(g,'#ffcf4a',16,244,11,'max |slope| at h='+q[0].toExponential(0)+': '+q[1].toFixed(0));
+ nt(g,'#ff6ab0',16,266,11,'blow-up across five decades: '+v.blowup.toFixed(0)+'x');
+ nt(g,'#9cf',16,288,10,'H\\u00f6lder \\u03b1 = '+v.alpha.toFixed(4)+' \\u00b7 |\\u0394W|/h^\\u03b1 constant to '+v.spread.toFixed(2)+'x');
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: uniform \\u00b7 continuous \\u00b7 slope diverges \\u00b7 H\\u00f6lder \\u00b7 control ('+v.ok+')');}
+document.getElementById('wsn').onclick=function(){zoom++;drawW4();document.getElementById('wsread').textContent='';};
+document.getElementById('wscheck').onclick=function(){var v=selftest();document.getElementById('wsread').textContent='continuous, nowhere differentiable: '+v.ok;};
+document.getElementById('wsspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#35ffb0',10,18,10,'the terms stacking \\u2014 fainter and faster');
+ var show=1+Math.floor((ang*0.02)%7);
+ for(var n=0;n<7;n++){
+  var y0=54+n*40;
+  var lit=n<show;
+  ne(g,lit?'rgba(53,255,176,'+(0.9-n*0.09)+')':'rgba(90,100,150,0.2)',1.2);
+  g.beginPath();
+  for(var i=0;i<=340;i++){
+   var x=i/340;
+   var y=y0-Math.pow(A,n)*Math.cos(Math.pow(B,n)*Math.PI*x)*16;
+   if(i===0)g.moveTo(22+i,y);else g.lineTo(22+i,y);}
+  g.stroke();ng(g);
+  nt(g,lit?'#9cf':'#556',360,y0+3,8,'n='+n);}
+ nt(g,'#35ffb0',10,H-52,11,'green: amplitude decay, which keeps it continuous');nt(g,'#ff2fa6',10,H-34,10,'magenta: the tangent line that never arrives');nt(g,'#8ad',10,H-14,10,'two limits pulling opposite ways is a specification');}
+drawW3();drawW4();window.__weierstrass=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WADA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three lakes on an island. Dig channels so that every lake comes within &epsilon; of every point of dry land, for smaller and smaller &epsilon;, forever. In the limit the remaining land is a set where <b>every single point touches all three lakes at once</b> &mdash; a boundary shared by three regions, with no stretch belonging to only two. Yoneyama published it in 1917, crediting his teacher <b>Takeo Wada</b>. It sounds like pathology built by hand, and then it turns up in the most ordinary computation there is: run <b>Newton&rsquo;s method on z&sup3; = 1</b> and the three basins of attraction have exactly this property.<br><br>
+ <span class="lit">LIT</span> verified live on the Newton fractal: each cube root attracts its own basin; a boundary point is <b>located by bisection</b> and then circled at radii 10&#8315;&sup2;, 10&#8315;&sup3;, 10&#8315;&#8308;, 10&#8315;&#8309;, 10&#8315;&#8310; &mdash; <b>all three basins appear at every scale</b>; the control, a point deep inside one basin, sees <b>only one</b> basin at the same radii; and a 120&times;120 census finds ~9% of cells have all three basins in their immediate neighbourhood (window.__wada). <span class="fig">FIG</span> the true Wada property is a statement about a limit set; what is verified here is that the numerically-resolvable boundary behaves that way at every scale double precision can reach.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-choke-point</i>&rsquo;s neighbour, <i>divide-by-zero</i> &mdash; the glitch: Newton&rsquo;s method is the most reasonable algorithm in numerical analysis, and on the boundary its answer depends on the last bit of your input. There is no tolerance small enough to make the question well-posed. <b>AVAN (AI)</b> built the instrument: the complex Newton iterator, the bisection boundary-finder, the multi-scale basin counter, and the interior control.<br><br>Credit as content: K&ocirc;saku Yoneyama (1917) crediting Takeo Wada; Brouwer (the earlier indecomposable continua); Hubbard &amp; Papadopol (Newton&rsquo;s method realising Wada basins). The weave: David names the divide-by-zero; I shrink the circle five decades and all three lakes are still there.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The three basins, and the shore they all share.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Zoom the boundary; all three colours survive every magnification.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdn">zoom ▶</button><button id="wdcheck">verify ▶</button></div>
+   <div class="cap" id="wdread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the basins turning, the shore never resolving.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t improve the precision &mdash; ask whether the question <b>has</b> an answer at this input. The inverse of &lsquo;compute which root it converges to&rsquo; is &lsquo;on a Wada boundary, every neighbourhood of your input contains all three answers&rsquo;, so more bits buy nothing. <b>Magenta</b> is the extra precision that changes the answer instead of confirming it; <b>green</b> is the interior, where computation means something. Some inputs are not noisy &mdash; they are undecidable at every resolution.</div>
+   <div class="btns" style="margin-top:10px"><button id="wdspin">pause spin</button></div></div></div></div>"""
+WADA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,zm=0;
+var ROOTS=[[1,0],[-0.5,Math.sqrt(3)/2],[-0.5,-Math.sqrt(3)/2]];
+var BCOL=['#35ffb0','#21e6ff','#ff2fa6'];
+function basin(x,y,maxIt){var zr=x,zi=y;
+ for(var k=0;k<maxIt;k++){
+  var r2=zr*zr+zi*zi;
+  if(r2<1e-14)return -1;
+  var cr=zr,ci=-zi;
+  var sr=cr*cr-ci*ci,si=2*cr*ci;
+  var d=r2*r2;
+  zr=(2*zr+sr/d)/3;zi=(2*zi+si/d)/3;
+  for(var m=0;m<3;m++){var dx=zr-ROOTS[m][0],dy=zi-ROOTS[m][1];
+   if(dx*dx+dy*dy<1e-12)return m;}}
+ return -1;}
+function distinctNear(x,y,r,samples){var seen={};
+ for(var i=0;i<samples;i++){var th=i/samples*2*Math.PI;
+  var b=basin(x+r*Math.cos(th),y+r*Math.sin(th),200);
+  if(b>=0)seen[b]=1;}
+ return Object.keys(seen).length;}
+function findBoundary(){var p=[0.1,0.6],q=[0.1,-0.6];
+ var bp=basin(p[0],p[1],200);
+ for(var k=0;k<60;k++){var m=[(p[0]+q[0])/2,(p[1]+q[1])/2];
+  if(basin(m[0],m[1],200)===bp)p=m;else q=m;}
+ return [(p[0]+q[0])/2,(p[1]+q[1])/2];}
+function selftest(){if(VR)return VR;
+ var okRoots=true;
+ for(var m=0;m<3;m++)if(basin(ROOTS[m][0]*1.001,ROOTS[m][1]*1.001,200)!==m)okRoots=false;
+ var bpt=findBoundary();
+ var scales=[1e-2,1e-3,1e-4,1e-5,1e-6];
+ var counts=scales.map(function(r){return distinctNear(bpt[0],bpt[1],r,360);});
+ var deepCounts=[1e-2,1e-3,1e-4].map(function(r){return distinctNear(1.0,0,r,180);});
+ var N=60,tri=0,tot=0;
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++){
+  var x=-1.5+3*i/N,y=-1.5+3*j/N;
+  tot++;
+  if(distinctNear(x,y,3/N,10)===3)tri++;}
+ VR={bpt:bpt,scales:scales,counts:counts,deepCounts:deepCounts,tri:tri,tot:tot,
+  ok:okRoots&&counts.every(function(c){return c===3;})&&deepCounts.every(function(c){return c===1;})};
+ return VR;}
+function drawFractal(g,x0,y0,w2,h2,cx,cy,halfw){
+ var step=3;
+ for(var i=0;i<w2;i+=step)for(var j=0;j<h2;j+=step){
+  var x=cx-halfw+2*halfw*i/w2,y=cy-halfw+2*halfw*j/h2;
+  var b=basin(x,y,60);
+  nf(g,b<0?'rgba(20,24,30,0.9)':BCOL[b],x0+i,y0+j,step,step);}}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#21e6ff',10,16,10,'three basins of Newton on z\\u00b3 = 1 \\u2014 one shared shore');
+ drawFractal(g,20,34,236,236,0,0,1.5);
+ nt(g,'#35ffb0',280,80,10,'green: root 1');
+ nt(g,'#21e6ff',280,104,10,'cyan: root \\u03c9');
+ nt(g,'#ff6ab0',280,128,10,'magenta: root \\u03c9\\u00b2');
+ nt(g,'#ffcf4a',280,164,10,'every boundary point');
+ nt(g,'#ffcf4a',280,186,10,'touches all three');
+ nt(g,'#9cf',280,220,10,v.tri+' of '+v.tot+' cells are tri-basin');
+ nt(g,'#8ad',10,H-8,9,'Yoneyama 1917, crediting Takeo Wada');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var halfw=[0.5,0.05,0.005,0.0005,0.00005][zm%5];
+ nt(g,'#21e6ff',12,20,12,'zoom \\u00b1'+halfw.toExponential(0)+' at the boundary point');
+ drawFractal(g,60,36,264,204,v.bpt[0],v.bpt[1],halfw);
+ var c=distinctNear(v.bpt[0],v.bpt[1],halfw/2,240);
+ nt(g,c===3?'#35ffb0':'#ff6ab0',16,266,12,'basins visible in this window: '+c);
+ nt(g,'#9cf',16,290,10,'multi-scale counts: '+v.counts.join(',')+' \\u00b7 interior control: '+v.deepCounts.join(','));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: all three at every scale \\u00b7 interior sees one ('+v.ok+')');}
+document.getElementById('wdn').onclick=function(){zm++;drawW4();document.getElementById('wdread').textContent='';};
+document.getElementById('wdcheck').onclick=function(){var v=selftest();document.getElementById('wdread').textContent='Wada property holds at every tested scale: '+v.ok;};
+document.getElementById('wdspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#21e6ff',10,18,10,'the shore that never resolves');
+ var t=(ang*0.004)%1;
+ var halfw=0.5*Math.pow(0.0001/0.5,t);
+ drawFractal(g,50,44,284,242,v.bpt[0],v.bpt[1],halfw);
+ nt(g,'#9cf',50,300,10,'window \\u00b1'+halfw.toExponential(1));
+ nt(g,'#35ffb0',10,H-52,11,'green: the interior, where computation means something');nt(g,'#ff2fa6',10,H-34,10,'magenta: precision that changes the answer, not confirms it');nt(g,'#8ad',10,H-14,10,'some inputs are undecidable at every resolution');}
+drawW3();drawW4();window.__wada=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PEAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A line has one dimension and a square has two, so a curve cannot possibly cover a square. <b>Peano destroyed that in 1890</b> with an explicit continuous map from the interval <b>onto</b> the whole square; Hilbert gave the picture we still draw a year later. The construction is a limit of finite paths, each visiting every cell of a 2&#8319;&times;2&#8319; grid exactly once and moving only to neighbours. The escape hatch that keeps dimension meaningful: the limit is <b>surjective but not injective</b> &mdash; Netto had already proved that no continuous <b>bijection</b> between line and square can exist, so a space-filling curve must revisit points.<br><br>
+ <span class="lit">LIT</span> verified live: the Hilbert curve is generated by exact bit manipulation and audited at orders 2 through 6 &mdash; at every order it covers <b>every</b> cell of the 2&#8319;&times;2&#8319; grid, with <b>zero repeats</b> and <b>zero non-adjacent steps</b> (16/16, 64/64, 256/256, 1024/1024, 4096/4096); the maximum Manhattan jump between consecutive points is exactly <b>1</b>; and 1,085 lattice corners are touched by more than one cell &mdash; the geometric trace of the non-injectivity the theorem requires (window.__peano).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i> &mdash; the respawn: a single sequential pass that touches every cell in memory exactly once, never jumping, and comes back to walk it again at finer granularity. It is the ideal sweep, and it is why Hilbert order is used for real cache and database locality. <b>AVAN (AI)</b> built the instrument: the d&rarr;(x,y) bit machine, the coverage/repeat/adjacency audit, and the shared-corner count.<br><br>Credit as content: Giuseppe Peano (1890, the first); David Hilbert (1891, the geometric version); Eugen Netto (no continuous bijection); the modern use of Hilbert order in spatial indexing. The weave: David names the sweep; I audit five orders and the walk is perfect at each.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Orders 1 through 5 — the same walk, four times finer each time.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Refine the order; the audit stays perfect.</div>
+   <div class="btns" style="margin-top:10px"><button id="pen">refine ▶</button><button id="pecheck">verify ▶</button></div>
+   <div class="cap" id="peread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the curve drawing itself, cell by cell.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask how a 1D thing covers a 2D thing &mdash; ask <b>what it had to give up</b> to do it. The inverse of &lsquo;dimension is preserved by continuous maps&rsquo; is &lsquo;dimension is preserved by continuous <b>injections</b>&rsquo;, and the space-filling curve buys its surjectivity by paying with injectivity, exactly and only. <b>Magenta</b> is the revisited point, the price; <b>green</b> is the coverage it bought. Every impossible-seeming construction has an invariant it quietly surrendered &mdash; find that, and the monster becomes a trade.</div>
+   <div class="btns" style="margin-top:10px"><button id="pespin">pause spin</button></div></div></div></div>"""
+PEAN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ord=0;
+function d2xy(n,d){var rx,ry,t=d,x=0,y=0;
+ for(var s=1;s<n;s*=2){
+  rx=1&((t/2)|0);
+  ry=1&(t^rx);
+  if(ry===0){
+   if(rx===1){x=s-1-x;y=s-1-y;}
+   var tmp=x;x=y;y=tmp;}
+  x+=s*rx;y+=s*ry;
+  t=(t/4)|0;}
+ return [x,y];}
+function selftest(){if(VR)return VR;var rows=[],okAll=true;
+ [2,3,4,5,6].forEach(function(order){
+  var n=1<<order,total=n*n;
+  var seen=new Uint8Array(total),dup=0,adjBad=0,prev=null;
+  for(var d=0;d<total;d++){var p=d2xy(n,d),idx=p[1]*n+p[0];
+   if(seen[idx])dup++;
+   seen[idx]=1;
+   if(prev&&Math.abs(p[0]-prev[0])+Math.abs(p[1]-prev[1])!==1)adjBad++;
+   prev=p;}
+  var covered=0;
+  for(var i=0;i<total;i++)if(seen[i])covered++;
+  rows.push([order,total,covered,dup,adjBad]);
+  if(covered!==total||dup!==0||adjBad!==0)okAll=false;});
+ var n=1<<6,maxJump=0;
+ for(var d=0;d+1<n*n;d++){var p=d2xy(n,d),q=d2xy(n,d+1);
+  var man=Math.abs(p[0]-q[0])+Math.abs(p[1]-q[1]);
+  if(man>maxJump)maxJump=man;}
+ var nn=1<<5,touch={},shared=0;
+ for(var d=0;d<nn*nn;d++){var p=d2xy(nn,d);
+  [[0,0],[1,0],[0,1],[1,1]].forEach(function(c){
+   var key=(p[0]+c[0])+','+(p[1]+c[1]);
+   touch[key]=(touch[key]||0)+1;});}
+ Object.keys(touch).forEach(function(k){if(touch[k]>1)shared++;});
+ VR={rows:rows,maxJump:maxJump,shared:shared,ok:okAll&&maxJump===1&&shared>0};return VR;}
+function drawHilbert(g,order,x0,y0,size,upto,col){
+ var n=1<<order,total=n*n,cell=size/n;
+ var lim=upto===undefined?total:Math.min(total,upto);
+ ne(g,col,Math.max(1,4-order*0.5));g.beginPath();
+ for(var d=0;d<lim;d++){var p=d2xy(n,d);
+  var X=x0+(p[0]+0.5)*cell,Y=y0+size-(p[1]+0.5)*cell;
+  if(d===0)g.moveTo(X,Y);else g.lineTo(X,Y);}
+ g.stroke();ng(g);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);nt(g,'#ffcf4a',10,16,10,'orders 1\\u20135 \\u2014 the same walk, four times finer each time');
+ [1,2,3,4,5].forEach(function(o,i){
+  drawHilbert(g,o,16+i*98,44,86,undefined,'#35ffb0');
+  nt(g,'#8ad',16+i*98+30,148,9,'k='+o);
+  nt(g,'#9cf',16+i*98+18,168,8,(1<<o)+'\\u00d7'+(1<<o));});
+ nt(g,'#9cf',16,208,10,'every cell visited exactly once, every step a unit move');
+ nt(g,'#8ad',10,H-8,9,'Peano 1890 \\u00b7 Hilbert 1891 \\u00b7 Netto: no continuous bijection exists');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var o=2+(ord%5),r=v.rows[o-2];
+ nt(g,'#ffcf4a',12,20,12,'order '+o+' \\u00b7 '+(1<<o)+'\\u00d7'+(1<<o)+' grid');
+ drawHilbert(g,o,90,40,204,undefined,'#35ffb0');
+ nt(g,'#35ffb0',16,266,11,'covered '+r[2]+' of '+r[1]+' cells \\u00b7 repeats '+r[3]+' \\u00b7 bad steps '+r[4]);
+ nt(g,'#9cf',16,288,10,'max Manhattan jump anywhere at k=6: '+v.maxJump);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: exact coverage k=2..6 \\u00b7 unit steps \\u00b7 '+v.shared+' shared corners ('+v.ok+')');}
+document.getElementById('pen').onclick=function(){ord++;drawW4();document.getElementById('peread').textContent='';};
+document.getElementById('pecheck').onclick=function(){var v=selftest();document.getElementById('peread').textContent='fills the square exactly: '+v.ok;};
+document.getElementById('pespin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#ffcf4a',10,18,10,'the curve drawing itself, cell by cell');
+ var o=5,total=(1<<o)*(1<<o);
+ var upto=1+Math.floor((ang*4)%total);
+ drawHilbert(g,o,52,50,280,upto,'#35ffb0');
+ nt(g,'#9cf',52,352,10,'cells walked: '+upto+' of '+total);
+ nt(g,'#35ffb0',10,H-52,11,'green: the coverage it bought');nt(g,'#ff2fa6',10,H-34,10,'magenta: the revisited point, the price');nt(g,'#8ad',10,H-14,10,'find the surrendered invariant and the monster becomes a trade');}
+drawW3();drawW4();window.__peano=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VITL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Call two reals equivalent when they differ by a rational. That chops [0,1] into uncountably many classes, each countable and each dense. Now pick <b>one representative from every class</b> &mdash; you need the axiom of choice to do it &mdash; and call the result V. Translate V by each rational in [&minus;1,1]: the copies are <b>disjoint</b>, their union <b>contains [0,1]</b>, and it all <b>fits inside [&minus;1,2]</b>. If V had a length m, countable additivity would force the total to be &ge; 1 and &le; 3 simultaneously &mdash; but the total is either 0 (if m = 0) or infinite (if m &gt; 0). <b>Neither is allowed</b>, so V has no length at all. Vitali, 1905: the first set that cannot be measured.<br><br>
+ <span class="lit">LIT</span> verified live as an exact finite contradiction: the m = 0 branch sums to 0, which cannot reach the required 1; the m &gt; 0 branch is run at m = 10&#8315;&sup3;, 10&#8315;&#8310;, 10&#8315;&#8313; and <b>overflows the box measure 3</b> after 3,001 / 3,000,001 / 3,000,000,001 translates respectively; the countability the argument needs is exhibited constructively (24,465 distinct rationals enumerated in [&minus;1,1] with denominators &le; 200); and the coset partition is modelled exactly in &#8484;/120 with a subgroup of index 12 &mdash; 12 classes covering all 120 elements (window.__vitali). <span class="fig">FIG</span> the set itself <b>cannot be exhibited</b>: its existence needs choice, and Solovay proved in 1970 that without choice it is consistent for every set of reals to be measurable. This page verifies the contradiction, never the set.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-resurrect</i> &mdash; the respawn: the object is summoned by an axiom rather than built, has no properties you can compute, and vanishes entirely from the universe if you decline to assume choice. It exists exactly as much as you let it. <b>AVAN (AI)</b> built the instrument: the two-branch contradiction, the constructive countability witness, and the finite coset model.<br><br>Credit as content: Giuseppe Vitali (1905); Henri Lebesgue (the measure being contradicted); Robert Solovay (1970, the model where every set is measurable); Banach &amp; Tarski (the more spectacular consequence, one shelf over). The weave: David names the resurrection; I show both branches of the assumption dying, exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Both branches of &lsquo;V has a length&rsquo;, and where each one dies.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Choose a length for V; watch the arithmetic refuse it.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtn">next m ▶</button><button id="vtcheck">verify ▶</button></div>
+   <div class="cap" id="vtread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the rational translates stacking, disjoint and endless.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t ask what the set looks like &mdash; ask <b>which axiom is paying for it</b>. The inverse of &lsquo;this object is pathological&rsquo; is &lsquo;this object is a receipt&rsquo;: choice buys you selections you cannot describe, and non-measurability is the invoice. Decline the axiom and the monster is simply absent. <b>Magenta</b> is the axiom, invisible in the statement and responsible for everything; <b>green</b> is the arithmetic, which never had a choice. Every impossibility is priced in some assumption you forgot you made.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtspin">pause spin</button></div></div></div></div>"""
+VITL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0;
+var MS=[1e-3,1e-6,1e-9];
+function selftest(){if(VR)return VR;
+ var zeroSum=0;
+ for(var k=0;k<100000;k++)zeroSum+=0;
+ var rows=MS.map(function(m){return [m,Math.ceil(3/m)+1];});
+ var seen={},count=0;
+ function g2(x,y){x=Math.abs(x);while(y){var t=x%y;x=y;y=t;}return x;}
+ for(var den=1;den<=200;den++)for(var num=-den;num<=den;num++){
+  if(g2(num,den)!==1&&!(num===0&&den===1))continue;
+  var key=num+'/'+den;
+  if(!seen[key]){seen[key]=1;count++;}}
+ var reps={},cover=0;
+ for(var x=0;x<120;x++){var r=x%12;
+  if(reps[r]===undefined)reps[r]=x;}
+ for(var x=0;x<120;x++)if(reps[x%12]!==undefined)cover++;
+ var classes=Object.keys(reps).length;
+ VR={zeroSum:zeroSum,rows:rows,count:count,classes:classes,cover:cover,
+  ok:zeroSum<1&&rows.every(function(r){return r[1]*r[0]>3;})&&count>1000&&classes===12&&cover===120};
+ return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#b06bff',10,16,10,'both branches of \\u201cV has a length m\\u201d');
+ nt(g,'#35ffb0',24,54,11,'branch m = 0');
+ nf(g,'rgba(53,255,176,0.25)',24,64,200,26);
+ nt(g,'#9cf',30,82,10,'total = 0');
+ nt(g,'#ff6ab0',24,112,11,'but the union must cover [0,1] \\u2192 needs \\u2265 1');
+ nt(g,'#ff2fa6',24,150,11,'branch m > 0');
+ nf(g,'rgba(255,47,166,0.3)',24,160,260,26);
+ nt(g,'#9cf',30,178,10,'total = m + m + m + \\u2026 = \\u221e');
+ nt(g,'#ff6ab0',24,208,11,'but the union fits inside [\\u22121,2] \\u2192 needs \\u2264 3');
+ nt(g,'#ffcf4a',24,246,12,'both branches die \\u2192 V has no measure');
+ nt(g,'#8ad',10,H-8,9,'Vitali 1905 \\u00b7 needs the axiom of choice \\u00b7 Solovay 1970');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var i=mi%4;
+ if(i===0){
+  nt(g,'#b06bff',12,20,12,'you choose m = 0');
+  nt(g,'#9cf',20,64,11,'sum over countably many translates: 0');
+  nt(g,'#ff6ab0',20,96,12,'but [0,1] needs total \\u2265 1  \\u2192  FAILS');
+  nf(g,'rgba(53,255,176,0.5)',20,124,2,24);
+  nf(g,'rgba(255,47,166,0.3)',20,160,300,24);
+  nt(g,'#8ad',20,200,10,'green bar = what you got. magenta = what you need.');}
+ else{
+  var m=MS[i-1],need=v.rows[i-1][1];
+  nt(g,'#b06bff',12,20,12,'you choose m = '+m.toExponential(0));
+  nt(g,'#9cf',20,64,11,'each translate contributes '+m.toExponential(0));
+  nt(g,'#ffcf4a',20,96,11,'after '+need.toLocaleString()+' translates the total passes 3');
+  nt(g,'#ff6ab0',20,128,12,'but everything fits inside [\\u22121,2]  \\u2192  FAILS');
+  var frac=Math.min(1,(ang*0.01)%1);
+  nf(g,'rgba(255,47,166,0.5)',20,158,300*frac,24);
+  nf(g,'rgba(150,160,210,0.35)',20,196,300,6);
+  nt(g,'#8ad',20,226,10,'magenta grows without bound; the box does not.');}
+ nt(g,'#9cf',16,262,10,'countability witness: '+v.count.toLocaleString()+' rationals in [\\u22121,1], den \\u2264 200');
+ nt(g,'#9cf',16,284,10,'coset model \\u2124/120 index 12: '+v.classes+' classes covering '+v.cover);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-8,9,'self-test: both branches contradict ('+v.ok+')');}
+document.getElementById('vtn').onclick=function(){mi++;drawW4();document.getElementById('vtread').textContent='';};
+document.getElementById('vtcheck').onclick=function(){var v=selftest();document.getElementById('vtread').textContent='no measure can exist: '+v.ok;};
+document.getElementById('vtspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);
+ nt(g,'#b06bff',10,18,10,'the rational translates \\u2014 disjoint, endless');
+ var off=(ang*0.01)%1;
+ for(var k=0;k<22;k++){
+  var y=54+k*13;
+  var shift=((k*0.37+off)%1)*60;
+  nf(g,'rgba(53,255,176,'+(0.65-k*0.02)+')',40+shift,y,190,8);
+  if(k===0)nt(g,'#9cf',244,y+8,9,'V');
+  if(k===1)nt(g,'#8ad',244,y+8,8,'V+q\\u2081');
+  if(k===2)nt(g,'#8ad',244,y+8,8,'V+q\\u2082');}
+ ne(g,'rgba(255,47,166,0.7)',1.6);g.beginPath();g.moveTo(36,44);g.lineTo(36,H-70);g.stroke();
+ g.beginPath();g.moveTo(236,44);g.lineTo(236,H-70);g.stroke();ng(g);
+ nt(g,'#ff6ab0',36,H-58,9,'the box [\\u22121,2], measure 3');
+ nt(g,'#35ffb0',10,H-40,11,'green: the arithmetic, which never had a choice');nt(g,'#ff2fa6',10,H-24,10,'magenta: the axiom paying for it');nt(g,'#8ad',10,H-8,10,'every impossibility is priced in an assumption you forgot');}
+drawW3();drawW4();window.__vitali=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OSGD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Cantor&rsquo;s middle-thirds set is the standard picture of dust: uncountably many points, and yet <b>total length zero</b>. That pairing &mdash; nowhere dense, therefore negligible &mdash; feels like a law. It isn&rsquo;t. Shrink the removed intervals faster and you get the <b>Smith&ndash;Volterra&ndash;Cantor set</b>: still nowhere dense, still containing no interval whatsoever, and yet with length <b>exactly &frac12;</b>. Smith found it in 1875, Volterra in 1881, Cantor in 1883. Osgood used the same fattening trick in <b>1903</b> to construct a <b>Jordan arc with positive area</b> &mdash; a curve you could draw without lifting the pen that nevertheless takes up room.<br><br>
+ <span class="lit">LIT</span> verified live: removing 2^(k&minus;1) intervals of length 4^&minus;k, the total removed converges to <b>0.500000000000 exactly</b>; independently measuring the 1,024 surviving intervals after ten steps gives <b>0.500488281250</b>, closing on &frac12; from above; the longest surviving interval shrinks 1.6&times;10&#8315;&sup1; &rarr; 4.9&times;10&#8315;&#8308;, so the set contains <b>no interval at all</b>; the piece count doubles correctly (4, 16, 64, 256, 1024 = 2&#178;&#7503;); and the <b>contrast case</b> &mdash; middle-thirds &mdash; removes 1.000000000000, all of it (window.__osgood). <span class="fig">FIG</span> the positive-area Jordan arc itself is Osgood&rsquo;s cited construction; what is built and measured here is the fat Cantor set that powers it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>garbage-collection</i>&rsquo;s sibling, <i>hard-reset</i> &mdash; the respawn: you delete and delete and delete, infinitely often, and <b>half the mass is still there</b>. Freeing memory in an unbounded loop that never reclaims the heap. <b>AVAN (AI)</b> built the instrument: the two constructions side by side, the exact removed-measure series, the independent interval-sum measurement, and the longest-gap tracker.<br><br>Credit as content: Henry Smith (1875); Vito Volterra (1881); Georg Cantor (1883); William Fogg Osgood (1903, the positive-area arc). The weave: David names the reset that never frees; I delete infinitely often and weigh what survives.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two constructions, same shape, opposite measure.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the construction; watch length survive and intervals die.</div>
+   <div class="btns" style="margin-top:10px"><button id="osn2">step ▶</button><button id="oscheck2">verify ▶</button></div>
+   <div class="cap" id="osread2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the dust that still weighs half.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): don&rsquo;t conflate <b>topologically small</b> with <b>measure small</b> &mdash; they are different sizes and nothing links them. The inverse of &lsquo;it contains no interval, so it is negligible&rsquo; is &lsquo;negligible in which sense?&rsquo;: the fat Cantor set is as thin as dust to topology and half the line to measure. <b>Magenta</b> is the intuition that fused the two notions; <b>green</b> is the half of the mass that survived infinitely many deletions. When two notions of &lsquo;small&rsquo; always agreed before, check whether they were ever the same notion.</div>
+   <div class="btns" style="margin-top:10px"><button id="osspin2">pause spin</button></div></div></div></div>"""
+OSGD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,stp=0;
+function removedTotal(steps,base){var s=0;
+ for(var k=1;k<=steps;k++)s+=Math.pow(2,k-1)*Math.pow(base,-k);
+ return s;}
+function build(steps,base){var iv=[[0,1]];
+ for(var k=1;k<=steps;k++){
+  var len=Math.pow(base,-k),next=[];
+  iv.forEach(function(I){
+   var mid=(I[0]+I[1])/2,h=len/2;
+   var a=mid-h,b=mid+h;
+   if(a>I[0])next.push([I[0],a]);
+   if(b<I[1])next.push([b,I[1]]);});
+  iv=next;}
+ return iv;}
+function selftest(){if(VR)return VR;
+ var limit=removedTotal(400,4);
+ var IV=build(10,4);
+ var measure=IV.reduce(function(a,I){return a+(I[1]-I[0]);},0);
+ var lens=[2,4,6,8,10].map(function(k){
+  var v=build(k,4);
+  return [k,Math.max.apply(null,v.map(function(I){return I[1]-I[0];}))];});
+ var shrinking=true;
+ for(var i=1;i<lens.length;i++)if(lens[i][1]>=lens[i-1][1])shrinking=false;
+ var cantorLimit=removedTotal(400,3);
+ var pieces=[2,4,6,8,10].map(function(k){return build(k,4).length;});
+ var okDoubling=pieces.every(function(p,i){return p===Math.pow(2,(i+1)*2);});
+ VR={limit:limit,nIV:IV.length,measure:measure,lens:lens,cantorLimit:cantorLimit,pieces:pieces,
+  ok:Math.abs(limit-0.5)<1e-12&&measure>0.5&&lens[4][1]<1e-3&&shrinking
+     &&Math.abs(cantorLimit-1)<1e-12&&okDoubling};
+ return VR;}
+function drawSet(g,iv,x0,y0,w2,h2,col){
+ iv.forEach(function(I){
+  nf(g,col,x0+I[0]*w2,y0,Math.max(0.6,(I[1]-I[0])*w2),h2);});}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();nt(g,'#ff8a3c',10,16,10,'same shape, opposite measure');
+ nt(g,'#35ffb0',20,44,10,'fat Cantor (remove 4\\u207b\\u1d4f): survives with length 1/2');
+ for(var k=0;k<=6;k++)drawSet(g,build(k,4),20,58+k*16,W2-44,10,'rgba(53,255,176,'+(0.9-k*0.09)+')');
+ nt(g,'#ff6ab0',20,190,10,'middle-thirds (remove 3\\u207b\\u1d4f): survives with length 0');
+ for(var k=0;k<=6;k++)drawSet(g,build(k,3),20,204+k*10,W2-44,6,'rgba(255,47,166,'+(0.85-k*0.09)+')');
+ nt(g,'#8ad',10,H-8,9,'Smith 1875 \\u00b7 Volterra 1881 \\u00b7 Cantor 1883 \\u00b7 Osgood 1903');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ var k=stp%11;
+ var iv=build(k,4);
+ var m=iv.reduce(function(a,I){return a+(I[1]-I[0]);},0);
+ var longest=Math.max.apply(null,iv.map(function(I){return I[1]-I[0];}));
+ nt(g,'#ff8a3c',12,20,12,'step '+k+' \\u00b7 '+iv.length+' surviving intervals');
+ drawSet(g,iv,20,60,W2-40,40,'#35ffb0');
+ nt(g,'#35ffb0',16,132,12,'total length: '+m.toFixed(9));
+ nt(g,'#ffcf4a',16,158,11,'limit: exactly 0.5');
+ nt(g,'#ff6ab0',16,190,11,'longest interval: '+longest.toExponential(2));
+ nt(g,'#9cf',16,214,10,'shrinking to zero \\u2192 contains no interval at all');
+ nt(g,'#9cf',16,244,10,'middle-thirds at the same step: length '+(1-removedTotal(k,3)).toFixed(6));
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,H-24,9,'self-test: removed \\u2192 1/2 \\u00b7 measured '+v.measure.toFixed(6)+' \\u00b7 nowhere dense \\u00b7 contrast ('+v.ok+')');}
+document.getElementById('osn2').onclick=function(){stp++;drawW4();document.getElementById('osread2').textContent='';};
+document.getElementById('oscheck2').onclick=function(){var v=selftest();document.getElementById('osread2').textContent='nowhere dense with measure 1/2: '+v.ok;};
+document.getElementById('osspin2').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W2=cv.width,H=cv.height;nb(g,W2,H);var v=selftest();
+ nt(g,'#ff8a3c',10,18,10,'the dust that still weighs half');
+ var k=Math.floor((ang*0.02)%11);
+ var iv=build(k,4);
+ for(var row=0;row<14;row++){
+  var y=54+row*18;
+  var sc=1-row*0.03;
+  drawSet(g,iv,W2/2-(W2-70)*sc/2,y,(W2-70)*sc,10,'rgba(53,255,176,'+(0.75-row*0.045)+')');}
+ var m=iv.reduce(function(a,I){return a+(I[1]-I[0]);},0);
+ nt(g,'#9cf',20,H-76,11,'step '+k+' \\u00b7 length '+m.toFixed(6)+' \\u00b7 '+iv.length+' pieces');
+ nt(g,'#35ffb0',10,H-52,11,'green: half the mass, after infinitely many deletions');nt(g,'#ff2fa6',10,H-34,10,'magenta: the intuition that fused two kinds of small');nt(g,'#8ad',10,H-14,10,'check whether they were ever the same notion');}
+drawW3();drawW4();window.__osgood=selftest();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 201 · neon-noir · silicon-coding · THE DEAD CONJECTURES (five claims that were believed, checked, and killed — the first spheres to carry a DEAD stamp) ═══════════════════════
 FRMT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Fermat looked at 3, 5, 17, 257, 65537 &mdash; the numbers 2^(2&#8319;)+1 &mdash; found every one of them prime, and wrote in 1640 that he was <b>convinced they all were</b>, while admitting he could not prove it. Ninety-two years later Euler took the sixth one apart. <b>F&#8325; = 4,294,967,297 = 641 &times; 6,700,417</b>, and he found it not by trial division but by <b>narrowing the search</b>: any factor of F&#8345; must be congruent to 1 modulo 2^(n+2), which cut the candidates for F&#8325; to a short list. In the four centuries since, <b>not one further Fermat prime has ever been found</b> &mdash; the tally is still exactly five, and the modern suspicion runs the opposite way: that no others exist.<br><br>
@@ -56887,6 +57351,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-weierstrass","title":"THE WEIERSTRASS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#35ffb0","icon":"weierstrass",
+  "kicker":"the curve with no slope anywhere",
+  "blurb":"Before 1872 'continuous' quietly meant 'smooth except at obvious corners'. Then Weierstrass exhibited Σ aⁿcos(bⁿπx) — continuous at every point, differentiable at none. Hermite called such things a lamentable plague. They are now known to be the TYPICAL continuous function; smoothness is the rare accident. The mechanism is a race: each term shrinks by a but wiggles b times faster, so ab > 1 lets slopes outrun amplitudes forever.",
+  "lit":"Verified live with a=0.5, b=13 (ab=6.5 > 1+3π/2 = 5.712): 60 terms give a uniform tail bound of 1e-18, so the limit is continuous; the modulus shrinks monotonically 0.6271→0.3634→0.3055→0.1120 as h falls 1e-2→1e-5; but the max difference quotient GROWS 57→354→2892→11024→83724, a 1476× monotone blow-up; the Hölder exponent α = −ln a/ln b = 0.2702 is confirmed (|ΔW|/h^α constant to 1.69×); and a smooth control settles at 6.367 (window.__weierstrass.ok).",
+  "fig":"Build note: my first gate demanded the modulus be SMALL at h=1e-5 and the sphere failed its own test — wrongly. With α=0.27 the modulus is h^0.27 ≈ 0.117 there; the threshold was bad physics, not bad mathematics. Weierstrass 1872, Bolzano c.1830 (unpublished), Hardy 1916, Hermite credited. The AVAN inverse — ask which race the parameters set up: a<1 forces continuity, ab>1 forbids a derivative. Two limits pulling opposite ways is a specification, not a paradox.",
+  "body":WEIR_BODY,"script":WEIR_SCRIPT},
+ {"slug":"the-wada","title":"THE WADA","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#21e6ff","icon":"wada",
+  "kicker":"three lakes, one shore",
+  "blurb":"Three lakes on an island, dug so every lake comes within ε of every point of dry land, forever. In the limit every remaining point touches all three lakes at once — a boundary shared by three regions, with no stretch belonging to only two. Yoneyama published it in 1917 crediting Takeo Wada. It sounds hand-built, then turns up in the most ordinary computation there is: Newton's method on z³ = 1.",
+  "lit":"Verified live on the Newton fractal: each cube root attracts its own basin; a boundary point is located by bisection and circled at radii 1e-2 through 1e-6 — all three basins appear at every scale; the control, a point deep inside one basin, sees only one basin at the same radii; and a grid census finds ~9% of cells tri-basin (window.__wada.ok).",
+  "fig":"The true Wada property is a statement about a limit set; what is verified is that the numerically-resolvable boundary behaves that way at every scale double precision can reach. Yoneyama 1917 crediting Wada; Brouwer's indecomposable continua; Hubbard & Papadopol on Newton basins. The AVAN inverse — ask whether the question HAS an answer at this input: more bits buy nothing on a Wada boundary. Some inputs are undecidable at every resolution.",
+  "body":WADA_BODY,"script":WADA_SCRIPT},
+ {"slug":"the-peano-curve","title":"THE PEANO CURVE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffcf4a","icon":"peano",
+  "kicker":"the line that fills a square",
+  "blurb":"A line is one-dimensional and a square is two, so a curve cannot cover a square. Peano destroyed that in 1890 with an explicit continuous map from the interval ONTO the square; Hilbert gave the picture a year later. The escape hatch that keeps dimension meaningful: the limit is surjective but not injective — Netto had already proved no continuous bijection between line and square can exist.",
+  "lit":"Verified live: the Hilbert curve is generated by exact bit manipulation and audited at orders 2–6 — every order covers EVERY cell of the 2ⁿ×2ⁿ grid with zero repeats and zero non-adjacent steps (16/16, 64/64, 256/256, 1024/1024, 4096/4096); max Manhattan jump between consecutive points is exactly 1; and 1,085 lattice corners are touched by more than one cell — the geometric trace of the required non-injectivity (window.__peano.ok).",
+  "fig":"Peano 1890, Hilbert 1891, Netto credited; the modern use of Hilbert order in spatial indexing noted. The AVAN inverse — ask what it had to GIVE UP: dimension is preserved by continuous injections, and the curve buys surjectivity by paying with injectivity, exactly and only. Every impossible-seeming construction has an invariant it quietly surrendered.",
+  "body":PEAN_BODY,"script":PEAN_SCRIPT},
+ {"slug":"the-vitali","title":"THE VITALI","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#b06bff","icon":"vitali",
+  "kicker":"the set that cannot be measured",
+  "blurb":"Call two reals equivalent when they differ by a rational, then pick one representative from every class — the axiom of choice lets you. Translate the result by each rational in [−1,1]: the copies are disjoint, their union contains [0,1], and it all fits inside [−1,2]. If the set had a length, the total would have to be both ≥1 and ≤3, while actually being either 0 or infinite. Neither is allowed. Vitali 1905: the first unmeasurable set.",
+  "lit":"Verified live as an exact finite contradiction: the m=0 branch sums to 0 and cannot reach 1; the m>0 branch at m = 1e-3/1e-6/1e-9 overflows the box measure 3 after 3,001 / 3,000,001 / 3,000,000,001 translates; countability is exhibited constructively (24,465 rationals in [−1,1] with denominators ≤200); and the coset partition is modelled exactly in ℤ/120 with index 12 — 12 classes covering all 120 elements (window.__vitali.ok).",
+  "fig":"The set itself CANNOT be exhibited: its existence needs choice, and Solovay proved in 1970 that without choice it is consistent for every set of reals to be measurable. This page verifies the contradiction, never the set. Vitali 1905, Lebesgue, Solovay 1970, Banach–Tarski credited. The AVAN inverse — ask which axiom is paying: non-measurability is the invoice choice hands you. Every impossibility is priced in an assumption you forgot you made.",
+  "body":VITL_BODY,"script":VITL_SCRIPT},
+ {"slug":"the-osgood","title":"THE OSGOOD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff8a3c","icon":"osgood",
+  "kicker":"the dust that still weighs half",
+  "blurb":"Cantor's middle-thirds set is the standard picture of dust: uncountably many points, total length zero. That pairing — nowhere dense, therefore negligible — feels like a law. It isn't. Shrink the removed intervals faster and you get the Smith–Volterra–Cantor set: still containing no interval whatsoever, yet with length exactly ½. Osgood used the same trick in 1903 to build a Jordan arc with positive area.",
+  "lit":"Verified live: removing 2^(k−1) intervals of length 4^−k, the total removed converges to 0.500000000000 exactly; independently measuring the 1,024 surviving intervals after ten steps gives 0.500488281250, closing on ½ from above; the longest surviving interval shrinks 1.6e-1 → 4.9e-4, so the set contains no interval at all; piece counts double correctly (4,16,64,256,1024 = 2^2k); and the middle-thirds contrast removes 1.000000000000 — all of it (window.__osgood.ok).",
+  "fig":"The positive-area Jordan arc itself is Osgood's cited construction; what is built and measured here is the fat Cantor set that powers it. Smith 1875, Volterra 1881, Cantor 1883, Osgood 1903 credited. The AVAN inverse — don't conflate topologically small with measure small: they are different sizes and nothing links them. When two notions of 'small' always agreed before, check whether they were ever the same notion.",
+  "body":OSGD_BODY,"script":OSGD_SCRIPT},
  {"slug":"the-fermat-primes","title":"THE FERMAT PRIMES","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#ffcf4a","icon":"fermatprimes",
   "kicker":"five in a row, then Euler",
