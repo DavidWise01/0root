@@ -19499,6 +19499,716 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 225 · neon-noir · silicon-coding · WHAT THE QUANTUM RULES FORBID AND ALLOW (a correlation no local story can tell · the state that cannot be copied · two bits down one wire · a watched state that will not move · logic that throws nothing away) ═══════════════════════
+CHSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two particles are measured far apart, each along one of two settings. Add up the four correlations the right way and you get a number S. If the outcomes were fixed in advance by anything carried locally &mdash; any hidden variable, any conspiracy of prior agreement &mdash; then <b>|S| &le; 2</b>. Entangled particles reach <b>2&radic;2</b>. Bell wrote the argument in 1964; Clauser, Horne, Shimony and Holt put it in testable form in 1969.<br><br>
+ <span class="lit">LIT</span> verified live: all <b>16</b> local deterministic strategies were enumerated and the worst gives |S| = exactly <b>2</b>; mixtures cannot beat it because S is linear in the strategy weights, so the maximum sits at a vertex. The singlet state with the standard angles gives <b>2.8284271247</b>, which is <b>1.414214</b> times the classical ceiling. Searching <b>810,000</b> angle quadruples, none exceeds the Tsirelson bound &mdash; the best found is <b>2.8164088135</b>. And the correlation function itself is derived from the singlet amplitudes at <b>200</b> angle pairs, not asserted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE ROOT KIT</i>: correlations arriving through a channel no local account has access to.<br><br>
+ <b>AVAN (AI)</b> enumerated the classical side <b>exhaustively</b> rather than arguing it, because the bound is the entire point and a sampled version would prove nothing. Sixteen strategies is small enough to list, and the linearity remark closes the remaining gap: any probabilistic hidden-variable model is a convex combination of those sixteen, and a linear functional on a simplex is maximised at a corner. Two things need stating plainly. This page computes quantum-mechanical <b>predictions</b>; it is not an experiment, and the experimental violations &mdash; Aspect 1982, and the loophole-free tests of 2015 &mdash; are <b>cited, not reproduced here</b>. And the Tsirelson bound is checked by dense search rather than proved; the grid misses the exact optimum by 0.0120, which is a resolution artifact and not a violation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">S against the measurement angle. The classical ceiling, and where quantum goes through it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the analysers. Try to get past 2&radic;2.</div>
+   <div class="btns" style="margin-top:10px"><button id="bltune">rotate the analysers &#9654;</button><button id="blopt">the optimal setting</button><button id="bl16">the 16 classical strategies</button></div>
+   <div class="cap" id="blout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the correlation surface, with the classical ceiling as a plane through it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;quantum correlations are stronger than classical ones.&rdquo; The inverse is that <b>the inequality is not about strength but about <i>storage</i></b>. The classical bound comes from assuming each particle carries an answer for every question it might be asked &mdash; a lookup table &mdash; and 2 is simply the most any table can achieve. Quantum mechanics does not exceed it by correlating harder; it exceeds it by <b>not having the table</b>. Read backwards, Bell&rsquo;s theorem measures the cost of pre-computed answers, and the surprise is that the cost is finite, sharp, and measurable in the laboratory.</div>
+   <div class="btns" style="margin-top:10px"><button id="blsp">pause spin</button></div></div></div></div>"""
+CHSH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tune=0,mode=0;
+function E(a,b){return -Math.cos(2*(a-b));}
+function Sof(a0,a1,b0,b1){return E(a0,b0)-E(a0,b1)+E(a1,b0)+E(a1,b1);}
+function selftest(){
+ var worst=0,over=0;
+ for(var m=0;m<16;m++){
+  var A0=(m&1)?1:-1,A1=(m&2)?1:-1,B0=(m&4)?1:-1,B1=(m&8)?1:-1;
+  var S0=A0*B0+A0*B1+A1*B0-A1*B1;
+  worst=Math.max(worst,Math.abs(S0));
+  if(Math.abs(S0)>2+1e-12)over++;}
+ var S=Sof(0,Math.PI/4,Math.PI/8,3*Math.PI/8);
+ var best=0,N=30;
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++)for(var k=0;k<N;k++)for(var l=0;l<N;l++){
+  var v=Math.abs(Sof(Math.PI*i/N,Math.PI*j/N,Math.PI*k/N,Math.PI*l/N));
+  if(v>best)best=v;}
+ function singletE(a,b){return -(Math.cos(a)*Math.cos(b)+Math.sin(a)*Math.sin(b));}
+ var match=0,tested=0;
+ for(var t=0;t<200;t++){
+  var a=Math.PI*t/100,b=Math.PI*((t*7)%200)/100;
+  tested++;
+  if(Math.abs(singletE(2*a,2*b)-E(a,b))<1e-12)match++;}
+ return {localStrategies:16,worstClassical:worst,noneExceedTwo:over===0,
+  classicalBoundIsTwo:Math.abs(worst-2)<1e-12,
+  quantumS:Math.abs(S),tsirelson:2*Math.SQRT2,
+  matchesTsirelson:Math.abs(Math.abs(S)-2*Math.SQRT2)<1e-12,
+  ratioToClassical:Math.abs(S)/2,
+  searched:Math.pow(N,4),searchBest:best,
+  noneBeatTsirelson:best<=2*Math.SQRT2+1e-9,
+  correlationPairs:tested,correlationDerived:match===tested,
+  experimentsCited:true,
+  ok:over===0&&Math.abs(worst-2)<1e-12&&Math.abs(Math.abs(S)-2*Math.SQRT2)<1e-12&&
+   best<=2*Math.SQRT2+1e-9&&match===tested};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'S AGAINST THE ANALYSER ANGLE');
+ var m=56,pw=W-m-46,top=44,ph=168;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ function Y(v){return top+ph-ph*(v+3)/6;}
+ ne(g,'#ff5a8a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,Y(2));g.lineTo(m+pw,Y(2));g.stroke();
+ g.beginPath();g.moveTo(m,Y(-2));g.lineTo(m+pw,Y(-2));g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',m+pw-118,Y(2)-8,10,'classical ceiling  |S| = 2');
+ ne(g,'rgba(255,215,106,0.4)',1.2);g.setLineDash([2,3]);
+ g.beginPath();g.moveTo(m,Y(2*Math.SQRT2));g.lineTo(m+pw,Y(2*Math.SQRT2));g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m+pw-118,Y(2*Math.SQRT2)-8,10,'Tsirelson  2\\u221a2');
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ for(var i=0;i<=300;i++){
+  var t=Math.PI*i/300;
+  var v=Sof(0,2*t,t,3*t);
+  var px=m+pw*i/300,py=Y(v);
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var topt=Math.PI/8;
+ ndot(g,m+pw*(topt/Math.PI),Y(Sof(0,2*topt,topt,3*topt)),6,'#ffd76a');
+ nt(g,'#8a7ab8',m,top+ph+18,9,'0');
+ nt(g,'#8a7ab8',m+pw-14,top+ph+18,9,'\\u03c0');
+ nt(g,'#e6dcff',20,244,10,'peak '+VR.quantumS.toFixed(10)+'   =   2\\u221a2   =   '+VR.ratioToClassical.toFixed(6)+' times the classical maximum');
+ nt(g,'#8a7ab8',20,266,9,'all '+VR.localStrategies+' local deterministic strategies were enumerated; the worst gives exactly '+VR.worstClassical);
+ nt(g,'#8a7ab8',20,284,9,'and mixtures cannot help, because S is linear in the strategy weights');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(mode===1){
+  nt(g,'#e6dcff',16,26,11,'the 16 local deterministic strategies');
+  var m2=30,cw=(W-60)/8;
+  for(var k=0;k<16;k++){
+   var A0=(k&1)?1:-1,A1=(k&2)?1:-1,B0=(k&4)?1:-1,B1=(k&8)?1:-1;
+   var S0=A0*B0+A0*B1+A1*B0-A1*B1;
+   var x=m2+(k%8)*cw,y=58+Math.floor(k/8)*96;
+   nf(g,Math.abs(S0)===2?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.35)');
+   g.fillRect(x,y,cw-5,64);ng(g);
+   ne(g,Math.abs(S0)===2?'#ff5a8a':'rgba(125,226,176,0.5)',1.1);
+   g.strokeRect(x+0.5,y+0.5,cw-5,64);ng(g);
+   nt(g,'#8a7ab8',x+5,y+16,8,(A0>0?'+':'\\u2212')+(A1>0?'+':'\\u2212'));
+   nt(g,'#8a7ab8',x+5,y+30,8,(B0>0?'+':'\\u2212')+(B1>0?'+':'\\u2212'));
+   nt(g,Math.abs(S0)===2?'#ff5a8a':'#7de2b0',x+8,y+54,14,''+S0);}
+  nt(g,'#ff5a8a',24,266,10,'pink: the eight that reach the ceiling |S| = 2');
+  nt(g,'#8a7ab8',24,288,9,'nothing local gets past it, and no mixture of them can either');
+  var o2=document.getElementById('blout');
+  if(o2)o2.innerHTML='All <b>16</b> ways of pre-deciding the four answers. Eight reach <b>|S| = 2</b> and none exceeds it. Any probabilistic hidden-variable model is a mixture of these, and a linear function on a simplex is maximised at a corner &mdash; so 2 is the ceiling for every local account there is.';
+  return;}
+ var t=Math.PI/8+tune;
+ var a0=0,a1=2*t,b0=t,b1=3*t;
+ var S=Sof(a0,a1,b0,b1);
+ nt(g,'#e6dcff',16,26,11,'|S| = '+Math.abs(S).toFixed(8));
+ var cx=W/2,cy=150,R=88;
+ [[a0,'#7de2b0','a\\u2080'],[a1,'#5ad6ff','a\\u2081'],[b0,'#ffd76a','b\\u2080'],[b1,'#ff5a8a','b\\u2081']].forEach(function(sp,i){
+  var th=sp[0];
+  ne(g,sp[1],2.2);
+  g.beginPath();
+  g.moveTo(cx-R*Math.cos(th),cy-R*Math.sin(th));
+  g.lineTo(cx+R*Math.cos(th),cy+R*Math.sin(th));
+  g.stroke();ng(g);
+  nt(g,sp[1],cx+(R+10)*Math.cos(th)-6,cy+(R+10)*Math.sin(th)+4,9,sp[2]);});
+ ne(g,'rgba(150,110,230,0.3)',1);
+ g.beginPath();g.arc(cx,cy,R,0,2*Math.PI);g.stroke();ng(g);
+ var y2=256;
+ var past=Math.abs(S)>2+1e-9;
+ nf(g,past?'rgba(255,215,106,0.16)':'rgba(90,74,133,0.16)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,past?'#ffd76a':'rgba(150,110,230,0.5)',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,past?'#ffd76a':'#8a7ab8',36,y2+26,12,past?'PAST THE CLASSICAL CEILING':'within the classical range');
+ nt(g,'#8a7ab8',36,y2+46,9,'ceiling 2.00000000   \\u00b7   Tsirelson '+(2*Math.SQRT2).toFixed(8));
+ var o=document.getElementById('blout');
+ if(o)o.innerHTML='These analyser settings give <b>|S| = '+Math.abs(S).toFixed(8)+'</b>. '+
+  (Math.abs(Math.abs(S)-2*Math.SQRT2)<1e-6
+   ?'That is exactly 2&radic;2 &mdash; the Tsirelson bound, and no setting does better.'
+   :(past?'Past 2, which no local hidden-variable model can reach. Rotate further to find the optimum.'
+    :'Below 2, so a local model could reproduce this. Keep rotating.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.5-zr*0.34];}
+ var N=26;
+ for(var i=0;i<N;i++){
+  var prev=null;
+  for(var j=0;j<N;j++){
+   var u=Math.PI*i/(N-1),v=Math.PI*j/(N-1);
+   var S=Sof(0,2*u,v,3*v);
+   var q=P(-90+180*i/(N-1),S*26,-90+180*j/(N-1));
+   if(prev){
+    ne(g,Math.abs(S)>2?'#ffd76a':'rgba(125,226,176,0.35)',Math.abs(S)>2?1.7:0.9);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}}
+ [2,-2].forEach(function(lev){
+  var cor=[[-90,-90],[90,-90],[90,90],[-90,90]].map(function(p){return P(p[0],lev*26,p[1]);});
+  ne(g,'rgba(255,90,138,0.5)',1.4);
+  g.beginPath();
+  cor.forEach(function(p,i2){if(i2===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);});
+ nt(g,'#ff5a8a',14,24,11,'pink planes: the classical ceiling at \\u00b12');
+ nt(g,'#ffd76a',14,42,10,'gold: where the quantum surface breaks through');
+ nt(g,'#8a7ab8',14,58,10,'2 is the most any lookup table can achieve');
+ nt(g,'#8a7ab8',14,H-12,9,'quantum exceeds it by not having the table');}
+document.getElementById('bltune').onclick=function(){mode=0;tune+=Math.PI/36;drawW4();};
+document.getElementById('blopt').onclick=function(){mode=0;tune=0;drawW4();};
+document.getElementById('bl16').onclick=function(){mode=mode===1?0:1;drawW4();};
+document.getElementById('blsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__bellinequality=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NOCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There is no machine that copies an unknown quantum state. Not a difficult machine, not an expensive one &mdash; none, and the proof is three lines of linear algebra. If some operation turned |&psi;&rang;|0&rang; into |&psi;&rang;|&psi;&rang; for every &psi;, then applying it to two states would force their overlap to equal <b>its own square</b>, which only 0 and 1 satisfy. So you may copy states you already know are distinguishable, and nothing else. Wootters, Zurek and Dieks published it in 1982.<br><br>
+ <span class="lit">LIT</span> verified live: across <b>800</b> state pairs, the cloning equation is satisfied exactly when the overlap is 0 or 1 and violated everywhere else, with a worst violation of <b>0.249995</b>. A CNOT copies the two basis states at fidelity <b>1.000000</b> and fails on every superposition handed to it &mdash; <b>0.500000</b> for the equal superposition, <b>0.529984</b> and <b>0.659050</b> for two others. The equal superposition is the worst case, at exactly <b>1/2</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE KONAMI CODE</i> &mdash; a sequence that works exactly once, because there is no way to write it down.<br><br>
+ <b>AVAN (AI)</b> demonstrated the failure with a <b>CNOT</b> specifically, because it is the gate people reach for when they first try to build a copier and it looks like it works. On |0&rang; and |1&rang; it is perfect. Hand it |+&rang; and it produces an <i>entangled</i> pair rather than two copies &mdash; the fidelity to |+&rang;|+&rang; is exactly one half, and the output is not a broken copy so much as a different kind of object. That distinction is the content: no-cloning is not a statement about precision or noise, and adding better hardware does not approach the target. Worth flagging the boundary: <b>approximate</b> cloning is permitted, and the optimal universal cloner reaches 5/6 fidelity &mdash; cited, not computed here.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Copy fidelity against the state being copied. Perfect at the poles, halved at the equator.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a state and try to copy it. Watch what comes out instead.</div>
+   <div class="btns" style="margin-top:10px"><button id="ncrot">rotate the state &#9654;</button><button id="ncpole">back to a pole</button></div>
+   <div class="cap" id="ncout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the Bloch sphere, with the only two copyable points marked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;quantum states cannot be copied.&rdquo; The inverse is that <b>copying was always a statement about a <i>basis</i>, and the theorem is what happens when you ask for one that does not depend on a choice</b>. Any given machine copies its own basis perfectly; what does not exist is a machine that copies <i>every</i> basis at once, because the requirement is linear and the target is quadratic. Read backwards, no-cloning is the same fact as the impossibility of reading a state without disturbing it, and the same fact again as why quantum key distribution works &mdash; three sentences that turn out to be one sentence.</div>
+   <div class="btns" style="margin-top:10px"><button id="ncsp">pause spin</button></div></div></div></div>"""
+NOCL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,theta=Math.PI/2;
+function fid(th){
+ var a=Math.cos(th/2),b=Math.sin(th/2);
+ var t00=a*a,t01=a*b,t10=b*a,t11=b*b;
+ var ip=a*t00+0*t01+0*t10+b*t11;
+ return ip*ip;}
+function selftest(){
+ var forced=0,tested=0,worst=0;
+ for(var i=0;i<800;i++){
+  var th1=Math.PI*i/800,th2=Math.PI*((i*13)%800)/800;
+  var ov=Math.cos(th1/2)*Math.cos(th2/2)+Math.sin(th1/2)*Math.sin(th2/2);
+  tested++;
+  var triv=Math.abs(ov)<1e-9||Math.abs(Math.abs(ov)-1)<1e-9;
+  var sat=Math.abs(ov-ov*ov)<1e-9;
+  if(sat===triv)forced++;
+  if(!triv)worst=Math.max(worst,Math.abs(ov-ov*ov));}
+ var rows=[[1,0],[0,1],[Math.SQRT1_2,Math.SQRT1_2],[0.6,0.8],[0.9,Math.sqrt(1-0.81)]]
+  .map(function(p){
+   var a=p[0],b=p[1];
+   var t00=a*a,t01=a*b,t10=b*a,t11=b*b;
+   var ip=a*t00+0*t01+0*t10+b*t11;
+   return {a:a,b:b,F:ip*ip};});
+ return {statePairs:tested,overlapForcedToZeroOrOne:forced===tested,
+  worstViolation:worst,
+  basisFidelity:rows[0].F,secondBasisFidelity:rows[1].F,
+  basisStatesCopyPerfectly:Math.abs(rows[0].F-1)<1e-12&&Math.abs(rows[1].F-1)<1e-12,
+  superpositions:rows.slice(2).map(function(r){return r.F;}),
+  allSuperpositionsFail:rows.slice(2).every(function(r){return r.F<0.95;}),
+  equalSuperposition:rows[2].F,worstCaseIsOneHalf:Math.abs(rows[2].F-0.5)<1e-12,
+  optimalClonerCited:true,
+  ok:forced===tested&&Math.abs(rows[0].F-1)<1e-12&&Math.abs(rows[2].F-0.5)<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'COPY FIDELITY vs THE STATE BEING COPIED');
+ var m=58,pw=W-m-46,top=46,ph=162;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ for(var i=0;i<=300;i++){
+  var th=Math.PI*i/300;
+  var px=m+pw*i/300,py=top+ph-ph*fid(th);
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ne(g,'rgba(255,90,138,0.4)',1.3);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top+ph-ph*0.5);g.lineTo(m+pw,top+ph-ph*0.5);g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',m+pw-64,top+ph-ph*0.5-8,10,'1/2');
+ ndot(g,m,top,6,'#ffd76a');
+ ndot(g,m+pw,top,6,'#ffd76a');
+ ndot(g,m+pw/2,top+ph-ph*0.5,6,'#ff5a8a');
+ nt(g,'#ffd76a',m-6,top+ph+18,9,'|0\\u27e9');
+ nt(g,'#ff5a8a',m+pw/2-14,top+ph+18,9,'|+\\u27e9');
+ nt(g,'#ffd76a',m+pw-16,top+ph+18,9,'|1\\u27e9');
+ nt(g,'#e6dcff',20,246,10,'perfect at the two poles, exactly one half at the equator');
+ nt(g,'#8a7ab8',20,268,9,VR.statePairs.toLocaleString()+' state pairs: the cloning equation holds only where the overlap is 0 or 1');
+ nt(g,'#8a7ab8',20,286,9,'worst violation elsewhere '+VR.worstViolation.toFixed(6)+' \\u2014 and it is violated everywhere else');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=Math.cos(theta/2),b=Math.sin(theta/2);
+ var F=fid(theta);
+ nt(g,'#e6dcff',16,26,11,'state = '+a.toFixed(4)+'|0\\u27e9 + '+b.toFixed(4)+'|1\\u27e9');
+ nt(g,'#8a7ab8',16,46,9,'CNOT output amplitudes over |00\\u27e9 |01\\u27e9 |10\\u27e9 |11\\u27e9');
+ var out=[a,0,0,b];
+ var want=[a*a,a*b,b*a,b*b];
+ var labels=['|00\\u27e9','|01\\u27e9','|10\\u27e9','|11\\u27e9'];
+ var m=40,bw=(W-90)/4,top=64;
+ for(var k=0;k<4;k++){
+  var x=m+k*bw;
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(x,top+70-70*Math.abs(out[k]),bw*0.4,70*Math.abs(out[k]));ng(g);
+  nf(g,'rgba(255,215,106,0.5)');
+  g.fillRect(x+bw*0.45,top+70-70*Math.abs(want[k]),bw*0.4,70*Math.abs(want[k]));ng(g);
+  nt(g,'#8a7ab8',x+6,top+90,9,labels[k]);}
+ nt(g,'#7de2b0',m,top-6,9,'green: what CNOT produced');
+ nt(g,'#ffd76a',m+170,top-6,9,'gold: an actual copy');
+ var y2=190;
+ nf(g,F>0.99?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,F>0.99?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,F>0.99?'#7de2b0':'#ff5a8a',36,y2+28,14,'fidelity '+F.toFixed(6));
+ nt(g,'#8a7ab8',36,y2+50,9,F>0.99?'a genuine copy \\u2014 this state was already known to the machine'
+  :'not a copy: the output is entangled, not two independent states');
+ nt(g,'#8a7ab8',24,278,9,'no machine does better than this on every state at once');
+ nt(g,'#8a7ab8',24,298,9,'the requirement is linear and the target is quadratic');
+ var o=document.getElementById('ncout');
+ if(o)o.innerHTML='Copying this state gives fidelity <b>'+F.toFixed(6)+'</b>. '+
+  (F>0.99?'The basis states copy perfectly, because the machine was built around them.'
+   :'The output is an <b>entangled pair</b>, not two copies &mdash; a different kind of object rather than a damaged one. At the equator the fidelity is exactly <b>1/2</b>, and no amount of better hardware moves it.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var R=92;
+ for(var i=0;i<=12;i++){
+  var th=Math.PI*i/12,prev=null;
+  for(var j=0;j<=40;j++){
+   var ph=2*Math.PI*j/40;
+   var q=P(R*Math.sin(th)*Math.cos(ph),-R*Math.cos(th),R*Math.sin(th)*Math.sin(ph));
+   if(prev){
+    var f=fid(th);
+    ne(g,f>0.99?'#ffd76a':'rgba(125,226,176,'+(0.15+0.35*f)+')',f>0.99?2:0.9);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}}
+ var np=P(0,-R,0),sp=P(0,R,0);
+ ndot(g,np[0],np[1],7,'#ffd76a');
+ ndot(g,sp[0],sp[1],7,'#ffd76a');
+ nt(g,'#ffd76a',np[0]+10,np[1],9,'|0\\u27e9  copyable');
+ nt(g,'#ffd76a',sp[0]+10,sp[1],9,'|1\\u27e9  copyable');
+ var eq=P(R,0,0);
+ ndot(g,eq[0],eq[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',eq[0]+8,eq[1],9,'everything else: no');
+ nt(g,'#7de2b0',14,24,11,'the Bloch sphere');
+ nt(g,'#8a7ab8',14,42,10,'exactly two points can be copied, and they are the ones you chose');
+ nt(g,'#8a7ab8',14,58,10,'no machine copies every basis at once');
+ nt(g,'#8a7ab8',14,H-12,9,'three sentences that turn out to be one sentence');}
+document.getElementById('ncrot').onclick=function(){theta=(theta+Math.PI/12)%Math.PI;drawW4();};
+document.getElementById('ncpole').onclick=function(){theta=0.0001;drawW4();};
+document.getElementById('ncsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__nocloning=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SDNS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A qubit carries one bit. Holevo proved that. And yet: share an entangled pair in advance, and Alice can send <b>two</b> classical bits by transmitting a <b>single</b> qubit. The trick is that her half of the pair is already in Bob&rsquo;s hands &mdash; she is not sending two bits down one wire so much as completing a message half-delivered before either of them knew what it would say. Bennett and Wiesner published it in 1992.<br><br>
+ <span class="lit">LIT</span> verified live: all four two-bit messages are encoded by one of four operations on Alice&rsquo;s qubit and decoded by Bob with probability <b>exactly 1</b> &mdash; outcome distributions of [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0] and [0, 0, 0, 1], deterministic rather than merely likely, <b>4</b> times out of 4. Run the same protocol without the shared pair and only <b>2</b> of the four messages remain distinguishable.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>STACK OVERFLOW</i>: two bits arriving through a one-bit channel, and nothing is corrupted.<br><br>
+ <b>AVAN (AI)</b> built the <b>control</b> arm and it is the half that makes the claim mean anything. Running the identical encode-and-decode circuit on an unentangled product state collapses four messages down to two distinguishable outcomes &mdash; exactly the one bit Holevo allows. Without that comparison the page would show a circuit producing four clean answers and leave the impression that a qubit simply carries two bits, which is false. The entanglement is a <b>consumed resource</b>: the pair must be distributed beforehand, it is destroyed by the protocol, and counting it honestly means two qubits moved in total. What is bought is <b>timing</b> &mdash; one of those qubits could travel long before anyone knew the message.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four messages, four outcome distributions, no overlap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Send a message. Then take the entanglement away and watch it stop working.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdmsg">next message &#9654;</button><button id="sdent">remove the entanglement</button></div>
+   <div class="cap" id="sdout2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the four Bell states as four corners the protocol steers between.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;one qubit carries two bits.&rdquo; The inverse is that <b>the second bit was already there, and Alice is choosing which of four pre-existing arrangements to reveal</b>. The Bell pair has four orthogonal configurations; her operation selects one, and Bob&rsquo;s measurement reads a label that the pair could always have carried. Read backwards, superdense coding does not compress anything &mdash; it <b>relocates the cost in time</b>, letting half a message be delivered before it exists, which is a statement about scheduling rather than about capacity.</div>
+   <div class="btns" style="margin-top:10px"><button id="sdsp2">pause spin</button></div></div></div></div>"""
+SDNS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mi=0,useEnt=true;
+var RT=Math.SQRT1_2;
+function bell(){return [RT,0,0,RT];}
+function prod(){return [1,0,0,0];}
+function aX(v){return [v[2],v[3],v[0],v[1]];}
+function aZ(v){return [v[0],v[1],-v[2],-v[3]];}
+function cnot(v){return [v[0],v[1],v[3],v[2]];}
+function had0(v){return [RT*(v[0]+v[2]),RT*(v[1]+v[3]),RT*(v[0]-v[2]),RT*(v[1]-v[3])];}
+var MSG=[[0,0],[0,1],[1,0],[1,1]];
+function runProtocol(b1,b2,ent){
+ var v=ent?bell():prod();
+ if(b2)v=aX(v);
+ if(b1)v=aZ(v);
+ v=cnot(v);v=had0(v);
+ return v.map(function(x){return x*x;});}
+function selftest(){
+ var ok=0,table=[];
+ MSG.forEach(function(m){
+  var p=runProtocol(m[0],m[1],true);
+  var mx=0;
+  for(var i=1;i<4;i++)if(p[i]>p[mx])mx=i;
+  var dec=[(mx>>1)&1,mx&1];
+  var good=dec[0]===m[0]&&dec[1]===m[1]&&Math.abs(p[mx]-1)<1e-12;
+  if(good)ok++;
+  table.push({sent:m.join(''),probs:p,decoded:dec.join(''),certainty:p[mx]});});
+ var noEnt={};
+ MSG.forEach(function(m){
+  var p=runProtocol(m[0],m[1],false);
+  noEnt[p.map(function(x){return x.toFixed(6);}).join(',')]=1;});
+ return {messages:4,decodedCorrectly:ok,allFourDecode:ok===4,
+  table:table,
+  deterministic:table.every(function(r){return Math.abs(r.certainty-1)<1e-12;}),
+  withoutEntanglement:Object.keys(noEnt).length,
+  entanglementIsRequired:Object.keys(noEnt).length<4,
+  qubitsMovedInTotal:2,resourceConsumed:true,
+  ok:ok===4&&Object.keys(noEnt).length<4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR MESSAGES, FOUR OUTCOMES, NO OVERLAP');
+ var labels=['|00\\u27e9','|01\\u27e9','|10\\u27e9','|11\\u27e9'];
+ var m=52,cw=(W-104)/4,top=48;
+ VR.table.forEach(function(r,i){
+  var y=top+i*56;
+  nt(g,'#8a7ab8',20,y+22,10,'sent '+r.sent);
+  for(var k=0;k<4;k++){
+   var x=m+k*cw;
+   var hit=r.probs[k]>0.5;
+   nf(g,hit?'rgba(125,226,176,0.75)':'rgba(40,30,64,0.85)');
+   g.fillRect(x,y,cw-6,34);ng(g);
+   ne(g,hit?'#7de2b0':'rgba(120,100,170,0.3)',1.1);
+   g.strokeRect(x+0.5,y+0.5,cw-6,34);ng(g);
+   nt(g,hit?'#0a0713':'#5a4a85',x+12,y+22,10,r.probs[k].toFixed(0));}
+  nt(g,'#ffd76a',W-46,y+22,11,r.decoded);});
+ for(var k2=0;k2<4;k2++)nt(g,'#8a7ab8',m+k2*cw+12,top-6,9,labels[k2]);
+ nt(g,'#e6dcff',20,266,10,'every probability is exactly 1 or exactly 0 \\u2014 deterministic, not merely likely');
+ nt(g,'#ff5a8a',20,286,9,'without the shared pair only '+VR.withoutEntanglement+' of the four stay distinguishable');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=MSG[mi%4];
+ var p=runProtocol(m[0],m[1],useEnt);
+ var mx=0;
+ for(var i=1;i<4;i++)if(p[i]>p[mx])mx=i;
+ nt(g,'#e6dcff',16,26,11,'sending '+m.join('')+(useEnt?'   \\u00b7   with the Bell pair':'   \\u00b7   NO entanglement'));
+ var steps=[['share a Bell pair','#7de2b0'],['Alice applies '+(m[0]?'Z':'I')+(m[1]?'X':''),'#5ad6ff'],
+  ['Alice sends ONE qubit','#ffd76a'],['Bob: CNOT then H, measure','#ff5a8a']];
+ steps.forEach(function(sp,i2){
+  var y=54+i2*38;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,30);ng(g);
+  ne(g,i2===0&&!useEnt?'#ff5a8a':sp[1],1.2);g.strokeRect(20.5,y+0.5,W-41,30);ng(g);
+  nt(g,i2===0&&!useEnt?'#ff5a8a':sp[1],34,y+20,10,
+   (i2===0&&!useEnt)?'NO Bell pair \\u2014 a plain product state':sp[0]);});
+ var top=212,bw=(W-90)/4;
+ var labels=['|00\\u27e9','|01\\u27e9','|10\\u27e9','|11\\u27e9'];
+ for(var k=0;k<4;k++){
+  var x=40+k*bw;
+  nf(g,p[k]>0.5?'rgba(125,226,176,0.7)':(p[k]>0.01?'rgba(255,215,106,0.5)':'rgba(40,30,64,0.85)'));
+  g.fillRect(x,top+56-56*p[k],bw-8,56*p[k]);ng(g);
+  ne(g,'rgba(120,100,170,0.35)',1);
+  g.strokeRect(x+0.5,top+0.5,bw-8,56);ng(g);
+  nt(g,'#8a7ab8',x+6,top+74,9,labels[k]);
+  nt(g,'#e6dcff',x+6,top+92,9,p[k].toFixed(2));}
+ var good=useEnt&&Math.abs(p[mx]-1)<1e-12;
+ var o=document.getElementById('sdout2');
+ if(o)o.innerHTML=useEnt
+  ?('Message <b>'+m.join('')+'</b> arrives with certainty <b>'+p[mx].toFixed(6)+
+    '</b>. One qubit crossed the wire and Bob learned two bits, because his half of the pair was already in the room.')
+  :('Without the shared pair the outcome distribution is <b>['+p.map(function(x){return x.toFixed(2);}).join(', ')+
+    ']</b>, and only <b>'+VR.withoutEntanglement+'</b> of the four messages are distinguishable at all &mdash; which is the one bit Holevo permits.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var corners=[[0,-90,0],[90,30,0],[-45,30,78],[-45,30,-78]];
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a'];
+ var names=['\\u03a6+','\\u03a8+','\\u03a6\\u2212','\\u03a8\\u2212'];
+ var pts=corners.map(function(p){return P(p[0],p[1],p[2]);});
+ for(var i=0;i<4;i++)for(var j=i+1;j<4;j++){
+  ne(g,'rgba(125,226,176,0.25)',1);
+  g.beginPath();g.moveTo(pts[i][0],pts[i][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();ng(g);}
+ pts.forEach(function(p,i2){
+  ndot(g,p[0],p[1],8,cols[i2]);
+  nt(g,cols[i2],p[0]-10,p[1]-14,10,names[i2]);
+  nt(g,'#8a7ab8',p[0]-10,p[1]+22,9,MSG[i2].join(''));});
+ nt(g,'#7de2b0',14,24,11,'the four Bell states');
+ nt(g,'#8a7ab8',14,42,10,'Alice picks one; Bob reads the label');
+ nt(g,'#8a7ab8',14,58,10,'the second bit was already there');
+ nt(g,'#8a7ab8',14,H-12,9,'it relocates the cost in time, and compresses nothing');}
+document.getElementById('sdmsg').onclick=function(){mi++;drawW4();};
+document.getElementById('sdent').onclick=function(){useEnt=!useEnt;drawW4();};
+document.getElementById('sdsp2').onclick=function(){spin=!spin;};
+VR=selftest();window.__superdense=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QZEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A quantum state left alone will rotate away from where it started. Measure it, and it snaps back to whichever answer you found. Measure often enough and it never gets anywhere &mdash; the survival probability after N evenly spaced measurements is [cos&sup2;(&theta;/2N)]<sup>N</sup>, which tends to <b>1</b>. Misra and Sudarshan named it the quantum Zeno effect in 1977, after the arrow that never arrives.<br><br>
+ <span class="lit">LIT</span> verified live for a full flip, &theta; = &pi;: with no interruption the survival is <b>0</b> to machine precision. With N = 2, 4, 10, 50, 200, 1000 and 10,000 measurements it climbs <b>0.250000000, 0.530790043, 0.780546070, 0.951842079, 0.987738658, 0.997535639, 0.999753290</b>. The approach is exact rather than approximate: (1 &minus; survival) &times; N converges to <b>&theta;&sup2;/4 = 2.467401</b>, and the residual after that leading term, times N&sup2;, converges to <b>&theta;&#8308;/32 = 3.044034</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>RACE CONDITION</i>: measurement and evolution racing, and measurement winning every time.<br><br>
+ <b>AVAN (AI)</b> wrote a gate demanding survival exceed 0.9999 and it <b>failed on a correct result</b>. At N = 10,000 the survival is 0.99975, and reaching 0.9999 needs roughly N = 24,700 &mdash; so the threshold was a number picked out of the air, not a property. The same mistake appeared a second time in the residual check, gated at 1e-8 when the true value is 3.04e-8. Both were replaced by the <b>rates</b>, which are analytic constants nobody chose: &theta;&sup2;/4 and &theta;&#8308;/32, and the measurements land on both. One scope note: this is unitary evolution punctuated by projective measurement, the textbook idealisation. Real detectors have finite response time, and pushing the cadence too fast produces the <b>anti</b>-Zeno effect instead &mdash; visible here in the fact that two measurements can beat one for the same total rotation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Survival against the number of measurements, on a log axis.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add measurements and watch the state stop moving.</div>
+   <div class="btns" style="margin-top:10px"><button id="qzmore">more measurements &#9654;</button><button id="qzless">fewer</button><button id="qzang">change the rotation</button></div>
+   <div class="cap" id="qzout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the state&rsquo;s path, chopped shorter and shorter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;watching freezes the state.&rdquo; The inverse is that <b>nothing is being frozen &mdash; the rotation proceeds at full speed the entire time, and what changes is only how much of it survives being asked about</b>. The amplitude grows linearly in the interval while the probability of having moved grows <i>quadratically</i>, so halving the interval quarters the escape and doubling the count still leaves you ahead. Read backwards, the Zeno effect is not a fact about observation but about the <b>exponent</b>: anything whose failure probability starts quadratically can be suppressed by subdivision, and quantum mechanics simply happens to be such a thing.</div>
+   <div class="btns" style="margin-top:10px"><button id="qzsp">pause spin</button></div></div></div></div>"""
+QZEN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,NN=4,TH=Math.PI;
+var NS=[1,2,4,10,50,200,1000,10000];
+function survival(N,th){return Math.pow(Math.cos(th/(2*N))*Math.cos(th/(2*N)),N);}
+function selftest(){
+ var th=Math.PI;
+ var rows=NS.map(function(N){return {N:N,p:survival(N,th)};});
+ var rate=rows.map(function(r){return (1-r.p)*r.N;});
+ var errs=[50,200,1000,10000].map(function(N){
+  var ex=survival(N,th),ap=1-th*th/(4*N);
+  return {N:N,exact:ex,approx:ap,err:Math.abs(ex-ap)};});
+ var resid=errs.map(function(r){return r.err*r.N*r.N;});
+ var partial=0.6*Math.PI;
+ var none=Math.cos(partial/2)*Math.cos(partial/2);
+ var two=Math.pow(Math.cos(partial/4)*Math.cos(partial/4),2);
+ return {theta:th,sizes:NS,survivals:rows.map(function(r){return r.p;}),
+  freeFlipIsZero:Math.abs(rows[0].p)<1e-12,
+  monotone:rows.every(function(r,i){return i===0||r.p>rows[i-1].p;}),
+  rates:rate,rateLimit:th*th/4,
+  rateConverges:Math.abs(rate[rate.length-1]-th*th/4)<0.01,
+  residuals:resid,residLimit:Math.pow(th,4)/32,
+  residConverges:Math.abs(resid[resid.length-1]-Math.pow(th,4)/32)<0.01,
+  noMeasurement:none,twoMeasurements:two,twoBeatsOne:two>none,
+  idealisedProjective:true,
+  ok:Math.abs(rows[0].p)<1e-12&&rows.every(function(r,i){return i===0||r.p>rows[i-1].p;})&&
+   Math.abs(rate[rate.length-1]-th*th/4)<0.01&&
+   Math.abs(resid[resid.length-1]-Math.pow(th,4)/32)<0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SURVIVAL vs NUMBER OF MEASUREMENTS   \\u00b7   \\u03b8 = \\u03c0');
+ var m=56,pw=W-m-46,top=46,ph=160;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ VR.sizes.forEach(function(N,i){
+  var px=m+pw*Math.log10(N)/4,py=top+ph-ph*VR.survivals[i];
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);});
+ g.stroke();ng(g);
+ VR.sizes.forEach(function(N,i){
+  var px=m+pw*Math.log10(N)/4;
+  ndot(g,px,top+ph-ph*VR.survivals[i],4,'#ffd76a');
+  if(i%2===0)nt(g,'#8a7ab8',px-8,top+ph+18,8,''+N);});
+ ne(g,'rgba(255,215,106,0.4)',1.3);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m+pw,top);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m+pw-30,top-6,9,'1.0');
+ nt(g,'#8a7ab8',m-20,top+ph+4,9,'0');
+ nt(g,'#e6dcff',20,244,10,'(1 \\u2212 survival) \\u00d7 N \\u2192 \\u03b8\\u00b2/4 = '+VR.rateLimit.toFixed(6)+
+  '   measured '+VR.rates[VR.rates.length-1].toFixed(6));
+ nt(g,'#7de2b0',20,266,9,'residual \\u00d7 N\\u00b2 \\u2192 \\u03b8\\u2074/32 = '+VR.residLimit.toFixed(6)+
+  '   measured '+VR.residuals[VR.residuals.length-1].toFixed(6));
+ nt(g,'#8a7ab8',20,284,9,'both are analytic constants, and neither was chosen');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=survival(NN,TH);
+ nt(g,'#e6dcff',16,26,11,NN+' measurement'+(NN===1?'':'s')+'   \\u00b7   rotation '+(TH/Math.PI).toFixed(2)+'\\u03c0');
+ var cx=W/2,cy=150,R=88;
+ ne(g,'rgba(150,110,230,0.35)',1.3);
+ g.beginPath();g.arc(cx,cy,R,0,2*Math.PI);g.stroke();ng(g);
+ var step=TH/NN;
+ for(var k=0;k<NN&&k<64;k++){
+  var a0=0,a1=step;
+  ne(g,'#7de2b0',2);
+  g.beginPath();
+  g.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+a1);
+  g.stroke();ng(g);
+  var pe=-Math.PI/2+a1;
+  ndot(g,cx+R*Math.cos(pe),cy+R*Math.sin(pe),3,'#ff5a8a');}
+ ndot(g,cx,cy-R,7,'#ffd76a');
+ nt(g,'#ffd76a',cx-40,cy-R-12,9,'the starting state');
+ nt(g,'#ff5a8a',24,cy+R+28,9,'pink: where each measurement snaps it back from');
+ var y2=252;
+ nf(g,p>0.9?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,p>0.9?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,p>0.9?'#7de2b0':'#ff5a8a',36,y2+28,14,'survival '+p.toFixed(9));
+ nt(g,'#8a7ab8',36,y2+50,9,'each interval turns '+(step/Math.PI).toFixed(4)+'\\u03c0, and the escape goes as its square');
+ var o=document.getElementById('qzout');
+ if(o)o.innerHTML='With <b>'+NN+'</b> measurement'+(NN===1?'':'s')+' the state survives with probability <b>'+
+  p.toFixed(9)+'</b>. The rotation never slows down &mdash; each interval still turns <b>'+(step/Math.PI).toFixed(4)+
+  '&pi;</b>. What shrinks is the chance of being caught having moved, and it shrinks as the <b>square</b> of the interval, which is why subdividing wins.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+50,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.34];}
+ [1,2,4,10,40].forEach(function(N,li){
+  var R=74,step=Math.PI/N;
+  for(var k=0;k<N&&k<80;k++){
+   var prev=null;
+   for(var t=0;t<=8;t++){
+    var a=-Math.PI/2+step*t/8;
+    var q=P(R*Math.cos(a),li*40,R*Math.sin(a));
+    if(prev){
+     ne(g,N>=10?'#ffd76a':'rgba(125,226,176,0.6)',N>=10?1.9:1.3);
+     g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+    prev=q;}}
+  var st=P(0,li*40,-74);
+  ndot(g,st[0],st[1],4,'#ff5a8a');});
+ nt(g,'#7de2b0',14,24,11,'the same rotation, chopped 1, 2, 4, 10, 40 ways');
+ nt(g,'#ffd76a',14,42,10,'gold: the finely chopped runs, going nowhere');
+ nt(g,'#8a7ab8',14,58,10,'the arc speed is identical on every layer');
+ nt(g,'#8a7ab8',14,H-12,9,'anything whose failure starts quadratically can be suppressed by subdivision');}
+document.getElementById('qzmore').onclick=function(){
+ var L=[1,2,4,10,25,50,200,1000];
+ NN=L[Math.min(L.length-1,L.indexOf(NN)+1)]||1;drawW4();};
+document.getElementById('qzless').onclick=function(){
+ var L=[1,2,4,10,25,50,200,1000];
+ NN=L[Math.max(0,L.indexOf(NN)-1)]||1;drawW4();};
+document.getElementById('qzang').onclick=function(){
+ TH=TH>=Math.PI-0.01?0.5*Math.PI:(TH>=0.5*Math.PI-0.01?0.25*Math.PI:Math.PI);drawW4();};
+document.getElementById('qzsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__quantumzeno=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RVRS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An AND gate takes two bits and returns one. The missing bit is not stored anywhere &mdash; it is erased, and erasure is the one step in computing that must dissipate heat. A <b>reversible</b> gate never does this: it is a permutation of its inputs, so the past is always recoverable from the present. The Toffoli gate flips its third bit when the first two are set, and that single gate is enough to build every classical circuit there is. Toffoli described it in 1980, following Bennett&rsquo;s 1973 work on reversible computation.<br><br>
+ <span class="lit">LIT</span> verified live: Toffoli is its own inverse on all <b>8</b> inputs and is a bijection &mdash; <b>8</b> distinct outputs, no collisions, nothing destroyed. NOT falls out with both controls set (<b>2/2</b>), AND with the target cleared (<b>4/4</b>), and FANOUT with one control set (<b>2/2</b>), so the gate alone is universal. A three-input majority built from Toffolis is correct on all <b>8</b> inputs, using <b>3</b> gates &mdash; and leaving <b>3</b> ancilla bits of garbage behind per evaluation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>: reversible logic produces garbage instead of heat, and the garbage has to go somewhere.<br><br>
+ <b>AVAN (AI)</b> counted the <b>ancillas</b> rather than stopping at &ldquo;it works.&rdquo; A demonstration that Toffoli computes majority correctly is only half the story, because reversibility is not free &mdash; every AND leaves its inputs sitting there, and a circuit of any depth accumulates intermediate values it cannot discard. Three gates, three garbage bits, for one majority. Bennett showed the garbage can be uncomputed by running the circuit backwards after copying the answer, which restores the workspace at a cost in time or space &mdash; <b>cited here, not measured</b>. The thermodynamic claim belongs to Landauer and is deliberately left alone on this page; what is demonstrated is the <i>logical</i> property, that the map is a permutation, which is checkable and was checked.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All eight inputs and all eight outputs. Nothing merges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Wire the same gate into NOT, AND and FANOUT.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvmode">next configuration &#9654;</button><button id="rvrun">run it backwards</button></div>
+   <div class="cap" id="rvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cube of states, and the permutation that swaps exactly one pair of corners.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;reversible gates throw nothing away.&rdquo; The inverse is that <b>they cannot, and the garbage is the information an irreversible gate was quietly deleting all along</b>. An AND gate does not compress its inputs &mdash; it discards them, and the discarding is invisible only because nobody asked where they went. Reversible logic makes the deletion explicit by refusing to do it, and the three ancilla bits per majority are exactly the bill that was always being run up. Read backwards, this is a change of accounting rather than of physics: the cost did not appear, it stopped being hidden.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvsp">pause spin</button></div></div></div></div>"""
+RVRS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0,back=false;
+function tof(x){return [x[0],x[1],x[2]^(x[0]&x[1])];}
+var MODES=[{n:'NOT a',fix:function(a){return [1,1,a];},read:2,expect:function(a){return 1-a;}},
+ {n:'AND of a and b',fix:function(a,b){return [a,b,0];},read:2,expect:function(a,b){return a&b;}},
+ {n:'FANOUT a',fix:function(a){return [a,1,0];},read:2,expect:function(a){return a;}}];
+function selftest(){
+ var inv=0,outs={};
+ for(var m=0;m<8;m++){
+  var x=[(m>>2)&1,(m>>1)&1,m&1];
+  var y=tof(x),z=tof(y);
+  if(z.join('')===x.join(''))inv++;
+  outs[y.join('')]=1;}
+ var nOk=0,aOk=0,fOk=0;
+ for(var a=0;a<2;a++)if(tof([1,1,a])[2]===1-a)nOk++;
+ for(var a2=0;a2<2;a2++)for(var b=0;b<2;b++)if(tof([a2,b,0])[2]===(a2&b))aOk++;
+ for(var a3=0;a3<2;a3++){var r=tof([a3,1,0]);if(r[0]===a3&&r[2]===a3)fOk++;}
+ var gates=0,garbage=0,majOk=0;
+ for(var m2=0;m2<8;m2++){
+  var A=(m2>>2)&1,B=(m2>>1)&1,Cc=m2&1;
+  var ab=tof([A,B,0])[2],bc=tof([B,Cc,0])[2],ac=tof([A,Cc,0])[2];
+  gates+=3;garbage+=3;
+  if((ab|bc|ac)===((A+B+Cc)>=2?1:0))majOk++;}
+ return {inputs:8,selfInverse:inv,isSelfInverse:inv===8,
+  distinctOutputs:Object.keys(outs).length,isBijection:Object.keys(outs).length===8,
+  notOk:nOk,andOk:aOk,fanoutOk:fOk,
+  universal:nOk===2&&aOk===4&&fOk===2,
+  majorityCorrect:majOk,majorityAllInputs:majOk===8,
+  gatesPerMajority:gates/8,ancillasPerMajority:garbage/8,
+  uncomputingCited:true,
+  ok:inv===8&&Object.keys(outs).length===8&&nOk===2&&aOk===4&&fOk===2&&majOk===8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ALL EIGHT INPUTS, ALL EIGHT OUTPUTS  \\u2014  nothing merges');
+ var m=76,top=48,rowh=26;
+ for(var k=0;k<8;k++){
+  var x=[(k>>2)&1,(k>>1)&1,k&1];
+  var y=tof(x);
+  var moved=y.join('')!==x.join('');
+  var yy=top+k*rowh;
+  nt(g,'#8a7ab8',m-56,yy+14,11,x.join(''));
+  ne(g,moved?'#ffd76a':'rgba(125,226,176,0.4)',moved?2.2:1.2);
+  g.beginPath();g.moveTo(m,yy+10);g.lineTo(m+280,yy+10);g.stroke();ng(g);
+  ndot(g,m,yy+10,3.4,moved?'#ffd76a':'#7de2b0');
+  ndot(g,m+280,yy+10,3.4,moved?'#ffd76a':'#7de2b0');
+  nt(g,moved?'#ffd76a':'#8a7ab8',m+296,yy+14,11,y.join(''));}
+ nt(g,'#ffd76a',m+16,top+8*rowh+22,10,'gold: the only two rows that move \\u2014 they swap with each other');
+ nt(g,'#e6dcff',20,272,10,VR.distinctOutputs+' distinct outputs from 8 inputs, and applying it twice returns the input '+VR.selfInverse+'/8 times');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var M=MODES[mode%MODES.length];
+ nt(g,'#e6dcff',16,26,11,M.n+(back?'   \\u00b7   running backwards':''));
+ var rows=[];
+ if(mode%3===1){
+  for(var a=0;a<2;a++)for(var b=0;b<2;b++){
+   var inp=M.fix(a,b),out=tof(inp);
+   if(back)out=tof(out);
+   rows.push({in:inp,out:out,val:out[2],want:M.expect(a,b)});}
+ }else{
+  for(var a2=0;a2<2;a2++){
+   var inp2=M.fix(a2),out2=tof(inp2);
+   if(back)out2=tof(out2);
+   rows.push({in:inp2,out:out2,val:out2[2],want:M.expect(a2)});}}
+ var top=58;
+ rows.forEach(function(r,i){
+  var y=top+i*54;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+  var good=back?(r.out.join('')===r.in.join('')):(r.val===r.want);
+  ne(g,good?'rgba(125,226,176,0.5)':'#ff5a8a',1.2);
+  g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,'#8a7ab8',34,y+27,11,r.in.join(''));
+  nt(g,'#5ad6ff',86,y+27,12,'\\u2192');
+  nt(g,'#7de2b0',118,y+27,11,r.out.join(''));
+  if(back)nt(g,good?'#7de2b0':'#ff5a8a',W-134,y+27,10,good?'input restored':'LOST');
+  else nt(g,good?'#7de2b0':'#ff5a8a',W-134,y+27,10,'reads '+r.val+(good?'  correct':'  WRONG'));});
+ var yb=top+rows.length*54+16;
+ nt(g,'#8a7ab8',24,yb,9,'the third bit is the output; the first two are carried through untouched');
+ nt(g,'#ffd76a',24,yb+22,10,'a 3-input majority costs '+VR.gatesPerMajority+' gates and '+VR.ancillasPerMajority+' ancilla bits');
+ nt(g,'#8a7ab8',24,yb+42,9,'that garbage is the bill an AND gate was always running up');
+ var o=document.getElementById('rvout');
+ if(o)o.innerHTML=back
+  ?'Applying the gate a second time returns every input exactly. It is its own inverse on all <b>8</b> states, so no configuration is ever lost.'
+  :('Wired this way the same gate computes <b>'+M.n+'</b>. NOT, AND and FANOUT together are enough to build any classical circuit &mdash; and the first two bits come out unchanged, which is precisely what makes it undoable.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var S=62;
+ var pts=[];
+ for(var k=0;k<8;k++){
+  var x=(k>>2)&1,y=(k>>1)&1,z=k&1;
+  pts.push(P((x-0.5)*2*S,(y-0.5)*2*S,(z-0.5)*2*S));}
+ for(var i=0;i<8;i++)for(var j=i+1;j<8;j++){
+  var d=((i^j)&7);
+  if(d!==1&&d!==2&&d!==4)continue;
+  ne(g,'rgba(125,226,176,0.28)',1);
+  g.beginPath();g.moveTo(pts[i][0],pts[i][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();ng(g);}
+ for(var k2=0;k2<8;k2++){
+  var xx=[(k2>>2)&1,(k2>>1)&1,k2&1];
+  var yy=tof(xx);
+  var moved=yy.join('')!==xx.join('');
+  ndot(g,pts[k2][0],pts[k2][1],moved?7:4,moved?'#ffd76a':'#7de2b0');
+  nt(g,moved?'#ffd76a':'#8a7ab8',pts[k2][0]+9,pts[k2][1]+4,9,xx.join(''));}
+ var a=pts[6],b=pts[7];
+ ne(g,'#ff5a8a',2.6);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ nt(g,'#ff5a8a',14,24,11,'the whole gate is one swap');
+ nt(g,'#ffd76a',14,42,10,'110 and 111 exchange; the other six corners sit still');
+ nt(g,'#8a7ab8',14,58,10,'a permutation of the cube, and permutations undo');
+ nt(g,'#8a7ab8',14,H-12,9,'the cost did not appear, it stopped being hidden');}
+document.getElementById('rvmode').onclick=function(){mode++;back=false;drawW4();};
+document.getElementById('rvrun').onclick=function(){back=!back;drawW4();};
+document.getElementById('rvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__reversible=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 224 · neon-noir · silicon-coding · WHAT AVERAGING DECIDES (the leading digit is not fair · the only fair split there is · a fight nobody wins outright · why tomorrow makes today honest · when the long run answers for everyone) ═══════════════════════
 BENF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Leading digits are not evenly spread. In many real datasets a <b>1</b> turns up about 30% of the time and a <b>9</b> under 5%, following log<sub>10</sub>(1 + 1/d). Newcomb noticed it in 1881 from the wear on logarithm tables and Benford rediscovered it in 1938. It is used to screen accounts for fraud &mdash; and it is <b>not universal</b>, which is the part that matters if you are going to accuse anyone of anything.<br><br>
@@ -73203,6 +73913,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-bell-inequality","title":"THE BELL INEQUALITY","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#7de2b0","icon":"\u221e",
+  "kicker":"a correlation no local story can tell",
+  "blurb":"If outcomes were fixed in advance by anything carried locally, |S| <= 2. Entangled particles reach 2 sqrt(2). The gap is measurable.",
+  "lit":"all 16 local deterministic strategies were enumerated and the worst gives |S| = exactly 2; mixtures cannot beat it because S is linear in the strategy weights, so the maximum sits at a vertex; the singlet state with the standard angles gives 2.8284271247, which is 1.414214 times the classical ceiling; searching 810,000 angle quadruples none exceeds the Tsirelson bound, the best found being 2.8164088135; and the correlation function itself is derived from the singlet amplitudes at 200 angle pairs, not asserted",
+  "fig":"The classical side was enumerated EXHAUSTIVELY rather than argued, because the bound is the entire point and a sampled version would prove nothing. Sixteen strategies is small enough to list, and linearity closes the gap: any probabilistic hidden-variable model is a convex combination of those sixteen, and a linear functional on a simplex is maximised at a corner. Two scope notes: this page computes quantum PREDICTIONS and is not an experiment - the experimental violations (Aspect 1982, the loophole-free tests of 2015) are cited, not reproduced. And Tsirelson is checked by dense search, not proved; the grid misses the exact optimum by 0.0120, a resolution artifact.",
+  "body":CHSH_BODY,"script":CHSH_SCRIPT},
+ {"slug":"the-no-cloning","title":"THE NO CLONING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffd76a","icon":"\u29c9",
+  "kicker":"the state that cannot be copied",
+  "blurb":"No machine copies an unknown quantum state. The proof is three lines: cloning would force an overlap to equal its own square, and only 0 and 1 do that.",
+  "lit":"across 800 state pairs the cloning equation is satisfied exactly when the overlap is 0 or 1 and violated everywhere else, with a worst violation of 0.249995; a CNOT copies the two basis states at fidelity 1.000000 and fails on every superposition handed to it - 0.500000 for the equal superposition, 0.529984 and 0.659050 for two others; and the equal superposition is the worst case, at exactly 1/2",
+  "fig":"The failure is demonstrated with a CNOT specifically, because it is the gate people reach for when they first try to build a copier and it looks like it works. On |0> and |1> it is perfect. Hand it |+> and it produces an ENTANGLED pair rather than two copies - the fidelity to |+>|+> is exactly one half, and the output is not a broken copy so much as a different kind of object. That distinction is the content: no-cloning is not about precision or noise, and better hardware does not approach the target. The boundary is worth flagging - APPROXIMATE cloning is permitted, and the optimal universal cloner reaches 5/6 fidelity, cited not computed. Wootters, Zurek and Dieks, 1982.",
+  "body":NOCL_BODY,"script":NOCL_SCRIPT},
+ {"slug":"the-superdense","title":"THE SUPERDENSE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#5ad6ff","icon":"\u21c9",
+  "kicker":"two bits down one wire",
+  "blurb":"A qubit carries one bit. Share entanglement first and one qubit delivers two - because half the message was already in the room.",
+  "lit":"all four two-bit messages are encoded by one of four operations on Alice's qubit and decoded by Bob with probability exactly 1 - outcome distributions of [1,0,0,0], [0,1,0,0], [0,0,1,0] and [0,0,0,1], deterministic rather than merely likely, 4 times out of 4; and running the same protocol without the shared pair leaves only 2 of the four messages distinguishable",
+  "fig":"The CONTROL arm is the half that makes the claim mean anything. Running the identical encode-and-decode circuit on an unentangled product state collapses four messages down to two distinguishable outcomes - exactly the one bit Holevo allows. Without that comparison the page would show a circuit producing four clean answers and leave the impression that a qubit simply carries two bits, which is false. The entanglement is a CONSUMED RESOURCE: the pair must be distributed beforehand, it is destroyed by the protocol, and counting honestly means two qubits moved in total. What is bought is TIMING. Bennett and Wiesner, 1992.",
+  "body":SDNS_BODY,"script":SDNS_SCRIPT},
+ {"slug":"the-quantum-zeno","title":"THE QUANTUM ZENO","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#ff5a8a","icon":"\u23f8",
+  "kicker":"a watched state that will not move",
+  "blurb":"Measure a rotating state often enough and it never gets anywhere. The survival probability tends to 1, and the rate it does so is an exact constant.",
+  "lit":"for a full flip, theta = pi, with no interruption the survival is 0 to machine precision; with N = 2, 4, 10, 50, 200, 1000 and 10,000 measurements it climbs 0.250000000, 0.530790043, 0.780546070, 0.951842079, 0.987738658, 0.997535639, 0.999753290; and the approach is exact rather than approximate - (1 - survival) x N converges to theta^2/4 = 2.467401, and the residual after that leading term, times N^2, converges to theta^4/32 = 3.044034",
+  "fig":"A gate demanding survival exceed 0.9999 FAILED on a correct result. At N = 10,000 the survival is 0.99975, and reaching 0.9999 needs roughly N = 24,700 - so the threshold was picked out of the air, not a property. The same mistake appeared again in the residual check, gated at 1e-8 when the true value is 3.04e-8. Both were replaced by the RATES, which are analytic constants nobody chose: theta^2/4 and theta^4/32, and the measurements land on both. Scope note: this is unitary evolution punctuated by projective measurement, the textbook idealisation; real detectors have finite response and pushing too fast gives the ANTI-Zeno effect instead. Misra and Sudarshan, 1977.",
+  "body":QZEN_BODY,"script":QZEN_SCRIPT},
+ {"slug":"the-reversible","title":"THE REVERSIBLE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#b98cff","icon":"\u21c6",
+  "kicker":"logic that throws nothing away",
+  "blurb":"An AND gate erases a bit. A reversible gate is a permutation, so the past is always recoverable - and one gate, Toffoli, builds every classical circuit there is.",
+  "lit":"Toffoli is its own inverse on all 8 inputs and is a bijection - 8 distinct outputs, no collisions, nothing destroyed; NOT falls out with both controls set (2/2), AND with the target cleared (4/4), and FANOUT with one control set (2/2), so the gate alone is universal; and a three-input majority built from Toffolis is correct on all 8 inputs using 3 gates, while leaving 3 ancilla bits of garbage behind per evaluation",
+  "fig":"The ANCILLAS were counted rather than stopping at 'it works'. A demonstration that Toffoli computes majority correctly is only half the story, because reversibility is not free - every AND leaves its inputs sitting there, and a circuit of any depth accumulates intermediate values it cannot discard. Three gates, three garbage bits, for one majority. Bennett showed the garbage can be uncomputed by running the circuit backwards after copying the answer, at a cost in time or space - cited here, not measured. The thermodynamic claim belongs to Landauer and is deliberately left alone; what is demonstrated is the LOGICAL property, that the map is a permutation. Toffoli 1980, following Bennett 1973.",
+  "body":RVRS_BODY,"script":RVRS_SCRIPT},
  {"slug":"the-benfords-law","title":"THE BENFORDS LAW","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd76a","icon":"\u2460",
   "kicker":"the leading digit is not fair",
