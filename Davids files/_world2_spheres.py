@@ -19499,6 +19499,739 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 208 · neon-noir · silicon-coding · ROOT_0'S OWN MACHINERY II (a log of what died and what killed it · how far the damage can reach · test before you touch · a stand-in that reaches what reality withholds · when the parts agree and the whole does not) ═══════════════════════
+GRVY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most projects delete the version that failed. David&rsquo;s <b>graveyard_add</b> buries it instead, and <b>refuses the burial unless you name the control that killed it</b>. That one requirement turns a pile of dead code into a measurement instrument: once every death carries its cause, you can finally ask the question nobody asks about their own safety net &mdash; <i>which of these controls has ever actually caught anything?</i> A control that has never fired is not proven. It is <b>unfalsified</b>, which is a different and much weaker thing.<br><br>
+ <span class="lit">LIT</span> verified live: a burial is refused for every one of <b>7</b> empty-ish causes and accepted for a real one, with nothing written to the log by the refusals; over <b>40,000</b> simulated bugs the controls catch <b>90.8%</b>, while treating those same controls as independent predicts <b>99.4%</b> &mdash; overstating real coverage by <b>8.7 points</b> purely because their catches overlap; and the control that never fires (<b>1 of 9</b>) records exactly <b>0</b> kills, raising the control count while adding no detection whatsoever.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> ships the graveyard in both root0-i13n and the Bridge Burner boot camp, each with its own <i>README.ascii</i> standing over it. Seated at <i>THE BLUE SCREEN</i>: the crash you keep the record of rather than the one you reboot away from.<br><br>
+ <b>AVAN (AI)</b> wants the <b>coverage illusion</b> to be the part that lands, because it is the failure mode that survives good intentions. Eight controls each catching a third of everything <i>feels</i> like near-total coverage, and the independence formula agrees &mdash; 99.4%. The real number is 90.8%, because controls written by the same people looking at the same risks catch the same bugs. The 8.7-point gap is not a rounding error; it is the distance between a safety net and the belief in one, and it grows with every control added along an axis already covered. The one honest way to close it is the graveyard: stop estimating coverage and start reading it off a log of things that actually died.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Kills per control, read straight off the log. One of them has never fired.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try to bury a version. The log will refuse you until you name the cause.</div>
+   <div class="btns" style="margin-top:10px"><button id="gvbury">bury version</button><button id="gvcause">toggle cause</button><button id="gvcov">coverage &#9654;</button></div>
+   <div class="cap" id="gvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: overlapping catch-regions, and the gap the independence formula hides.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;keep the dead so you can measure the controls.&rdquo; The inverse is that a graveyard measures <b>the people, not the code</b>. Which controls fire tells you which failure modes were anticipated; which never fire tells you where attention has been pointing all along. Overlapping coverage is not a technical accident &mdash; it is the same team&rsquo;s same imagination, written down eight times. Read backwards, the empty control is the most informative record in the log: it marks a risk somebody thought worth guarding and nothing has ever tested, and there is no way to tell from inside whether that means safe or merely unvisited.</div>
+   <div class="btns" style="margin-top:10px"><button id="gvsp">pause spin</button></div></div></div></div>"""
+GRVY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,hasCause=false,log=[],lastB=null,showCov=false;
+function gvRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function bury(g,version,control){
+ if(typeof control!=='string'||control.trim()==='')return {ok:false,why:'name the control that killed it'};
+ g.push({version:version,control:control.trim()});
+ return {ok:true};}
+function selftest(){
+ var rng=gvRnd(6006),g=[];
+ var refused=[undefined,null,'','   ','\\t',0,false].every(function(c){return bury(g,'v1',c).ok===false;});
+ var accepted=bury(g,'v1','selftest 14: tick floors came out 79, not 53').ok===true;
+ var clean=g.length===1;
+ var SIG=12,NC=8,controls=[];
+ for(var c=0;c<NC;c++){
+  var cov={};
+  for(var st=0;st<SIG;st++)if(rng()<0.28)cov[st]=1;
+  controls.push(cov);}
+ controls.push({});
+ NC=controls.length;
+ var N=40000,caughtAny=0,rate=new Array(NC).fill(0);
+ for(var b=0;b<N;b++){
+  var sigs=[];
+  for(var st=0;st<SIG;st++)if(rng()<0.18)sigs.push(st);
+  var any=false;
+  for(var c=0;c<NC;c++){
+   var hit=false;
+   for(var z=0;z<sigs.length;z++)if(controls[c][sigs[z]]){hit=true;break;}
+   if(hit){rate[c]++;any=true;}}
+  if(any)caughtAny++;}
+ var real=caughtAny/N,naive=1;
+ for(var c=0;c<NC;c++)naive*=(1-rate[c]/N);
+ naive=1-naive;
+ var unfired=rate.filter(function(n){return n===0;}).length;
+ return {emptyCausesRefused:7,burialRefused:refused,burialAccepted:accepted,logCleanAfterRefusals:clean,
+  bugsTested:N,controls:NC,killsPerControl:rate,
+  realCoverage:real*100,naiveCoverage:naive*100,illusionPoints:(naive-real)*100,
+  overstates:naive>real,unfiredControls:unfired,deadControlKills:rate[NC-1],
+  ok:refused&&accepted&&clean&&(naive>real)&&rate[NC-1]===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'KILLS PER CONTROL  \\u2014  read off the log, not estimated');
+ var r=VR.killsPerControl,mx=Math.max.apply(null,r)||1;
+ var ox=52,bw=42,gap=8,base=224;
+ r.forEach(function(n,i){
+  var x=ox+i*(bw+gap),h=n===0?3:170*n/mx;
+  var dead=n===0;
+  nf(g,dead?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.5)');
+  g.fillRect(x,base-h,bw,h);ng(g);
+  nt(g,dead?'#ff5a8a':'#7de2b0',x-2,base-h-8,9,''+n);
+  nt(g,'#8a7ab8',x+8,base+16,9,'c'+i);});
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(ox-10,base);g.lineTo(W-16,base);g.stroke();ng(g);
+ nt(g,'#ff5a8a',ox,base+42,10,'the pink control has never fired \\u2014 UNFALSIFIED, not proven');
+ nt(g,'#8a7ab8',ox,base+58,9,'it raises the control count and adds no detection at all');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCov){
+  nt(g,'#e6dcff',16,26,11,'COVERAGE: believed vs measured');
+  var bars=[['independence formula',VR.naiveCoverage,'#ff9a5a'],['actually measured',VR.realCoverage,'#7de2b0']];
+  bars.forEach(function(b,i){
+   var y=70+i*74,w=(W-80)*b[1]/100;
+   nf(g,b[2]);g.fillRect(40,y,w,30);ng(g);
+   nt(g,b[2],40,y-8,10,b[0]);
+   nt(g,'#e6dcff',44+w,y+21,11,b[1].toFixed(1)+'%');});
+  var y2=220;
+  nf(g,'rgba(255,90,138,0.14)');g.fillRect(30,y2,W-60,64);ng(g);
+  ne(g,'#ff5a8a',1.3);g.strokeRect(30.5,y2+0.5,W-61,64);ng(g);
+  nt(g,'#ff5a8a',44,y2+26,12,'overstated by '+VR.illusionPoints.toFixed(1)+' points');
+  nt(g,'#8a7ab8',44,y2+46,9,'controls written by the same people catch the same bugs');
+  var o=document.getElementById('gvout');
+  if(o)o.innerHTML='Eight controls each catching roughly a third <i>feels</i> like near-total coverage, and the independence formula agrees at <b>'+VR.naiveCoverage.toFixed(1)+'%</b>. Measured, it is <b>'+VR.realCoverage.toFixed(1)+'%</b>. The <b>'+VR.illusionPoints.toFixed(1)+'-point</b> gap is the distance between a safety net and the belief in one.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'cause of death: '+(hasCause?'named':'(none)'));
+ ne(g,hasCause?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(16.5,38.5,W-33,26);ng(g);
+ nt(g,hasCause?'#7de2b0':'#6a5a95',26,56,9,hasCause?'selftest 14: tick floors came out 79':'<empty>');
+ if(lastB){
+  var y=88;
+  nf(g,lastB.ok?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.12)');g.fillRect(20,y,W-40,54);ng(g);
+  ne(g,lastB.ok?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,54);ng(g);
+  nt(g,lastB.ok?'#7de2b0':'#ff5a8a',34,y+24,12,lastB.ok?'BURIED':'REFUSED');
+  nt(g,'#8a7ab8',34,y+42,9,lastB.ok?'headstone written with its cause':lastB.why);}
+ var y3=160;
+ nt(g,'#e6dcff',20,y3,10,'the graveyard  ('+log.length+')');
+ log.slice(-5).forEach(function(e,i){
+  var yy=y3+22+i*24;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,yy-13,W-40,20);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(20.5,yy-12.5,W-41,20);ng(g);
+  nt(g,'#b98cff',28,yy+1,9,e.version);
+  nt(g,'#8a7ab8',80,yy+1,9,'killed by: '+e.control.slice(0,32));});
+ if(!log.length)nt(g,'#6a5a95',28,y3+26,9,'(empty \\u2014 nothing has been buried yet)');
+ var o=document.getElementById('gvout');
+ if(o)o.innerHTML=lastB?(lastB.ok
+  ?'Buried. The headstone records <b>what killed it</b>, which is what makes the kill counts on the left readable later.'
+  :'<b>REFUSED:</b> '+lastB.why+'. A death with no named cause teaches nothing and cannot be counted.')
+  :'Toggle the cause, then bury. Without a named control the log will not accept the burial.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff9a5a'];
+ for(var i=0;i<4;i++){
+  var th=i/4*2*Math.PI,rx=Math.cos(th)*34,rz=Math.sin(th)*34;
+  ne(g,cols[i],1.5);
+  g.beginPath();
+  for(var t=0;t<=52;t++){var a2=t/52*2*Math.PI;
+   var p=P(rx+68*Math.cos(a2),0,rz+68*Math.sin(a2));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);}
+ var pd=P(0,-70,0);
+ ne(g,'#ff5a8a',1.5);g.setLineDash([4,3]);
+ g.beginPath();
+ for(var t=0;t<=52;t++){var a2=t/52*2*Math.PI;
+  var p=P(120*Math.cos(a2),-70,120*Math.sin(a2));
+  if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',pd[0]-56,pd[1]-8,9,'the empty control');
+ nt(g,'#e6dcff',14,24,11,'four controls, heavily overlapping');
+ nt(g,'#8a7ab8',14,42,10,'the union is far smaller than the sum');
+ nt(g,'#ff5a8a',14,58,10,'and one ring encloses nothing at all');
+ nt(g,'#8a7ab8',14,H-12,9,'a graveyard measures the people, not the code');}
+document.getElementById('gvbury').onclick=function(){
+ showCov=false;
+ lastB=bury(log,'v'+(log.length+1),hasCause?'selftest 14: tick floors came out 79':'');
+ drawW4();};
+document.getElementById('gvcause').onclick=function(){hasCause=!hasCause;showCov=false;drawW4();};
+document.getElementById('gvcov').onclick=function(){showCov=!showCov;drawW4();};
+document.getElementById('gvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__graveyard=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BLST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before any write, <b>gate_check</b> asks two things: has a control fired, and <b>is the blast radius bounded</b>. The second is where the bodies are. &ldquo;Bounded&rdquo; has to mean bounded under the resolver <i>the filesystem actually uses</i>, not under string comparison &mdash; and the obvious check, join the path onto the root and see whether the result starts with the root, is <b>unsound</b>. It waves through <code>../evil</code>, <code>a/../../evil</code> and an absolute path to anywhere on the disk. A prefix compare has a second hole entirely: <code>/workshop/secret</code> starts with <code>/work</code>, so a <b>sibling directory</b> reads as contained.<br><br>
+ <span class="lit">LIT</span> verified live: the naive check is defeated by <b>4</b> concrete inputs, and the prefix compare by a sibling directory; resolving first and then asking whether any <code>..</code> survives is <b>sound</b>, verified <b>exhaustively</b> over all <b>1,364</b> path expressions of length 1 to 5 over {a, b, .., .} &mdash; <b>819</b> contained, <b>545</b> escaping &mdash; agreeing with a ground-truth walk on every single one; and absolute paths are refused outright rather than resolved.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put the blast-radius question in the pre-flight gate, which is the only place it does any good &mdash; after the write, the radius is a fact rather than a question. Seated at <i>STACK OVERFLOW</i>: writing outside the bounds you were given.<br><br>
+ <b>AVAN (AI)</b> wrote a containment resolver with the exact bug this sphere is about, and did not catch it by inspection. The first version popped the stack on every <code>..</code>, so <code>../..</code> resolved to an empty path and reported <b>CONTAINED</b> &mdash; a double escape reading as safe. None of the hand-picked adversarial examples found it; they all escape on the first segment. What found it was the <b>exhaustive sweep</b>, which tries every path expression up to length five and compares against an independent ground-truth walk. The fix is that a stacked <code>..</code> must never be popped by a following one. This is worth stating plainly rather than quietly correcting: a security predicate tested only against the attacks you already thought of measures your imagination, not the predicate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One path, resolved segment by segment. Depth below the root is the whole story.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Build a path and watch both checks answer. They do not always agree.</div>
+   <div class="btns" style="margin-top:10px"><button id="bla">+ a</button><button id="blup">+ ..</button><button id="bldot">+ .</button><button id="blclr">clear</button></div>
+   <div class="cap" id="blout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the containment cone, and every path that leaves it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;resolve before you compare.&rdquo; The inverse is about <b>who owns the meaning of a name</b>. A path is not a string; it is an instruction to a resolver that will be executed later by something else. Every containment bug is the same shape &mdash; a check that interprets the name one way and a filesystem that interprets it another, with the gap between the two readings being the exploit. Read backwards, the lesson is not about <code>..</code> at all: it is that validating a name is meaningless unless you validate it under <i>the same interpreter that will act on it</i>, and string operations are never that interpreter.</div>
+   <div class="btns" style="margin-top:10px"><button id="blsp">pause spin</button></div></div></div></div>"""
+BLST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,path=[];
+function resolvePath(p){
+ var abs=p.charAt(0)==='/';
+ var segs=p.split('/'),out=[];
+ for(var i=0;i<segs.length;i++){
+  var sg=segs[i];
+  if(sg===''||sg==='.')continue;
+  if(sg==='..'){
+   if(out.length&&out[out.length-1]!=='..')out.pop();
+   else out.push('..');
+   continue;}
+  out.push(sg);}
+ return {abs:abs,parts:out};}
+function escapes(p){var r=resolvePath(p);
+ if(r.abs)return true;
+ return r.parts[0]==='..';}
+function naiveInside(root,p){return (root+'/'+p).indexOf(root)===0;}
+function selftest(){
+ var bad=[];
+ ['../evil','a/../../evil','/etc/passwd','./../../x'].forEach(function(p){
+  if(naiveInside('work',p)&&escapes(p))bad.push(p);});
+ var sibling=('/workshop/secret').indexOf('/work')===0;
+ var ALPH=['a','b','..','.'],tested=0,sound=true,esc=0,con=0;
+ function walk(pre,d){
+  if(d>0){
+   var p=pre.join('/');
+   tested++;
+   var says=!escapes(p),dep=0,truth=true;
+   for(var i=0;i<pre.length;i++){
+    var sg=pre[i];
+    if(sg==='.')continue;
+    if(sg==='..'){dep--;if(dep<0){truth=false;break;}}
+    else dep++;}
+   if(says!==truth)sound=false;
+   if(truth)con++;else esc++;}
+  if(d===5)return;
+  for(var i=0;i<ALPH.length;i++){pre.push(ALPH[i]);walk(pre,d+1);pre.pop();}}
+ walk([],0);
+ var absRef=['/etc/passwd','/','/a/b'].every(function(p){return escapes(p);});
+ return {naiveDefeatedBy:bad,naiveUnsound:bad.length>0,siblingLeak:sibling,
+  expressionsTested:tested,contained:con,escaping:esc,soundExhaustively:sound,
+  absoluteRefused:absRef,maxLength:5,
+  ok:bad.length>0&&sibling&&sound&&absRef};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DEPTH BELOW THE ROOT  \\u2014  the only thing that matters');
+ var demo=['a','b','..','..','..','a'];
+ var ox=52,cw=68,mid=150,unit=34;
+ ne(g,'rgba(150,110,230,0.5)',1.2);
+ g.beginPath();g.moveTo(ox-16,mid);g.lineTo(W-20,mid);g.stroke();ng(g);
+ nt(g,'#8a7ab8',ox-44,mid+4,9,'root');
+ var d=0,esc=false;
+ for(var i=0;i<demo.length;i++){
+  var x0=ox+i*cw,x1=ox+(i+1)*cw;
+  var y0=mid-d*unit;
+  if(demo[i]==='..')d--;else if(demo[i]!=='.')d++;
+  if(d<0)esc=true;
+  var y1=mid-d*unit;
+  ne(g,esc?'#ff5a8a':'#7de2b0',2);
+  g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();ng(g);
+  ndot(g,x1,y1,3.6,esc?'#ff5a8a':'#7de2b0');
+  nt(g,esc?'#ff5a8a':'#7de2b0',x0+22,y0-10,10,demo[i]);
+  nt(g,'#8a7ab8',x1-6,mid+20,9,''+d);}
+ nf(g,'rgba(255,90,138,0.10)');g.fillRect(ox-16,mid,W-ox-4,H-mid-46);ng(g);
+ nt(g,'#ff5a8a',ox,mid+52,10,'below this line you are OUTSIDE the workspace');
+ nt(g,'#8a7ab8',ox,mid+70,9,'a/b/../../../a  \\u2014  dips to -1 and never legitimately returns');
+ nt(g,'#8a7ab8',ox,H-14,9,'once you leave, coming back is a different directory with the same name');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=path.join('/');
+ var r=resolvePath(p||'.');
+ var says=!escapes(p||'.');
+ var naive=naiveInside('work',p||'.');
+ var d=0,truth=true;
+ for(var i=0;i<path.length;i++){
+  if(path[i]==='.')continue;
+  if(path[i]==='..'){d--;if(d<0){truth=false;break;}}
+  else d++;}
+ nt(g,'#e6dcff',16,26,11,'work/'+(p||''));
+ nt(g,'#8a7ab8',16,46,10,'resolves to: '+(r.parts.length?r.parts.join('/'):'(the root itself)'));
+ var y=84;
+ function lamp(lab,val,good,note){
+  ndot(g,30,y,8,val===good?'#7de2b0':'#ff5a8a');
+  nt(g,val===good?'#7de2b0':'#ff5a8a',50,y+4,11,lab+': '+(val?'INSIDE':'ESCAPES'));
+  nt(g,'#8a7ab8',50,y+20,9,note);
+  y+=48;}
+ lamp('ground truth',truth,truth,'walked segment by segment');
+ lamp('resolve-then-check',says,truth,says===truth?'agrees with the walk':'DISAGREES - unsound');
+ lamp('naive prefix join',naive,truth,naive===truth?'happens to agree here':'WRONG - waves this straight through');
+ if(naive!==truth){
+  nf(g,'rgba(255,90,138,0.12)');g.fillRect(20,y-6,W-40,48);ng(g);
+  ne(g,'#ff5a8a',1.2);g.strokeRect(20.5,y-5.5,W-41,48);ng(g);
+  nt(g,'#ff5a8a',32,y+16,10,'the naive check is wrong on this path');
+  nt(g,'#8a7ab8',32,y+34,9,'and it is the check most people write first');}
+ var o=document.getElementById('blout');
+ if(o)o.innerHTML=path.length===0?'Build a path from the buttons. Watch the naive prefix check and the resolve-then-check disagree.':
+  ('<code>work/'+p+'</code> resolves to <b>'+(r.parts.length?r.parts.join('/'):'the root')+'</b> and is <b>'+(truth?'contained':'an escape')+'</b>. Resolve-then-check '+(says===truth?'agrees':'<b>disagrees</b>')+'; the naive prefix check '+(naive===truth?'agrees here':'<b>gets it wrong</b>')+'.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2-30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ // the containment cone: everything at depth >= 0
+ ne(g,'#7de2b0',1.4);
+ for(var lev=0;lev<=4;lev++){
+  var rr=lev*30;
+  g.beginPath();
+  for(var t=0;t<=48;t++){var a2=t/48*2*Math.PI;
+   var p=P(rr*Math.cos(a2),lev*36,rr*Math.sin(a2));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ for(var k=0;k<8;k++){
+  var a2=k/8*2*Math.PI;
+  var p0=P(0,0,0),p1=P(120*Math.cos(a2),144,120*Math.sin(a2));
+  ne(g,'rgba(125,226,176,0.35)',1);
+  g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(p1[0],p1[1]);g.stroke();ng(g);}
+ var apex=P(0,0,0);
+ ndot(g,apex[0],apex[1],5,'#ffd76a');
+ nt(g,'#ffd76a',apex[0]+8,apex[1]-6,9,'root');
+ // escapes fall out below the apex
+ ne(g,'#ff5a8a',1.6);
+ for(var k=0;k<5;k++){
+  var a2=k/5*2*Math.PI+0.4;
+  var p1=P(0,0,0),p2=P(56*Math.cos(a2),-72,56*Math.sin(a2));
+  g.setLineDash([4,3]);
+  g.beginPath();g.moveTo(p1[0],p1[1]);g.lineTo(p2[0],p2[1]);g.stroke();g.setLineDash([]);
+  ndot(g,p2[0],p2[1],3,'#ff5a8a');}
+ ng(g);
+ nt(g,'#e6dcff',14,24,11,'the containment cone');
+ nt(g,'#7de2b0',14,42,10,'green = every path that stays at depth >= 0');
+ nt(g,'#ff5a8a',14,58,10,'pink = the ones that fall through the apex');
+ nt(g,'#8a7ab8',14,H-12,9,'a path is not a string; it is an instruction to a resolver');}
+document.getElementById('bla').onclick=function(){path.push('a');drawW4();};
+document.getElementById('blup').onclick=function(){path.push('..');drawW4();};
+document.getElementById('bldot').onclick=function(){path.push('.');drawW4();};
+document.getElementById('blclr').onclick=function(){path=[];drawW4();};
+document.getElementById('blsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__blastradius=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VTHC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">David&rsquo;s installer <b>runs the selftest before copying anything</b>. That reads like tidiness and it is arithmetic. Copy first and verify after, and a failing test leaves you <b>fully installed and broken</b> &mdash; every file in place, all of it wrong. Verify first and that state <b>cannot occur</b>: the bad build is refused before a single byte moves. It is not a reduction in risk, it is the removal of an entire outcome. Stage into a scratch tree and swap only on success and the remaining partial-copy window closes too.<br><br>
+ <span class="lit">LIT</span> verified live: with a 20% chance the build is bad and 2% per copy step across 12 files, copy-then-verify leaves <b>15.72%</b> fully-installed-but-bad and <b>21.48%</b> partial, matching the closed forms (1&minus;p)<sup>n</sup>q = <b>15.69%</b> and 1&minus;(1&minus;p)<sup>n</sup> = <b>21.53%</b>; verifying first drops the fully-installed-but-bad state to <b>exactly zero</b>, leaving <b>17.22%</b> partial against the closed form (1&minus;q)(1&minus;(1&minus;p)<sup>n</sup>) = <b>17.22%</b>; and stage-then-swap reaches <b>100.0%</b> clean over <b>200,000</b> simulated installs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> pairs the ordering with a second restraint that matters more than it looks: the installer deliberately does <b>not</b> arm the veto or the A/B split, because &ldquo;they change whether commands get refused, and that is not an installer&rsquo;s decision.&rdquo; An installer that quietly turns on enforcement has made a policy choice on someone else&rsquo;s behalf. Seated at <i>SECOND WIND</i>: a refused install costs you nothing and you simply go again.<br><br>
+ <b>AVAN (AI)</b> ran it both ways rather than asserting the obvious, because the interesting number is not that verify-first wins but <b>which</b> failure it removes. It does not reduce partial copies &mdash; those actually rise slightly in share, since the clean runs that used to absorb them are now refused earlier. What it eliminates is the <i>silent</i> failure: the install that looks complete and is not. Partial copies announce themselves; a fully-installed bad build does not. Every closed form here was derived independently and then confirmed against 200,000 simulated installs, agreeing to within a twentieth of a point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three orderings, same failure rates, same work. Different arithmetic.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run installs and watch where each ordering lands.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtrun">run 2000 installs &#9654;</button><button id="vtmode">next ordering &#9654;</button></div>
+   <div class="cap" id="vtout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three pipelines, and the outcome each one can no longer reach.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;test before you touch.&rdquo; The inverse is that ordering is the <b>cheapest</b> kind of safety there is, and therefore the most overlooked. Nothing here got more reliable &mdash; the build fails as often, the copies fail as often, the total work is identical. All that changed is <i>which failures can coexist</i>, and that was free. Read backwards, this is an argument against the instinct to buy safety with effort: the outcomes you can make structurally impossible cost nothing to remove, and they should always be removed first, before anyone spends a day making a component more reliable.</div>
+   <div class="btns" style="margin-top:10px"><button id="vtsp">pause spin</button></div></div></div></div>"""
+VTHC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0,runTally=null;
+var Q=0.20,PP=0.02,NF=12;
+var MODES=['copy then verify','VERIFY then copy','stage then swap'];
+function vtRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function once(m,rng){
+ var bad=rng()<Q,partial=false;
+ if(m===0){
+  for(var i=0;i<NF;i++)if(rng()<PP){partial=true;break;}
+  if(partial)return 'PARTIAL';
+  return bad?'FULL_BAD':'CLEAN';}
+ if(bad)return 'CLEAN';
+ for(var i=0;i<NF;i++)if(rng()<PP){partial=true;break;}
+ if(m===1)return partial?'PARTIAL':'CLEAN';
+ return 'CLEAN';}
+function selftest(){
+ var rng=vtRnd(4242),N=200000,t={};
+ [0,1,2].forEach(function(m){t[m]={CLEAN:0,PARTIAL:0,FULL_BAD:0};});
+ for(var i=0;i<N;i++){t[0][once(0,rng)]++;t[1][once(1,rng)]++;t[2][once(2,rng)]++;}
+ var pPart=1-Math.pow(1-PP,NF);
+ var ctvBad=(1-pPart)*Q,ctvPart=pPart,vtcPart=(1-Q)*pPart;
+ var okC=Math.abs(t[0].FULL_BAD/N-ctvBad)<0.005&&Math.abs(t[0].PARTIAL/N-ctvPart)<0.005;
+ var okV=Math.abs(t[1].PARTIAL/N-vtcPart)<0.005&&t[1].FULL_BAD===0;
+ var okS=t[2].CLEAN===N;
+ return {installs:N,q:Q*100,p:PP*100,files:NF,
+  ctvBadPct:t[0].FULL_BAD/N*100,ctvPartialPct:t[0].PARTIAL/N*100,
+  ctvBadClosed:ctvBad*100,ctvPartialClosed:ctvPart*100,
+  vtcPartialPct:t[1].PARTIAL/N*100,vtcPartialClosed:vtcPart*100,vtcBadCount:t[1].FULL_BAD,
+  stsCleanPct:t[2].CLEAN/N*100,
+  closedFormsMatch:okC&&okV,badEliminated:t[1].FULL_BAD===0&&t[0].FULL_BAD>0,
+  stageSwapClean:okS,
+  ok:okC&&okV&&okS&&t[1].FULL_BAD===0&&t[0].FULL_BAD>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE ORDERINGS  \\u2014  same failure rates, different outcomes');
+ var v=VR;
+ var rows=[
+  ['copy then verify',[100-v.ctvBadPct-v.ctvPartialPct,v.ctvPartialPct,v.ctvBadPct]],
+  ['VERIFY then copy',[100-v.vtcPartialPct,v.vtcPartialPct,0]],
+  ['stage then swap',[100,0,0]]];
+ var cols=['rgba(125,226,176,0.6)','rgba(255,215,106,0.65)','rgba(255,90,138,0.75)'];
+ var names=['clean','partial','fully installed but BAD'];
+ var ox=150,pw=W-ox-24;
+ rows.forEach(function(r,i){
+  var y=62+i*62,x=ox;
+  nt(g,i===0?'#8a7ab8':'#e6dcff',12,y+20,10,r[0]);
+  r[1].forEach(function(pct,k){
+   var w=pw*pct/100;
+   if(w<=0)return;
+   nf(g,cols[k]);g.fillRect(x,y,w,30);ng(g);
+   if(w>44)nt(g,'#0a0713',x+5,y+20,9,pct.toFixed(1)+'%');
+   x+=w;});
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(ox+0.5,y+0.5,pw,30);ng(g);});
+ var ly=250;
+ names.forEach(function(n,k){
+  nf(g,cols[k]);g.fillRect(ox+k*118,ly,12,12);ng(g);
+  nt(g,'#8a7ab8',ox+k*118+18,ly+11,9,n);});
+ nt(g,'#ff5a8a',12,ly+11,10,'pink vanishes \\u2014');
+ nt(g,'#ff5a8a',12,ly+26,10,'not shrinks. Vanishes.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,12,MODES[mode]);
+ nt(g,'#8a7ab8',16,46,9,'build bad '+VR.q+'%   \\u00b7   copy step fails '+VR.p+'%   \\u00b7   '+VR.files+' files');
+ if(!runTally){
+  nt(g,'#8a7ab8',16,86,10,'press RUN to simulate 2000 installs');
+  return;}
+ var t=runTally,N=t.CLEAN+t.PARTIAL+t.FULL_BAD;
+ var G=40,cw=8,ox=24,oy=76;
+ var order=[];
+ for(var i=0;i<t.FULL_BAD;i++)order.push(2);
+ for(var i=0;i<t.PARTIAL;i++)order.push(1);
+ for(var i=0;i<t.CLEAN;i++)order.push(0);
+ var cols=['rgba(125,226,176,0.55)','rgba(255,215,106,0.7)','rgba(255,90,138,0.85)'];
+ var step=Math.ceil(N/(G*G));
+ for(var q=0,idx=0;q<G*G&&idx<N;q++,idx+=step){
+  var x=ox+(q%G)*cw,y=oy+Math.floor(q/G)*cw;
+  g.fillStyle=cols[order[idx]];
+  g.fillRect(x,y,cw-1.5,cw-1.5);}
+ var yb=oy+G*cw+22;
+ nt(g,'#7de2b0',24,yb,10,'clean    '+(t.CLEAN/N*100).toFixed(2)+'%');
+ nt(g,'#ffd76a',24,yb+18,10,'partial  '+(t.PARTIAL/N*100).toFixed(2)+'%');
+ nt(g,t.FULL_BAD?'#ff5a8a':'#6a5a95',24,yb+36,10,'installed but BAD  '+(t.FULL_BAD/N*100).toFixed(2)+'%'+(t.FULL_BAD?'':'   \\u2190 impossible here'));
+ var o=document.getElementById('vtout');
+ if(o)o.innerHTML='<b>'+MODES[mode]+'</b> over '+N.toLocaleString()+' installs: '+(t.CLEAN/N*100).toFixed(1)+'% clean, '+(t.PARTIAL/N*100).toFixed(1)+'% partial, <b>'+(t.FULL_BAD/N*100).toFixed(1)+'%</b> fully installed but broken'+
+  (mode===0?' &mdash; the silent failure, because it looks complete.':(mode===1?' &mdash; that outcome cannot occur once the test runs first.':' &mdash; and the partial window is closed too.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var lanes=[[-70,'#ff5a8a',3],[0,'#ffd76a',2],[70,'#7de2b0',1]];
+ lanes.forEach(function(L,i){
+  var z=L[0];
+  for(var k=0;k<3;k++){
+   var a=P(-96+k*64,0,z),b=P(-96+(k+1)*64,0,z);
+   ne(g,'rgba(150,110,230,0.45)',1.3);
+   g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+   ndot(g,a[0],a[1],3,'#b98cff');}
+  var e=P(96,0,z);
+  ndot(g,e[0],e[1],4,L[1]);
+  var lb=P(-118,0,z);
+  nt(g,L[1],lb[0]-6,lb[1]+3,9,MODES[2-i].slice(0,14));
+  // the outcomes still reachable
+  for(var q=0;q<L[2];q++){
+   var p=P(120,-24+q*24,z);
+   ndot(g,p[0],p[1],3.4,['#7de2b0','#ffd76a','#ff5a8a'][q]);}});
+ nt(g,'#e6dcff',14,24,11,'three pipelines, identical work');
+ nt(g,'#8a7ab8',14,42,10,'right-hand dots = outcomes still reachable');
+ nt(g,'#7de2b0',14,58,10,'the top lane can only end one way');
+ nt(g,'#8a7ab8',14,H-12,9,'ordering is the cheapest safety there is, and the most overlooked');}
+document.getElementById('vtrun').onclick=function(){
+ var rng=vtRnd(99+mode*7),t={CLEAN:0,PARTIAL:0,FULL_BAD:0};
+ for(var i=0;i<2000;i++)t[once(mode,rng)]++;
+ runTally=t;drawW4();};
+document.getElementById('vtmode').onclick=function(){mode=(mode+1)%3;runTally=null;drawW4();};
+document.getElementById('vtsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__verifythencopy=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FAKC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">David&rsquo;s pack reports <b>42/42 selftest checks against a fake PluginContext</b>. The fake is not a shortcut &mdash; it is the only way some of those checks can exist at all. A real context walks a state machine driven by outside events, and the states you most need to test are exactly the ones the real world hands you least often: the rare branch, the odd ordering, the failure that shows up once a month. A fake can simply be <b>set</b> to that state. The cost, which has to be said out loud, is that a fake will also hold states the real machine can never occupy, and a test passing in an impossible state has proved nothing.<br><br>
+ <span class="lit">LIT</span> verified live: driving the real context with realistic event odds for <b>200,000</b> steps visits <b>18</b> of the <b>20</b> live states, with <b>6</b> hard or impossible to reach on demand &mdash; <b>2</b> never appeared at all and <b>4</b> only rarely, the rarest turning up <b>4</b> times, roughly once in <b>50,000</b> steps; a fake can be set to any of the <b>24</b> states, so covering all of them costs O(states) instead of waiting O(1/p); and <b>6 of the 24</b> are unreachable in the real machine at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> tests the pack against a fake and says so in the README rather than burying it, which is the right way round &mdash; the number 42/42 means something quite different depending on what it was measured against, and hiding the substrate would make the figure decorative. Seated at <i>GOD MODE</i>: the ability to be in any state you like, without earning it.<br><br>
+ <b>AVAN (AI)</b> built the counterweight into the same page as the benefit, because a sphere that only argued for fakes would be advocacy rather than measurement. The machine here has <b>4 states with no incoming edges by construction</b>, so they are unreachable in reality and freely settable in the fake &mdash; and the page reports that alongside the win. That is the honest shape of a test double: it converts a waiting problem into a modelling problem. You stop paying for rare events and start paying for the risk that your model of the state space is wrong, and the second cost is quieter, which is precisely what makes it worth naming.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Visit counts across 200,000 real steps. Some states are simply never handed to you.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Wait for the real machine, or just set the fake and move on.</div>
+   <div class="btns" style="margin-top:10px"><button id="fkstep">run 5000 real steps &#9654;</button><button id="fkset">set the fake &#9654;</button><button id="fkclr">reset</button></div>
+   <div class="cap" id="fkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the reachable machine, with the impossible states floating clear of it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a fake makes rare states testable.&rdquo; The inverse is that a fake <b>changes what the test is evidence about</b>. Against the real object, a passing test says the system survived a situation that genuinely arose. Against a fake, it says the system survives a situation <i>as I have described it</i> &mdash; and the description is now part of the thing under test, silently. Read backwards, every test double moves a portion of your uncertainty out of the code and into your model of the world, where no assertion will ever fail. That trade is usually worth making. It is never free, and the invoice does not arrive at the same time as the benefit.</div>
+   <div class="btns" style="margin-top:10px"><button id="fksp">pause spin</button></div></div></div></div>"""
+FAKC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,NS=24,LIVE=20,trans=null,visits={},cur=0,fakeSet=null,steps=0;
+function fkRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function build(){
+ var rng=fkRnd(1717);
+ trans=[];
+ for(var s=0;s<NS;s++){
+  var row=[];
+  for(var e=0;e<3;e++)row.push(Math.floor(rng()*LIVE));
+  trans.push(row);}
+ return rng;}
+var EVP=[0.90,0.0997,0.0003];
+function selftest(){
+ var rng=build();
+ var N=200000,hit={},s=0;
+ for(var i=0;i<N;i++){
+  var r=rng(),e=r<EVP[0]?0:(r<EVP[0]+EVP[1]?1:2);
+  s=trans[s][e];hit[s]=(hit[s]||0)+1;}
+ var seen=Object.keys(hit).length,rare=[],never=[];
+ for(var st=0;st<LIVE;st++){var n=hit[st]||0;
+  if(n===0)never.push(st);
+  else if(n<N/LIVE/50)rare.push([st,n]);}
+ var rarest=rare.length?rare.reduce(function(a,b){return b[1]<a[1]?b:a;}):[null,0];
+ var expT=rarest[1]>0?Math.round(N/rarest[1]):Infinity;
+ var seenSet={0:1},fr=[0];
+ for(var d=0;d<40;d++){var nx=[];
+  fr.forEach(function(x){for(var e=0;e<3;e++){var t=trans[x][e];
+   if(!seenSet[t]){seenSet[t]=1;nx.push(t);}}});
+  fr=nx;}
+ var impossible=0;
+ for(var st=0;st<NS;st++)if(!seenSet[st])impossible++;
+ return {stepsDriven:N,totalStates:NS,liveStates:LIVE,statesVisited:seen,
+  neverSeen:never.length,rareStates:rare.length,hardToReach:rare.length+never.length,
+  rarestVisits:rarest[1],rarestOneIn:isFinite(expT)?expT:null,
+  fakeCanSetAll:NS,impossibleInReal:impossible,visitCounts:hit,
+  ok:(rare.length+never.length)>0&&impossible>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'VISITS IN 200,000 REAL STEPS  \\u2014  log scale');
+ var h=VR.visitCounts,ox=34,bw=16,gap=3,base=232;
+ for(var s=0;s<NS;s++){
+  var n=h[s]||0;
+  var hh=n>0?Math.max(3,150*Math.log(1+n)/Math.log(1+200000)):3;
+  var live=s<LIVE;
+  var col=!live?'rgba(120,90,180,0.35)':(n===0?'rgba(255,90,138,0.8)':(n<200000/LIVE/50?'rgba(255,215,106,0.8)':'rgba(125,226,176,0.5)'));
+  nf(g,col);g.fillRect(ox+s*(bw+gap),base-hh,bw,hh);ng(g);
+  if(n===0&&live)nt(g,'#ff5a8a',ox+s*(bw+gap)+2,base-hh-6,8,'0');}
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(ox-8,base);g.lineTo(W-14,base);g.stroke();ng(g);
+ nt(g,'#7de2b0',ox,base+22,9,'green = ordinary');
+ nt(g,'#ffd76a',ox+118,base+22,9,'gold = rare');
+ nt(g,'#ff5a8a',ox+206,base+22,9,'pink = never seen');
+ nt(g,'#8a7ab8',ox+310,base+22,9,'faint = unreachable at all');
+ nt(g,'#8a7ab8',ox,base+42,9,'the fake can be set to ANY of these, including the faint ones \\u2014 that is the cost');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'real steps driven: '+steps.toLocaleString());
+ var G=6,cw=48,ox=42,oy=52;
+ for(var s=0;s<NS;s++){
+  var x=ox+(s%G)*cw,y=oy+Math.floor(s/G)*cw;
+  var n=visits[s]||0;
+  var live=s<LIVE;
+  var isFake=fakeSet===s;
+  var col=isFake?'rgba(255,215,106,0.85)':(!live?'rgba(120,90,180,0.22)':(n===0?'rgba(255,90,138,0.30)':'rgba(125,226,176,0.'+Math.min(9,2+Math.floor(Math.log(1+n)))+')'));
+  g.fillStyle=col;g.fillRect(x,y,cw-8,cw-8);
+  if(isFake){ne(g,'#ffd76a',2);g.strokeRect(x-1.5,y-1.5,cw-5,cw-5);ng(g);}
+  nt(g,'#0a0713',x+4,y+24,9,''+s);
+  if(n>0)nt(g,'#8a7ab8',x+4,y+36,8,n>999?'999+':''+n);}
+ var yb=oy+Math.ceil(NS/G)*cw+16;
+ nt(g,'#8a7ab8',24,yb,9,'unvisited live states: '+(function(){var k=0;
+  for(var s=0;s<LIVE;s++)if(!visits[s])k++;
+  return k;})()+' of '+LIVE);
+ if(fakeSet!==null)nt(g,'#ffd76a',24,yb+18,10,'fake SET to state '+fakeSet+(fakeSet>=LIVE?'  \\u2014 impossible in reality':''));
+ var o=document.getElementById('fkout');
+ if(o){
+  var unv=0;
+  for(var s=0;s<LIVE;s++)if(!visits[s])unv++;
+  o.innerHTML=fakeSet!==null
+   ?('The fake is now in state <b>'+fakeSet+'</b>, reached in one call.'+(fakeSet>=LIVE?' This state has <b>no incoming edge</b> &mdash; the real machine can never be here, and a test passing now proves nothing.':' The real machine would need luck or patience.'))
+   :('After <b>'+steps.toLocaleString()+'</b> real steps, <b>'+unv+'</b> of '+LIVE+' live states are still unvisited. Keep running, or set the fake and stop waiting.');}}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var pos=[];
+ for(var s=0;s<NS;s++){
+  var live=s<LIVE;
+  var th=s/LIVE*2*Math.PI,rad=live?92:126;
+  pos.push(P(rad*Math.cos(th),live?0:-92,rad*Math.sin(th)));}
+ ne(g,'rgba(125,226,176,0.28)',1);
+ for(var s=0;s<LIVE;s++)for(var e=0;e<3;e++){
+  var t=trans[s][e];
+  g.beginPath();g.moveTo(pos[s][0],pos[s][1]);g.lineTo(pos[t][0],pos[t][1]);g.stroke();}
+ ng(g);
+ for(var s=0;s<NS;s++){
+  var live=s<LIVE;
+  ndot(g,pos[s][0],pos[s][1],live?4:3.4,live?'#7de2b0':'#ff5a8a');}
+ nt(g,'#e6dcff',14,24,11,'the reachable machine');
+ nt(g,'#ff5a8a',14,42,10,'pink, floating clear: no incoming edge, ever');
+ nt(g,'#8a7ab8',14,58,10,'the fake will hold them without complaint');
+ nt(g,'#8a7ab8',14,H-12,9,'a double moves uncertainty where no assertion will ever fail');}
+document.getElementById('fkstep').onclick=function(){
+ var rng=fkRnd(555+steps);
+ for(var i=0;i<5000;i++){
+  var r=rng(),e=r<EVP[0]?0:(r<EVP[0]+EVP[1]?1:2);
+  cur=trans[cur][e];visits[cur]=(visits[cur]||0)+1;}
+ steps+=5000;fakeSet=null;drawW4();};
+document.getElementById('fkset').onclick=function(){
+ var unv=[];
+ for(var s=0;s<NS;s++)if(!visits[s])unv.push(s);
+ fakeSet=unv.length?unv[unv.length-1]:NS-1;
+ drawW4();};
+document.getElementById('fkclr').onclick=function(){visits={};cur=0;steps=0;fakeSet=null;drawW4();};
+document.getElementById('fksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__fakecontext=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DSNT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In David&rsquo;s rev 5 the fifth window <b>files dissent against the first</b> &mdash; a subordinate panel formally disagreeing with the command position. That is not decoration; there is a real theorem underneath. Take three judges, two premises P and Q, and a conclusion C that must equal P&nbsp;&and;&nbsp;Q. Every judge is <b>individually consistent</b>. Majority says P is true. Majority says Q is true. So reasoning from the premises, C is true. But take the majority on C directly and it is <b>false</b>. Same judges, same votes, opposite verdicts, and both routes are defensible &mdash; which is why more care cannot resolve it.<br><br>
+ <span class="lit">LIT</span> verified live: the classic three-judge profile is reproduced with every judge verified individually consistent, majority P = 1, majority Q = 1, premise-based C = <b>1</b>, conclusion-based C = <b>0</b>; and exhaustively over <b>every</b> profile of individually-consistent judges the split occurs in <b>6 of 64</b> at n = 3 (<b>9.4%</b>), <b>150 of 1,024</b> at n = 5 (<b>14.6%</b>) and <b>2,940 of 16,384</b> at n = 7 (<b>17.9%</b>) &mdash; with n odd throughout, so no majority is ever a tie.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> gave W5 a standing right of dissent and a place to record it, which is a structural answer to a structural problem: if the aggregate can hold a position no individual window holds, then a channel for &ldquo;the summary does not follow from what I reported&rdquo; is not politeness, it is the only way that fact reaches anyone. Seated at <i>THE PHOENIX</i> &mdash; the minority position that survives the vote which buried it.<br><br>
+ <b>AVAN (AI)</b> should be careful about the neighbours. This is the <b>doctrinal paradox</b> (Kornhauser &amp; Sager 1986), generalised by List and Pettit in 2002 into judgment aggregation. It is <b>not</b> Condorcet&rsquo;s paradox and not Arrow&rsquo;s theorem, both of which already have spheres in this fold and both of which need a preference <i>ordering</i>. Here there is no ordering anywhere &mdash; only propositions that are logically linked, which is a weaker premise and therefore a stronger result. The impossibility theorem in the general case is <b>cited, not proved here</b>; what is proved here is the concrete failure, exhaustively, over every consistent profile at n = 3, 5 and 7.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three judges, all consistent. Read down the columns, then read the last one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change a judge and watch the two routes agree, then stop agreeing.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsj1">judge 1</button><button id="dsj2">judge 2</button><button id="dsj3">judge 3</button><button id="dscl">classic</button></div>
+   <div class="cap" id="dsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: consistent judges below, an inconsistent aggregate above them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;majorities can contradict themselves.&rdquo; The inverse is that <b>consistency is not preserved by aggregation</b>, and nothing about being more reasonable individually can fix that. Each judge here is impeccable; the contradiction is manufactured entirely by the summing. So a group is not a larger mind &mdash; it is a different object with different closure properties, and the familiar demand that it &ldquo;make up its mind&rdquo; presumes a coherence the arithmetic does not supply. Read backwards, a formal right of dissent is not a courtesy extended to the outvoted. It is the only remaining channel through which a true thing can still be said once the vote has made saying it structurally impossible.</div>
+   <div class="btns" style="margin-top:10px"><button id="dssp">pause spin</button></div></div></div></div>"""
+DSNT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var TYPES=[[1,1,1],[1,0,0],[0,1,0],[0,0,0]];
+var jt=[0,1,2];
+function maj(v){var s=0;
+ for(var i=0;i<v.length;i++)s+=v[i];
+ return s*2>v.length?1:0;}
+function sweep(n){
+ var total=0,split=0,idx=new Array(n).fill(0);
+ function rec(d){
+  if(d===n){
+   total++;
+   var a=[],b=[],c=[];
+   for(var i=0;i<n;i++){var T=TYPES[idx[i]];a.push(T[0]);b.push(T[1]);c.push(T[2]);}
+   var ma=maj(a),mb2=maj(b),mc=maj(c);
+   if((ma&&mb2?1:0)!==mc)split++;
+   return;}
+  for(var t=0;t<4;t++){idx[d]=t;rec(d+1);}}
+ rec(0);
+ return [total,split,split/total*100];}
+function selftest(){
+ var classic=[TYPES[0],TYPES[1],TYPES[2]];
+ var cons=classic.every(function(j){return j[2]===(j[0]&&j[1]?1:0);});
+ var pM=maj(classic.map(function(j){return j[0];}));
+ var qM=maj(classic.map(function(j){return j[1];}));
+ var cM=maj(classic.map(function(j){return j[2];}));
+ var pb=pM&&qM?1:0;
+ var s3=sweep(3),s5=sweep(5),s7=sweep(7);
+ return {judgesConsistent:cons,majP:pM,majQ:qM,premiseBased:pb,conclusionBased:cM,
+  classicSplit:pb!==cM,
+  n3:{profiles:s3[0],split:s3[1],pct:s3[2]},
+  n5:{profiles:s5[0],split:s5[1],pct:s5[2]},
+  n7:{profiles:s7[0],split:s7[1],pct:s7[2]},
+  alwaysPossible:s3[1]>0&&s5[1]>0&&s7[1]>0,oddNoTies:true,
+  ok:cons&&(pb!==cM)&&s3[1]>0&&s5[1]>0&&s7[1]>0};}
+function grid(g,ox,oy,cw,rows,hdr,cols2){
+ hdr.forEach(function(h,i){nt(g,'#b98cff',ox+18+i*cw,oy-8,10,h);});
+ rows.forEach(function(r,j){
+  nt(g,cols2?cols2[j]:'#e6dcff',ox-52,oy+22+j*32,10,r.label);
+  r.vals.forEach(function(v,i){
+   var x=ox+i*cw,y=oy+j*32;
+   nf(g,v?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.18)');
+   g.fillRect(x,y,cw-10,26);ng(g);
+   ne(g,v?'#7de2b0':'#ff5a8a',1.1);g.strokeRect(x+0.5,y+0.5,cw-11,26);ng(g);
+   nt(g,v?'#7de2b0':'#ff5a8a',x+14,y+18,11,v?'T':'F');});});}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE DOCTRINAL PARADOX  \\u2014  C must equal P and Q');
+ var classic=[TYPES[0],TYPES[1],TYPES[2]];
+ var rows=classic.map(function(j,i){return {label:'judge '+(i+1),vals:j};});
+ grid(g,168,52,74,rows,['P','Q','C = P and Q']);
+ var pM=maj(classic.map(function(j){return j[0];}));
+ var qM=maj(classic.map(function(j){return j[1];}));
+ var cM=maj(classic.map(function(j){return j[2];}));
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(110,158);g.lineTo(W-24,158);g.stroke();ng(g);
+ grid(g,168,172,74,[{label:'MAJORITY',vals:[pM,qM,cM]}],[]);
+ var pb=pM&&qM?1:0;
+ nt(g,'#ffd76a',18,232,10,'from the premises:  P and Q  =  '+(pb?'TRUE':'FALSE'));
+ nt(g,'#ff5a8a',18,252,10,'from the conclusion column:  '+(cM?'TRUE':'FALSE'));
+ nt(g,'#e6dcff',18,276,10,'every judge is consistent. The panel is not.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var js=jt.map(function(t){return TYPES[t];});
+ var rows=js.map(function(j,i){return {label:'j'+(i+1),vals:j};});
+ nt(g,'#e6dcff',16,26,11,'three judges, each individually consistent');
+ grid(g,110,54,64,rows,['P','Q','C']);
+ var pM=maj(js.map(function(j){return j[0];}));
+ var qM=maj(js.map(function(j){return j[1];}));
+ var cM=maj(js.map(function(j){return j[2];}));
+ var pb=pM&&qM?1:0;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(52,164);g.lineTo(W-20,164);g.stroke();ng(g);
+ grid(g,110,178,64,[{label:'maj',vals:[pM,qM,cM]}],[]);
+ var split=pb!==cM;
+ var y=234;
+ nf(g,split?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.12)');
+ g.fillRect(20,y,W-40,64);ng(g);
+ ne(g,split?'#ff5a8a':'#7de2b0',1.3);g.strokeRect(20.5,y+0.5,W-41,64);ng(g);
+ nt(g,'#ffd76a',34,y+24,10,'premise route:      C = '+(pb?'TRUE':'FALSE'));
+ nt(g,split?'#ff5a8a':'#7de2b0',34,y+46,10,'conclusion route: C = '+(cM?'TRUE':'FALSE')+(split?'   \\u2190 SPLIT':'   \\u2014 agree'));
+ var o=document.getElementById('dsout');
+ if(o)o.innerHTML=split
+  ?'<b>Split.</b> Reasoning from the majority premises gives <b>'+(pb?'TRUE':'FALSE')+'</b>; the majority on the conclusion gives <b>'+(cM?'TRUE':'FALSE')+'</b>. Both routes are defensible, so no amount of extra care settles it.'
+  :'These three agree by both routes. Cycle the judges &mdash; the split appears in <b>'+VR.n3.split+' of '+VR.n3.profiles+'</b> profiles at n=3.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var js=jt.map(function(t){return TYPES[t];});
+ for(var i=0;i<3;i++){
+  var th=i/3*2*Math.PI,p=P(84*Math.cos(th),0,84*Math.sin(th));
+  ne(g,'#7de2b0',1.5);
+  g.beginPath();g.arc(p[0],p[1],17,0,7);g.stroke();ng(g);
+  nt(g,'#7de2b0',p[0]-16,p[1]+4,9,'j'+(i+1));
+  var top=P(0,-118,0);
+  ne(g,'rgba(125,226,176,0.4)',1.2);
+  g.beginPath();g.moveTo(p[0],p[1]-17);g.lineTo(top[0],top[1]+20);g.stroke();ng(g);
+  nt(g,'#8a7ab8',p[0]-24,p[1]+32,8,js[i].map(function(v){return v?'T':'F';}).join(''));}
+ var pM=maj(js.map(function(j){return j[0];}));
+ var qM=maj(js.map(function(j){return j[1];}));
+ var cM=maj(js.map(function(j){return j[2];}));
+ var pb=pM&&qM?1:0,split=pb!==cM;
+ var top=P(0,-118,0);
+ ne(g,split?'#ff5a8a':'#7de2b0',2);
+ g.beginPath();g.arc(top[0],top[1],24,0,7);g.stroke();ng(g);
+ nt(g,split?'#ff5a8a':'#7de2b0',top[0]-22,top[1]+4,10,split?'\\u2260':'ok');
+ nt(g,'#e6dcff',14,24,11,'consistent below, '+(split?'INCONSISTENT':'consistent')+' above');
+ nt(g,'#8a7ab8',14,42,10,'the contradiction is made by the summing');
+ nt(g,'#8a7ab8',14,58,10,'a group is not a larger mind');
+ nt(g,'#8a7ab8',14,H-12,9,'dissent is the last channel a true thing can travel');}
+function cyc(i){jt[i]=(jt[i]+1)%4;drawW4();}
+document.getElementById('dsj1').onclick=function(){cyc(0);};
+document.getElementById('dsj2').onclick=function(){cyc(1);};
+document.getElementById('dsj3').onclick=function(){cyc(2);};
+document.getElementById('dscl').onclick=function(){jt=[0,1,2];drawW4();};
+document.getElementById('dssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__dissent=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 207 · neon-noir · silicon-coding · ROOT_0'S OWN MACHINERY (two rulers that cannot collide · the gap where a number stops being true · the moment the answer freezes · a grader who cannot remember you · a stamp that refuses to be given) ═══════════════════════
 ORTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Two things need measuring in the same cube: <b>how far along you are</b> (the tick) and <b>which section you are in</b> (the band). Put both on one ruler and thousands of single steps change <i>both at once</i> &mdash; every such step is a place where the two readings can disagree about what just happened. Put them on <b>different axes</b> and that failure mode does not shrink, it <b>disappears</b>. In David&rsquo;s rev 5 &middot; 0804 the count of steps doing both jobs is <b>0</b>, and the rev note is blunt about why the revision happened at all: <i>one ruler was being asked to measure two different things</i>.<br><br>
@@ -60753,6 +61486,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-graveyard","title":"THE GRAVEYARD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#7de2b0","icon":"\u2020",
+  "kicker":"bury it, and name what killed it",
+  "blurb":"Refusing a burial until you name the control that killed it turns dead code into an instrument \u2014 and lets you finally ask which of your controls has ever caught anything.",
+  "lit":"a burial is refused for every one of 7 empty-ish causes and accepted for a real one, with nothing written to the log by the refusals; over 40,000 simulated bugs the controls catch 90.8% while treating them as independent predicts 99.4%, overstating real coverage by 8.7 points purely because their catches overlap; and the control that never fires (1 of 9) records exactly 0 kills, raising the control count while adding no detection",
+  "fig":"The coverage illusion is the part that matters: eight controls each catching about a third FEELS like near-total coverage and the independence formula agrees, but controls written by the same people looking at the same risks catch the same bugs. The 8.7-point gap is the distance between a safety net and the belief in one, and it grows with every control added along an axis already covered.",
+  "body":GRVY_BODY,"script":GRVY_SCRIPT},
+ {"slug":"the-blast-radius","title":"THE BLAST RADIUS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#ff9a5a","icon":"\u25a3",
+  "kicker":"bounded under the resolver, not under string comparison",
+  "blurb":"The obvious containment check waves through ../evil and an absolute path to anywhere on disk. A prefix compare has a second hole: /workshop/secret starts with /work.",
+  "lit":"the naive join-and-prefix check is defeated by 4 concrete inputs and the prefix compare by a sibling directory; resolving first and then asking whether any '..' survives is sound, verified exhaustively over all 1,364 path expressions of length 1 to 5 over {a, b, .., .} \u2014 819 contained, 545 escaping \u2014 agreeing with an independent ground-truth walk on every single one; and absolute paths are refused outright rather than resolved",
+  "fig":"AVAN wrote a containment resolver with the exact bug this sphere is about and did not catch it by inspection. The first version popped the stack on every '..', so '../..' resolved to an empty path and reported CONTAINED \u2014 a double escape reading as safe. None of the hand-picked adversarial examples found it; they all escape on the first segment. The EXHAUSTIVE sweep found it. A security predicate tested only against the attacks you already thought of measures your imagination, not the predicate.",
+  "body":BLST_BODY,"script":BLST_SCRIPT},
+ {"slug":"the-verify-then-copy","title":"THE VERIFY THEN COPY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ffd76a","icon":"\u2713",
+  "kicker":"an entire outcome removed, for free",
+  "blurb":"Copy first and a failing test leaves you fully installed and broken. Verify first and that state cannot occur \u2014 not less likely, impossible. Same work, different arithmetic.",
+  "lit":"with a 20% chance the build is bad and 2% per copy step across 12 files, copy-then-verify leaves 15.72% fully-installed-but-bad and 21.48% partial, matching closed forms (1-p)^n*q = 15.69% and 1-(1-p)^n = 21.53%; verifying first drops the fully-installed-but-bad state to exactly zero, leaving 17.22% partial against the closed form (1-q)(1-(1-p)^n) = 17.22%; and stage-then-swap reaches 100.0% clean over 200,000 simulated installs",
+  "fig":"The interesting result is not that verify-first wins but WHICH failure it removes. It does not reduce partial copies \u2014 their share actually rises, since clean runs that used to absorb them are now refused earlier. What it eliminates is the SILENT failure: the install that looks complete and is not. Partial copies announce themselves; a fully-installed bad build does not.",
+  "body":VTHC_BODY,"script":VTHC_SCRIPT},
+ {"slug":"the-fake-context","title":"THE FAKE CONTEXT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#5ad6ff","icon":"\u25d1",
+  "kicker":"the states reality will not hand you on demand",
+  "blurb":"42/42 checks against a fake. The fake is not a shortcut \u2014 some of those checks cannot exist without it. The cost is that it will also hold states the real machine can never occupy.",
+  "lit":"driving the real context with realistic event odds for 200,000 steps visits 18 of the 20 live states, with 6 hard or impossible to reach on demand \u2014 2 never appeared at all and 4 only rarely, the rarest turning up 4 times, roughly once in 50,000 steps; a fake can be set to any of the 24 states, so covering all of them costs O(states) instead of waiting O(1/p); and 6 of the 24 are unreachable in the real machine at all",
+  "fig":"The counterweight is built into the same page as the benefit, because a sphere that only argued for fakes would be advocacy rather than measurement. The machine has 4 states with no incoming edges by construction \u2014 unreachable in reality, freely settable in the fake \u2014 and the page reports that alongside the win. A test double converts a waiting problem into a modelling problem: you stop paying for rare events and start paying for the risk that your model of the state space is wrong.",
+  "body":FAKC_BODY,"script":FAKC_SCRIPT},
+ {"slug":"the-dissent","title":"THE DISSENT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#b98cff","icon":"\u2260",
+  "kicker":"the parts agree and the whole does not",
+  "blurb":"Every judge individually consistent; majority on the premises says TRUE, majority on the conclusion says FALSE. Both routes defensible, so more care cannot settle it.",
+  "lit":"the classic three-judge profile is reproduced with every judge verified individually consistent, majority P = 1, majority Q = 1, premise-based C = 1 and conclusion-based C = 0; and exhaustively over EVERY profile of individually-consistent judges the split occurs in 6 of 64 at n=3 (9.4%), 150 of 1,024 at n=5 (14.6%) and 2,940 of 16,384 at n=7 (17.9%), with n odd throughout so no majority is ever a tie",
+  "fig":"This is the doctrinal paradox (Kornhauser & Sager 1986; List & Pettit 2002), NOT Condorcet's paradox and not Arrow's theorem \u2014 both of which already have spheres in this fold and both of which require a preference ORDERING. Here there is no ordering anywhere, only propositions logically linked, which is a weaker premise and a stronger result. The general impossibility theorem is cited, NOT proved here; what is proved is the concrete failure, exhaustively, at n = 3, 5 and 7.",
+  "body":DSNT_BODY,"script":DSNT_SCRIPT},
  {"slug":"the-orthogonal-split","title":"THE ORTHOGONAL SPLIT","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#7de2b0","icon":"\u254b",
   "kicker":"put the two rulers on different axes and the collisions stop existing",
