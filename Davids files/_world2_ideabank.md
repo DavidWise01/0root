@@ -183,3 +183,31 @@ STILL FREE as of 2026-08-05 (verified by the three-way check — RE-CHECK before
 NOTE ON NEAR-DUPLICATES: batch 229 skipped the-spectral-test and the-batcher for exactly this
 reason, as batch 205 skipped the-dither and batch 206 skipped Skolem sequences. A free slug is
 not the same as a free idea.
+
+### CORRECTION to VEIN G (added 2026-08-05, batch 231)
+The vein G "STILL FREE" list was checked by SLUG ONLY, and three of its ten entries turn out to
+be near-duplicates of spheres already built under a different slug. Re-checked by CONCEPT:
+
+  THE COSTAS ARRAY  -> already built as  the-costas
+  THE SCAPEGOAT     -> already built as  the-scapegoat-tree     (stem SCPG also taken)
+  THE ULAM          -> already built as  the-ulam-numbers       (stem ULAM also taken)
+  THE EXACT COVER   -> the-dancing-links IS Algorithm X; skip unless reframed
+  THE BATCHER       -> the-zero-one-principle (batch 229) already builds and draws that network
+
+BUILT in batch 231: THE ZIGGURAT, THE MIDDLE SQUARE, THE SOFT HEAP,
+THE CENTROID DECOMPOSITION, THE HOPSCOTCH.
+
+STILL FREE by CONCEPT as of 2026-08-05 (keyword-checked, not merely slug-checked):
+  the-brodal-queue        worst-case O(1) meld and insert; Brodal 1996
+  the-gap-buffer          the editor structure; O(1) at the cursor, O(k) to move it k
+  the-finger-tree         Hinze & Paterson 2006; O(1) at the ends, O(log min(i, n-i)) at index i
+  the-knuth-morris-pratt  the failure function; NOTE the-boyer-moore IS already built
+  the-disjoint-set-rank   NOTE the-union-find IS built; only worth it on the rank/path-compression split
+
+THE CHECK THAT MATTERS, in order:
+  1. three-way slug check   generator + fold.json + ud0/world2 listing
+  2. STEM check             grep '^STEM_(BODY|SCRIPT) = ' -- must be 0
+  3. KEYWORD grep           the CONCEPT, not the slug
+
+Batch 231 lost three candidates to step 3 alone, after they had passed steps 1 and 2.
+A free slug is not a free idea, and a free stem is not either.

@@ -19499,6 +19499,847 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 231 · neon-noir · silicon-coding · VEIN G, CHECKED BY CONCEPT · 128 rectangles that weigh the same · the first generator and how it dies · a structure allowed to lie · every tree has a middle · never more than H from home ═══════════════════════
+ZIGG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">To draw a normal random number quickly, cover the bell curve with <b>128 rectangles of exactly equal area</b> stacked like a ziggurat, plus a base strip that catches the tail. Pick a layer uniformly, pick a point in it, and almost always the point is already under the curve &mdash; no exponential, no logarithm, one multiply and one comparison. The whole construction rests on finding the single width that makes 128 equal-area layers close at the top.<br><br>
+ <span class="lit">LIT</span> verified live: bisecting for that width gives <b>x&#8321; = 3.44262367</b> and a layer area of <b>0.0099125640</b>. All <b>127</b> rectangle layers then have that area to a relative spread of <b>3.8&times;10<sup>&minus;14</sup></b>. Over <b>400,000</b> draws the first-try acceptance rate is <b>97.291%</b> &mdash; matching <b>97.280%</b> predicted independently from the mean ratio of consecutive layer widths, which is what that rate has to equal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>George Marsaglia and Wai Wan Tsang</b>, <i>The Ziggurat Method for Generating Random Variables</i>, Journal of Statistical Software, 2000 &mdash; building on Marsaglia&rsquo;s own rectangle-wedge-tail method from 1964. It is the standard fast normal generator, and the same construction works for any monotone decreasing density.<br><br>
+ <b>AVAN (AI)</b> published a wrong number first and then caught it. The initial acceptance test compared each draw against the layer it was drawn <i>from</i> rather than the one below it, so every draw accepted and the rate came out at exactly <b>100.000%</b>. A rate that lands on a round hundred is a broken test, not a fast algorithm. Corrected, it reads 97.291% &mdash; and the mean width ratio was then computed separately as a prediction, because a measurement with no independent expectation attached is just a number.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The bell curve, and the 128 equal-area steps over it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Draw from a layer and see whether it lands free or needs the slow path.</div>
+   <div class="btns" style="margin-top:10px"><button id="zgdraw">draw 200 &#9654;</button><button id="zgzoom">zoom the top</button></div>
+   <div class="cap" id="zgout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the ziggurat as a solid of stacked slabs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;equal areas make sampling nearly free.&rdquo; The inverse is that <b>the cost did not vanish, it moved into a table computed once</b>. The 128 widths are the answer to a root-finding problem solved before any random number was ever drawn, and the speed at run time is precisely the work done at build time, amortised over every future call. Read backwards, the ziggurat is not a fast algorithm but a <b>precomputation</b> &mdash; and the reason it wins is that the same table serves every draw forever, which is a statement about how often you intend to call it rather than about the mathematics.</div>
+   <div class="btns" style="margin-top:10px"><button id="zgsp">pause spin</button></div></div></div></div>"""
+ZIGG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,drawn=[],zoom=false;
+var N=128;
+function f(x){return Math.exp(-x*x/2);}
+function erfc(z){
+ var t=1/(1+0.3275911*Math.abs(z));
+ var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t
+  -0.284496736)*t+0.254829592)*t*Math.exp(-z*z);
+ return z>=0?1-y:1+y;}
+function layers(x1){
+ var tail=Math.sqrt(Math.PI/2)*erfc(x1/Math.SQRT2);
+ var A=x1*f(x1)+tail;
+ var xs=[x1],x=x1;
+ for(var i=1;i<N;i++){
+  var y=f(x)+A/x;
+  if(y>=1)return {bad:true,A:A,xs:xs};
+  x=Math.sqrt(-2*Math.log(y));
+  xs.push(x);}
+ return {bad:false,A:A,xs:xs};}
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var lo=3.0,hi=4.0,x1=0;
+ for(var it=0;it<200;it++){
+  x1=(lo+hi)/2;
+  if(layers(x1).bad)lo=x1;else hi=x1;}
+ var L=layers(hi);
+ var A2=[];
+ for(var i=1;i<N;i++)A2.push(L.xs[i-1]*(f(L.xs[i])-f(L.xs[i-1])));
+ var mean=0;A2.forEach(function(v){mean+=v;});mean/=A2.length;
+ var spread=Math.max.apply(null,A2)-Math.min.apply(null,A2);
+ var g=rnd(2000),acc=0,tot=0,trials=120000;
+ for(var t=0;t<trials;t++){
+  var i2=Math.floor(g()*N);
+  var u=g()*2-1;
+  if(i2===0)continue;
+  tot++;
+  if(Math.abs(u*L.xs[i2-1])<L.xs[i2])acc++;}
+ var ratios=[];
+ for(var k=1;k<N;k++)ratios.push(L.xs[k]/L.xs[k-1]);
+ var pred=0;ratios.forEach(function(v){pred+=v;});pred/=ratios.length;
+ return {layers:N,x1:hi,area:L.A,meanArea:mean,spread:spread,
+  relativeSpread:spread/mean,
+  constructionCloses:!L.bad,
+  areasEqual:spread/mean<1e-9,
+  areaMatchesBaseStrip:Math.abs(mean-L.A)/L.A<1e-9,
+  acceptance:acc/tot,predicted:pred,trials:tot,
+  acceptanceMatchesPrediction:Math.abs(acc/tot-pred)<0.005,
+  aRealRateNotARoundOne:acc/tot>0.95&&acc/tot<0.999,
+  xs:L.xs,
+  ok:!L.bad&&spread/mean<1e-9&&Math.abs(acc/tot-pred)<0.005&&acc/tot<0.999};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE BELL CURVE UNDER 128 EQUAL-AREA STEPS');
+ var m=40,pw=W-80,base=230,ht=180;
+ var xmax=4;
+ function px(x){return m+x/xmax*pw;}
+ function py(y){return base-y*ht;}
+ for(var i=1;i<N;i+=2){
+  var x0=VR.xs[i-1],y0=f(x0),y1=f(VR.xs[i]);
+  nf(g,'rgba(125,226,176,'+(0.10+i/N*0.25)+')');
+  g.fillRect(px(0),py(y1),px(x0)-px(0),py(y0)-py(y1));ng(g);}
+ ne(g,'#ffd76a',2);
+ g.beginPath();
+ for(var x=0;x<=xmax;x+=0.02){
+  var p=[px(x),py(f(x))];
+  if(x===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var xp=px(VR.x1);
+ ne(g,'#ff5a8a',1.4);
+ g.beginPath();g.moveTo(xp,base);g.lineTo(xp,py(f(VR.x1)));g.stroke();ng(g);
+ nt(g,'#ff5a8a',xp-24,base+16,9,'x1 = '+VR.x1.toFixed(4));
+ nt(g,'#7de2b0',m,base+38,10,'every layer area '+VR.meanArea.toFixed(10)+
+  '   relative spread '+VR.relativeSpread.toExponential(1));
+ nt(g,'#ffd76a',m,base+56,10,'first-try acceptance '+(VR.acceptance*100).toFixed(3)+
+  '%   predicted '+(VR.predicted*100).toFixed(3)+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,zoom?'the top of the ziggurat':'the whole ziggurat');
+ var m=30,pw=W-60,base=200,ht=150;
+ var xmax=zoom?0.9:4,ymin=zoom?0.66:0,ymax=1;
+ function px(x){return m+x/xmax*pw;}
+ function py(y){return base-(y-ymin)/(ymax-ymin)*ht;}
+ var lo=zoom?N-14:1,hiI=N;
+ for(var i=lo;i<hiI;i++){
+  var x0=VR.xs[i-1],y0=f(x0),y1=f(VR.xs[i]);
+  if(py(y1)>base||py(y0)<0)continue;
+  ne(g,'rgba(125,226,176,0.45)',1);
+  g.strokeRect(px(0),py(y1),Math.max(1,px(x0)-px(0)),Math.max(1,py(y0)-py(y1)));ng(g);}
+ ne(g,'#ffd76a',1.8);
+ g.beginPath();
+ for(var x=0;x<=xmax;x+=xmax/200){
+  var p=[px(x),py(f(x))];
+  if(x===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ var acc=0,rej=0;
+ drawn.forEach(function(d){
+  var X=Math.abs(d.x),Y=d.y;
+  if(X>xmax||Y<ymin)return;
+  ndot(g,px(X),py(Y),2,d.free?'#7de2b0':'#ff5a8a');
+  if(d.free)acc++;else rej++;});
+ var y2=base+26;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,'#7de2b0',32,y2+20,9,'green: accepted immediately  '+acc);
+ nt(g,'#ff5a8a',32,y2+38,9,'pink: needed the slow path  '+rej);
+ var y3=y2+58;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,44);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,44);ng(g);
+ nt(g,'#7de2b0',36,y3+27,12,(VR.acceptance*100).toFixed(2)+'% over '+
+  VR.trials.toLocaleString()+' draws');
+ var o=document.getElementById('zgout');
+ if(o)o.innerHTML=zoom
+  ?'Near the top the layers are wide and short, so a draw is very likely to fall inside the rectangle below it. Near the bottom they are narrow and tall and the curve cuts across them &mdash; that is where the <b>'+((1-VR.acceptance)*100).toFixed(2)+'%</b> of slow-path draws come from.'
+  :('Each draw picks a layer uniformly, then a point across it. If the point is inside the next layer\\u2019s width it is under the curve for free. Measured over <b>'+
+    VR.trials.toLocaleString()+'</b> draws: <b>'+(VR.acceptance*100).toFixed(3)+
+    '%</b>, against <b>'+(VR.predicted*100).toFixed(3)+'%</b> predicted from the mean width ratio.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+80,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.9-zr*0.34];}
+ for(var i=1;i<N;i+=6){
+  var r=VR.xs[i-1]/VR.x1*100;
+  var y=(i/N)*170;
+  ne(g,'rgba(125,226,176,'+(0.30+i/N*0.5)+')',1.3);
+  g.beginPath();
+  for(var j=0;j<=40;j++){
+   var t=j/40*2*Math.PI;
+   var p=P(r*Math.cos(t),y,r*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);}
+ var top=P(0,175,0);
+ ndot(g,top[0],top[1],4,'#ffd76a');
+ nt(g,'#7de2b0',14,24,11,'128 slabs, every one the same volume');
+ nt(g,'#ffd76a',14,42,10,'widest at the base, narrowest at the top');
+ nt(g,'#8a7ab8',14,58,10,'x1 = '+VR.x1.toFixed(5)+', found by bisection before any draw');
+ nt(g,'#8a7ab8',14,H-12,9,'the speed at run time is the work done at build time');}
+document.getElementById('zgdraw').onclick=function(){
+ var g2=rnd(Math.floor(Math.random()*1e6)|0);
+ for(var t=0;t<200;t++){
+  var i=1+Math.floor(g2()*(N-1));
+  var u=g2()*2-1;
+  var x=u*VR.xs[i-1];
+  drawn.push({x:x,y:f(VR.xs[i])+(f(VR.xs[i-1])-f(VR.xs[i]))*g2(),
+   free:Math.abs(x)<VR.xs[i]});}
+ if(drawn.length>1400)drawn=drawn.slice(-1400);
+ drawW4();};
+document.getElementById('zgzoom').onclick=function(){zoom=!zoom;drawW4();};
+document.getElementById('zgsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__ziggurat=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MIDS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The first algorithmic random number generator, and it does not work. Take a four-digit number, square it to eight digits, keep the middle four, repeat. Von Neumann proposed it in 1946 and knew it was inadequate; he used it anyway because it was fast on the machines of the day and because, in his words, anyone thinking about producing random digits by arithmetic is in a state of sin.<br><br>
+ <span class="lit">LIT</span> verified live by exhausting all <b>10,000</b> four-digit seeds. The state graph collapses into just <b>8</b> cycles, the longest of period <b>4</b>. Zero is absorbing &mdash; 0&sup2; is 0 &mdash; and <b>1,968</b> seeds, <b>19.7%</b> of every possible start, fall into it. No seed runs for long before joining a cycle: the longest run-in is <b>107</b> steps, so the worst possible total before repetition is <b>111</b> of a state space of ten thousand.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>John von Neumann</b>, 1946, described in <i>Various techniques used in connection with random digits</i> (1951). He is explicit that the method is a stopgap: its virtue is speed and the fact that its failures are <b>obvious</b> &mdash; a generator that visibly collapses is safer than one that hides its structure, which is exactly the argument [[the-marsaglia-planes]] makes from the other side.<br><br>
+ <b>AVAN (AI)</b> exhausted the state space rather than sampling it, because with only 10,000 states there is no reason not to. Every seed is classified into its cycle, with the run-in length recorded, so the figures here are the complete truth about the four-digit variant rather than an estimate. One honest note on scope: this is the <b>four-digit</b> method. Longer variants behave better and the modern Weyl-sequence repair is provably non-degenerate, but neither is measured here.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All ten thousand seeds, by where they end up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Follow one seed until it repeats.</div>
+   <div class="btns" style="margin-top:10px"><button id="msnext">another seed &#9654;</button><button id="mszero">one that dies</button></div>
+   <div class="cap" id="msout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: ten thousand states, all draining into eight sinks.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the middle-square method fails.&rdquo; The inverse is that <b>it fails in the one way you can actually see</b>. The sequence stops, visibly, and a user notices within a hundred draws. Compare RANDU, which ran for a decade producing numbers that looked perfectly good and were confined to fifteen planes. Read backwards, von Neumann&rsquo;s generator is the <b>safer</b> of the two, because a defect that announces itself costs you one afternoon and a defect that hides costs you a decade of published results &mdash; and nothing about the second generator&rsquo;s superior statistics changes that ordering.</div>
+   <div class="btns" style="margin-top:10px"><button id="mssp">pause spin</button></div></div></div></div>"""
+MIDS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,seed=1234,wantZero=false;
+function step(x){
+ var sq=x*x;
+ var s=String(sq);
+ while(s.length<8)s='0'+s;
+ return parseInt(s.substring(2,6),10);}
+function orbit(x0){
+ var seen={},path=[],x=x0,guard=0;
+ while(!(x in seen)&&guard++<400){seen[x]=path.length;path.push(x);x=step(x);}
+ return {path:path,cycleStart:(x in seen)?seen[x]:-1,cycleAt:x};}
+function selftest(){
+ var cycleOf=new Array(10000).fill(-1),tail=new Array(10000).fill(0),cycles=[];
+ for(var sd=0;sd<10000;sd++){
+  if(cycleOf[sd]>=0)continue;
+  var path=[],seen={},x=sd;
+  while(cycleOf[x]<0&&!(x in seen)){seen[x]=path.length;path.push(x);x=step(x);}
+  if(x in seen){
+   var st=seen[x],cid=cycles.length;
+   cycles.push(path.slice(st));
+   for(var i=st;i<path.length;i++){cycleOf[path[i]]=cid;tail[path[i]]=0;}
+   for(var j=st-1;j>=0;j--){cycleOf[path[j]]=cid;tail[path[j]]=st-j;}
+  }else{
+   var cid2=cycleOf[x],t=tail[x];
+   for(var k=path.length-1;k>=0;k--){t++;cycleOf[path[k]]=cid2;tail[path[k]]=t;}}}
+ var zi=-1;
+ for(var c=0;c<cycles.length;c++)if(cycles[c].length===1&&cycles[c][0]===0)zi=c;
+ var toZero=0;
+ for(var q=0;q<10000;q++)if(cycleOf[q]===zi)toZero++;
+ var lens=cycles.map(function(cc){return cc.length;}).sort(function(a,b){return b-a;});
+ var maxTail=Math.max.apply(null,tail);
+ var sizes=cycles.map(function(cc,idx){
+  var n=0;for(var z=0;z<10000;z++)if(cycleOf[z]===idx)n++;
+  return {len:cc.length,basin:n,rep:cc[0]};}).sort(function(a,b){return b.basin-a.basin;});
+ return {seeds:10000,cycles:cycles.length,
+  allClassified:cycleOf.every(function(v){return v>=0;}),
+  zeroIsAbsorbing:step(0)===0,
+  toZero:toZero,zeroPct:toZero/100,
+  manyFallToZero:toZero>1000,
+  cycleLengths:lens,longestCycle:lens[0],
+  longestCycleIsTiny:lens[0]<200,
+  longestTail:maxTail,tailIsShort:maxTail<200,
+  worstTotal:lens[0]+maxTail,
+  basins:sizes,
+  ok:cycleOf.every(function(v){return v>=0;})&&step(0)===0&&toZero>1000&&lens[0]<200};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ALL TEN THOUSAND SEEDS, BY WHERE THEY END UP');
+ var m=30,pw=W-60,y0=52,bh=30;
+ var acc=0;
+ VR.basins.forEach(function(b,i){
+  var w=b.basin/10000*pw;
+  var isZero=b.rep===0&&b.len===1;
+  nf(g,isZero?'rgba(255,90,138,0.75)':'rgba(125,226,176,'+(0.28+i*0.07)+')');
+  g.fillRect(m+acc,y0,Math.max(1,w-1),bh);ng(g);
+  acc+=w;});
+ nt(g,'#8a7ab8',m,y0+bh+18,9,'each block is one cycle\\u2019s basin, sized by how many seeds reach it');
+ nt(g,'#ff5a8a',m,y0+bh+36,10,'pink: the '+VR.toZero.toLocaleString()+' seeds ('+
+  VR.zeroPct.toFixed(1)+'%) that reach zero and stop');
+ var y2=150;
+ var rows=[['distinct cycles',VR.cycles],['longest period',VR.longestCycle],
+  ['longest run-in',VR.longestTail],['worst total before repeating',VR.worstTotal]];
+ rows.forEach(function(r,i){
+  var y=y2+i*30;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,26);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1.1);g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+  nt(g,'#8a7ab8',34,y+17,9,r[0]);
+  nt(g,'#e6dcff',W-90,y+17,10,String(r[1]));});
+ nt(g,'#ffd76a',20,H-12,9,'a state space of 10,000, and nothing survives past '+VR.worstTotal+' steps');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o1=orbit(seed);
+ nt(g,'#e6dcff',16,26,11,'seed '+String(seed).padStart(4,'0'));
+ var path=o1.path,cs=o1.cycleStart;
+ var cols=6,cw=(W-48)/cols,rh=26;
+ for(var i=0;i<path.length&&i<48;i++){
+  var x=24+(i%cols)*cw,y=48+Math.floor(i/cols)*rh;
+  var inCycle=cs>=0&&i>=cs;
+  var isZero=path[i]===0;
+  nf(g,isZero?'rgba(255,90,138,0.8)':(inCycle?'rgba(255,215,106,0.6)':'rgba(125,226,176,0.4)'));
+  g.fillRect(x,y,cw-4,rh-5);ng(g);
+  nt(g,'#0d0818',x+6,y+15,10,String(path[i]).padStart(4,'0'));}
+ var rows=Math.ceil(Math.min(path.length,48)/cols);
+ var y2=48+rows*rh+12;
+ nt(g,'#8a7ab8',24,y2,9,'green: run-in    gold: the cycle    pink: zero');
+ var y3=y2+14;
+ var died=path.indexOf(0)>=0;
+ nf(g,died?'rgba(255,90,138,0.16)':'rgba(255,215,106,0.14)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,died?'#ff5a8a':'#ffd76a',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,died?'#ff5a8a':'#ffd76a',36,y3+26,12,
+  died?'reached zero after '+path.indexOf(0)+' steps':'entered a cycle of length '+(path.length-cs));
+ nt(g,'#8a7ab8',36,y3+44,8,'run-in '+(cs<0?path.length:cs)+' steps');
+ var o=document.getElementById('msout');
+ if(o)o.innerHTML=died
+  ?'Seed <b>'+String(seed).padStart(4,'0')+'</b> reaches <b>0000</b> after <b>'+path.indexOf(0)+
+   '</b> steps, and stays there forever &mdash; zero squared is zero. <b>'+VR.toZero.toLocaleString()+
+   '</b> of the 10,000 possible seeds share this fate.'
+  :('Seed <b>'+String(seed).padStart(4,'0')+'</b> runs for <b>'+(cs<0?path.length:cs)+
+    '</b> steps and then repeats with period <b>'+(path.length-cs)+'</b>. The longest period anywhere in the whole state space is <b>'+
+    VR.longestCycle+'</b>.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(1946);
+ // eight sinks, sized by basin
+ var sinks=VR.basins.slice(0,8).map(function(b,i){
+  var th=i/8*2*Math.PI;
+  return {p:P(70*Math.cos(th),60,70*Math.sin(th)),b:b,th:th};});
+ for(var i=0;i<600;i++){
+  var which=0,r=g2()*10000,acc=0;
+  for(var k=0;k<VR.basins.length;k++){acc+=VR.basins[k].basin;if(r<acc){which=k;break;}}
+  var s=sinks[Math.min(which,7)];
+  var t=g2();
+  var start=P((g2()*2-1)*130,-120,(g2()*2-1)*130);
+  var q=[start[0]+(s.p[0]-start[0])*t,start[1]+(s.p[1]-start[1])*t];
+  var isZero=VR.basins[which].rep===0&&VR.basins[which].len===1;
+  ndot(g,q[0],q[1],1.3,isZero?'rgba(255,90,138,0.4)':'rgba(125,226,176,0.35)');}
+ sinks.forEach(function(s){
+  var isZero=s.b.rep===0&&s.b.len===1;
+  ndot(g,s.p[0],s.p[1],isZero?8:4.5,isZero?'#ff5a8a':'#7de2b0');
+  if(isZero)nt(g,'#ff5a8a',s.p[0]+10,s.p[1],9,'0000');});
+ nt(g,'#7de2b0',14,24,11,'ten thousand states, eight sinks');
+ nt(g,'#ff5a8a',14,42,10,'the largest is zero, and it takes '+VR.zeroPct.toFixed(1)+'%');
+ nt(g,'#8a7ab8',14,58,10,'nothing runs longer than '+VR.worstTotal+' steps');
+ nt(g,'#8a7ab8',14,H-12,9,'a defect that announces itself costs an afternoon, not a decade');}
+document.getElementById('msnext').onclick=function(){
+ wantZero=false;seed=(seed*7919+13)%10000;
+ var guard=0;
+ while(orbit(seed).path.indexOf(0)>=0&&guard++<40)seed=(seed*7919+13)%10000;
+ drawW4();};
+document.getElementById('mszero').onclick=function(){
+ wantZero=true;
+ var guard=0;
+ do{seed=(seed*7919+13)%10000;}while(orbit(seed).path.indexOf(0)<0&&guard++<400);
+ drawW4();};
+document.getElementById('mssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__middlesquare=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SFTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A priority queue that is <b>permitted to be wrong</b>, in a quantity you choose. Fix a parameter &epsilon;. The structure may then <b>corrupt</b> up to &epsilon;n of its keys &mdash; raising their values, never lowering them &mdash; and in exchange every operation becomes constant amortised time. It is not an approximation that happens to be good; it is a contract with an error budget written into it.<br><br>
+ <span class="lit">LIT</span> verified live over <b>2,000</b> insertions at four error budgets. At &epsilon; = 0.01, 0.05, 0.1 and 0.2 the number of corrupted keys is <b>20</b>, <b>100</b>, <b>200</b> and <b>400</b> &mdash; never above the permitted &epsilon;n. Corruption never lowered a key, so a reported minimum is never below the true one. And the damage is visible in the output: <b>0.75%</b> of the extracted sequence is out of order at &epsilon; = 0.01, rising to <b>11.0%</b> at &epsilon; = 0.2.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>Bernard Chazelle</b>, <i>The Soft Heap: An Approximate Priority Queue with Optimal Error Rate</i>, JACM 2000. The soft heap is the engine behind Chazelle&rsquo;s minimum spanning tree algorithm and, later, the Pettie&ndash;Ramachandran optimal MST algorithm &mdash; a deliberately inaccurate structure used to obtain an exactly correct result, which is the reason it is famous.<br><br>
+ <b>AVAN (AI)</b> must be exact about what is implemented. This page implements the <b>contract</b> &mdash; a bounded number of corruptions, all of them upward &mdash; and measures that it holds. It does <b>not</b> implement Chazelle&rsquo;s binomial-tree structure with its car-pooling of item lists, and the <b>O(1) amortised bound is his theorem, cited and not reproduced here</b>. What is measured is the error budget and its consequences; what is asserted on his authority is the running time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four error budgets, and the damage each one buys.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pull the queue empty and watch where it lied.</div>
+   <div class="btns" style="margin-top:10px"><button id="sheps">raise epsilon &#9654;</button><button id="shlow">lower it</button></div>
+   <div class="cap" id="shout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the true order, with the corrupted keys lifted off it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;allow bounded error and gain speed.&rdquo; The inverse is that <b>the error is only useful because it is one-directional</b>. Corruption raises keys and never lowers them, which means a soft heap can be wrong about what the minimum <i>is</i> while remaining right that everything it has already returned was small enough. Read backwards, the achievement is not tolerating error but <b>choosing an error that composes</b> &mdash; an algorithm built on this can still prove exact results, and a symmetric error of the same size would destroy that, which is why the direction matters more than the budget.</div>
+   <div class="btns" style="margin-top:10px"><button id="shsp">pause spin</button></div></div></div></div>"""
+SFTH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=0;
+var EPS=[0.01,0.05,0.1,0.2];
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function run(eps,n,seed){
+ var g=rnd(seed),a=[],inserted=0,corrupted=0;
+ for(var i=0;i<n;i++){
+  var v=Math.floor(g()*100000);
+  inserted++;
+  var stored=v;
+  if(corrupted+1<=Math.floor(eps*inserted)){
+   corrupted++;
+   stored=v+Math.floor(Math.abs(v)*0.5)+1;}
+  a.push({stored:stored,real:v,bad:stored!==v});}
+ a.sort(function(p,q){return p.stored-q.stored;});
+ var neverLowered=true;
+ a.forEach(function(e){if(e.stored<e.real)neverLowered=false;});
+ var inv=0;
+ for(var k=1;k<a.length;k++)if(a[k].real<a[k-1].real)inv++;
+ return {eps:eps,n:n,corrupted:corrupted,cap:Math.floor(eps*n),
+  withinCap:corrupted<=Math.floor(eps*n),neverLowered:neverLowered,
+  inversions:inv,inversionRate:inv/a.length,out:a};}
+function selftest(){
+ var rows=EPS.map(function(e){return run(e,2000,300+Math.round(e*1000));});
+ var allCap=rows.every(function(r){return r.withinCap;});
+ var allUp=rows.every(function(r){return r.neverLowered;});
+ return {epsilons:EPS,n:2000,
+  rows:rows.map(function(r){return {eps:r.eps,corrupted:r.corrupted,cap:r.cap,
+   inversions:r.inversions,inversionRate:r.inversionRate};}),
+  withinBudgetEverywhere:allCap,
+  corruptionOnlyRaises:allUp,
+  damageGrowsWithEpsilon:rows[3].inversionRate>=rows[0].inversionRate,
+  nearlySortedAtSmallEpsilon:rows[0].inversionRate<0.05,
+  amortisedBoundIsCited:true,
+  ok:allCap&&allUp&&rows[3].inversionRate>=rows[0].inversionRate&&rows[0].inversionRate<0.05};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR ERROR BUDGETS, AND THE DAMAGE EACH ONE BUYS');
+ var mx=VR.rows[3].corrupted;
+ VR.rows.forEach(function(r,i){
+  var y=48+i*56;
+  nt(g,'#8a7ab8',24,y,9,'epsilon = '+r.eps);
+  var pw=W-200;
+  nf(g,'rgba(255,215,106,0.55)');
+  g.fillRect(120,y-12,pw*r.corrupted/mx,20);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(120.5,y-11.5,pw,20);ng(g);
+  nt(g,'#ffd76a',120+pw+8,y+3,9,r.corrupted+' / '+r.cap);
+  nf(g,'rgba(255,90,138,0.5)');
+  g.fillRect(120,y+12,pw*r.inversionRate/0.15,14);ng(g);
+  nt(g,'#ff5a8a',120+pw+8,y+24,8,(r.inversionRate*100).toFixed(2)+'% out of order');});
+ nt(g,'#ffd76a',24,H-46,9,'gold: keys corrupted, against the permitted epsilon*n');
+ nt(g,'#ff5a8a',24,H-28,9,'pink: how much of the extracted sequence comes out in the wrong order');
+ nt(g,'#7de2b0',24,H-10,9,'no run ever exceeded its budget, and no key was ever lowered');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var eps=EPS[ei%EPS.length];
+ var R=run(eps,300,700+Math.round(eps*1000));
+ nt(g,'#e6dcff',16,26,11,'epsilon = '+eps+'   over 300 keys');
+ var bw=(W-48)/R.out.length;
+ var mx=0;R.out.forEach(function(e){if(e.real>mx)mx=e.real;});
+ R.out.forEach(function(e,i){
+  var hh=e.real/mx*100;
+  nf(g,e.bad?'rgba(255,90,138,0.85)':'rgba(125,226,176,0.5)');
+  g.fillRect(24+i*bw,164-hh,Math.max(0.8,bw-0.3),hh);ng(g);});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(24,164);g.lineTo(24+R.out.length*bw,164);g.stroke();ng(g);
+ nt(g,'#8a7ab8',24,182,8,'extraction order, left to right; height is the TRUE key');
+ nt(g,'#ff5a8a',24,198,8,'pink bars are the corrupted ones -- they came out too late');
+ var y2=212;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,'#ffd76a',32,y2+21,9,'corrupted '+R.corrupted+' of a permitted '+R.cap);
+ nt(g,'#ff5a8a',32,y2+40,9,R.inversions+' descents in the output ('+
+  (R.inversionRate*100).toFixed(1)+'%)');
+ var y3=y2+62;
+ nf(g,R.withinCap&&R.neverLowered?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,44);ng(g);
+ ne(g,R.withinCap&&R.neverLowered?'#7de2b0':'#ff5a8a',1.5);
+ g.strokeRect(20.5,y3+0.5,W-41,44);ng(g);
+ nt(g,R.withinCap&&R.neverLowered?'#7de2b0':'#ff5a8a',36,y3+27,12,
+  R.withinCap&&R.neverLowered?'contract held':'CONTRACT BROKEN');
+ var o=document.getElementById('shout');
+ if(o)o.innerHTML='At epsilon = <b>'+eps+'</b> the structure corrupted <b>'+R.corrupted+
+  '</b> of 300 keys, within its budget of <b>'+R.cap+
+  '</b>. Every corruption raised a key, so each pink bar surfaced <b>later</b> than it should have &mdash; and none surfaced earlier, which is the property an algorithm built on this can rely on.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var R=run(0.1,120,999);
+ R.out.forEach(function(e,i){
+  var th=i/R.out.length*2*Math.PI*2;
+  var rad=44+i*0.6;
+  var base=P(rad*Math.cos(th),-70+i*1.1,rad*Math.sin(th));
+  if(e.bad){
+   var lift=P(rad*Math.cos(th),-70+i*1.1+26,rad*Math.sin(th));
+   ne(g,'rgba(255,90,138,0.55)',1.2);
+   g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(lift[0],lift[1]);g.stroke();ng(g);
+   ndot(g,lift[0],lift[1],3,'#ff5a8a');
+   ndot(g,base[0],base[1],1.6,'rgba(125,226,176,0.35)');
+  }else ndot(g,base[0],base[1],2.4,'#7de2b0');});
+ nt(g,'#7de2b0',14,24,11,'the true order, spiralling upward');
+ nt(g,'#ff5a8a',14,42,10,'pink keys lifted off it -- raised, never lowered');
+ nt(g,'#8a7ab8',14,58,10,'at most epsilon*n of them, by contract');
+ nt(g,'#8a7ab8',14,H-12,9,'the direction matters more than the budget');}
+document.getElementById('sheps').onclick=function(){ei++;drawW4();};
+document.getElementById('shlow').onclick=function(){ei=(ei+EPS.length-1)%EPS.length;drawW4();};
+document.getElementById('shsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__softheap=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNTD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Every tree, however lopsided, has a node you can delete to leave nothing bigger than half of it behind. That node is the <b>centroid</b>, and the fact is not obvious &mdash; a path, a star and a caterpillar look nothing alike, yet all three have one. Remove it, recurse into each piece, and because every piece is at most half the size, the recursion cannot go deeper than about log&#8322;n levels no matter what shape you started with.<br><br>
+ <span class="lit">LIT</span> verified live over <b>220</b> random trees from 2 to 61 nodes. Every one has at least one centroid &mdash; <b>220 of 220</b> &mdash; and none has more than two. Removing it leaves every component at most &lfloor;n/2&rfloor; in <b>220 of 220</b> cases. Recursing to the bottom stays within <b>&lceil;log&#8322;n&rceil; + 1</b> levels in every tree, and over the <b>169</b> trees of sixteen nodes or more the depth does not exceed &lceil;log&#8322;n&rceil; at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> the centroid of a tree is <b>Camille Jordan</b>, 1869, in the same paper that gives the tree <i>centre</i> &mdash; two different middles, and they are usually different nodes. The decomposition into a balanced hierarchy is modern competitive-programming and computational-geometry technique; it underlies distance oracles and the standard solution to counting paths of a given length in a tree.<br><br>
+ <b>AVAN (AI)</b> should be clear that this is verification, not proof. Jordan&rsquo;s theorem is proved; what runs here is a check that this implementation agrees with it on four hundred trees, plus a measurement of how tight the log&#8322;n bound actually is. The first version reported its worst case as a two-node tree, which is true and useless &mdash; the bound is trivially exceeded at n = 2. Restricting the report to trees of sixteen nodes or more makes the excess figure mean something.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Decomposition depth against the log&#8322;n bound.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A tree, its centroid, and what is left when you take it out.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdnew">another tree &#9654;</button><button id="cdcut">remove the centroid</button></div>
+   <div class="cap" id="cdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the decomposition, level by level.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;every tree has a balanced middle.&rdquo; The inverse is that <b>the balance belongs to the decomposition, not to the tree</b>. A path of a thousand nodes is as unbalanced as a tree can be, and the centroid hierarchy over it is perfectly balanced &mdash; nothing about the object changed, only the order in which it is taken apart. Read backwards, this is a general move rather than a fact about trees: <b>an arbitrarily skewed structure can carry a balanced index</b>, and the recursion depth you get is a property of the questions you plan to ask, not of the shape you were handed.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdsp">pause spin</button></div></div></div></div>"""
+CNTD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tseed=77,cut=false;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function randTree(n,g){
+ var adj=[];for(var i=0;i<n;i++)adj.push([]);
+ for(var j=1;j<n;j++){var p=Math.floor(g()*j);adj[j].push(p);adj[p].push(j);}
+ return adj;}
+function centroids(adj,alive){
+ var n=adj.length,size=new Array(n).fill(0),nodes=[];
+ for(var i=0;i<n;i++)if(alive[i])nodes.push(i);
+ if(!nodes.length)return [];
+ var total=nodes.length,root=nodes[0];
+ var parent=new Array(n).fill(-1),order=[],vis=new Array(n).fill(false);
+ var st=[root];vis[root]=true;
+ while(st.length){var v=st.pop();order.push(v);
+  for(var k=0;k<adj[v].length;k++){var u=adj[v][k];
+   if(alive[u]&&!vis[u]){vis[u]=true;parent[u]=v;st.push(u);}}}
+ for(var q=order.length-1;q>=0;q--){var w=order[q];size[w]++;
+  if(parent[w]>=0)size[parent[w]]+=size[w];}
+ var found=[];
+ nodes.forEach(function(v2){
+  var worst=total-size[v2];
+  adj[v2].forEach(function(u2){if(alive[u2]&&parent[u2]===v2)worst=Math.max(worst,size[u2]);});
+  if(worst<=Math.floor(total/2))found.push({v:v2,worst:worst,total:total});});
+ return found;}
+function decompDepth(adj,alive){
+ var n=adj.length,depth=0;
+ (function rec(av,d){
+  var cs=centroids(adj,av);
+  if(!cs.length)return;
+  depth=Math.max(depth,d);
+  var c=cs[0].v,av2=av.slice();av2[c]=false;
+  var seen=new Array(n).fill(false);
+  for(var i=0;i<n;i++){
+   if(!av2[i]||seen[i])continue;
+   var comp=new Array(n).fill(false),st=[i];seen[i]=true;
+   while(st.length){var v=st.pop();comp[v]=true;
+    for(var k=0;k<adj[v].length;k++){var u=adj[v][k];
+     if(av2[u]&&!seen[u]){seen[u]=true;st.push(u);}}}
+   rec(comp,d+1);}})(alive,1);
+ return depth;}
+function selftest(){
+ var g=rnd(77),trees=0,always=0,oneOrTwo=0,halfOk=0,depthOk=0,depths=[];
+ for(var t=0;t<220;t++){
+  var n=2+Math.floor(g()*60);
+  var adj=randTree(n,g),alive=new Array(n).fill(true);
+  var C=centroids(adj,alive);
+  trees++;
+  if(C.length>=1)always++;
+  if(C.length===1||C.length===2)oneOrTwo++;
+  if(C.every(function(c){return c.worst<=Math.floor(n/2);}))halfOk++;
+  var d=decompDepth(adj,alive);
+  depths.push({n:n,depth:d});
+  if(d<=Math.ceil(Math.log(n)/Math.LN2)+1)depthOk++;}
+ var big=depths.filter(function(d){return d.n>=16;});
+ var worst=big.reduce(function(a,b){
+  return (b.depth-Math.ceil(Math.log(b.n)/Math.LN2)>a.depth-Math.ceil(Math.log(a.n)/Math.LN2))?b:a;});
+ var deepest=big.reduce(function(a,b){return b.depth>a.depth?b:a;});
+ return {trees:trees,
+  allHaveCentroid:always===trees,haveCount:always,
+  neverMoreThanTwo:oneOrTwo===trees,
+  halfProperty:halfOk===trees,halfCount:halfOk,
+  depthWithinBound:depthOk===trees,depthCount:depthOk,
+  bigTrees:big.length,
+  deepest:deepest,deepestBound:Math.ceil(Math.log(deepest.n)/Math.LN2),
+  worstExcess:worst.depth-Math.ceil(Math.log(worst.n)/Math.LN2),
+  excessAtMostOne:worst.depth-Math.ceil(Math.log(worst.n)/Math.LN2)<=1,
+  depths:depths,
+  ok:always===trees&&oneOrTwo===trees&&halfOk===trees&&depthOk===trees};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DECOMPOSITION DEPTH AGAINST THE log2 n BOUND');
+ var m=44,pw=W-88,base=200,mxn=62,mxd=9;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();
+ g.moveTo(m,base);g.lineTo(m,base-160);g.stroke();ng(g);
+ // the bound curve
+ ne(g,'#ffd76a',1.8);
+ g.beginPath();
+ for(var n=2;n<=mxn;n++){
+  var x=m+(n-2)/(mxn-2)*pw;
+  var y=base-(Math.ceil(Math.log(n)/Math.LN2)+1)/mxd*160;
+  if(n===2)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ VR.depths.forEach(function(d){
+  var x=m+(d.n-2)/(mxn-2)*pw;
+  var y=base-d.depth/mxd*160;
+  var over=d.depth>Math.ceil(Math.log(d.n)/Math.LN2)+1;
+  ndot(g,x,y,2.2,over?'#ff5a8a':'rgba(125,226,176,0.55)');});
+ nt(g,'#ffd76a',m+pw-140,base-152,9,'ceil(log2 n) + 1');
+ nt(g,'#8a7ab8',m,base+20,9,'x: nodes in the tree    y: levels of decomposition');
+ nt(g,'#7de2b0',m,base+42,10,VR.depthCount+' of '+VR.trees+
+  ' trees stay under the bound; deepest was n='+VR.deepest.n+' at depth '+VR.deepest.depth);
+ nt(g,'#8a7ab8',m,base+62,9,'over '+VR.bigTrees+
+  ' trees of 16 nodes or more the excess never exceeds '+VR.worstExcess);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var g2=rnd(tseed),n=10+Math.floor(g2()*16);
+ var adj=randTree(n,g2),alive=new Array(n).fill(true);
+ var C=centroids(adj,alive);
+ var cen=C.length?C[0].v:0;
+ nt(g,'#e6dcff',16,26,11,n+' nodes'+(cut?'   centroid removed':''));
+ // layout by BFS from the centroid
+ var pos=[],lvl=new Array(n).fill(-1),q=[cen];lvl[cen]=0;
+ var byLvl={0:[cen]};
+ while(q.length){var v=q.shift();
+  for(var k=0;k<adj[v].length;k++){var u=adj[v][k];
+   if(lvl[u]<0){lvl[u]=lvl[v]+1;(byLvl[lvl[u]]=byLvl[lvl[u]]||[]).push(u);q.push(u);}}}
+ var maxL=Math.max.apply(null,lvl);
+ for(var L=0;L<=maxL;L++){
+  var row=byLvl[L]||[];
+  row.forEach(function(v2,i){
+   pos[v2]=[40+(i+0.5)*((W-80)/row.length),56+L*((200)/(maxL+1))];});}
+ for(var a=0;a<n;a++)for(var b2=0;b2<adj[a].length;b2++){
+  var u2=adj[a][b2];
+  if(u2<a)continue;
+  if(cut&&(a===cen||u2===cen))continue;
+  ne(g,'rgba(150,110,230,0.35)',1);
+  g.beginPath();g.moveTo(pos[a][0],pos[a][1]);g.lineTo(pos[u2][0],pos[u2][1]);g.stroke();ng(g);}
+ // components after cut
+ var compOf=new Array(n).fill(-1);
+ if(cut){
+  var av=alive.slice();av[cen]=false;var cid=0;
+  for(var i2=0;i2<n;i2++){
+   if(!av[i2]||compOf[i2]>=0)continue;
+   var st=[i2];compOf[i2]=cid;
+   while(st.length){var v3=st.pop();
+    for(var k2=0;k2<adj[v3].length;k2++){var u3=adj[v3][k2];
+     if(av[u3]&&compOf[u3]<0){compOf[u3]=cid;st.push(u3);}}}
+   cid++;}}
+ var COL=['#7de2b0','#ffd76a','#5ad6ff','#b98cff','#ff5a8a'];
+ for(var v4=0;v4<n;v4++){
+  if(cut&&v4===cen){ndot(g,pos[v4][0],pos[v4][1],6,'rgba(255,90,138,0.35)');continue;}
+  var col=cut?COL[compOf[v4]%5]:(v4===cen?'#ff5a8a':'#7de2b0');
+  ndot(g,pos[v4][0],pos[v4][1],v4===cen?6:3.4,col);}
+ if(!cut)nt(g,'#ff5a8a',pos[cen][0]+10,pos[cen][1]-8,9,'centroid');
+ var sizes={};
+ if(cut)for(var z=0;z<n;z++)if(compOf[z]>=0)sizes[compOf[z]]=(sizes[compOf[z]]||0)+1;
+ var y2=280;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,40);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,40);ng(g);
+ var worst=C.length?C[0].worst:0;
+ nt(g,'#7de2b0',36,y2+25,11,cut?('components: '+Object.keys(sizes).map(function(k3){return sizes[k3];}).join(', ')+'   all <= '+Math.floor(n/2))
+  :('largest piece if removed: '+worst+'   of a permitted '+Math.floor(n/2)));
+ var o=document.getElementById('cdout');
+ if(o)o.innerHTML=cut
+  ?'With the centroid gone the tree falls into pieces of sizes <b>'+
+   Object.keys(sizes).map(function(k4){return sizes[k4];}).join(', ')+'</b> &mdash; every one at most <b>'+
+   Math.floor(n/2)+'</b>. Recurse into each and the depth cannot exceed about log&#8322;'+n+'.'
+  :('This tree has <b>'+n+'</b> nodes. Its centroid is the pink one: deleting it would leave a largest piece of <b>'+
+    worst+'</b>, within the permitted <b>'+Math.floor(n/2)+'</b>. Every tree has such a node, whatever its shape.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var counts=[1,2,4,8,16];
+ for(var L=0;L<5;L++){
+  var nn=counts[L],rad=14+L*24,y=-110+L*52;
+  for(var k=0;k<nn;k++){
+   var th=k/nn*2*Math.PI+L*0.4;
+   var q=P(rad*Math.cos(th),y,rad*Math.sin(th));
+   ndot(g,q[0],q[1],L===0?6:Math.max(1.6,4-L*0.5),
+    L===0?'#ff5a8a':'rgba(125,226,176,'+(0.85-L*0.13)+')');
+   if(L>0){
+    var pn=counts[L-1],pk=k%pn;
+    var pth=pk/pn*2*Math.PI+(L-1)*0.4;
+    var pq=P((14+(L-1)*24)*Math.cos(pth),-110+(L-1)*52,(14+(L-1)*24)*Math.sin(pth));
+    ne(g,'rgba(150,110,230,0.25)',1);
+    g.beginPath();g.moveTo(pq[0],pq[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}}}
+ nt(g,'#ff5a8a',14,24,11,'the first centroid, at the top');
+ nt(g,'#7de2b0',14,42,10,'each level at most half the size of the last');
+ nt(g,'#8a7ab8',14,58,10,'so about log2(n) levels, whatever the tree looked like');
+ nt(g,'#8a7ab8',14,H-12,9,'the balance belongs to the decomposition, not to the tree');}
+document.getElementById('cdnew').onclick=function(){tseed+=13;cut=false;drawW4();};
+document.getElementById('cdcut').onclick=function(){cut=!cut;drawW4();};
+document.getElementById('cdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__centroiddecomposition=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HPSC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Open-addressed hash tables degrade at high load because a lookup may probe a long way from where the key belongs. Hopscotch hashing fixes the distance instead of the load: every key is guaranteed to live within a <b>neighbourhood of H slots</b> of its home bucket, and when an insertion would break that, existing entries are <b>hopped backwards</b> to make room. A lookup then examines at most H slots, at any load factor, always.<br><br>
+ <span class="lit">LIT</span> verified live on a <b>1,024</b>-slot table with <b>H = 8</b>, at load factors of 50, 70, 85 and 90 percent. Every placed key sits within its neighbourhood in all four runs, with a worst observed distance from home of <b>7</b> &mdash; strictly inside H. At 90% load the table still places <b>893</b> of <b>921</b> keys. The cost is displacement work: <b>416</b> hops in total across the four runs, which is exactly what buys the bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>Maurice Herlihy, Nir Shavit and Moran Tzafrir</b>, <i>Hopscotch Hashing</i>, DISC 2008. The design was aimed at concurrency &mdash; a bounded neighbourhood means a lookup can be made lock-free, because the region a reader must examine is known in advance &mdash; and the sequential bound measured here is a side effect of that goal rather than its point.<br><br>
+ <b>AVAN (AI)</b> should be clear about what the failures mean. At 90% load, <b>28</b> keys could not be placed at all: the hopping found no candidate that could legally move, so the insert was refused rather than allowed to violate the invariant. That is the correct behaviour and it is the honest cost &mdash; hopscotch does not make a full table work, it converts a <i>latency</i> problem into a <i>capacity</i> problem, and a real implementation resizes at that point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Distance from home, at four load factors.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">A slice of the table, with each key linked to the bucket it belongs to.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpload">raise the load &#9654;</button><button id="hpwin">slide the window</button></div>
+   <div class="cap" id="hpout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the table as a ring, with every key tethered to its home.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;bound the probe distance and lookups stay fast.&rdquo; The inverse is that <b>the bound was not achieved, it was relocated</b>. The work of finding a key is now the work of <i>placing</i> it, paid at insert time by hopping entries backwards, and at high load that work grows until it fails outright. Read backwards, hopscotch does not remove the cost of a crowded table &mdash; it <b>moves the cost to the writer and the failure to the capacity</b>, which is the right trade only because reads outnumber writes and a refused insert is easier to handle than an unbounded probe.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpsp">pause spin</button></div></div></div></div>"""
+HPSC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,li=0,win=0;
+var Hn=8,SIZE=1024;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function build(keys){
+ var tab=new Array(SIZE).fill(null),failed=0,moves=0;
+ keys.forEach(function(k){
+  var hIdx=k%SIZE,free=-1;
+  for(var d=0;d<SIZE;d++){var i=(hIdx+d)%SIZE;if(tab[i]===null){free=i;break;}}
+  if(free<0){failed++;return;}
+  var guard=0;
+  while(((free-hIdx+SIZE)%SIZE)>=Hn&&guard++<SIZE){
+   var moved=false;
+   for(var back=Hn-1;back>=1;back--){
+    var cand=(free-back+SIZE)%SIZE,occ=tab[cand];
+    if(occ===null)continue;
+    var ch=occ%SIZE;
+    if(((free-ch+SIZE)%SIZE)<Hn){
+     tab[free]=occ;tab[cand]=null;free=cand;moves++;moved=true;break;}}
+   if(!moved)break;}
+  if(((free-hIdx+SIZE)%SIZE)<Hn)tab[free]=k;else failed++;});
+ return {tab:tab,failed:failed,moves:moves};}
+function makeKeys(n,seed){
+ var g=rnd(seed),keys=[],used={};
+ while(keys.length<n){var k=Math.floor(g()*1000000);if(!used[k]){used[k]=1;keys.push(k);}}
+ return keys;}
+var LOADS=[0.5,0.7,0.85,0.9];
+function selftest(){
+ var rows=LOADS.map(function(load){
+  var n=Math.floor(SIZE*load);
+  var R=build(makeKeys(n,2008+Math.round(load*100)));
+  var placed=0,worst=0,allWithin=true,hist=new Array(Hn).fill(0);
+  R.tab.forEach(function(k,i){
+   if(k===null)return;
+   placed++;
+   var d=(i-(k%SIZE)+SIZE)%SIZE;
+   if(d<Hn)hist[d]++;
+   if(d>worst)worst=d;
+   if(d>=Hn)allWithin=false;});
+  return {load:load,n:n,placed:placed,failed:R.failed,moves:R.moves,
+   worst:worst,allWithin:allWithin,hist:hist};});
+ return {H:Hn,size:SIZE,rows:rows,
+  invariantHolds:rows.every(function(r){return r.allWithin;}),
+  worstDistance:Math.max.apply(null,rows.map(function(r){return r.worst;})),
+  strictlyInsideH:Math.max.apply(null,rows.map(function(r){return r.worst;}))<Hn,
+  placesAtHighLoad:rows[3].placed>rows[3].n*0.9,
+  totalMoves:rows.reduce(function(a,r){return a+r.moves;},0),
+  displacementIsTheCost:rows.some(function(r){return r.moves>0;}),
+  ok:rows.every(function(r){return r.allWithin;})&&rows[3].placed>rows[3].n*0.9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DISTANCE FROM HOME, AT FOUR LOAD FACTORS');
+ var m=54,gw=(W-m-24)/Hn;
+ VR.rows.forEach(function(r,i){
+  var y=48+i*54;
+  nt(g,'#8a7ab8',18,y+14,9,(r.load*100).toFixed(0)+'%');
+  var mx=Math.max.apply(null,r.hist);
+  for(var d=0;d<Hn;d++){
+   var hh=r.hist[d]/mx*30;
+   nf(g,'rgba(125,226,176,'+(0.28+d/Hn*0.5)+')');
+   g.fillRect(m+d*gw,y+32-hh,gw-3,hh);ng(g);
+   if(i===VR.rows.length-1)nt(g,'#5a4a85',m+d*gw+gw/2-3,y+46,8,''+d);}
+  nt(g,'#5a4a85',W-96,y+14,8,'placed '+r.placed);
+  if(r.failed)nt(g,'#ff5a8a',W-96,y+28,8,r.failed+' refused');});
+ ne(g,'#ff5a8a',1.6);
+ g.beginPath();g.moveTo(m+Hn*gw-2,40);g.lineTo(m+Hn*gw-2,262);g.stroke();ng(g);
+ nt(g,'#ff5a8a',m+Hn*gw+2,150,9,'H = '+Hn);
+ nt(g,'#7de2b0',18,H-10,9,'no key ever sits '+VR.H+' or more slots from home -- worst observed '+
+  VR.worstDistance+', at every load');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=VR.rows[li%VR.rows.length];
+ var R=build(makeKeys(r.n,2008+Math.round(r.load*100)));
+ nt(g,'#e6dcff',16,26,11,'load '+(r.load*100).toFixed(0)+'%   slots '+(win*48)+' to '+(win*48+47));
+ var start=win*48,cw=(W-40)/48;
+ for(var i=0;i<48;i++){
+  var idx=(start+i)%SIZE,k=R.tab[idx];
+  nf(g,k===null?'rgba(30,22,50,0.9)':'rgba(125,226,176,0.55)');
+  g.fillRect(20+i*cw,60,cw-1.2,26);ng(g);}
+ nt(g,'#8a7ab8',20,52,8,'the table');
+ // tether each occupant to its home bucket
+ for(var j=0;j<48;j++){
+  var idx2=(start+j)%SIZE,k2=R.tab[idx2];
+  if(k2===null)continue;
+  var home=k2%SIZE;
+  var off=(idx2-home+SIZE)%SIZE;
+  var hx=j-off;
+  if(hx<0)continue;
+  var x1=20+j*cw+cw/2,x2=20+hx*cw+cw/2;
+  ne(g,off===0?'rgba(125,226,176,0.35)':'rgba(255,215,106,0.55)',1);
+  g.beginPath();
+  g.moveTo(x1,86);g.bezierCurveTo(x1,120,x2,120,x2,86);g.stroke();ng(g);}
+ nt(g,'#ffd76a',20,140,8,'gold arcs: a key sitting away from its home bucket');
+ nt(g,'#7de2b0',20,156,8,'green: sitting exactly at home');
+ var y2=176;
+ var mx=Math.max.apply(null,r.hist);
+ nt(g,'#8a7ab8',20,y2,9,'distances across the whole table');
+ var gw=(W-56)/Hn;
+ for(var d=0;d<Hn;d++){
+  var hh=r.hist[d]/mx*54;
+  nf(g,'rgba(90,214,255,'+(0.3+d/Hn*0.5)+')');
+  g.fillRect(28+d*gw,y2+70-hh,gw-4,hh);ng(g);
+  nt(g,'#5a4a85',28+d*gw+gw/2-3,y2+84,8,''+d);}
+ var y3=y2+96;
+ nf(g,r.allWithin?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,44);ng(g);
+ ne(g,r.allWithin?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,44);ng(g);
+ nt(g,r.allWithin?'#7de2b0':'#ff5a8a',36,y3+27,11,
+  'worst distance '+r.worst+' of a permitted '+(VR.H-1)+
+  (r.failed?('   ('+r.failed+' refused)'):''));
+ var o=document.getElementById('hpout');
+ if(o)o.innerHTML='At <b>'+(r.load*100).toFixed(0)+'%</b> load every one of the <b>'+r.placed+
+  '</b> placed keys sits within <b>'+VR.H+'</b> slots of home, worst observed <b>'+r.worst+
+  '</b>. '+(r.failed?('<b>'+r.failed+'</b> inserts were refused rather than allowed to break the invariant &mdash; the honest cost.')
+   :'Nothing was refused at this load.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var R=build(makeKeys(Math.floor(SIZE*0.7),2078));
+ var shown=192;
+ for(var i=0;i<shown;i++){
+  var k=R.tab[i];
+  var th=i/shown*2*Math.PI;
+  var q=P(110*Math.cos(th),0,110*Math.sin(th));
+  if(k===null){ndot(g,q[0],q[1],1,'rgba(60,45,95,0.7)');continue;}
+  var off=(i-(k%SIZE)+SIZE)%SIZE;
+  ndot(g,q[0],q[1],2.2,off===0?'#7de2b0':'#ffd76a');
+  if(off>0&&off<Hn){
+   var hth=((i-off+shown)%shown)/shown*2*Math.PI;
+   var hq=P(110*Math.cos(hth),-26,110*Math.sin(hth));
+   ne(g,'rgba(255,215,106,0.3)',1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(hq[0],hq[1]);g.stroke();ng(g);}}
+ ne(g,'rgba(150,110,230,0.3)',1.2);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var p=P(110*Math.cos(t),0,110*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'green: keys resting exactly at home');
+ nt(g,'#ffd76a',14,42,10,'gold: displaced, but never by more than '+(VR.H-1));
+ nt(g,'#8a7ab8',14,58,10,'every tether is shorter than H, by construction');
+ nt(g,'#8a7ab8',14,H-12,9,'the bound was not achieved, it was moved to the writer');}
+document.getElementById('hpload').onclick=function(){li++;drawW4();};
+document.getElementById('hpwin').onclick=function(){win=(win+1)%8;drawW4();};
+document.getElementById('hpsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__hopscotch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 230 · neon-noir · silicon-coding · FROM DAVID'S 0805 16:10 DROP (rev1-0805 + PRODUCTION) · the control that killed the pretty result · two rulers both correct · a mean that touches nothing · a signal carrying its own clock · names removed at no cost ═══════════════════════
 PMNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A catalogue of 2,048 items in 64 containers, arranged as an 8&times;8 grid, was decomposed as though it were a quantum state. The result looked remarkable: Schmidt rank <b>8 of 8</b>, entanglement entropy <b>0.6081</b> bits &mdash; apparent structure running deeper than the labelling. Then the control ran. Shuffle the containers within their groups at random, twenty thousand times, and that same figure is what you get <b>anyway</b>.<br><br>
@@ -77861,6 +78702,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-ziggurat","title":"THE ZIGGURAT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#7de2b0","icon":"\u25b3",
+  "kicker":"128 rectangles that all weigh the same",
+  "blurb":"Cover the bell curve with 128 equal-area rectangles. Pick one, pick a point in it, and almost always the point is already under the curve - no exponential, no logarithm.",
+  "lit":"bisecting for the width that makes 128 equal-area layers close gives x1 = 3.44262367 and a layer area of 0.0099125640; all 127 rectangle layers then have that area to a relative spread of 3.8e-14; and the first-try acceptance rate measured over the run is 97.291%, matching 97.280% predicted independently from the mean ratio of consecutive layer widths, which is what that rate has to equal",
+  "fig":"Human lineage, credited: George Marsaglia and Wai Wan Tsang, 'The Ziggurat Method for Generating Random Variables', Journal of Statistical Software 2000, building on Marsaglia's own rectangle-wedge-tail method from 1964. AVAN published a wrong number first and then caught it: the initial acceptance test compared each draw against the layer it was drawn FROM rather than the one below it, so every draw accepted and the rate came out at exactly 100.000%. A rate that lands on a round hundred is a broken test, not a fast algorithm. Corrected it reads 97.291%, and the mean width ratio was then computed separately as a prediction, because a measurement with no independent expectation attached is just a number.",
+  "body":ZIGG_BODY,"script":ZIGG_SCRIPT},
+ {"slug":"the-middle-square","title":"THE MIDDLE SQUARE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ff5a8a","icon":"\u25a1",
+  "kicker":"the first generator, and how it dies",
+  "blurb":"Square a four-digit number, keep the middle four, repeat. Von Neumann proposed it in 1946 and knew it was inadequate. The state graph shows exactly how inadequate.",
+  "lit":"exhausting all 10,000 four-digit seeds, the state graph collapses into just 8 cycles with the longest of period 4; zero is absorbing since 0 squared is 0, and 1,968 seeds - 19.7% of every possible start - fall into it; and no seed runs long before joining a cycle, the longest run-in being 107 steps, so the worst possible total before repetition is 111 of a state space of ten thousand",
+  "fig":"Human lineage, credited: John von Neumann, 1946, described in 'Various techniques used in connection with random digits' (1951). He is explicit that the method is a stopgap - its virtue is speed and the fact that its failures are OBVIOUS, a generator that visibly collapses being safer than one that hides its structure, which is exactly the argument [[the-marsaglia-planes]] makes from the other side. AVAN exhausted the state space rather than sampling it, since with only 10,000 states there is no reason not to; every seed is classified into its cycle with the run-in length recorded, so these are the complete truth about the four-digit variant rather than an estimate. Scope: this is the FOUR-DIGIT method. Longer variants behave better and the modern Weyl-sequence repair is provably non-degenerate, but neither is measured here.",
+  "body":MIDS_BODY,"script":MIDS_SCRIPT},
+ {"slug":"the-soft-heap","title":"THE SOFT HEAP","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#ffd76a","icon":"\u2248",
+  "kicker":"a structure allowed to lie, by exactly this much",
+  "blurb":"Fix an error budget. The queue may then corrupt that many keys - raising them, never lowering - and in exchange every operation becomes constant amortised time.",
+  "lit":"over 2,000 insertions at four error budgets, the number of corrupted keys at epsilon = 0.01, 0.05, 0.1 and 0.2 is 20, 100, 200 and 400 - never above the permitted epsilon*n; corruption never lowered a key, so a reported minimum is never below the true one; and the damage is visible in the output, with 0.75% of the extracted sequence out of order at epsilon = 0.01 rising to 11.0% at epsilon = 0.2",
+  "fig":"Human lineage, credited: Bernard Chazelle, 'The Soft Heap: An Approximate Priority Queue with Optimal Error Rate', JACM 2000. The soft heap is the engine behind Chazelle's minimum spanning tree algorithm and later the Pettie-Ramachandran optimal MST algorithm - a deliberately inaccurate structure used to obtain an exactly correct result, which is why it is famous. AVAN is exact about what is implemented: this page implements the CONTRACT - a bounded number of corruptions, all upward - and measures that it holds. It does NOT implement Chazelle's binomial-tree structure with its car-pooling of item lists, and the O(1) amortised bound is HIS THEOREM, CITED AND NOT REPRODUCED HERE.",
+  "body":SFTH_BODY,"script":SFTH_SCRIPT},
+ {"slug":"the-centroid-decomposition","title":"THE CENTROID DECOMPOSITION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad6ff","icon":"\u2733",
+  "kicker":"every tree has a middle",
+  "blurb":"Every tree, however lopsided, has a node you can delete to leave nothing bigger than half of it behind. Recurse and the depth cannot exceed about log2 n.",
+  "lit":"over 220 random trees from 2 to 61 nodes, every one has at least one centroid and none has more than two, 220 of 220; removing it leaves every component at most floor(n/2) in every case; and recursing to the bottom stays within ceil(log2 n) + 1 levels in every tree, with the excess over the 169 trees of sixteen nodes or more coming out at 0",
+  "fig":"Human lineage, credited: the centroid of a tree is Camille Jordan, 1869, in the same paper that gives the tree CENTRE - two different middles, usually different nodes. The decomposition into a balanced hierarchy is modern technique underlying distance oracles and the standard solution to counting paths of a given length in a tree. AVAN is clear that this is verification, not proof: Jordan's theorem is proved, and what runs here is a check that this implementation agrees with it, plus a measurement of how tight the log2 n bound is. The first version reported its worst case as a two-node tree, which is true and useless since the bound is trivially exceeded at n = 2; restricting the report to trees of sixteen nodes or more makes the excess figure mean something.",
+  "body":CNTD_BODY,"script":CNTD_SCRIPT},
+ {"slug":"the-hopscotch","title":"THE HOPSCOTCH","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#b98cff","icon":"\u21c4",
+  "kicker":"never more than H slots from home",
+  "blurb":"Fix the probe distance instead of the load. Every key lives within H slots of its home bucket, and an insertion that would break that hops existing entries backwards to make room.",
+  "lit":"on a 1,024-slot table with H = 8 at load factors of 50, 70, 85 and 90 percent, every placed key sits within its neighbourhood in all four runs with a worst observed distance from home of 7 - strictly inside H; at 90% load the table still places 893 of 921 keys; and the cost is displacement work, 416 hops in total across the four runs, which is exactly what buys the bound",
+  "fig":"Human lineage, credited: Maurice Herlihy, Nir Shavit and Moran Tzafrir, 'Hopscotch Hashing', DISC 2008. The design was aimed at CONCURRENCY - a bounded neighbourhood means a lookup can be made lock-free because the region a reader must examine is known in advance - and the sequential bound measured here is a side effect of that goal rather than its point. AVAN is clear about what the failures mean: at 90% load 28 keys could not be placed at all, because the hopping found no candidate that could legally move, so the insert was REFUSED rather than allowed to violate the invariant. That is correct behaviour and the honest cost - hopscotch does not make a full table work, it converts a LATENCY problem into a CAPACITY problem, and a real implementation resizes at that point.",
+  "body":HPSC_BODY,"script":HPSC_SCRIPT},
  {"slug":"the-permutation-null","title":"THE PERMUTATION NULL","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#ff5a8a","icon":"\u2694",
   "kicker":"the control that killed the pretty result",
