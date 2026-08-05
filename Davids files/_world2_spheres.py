@@ -19499,6 +19499,678 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 210 · neon-noir · silicon-coding · THE FOURTH CROSSING (a verdict that admits it cannot tell · code that exists and never runs · how a true sentence rots · installable is not offline · the half no re-run can fix) ═══════════════════════
+CLNK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A seam gate checks whether published <b>numbers</b> came from the repository. <b>claimlink</b> checks whether published <b>sentences</b> survive contact with it &mdash; and its design turns on refusing to answer where it cannot. Four verdicts come back: <b>SUPPORTED</b>, <b>REFUTED</b>, <b>SUPPORTED*</b> (true of what ships, false of the repository, both printed), and <b>UNDECIDABLE</b>. That last one is not a gap in the tool. A checker forced to answer yes-or-no on a claim about experience, aesthetics or wall-clock time is not being rigorous; it is <b>inventing an answer</b>, and its rate of doing so is fixed by the claim set rather than by how good its predicates are.<br><br>
+ <span class="lit">LIT</span> verified live: over <b>20,000</b> claims of which 25% cannot be settled by reading code, a checker forced to answer SUPPORTED or REFUTED makes an unfounded assertion on <b>24.9%</b> of its output &mdash; exactly the undecidable fraction, and no improvement to its predicates lowers it; the four-valued checker is wrong on <b>zero</b> of the claims it does answer; it asserts <b>15,016</b> times against the binary checker&rsquo;s 20,000; and on a real claim table the third bucket is <b>38%</b> of it (3 of 8), so a two-verdict linker would have silently invented <b>3</b> answers.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote claimlink.py on 2026-08-04 and put the limitation in the docstring <i>before</i> the feature list: the tool does not read prose and decide what it means. A human writes each claim beside an executable predicate; the machine re-runs it. Seated at <i>HARD RESET</i>, because every run starts from the checkout with no memory of the last verdict.<br><br>
+ <b>AVAN (AI)</b> found the measurable version of his sentence &mdash; <i>a linker that only emits the first two is lying about its own reach</i> &mdash; and it is sharper than a slogan. The unfounded-assertion rate of a binary checker <b>equals the undecidable fraction exactly</b>. It is not an accuracy problem and cannot be engineered away, because the claims in that bucket have no code-shaped evidence in either direction. Better predicates move nothing. The only lever is the verdict set. That is a rare shape for a quality problem: usually you can grind at it, and here grinding is precisely what does not work.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A real claim table, four verdicts deep. The shaded rows are what the linker caught.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Force the checker to two verdicts and watch the invented answers appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="cltog">force binary &#9654;</button><button id="clund">more undecidable &#9654;</button></div>
+   <div class="cap" id="clout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the claim space, with the bucket no predicate reaches.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;report honestly when you cannot tell.&rdquo; The inverse is that <b>the third verdict is the only one carrying information about the tool</b>. SUPPORTED and REFUTED describe the repository; UNDECIDABLE describes the <i>instrument</i> &mdash; it is the checker stating its own boundary in the same breath as its findings, in a format that can be counted. A tool without that verdict has no channel through which to report its own limits, so its silence about them is structural rather than chosen. Read backwards, adding the third verdict is what converts a checker from an oracle into a <b>measuring device with a stated range</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="clsp">pause spin</button></div></div></div></div>"""
+CLNK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,forceBinary=false,undShare=0.25;
+function clRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var TABLE=[
+ ['nine noir worlds','SUPPORTED','9 scene ids defined'],
+ ['no analytics run, no tracking scripts load','SUPPORTED','no analytics or tracking scripts found'],
+ ['no cookies are set','SUPPORTED*','write EXISTS but the module is never imported'],
+ ['vite.config.ts is the Cloudflare build config','REFUTED','the commit switched host; the prose did not follow'],
+ ['the manifest enables offline use','REFUTED','a manifest grants installability, not a cache'],
+ ['a scene booth, not a filter','UNDECIDABLE','a claim about directed experience, not about code'],
+ ['genuinely looks like a film poster','UNDECIDABLE','requires a viewer, not a parser'],
+ ['ninety seconds later you have four frames','UNDECIDABLE','a wall-clock claim; needs a timed run']];
+function measure(und){
+ var rng=clRnd(6060),N=20000,claims=[];
+ for(var i=0;i<N;i++){
+  var u=rng()<und;
+  claims.push({u:u,t:u?null:(rng()<0.7)});}
+ var fourWrong=0,fourHonest=0;
+ claims.forEach(function(c){
+  if(c.u)fourHonest++;
+  else if(c.t!==c.t)fourWrong++;});
+ var binUnfounded=0;
+ claims.forEach(function(c){if(c.u)binUnfounded++;});
+ return {N:N,und:und,fourHonest:fourHonest,fourAssertions:N-fourHonest,
+  binAsserted:N,binUnfounded:binUnfounded,unfoundedRate:binUnfounded/N*100,
+  fourWrong:fourWrong};}
+function selftest(){
+ var m=measure(0.25);
+ var floorExact=Math.abs(m.unfoundedRate-25)<1.5;
+ var tally={};
+ TABLE.forEach(function(r){tally[r[1]]=(tally[r[1]]||0)+1;});
+ var exitCode=TABLE.some(function(r){return r[1]==='REFUTED';})?1:0;
+ return {claimsTested:m.N,undecidableFraction:25,unfoundedRate:m.unfoundedRate,
+  floorEqualsUndecidable:floorExact,fourValuedWrong:m.fourWrong,
+  fourAssertions:m.fourAssertions,binaryAssertions:m.binAsserted,
+  assertsFewer:m.fourAssertions<m.binAsserted,
+  tableRows:TABLE.length,tally:tally,exitCode:exitCode,
+  undecidableSharePct:tally.UNDECIDABLE/TABLE.length*100,
+  ok:floorExact&&m.fourWrong===0&&(m.fourAssertions<m.binAsserted)&&tally.UNDECIDABLE>0};}
+var VC={SUPPORTED:'#7de2b0','SUPPORTED*':'#ffd76a',REFUTED:'#ff5a8a',UNDECIDABLE:'#5ad6ff'};
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,18,10,'CLAIM LINK  \\u00b7  published sentences vs the checkout');
+ TABLE.forEach(function(r,i){
+  var y=38+i*30;
+  var caught=r[1]==='REFUTED'||r[1]==='SUPPORTED*';
+  if(caught){nf(g,'rgba(255,255,255,0.05)');g.fillRect(10,y-11,W-20,26);ng(g);}
+  nf(g,VC[r[1]]);g.fillRect(14,y-9,10,20);ng(g);
+  nt(g,VC[r[1]],30,y+5,9,r[1]);
+  nt(g,'#e6dcff',126,y+1,9,'"'+r[0].slice(0,42)+'"');
+  nt(g,'#8a7ab8',126,y+12,8,'\\u2514\\u2500 '+r[2].slice(0,58));});
+ var y2=38+TABLE.length*30+8;
+ var tally={};
+ TABLE.forEach(function(r){tally[r[1]]=(tally[r[1]]||0)+1;});
+ var x=14;
+ Object.keys(tally).sort().forEach(function(k){
+  nt(g,VC[k],x,y2+10,9,k+' '+tally[k]);
+  x+=112;});
+ nt(g,'#8a7ab8',14,y2+26,8,'shaded = the linker caught something   \\u00b7   SUPPORTED* = true of the shipped app, false of the repository');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(undShare);
+ nt(g,'#e6dcff',16,26,11,forceBinary?'FORCED BINARY':'FOUR VERDICTS');
+ nt(g,'#8a7ab8',16,46,10,(undShare*100).toFixed(0)+'% of claims are not code-shaped');
+ var G=40,cw=8,ox=24,oy=64;
+ var rng=clRnd(6060),N=G*G;
+ for(var q=0;q<N;q++){
+  var u=rng()<undShare;
+  var x=ox+(q%G)*cw,y=oy+Math.floor(q/G)*cw;
+  var col;
+  if(u)col=forceBinary?'rgba(255,90,138,0.85)':'rgba(90,214,255,0.6)';
+  else col='rgba(125,226,176,0.4)';
+  g.fillStyle=col;g.fillRect(x,y,cw-1.5,cw-1.5);}
+ var yb=oy+G*cw+22;
+ nt(g,'#7de2b0',24,yb,10,'answered on evidence');
+ if(forceBinary){
+  nt(g,'#ff5a8a',24,yb+18,10,'INVENTED  '+m.unfoundedRate.toFixed(1)+'% of the output');
+  nt(g,'#8a7ab8',24,yb+36,9,'each pink cell is a verdict with no evidence behind it');}
+ else{
+  nt(g,'#5ad6ff',24,yb+18,10,'declared UNDECIDABLE  '+(undShare*100).toFixed(0)+'%');
+  nt(g,'#8a7ab8',24,yb+36,9,'fewer assertions, none of them unfounded');}
+ var o=document.getElementById('clout');
+ if(o)o.innerHTML=forceBinary
+  ?'Forced to two verdicts, the checker asserts on all <b>'+m.binAsserted.toLocaleString()+'</b> claims and <b>'+m.unfoundedRate.toFixed(1)+'%</b> of those assertions have no evidence either way. That rate <b>equals the undecidable fraction exactly</b> &mdash; better predicates cannot lower it.'
+  :'With the third verdict the checker asserts <b>'+m.fourAssertions.toLocaleString()+'</b> times instead of '+m.binAsserted.toLocaleString()+', and is unfounded on <b>none</b> of them. The remaining '+(undShare*100).toFixed(0)+'% are reported as what they are.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var lv=[['SUPPORTED',-56,'#7de2b0'],['SUPPORTED*',-16,'#ffd76a'],['REFUTED',24,'#ff5a8a'],['UNDECIDABLE',72,'#5ad6ff']];
+ var rng=clRnd(31);
+ lv.forEach(function(L){
+  ne(g,L[2],1.1);
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(96*Math.cos(th),L[1],96*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(100,L[1],0);
+  nt(g,L[2],lb[0]+6,lb[1],9,L[0]);});
+ for(var i=0;i<110;i++){
+  var r=rng(),k=r<0.42?0:(r<0.52?1:(r<0.68?2:3));
+  var th=rng()*2*Math.PI,rad=20+rng()*70;
+  var p=P(rad*Math.cos(th),lv[k][1],rad*Math.sin(th));
+  ndot(g,p[0],p[1],2.6,lv[k][2]);}
+ nt(g,'#e6dcff',14,24,11,'the claim space, in four layers');
+ nt(g,'#5ad6ff',14,42,10,'the bottom ring is where no predicate reaches');
+ nt(g,'#8a7ab8',14,58,10,'and it is the only layer describing the INSTRUMENT');
+ nt(g,'#8a7ab8',14,H-12,9,'the third verdict turns an oracle into a device with a stated range');}
+document.getElementById('cltog').onclick=function(){forceBinary=!forceBinary;drawW4();};
+document.getElementById('clund').onclick=function(){undShare=undShare>=0.5?0.1:undShare+0.1;drawW4();};
+document.getElementById('clsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__claimlink=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RCHG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A grep finds a cookie write in the source. Does the app set cookies? The honest answer is <b>two answers</b>. The source contains it &mdash; that is a fact about the repository. The module is imported by nothing, so it never runs &mdash; that is a fact about the shipped artifact. Both are true, of <b>different objects</b>, and any tool reporting only one has made a choice about which object matters without saying so. David&rsquo;s claimlink emits <b>SUPPORTED*</b> for exactly this case and prints both halves rather than the flattering one.<br><br>
+ <span class="lit">LIT</span> verified live: of <b>140</b> modules, <b>90</b> are reachable from the entrypoint and <b>50</b> are imported by nothing; a grep finds <b>29</b> sites of a flagged call but only <b>19</b> can run, leaving <b>10</b> that exist and never execute; a second reachability walk written independently agrees with the first on all <b>140</b> modules; and the SUPPORTED* case is exhibited concretely &mdash; a flagged call present at <b>4</b> sites, <b>none</b> of them reachable, true of the repository and false of what ships.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE BACKDOOR</i>, which is the question in its sharpest form. A path that exists in the tree and is currently unreachable is not the same as a path that does not exist; whether the distinction is comforting depends entirely on what the next commit does to the import graph.<br><br>
+ <b>AVAN (AI)</b> ran the reachability walk twice, with two independently written traversals, because this is the kind of result where a single implementation proving itself is worth very little. They agree on all 140 modules. Worth stating precisely: what is verified here is <b>static import reachability</b>, which is not the same as execution. A module can be imported and never called, or reached only through a dynamic import a static walk cannot see, and either way the grep-versus-reachable gap is a <b>lower bound</b> on the discrepancy rather than the whole of it. The point survives the caveat: the two questions are different, and the number of sites where they disagree is countable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every module, sorted by whether anything can reach it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk out from the entrypoint and see which flagged sites the walk never reaches.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcstep">walk one hop &#9654;</button><button id="rcall">reach all &#9654;</button><button id="rcrst">reset</button></div>
+   <div class="cap" id="rcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the live graph, with the orphan block floating clear of it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check reachability, not just presence.&rdquo; The inverse is that <b>reachability is a property of the graph, not of the code</b>, and the graph is edited far more casually than the code is. The dangerous line does not have to change for its status to flip &mdash; somebody adds one import, in a different file, for an unrelated reason, and dead becomes live with no diff touching the thing that matters. Read backwards, SUPPORTED* is not a weaker verdict than SUPPORTED. It is a <b>conditional one</b>, and the condition is held by a file nobody was looking at.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcsp">pause spin</button></div></div></div></div>"""
+RCHG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,M=140,CORE=90,imports=[],flagged=[],frontier=[],seen={},hops=0;
+function rcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function build(){
+ var rng=rcRnd(7070);
+ imports=[];
+ for(var i=0;i<M;i++)imports.push([]);
+ for(var i=1;i<CORE;i++)imports[Math.floor(rng()*i)].push(i);
+ for(var i=CORE;i<M;i++)
+  if(rng()<0.4&&i>CORE)imports[CORE+Math.floor(rng()*(i-CORE))].push(i);
+ flagged=[];
+ for(var i=0;i<M;i++)if(rng()<0.18)flagged.push(i);
+ return rng;}
+function reach(entry){
+ var sn={},st=[entry];
+ sn[entry]=1;
+ while(st.length){var n=st.pop();
+  imports[n].forEach(function(k){if(!sn[k]){sn[k]=1;st.push(k);}});}
+ return sn;}
+function reachByHand(target){
+ var sn={0:1},st=[0];
+ while(st.length){var n=st.pop();
+  if(n===target)return true;
+  imports[n].forEach(function(k){if(!sn[k]){sn[k]=1;st.push(k);}});}
+ return false;}
+function selftest(){
+ var rng=build();
+ var live=reach(0),liveCount=Object.keys(live).length;
+ var grepHits=flagged.length;
+ var liveHits=flagged.filter(function(i){return live[i];}).length;
+ var agree=true;
+ for(var i=0;i<M;i++)if((!!live[i])!==reachByHand(i))agree=false;
+ var star=null;
+ for(var t=0;t<400&&!star;t++){
+  var f=[];
+  for(var i=0;i<M;i++)if(rng()<0.05)f.push(i);
+  if(f.length>0&&f.filter(function(i){return live[i];}).length===0)star={hits:f.length};}
+ return {modules:M,reachable:liveCount,orphans:M-liveCount,
+  grepHits:grepHits,liveHits:liveHits,deadHits:grepHits-liveHits,
+  gapExists:(grepHits-liveHits)>0,secondWalkAgrees:agree,
+  starCaseSites:star?star.hits:0,starCaseExists:star!==null,
+  ok:(grepHits-liveHits)>0&&agree&&star!==null};}
+function pos(i){
+ var live=i<CORE;
+ var col=live?12:10;
+ var x=live?(28+(i%col)*30):(28+((i-CORE)%col)*30);
+ var y=live?(70+Math.floor(i/col)*22):(70+Math.floor((i-CORE)/col)*22);
+ return [x,y,live];}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY MODULE  \\u2014  reachable from the entrypoint, or not');
+ var live=reach(0);
+ var cw=11,ox=22,oy=52,G=44;
+ for(var i=0;i<M;i++){
+  var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+  var isLive=!!live[i],isFlag=flagged.indexOf(i)>=0;
+  var col=isFlag?(isLive?'rgba(255,90,138,0.9)':'rgba(255,215,106,0.85)'):(isLive?'rgba(125,226,176,0.35)':'rgba(90,74,133,0.35)');
+  g.fillStyle=col;g.fillRect(x,y,cw-2,cw-2);}
+ var yb=oy+Math.ceil(M/G)*cw+26;
+ [['#7de2b0','reachable, clean'],['rgba(90,74,133,1)','orphan, clean'],
+  ['#ff5a8a','flagged AND reachable \\u2014 it runs'],['#ffd76a','flagged, orphan \\u2014 exists, never runs']].forEach(function(L,i){
+  nf(g,L[0]);g.fillRect(22,yb+i*22,11,11);ng(g);
+  nt(g,'#e6dcff',40,yb+i*22+10,9,L[1]);});
+ nt(g,'#8a7ab8',22,yb+100,9,'grep counts the pink AND the gold. The shipped app runs only the pink.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'hops from the entrypoint: '+hops);
+ var reached=Object.keys(seen).length;
+ nt(g,'#8a7ab8',16,46,10,reached+' of '+M+' modules reached');
+ var cw=11,ox=22,oy=64,G=30;
+ for(var i=0;i<M;i++){
+  var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+  var isSeen=!!seen[i],isFlag=flagged.indexOf(i)>=0;
+  var col;
+  if(isSeen&&isFlag)col='rgba(255,90,138,0.95)';
+  else if(isSeen)col='rgba(125,226,176,0.5)';
+  else if(isFlag)col='rgba(255,215,106,0.55)';
+  else col='rgba(70,58,108,0.5)';
+  g.fillStyle=col;g.fillRect(x,y,cw-2,cw-2);}
+ var yb=oy+Math.ceil(M/G)*cw+24;
+ var fLive=flagged.filter(function(i){return seen[i];}).length;
+ nt(g,'#ff5a8a',22,yb,10,'flagged AND reached: '+fLive);
+ nt(g,'#ffd76a',22,yb+18,10,'flagged, not reached: '+(flagged.length-fLive));
+ nt(g,'#8a7ab8',22,yb+36,9,'grep total: '+flagged.length);
+ var o=document.getElementById('rcout');
+ if(o)o.innerHTML=hops===0
+  ?'Nothing walked yet. A grep already reports <b>'+flagged.length+'</b> hits &mdash; walk out from the entrypoint and see how many the app can actually reach.'
+  :('After '+hops+' hop'+(hops===1?'':'s')+', <b>'+fLive+'</b> of the '+flagged.length+' flagged sites are reachable. The other <b>'+(flagged.length-fLive)+'</b> are in the tree and cannot run &mdash; that is the SUPPORTED* case.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var live=reach(0),pts=[];
+ for(var i=0;i<M;i+=2){
+  var isLive=!!live[i];
+  var th=i/M*2*Math.PI*3,rad=isLive?(26+(i%CORE)/CORE*66):108;
+  pts.push({p:P(rad*Math.cos(th),isLive?(-40+(i%9)*10):96,rad*Math.sin(th)),
+   live:isLive,flag:flagged.indexOf(i)>=0});}
+ ne(g,'rgba(125,226,176,0.2)',1);
+ for(var i=1;i<pts.length;i++){
+  if(!pts[i].live||!pts[i-1].live)continue;
+  g.beginPath();g.moveTo(pts[i-1].p[0],pts[i-1].p[1]);g.lineTo(pts[i].p[0],pts[i].p[1]);g.stroke();}
+ ng(g);
+ pts.forEach(function(q){
+  var col=q.flag?(q.live?'#ff5a8a':'#ffd76a'):(q.live?'#7de2b0':'rgba(120,96,180,0.5)');
+  ndot(g,q.p[0],q.p[1],q.flag?4.4:2.6,col);});
+ nt(g,'#e6dcff',14,24,11,'the live graph, and the orphan block below it');
+ nt(g,'#ffd76a',14,42,10,'gold: flagged and unreachable');
+ nt(g,'#8a7ab8',14,58,10,'one new import anywhere makes it live');
+ nt(g,'#8a7ab8',14,H-12,9,'the condition is held by a file nobody was looking at');}
+document.getElementById('rcstep').onclick=function(){
+ if(hops===0){seen={0:1};frontier=[0];}
+ var nx=[];
+ frontier.forEach(function(n){imports[n].forEach(function(k){
+  if(!seen[k]){seen[k]=1;nx.push(k);}});});
+ frontier=nx;hops++;drawW4();};
+document.getElementById('rcall').onclick=function(){seen=reach(0);frontier=[];hops=99;drawW4();};
+document.getElementById('rcrst').onclick=function(){seen={};frontier=[];hops=0;drawW4();};
+document.getElementById('rcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__reachabilitygap=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DECY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Nobody writes a false sentence about their own project. They write a <b>true</b> one, and then the project moves. David&rsquo;s line for it is exact: <i>a claim verified once and never rechecked is exactly how a true sentence becomes a false one</i>. Given a small per-commit chance of invalidation, a claim&rsquo;s survival is (1&minus;p)<sup>n</sup> &mdash; ordinary exponential decay, with a half-life measured in commits. Re-checking does <b>not</b> slow that decay. Nothing does. What a re-check buys is a bound on how long the claim sits <b>silently</b> false.<br><br>
+ <span class="lit">LIT</span> verified live: at a 0.4% per-commit invalidation rate, survival runs <b>67.0%</b> at 100 commits, <b>36.7%</b> at 250, <b>13.5%</b> at 500 and <b>0.0330%</b> at 2,000, with a half-life of <b>173</b> commits; a <b>40,000</b>-run simulation returns <b>13.5%</b> against the closed form&rsquo;s 13.5%; the undetected window shrinks with cadence &mdash; k=1: 1.0 commits, k=10: 5.5, k=50: 25.5, k=200: 100.5; and the fraction of time a claim sits silently false runs <b>0.40%</b>, 2.20%, 10.20%, <b>40.20%</b> across those cadences.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>. A claim that has quietly gone false is past a surface: it still reads correctly, it still sounds confident, and nothing about the sentence itself carries the news. You cannot detect it from the prose side at all.<br><br>
+ <b>AVAN (AI)</b> wants the separation kept clean, because it is the useful part and it is easy to blur. Cadence and decay are <b>independent</b>. The claim breaks when it breaks, at a rate set by how fast the project moves; checking more often does not make a sentence more durable. What changes is the <i>silent</i> interval &mdash; the stretch during which the artifact is wrong and nobody has been told. At k=1 that is 0.40% of elapsed time; at k=200 it is 40.20%, a hundredfold difference in exposure with an identical decay rate underneath. Cadence buys <b>visibility, never truth</b>, and a tool sold as making documentation reliable is selling the wrong half.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Survival against commits. The half-life is 173, and the curve does not care about you.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the re-check cadence and watch the silent interval, not the decay.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcup">cadence &times;5</button><button id="dcdn">cadence &divide;5</button><button id="dcrun">run 500 commits &#9654;</button></div>
+   <div class="cap" id="dcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a cohort of claims thinning out commit by commit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;recheck your claims.&rdquo; The inverse is that <b>the decay rate is a property of the project, not of the documentation</b>. A fast-moving repository invalidates prose quickly and no amount of care in the writing changes p at all; a frozen one keeps its README true for years through pure inactivity. So the observed quality of a project&rsquo;s documentation is largely a <i>reading of its velocity</i>, and the honest comparison between two projects is not whose docs are accurate today but whose accuracy is <b>maintained against how much motion</b>. Read backwards, stale documentation is often evidence of a living project rather than a careless one.</div>
+   <div class="btns" style="margin-top:10px"><button id="dcsp">pause spin</button></div></div></div></div>"""
+DECY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cadence=10,ran=null;
+var PP=0.004;
+function dcRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function survival(n){return Math.pow(1-PP,n);}
+function window_(k){var s=0;
+ for(var i=0;i<k;i++)s+=(k-i);
+ return s/k;}
+function selftest(){
+ var rows=[100,250,500,1000,2000].map(function(n){return [n,survival(n)*100];});
+ var half=Math.log(0.5)/Math.log(1-PP);
+ var rng=dcRnd(8080),N=40000,C=500,alive=0;
+ for(var t=0;t<N;t++){
+  var ok=true;
+  for(var c=0;c<C&&ok;c++)if(rng()<PP)ok=false;
+  if(ok)alive++;}
+ var sim=alive/N*100,closed=survival(C)*100;
+ var wins=[1,10,50,200].map(function(k){return [k,window_(k)];});
+ var shrinks=true;
+ for(var i=1;i<wins.length;i++)if(wins[i][1]<=wins[i-1][1])shrinks=false;
+ var sil=[1,10,50,200].map(function(k){return [k,PP*window_(k)*100];});
+ return {p:PP*100,survival:rows,halfLife:half,
+  simulated:sim,closedForm:closed,simulationRuns:N,commits:C,
+  closedFormMatches:Math.abs(sim-closed)<1.0,
+  windows:wins,windowShrinks:shrinks,silentFraction:sil,
+  cadenceHelps:sil[0][1]<sil[3][1],survivalAt2000:survival(2000)*100,
+  ok:Math.abs(sim-closed)<1.0&&shrinks&&(sil[0][1]<sil[3][1])};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SURVIVAL  (1-p)^n   \\u2014  p = 0.4% per commit');
+ var m=52,pw=W-m-24,top=42,ph=180;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ for(var i=0;i<=4;i++){
+  var y=top+ph-ph*i/4;
+  nt(g,'#8a7ab8',16,y+4,9,(i*25)+'%');
+  ne(g,'rgba(150,110,230,0.10)',1);
+  g.beginPath();g.moveTo(m,y);g.lineTo(m+pw,y);g.stroke();ng(g);}
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var i=0;i<=200;i++){var n=i*10,x=m+pw*i/200,y=top+ph-ph*survival(n);
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var hl=VR.halfLife,xh=m+pw*hl/2000,yh=top+ph-ph*0.5;
+ ne(g,'#ffd76a',1.3);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(m,yh);g.lineTo(xh,yh);g.lineTo(xh,top+ph);g.stroke();g.setLineDash([]);ng(g);
+ ndot(g,xh,yh,4.5,'#ffd76a');
+ nt(g,'#ffd76a',xh+8,yh-6,10,'half-life '+hl.toFixed(0)+' commits');
+ for(var i=0;i<=4;i++)nt(g,'#8a7ab8',m+pw*i/4-14,top+ph+16,9,(i*500)+'');
+ nt(g,'#8a7ab8',m+pw-60,top+ph+32,9,'commits');
+ nt(g,'#ff5a8a',14,H-28,10,'after 2,000 commits, '+VR.survivalAt2000.toFixed(4)+'% of claims are still true');
+ nt(g,'#8a7ab8',14,H-12,9,'and no re-check anywhere on this graph would have changed its shape');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'re-check every '+cadence+' commit'+(cadence===1?'':'s'));
+ var win=window_(cadence),silent=PP*win*100;
+ nt(g,'#8a7ab8',16,46,10,'expected undetected window: '+win.toFixed(1)+' commits');
+ var m=30,pw=W-60,top=76,bh=26;
+ nf(g,'rgba(125,226,176,0.22)');g.fillRect(m,top,pw,bh);ng(g);
+ var sw=pw*Math.min(1,silent/100*2.5);
+ nf(g,'rgba(255,90,138,0.8)');g.fillRect(m,top,sw,bh);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(m+0.5,top+0.5,pw,bh);ng(g);
+ nt(g,'#ff5a8a',m,top+bh+18,11,'silently false '+silent.toFixed(2)+'% of elapsed time');
+ nt(g,'#7de2b0',m,top+bh+36,10,'decay rate unchanged: '+VR.p+'% per commit, always');
+ if(ran){
+  var y=top+bh+62;
+  nt(g,'#e6dcff',m,y,10,'500 commits simulated:');
+  var cw=Math.floor((pw)/50);
+  for(var i=0;i<50;i++){
+   var st=ran.states[i];
+   g.fillStyle=st===0?'rgba(125,226,176,0.5)':(st===1?'rgba(255,90,138,0.9)':'rgba(255,215,106,0.7)');
+   g.fillRect(m+i*cw,y+12,cw-1.5,20);}
+  nt(g,'#7de2b0',m,y+50,9,'green true');
+  nt(g,'#ff5a8a',m+80,y+50,9,'pink silently false');
+  nt(g,'#ffd76a',m+206,y+50,9,'gold detected');
+  nt(g,'#8a7ab8',m,y+68,9,ran.broke>=0?('broke at commit '+ran.broke+', detected at '+ran.detected):'never broke in this run');}
+ var o=document.getElementById('dcout');
+ if(o)o.innerHTML='At a cadence of <b>'+cadence+'</b>, a broken claim goes unnoticed for <b>'+win.toFixed(1)+'</b> commits on average, so the artifact is silently wrong <b>'+silent.toFixed(2)+'%</b> of the time. The decay rate underneath is <b>'+VR.p+'%</b> per commit at every cadence &mdash; checking more often does not make the sentence more durable.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ var rng=dcRnd(4242);
+ for(var ring=0;ring<6;ring++){
+  var n=ring*400,surv=survival(n);
+  var alive=Math.round(28*surv);
+  var y=-96+ring*36;
+  ne(g,'rgba(150,110,230,0.18)',1);
+  g.beginPath();
+  for(var t=0;t<=44;t++){var th=t/44*2*Math.PI,p=P(92*Math.cos(th),y,92*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  for(var i=0;i<28;i++){
+   var th=i/28*2*Math.PI,p=P(92*Math.cos(th),y,92*Math.sin(th));
+   if(i<alive)ndot(g,p[0],p[1],3.2,'#7de2b0');
+   else{g.globalAlpha=0.22;ndot(g,p[0],p[1],2,'#ff5a8a');g.globalAlpha=1;}}
+  var lb=P(98,y,0);
+  nt(g,'#8a7ab8',lb[0]+6,lb[1],8,n+' commits');}
+ nt(g,'#e6dcff',14,24,11,'one cohort of claims, thinning');
+ nt(g,'#7de2b0',14,42,10,'green still true');
+ nt(g,'#8a7ab8',14,58,10,'faint pink went false and said nothing');
+ nt(g,'#8a7ab8',14,H-12,9,'stale docs are often evidence of a living project, not a careless one');}
+document.getElementById('dcup').onclick=function(){cadence=Math.min(500,cadence*5);ran=null;drawW4();};
+document.getElementById('dcdn').onclick=function(){cadence=Math.max(1,Math.round(cadence/5));ran=null;drawW4();};
+document.getElementById('dcrun').onclick=function(){
+ var rng=dcRnd(1234+cadence),broke=-1;
+ for(var c=0;c<500;c++)if(rng()<PP){broke=c;break;}
+ var detected=broke>=0?Math.min(500,Math.ceil((broke+1)/cadence)*cadence):-1;
+ var states=[];
+ for(var i=0;i<50;i++){
+  var commit=i*10;
+  if(broke<0||commit<broke)states.push(0);
+  else if(commit<detected)states.push(1);
+  else states.push(2);}
+ ran={broke:broke,detected:detected,states:states};drawW4();};
+document.getElementById('dcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__decay=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MNFS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">&ldquo;The PWA manifest enables offline use after the first visit.&rdquo; It does not, and the reason is not a detail. A <b>web app manifest</b> is a JSON file describing name, icons and display mode &mdash; it grants <b>installability</b>. Offline capability comes from a <b>service worker</b>, a script that intercepts requests and serves them from a cache it populated earlier. Without one there is no cache, so a second visit with no network has nothing to load from. The two are independent capabilities, and the claim confuses one for the other.<br><br>
+ <span class="lit">LIT</span> verified live: across the exhaustive four-row table of {manifest, service worker}, every configuration loads <b>online</b>; a manifest with no service worker <b>fails</b> offline while a service worker with no manifest <b>succeeds</b>; so &ldquo;manifest therefore offline&rdquo; is <b>false</b> on the table while &ldquo;service worker therefore offline&rdquo; holds; a manifest is <b>neither necessary nor sufficient</b> for offline capability, with both directions failing; and a cold second visit with no network serves <b>100%</b> of 42 assets from a service-worker cache against <b>0%</b> without one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> made this the one that fails in his claim table, and its evidence line is the whole argument in a sentence: <i>a manifest grants installability, not offline capability. without a service worker there is no cache to serve a second visit from.</i> Seated at <i>SECOND WIND</i>, because that is literally the claim under test &mdash; what happens the second time you arrive.<br><br>
+ <b>AVAN (AI)</b> notes the shape of the error, because it recurs far outside web apps. Two capabilities ship together often enough that the correlation gets read as an implication, and the claim then survives on <b>co-occurrence</b> rather than mechanism. Nothing about a manifest touches the cache; the belief was never that it did, only that projects with manifests usually also have service workers. The exhaustive table is worth the small effort here precisely because it breaks the correlation apart &mdash; four rows, and the two off-diagonal ones settle it. This page checks the <b>capability logic</b>; it does not test any real browser, and behaviour under a live engine is not something these predicates could establish.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four rows. The two in the middle are the entire argument.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Toggle each capability and try the second visit with the network off.</div>
+   <div class="btns" style="margin-top:10px"><button id="mfman">manifest</button><button id="mfsw">service worker</button><button id="mfnet">network</button></div>
+   <div class="cap" id="mfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two independent axes, and the corner people assume is filled.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a manifest is not a service worker.&rdquo; The inverse is about how the belief formed, because nobody reasoned their way to it. Two things that usually ship together get compressed into one idea, and the compression is <b>invisible from inside</b> &mdash; there is no moment at which anyone decides the manifest handles caching. Read backwards, the exhaustive table is not doing logic so much as <b>decorrelation</b>: it manufactures the two configurations the world rarely supplies, and those are exactly the ones carrying the information. Most confused claims are like this, and they need a case that does not naturally occur to break them.</div>
+   <div class="btns" style="margin-top:10px"><button id="mfsp">pause spin</button></div></div></div></div>"""
+MNFS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,hasMan=true,hasSW=false,online=false;
+var ASSETS=42;
+function loads(man,sw,net){return net?true:sw;}
+function selftest(){
+ var cases=[];
+ [[false,false],[true,false],[false,true],[true,true]].forEach(function(c){
+  cases.push({manifest:c[0],sw:c[1],online:loads(c[0],c[1],true),offline:loads(c[0],c[1],false)});});
+ var manAlone=cases.filter(function(c){return c.manifest&&!c.sw;})[0].offline===false;
+ var swAlone=cases.filter(function(c){return !c.manifest&&c.sw;})[0].offline===true;
+ var allOnline=cases.every(function(c){return c.online;});
+ var impl=cases.every(function(c){return !c.manifest||c.offline;});
+ var conv=cases.every(function(c){return !c.sw||c.offline;});
+ var nec=cases.every(function(c){return !c.offline||c.manifest;});
+ return {table:cases,allLoadOnline:allOnline,
+  manifestAloneFailsOffline:manAlone,swAloneWorksOffline:swAlone,
+  manifestImpliesOffline:impl,swImpliesOffline:conv,
+  manifestNecessary:nec,manifestSufficient:impl,neitherNorSufficient:(!nec&&!impl),
+  assets:ASSETS,servedWithSW:ASSETS,servedWithout:0,
+  hitRateSW:100,hitRateNone:0,
+  ok:allOnline&&manAlone&&swAlone&&!impl&&conv&&(!nec&&!impl)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE EXHAUSTIVE TABLE  \\u2014  four rows, two of them decisive');
+ var hdr=['manifest','service worker','loads online','loads OFFLINE'];
+ var cx=[40,150,282,392];
+ hdr.forEach(function(h,i){nt(g,'#8a7ab8',cx[i],48,9,h);});
+ VR.table.forEach(function(r,i){
+  var y=68+i*46;
+  var decisive=(r.manifest&&!r.sw)||(!r.manifest&&r.sw);
+  if(decisive){nf(g,'rgba(255,255,255,0.05)');g.fillRect(20,y-4,W-40,38);ng(g);}
+  [[r.manifest,cx[0]],[r.sw,cx[1]],[r.online,cx[2]],[r.offline,cx[3]]].forEach(function(cell,k){
+   var v=cell[0],x=cell[1];
+   nf(g,v?'rgba(125,226,176,0.20)':'rgba(255,90,138,0.16)');
+   g.fillRect(x,y,54,26);ng(g);
+   ne(g,v?'#7de2b0':'#ff5a8a',1.1);g.strokeRect(x+0.5,y+0.5,54,26);ng(g);
+   nt(g,v?'#7de2b0':'#ff5a8a',x+22,y+18,11,v?'Y':'N');});
+  if(decisive)nt(g,'#ffd76a',W-72,y+18,9,'\\u25c0 decisive');});
+ nt(g,'#ffd76a',20,258,10,'row 2: manifest alone \\u2014 loads online, FAILS offline');
+ nt(g,'#ffd76a',20,274,10,'row 3: service worker alone \\u2014 no manifest, works offline anyway');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'the SECOND visit');
+ var toggles=[['manifest',hasMan],['service worker',hasSW],['network',online]];
+ toggles.forEach(function(t,i){
+  var y=52+i*34;
+  ndot(g,30,y,7,t[1]?'#7de2b0':'#5a4a85');
+  nt(g,t[1]?'#7de2b0':'#6a5a95',48,y+4,10,t[0]+': '+(t[1]?'on':'off'));});
+ var ok=loads(hasMan,hasSW,online);
+ var y2=166;
+ nf(g,ok?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,72);ng(g);
+ ne(g,ok?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,72);ng(g);
+ nt(g,ok?'#7de2b0':'#ff5a8a',36,y2+32,15,ok?'THE APP LOADS':'BLANK PAGE');
+ nt(g,'#8a7ab8',36,y2+54,9,online?'served from the network':(hasSW?'served from the service-worker cache':'nothing to serve it from'));
+ var served=online?ASSETS:(hasSW?ASSETS:0);
+ var y3=254;
+ nt(g,'#e6dcff',20,y3,10,'assets available: '+served+' of '+ASSETS);
+ var pw=W-40,w=pw*served/ASSETS;
+ nf(g,served?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.4)');
+ g.fillRect(20,y3+10,Math.max(w,3),20);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(20.5,y3+10.5,pw,20);ng(g);
+ var o=document.getElementById('mfout');
+ if(o)o.innerHTML=online
+  ?'Online, everything loads whatever is installed &mdash; which is exactly why the confusion survives: the failing case only appears when the network is gone.'
+  :(hasSW?'Offline with a service worker: <b>'+ASSETS+'</b> of '+ASSETS+' assets served from its cache.'
+        :('Offline without a service worker: <b>0</b> of '+ASSETS+' assets. '+(hasMan?'The manifest is present and contributes nothing here &mdash; it describes the app, it does not store it.':'Nothing installed, nothing cached.')));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+16,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var corners=[[0,0,'no manifest, no SW'],[1,0,'manifest only'],[0,1,'SW only'],[1,1,'both']];
+ corners.forEach(function(c2){
+  var x=(c2[0]-0.5)*140,z=(c2[1]-0.5)*140;
+  var offl=loads(c2[0]===1,c2[1]===1,false);
+  var p=P(x,0,z);
+  var top=P(x,offl?-70:-14,z);
+  ne(g,offl?'#7de2b0':'#ff5a8a',1.6);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(top[0],top[1]);g.stroke();ng(g);
+  ndot(g,top[0],top[1],5,offl?'#7de2b0':'#ff5a8a');
+  nt(g,'#8a7ab8',p[0]-30,p[1]+16,8,c2[2]);});
+ ne(g,'rgba(150,110,230,0.35)',1);
+ var g0=P(-70,0,-70),g1=P(70,0,-70),g2=P(70,0,70),g3=P(-70,0,70);
+ g.beginPath();g.moveTo(g0[0],g0[1]);g.lineTo(g1[0],g1[1]);g.lineTo(g2[0],g2[1]);g.lineTo(g3[0],g3[1]);g.closePath();g.stroke();ng(g);
+ nt(g,'#e6dcff',14,24,11,'two independent axes');
+ nt(g,'#7de2b0',14,42,10,'height = works offline');
+ nt(g,'#ff5a8a',14,58,10,'the manifest axis does not lift anything');
+ nt(g,'#8a7ab8',14,H-12,9,'the informative configurations are the ones the world rarely supplies');}
+document.getElementById('mfman').onclick=function(){hasMan=!hasMan;drawW4();};
+document.getElementById('mfsw').onclick=function(){hasSW=!hasSW;drawW4();};
+document.getElementById('mfnet').onclick=function(){online=!online;drawW4();};
+document.getElementById('mfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__manifest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRED_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">claimlink states its limit before its features: <i>this tool does not read prose and decide what it means. A human writes each claim down beside an executable predicate, and claimlink runs the predicate and reports. What it automates is the <b>re-running</b>, not the judgement.</i> That splits total error cleanly in two. <b>Predicate error</b> is the human&rsquo;s &mdash; the predicate does not capture what the sentence actually claims. <b>Staleness error</b> is the machine&rsquo;s &mdash; the claim broke and nobody has looked since. Running more often drives the second toward zero and leaves the first exactly where it was.<br><br>
+ <span class="lit">LIT</span> verified live: with an 8% predicate error and a 0.4% per-commit invalidation rate, re-running at cadence k gives predicate <b>7.8%</b> + stale <b>0.2%</b> at k=1, rising to predicate 8.1% + stale <b>56.9%</b> at k=1000; staleness rises as the cadence loosens while predicate error <b>does not move at all</b>; re-running on every commit drives staleness to <b>0.17%</b> of elapsed time, leaving <b>7.9%</b> total &mdash; the predicate error and nothing else; and total error <b>never falls below</b> the predicate error at any cadence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put the limitation first in the docstring, which is a choice with consequences &mdash; it makes the tool harder to oversell, including by its own author. Seated at <i>THE PHOENIX</i>: re-running revives the claim&rsquo;s <i>freshness</i>, over and over, and never once touches whether the predicate was right.<br><br>
+ <b>AVAN (AI)</b> measured the decomposition rather than asserting it, and the useful number is the <b>floor</b>. At every cadence tested, total error is at least the predicate error; the two components do not trade against each other, so no amount of automation substitutes for the judgement that went into writing the predicate. That is the honest ceiling on what this class of tool can do, and it is worth knowing before adopting one: a claim checker cannot make claims true, and cannot even make them <i>checked</i> in the sense people usually mean. It can only guarantee that whatever check a human already wrote has been run recently. Which is a real and unglamorous thing to guarantee, and it is exactly what the docstring says it is.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Total error, split. One half responds to cadence. The other is flat.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the cadence up as far as you like and watch where it stops helping.</div>
+   <div class="btns" style="margin-top:10px"><button id="prup">looser cadence</button><button id="prdn">tighter cadence</button><button id="prq">predicate quality</button></div>
+   <div class="cap" id="prout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two error surfaces, only one of them tilted.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;automation has a floor.&rdquo; The inverse is that the floor is <b>where the tool puts the human back</b>, deliberately and in a named place. A system that hid the predicate &mdash; that read the prose and decided for itself &mdash; would not have a lower error, it would have an <i>unlocatable</i> one, distributed through a model nobody can point at. Writing the predicate by hand keeps the judgement <b>in a file, with a line number, arguable</b>. Read backwards, the honest limit is not a shortcoming of the design; it is the design, and the 7.9% floor is legible precisely because somebody chose to leave it visible.</div>
+   <div class="btns" style="margin-top:10px"><button id="prsp">pause spin</button></div></div></div></div>"""
+PRED_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cad=10,qi=1;
+var QS=[0.02,0.08,0.20];
+var PP=0.004;
+function prRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function measure(cadence,predErr,N){
+ var rng=prRnd(9090+cadence),pw=0,staleSteps=0,totSteps=0,C=500;
+ for(var t=0;t<N;t++){
+  if(rng()<predErr)pw++;
+  var broke=-1;
+  for(var c=0;c<C;c++)if(rng()<PP){broke=c;break;}
+  totSteps+=C;
+  if(broke>=0){
+   var det=Math.ceil((broke+1)/cadence)*cadence;
+   if(det>C)det=C;
+   staleSteps+=Math.max(0,det-broke);}}
+ var stale=staleSteps/totSteps*100,pe=pw/N*100;
+ return {predicate:pe,stale:stale,total:pe+stale};}
+function selftest(){
+ var rows=[1,10,50,200,1000].map(function(k){
+  var m=measure(k,0.08,30000);
+  return [k,m.predicate,m.stale,m.total];});
+ var staleRises=true;
+ for(var i=1;i<rows.length;i++)if(rows[i][2]<rows[i-1][2])staleRises=false;
+ var flat=true;
+ for(var i=1;i<rows.length;i++)if(Math.abs(rows[i][1]-rows[0][1])>1.2)flat=false;
+ var floorHolds=rows.every(function(r){return r[3]>=r[1]-0.5;});
+ return {predicateError:8,invalidationRate:PP*100,runs:30000,commits:500,
+  rows:rows,stalenessRisesWithCadence:staleRises,predicateErrorFlat:flat,
+  stalenessAtCadence1:rows[0][2],totalAtCadence1:rows[0][3],
+  totalNeverBelowPredicate:floorHolds,
+  ok:staleRises&&flat&&floorHolds&&rows[0][2]<0.6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TOTAL ERROR, SPLIT  \\u2014  only one half moves');
+ var rows=VR.rows,ox=74,bw=54,gap=26,base=228,mx=70;
+ rows.forEach(function(r,i){
+  var x=ox+i*(bw+gap);
+  var hp=170*Math.min(r[1],mx)/mx,hs=170*Math.min(r[2],mx)/mx;
+  nf(g,'rgba(125,226,176,0.55)');g.fillRect(x,base-hp,bw,hp);ng(g);
+  nf(g,'rgba(255,90,138,0.7)');g.fillRect(x,base-hp-hs,bw,hs);ng(g);
+  nt(g,'#e6dcff',x+2,base-hp-hs-8,9,r[3].toFixed(1)+'%');
+  nt(g,'#8a7ab8',x+8,base+16,9,'k='+r[0]);});
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(ox-12,base);g.lineTo(W-16,base);g.stroke();ng(g);
+ var yf=base-170*VR.rows[0][1]/mx;
+ ne(g,'#ffd76a',1.3);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(ox-12,yf);g.lineTo(W-16,yf);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',ox-12,yf-6,9,'the floor: predicate error, '+VR.rows[0][1].toFixed(1)+'%');
+ nt(g,'#7de2b0',20,262,10,'green = predicate error (the human)');
+ nt(g,'#ff5a8a',260,262,10,'pink = staleness (the machine)');
+ nt(g,'#8a7ab8',20,280,9,'no cadence anywhere on this chart pushes the total below the dashed line');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var q=QS[qi%QS.length];
+ var m=measure(cad,q,6000);
+ nt(g,'#e6dcff',16,26,11,'cadence '+cad+'   \\u00b7   predicate error '+(q*100).toFixed(0)+'%');
+ var ox=30,pw=W-60,top=64,bh=30;
+ var hp=pw*Math.min(m.predicate,70)/70,hs=pw*Math.min(m.stale,70)/70;
+ nf(g,'rgba(125,226,176,0.6)');g.fillRect(ox,top,hp,bh);ng(g);
+ nf(g,'rgba(255,90,138,0.75)');g.fillRect(ox+hp,top,hs,bh);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(ox+0.5,top+0.5,pw,bh);ng(g);
+ nt(g,'#7de2b0',ox,top+bh+18,10,'predicate  '+m.predicate.toFixed(1)+'%');
+ nt(g,'#ff5a8a',ox,top+bh+36,10,'staleness  '+m.stale.toFixed(1)+'%');
+ nt(g,'#e6dcff',ox,top+bh+58,12,'total  '+m.total.toFixed(1)+'%');
+ var yf=top+bh+80;
+ nf(g,'rgba(255,215,106,0.12)');g.fillRect(20,yf,W-40,62);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(20.5,yf+0.5,W-41,62);ng(g);
+ nt(g,'#ffd76a',34,yf+24,10,'floor at this predicate quality: '+m.predicate.toFixed(1)+'%');
+ nt(g,'#8a7ab8',34,yf+44,9,'cadence 1 would still leave this much');
+ var y2=yf+78;
+ nt(g,'#8a7ab8',20,y2,9,'tighter cadence lowers the pink and never the green');
+ nt(g,'#8a7ab8',20,y2+16,9,'a better predicate is the only thing that moves the floor');
+ var o=document.getElementById('prout');
+ if(o)o.innerHTML='At cadence <b>'+cad+'</b> with an <b>'+(q*100).toFixed(0)+'%</b> predicate error, total error is <b>'+m.total.toFixed(1)+'%</b> = predicate '+m.predicate.toFixed(1)+'% + staleness '+m.stale.toFixed(1)+'%. Tighten the cadence all the way to 1 and the total still cannot go below <b>'+m.predicate.toFixed(1)+'%</b> &mdash; that half is not a function of how often you look.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+28,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.7-zr*0.3,zr];}
+ // flat surface: predicate error
+ ne(g,'#7de2b0',1.2);
+ for(var i=0;i<=5;i++){
+  g.beginPath();
+  for(var j=0;j<=5;j++){var p=P(-100+i*40,26,-100+j*40);
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();
+  g.beginPath();
+  for(var j=0;j<=5;j++){var p=P(-100+j*40,26,-100+i*40);
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ // tilted surface: staleness rises with cadence
+ ne(g,'#ff5a8a',1.2);
+ for(var i=0;i<=5;i++){
+  g.beginPath();
+  for(var j=0;j<=5;j++){var p=P(-100+i*40,-58+j*26,-100+j*40);
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ for(var j=0;j<=5;j++){
+  g.beginPath();
+  for(var i=0;i<=5;i++){var p=P(-100+i*40,-58+j*26,-100+j*40);
+   if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ nt(g,'#7de2b0',14,24,11,'flat: predicate error');
+ nt(g,'#ff5a8a',14,42,10,'tilted: staleness, falling with cadence');
+ nt(g,'#8a7ab8',14,58,10,'the flat one is the floor, and it is where the human is');
+ nt(g,'#8a7ab8',14,H-12,9,'a hidden judgement would not be smaller, only unlocatable');}
+document.getElementById('prup').onclick=function(){cad=Math.min(1000,cad*5);drawW4();};
+document.getElementById('prdn').onclick=function(){cad=Math.max(1,Math.round(cad/5));drawW4();};
+document.getElementById('prq').onclick=function(){qi++;drawW4();};
+document.getElementById('prsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__predicate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 209 · neon-noir · silicon-coding · WHEN THE RULE ITSELF IS THE PROBLEM (a preference no probability can hold · two valid rules, opposite answers · a proof that stops borrowing · an infinity settled by a finite piece of itself · a shape kept by its corners) ═══════════════════════
 ELSB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">An urn holds 90 balls: exactly <b>30 red</b>, and 60 that are black or yellow in a split <b>nobody tells you</b>. Bet A wins on red, B wins on black &mdash; most people take A. Bet C wins on red-or-yellow, D wins on black-or-yellow &mdash; most people take D. Both choices feel obvious, and <b>no probability whatever you assign to black can make both of them rational</b>. Preferring A means believing black is rarer than 30; preferring D means believing it is commoner. Ellsberg&rsquo;s point was not that people are bad at arithmetic. It is that they are <b>declining to bet on a number nobody has given them</b>, and that this is not irrational so much as outside the theory.<br><br>
@@ -62260,6 +62932,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-claimlink","title":"THE CLAIMLINK","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#5ad6ff","icon":"\u2687",
+  "kicker":"a verdict that admits it cannot tell",
+  "blurb":"seamgate checks whether published numbers came from the repo. claimlink checks whether published sentences survive it \u2014 and refuses to answer where no code-shaped evidence exists.",
+  "lit":"over 20,000 claims of which 25% cannot be settled by reading code, a checker forced to answer SUPPORTED or REFUTED makes an unfounded assertion on 24.9% of its output \u2014 exactly the undecidable fraction, and no improvement to its predicates lowers it; the four-valued checker is wrong on zero of the claims it does answer; it asserts 15,016 times against the binary checker's 20,000; and on a real claim table the third bucket is 38% of it (3 of 8), so a two-verdict linker would have silently invented 3 answers",
+  "fig":"The measurable version of David's line is sharper than the slogan: the unfounded-assertion rate of a binary checker EQUALS the undecidable fraction exactly. It is not an accuracy problem and cannot be engineered away, because those claims have no code-shaped evidence in either direction. Better predicates move nothing; the only lever is the verdict set \u2014 a rare shape for a quality problem, since grinding at it is precisely what does not work.",
+  "body":CLNK_BODY,"script":CLNK_SCRIPT},
+ {"slug":"the-reachability-gap","title":"THE REACHABILITY GAP","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffd76a","icon":"\u21b1",
+  "kicker":"true of the shipped app, false of the repository",
+  "blurb":"A grep finds the call. The module is imported by nothing. Both facts are true, of different objects \u2014 and reporting only one of them is a choice somebody made without saying so.",
+  "lit":"of 140 modules, 90 are reachable from the entrypoint and 50 are imported by nothing; a grep finds 29 sites of a flagged call but only 19 can run, leaving 10 that exist and never execute; a second reachability walk written independently agrees with the first on all 140 modules; and the SUPPORTED* case is exhibited concretely \u2014 a flagged call present at 4 sites, none of them reachable",
+  "fig":"What is verified is STATIC IMPORT reachability, which is not the same as execution. A module can be imported and never called, or reached only through a dynamic import a static walk cannot see \u2014 so the grep-versus-reachable gap is a LOWER BOUND on the discrepancy, not the whole of it. The reachability walk was written twice, independently, because a single implementation proving itself is worth very little here.",
+  "body":RCHG_BODY,"script":RCHG_SCRIPT},
+ {"slug":"the-decay","title":"THE DECAY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u2307",
+  "kicker":"how a true sentence becomes a false one",
+  "blurb":"Nobody writes a false claim about their own project. They write a true one and the project moves. Re-checking does not slow the decay \u2014 it bounds how long the claim sits silently false.",
+  "lit":"at a 0.4% per-commit invalidation rate, survival runs 67.0% at 100 commits, 36.7% at 250, 13.5% at 500 and 0.0330% at 2,000, with a half-life of 173 commits; a 40,000-run simulation returns 13.5% against the closed form's 13.5%; the undetected window shrinks with cadence \u2014 k=1: 1.0 commits, k=10: 5.5, k=50: 25.5, k=200: 100.5; and the fraction of time a claim sits silently false runs 0.40%, 2.20%, 10.20%, 40.20%",
+  "fig":"Cadence and decay are INDEPENDENT and the separation is the useful part. The claim breaks at a rate set by how fast the project moves; checking more often does not make a sentence more durable. What changes is the silent interval \u2014 0.40% of elapsed time at k=1 against 40.20% at k=200, a hundredfold difference in exposure with an identical decay rate underneath. A tool sold as making documentation reliable is selling the wrong half.",
+  "body":DECY_BODY,"script":DECY_SCRIPT},
+ {"slug":"the-manifest","title":"THE MANIFEST","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#7de2b0","icon":"\u25f1",
+  "kicker":"installable is not offline",
+  "blurb":"A manifest grants installability. A service worker grants offline. Without one there is no cache, so a second visit with no network has nothing to load from \u2014 and the claim confuses the two.",
+  "lit":"across the exhaustive four-row table of {manifest, service worker}, every configuration loads online; a manifest with no service worker fails offline while a service worker with no manifest succeeds; so 'manifest therefore offline' is false on the table while 'service worker therefore offline' holds; a manifest is neither necessary nor sufficient for offline capability, with both directions failing; and a cold second visit with no network serves 100% of 42 assets from a service-worker cache against 0% without one",
+  "fig":"The shape of the error recurs far outside web apps: two capabilities ship together often enough that the correlation gets read as an implication, and the claim survives on CO-OCCURRENCE rather than mechanism. The exhaustive table is worth the effort precisely because it breaks the correlation apart \u2014 the two off-diagonal rows settle it. This checks capability LOGIC; it does not test any real browser, and live-engine behaviour is not something these predicates could establish.",
+  "body":MNFS_BODY,"script":MNFS_SCRIPT},
+ {"slug":"the-predicate","title":"THE PREDICATE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#b98cff","icon":"\u2261",
+  "kicker":"what it automates is the re-running, not the judgement",
+  "blurb":"Total error splits in two: the human's predicate error and the machine's staleness error. Running more often drives one to zero and leaves the other exactly where it was.",
+  "lit":"with an 8% predicate error and a 0.4% per-commit invalidation rate, re-running at cadence k gives predicate 7.8% + stale 0.2% at k=1, rising to predicate 8.1% + stale 56.9% at k=1000; staleness rises as the cadence loosens while predicate error does not move at all; re-running on every commit drives staleness to 0.17% of elapsed time, leaving 7.9% total \u2014 the predicate error and nothing else; and total error never falls below the predicate error at any cadence",
+  "fig":"The useful number is the FLOOR. At every cadence tested, total error is at least the predicate error; the two components do not trade against each other, so no amount of automation substitutes for the judgement that wrote the predicate. That is the honest ceiling on this class of tool: it cannot make claims true, and cannot even make them checked in the sense people usually mean \u2014 only guarantee that whatever check a human already wrote has been run recently.",
+  "body":PRED_BODY,"script":PRED_SCRIPT},
  {"slug":"the-ellsberg","title":"THE ELLSBERG","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u25d4",
   "kicker":"a preference no probability can hold",
