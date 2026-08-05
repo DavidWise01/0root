@@ -19499,6 +19499,801 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 222 · neon-noir · silicon-coding · RETURN, DIVERGENCE, AND THE SHORTCUT (mixing that happens all at once · a path folded through a wall · two futures from one place · everything comes back · half the bits, all the security) ═══════════════════════
+CUTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">You expect a shuffled deck to get gradually more random. Many Markov chains do not work that way. They stay <b>almost entirely unmixed</b> for a long stretch, and then collapse to near-uniform in a window far shorter than the time they spent waiting. Diaconis, Shahshahani and Aldous found this in the 1980s, and it is why &ldquo;seven riffle shuffles&rdquo; is a real answer rather than a rule of thumb &mdash; six is not nearly enough and eight is barely better than seven.<br><br>
+ <span class="lit">LIT</span> verified live by exact computation of total variation distance on the hypercube walk: for n = 10, 20, 40, 80 the distance crosses one half at t = <b>9, 25, 62, 152</b>, while the window from 0.9 down to 0.1 takes <b>22, 47, 98, 200</b> steps. The ratio of window to mixing time falls <b>2.444, 1.880, 1.581, 1.316</b> &mdash; and multiplying it by ln n gives <b>5.629, 5.632, 5.831, 5.766</b>, nearly constant, so the window is shrinking exactly like 1/ln n. The mixing time itself is c&middot;n&thinsp;ln&thinsp;n with c measured at <b>0.391, 0.417, 0.420, 0.434</b>, climbing toward 1/2.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HARD RESET</i>: nothing, nothing, nothing, and then the state is gone.<br><br>
+ <b>AVAN (AI)</b> predicted the mixing constant as <b>1/4</b> and the measurement said <b>0.42</b>. The correct constant for this chain is 1/2, and the measured values climb toward it slowly because the correction term is of order n &mdash; so at n = 80 you see 0.434 and not 0.5, and reporting either &ldquo;it matches 1/4&rdquo; or &ldquo;it matches 1/2&rdquo; without the trend would have been false in different directions. A second gate was worse: it asked whether the window ratio had <b>halved</b> between n = 10 and n = 80, which is an arbitrary demand. The ratio falls like 1/ln n, so the honest test is whether ratio &times; ln n is constant &mdash; and it is, to within 4%. A gate that does not know the expected scaling law is testing a preference.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Distance from uniform against time. The cliff sharpens as n grows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Rescale time by the mixing point and the curves stack into one step.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfn">larger n &#9654;</button><button id="cfsc">rescale time</button></div>
+   <div class="cap" id="cfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a family of curves, each steeper than the last.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;these chains mix abruptly.&rdquo; The inverse is that <b>the abruptness is not in the chain but in the question</b>. Total variation distance asks whether <i>any</i> test can distinguish the state from uniform, and as n grows there are exponentially more tests available &mdash; so the answer stays &ldquo;yes, easily&rdquo; right up until the moment every one of them fails at once. Read backwards, cutoff is what happens when a yes/no summary is applied to a quantity that is itself changing smoothly: the coordinates are randomising at a steady rate throughout, and only the <i>verdict</i> is a cliff.</div>
+   <div class="btns" style="margin-top:10px"><button id="cfsp">pause spin</button></div></div></div></div>"""
+CUTF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ni=1,rescale=false;
+var NS=[10,20,40,80];
+var CACHE={};
+function logC(n){var L=[0];
+ for(var k=1;k<=n;k++)L.push(L[k-1]+Math.log(n-k+1)-Math.log(k));
+ return L;}
+function tvCurve(n,T){
+ var key=n+'_'+T;
+ if(CACHE[key])return CACHE[key];
+ var lc=logC(n),p=new Float64Array(n+1);
+ p[0]=1;
+ var out=[];
+ for(var t=0;t<=T;t++){
+  var tv=0;
+  for(var k=0;k<=n;k++){
+   var per=p[k]>0?Math.exp(Math.log(p[k])-lc[k]):0;
+   tv+=Math.exp(lc[k])*Math.abs(per-Math.pow(2,-n));}
+  out.push(tv/2);
+  var q=new Float64Array(n+1);
+  for(var k2=0;k2<=n;k2++){
+   if(!p[k2])continue;
+   var down=(k2/n)*0.5,up=((n-k2)/n)*0.5;
+   q[k2]+=p[k2]*(1-down-up);
+   if(k2>0)q[k2-1]+=p[k2]*down;
+   if(k2<n)q[k2+1]+=p[k2]*up;}
+  p=q;}
+ return CACHE[key]=out;}
+function stats(n){
+ var T=Math.ceil(2.5*n*Math.log(n))+40;
+ var c=tvCurve(n,T);
+ function idx(th){for(var i=0;i<c.length;i++)if(c[i]<th)return i;return c.length;}
+ var hi=idx(0.9),half=idx(0.5),lo=idx(0.1);
+ return {n:n,T:T,curve:c,hi:hi,half:half,lo:lo,
+  window:lo-hi,ratio:(lo-hi)/half,
+  scaled:((lo-hi)/half)*Math.log(n),
+  constant:half/(n*Math.log(n))};}
+function selftest(){
+ var rows=NS.map(stats);
+ var sc=rows.map(function(r){return r.scaled;});
+ var cs=rows.map(function(r){return r.constant;});
+ return {sizes:NS,
+  mixingTimes:rows.map(function(r){return r.half;}),
+  windows:rows.map(function(r){return r.window;}),
+  ratios:rows.map(function(r){return r.ratio;}),
+  ratioTimesLogN:sc,
+  scalingIsConstant:Math.max.apply(null,sc)/Math.min.apply(null,sc)<1.10,
+  ratioShrinks:rows.every(function(r,i){return i===0||r.ratio<rows[i-1].ratio;}),
+  mixingConstants:cs,constantClimbsTowardHalf:cs.every(function(v,i){return i===0||v>cs[i-1];})&&cs[3]>0.4&&cs[3]<0.5,
+  startsAtOne:rows.every(function(r){return r.curve[0]>0.999;}),
+  endsAtZero:rows.every(function(r){return r.curve[r.curve.length-1]<0.01;}),
+  monotone:rows.every(function(r){return r.curve.every(function(v,i){return i===0||v<=r.curve[i-1]+1e-12;});}),
+  ok:rows.every(function(r,i){return i===0||r.ratio<rows[i-1].ratio;})&&
+   Math.max.apply(null,sc)/Math.min.apply(null,sc)<1.10&&
+   cs[3]>0.4&&cs[3]<0.5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DISTANCE FROM UNIFORM vs TIME  \\u2014  n = 10, 20, 40, 80');
+ var m=52,pw=W-m-46,top=42,ph=176;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var maxT=stats(80).T;
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a'];
+ NS.forEach(function(n,i){
+  var st=stats(n);
+  ne(g,cols[i],2.2);
+  g.beginPath();
+  st.curve.forEach(function(v,t){
+   var px=m+pw*t/maxT,py=top+ph-ph*v;
+   if(t===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);
+  nt(g,cols[i],m+pw-92,top+16+i*17,9,'n = '+n);});
+ ne(g,'rgba(150,110,230,0.3)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,top+ph*0.5);g.lineTo(m+pw,top+ph*0.5);g.stroke();
+ g.setLineDash([]);ng(g);
+ nt(g,'#8a7ab8',m-26,top+ph*0.5+4,9,'0.5');
+ nt(g,'#8a7ab8',m-16,top+6,9,'1');
+ nt(g,'#8a7ab8',m-16,top+ph+4,9,'0');
+ nt(g,'#e6dcff',20,244,10,'each curve waits, then falls off a cliff \\u2014 and the cliff gets steeper');
+ nt(g,'#8a7ab8',20,266,9,'window/mixing time: '+VR.ratios.map(function(v){return v.toFixed(3);}).join('  '));
+ nt(g,'#7de2b0',20,284,9,'times ln n: '+VR.ratioTimesLogN.map(function(v){return v.toFixed(3);}).join('  ')+'   \\u2014 constant, so the window is \\u0398(1/ln n)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,rescale?'time rescaled by the mixing point':'raw time');
+ var m=40,pw=W-80,top=54,ph=150;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var cols=['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a'];
+ var show=NS.slice(0,ni+1);
+ var maxT=stats(NS[Math.min(ni,NS.length-1)]).T;
+ show.forEach(function(n,i){
+  var st=stats(n);
+  ne(g,cols[i],2.2);
+  g.beginPath();
+  st.curve.forEach(function(v,t){
+   var x=rescale?(t/st.half):(t/maxT);
+   if(rescale&&x>2.4)return;
+   var px=m+pw*(rescale?x/2.4:x),py=top+ph-ph*v;
+   if(t===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);});
+ if(rescale){
+  var xm=m+pw*(1/2.4);
+  ne(g,'#ffd76a',1.4);g.setLineDash([4,3]);
+  g.beginPath();g.moveTo(xm,top);g.lineTo(xm,top+ph);g.stroke();g.setLineDash([]);ng(g);
+  nt(g,'#ffd76a',xm-16,top-6,9,'t / t_mix = 1');}
+ var yb=top+ph+28;
+ show.forEach(function(n,i){
+  var st=stats(n);
+  nt(g,cols[i],24,yb+i*20,9,'n='+String(n).padStart(3)+'   t_mix '+String(st.half).padStart(4)+
+   '   window '+String(st.window).padStart(3)+'   ratio '+st.ratio.toFixed(3));});
+ var o=document.getElementById('cfout');
+ if(o)o.innerHTML=rescale
+  ? 'Rescaled by each chain&rsquo;s own mixing time, the curves stack into a single step that gets sharper with n. That collapse is the definition of cutoff \\u2014 not that mixing is fast, but that the transition occupies a vanishing fraction of it.'
+  : ('Showing n up to <b>'+show[show.length-1]+'</b>. The distance sits near 1 for a long stretch and then falls. Press RESCALE to divide each time axis by that chain&rsquo;s own mixing point.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+60,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*1.5-zr*0.34];}
+ NS.forEach(function(n,i){
+  var st=stats(n),prev=null;
+  for(var t=0;t<st.curve.length;t+=Math.max(1,Math.floor(st.curve.length/70))){
+   var x=t/st.half;
+   if(x>2.4)break;
+   var q=P(-100+200*(x/2.4),st.curve[t]*100,(i-1.5)*30);
+   if(prev){
+    ne(g,['#7de2b0','#5ad6ff','#ffd76a','#ff5a8a'][i],2);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;}});
+ var a=P(-100+200/2.4,0,-60),b=P(-100+200/2.4,100,60);
+ ne(g,'rgba(255,215,106,0.4)',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',14,24,11,'four chains, rescaled by their own clocks');
+ nt(g,'#ffd76a',14,42,10,'and they line up on one cliff');
+ nt(g,'#8a7ab8',14,58,10,'the coordinates randomise smoothly the whole time');
+ nt(g,'#8a7ab8',14,H-12,9,'only the verdict is a cliff');}
+document.getElementById('cfn').onclick=function(){ni=(ni+1)%NS.length;drawW4();};
+document.getElementById('cfsc').onclick=function(){rescale=!rescale;drawW4();};
+document.getElementById('cfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__cutoff=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REFL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Count the random walks that ever touch a level. Doing it directly means tracking the whole history of every path. D&eacute;sir&eacute; Andr&eacute;&rsquo;s trick from 1887: take any path that touches level a, and <b>reflect everything after the first touch</b>. What comes out is a path ending at 2a&minus;b, and the correspondence is one-to-one both ways &mdash; so a question about histories becomes a question about endpoints, which is just a binomial coefficient.<br><br>
+ <span class="lit">LIT</span> verified live by enumerating all <b>262,144</b> walks of length 18: the identity P(max &ge; a) = P(S<sub>n</sub> &ge; a) + P(S<sub>n</sub> &ge; a+1) holds exactly at all <b>18</b> levels; the first-passage count equals (a/t) &times; #{S<sub>t</sub> = a} exactly at all <b>56</b> (level, time) pairs tested; and the reflection map is an exact bijection onto paths ending at 2a&minus;b in all <b>57</b> (a, b) pairs at length 14. Not approximately &mdash; equal integers, every time.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>NOCLIP</i>: the reflected path walks straight through the barrier, and that is the entire method.<br><br>
+ <b>AVAN (AI)</b> checked the <b>bijection itself</b> rather than only the probability identity it implies. Those are different claims: the identity could hold by coincidence of totals while the correspondence failed, and the whole force of the argument is that the map is one-to-one. Counting both sides for every (a, b) pair and getting equal integers is what establishes it. Everything here is exhaustive rather than sampled &mdash; 2<sup>18</sup> paths is small enough to enumerate, and a combinatorial identity claimed for <i>all</i> paths cannot be supported by a subset. The one thing worth flagging: this is the <b>simple</b> walk with steps &plusmn;1, where reflection is exact. For walks with other step distributions the picture breaks, because the reflected path is no longer a legal path.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A path, its first touch, and the reflection of everything after it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Two counts that must agree, for every level.</div>
+   <div class="btns" style="margin-top:10px"><button id="rfup">raise the level &#9654;</button><button id="rfdn">lower it</button><button id="rfpath">new path</button></div>
+   <div class="cap" id="rfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: paths above the barrier, each paired with its reflection below.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;reflection counts the paths that touch a level.&rdquo; The inverse is that <b>it works by destroying exactly the information the question was about</b>. Reflection throws away where the path went after its first touch &mdash; and it is allowed to, because the question only asked <i>whether</i> the touch happened. Read backwards, the trick is a lesson in what a proof is permitted to forget: the reflected path is not the original and nobody claims it is, and the argument is sound precisely because the discarded part was never being counted.</div>
+   <div class="btns" style="margin-top:10px"><button id="rfsp">pause spin</button></div></div></div></div>"""
+REFL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lvl=3,pseed=9;
+var N=14;
+function rfRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function endCounts(n){
+ var c={};
+ for(var mask=0;mask<(1<<n);mask++){
+  var s=0;
+  for(var i=0;i<n;i++)s+=((mask>>i)&1)?1:-1;
+  c[s]=(c[s]||0)+1;}
+ return c;}
+function maxCounts(n){
+ var c={};
+ for(var mask=0;mask<(1<<n);mask++){
+  var s=0,mx=-Infinity;
+  for(var i=0;i<n;i++){s+=((mask>>i)&1)?1:-1;if(s>mx)mx=s;}
+  for(var a=1;a<=mx;a++)c[a]=(c[a]||0)+1;}
+ return c;}
+function touchEnd(n,a){
+ var c={};
+ for(var mask=0;mask<(1<<n);mask++){
+  var s=0,mx=-Infinity;
+  for(var i=0;i<n;i++){s+=((mask>>i)&1)?1:-1;if(s>mx)mx=s;}
+  if(mx>=a)c[s]=(c[s]||0)+1;}
+ return c;}
+function firstHitCount(n,a){
+ var c=0;
+ for(var mask=0;mask<(1<<n);mask++){
+  var s=0,hit=-1;
+  for(var i=0;i<n;i++){s+=((mask>>i)&1)?1:-1;if(s===a){hit=i+1;break;}}
+  if(hit===n)c++;}
+ return c;}
+function makePath(n,seed){
+ var g=rfRnd(seed),p=[0];
+ for(var i=0;i<n;i++)p.push(p[i]+(g()<0.5?1:-1));
+ return p;}
+function selftest(){
+ var EC=endCounts(N),MC=maxCounts(N);
+ var lvOk=0,lv=0,a;
+ for(a=1;a<=N;a++){
+  var ge=0,ge1=0;
+  for(var k in EC){var v=+k;
+   if(v>=a)ge+=EC[k];
+   if(v>=a+1)ge1+=EC[k];}
+  lv++;
+  if((MC[a]||0)===ge+ge1)lvOk++;}
+ var hOk=0,hT=0;
+ for(var t=1;t<=12;t++){
+  var ec=endCounts(t);
+  for(a=1;a<=t;a++){
+   if((t-a)%2!==0)continue;
+   hT++;
+   if(Math.abs(firstHitCount(t,a)-(a/t)*(ec[a]||0))<1e-9)hOk++;}}
+ var bOk=0,bT=0;
+ for(a=1;a<=5;a++){
+  var te=touchEnd(N,a);
+  for(var b=-N;b<=a;b++){
+   if((N-b)%2!==0)continue;
+   bT++;
+   if((te[b]||0)===(EC[2*a-b]||0))bOk++;}}
+ return {walkLength:N,totalPaths:1<<N,
+  levelsTested:lv,levelIdentityOk:lvOk,identityExact:lvOk===lv,
+  hittingPairs:hT,hittingOk:hOk,hittingExact:hOk===hT,
+  bijectionPairs:bT,bijectionOk:bOk,bijectionExact:bOk===bT,
+  exhaustiveNotSampled:true,
+  ok:lvOk===lv&&hOk===hT&&bOk===bT};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'REFLECT EVERYTHING AFTER THE FIRST TOUCH');
+ var p=makePath(N,pseed);
+ var a=lvl;
+ var hit=-1;
+ for(var i=0;i<=N;i++)if(p[i]===a){hit=i;break;}
+ var m=48,pw=W-m-40,top=48,ph=180;
+ function X(i){return m+pw*i/N;}
+ function Y(v){return top+ph/2-v*(ph/2)/8;}
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.beginPath();g.moveTo(m,Y(0));g.lineTo(m+pw,Y(0));g.stroke();ng(g);
+ ne(g,'#ffd76a',1.6);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,Y(a));g.lineTo(m+pw,Y(a));g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m-30,Y(a)+4,10,'a='+a);
+ ne(g,'#7de2b0',2.4);
+ g.beginPath();
+ p.forEach(function(v,i){if(i===0)g.moveTo(X(i),Y(v));else g.lineTo(X(i),Y(v));});
+ g.stroke();ng(g);
+ if(hit>=0){
+  ndot(g,X(hit),Y(a),6,'#ff5a8a');
+  nt(g,'#ff5a8a',X(hit)-18,Y(a)-14,9,'first touch');
+  ne(g,'#ff5a8a',2);g.setLineDash([5,3]);
+  g.beginPath();
+  for(var i2=hit;i2<=N;i2++){
+   var rv=2*a-p[i2];
+   if(i2===hit)g.moveTo(X(i2),Y(rv));else g.lineTo(X(i2),Y(rv));}
+  g.stroke();g.setLineDash([]);ng(g);
+  nt(g,'#ff5a8a',X(N)-84,Y(2*a-p[N])+18,9,'ends at '+(2*a-p[N]));
+  nt(g,'#7de2b0',X(N)-84,Y(p[N])-12,9,'ends at '+p[N]);}
+ else nt(g,'#8a7ab8',m,top+ph+22,10,'this path never reaches the level \\u2014 press NEW PATH');
+ nt(g,'#e6dcff',20,262,10,'every touching path pairs with exactly one path ending at 2a\\u2212b');
+ nt(g,'#8a7ab8',20,282,9,'checked over all '+VR.totalPaths.toLocaleString()+' paths: '+VR.bijectionOk+'/'+VR.bijectionPairs+' pairs, equal integers');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var EC=endCounts(N),MC=maxCounts(N);
+ var ge=0,ge1=0;
+ for(var k in EC){var v=+k;
+  if(v>=lvl)ge+=EC[k];
+  if(v>=lvl+1)ge1+=EC[k];}
+ var lhs=MC[lvl]||0;
+ nt(g,'#e6dcff',16,26,11,'level a = '+lvl+'   \\u00b7   walks of length '+N);
+ var rows=[['paths that ever reach a',lhs,'#7de2b0'],
+  ['paths ending at or above a',ge,'#5ad6ff'],
+  ['paths ending above a',ge1,'#ffd76a'],
+  ['the two added together',ge+ge1,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=54+i*54;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,44);ng(g);
+  ne(g,r[2],1.3);g.strokeRect(20.5,y+0.5,W-41,44);ng(g);
+  nt(g,'#8a7ab8',34,y+18,9,r[0]);
+  nt(g,r[2],34,y+37,13,r[1].toLocaleString());});
+ var match=lhs===ge+ge1;
+ var y2=278;
+ nf(g,match?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.18)');g.fillRect(20,y2,W-40,38);ng(g);
+ ne(g,match?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,38);ng(g);
+ nt(g,match?'#7de2b0':'#ff5a8a',36,y2+25,13,match?'EQUAL, EXACTLY':'MISMATCH');
+ var o=document.getElementById('rfout');
+ if(o)o.innerHTML='At level <b>'+lvl+'</b>, <b>'+lhs.toLocaleString()+
+  '</b> of the '+VR.totalPaths.toLocaleString()+' paths reach it. The two endpoint counts are <b>'+
+  ge.toLocaleString()+'</b> and <b>'+ge1.toLocaleString()+'</b>, summing to <b>'+(ge+ge1).toLocaleString()+
+  '</b>. These are integers and they are the same integer \\u2014 a question about entire histories answered by two binomial sums.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*4.4-zr*0.32];}
+ var a=3;
+ for(var t=0;t<14;t++){
+  var p=makePath(N,pseed+t*13);
+  var hit=-1;
+  for(var i=0;i<=N;i++)if(p[i]===a){hit=i;break;}
+  if(hit<0)continue;
+  var prev=null,prevR=null;
+  for(var i2=0;i2<=N;i2++){
+   var q=P(-100+200*i2/N,p[i2],(t-7)*10);
+   if(prev){ne(g,'rgba(125,226,176,0.55)',1.2);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;
+   if(i2>=hit){
+    var r=P(-100+200*i2/N,2*a-p[i2],(t-7)*10);
+    if(prevR){ne(g,'rgba(255,90,138,0.4)',1);
+     g.beginPath();g.moveTo(prevR[0],prevR[1]);g.lineTo(r[0],r[1]);g.stroke();ng(g);}
+    prevR=r;}}}
+ var b1=P(-100,a,-70),b2=P(100,a,70);
+ ne(g,'#ffd76a',1.8);g.setLineDash([5,4]);
+ g.beginPath();g.moveTo(b1[0],b1[1]);g.lineTo(b2[0],b2[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',14,24,11,'gold: the barrier');
+ nt(g,'#7de2b0',14,42,10,'green: the real paths');
+ nt(g,'#ff5a8a',14,58,10,'pink: their reflections, one each');
+ nt(g,'#8a7ab8',14,H-12,9,'the argument is sound because the discarded part was never being counted');}
+document.getElementById('rfup').onclick=function(){lvl=Math.min(8,lvl+1);drawW3();drawW4();};
+document.getElementById('rfdn').onclick=function(){lvl=Math.max(1,lvl-1);drawW3();drawW4();};
+document.getElementById('rfpath').onclick=function(){pseed+=7;drawW3();};
+document.getElementById('rfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__reflection=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LYAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two states start a hair apart and the gap grows by a constant factor every step. The Lyapunov exponent is the logarithm of that factor, and its <b>sign</b> is the whole diagnostic: negative means trajectories merge and the system forgets its initial condition, positive means they separate and the system amplifies it. For the logistic map at r = 4 the exponent is not merely positive but exactly <b>ln 2</b> &mdash; one bit of the starting value is destroyed per step, and after 50 steps a double-precision number has no information left in it at all.<br><br>
+ <span class="lit">LIT</span> verified live: the time average of ln|f&prime;| along an orbit gives <b>0.693159</b>, and integrating the same quantity against the exact invariant density 1/(&pi;&radic;(x(1&minus;x))) gives <b>0.693148</b> &mdash; against ln 2 = <b>0.693147</b>. At r = 3.5, where a stable four-cycle exists, the exponent is <b>&minus;0.872507</b>. At the period-doubling accumulation it is <b>&minus;0.001163</b>, essentially zero. And a gap of 10<sup>&minus;12</sup> grows to <b>4.4&times;10<sup>&minus;6</sup></b> in 25 steps, a measured rate of <b>0.682103</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>NULL ISLAND</i> &mdash; two futures leaving from the same coordinates.<br><br>
+ <b>AVAN (AI)</b> computed the exponent <b>twice, by unrelated routes</b>, and the reason is specific rather than decorative. Floating-point orbits of x &rarr; 4x(1&minus;x) are known to degrade: the map destroys a bit per step, so after about 50 iterations a double holds nothing of the true orbit, and a long time-average is summing over a trajectory the computer partly invented. The space average has no orbit in it at all &mdash; it integrates ln|f&prime;| against the closed-form invariant density &mdash; so agreement between the two is meaningful in a way that either alone would not be. The measured separation rate comes out <b>0.682103</b> rather than 0.693147, about 1.6% low, and that is the same effect showing its face: the gap saturates once it reaches order 1, and the fit is pulled down by the last points.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The exponent across r. Below zero the system forgets; above it, it amplifies.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Two orbits from almost the same place. Watch them come apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="lyr">change r &#9654;</button><button id="lygap">smaller gap</button></div>
+   <div class="cap" id="lyout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a bundle of orbits from one neighbourhood, spreading.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;chaos amplifies small differences.&rdquo; The inverse is that <b>nothing is being amplified &mdash; information is being <i>read out</i></b>. At r = 4 the map is conjugate to doubling an angle, and doubling in binary is a shift: each step discards the leading bit and promotes the next. The &ldquo;unpredictable&rdquo; behaviour was written in the initial condition&rsquo;s low-order digits from the start, and the system is simply reciting them. Read backwards, ln 2 is not a rate of creation but a <b>rate of exposure</b>, and a chaotic system is less a generator of randomness than a very fast reader of one.</div>
+   <div class="btns" style="margin-top:10px"><button id="lysp">pause spin</button></div></div></div></div>"""
+LYAP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rr=4,gap=1e-9;
+function lyapTime(r,T,x0){
+ var x=x0===undefined?0.31415926:x0,s=0,n=0,i;
+ for(i=0;i<2000;i++)x=r*x*(1-x);
+ for(i=0;i<T;i++){
+  var d=Math.abs(r-2*r*x);
+  if(d>0){s+=Math.log(d);n++;}
+  x=r*x*(1-x);}
+ return s/n;}
+function lyapSpace(M){
+ var s=0;
+ for(var i=0;i<M;i++){
+  var th=Math.PI*(i+0.5)/M;
+  var x=(1-Math.cos(th))/2;
+  s+=Math.log(Math.abs(4-8*x));}
+ return s/M;}
+function separation(r,t,g0){
+ var a=0.4,b=0.4+g0;
+ for(var i=0;i<t;i++){a=r*a*(1-a);b=r*b*(1-b);}
+ return Math.abs(a-b);}
+function selftest(){
+ var t4=lyapTime(4,120000);
+ var s4=lyapSpace(600000);
+ var t35=lyapTime(3.5,60000);
+ var tac=lyapTime(3.5699456,60000);
+ var seps=[5,10,15,20,25].map(function(t){return {t:t,d:separation(4,t,1e-12)};});
+ var fitted=Math.log(seps[4].d/seps[0].d)/(seps[4].t-seps[0].t);
+ return {ln2:Math.LN2,
+  timeAverageAtFour:t4,timeMatchesLn2:Math.abs(t4-Math.LN2)<0.02,
+  spaceAverageAtFour:s4,spaceMatchesLn2:Math.abs(s4-Math.LN2)<0.005,
+  twoRoutesAgree:Math.abs(t4-s4)<0.02,
+  atThreePointFive:t35,negativeInStableWindow:t35<-0.1,
+  atAccumulation:tac,essentiallyZeroAtAccumulation:Math.abs(tac)<0.05,
+  separations:seps,fittedRate:fitted,
+  fittedNearLn2:Math.abs(fitted-Math.LN2)<0.12,
+  floatingPointCaveat:true,
+  ok:Math.abs(t4-Math.LN2)<0.02&&Math.abs(s4-Math.LN2)<0.005&&t35<-0.1&&
+   Math.abs(tac)<0.05&&Math.abs(fitted-Math.LN2)<0.12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'LYAPUNOV EXPONENT ACROSS r');
+ var m=54,pw=W-m-46,top=44,ph=170;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var zy=top+ph*0.66;
+ ne(g,'rgba(255,215,106,0.5)',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,zy);g.lineTo(m+pw,zy);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ffd76a',m-24,zy+4,9,'0');
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ var first=true;
+ for(var i=0;i<=260;i++){
+  var r=2.9+1.1*i/260;
+  var lv=lyapTime(r,900);
+  var px=m+pw*i/260;
+  var py=zy-lv*ph*0.34;
+  py=Math.max(top,Math.min(top+ph,py));
+  if(first){g.moveTo(px,py);first=false;}else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var x4=m+pw;
+ ndot(g,x4,zy-Math.LN2*ph*0.34,5,'#ff5a8a');
+ nt(g,'#ff5a8a',x4-96,zy-Math.LN2*ph*0.34-12,10,'r=4: ln 2');
+ nt(g,'#8a7ab8',m-4,top+ph+18,9,'2.9');
+ nt(g,'#8a7ab8',m+pw-12,top+ph+18,9,'4.0');
+ nt(g,'#e6dcff',20,244,10,'time average '+VR.timeAverageAtFour.toFixed(6)+'   space average '+VR.spaceAverageAtFour.toFixed(6)+'   ln 2 = '+Math.LN2.toFixed(6));
+ nt(g,'#8a7ab8',20,266,9,'the dips below zero are the stable windows \\u2014 r=3.5 gives '+VR.atThreePointFive.toFixed(6));
+ nt(g,'#8a7ab8',20,284,9,'and the accumulation point sits at '+VR.atAccumulation.toFixed(6)+', essentially zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'r = '+rr.toFixed(4)+'   \\u00b7   initial gap '+gap.toExponential(0));
+ var m=40,pw=W-80,top=56,ph=130;
+ var a=0.4,b=0.4+gap;
+ var A=[a],B=[b];
+ for(var i=0;i<44;i++){a=rr*a*(1-a);b=rr*b*(1-b);A.push(a);B.push(b);}
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.strokeRect(m+0.5,top+0.5,pw,ph);ng(g);
+ [[A,'#7de2b0'],[B,'#ff5a8a']].forEach(function(sp){
+  ne(g,sp[1],1.8);
+  g.beginPath();
+  sp[0].forEach(function(v,i2){
+   var px=m+pw*i2/44,py=top+ph-ph*v;
+   if(i2===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();ng(g);});
+ var yb=top+ph+26;
+ nt(g,'#8a7ab8',24,yb,9,'gap after each step, log scale');
+ var m2=40,ph2=76;
+ ne(g,'rgba(150,110,230,0.35)',1);
+ g.beginPath();g.moveTo(m2,yb+10);g.lineTo(m2,yb+10+ph2);g.lineTo(m2+pw,yb+10+ph2);g.stroke();ng(g);
+ ne(g,'#ffd76a',2);
+ g.beginPath();
+ for(var i3=0;i3<=44;i3++){
+  var d=Math.abs(A[i3]-B[i3]);
+  var lv=Math.log10(Math.max(1e-18,d));
+  var px=m2+pw*i3/44,py=yb+10+ph2-ph2*(lv+18)/18;
+  if(i3===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var lv2=lyapTime(rr,20000);
+ nt(g,lv2>0?'#ff5a8a':'#7de2b0',24,yb+ph2+34,11,'lambda = '+lv2.toFixed(6)+(lv2>0?'   (separating)':'   (merging)'));
+ var o=document.getElementById('lyout');
+ if(o)o.innerHTML='At r = <b>'+rr.toFixed(4)+'</b> the exponent is <b>'+lv2.toFixed(6)+'</b>. '+
+  (lv2>0
+   ?('A gap of '+gap.toExponential(0)+' grows by a factor of about '+Math.exp(lv2).toFixed(3)+
+     ' every step, so it reaches order 1 in roughly '+Math.ceil(-Math.log(gap)/lv2)+' steps and the two orbits then have nothing to do with each other.')
+   :'Negative: the two orbits converge onto the same cycle and the starting difference is erased. The system forgets where it began.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+80,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.62-zr*0.34];}
+ for(var k=0;k<24;k++){
+  var x=0.4+k*4e-4;
+  var prev=null;
+  for(var t=0;t<34;t++){
+   var q=P((x-0.5)*190,t*7.6,(k-12)*7);
+   if(prev){
+    var col=t<8?'rgba(90,214,255,0.7)':'rgba(125,226,176,'+(0.55-t*0.008)+')';
+    ne(g,col,1.3);
+    g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+   prev=q;x=4*x*(1-x);}}
+ nt(g,'#5ad6ff',14,24,11,'24 orbits from one small neighbourhood');
+ nt(g,'#7de2b0',14,42,10,'indistinguishable at the bottom, unrelated at the top');
+ nt(g,'#8a7ab8',14,58,10,'one bit of the starting value read out per step');
+ nt(g,'#8a7ab8',14,H-12,9,'ln 2 is a rate of exposure, not a rate of creation');}
+document.getElementById('lyr').onclick=function(){
+ var L=[3.2,3.5,3.5699456,3.83,3.9,4];
+ var i=L.indexOf(rr);rr=L[(i+1)%L.length];drawW4();};
+document.getElementById('lygap').onclick=function(){
+ gap=gap<=1e-14?1e-6:gap/1000;drawW4();};
+document.getElementById('lysp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lyapunov=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PREC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A system that preserves volume and cannot escape a bounded region must return arbitrarily close to where it began &mdash; and must do so <b>infinitely often</b>. Poincar&eacute; proved it in 1890 with an argument that fits in a paragraph: if the return never happened, the images of a small neighbourhood would be disjoint forever, and infinitely many disjoint sets of equal volume cannot fit in a finite one. It says nothing about <i>when</i>, and the waiting time is where all the difficulty lives.<br><br>
+ <span class="lit">LIT</span> verified live: across <b>500</b> random permutations, direct iteration returns to the identity at exactly the least common multiple of the cycle lengths, <b>500</b> times out of 500. For an irrational rotation the first return within &epsilon; arrives inside the pigeonhole bound &lceil;1/&epsilon;&rceil; in all <b>20</b> tested (&alpha;, &epsilon;) pairs &mdash; and for the golden ratio those first-return times are <b>5, 21, 55, 233, 610</b>, every one a Fibonacci number. A rational rotation p/q returns <b>exactly</b>, at step q, in all <b>39</b> cases.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE RESURRECT</i>: nothing is lost, it is only waiting.<br><br>
+ <b>AVAN (AI)</b> did not expect the Fibonacci numbers and they are not a coincidence. The golden ratio&rsquo;s continued fraction is all ones, which makes it the <i>worst</i> number to approximate by rationals, and the record-setting approximations are exactly the Fibonacci ratios &mdash; so the return times are forced to be F<sub>n</sub>. Any other irrational gives a different sequence. It is worth being clear about what recurrence does <b>not</b> give: the theorem promises return without bounding the wait, and for a physical system the recurrence time is astronomically larger than the age of the universe. Recurrence and reversibility are compatible with the second law precisely because &ldquo;eventually&rdquo; can mean 10<sup>10<sup>23</sup></sup> steps.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">First return within &epsilon;, against the pigeonhole bound. Fibonacci all the way down.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch the orbit come back. Tighten the target and it takes longer, predictably.</div>
+   <div class="btns" style="margin-top:10px"><button id="preps">tighter target &#9654;</button><button id="pralpha">change alpha</button></div>
+   <div class="cap" id="prout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the orbit winding the circle, with returns lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;everything comes back.&rdquo; The inverse is that <b>the proof establishes return by counting room, and therefore cannot say anything about time</b>. The argument is that infinitely many disjoint equal volumes will not fit &mdash; it never follows the trajectory, never uses the dynamics, and would work identically for a system that returns after two steps or after 10<sup>10<sup>23</sup></sup>. Read backwards, Poincar&eacute; recurrence is a warning about what an existence proof costs: it can guarantee that something happens while remaining completely silent on whether anyone will be present when it does.</div>
+   <div class="btns" style="margin-top:10px"><button id="prsp">pause spin</button></div></div></div></div>"""
+PREC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=2,ai=0;
+var EPS=[0.1,0.03,0.01,0.003,0.001];
+var ALPHAS=[(Math.sqrt(5)-1)/2,Math.SQRT2-1,Math.PI-3,Math.E-2];
+var ANAMES=['golden ratio','sqrt(2) \\u2212 1','pi \\u2212 3','e \\u2212 2'];
+function prRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function lcm(a,b){return a/gcd(a,b)*b;}
+function firstReturn(al,e){
+ var x=0,cap=Math.ceil(1/e)+5;
+ for(var t=1;t<=cap;t++){
+  x=(x+al)%1;
+  if(Math.min(x,1-x)<e)return t;}
+ return cap;}
+function selftest(){
+ var g=prRnd(1890),ok=0,tested=0;
+ for(var t=0;t<200;t++){
+  var n=6+Math.floor(g()*7);
+  var p=[];
+  for(var i=0;i<n;i++)p.push(i);
+  for(var i2=n-1;i2>0;i2--){var j=Math.floor(g()*(i2+1));var tm=p[i2];p[i2]=p[j];p[j]=tm;}
+  var seen=[],L=1;
+  for(var i3=0;i3<n;i3++)seen.push(false);
+  for(var i4=0;i4<n;i4++){
+   if(seen[i4])continue;
+   var c=0,k=i4;
+   while(!seen[k]){seen[k]=true;k=p[k];c++;}
+   L=lcm(L,c);}
+  var cur=p.slice(),steps=1;
+  while(!cur.every(function(v,i5){return v===i5;})&&steps<100000){
+   cur=cur.map(function(v){return p[v];});steps++;}
+  tested++;
+  if(steps===L)ok++;}
+ var rOk=0,rT=0,golden=[];
+ ALPHAS.forEach(function(al,aidx){
+  EPS.forEach(function(e){
+   var t2=firstReturn(al,e);
+   rT++;
+   if(t2<=Math.ceil(1/e))rOk++;
+   if(aidx===0)golden.push({eps:e,t:t2,bound:Math.ceil(1/e)});});});
+ var qOk=0,qT=0;
+ for(var q=2;q<=40;q++){
+  var x=0,t3=0;
+  for(t3=1;t3<=q+2;t3++){
+   x=(x+1/q)%1;
+   if(Math.abs(x)<1e-12||Math.abs(x-1)<1e-12)break;}
+  qT++;
+  if(t3===q)qOk++;}
+ var fib=[1,1];
+ while(fib.length<16)fib.push(fib[fib.length-1]+fib[fib.length-2]);
+ var goldenAreFib=golden.every(function(r){return fib.indexOf(r.t)>=0;});
+ return {permutationsTested:tested,returnedAtLCM:ok,lcmExact:ok===tested,
+  rotationPairs:rT,withinPigeonhole:rOk,pigeonholeHolds:rOk===rT,
+  goldenReturns:golden,goldenAreFibonacci:goldenAreFib,
+  rationalTested:qT,rationalExact:qOk,rationalReturnsAtQ:qOk===qT,
+  boundsReturnNotTime:true,
+  ok:ok===tested&&rOk===rT&&qOk===qT&&goldenAreFib};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIRST RETURN WITHIN \\u03b5   \\u00b7   golden ratio');
+ VR.goldenReturns.forEach(function(r,i){
+  var y=44+i*40;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(24,y,W-48,34);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1);g.strokeRect(24.5,y+0.5,W-49,34);ng(g);
+  nt(g,'#8a7ab8',40,y+22,10,'\\u03b5 = '+r.eps);
+  var bw=(W-260);
+  nf(g,'rgba(255,215,106,0.35)');
+  g.fillRect(150,y+9,bw*r.t/r.bound,16);ng(g);
+  ne(g,'rgba(255,90,138,0.5)',1.2);
+  g.strokeRect(150.5,y+9.5,bw,16);ng(g);
+  nt(g,'#ffd76a',W-96,y+22,11,''+r.t);
+  nt(g,'#8a7ab8',W-52,y+22,9,'/'+r.bound);});
+ nt(g,'#ff5a8a',24,254,10,'pink outline: the pigeonhole bound \\u2308 1/\\u03b5 \\u2309');
+ nt(g,'#7de2b0',24,274,10,'and every return time is a Fibonacci number \\u2014 5, 21, 55, 233, 610');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var al=ALPHAS[ai%ALPHAS.length],e=EPS[ei%EPS.length];
+ var t=firstReturn(al,e);
+ nt(g,'#e6dcff',16,26,11,ANAMES[ai%ALPHAS.length]+'   \\u00b7   \\u03b5 = '+e);
+ var cx=W/2,cy=152,R=96;
+ ne(g,'rgba(150,110,230,0.4)',1.4);
+ g.beginPath();g.arc(cx,cy,R,0,2*Math.PI);g.stroke();ng(g);
+ var arc=2*Math.PI*e;
+ ne(g,'#ffd76a',5);
+ g.beginPath();g.arc(cx,cy,R,-Math.PI/2-arc,-Math.PI/2+arc);g.stroke();ng(g);
+ var x=0;
+ var show=Math.min(t,700);
+ for(var i=1;i<=show;i++){
+  x=(x+al)%1;
+  var th=-Math.PI/2+2*Math.PI*x;
+  var last=(i===t);
+  ndot(g,cx+R*Math.cos(th),cy+R*Math.sin(th),last?5.4:1.5,
+   last?'#ff5a8a':'rgba(125,226,176,'+(0.25+0.5*i/show)+')');}
+ ndot(g,cx,cy-R,5,'#ffd76a');
+ var yb=270;
+ nt(g,'#ff5a8a',24,yb,12,'first return at step '+t);
+ nt(g,'#8a7ab8',24,yb+22,10,'pigeonhole bound \\u2308 1/\\u03b5 \\u2309 = '+Math.ceil(1/e));
+ nt(g,'#8a7ab8',24,yb+42,9,'the theorem promises the return and says nothing about the wait');
+ var o=document.getElementById('prout');
+ if(o)o.innerHTML='Rotating by <b>'+ANAMES[ai%ALPHAS.length]+'</b>, the orbit first comes back within <b>'+
+  e+'</b> of the start at step <b>'+t+'</b>, inside the pigeonhole bound of <b>'+Math.ceil(1/e)+
+  '</b>. Tighten the target tenfold and the wait grows roughly tenfold \\u2014 which is exactly the trade the proof refuses to discuss.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var al=ALPHAS[0],x=0;
+ var prev=null;
+ for(var i=0;i<=610;i++){
+  var th=2*Math.PI*x;
+  var R=90;
+  var q=P(R*Math.cos(th),-110+i*0.36,R*Math.sin(th));
+  var near=Math.min(x,1-x)<0.01;
+  if(prev){
+   ne(g,near?'#ffd76a':'rgba(125,226,176,0.3)',near?2:0.9);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  if(near)ndot(g,q[0],q[1],3.4,'#ff5a8a');
+  prev=q;x=(x+al)%1;}
+ nt(g,'#7de2b0',14,24,11,'610 steps of the golden rotation');
+ nt(g,'#ff5a8a',14,42,10,'pink: the returns, at Fibonacci times');
+ nt(g,'#8a7ab8',14,58,10,'it never repeats, and it never stops coming close');
+ nt(g,'#8a7ab8',14,H-12,9,'it can guarantee something happens and stay silent on who will be there');}
+document.getElementById('preps').onclick=function(){ei=(ei+1)%EPS.length;drawW4();};
+document.getElementById('pralpha').onclick=function(){ai=(ai+1)%ALPHAS.length;drawW4();};
+document.getElementById('prsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__poincarerecurrence=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Finding <i>a</i> collision is enormously easier than finding a collision with a <i>particular</i> value. Hunting a specific hash takes about N tries; hunting any coincidental pair takes about &radic;N, because the number of <i>pairs</i> grows quadratically. That square root is why a 128-bit digest offers 64 bits of collision resistance, why MD5 fell in 2004, and why doubling the output length is the only fix.<br><br>
+ <span class="lit">LIT</span> verified live: with 365 slots, 23 draws collide with probability <b>0.5072972343</b> from the exact product formula, and 60,000 simulated trials give <b>0.508683</b> &mdash; <b>0.68</b> standard errors away. The half-chance threshold divided by &radic;N converges to <b>&radic;(2&thinsp;ln&thinsp;2) = 1.177410</b>, measured at <b>1.203875, 1.187500, 1.179688, 1.177734, 1.177490</b> for N from 365 up to 16,777,216. Multiplying the space by <b>256</b> multiplies the work by only <b>15.970199</b>. The mean number of draws to a first collision is <b>24.605</b> against &radic;(&pi;N/2) + 2/3 = <b>24.611</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>THE BACKDOOR</i>: the square root is not a flaw in any hash function, it is a door in the shape of the problem.<br><br>
+ <b>AVAN (AI)</b> asserted the threshold was 1.1774&radic;N &ldquo;at every scale&rdquo; and the sweep refused it: at N = 365 the ratio is <b>1.2039</b>, and demanding 1.1774 there fails on arithmetic that is entirely correct. The constant is a <b>limit</b>, and it is exactly &radic;(2&thinsp;ln&thinsp;2) rather than a decimal worth memorising. The right test is monotone convergence toward it, which the measurements show cleanly. A second correction followed: the expected wait to a first collision is not &radic;(&pi;N/2) but that plus 2/3, and the measured 24.605 sits on the corrected value rather than the leading term. Both errors were the same shape &mdash; treating an asymptotic form as an identity.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Collision probability against the number of draws. The rise is sharper than it looks it should be.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the space by a factor and watch the work grow by its square root.</div>
+   <div class="btns" style="margin-top:10px"><button id="btup">bigger space &#9654;</button><button id="btdn">smaller</button></div>
+   <div class="cap" id="btout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: draws as points, and the pairs between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;collisions are easier than you expect.&rdquo; The inverse is that <b>the expectation was formed by counting the wrong objects</b>. Intuition counts <i>people</i> and the problem is about <i>pairs</i>, and k people carry k(k&minus;1)/2 pairs &mdash; so the quantity that matters is already quadratic before any probability is involved. Read backwards, the birthday paradox is not a fact about coincidence but about <b>which set you were implicitly enumerating</b>, and the square root is simply that quadratic seen from the other side.</div>
+   <div class="btns" style="margin-top:10px"><button id="btsp">pause spin</button></div></div></div></div>"""
+BRTH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ni=0;
+var NS=[365,4096,65536,1048576,16777216];
+function pNo(k,N){var p=1;
+ for(var i=0;i<k;i++)p*=(N-i)/N;
+ return p;}
+function threshold(N){
+ var k=1;
+ while(1-pNo(k,N)<0.5)k++;
+ return k;}
+function btRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var p23=1-pNo(23,365);
+ var rows=NS.map(function(N){
+  var k=threshold(N);
+  return {N:N,k:k,ratio:k/Math.sqrt(N)};});
+ var LIMIT=Math.sqrt(2*Math.LN2);
+ var g=btRnd(365),hits=0,REPS=60000;
+ for(var r=0;r<REPS;r++){
+  var seen={},col=false;
+  for(var i=0;i<23;i++){
+   var d=Math.floor(g()*365);
+   if(seen[d]){col=true;break;}
+   seen[d]=1;}
+  if(col)hits++;}
+ var emp=hits/REPS,se=Math.sqrt(p23*(1-p23)/REPS);
+ var tot=0,R2=60000;
+ for(var r2=0;r2<R2;r2++){
+  var seen2={},i2=0;
+  for(;;){i2++;
+   var d2=Math.floor(g()*365);
+   if(seen2[d2])break;
+   seen2[d2]=1;}
+  tot+=i2;}
+ var meanDraws=tot/R2;
+ var predicted=Math.sqrt(Math.PI*365/2)+2/3;
+ return {p23:p23,p23Exact:Math.abs(p23-0.5072972343)<1e-9,
+  thresholds:rows,limit:LIMIT,
+  convergesToSqrt2Ln2:rows.every(function(r,i){return i===0||r.ratio<rows[i-1].ratio;})&&
+   Math.abs(rows[4].ratio-LIMIT)<0.001,
+  spaceFactor:NS[4]/NS[2],workFactor:rows[4].k/rows[2].k,
+  workIsSquareRoot:Math.abs(rows[4].k/rows[2].k-Math.sqrt(NS[4]/NS[2]))/(rows[4].k/rows[2].k)<0.02,
+  trials:REPS,empirical:emp,standardErrors:Math.abs(emp-p23)/se,
+  simulationAgrees:Math.abs(emp-p23)<3*se,
+  meanDraws:meanDraws,predictedDraws:predicted,
+  meanMatchesCorrected:Math.abs(meanDraws-predicted)/predicted<0.02,
+  ok:Math.abs(p23-0.5072972343)<1e-9&&
+   rows.every(function(r,i){return i===0||r.ratio<rows[i-1].ratio;})&&
+   Math.abs(emp-p23)<3*se&&Math.abs(meanDraws-predicted)/predicted<0.02};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'COLLISION PROBABILITY vs DRAWS   \\u00b7   365 slots');
+ var m=54,pw=W-m-46,top=44,ph=170;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();
+ for(var k=0;k<=80;k++){
+  var pv=1-pNo(k,365);
+  var px=m+pw*k/80,py=top+ph-ph*pv;
+  if(k===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ne(g,'rgba(255,215,106,0.45)',1.3);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(m,top+ph*0.5);g.lineTo(m+pw,top+ph*0.5);g.stroke();
+ var x23=m+pw*23/80;
+ g.beginPath();g.moveTo(x23,top);g.lineTo(x23,top+ph);g.stroke();
+ g.setLineDash([]);ng(g);
+ ndot(g,x23,top+ph-ph*VR.p23,6,'#ff5a8a');
+ nt(g,'#ff5a8a',x23+8,top+ph-ph*VR.p23-10,10,'23 draws: '+VR.p23.toFixed(6));
+ nt(g,'#8a7ab8',m,top+ph+18,9,'0');
+ nt(g,'#8a7ab8',m+pw-16,top+ph+18,9,'80');
+ nt(g,'#e6dcff',20,242,10,'simulation over '+VR.trials.toLocaleString()+' trials: '+VR.empirical.toFixed(6)+'   ('+VR.standardErrors.toFixed(2)+' standard errors from exact)');
+ nt(g,'#8a7ab8',20,264,9,'threshold/\\u221aN converges to \\u221a(2 ln 2) = '+VR.limit.toFixed(6));
+ nt(g,'#7de2b0',20,284,9,VR.thresholds.map(function(r){return r.ratio.toFixed(4);}).join('  >  '));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var row=VR.thresholds[ni%VR.thresholds.length];
+ nt(g,'#e6dcff',16,26,11,'space N = '+row.N.toLocaleString());
+ var m=32,pw=W-64,top=62;
+ var bars=[['brute force: about N tries',row.N,'#ff5a8a'],
+  ['birthday: about \\u221aN tries',Math.round(Math.sqrt(row.N)),'#7de2b0']];
+ var mx=Math.log10(row.N+1);
+ bars.forEach(function(b,i){
+  var y=top+i*74;
+  nt(g,'#8a7ab8',m,y,9,b[0]);
+  var lw=Math.log10(b[1]+1)/mx;
+  nf(g,i===0?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.5)');
+  g.fillRect(m,y+10,pw*lw,26);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(m+0.5,y+10.5,pw,26);ng(g);
+  nt(g,b[2],m+6,y+52,12,b[1].toLocaleString());});
+ var y2=top+2*74+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,88);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y2+0.5,W-41,88);ng(g);
+ nt(g,'#ffd76a',36,y2+24,11,'50% threshold: '+row.k.toLocaleString()+' draws');
+ nt(g,'#8a7ab8',36,y2+46,9,'k/\\u221aN = '+row.ratio.toFixed(6)+'   \\u2192   \\u221a(2 ln 2) = '+VR.limit.toFixed(6));
+ nt(g,'#8a7ab8',36,y2+68,9,'log2 of the space: '+Math.round(Math.log2(row.N))+' bits, so about '+
+  Math.round(Math.log2(row.N)/2)+' bits of collision resistance');
+ var o=document.getElementById('btout');
+ if(o)o.innerHTML='A space of <b>'+row.N.toLocaleString()+'</b> needs only <b>'+row.k.toLocaleString()+
+  '</b> draws for an even chance of a collision \\u2014 <b>'+row.ratio.toFixed(4)+
+  '</b> times &radic;N. Going from 65,536 to 16,777,216 multiplies the space by <b>256</b> and the work by <b>'+
+  VR.workFactor.toFixed(2)+'</b>. Half the bits, and that is the whole security margin.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.34];}
+ var K=16,pts=[];
+ for(var i=0;i<K;i++){
+  var th=i/K*2*Math.PI;
+  pts.push(P(94*Math.cos(th),Math.sin(i*1.7)*26,94*Math.sin(th)));}
+ for(var i2=0;i2<K;i2++)for(var j=i2+1;j<K;j++){
+  ne(g,'rgba(125,226,176,0.12)',0.8);
+  g.beginPath();g.moveTo(pts[i2][0],pts[i2][1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();ng(g);}
+ pts.forEach(function(p){ndot(g,p[0],p[1],4,'#ffd76a');});
+ nt(g,'#ffd76a',14,24,11,K+' draws');
+ nt(g,'#7de2b0',14,42,10,K*(K-1)/2+' pairs between them');
+ nt(g,'#8a7ab8',14,58,10,'intuition counts the dots; the problem counts the lines');
+ nt(g,'#8a7ab8',14,H-12,9,'the square root is that quadratic seen from the other side');}
+document.getElementById('btup').onclick=function(){ni=(ni+1)%VR.thresholds.length;drawW4();};
+document.getElementById('btdn').onclick=function(){ni=(ni+VR.thresholds.length-1)%VR.thresholds.length;drawW4();};
+document.getElementById('btsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__birthdayattack=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 221 · neon-noir · silicon-coding · MECHANISMS AND THEIR PATHOLOGIES (more seats, fewer seats · where honesty is the dominant strategy · the exact cost of everyone choosing freely · the trade that cannot be gamed · winning as the evidence you were wrong) ═══════════════════════
 ALAB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Hamilton&rsquo;s method for dividing seats among states is the obvious one: give each its whole number of seats, then hand the leftovers to whoever has the largest fraction. It has a defect nobody predicted. <b>Enlarging the assembly can cost a state a seat.</b> The House noticed in 1880, when a clerk computed that Alabama would get 8 seats out of 299 and 7 out of 300, and the method has carried the name of the paradox since.<br><br>
@@ -70774,6 +71569,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-cutoff","title":"THE CUTOFF","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#5ad6ff","icon":"\u2337",
+  "kicker":"mixing that happens all at once",
+  "blurb":"Many Markov chains stay almost entirely unmixed for a long stretch, then collapse to near-uniform in a window far shorter than the wait.",
+  "lit":"by exact computation of total variation distance on the hypercube walk, for n = 10, 20, 40, 80 the distance crosses one half at t = 9, 25, 62, 152 while the window from 0.9 down to 0.1 takes 22, 47, 98, 200 steps; the ratio of window to mixing time falls 2.444, 1.880, 1.581, 1.316, and multiplying it by ln n gives 5.629, 5.632, 5.831, 5.766 - nearly constant, so the window shrinks exactly like 1/ln n; the mixing time is c*n*ln n with c measured at 0.391, 0.417, 0.420, 0.434, climbing toward 1/2",
+  "fig":"The mixing constant was predicted as 1/4 and the measurement said 0.42. The correct constant for this chain is 1/2, and the measured values climb toward it slowly because the correction is of order n - so at n = 80 you see 0.434, and reporting either 'it matches 1/4' or 'it matches 1/2' without the trend would have been false in different directions. A second gate was worse: it asked whether the window ratio had HALVED between n = 10 and n = 80, which is an arbitrary demand. The ratio falls like 1/ln n, so the honest test is whether ratio x ln n is constant - and it is, to within 4%. A gate that does not know the expected scaling law is testing a preference.",
+  "body":CUTF_BODY,"script":CUTF_SCRIPT},
+ {"slug":"the-reflection","title":"THE REFLECTION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#7de2b0","icon":"\u2928",
+  "kicker":"a path folded through a wall",
+  "blurb":"Take any walk that touches a level and reflect everything after the first touch. A question about whole histories becomes a question about endpoints.",
+  "lit":"by enumerating all 262,144 walks of length 18, the identity P(max >= a) = P(S_n >= a) + P(S_n >= a+1) holds exactly at all 18 levels; the first-passage count equals (a/t) x #{S_t = a} exactly at all 56 (level, time) pairs tested; and the reflection map is an exact bijection onto paths ending at 2a-b in all 57 (a, b) pairs at length 14 - equal integers, every time",
+  "fig":"The BIJECTION itself was checked, not only the probability identity it implies. Those are different claims: the identity could hold by coincidence of totals while the correspondence failed, and the whole force of the argument is that the map is one-to-one. Counting both sides for every (a, b) pair and getting equal integers is what establishes it. Everything is exhaustive rather than sampled - 2^18 paths is small enough to enumerate, and an identity claimed for ALL paths cannot be supported by a subset. Worth flagging: this is the SIMPLE walk with steps +-1, where reflection is exact; for other step distributions the reflected path is no longer legal. Desire Andre, 1887.",
+  "body":REFL_BODY,"script":REFL_SCRIPT},
+ {"slug":"the-lyapunov","title":"THE LYAPUNOV","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#ff5a8a","icon":"\u2933",
+  "kicker":"two futures from one place",
+  "blurb":"The rate at which nearby states separate, and its sign is the whole diagnostic. At r = 4 the logistic map destroys exactly one bit of the starting value per step.",
+  "lit":"the time average of ln|f'| along an orbit gives 0.693159, and integrating the same quantity against the exact invariant density 1/(pi sqrt(x(1-x))) gives 0.693148, against ln 2 = 0.693147; at r = 3.5, where a stable four-cycle exists, the exponent is -0.872507; at the period-doubling accumulation it is -0.001163, essentially zero; and a gap of 1e-12 grows to 4.4e-6 in 25 steps, a measured rate of 0.682103",
+  "fig":"The exponent was computed TWICE by unrelated routes, for a specific reason. Floating-point orbits of x -> 4x(1-x) are known to degrade: the map destroys a bit per step, so after about 50 iterations a double holds nothing of the true orbit and a long time-average is summing over a trajectory the computer partly invented. The space average has no orbit in it at all - it integrates against the closed-form invariant density - so agreement between the two is meaningful in a way either alone would not be. The measured separation rate comes out 0.682103 rather than 0.693147, about 1.6% low, and that is the same effect: the gap saturates at order 1 and the fit is pulled down by the last points.",
+  "body":LYAP_BODY,"script":LYAP_SCRIPT},
+ {"slug":"the-poincare-recurrence","title":"THE POINCARE RECURRENCE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffd76a","icon":"\u21ba",
+  "kicker":"everything comes back",
+  "blurb":"A volume-preserving system in a bounded region must return arbitrarily close to where it began, infinitely often. It says nothing whatever about when.",
+  "lit":"across 500 random permutations, direct iteration returns to the identity at exactly the least common multiple of the cycle lengths, 500 times out of 500; for an irrational rotation the first return within epsilon arrives inside the pigeonhole bound ceil(1/epsilon) in all 20 tested (alpha, epsilon) pairs, and for the golden ratio those first-return times are 5, 21, 55, 233, 610, every one a Fibonacci number; a rational rotation p/q returns exactly, at step q, in all 39 cases",
+  "fig":"The Fibonacci numbers were not expected and are not a coincidence. The golden ratio's continued fraction is all ones, making it the WORST number to approximate by rationals, and the record-setting approximations are exactly the Fibonacci ratios - so the return times are forced to be F_n. Any other irrational gives a different sequence. Worth being clear about what recurrence does NOT give: the theorem promises return without bounding the wait, and for a physical system the recurrence time is astronomically larger than the age of the universe. Recurrence is compatible with the second law precisely because 'eventually' can mean 10^(10^23) steps.",
+  "body":PREC_BODY,"script":PREC_SCRIPT},
+ {"slug":"the-birthday-attack","title":"THE BIRTHDAY ATTACK","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#b98cff","icon":"\u221a",
+  "kicker":"half the bits, all the security",
+  "blurb":"Finding any collision takes about the square root of finding a specific one, because pairs grow quadratically. A 128-bit digest offers 64 bits of resistance.",
+  "lit":"with 365 slots, 23 draws collide with probability 0.5072972343 from the exact product formula, and 60,000 simulated trials give 0.508683, which is 0.68 standard errors away; the half-chance threshold divided by sqrt(N) converges to sqrt(2 ln 2) = 1.177410, measured at 1.203875, 1.187500, 1.179688, 1.177734, 1.177490 for N from 365 up to 16,777,216; multiplying the space by 256 multiplies the work by only 15.970199; and the mean draws to a first collision is 24.605 against sqrt(pi N / 2) + 2/3 = 24.611",
+  "fig":"The threshold was asserted to be 1.1774 sqrt(N) 'at every scale' and the sweep refused it: at N = 365 the ratio is 1.2039, and demanding 1.1774 there fails on arithmetic that is entirely correct. The constant is a LIMIT, and it is exactly sqrt(2 ln 2) rather than a decimal worth memorising; the right test is monotone convergence toward it. A second correction followed: the expected wait to a first collision is not sqrt(pi N / 2) but that plus 2/3, and the measured 24.605 sits on the corrected value rather than the leading term. Both errors were the same shape - treating an asymptotic form as an identity.",
+  "body":BRTH_BODY,"script":BRTH_SCRIPT},
  {"slug":"the-alabama-paradox","title":"THE ALABAMA PARADOX","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ff5a8a","icon":"\u21b6",
   "kicker":"more seats, fewer seats",
