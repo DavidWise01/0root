@@ -179,16 +179,24 @@ function litClaims(lit) {
 
 function reproduces(claim, values) {
   const v = claim.val;
-  for (const x of values) {
-    if (!isFinite(x)) continue;
+  for (const raw of values) {
+    if (!isFinite(raw)) continue;
+    // The LIT extractor cannot see signs: entity-scrubbing removes &minus; before we parse,
+    // so a published −0.4982 arrives here as 0.4982. Compare on MAGNITUDE, testing the live
+    // value both ways. (Batch 205: this class produced three spurious flags.)
+    for (const x of (raw < 0 ? [raw, -raw] : [raw])) {
     if (x === v) return true;
     const a = Math.abs(x), b = Math.abs(v);
     // decimals: match if the claim is x rounded to the claim's own precision
     const dec = (String(claim.raw).split('.')[1] || '').replace(/[^\d].*$/, '').length;
     if (dec > 0 && Math.abs(x - v) <= 0.5 * Math.pow(10, -dec) * 1.001) return true;
     if (claim.kind === 'percent' && Math.abs(x * 100 - v) <= 0.5) return true;
-    if (b > 0 && Math.abs(a - b) / Math.max(b, 1e-30) < 0.02) return true;      // 2% band
+    // A claim written to d decimal places asserts that precision. A blanket 2% band would
+    // accept 0.5370 for a live 0.5437 — exactly the drift this gate exists to catch (batch 204).
+    // So decimals must match at their OWN precision (handled above) and get no loose band.
+    if (claim.kind !== 'decimal' && b > 0 && Math.abs(a - b) / Math.max(b, 1e-30) < 0.02) return true;
     if (claim.kind === 'sci' && a > 0 && b > 0 && a <= b * 1.5) return true;    // "< 1e-9" style bounds
+    }
   }
   return false;
 }
