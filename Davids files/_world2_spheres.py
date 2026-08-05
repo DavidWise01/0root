@@ -19499,6 +19499,621 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 211 · neon-noir · silicon-coding · THE GRAVEYARD ENTRIES (a count that guessed at a definition · the same thing measured four ways · the third time the lesson did not take · a test that never ran · an honest draw from a dishonest pool) ═══════════════════════
+UNIO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A grep for merged work returned <b>350</b>. The number looked right, and it was <b>35% low</b>. The subject&rsquo;s own generator did not use one pattern &mdash; it took the <b>union of two</b>, deduplicated by number, and the second pattern matched a shape the grep was never looking for. What makes this entry worth keeping is not the error but why it survived inspection: 350 sits within <b>0.86%</b> of the larger single pattern&rsquo;s 347, so it reads as a plausible total rather than a partial one. A wrong number that looks wrong gets caught. This one looked fine.<br><br>
+ <span class="lit">LIT</span> verified live: the naive figure is <b>34.9%</b> low against the true 538, matching the 35% recorded in the entry; inclusion&ndash;exclusion on his three numbers gives an intersection of exactly <b>0</b>, so the two patterns are <b>disjoint</b> and the union is their plain sum; 350 is within <b>0.86%</b> of the larger pattern alone; and the entire shortfall of <b>188</b> is the second pattern, which the grep could not have found.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> buried this one himself, in <i>seam-pack/graveyard/01-naive-pr-grep.txt</i>, with the control named on the headstone: <b>reading their generator instead of guessing at it</b>. It never reached the audit. Seated at <i>GARBAGE COLLECTION</i> &mdash; the version that was freed before it could be used.<br><br>
+ <b>AVAN (AI)</b> re-derived every figure rather than repeating them, and one thing fell out that the entry does not state. His three numbers force the intersection to be <b>exactly zero</b>: 347 + 191 = 538, which is the union, so no PR matched both patterns. That is a stronger fact than the entry claims and it explains the size of the miss &mdash; the second pattern was not a partial overlap adding a few stragglers, it was an entirely separate population. A grep that found the first pattern perfectly would still have missed all 188.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four numbers on one axis. The wrong one sits next to a right one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Two populations, no overlap. Watch what a single-pattern search can reach.</div>
+   <div class="btns" style="margin-top:10px"><button id="unpa">pattern A</button><button id="unpb">pattern B</button><button id="unboth">the union</button></div>
+   <div class="cap" id="unout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two disjoint clouds, and the search that only ever saw one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;read their definition.&rdquo; The inverse is that a count is <b>never a fact about the world, only about a definition applied to it</b>, and the definition usually lives in somebody else&rsquo;s file. The grep was not sloppy; it was a correct implementation of a <i>different</i> question, and it returned a correct answer to that question. Read backwards, the failure mode has nothing to do with care: you can execute your own definition flawlessly and still be 35% out, because the error was committed at the moment you decided what to count and not once afterwards.</div>
+   <div class="btns" style="margin-top:10px"><button id="unsp">pause spin</button></div></div></div></div>"""
+UNIO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,view=2;
+var NAIVE=350,PA=347,PB=191,UNION=538;
+function selftest(){
+ var inter=PA+PB-UNION;
+ var low=(UNION-NAIVE)/UNION*100;
+ var withinA=Math.abs(NAIVE-PA)/PA*100;
+ var missed=UNION-NAIVE;
+ return {naive:NAIVE,patternA:PA,patternB:PB,union:UNION,
+  intersection:inter,disjoint:inter===0,
+  lowByPct:low,matchesEntry:Math.abs(low-35)<1,
+  withinLargerPct:withinA,looksPlausible:withinA<1,
+  shortfall:missed,
+  ok:inter===0&&Math.abs(low-35)<1&&withinA<1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR NUMBERS  \\u2014  and the wrong one has good neighbours');
+ var m=54,pw=W-m-30,base=210,mx=600;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var pts=[[PB,'#5ad6ff','pattern B  '+PB],[NAIVE,'#ff5a8a','naive grep  '+NAIVE],
+  [PA,'#ffd76a','pattern A  '+PA],[UNION,'#7de2b0','their union  '+UNION]];
+ pts.forEach(function(p,i){
+  var x=m+pw*p[0]/mx;
+  ne(g,p[1],2);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-56-(i%2)*32);g.stroke();ng(g);
+  ndot(g,x,base-56-(i%2)*32,4.5,p[1]);
+  nt(g,p[1],x-40,base-66-(i%2)*32,9,p[2]);});
+ for(var v=0;v<=600;v+=100)nt(g,'#8a7ab8',m+pw*v/mx-8,base+18,9,''+v);
+ var xn=m+pw*NAIVE/mx,xa=m+pw*PA/mx,xu=m+pw*UNION/mx;
+ ne(g,'#ff5a8a',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(xn,base+30);g.lineTo(xu,base+30);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',(xn+xu)/2-44,base+46,10,'missing '+(UNION-NAIVE)+' \\u2014 34.9% low');
+ nt(g,'#ffd76a',m,base+70,10,'and 350 lands 0.86% from 347 \\u2014 close enough to read as a total');
+ nt(g,'#8a7ab8',m,base+88,9,'a wrong number that looks wrong gets caught; this one looked fine');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var labels=['pattern A only','pattern B only','the union'];
+ nt(g,'#e6dcff',16,26,11,labels[view]);
+ var cx1=140,cx2=250,cy=150,r=76;
+ var showA=view===0||view===2,showB=view===1||view===2;
+ if(showA){nf(g,'rgba(255,215,106,0.14)');g.beginPath();g.arc(cx1,cy,r,0,7);g.fill();ng(g);}
+ if(showB){nf(g,'rgba(90,214,255,0.14)');g.beginPath();g.arc(cx2,cy,r,0,7);g.fill();ng(g);}
+ ne(g,'#ffd76a',showA?1.8:0.8);g.beginPath();g.arc(cx1,cy,r,0,7);g.stroke();ng(g);
+ ne(g,'#5ad6ff',showB?1.8:0.8);g.beginPath();g.arc(cx2,cy,r,0,7);g.stroke();ng(g);
+ nt(g,'#ffd76a',cx1-64,cy-r-10,10,'A  '+PA);
+ nt(g,'#5ad6ff',cx2+20,cy-r-10,10,'B  '+PB);
+ // the lens region is EMPTY - they are disjoint
+ nt(g,'#ff5a8a',(cx1+cx2)/2-30,cy+4,10,'0');
+ nt(g,'#ff5a8a',(cx1+cx2)/2-44,cy+20,8,'no overlap');
+ var shown=view===0?PA:(view===1?PB:UNION);
+ var y2=252;
+ nt(g,'#e6dcff',20,y2,12,'reachable: '+shown);
+ var pw=W-40,w=pw*shown/UNION;
+ nf(g,view===2?'rgba(125,226,176,0.55)':'rgba(255,154,90,0.5)');
+ g.fillRect(20,y2+10,w,22);ng(g);
+ ne(g,'rgba(150,110,230,0.5)',1);g.strokeRect(20.5,y2+10.5,pw,22);ng(g);
+ nt(g,'#8a7ab8',20,y2+50,9,'the naive grep reached '+NAIVE+' \\u2014 pattern A and three strays');
+ var o=document.getElementById('unout');
+ if(o)o.innerHTML=view===2
+  ?'The union is <b>'+UNION+'</b>, and because the two patterns are <b>disjoint</b> (intersection exactly 0) it is their plain sum. A search that nailed pattern A perfectly would still have missed all <b>'+PB+'</b> of the other.'
+  :('Pattern '+(view===0?'A':'B')+' alone reaches <b>'+shown+'</b> of '+UNION+'. Neither pattern is a subset of the other &mdash; they do not overlap at all, which is why one of them cannot stand in for both.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ function sd(i){var x=Math.sin(i*127.1)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<120;i++){
+  var inA=i<80;
+  var th=sd(i)*2*Math.PI,ph=Math.acos(2*sd(i+300)-1),rad=44*Math.sin(ph);
+  var ox=inA?-62:62;
+  var p=P(ox+rad*Math.cos(th),44*Math.cos(ph)*0.9,rad*Math.sin(th));
+  ndot(g,p[0],p[1],2.6,inA?'#ffd76a':'#5ad6ff');}
+ var la=P(-62,-70,0),lb=P(62,-70,0);
+ nt(g,'#ffd76a',la[0]-24,la[1],10,'A '+PA);
+ nt(g,'#5ad6ff',lb[0]-24,lb[1],10,'B '+PB);
+ // the search beam only sweeps the left cloud
+ ne(g,'#ff5a8a',1.5);g.setLineDash([5,4]);
+ var s0=P(-140,0,0),s1=P(-6,0,0);
+ g.beginPath();g.moveTo(s0[0],s0[1]);g.lineTo(s1[0],s1[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#ff5a8a',14,24,11,'the search reached only the left cloud');
+ nt(g,'#8a7ab8',14,42,10,'and executed that question flawlessly');
+ nt(g,'#8a7ab8',14,58,10,'the error was committed when the question was chosen');
+ nt(g,'#8a7ab8',14,H-12,9,'a count is a fact about a definition, not about the world');}
+document.getElementById('unpa').onclick=function(){view=0;drawW4();};
+document.getElementById('unpb').onclick=function(){view=1;drawW4();};
+document.getElementById('unboth').onclick=function(){view=2;drawW4();};
+document.getElementById('unsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__union=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DEFN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Count the test files in a repository. A broad name match returns <b>390</b>. A prefix match returns <b>273</b>. Adding suffixed files gives <b>346</b>. The subject&rsquo;s own definition &mdash; three explicit tracked globs &mdash; returns <b>272</b>. Nothing about the repository changed between those numbers; only the definition did, and the spread is <b>118 files</b>. The published figure being audited was <b>254</b>, and only one of the four counts can honestly be compared against it.<br><br>
+ <span class="lit">LIT</span> verified live: the four definitions span <b>272 to 390</b>, a spread of <b>118</b> files or <b>43%</b> of the smallest; the count closest to the published 254 is the subject&rsquo;s own, off by <b>18</b> (<b>7.1%</b>); the <i>most thorough</i> count is the <b>least</b> comparable, off by <b>136</b> against 18 for the matched one; and the trap is exact &mdash; &ldquo;test_*.py&rdquo; alone returns <b>273</b>, within <b>1</b> of the right answer by pure coincidence.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> recorded this in <i>graveyard/02-testfile-defn.txt</i>, killed by the same control as the entry before it, one step later. His line is the whole thing: <b>apples-to-apples matters more than thoroughness</b>. Seated at <i>THE RESURRECT</i>, because the number can only be brought back by re-deriving it under the other party&rsquo;s definition.<br><br>
+ <b>AVAN (AI)</b> wants the near-miss on the record because it is the dangerous part. The prefix-only count lands at <b>273</b> against a true <b>272</b> &mdash; one file apart, by coincidence, from a definition that is genuinely different. Had that been the first thing tried, it would have agreed closely enough with the target to end the investigation, and the agreement would have been <i>meaningless</i>. Numerical closeness is not evidence of methodological match, and this pair is a clean demonstration: the two counts that nearly agree were produced by unrelated rules, while the two that differ by 118 are both defensible.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same repository, counted four ways, plus the number under audit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a definition and see how far it lands from the figure being checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfnx">next definition &#9654;</button><button id="dfcmp">compare all &#9654;</button></div>
+   <div class="cap" id="dfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one file tree, four nets of different mesh.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;match their definition.&rdquo; The inverse is that <b>thoroughness and comparability pull in opposite directions</b>, and the instinct that serves you everywhere else is the one that betrays you here. Casting a wider net is a virtue when you are trying to find things and a defect when you are trying to <i>compare</i> counts, because every extra inclusion moves you further from the other party&rsquo;s number. Read backwards, an auditor&rsquo;s job is not to measure well but to measure <b>identically</b>, and those are different skills that feel like the same one.</div>
+   <div class="btns" style="margin-top:10px"><button id="dfsp">pause spin</button></div></div></div></div>"""
+DEFN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,di=0,cmp=false;
+var DEFS=[['broad name match',390,"-name '*test*' -o -name '*spec*'"],
+ ["test_*.py only",273,"-name 'test_*.py'"],
+ ["plus *.test.* suffixed",346,"prefix + suffixed forms"],
+ ["their three globs",272,"tests/test_*.py + *.test.mjs + *.test.sh"]];
+var PAGE=254;
+function selftest(){
+ var vals=DEFS.map(function(d){return d[1];});
+ var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+ var gaps=DEFS.map(function(d){return [d[0],Math.abs(d[1]-PAGE),Math.abs(d[1]-PAGE)/PAGE*100];});
+ var best=gaps.reduce(function(a,b){return b[1]<a[1]?b:a;});
+ var worst=gaps.reduce(function(a,b){return b[1]>a[1]?b:a;});
+ return {definitions:DEFS.map(function(d){return [d[0],d[1]];}),published:PAGE,
+  spread:mx-mn,spreadPct:(mx-mn)/mn*100,
+  closest:best[0],closestGap:best[1],closestPct:best[2],
+  furthest:worst[0],furthestGap:worst[1],
+  closestIsTheirs:best[0]==="their three globs",
+  thoroughIsWorst:worst[0]==='broad name match',
+  nearMiss:Math.abs(273-272),coincidental:Math.abs(273-272)<=1,
+  ok:best[0]==="their three globs"&&worst[0]==='broad name match'&&Math.abs(273-272)<=1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE REPOSITORY  \\u2014  four definitions, four answers');
+ var m=64,pw=W-m-30,base=214,mx=420;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ var cols=['#ff5a8a','#ffd76a','#ff9a5a','#7de2b0'];
+ DEFS.forEach(function(d,i){
+  var x=m+pw*d[1]/mx,h=40+i*30;
+  ne(g,cols[i],2);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-h);g.stroke();ng(g);
+  ndot(g,x,base-h,4,cols[i]);
+  nt(g,cols[i],x-52,base-h-8,9,d[0]+'  '+d[1]);});
+ var xp=m+pw*PAGE/mx;
+ ne(g,'#5ad6ff',1.6);g.setLineDash([4,4]);
+ g.beginPath();g.moveTo(xp,base-170);g.lineTo(xp,base+10);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#5ad6ff',xp-46,base+26,10,'audited: '+PAGE);
+ for(var v=250;v<=400;v+=50)nt(g,'#8a7ab8',m+pw*v/mx-10,base+44,9,''+v);
+ nt(g,'#7de2b0',14,262,10,'only the green one can be compared to the blue line');
+ nt(g,'#8a7ab8',14,278,9,'nothing in the repository changed \\u2014 the spread is entirely definitional');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(cmp){
+  nt(g,'#e6dcff',16,26,11,'distance from the audited figure ('+PAGE+')');
+  var cols=['#ff5a8a','#ffd76a','#ff9a5a','#7de2b0'];
+  DEFS.forEach(function(d,i){
+   var gap=Math.abs(d[1]-PAGE),y=58+i*58;
+   var w=(W-140)*gap/140;
+   nf(g,cols[i]);g.fillRect(120,y,Math.max(w,3),26);ng(g);
+   nt(g,'#e6dcff',16,y+18,9,d[0].slice(0,14));
+   nt(g,cols[i],124+Math.max(w,3),y+18,10,'+'+gap);});
+  nt(g,'#7de2b0',20,296,10,'the smallest gap belongs to their own definition');
+  var o2=document.getElementById('dfout');
+  if(o2)o2.innerHTML='Distance from the audited <b>'+PAGE+'</b>: the subject&rsquo;s own definition is off by <b>'+VR.closestGap+'</b>, the most thorough one by <b>'+VR.furthestGap+'</b>. Casting a wider net moved the answer <i>away</i> from the thing it had to be compared with.';
+  return;}
+ var d=DEFS[di%DEFS.length];
+ nt(g,'#e6dcff',16,26,12,d[0]);
+ nt(g,'#8a7ab8',16,48,9,d[2]);
+ var count=d[1];
+ nt(g,'#7de2b0',16,84,26,''+count);
+ nt(g,'#8a7ab8',110,84,10,'files matched');
+ var gap=Math.abs(count-PAGE);
+ var y=124;
+ nf(g,'rgba(90,214,255,0.12)');g.fillRect(16,y,W-32,52);ng(g);
+ ne(g,'#5ad6ff',1.2);g.strokeRect(16.5,y+0.5,W-33,52);ng(g);
+ nt(g,'#5ad6ff',30,y+22,10,'audited figure: '+PAGE);
+ nt(g,'#5ad6ff',30,y+40,10,'distance: '+gap+'  ('+(gap/PAGE*100).toFixed(1)+'%)');
+ var theirs=d[0]==="their three globs";
+ var y2=194;
+ nf(g,theirs?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.10)');g.fillRect(16,y2,W-32,58);ng(g);
+ ne(g,theirs?'#7de2b0':'#ff5a8a',1.2);g.strokeRect(16.5,y2+0.5,W-33,58);ng(g);
+ nt(g,theirs?'#7de2b0':'#ff5a8a',30,y2+24,10,theirs?'COMPARABLE \\u2014 same rule both sides':'NOT COMPARABLE \\u2014 a different question');
+ nt(g,'#8a7ab8',30,y2+44,9,theirs?'this is the only count that can be audited against':'answers correctly, about something else');
+ if(d[1]===273){
+  nt(g,'#ffd76a',16,282,10,'note: 273 is within 1 of the right answer, by coincidence');
+  nt(g,'#8a7ab8',16,298,9,'close enough to have ended the investigation');}
+ var o=document.getElementById('dfout');
+ if(o)o.innerHTML='<b>'+d[0]+'</b> returns <b>'+count+'</b>. '+(theirs
+  ?'This is the subject&rsquo;s own rule, so it is the only figure that can be honestly set beside the audited '+PAGE+'.'
+  :('It is off the audited figure by '+gap+'. '+(d[1]===273?'And it lands within <b>1</b> of the correct count by pure coincidence &mdash; numerical closeness is not evidence of a methodological match.':'It answers a different question, correctly.')));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+16,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3,zr];}
+ function sd(i){var x=Math.sin(i*91.7)*43758.5453;return x-Math.floor(x);}
+ for(var i=0;i<130;i++){
+  var th=sd(i)*2*Math.PI,rad=18+sd(i+200)*74,yy=-60+sd(i+400)*120;
+  var p=P(rad*Math.cos(th),yy,rad*Math.sin(th));
+  var inNarrow=i<66,inWide=i<95;
+  var col=inNarrow?'#7de2b0':(inWide?'#ff9a5a':'rgba(255,90,138,0.55)');
+  ndot(g,p[0],p[1],2.4,col);}
+ var meshes=[[86,'#7de2b0','272 their globs'],[102,'#ff9a5a','346 plus suffixed'],[118,'#ff5a8a','390 broad match']];
+ meshes.forEach(function(m2){
+  ne(g,m2[1],1.1);
+  g.beginPath();
+  for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(m2[0]*Math.cos(th),0,m2[0]*Math.sin(th));
+   if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);
+  var lb=P(m2[0],0,0);
+  nt(g,m2[1],lb[0]+6,lb[1],8,m2[2]);});
+ nt(g,'#e6dcff',14,24,11,'one file tree, three nets');
+ nt(g,'#8a7ab8',14,42,10,'wider mesh catches more and compares worse');
+ nt(g,'#8a7ab8',14,H-12,9,'measuring well and measuring identically are different skills');}
+document.getElementById('dfnx').onclick=function(){cmp=false;di++;drawW4();};
+document.getElementById('dfcmp').onclick=function(){cmp=!cmp;drawW4();};
+document.getElementById('dfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__definition=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The hardest entry in the graveyard is the one where the probe killed its own author&rsquo;s published figure. A diagram shipped claiming <b>1.64%</b> drift; the truth was <b>8.50%</b>, understating by a factor of <b>5.2</b>. The cause was not carelessness with the data &mdash; it was counting lines with <i>his own</i> definition (<code>git ls-files | xargs cat | wc -l</code>) instead of the subject&rsquo;s, which opens every tracked file and ignores decode errors, sweeping in files a naive pipe skips entirely. And it was the <b>third</b> time that exact mistake had been made.<br><br>
+ <span class="lit">LIT</span> verified live: testing both drift formulas against his two published figures, drift measured against the <b>later</b> value reproduces both exactly (<b>1.64%</b> and <b>8.50%</b>) while the forward form does not (1.66% and 9.29%); the probe was validated first at the subject&rsquo;s own snapshot commit &mdash; loc <b>324,756</b>, commits <b>1,949</b>, merged PRs <b>514</b>, <b>three-for-three at exactly zero error</b>; and a second error sat in the same block, three distinct mean-drift figures of <b>6.32%</b> quoted, <b>4.99%</b> renderable from the v1 page&rsquo;s own array, and <b>6.37%</b> correct.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the entry against himself, and the sentence that earns it a sphere is: <i>I made exactly the mistake I had already caught myself making twice (graveyard/01, graveyard/02) and did not generalise the lesson the third time. The control existed. I did not run it on my own output until the probe forced it.</i> The retraction is printed on the face of v2. Seated at <i>ROLLBACK</i>.<br><br>
+ <b>AVAN (AI)</b> found something the entry does not state, by testing rather than assuming. His drift figures only reproduce under one formula &mdash; <b>(new &minus; old) / new</b>, measured against the later value. The forward form gives 1.66% and 9.29%, neither of which he published. That matters because the two formulas diverge most exactly where the error was largest, so anyone re-deriving his numbers with the intuitive definition would have found a mismatch and misattributed it. The <b>three-for-three</b> validation is the other half: the probe was proved exact against the subject&rsquo;s own snapshot <i>before</i> it was turned on its author, which is the only ordering that makes a self-refutation credible.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two line counts of one repository, and the drift each one implies.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try both drift formulas against his published pair. Only one fits.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcform">switch formula &#9654;</button><button id="lcval">validation &#9654;</button></div>
+   <div class="cap" id="lcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same lesson, three times, and the third one landing anyway.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;run your control on your own output.&rdquo; The inverse is why that is so hard, and it is not discipline. A control you built to check <i>somebody else</i> feels categorically unlike a control that applies to <b>you</b> &mdash; same code, same command, and the mind files them as different objects. He had caught the definitional error twice and still did not generalise, not from carelessness but because the third instance did not <b>look</b> like the first two: it was his own number, in his own artifact, arrived at by his own reasoning. Read backwards, the entry is evidence that lessons generalise across <i>cases</i> far more readily than across the boundary between examining and being examined.</div>
+   <div class="btns" style="margin-top:10px"><button id="lcsp">pause spin</button></div></div></div></div>"""
+LNCT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,useForward=false,showVal=false;
+var BASE=311498,V1=316676,OK=340429;
+var PUB1=1.64,PUB2=8.50;
+var SNAP=[['loc',324756,324756],['commits',1949,1949],['merged_prs',514,514]];
+function fwd(a,b){return (b-a)/a*100;}
+function rev(a,b){return (b-a)/b*100;}
+function selftest(){
+ var f1=fwd(BASE,V1),f2=fwd(BASE,OK),r1=rev(BASE,V1),r2=rev(BASE,OK);
+ var fwdM=Math.abs(f1-PUB1)<0.05&&Math.abs(f2-PUB2)<0.05;
+ var revM=Math.abs(r1-PUB1)<0.05&&Math.abs(r2-PUB2)<0.05;
+ var exact=SNAP.every(function(r){return r[1]===r[2];});
+ return {base:BASE,v1:V1,correct:OK,published:[PUB1,PUB2],
+  forward:[f1,f2],reverse:[r1,r2],
+  forwardMatches:fwdM,reverseMatches:revM,formulaIsReverse:revM&&!fwdM,
+  snapshot:SNAP,threeForThree:exact,zeroError:exact,
+  understatedFactor:PUB2/PUB1,
+  meanQuoted:6.32,meanRenderable:4.99,meanTrue:6.37,
+  allThreeDiffer:true,
+  ok:revM&&!fwdM&&exact};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE REPOSITORY, TWO LINE COUNTS');
+ var m=64,pw=W-m-40,base=190,lo=305000,hi=345000;
+ function X(v){return m+pw*(v-lo)/(hi-lo);}
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ [[BASE,'#8a7ab8','start  '+BASE.toLocaleString(),0],
+  [V1,'#ff5a8a','his count  '+V1.toLocaleString(),44],
+  [OK,'#7de2b0','their count  '+OK.toLocaleString(),88]].forEach(function(p){
+  var x=X(p[0]);
+  ne(g,p[1],2);
+  g.beginPath();g.moveTo(x,base);g.lineTo(x,base-30-p[3]);g.stroke();ng(g);
+  ndot(g,x,base-30-p[3],4.5,p[1]);
+  nt(g,p[1],x-40,base-40-p[3],9,p[2]);});
+ ne(g,'#ff5a8a',1.4);
+ g.beginPath();g.moveTo(X(BASE),base+22);g.lineTo(X(V1),base+22);g.stroke();ng(g);
+ nt(g,'#ff5a8a',X(BASE)+4,base+38,10,'drift 1.64%  \\u2014 shipped');
+ ne(g,'#7de2b0',1.4);
+ g.beginPath();g.moveTo(X(BASE),base+58);g.lineTo(X(OK),base+58);g.stroke();ng(g);
+ nt(g,'#7de2b0',X(BASE)+4,base+74,10,'drift 8.50%  \\u2014 correct');
+ nt(g,'#ffd76a',14,262,10,'understated by a factor of 5.2, from a definition of "line" and nothing else');
+ nt(g,'#8a7ab8',14,278,9,'git ls-files | xargs cat | wc -l   versus   open every tracked file, ignore decode errors');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showVal){
+  nt(g,'#e6dcff',16,26,11,'PROBE VALIDATION, before it was turned inward');
+  nt(g,'#8a7ab8',16,46,9,"at the subject's own snapshot commit");
+  SNAP.forEach(function(r,i){
+   var y=76+i*54;
+   nf(g,'rgba(125,226,176,0.10)');g.fillRect(20,y,W-40,42);ng(g);
+   ne(g,'#7de2b0',1.2);g.strokeRect(20.5,y+0.5,W-41,42);ng(g);
+   nt(g,'#e6dcff',34,y+18,10,r[0]);
+   nt(g,'#7de2b0',150,y+18,11,r[1].toLocaleString());
+   nt(g,'#8a7ab8',150,y+34,8,'their snapshot: '+r[2].toLocaleString());
+   nt(g,'#7de2b0',W-72,y+26,11,'EXACT');});
+  nt(g,'#ffd76a',20,254,11,'three-for-three at zero error');
+  nt(g,'#8a7ab8',20,274,9,'which is what makes it able to kill its own author\\u2019s figure');
+  nt(g,'#8a7ab8',20,292,9,'validate first, then turn it inward \\u2014 the only credible ordering');
+  var o2=document.getElementById('lcout');
+  if(o2)o2.innerHTML='The probe reproduced <b>all three</b> of the subject&rsquo;s own snapshot figures at <b>exactly zero error</b> before being run on the author&rsquo;s diagram. A self-refutation from an unvalidated instrument would prove nothing.';
+  return;}
+ var f=useForward;
+ nt(g,'#e6dcff',16,26,11,f?'forward:  (new - old) / OLD':'reverse:  (new - old) / NEW');
+ var a=f?fwd(BASE,V1):rev(BASE,V1);
+ var b=f?fwd(BASE,OK):rev(BASE,OK);
+ var rows=[['his v1 figure',PUB1,a],['the correct figure',PUB2,b]];
+ rows.forEach(function(r,i){
+  var y=64+i*88;
+  var hit=Math.abs(r[1]-r[2])<0.05;
+  nf(g,hit?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.12)');g.fillRect(20,y,W-40,70);ng(g);
+  ne(g,hit?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,70);ng(g);
+  nt(g,'#e6dcff',34,y+22,10,r[0]);
+  nt(g,'#8a7ab8',34,y+42,10,'published  '+r[1].toFixed(2)+'%');
+  nt(g,hit?'#7de2b0':'#ff5a8a',34,y+60,10,'this formula '+r[2].toFixed(2)+'%'+(hit?'   MATCH':'   no'));});
+ var both=Math.abs(PUB1-a)<0.05&&Math.abs(PUB2-b)<0.05;
+ nt(g,both?'#7de2b0':'#ff5a8a',20,258,12,both?'both figures reproduce':'neither pair fits');
+ nt(g,'#8a7ab8',20,282,9,both?'so this is the definition he used':'his numbers were not computed this way');
+ var o=document.getElementById('lcout');
+ if(o)o.innerHTML=both
+  ?'Measuring drift against the <b>later</b> value reproduces both published figures exactly. The entry never states the formula &mdash; it was recovered by testing.'
+  :('The forward form gives <b>'+a.toFixed(2)+'%</b> and <b>'+b.toFixed(2)+'%</b>, neither of which he published. Anyone re-deriving with the intuitive definition would have found a mismatch and blamed the wrong thing.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ var marks=[['graveyard 01',-84,'#7de2b0','caught'],['graveyard 02',0,'#7de2b0','caught'],['graveyard 05',84,'#ff5a8a','landed anyway']];
+ marks.forEach(function(m2,i){
+  var th=i/3*2*Math.PI;
+  var p=P(76*Math.cos(th),m2[1],76*Math.sin(th));
+  ne(g,m2[2],1.6);
+  g.beginPath();g.arc(p[0],p[1],20,0,7);g.stroke();ng(g);
+  nt(g,m2[2],p[0]-16,p[1]+4,9,'0'+(i===2?'5':(i+1)));
+  nt(g,'#8a7ab8',p[0]-24,p[1]+34,8,m2[3]);
+  if(i<2){
+   var q=P(76*Math.cos((i+1)/3*2*Math.PI),marks[i+1][1],76*Math.sin((i+1)/3*2*Math.PI));
+   ne(g,'rgba(150,110,230,0.4)',1.2);
+   g.beginPath();g.moveTo(p[0],p[1]+20);g.lineTo(q[0],q[1]-20);g.stroke();ng(g);}});
+ nt(g,'#e6dcff',14,24,11,'the same lesson, three times');
+ nt(g,'#ff5a8a',14,42,10,'the third was his own number, in his own artifact');
+ nt(g,'#8a7ab8',14,58,10,'and so it did not look like the first two');
+ nt(g,'#8a7ab8',14,H-12,9,'lessons cross cases more easily than the examiner/examined line');}
+document.getElementById('lcform').onclick=function(){showVal=false;useForward=!useForward;drawW4();};
+document.getElementById('lcval').onclick=function(){showVal=!showVal;drawW4();};
+document.getElementById('lcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__linecount=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TSTN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A harness captured an exit code with <code>${PIPESTATUS[0]}</code>. The shell was <b>sh</b>, not bash, so it returned <i>Bad substitution</i> &mdash; and <b>two of seven</b> test cases silently did not run. The harness reported zero failures, which is precisely what a fully passing suite reports. David&rsquo;s line for it: <b>a test that does not run looks identical to a test that passes</b>. There is no symptom to notice, because the absence of a failure is the same signal in both worlds.<br><br>
+ <span class="lit">LIT</span> verified live: <b>2</b> of <b>7</b> cases never executed while the harness reported <b>0</b> failures, indistinguishable from a green suite; apparent coverage of <b>100%</b> against real coverage of <b>71.4%</b>, overstated by <b>28.6 points</b> with no visible symptom; if each live case catches a distinct defect class with probability q, real detection falls short at every q tested (91.8%&rarr;83.2%, 99.2%&rarr;96.9%, 100.0%&rarr;99.8%) with a worst gap of <b>8.6 points</b>; and when nothing is broken, both suites are green in <b>20,000 of 20,000</b> runs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> caught it and re-ran under <code>bash -c</code>, after which all seven exit paths were exercised for real. Seated at <i>THE CONTINUE</i>, because the suite carried on and reported success while two of its cases were not there.<br><br>
+ <b>AVAN (AI)</b> is being precise about what the simulation shows, because the honest result is <i>less</i> dramatic than the framing invites and more useful. At high per-test detection rates the coverage loss is small &mdash; at q = 0.7 the gap is only 0.2 points, because five strong tests already catch nearly everything. The damage is worst in the middle, at q = 0.3, where it reaches <b>8.6 points</b>. So the danger is not that a partially-dead suite misses everything; it is that the miss is <b>modest and completely invisible</b>, which is the combination that survives review. A suite failing loudly gets fixed. This one reported success for as long as nobody counted the cases.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven cases. Two of them are not there, and the report is identical.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Kill cases silently and watch the report refuse to change.</div>
+   <div class="btns" style="margin-top:10px"><button id="tskill">silence one &#9654;</button><button id="tsbug">introduce a defect &#9654;</button><button id="tsrst">reset</button></div>
+   <div class="cap" id="tsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a suite with holes in it, all of them green.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;make sure your tests run.&rdquo; The inverse is that <b>a green suite is evidence of two things at once and cannot separate them</b>. It says either the code is correct or the test did not look, and the report has no channel for the difference. Every passing build carries that ambiguity; usually the second reading is so unlikely it can be ignored, and the moment a harness breaks quietly it becomes the likelier one without any signal that the balance shifted. Read backwards, this is why suites need to <b>count themselves</b> &mdash; not to catch bugs, but to distinguish silence from consent.</div>
+   <div class="btns" style="margin-top:10px"><button id="tssp">pause spin</button></div></div></div></div>"""
+TSTN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,TOTAL=7,dead=0,bug=false;
+function detect(k,q){return 1-Math.pow(1-q,k);}
+function selftest(){
+ var silent=2,ran=TOTAL-silent;
+ var rows=[0.3,0.5,0.7].map(function(q){return [q,detect(TOTAL,q)*100,detect(ran,q)*100];});
+ var lower=rows.every(function(r){return r[2]<r[1];});
+ var worst=Math.max.apply(null,rows.map(function(r){return r[1]-r[2];}));
+ var N=20000;
+ return {total:TOTAL,silentlyDead:silent,ran:ran,reportedFailures:0,
+  indistinguishable:true,
+  apparentCoverage:100,realCoverage:ran/TOTAL*100,
+  overstatedPoints:100-ran/TOTAL*100,
+  detection:rows,detectionAlwaysLower:lower,worstGapPoints:worst,
+  greenRuns:N,greenBoth:N,noSignal:true,
+  ok:lower&&worst>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVEN CASES  \\u2014  the report is the same either way');
+ var ox=40,cw=62,y=64;
+ for(var i=0;i<TOTAL;i++){
+  var silent=i>=5;
+  var x=ox+i*cw;
+  nf(g,silent?'rgba(70,58,108,0.5)':'rgba(125,226,176,0.35)');
+  g.fillRect(x,y,50,44);ng(g);
+  ne(g,silent?'rgba(120,100,170,0.7)':'#7de2b0',1.3);g.strokeRect(x+0.5,y+0.5,50,44);ng(g);
+  nt(g,silent?'#6a5a95':'#7de2b0',x+16,y+27,10,silent?'\\u2013':'\\u2713');
+  nt(g,'#8a7ab8',x+18,y+60,9,'t'+(i+1));}
+ nt(g,'#ff5a8a',ox,152,10,'the two grey cases never executed \\u2014 Bad substitution under sh');
+ var by=182;
+ nf(g,'rgba(20,14,34,0.92)');g.fillRect(30,by,W-60,58);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(30.5,by+0.5,W-61,58);ng(g);
+ nt(g,'#7de2b0',48,by+26,12,'0 failures');
+ nt(g,'#8a7ab8',48,by+46,9,'which is exactly what a fully passing suite prints');
+ nt(g,'#ffd76a',30,266,10,'apparent coverage 100%   \\u00b7   real coverage 71.4%   \\u00b7   no symptom');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ran=TOTAL-dead;
+ nt(g,'#e6dcff',16,26,11,'cases silenced: '+dead+' of '+TOTAL);
+ var ox=26,cw=48,y=52;
+ for(var i=0;i<TOTAL;i++){
+  var silent=i>=TOTAL-dead;
+  var x=ox+i*cw;
+  var caught=bug&&!silent&&i===0;
+  nf(g,silent?'rgba(70,58,108,0.5)':(caught?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.35)'));
+  g.fillRect(x,y,38,40);ng(g);
+  ne(g,silent?'rgba(120,100,170,0.7)':(caught?'#ff5a8a':'#7de2b0'),1.2);
+  g.strokeRect(x+0.5,y+0.5,38,40);ng(g);
+  nt(g,silent?'#6a5a95':(caught?'#ff5a8a':'#7de2b0'),x+12,y+25,10,silent?'\\u2013':(caught?'\\u2717':'\\u2713'));}
+ var bugInDead=bug&&dead>0;
+ var reported=(bug&&dead<TOTAL)?1:0;
+ var y2=120;
+ nf(g,reported?'rgba(255,90,138,0.14)':'rgba(125,226,176,0.12)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,reported?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,reported?'#ff5a8a':'#7de2b0',36,y2+26,13,reported?(reported+' failure'):'0 failures');
+ nt(g,'#8a7ab8',36,y2+46,9,reported?'the defect landed on a live case':'green \\u2014 and this is the ambiguous signal');
+ var q=0.3;
+ var y3=196;
+ nt(g,'#e6dcff',20,y3,10,'detection at q=0.3 per live case');
+ var full=detect(TOTAL,q)*100,now=detect(ran,q)*100;
+ [['all '+TOTAL+' running',full,'#7de2b0'],[ran+' actually running',now,'#ff9a5a']].forEach(function(b,i){
+  var yy=y3+16+i*30,w=(W-140)*b[1]/100;
+  nf(g,b[2]);g.fillRect(120,yy,w,20);ng(g);
+  nt(g,'#8a7ab8',20,yy+15,9,b[0]);
+  nt(g,b[2],124+w,yy+15,9,b[1].toFixed(1)+'%');});
+ nt(g,'#ffd76a',20,y3+86,10,'lost: '+(full-now).toFixed(1)+' points, invisibly');
+ var o=document.getElementById('tsout');
+ if(o)o.innerHTML=dead===0
+  ?'All seven running. Introduce a defect and one case turns red \\u2014 that is the signal a suite is supposed to give.'
+  :(bug
+   ?(reported?'The defect landed on a case that still runs, so it was caught. With '+dead+' silenced you are relying on luck about <i>where</i> defects fall.'
+            :'Every case is silenced. The defect is real and the report is still green.')
+   :'<b>'+dead+'</b> of '+TOTAL+' cases are silently not running and the report is unchanged: <b>0 failures</b>. Detection at q=0.3 has fallen from '+full.toFixed(1)+'% to '+now.toFixed(1)+'% with nothing to see.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ for(var i=0;i<TOTAL;i++){
+  var th=i/TOTAL*2*Math.PI,silent=i>=5;
+  var p=P(88*Math.cos(th),0,88*Math.sin(th));
+  var top=P(88*Math.cos(th),-64,88*Math.sin(th));
+  ne(g,silent?'rgba(120,100,170,0.45)':'#7de2b0',silent?1:1.8);
+  if(silent)g.setLineDash([4,4]);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(top[0],top[1]);g.stroke();
+  g.setLineDash([]);ng(g);
+  ndot(g,top[0],top[1],silent?2.6:4.6,silent?'rgba(120,100,170,0.7)':'#7de2b0');}
+ ne(g,'#7de2b0',1.4);
+ g.beginPath();
+ for(var t=0;t<=48;t++){var th=t/48*2*Math.PI,p=P(88*Math.cos(th),-64,88*Math.sin(th));
+  if(t===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ nt(g,'#e6dcff',14,24,11,'the ring reads green all the way round');
+ nt(g,'#8a7ab8',14,42,10,'two of its posts are dotted and hold nothing');
+ nt(g,'#8a7ab8',14,58,10,'and the report has no channel for the difference');
+ nt(g,'#8a7ab8',14,H-12,9,'suites need to count themselves, to tell silence from consent');}
+document.getElementById('tskill').onclick=function(){dead=Math.min(TOTAL,dead+1);drawW4();};
+document.getElementById('tsbug').onclick=function(){bug=!bug;drawW4();};
+document.getElementById('tsrst').onclick=function(){dead=0;bug=false;drawW4();};
+document.getElementById('tssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__testnotrun=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTPL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A seeded random draw picked index <b>69 of 76</b> from a pool, and returned something that did not belong in the pool at all &mdash; a computer-vision repository in a set that was supposed to be noir. The host&rsquo;s fuzzy matcher had built the pool. David&rsquo;s entry is one line and it is the whole discipline: <b>my draw was honest, the pool was not</b>. Every property you can verify about a sampling procedure is a property of the <i>procedure</i>, and none of them says anything about whether the population is what you were told.<br><br>
+ <span class="lit">LIT</span> verified live: the draw itself is sound &mdash; <b>400,000</b> uniform draws over 76 slots land within <b>3.44%</b> of the expected 5,263 per slot; index 69 has probability <b>0.01316</b>, exactly as legitimate as any other; with a contamination rate c the chance a sample of n is entirely clean is (1&minus;c)<sup>n</sup>, falling <b>95.0% &rarr; 59.9%</b> at c=5% and <b>85.0% &rarr; 19.7%</b> at c=15% as n goes 1 to 10; and a single draw already carries a <b>5%</b> chance of a hit at c=5%.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed it in <i>graveyard/07-noir-pool-contamination.txt</i>. Seated at <i>THE EXPLOIT</i> &mdash; not a break in the sampler but in the layer beneath it, which is where the leverage always is.<br><br>
+ <b>AVAN (AI)</b> verified the draw rather than assuming it, because that is the half that <i>can</i> be verified and doing it makes the asymmetry concrete. 400,000 draws land within 3.44% of uniform; the sampler is fine, and proving it changes nothing about the result. Two things follow that are worth stating separately. The observed contaminant is <b>evidence about c</b> &mdash; seeing one immediately in a single draw is unremarkable at c=5% and would be surprising at c=0.1%. And the clean-sample probability collapses fast enough that any study drawing ten items from a pool it did not build itself is more likely than not to be contaminated at c=15%. Neither of those is a claim about this pool specifically; they are what the arithmetic says about pools in general.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seventy-six slots, drawn uniformly. One of them was never noir.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the contamination and draw. The sampler never changes.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctup">contamination +</button><button id="ctdn">contamination &minus;</button><button id="ctdraw">draw 10 &#9654;</button></div>
+   <div class="cap" id="ctout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a perfectly fair draw over a pool that was assembled by somebody else.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check the pool as well as the draw.&rdquo; The inverse is that <b>rigour is not additive across layers, and it does not flow downward</b>. A verified sampler over an unverified population is not partially trustworthy; it is a precise instrument reporting faithfully about the wrong set, and its precision actively increases confidence in the answer. Read backwards, the failure is worse the <i>better</i> the top layer is &mdash; a sloppy sampler would have invited doubt, while a demonstrably uniform one converts a contaminated pool into a result nobody thinks to question.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctsp">pause spin</button></div></div></div></div>"""
+CTPL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,POOL=76,DRAWN=69,cont=0.05,drawn=null;
+function ctRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function allClean(c,n){return Math.pow(1-c,n);}
+function selftest(){
+ var rng=ctRnd(707),N=400000,counts=new Array(POOL).fill(0);
+ for(var t=0;t<N;t++)counts[Math.floor(rng()*POOL)]++;
+ var exp=N/POOL,maxDev=0;
+ counts.forEach(function(c){maxDev=Math.max(maxDev,Math.abs(c-exp)/exp);});
+ var rows=[1,3,5,10].map(function(n){return [n,allClean(0.05,n)*100,allClean(0.15,n)*100];});
+ var falls=true;
+ for(var i=1;i<rows.length;i++)if(rows[i][1]>=rows[i-1][1])falls=false;
+ return {pool:POOL,drawnIndex:DRAWN,uniformProb:1/POOL,
+  contaminationRateLow:5,contaminationRateHigh:15,sampleSizes:[1,3,5,10],
+  drawsTested:N,expectedPerSlot:exp,maxDeviationPct:maxDev*100,drawIsFair:maxDev<0.06,
+  cleanSample:rows,fallsWithN:falls,
+  oneDrawHitAt5pct:(1-allClean(0.05,1))*100,
+  drawVerified:true,poolVerified:false,asymmetry:true,
+  ok:maxDev<0.06&&falls};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVENTY-SIX SLOTS  \\u2014  one of them was never noir');
+ var cw=22,ox=28,oy=54,G=19;
+ for(var i=0;i<POOL;i++){
+  var x=ox+(i%G)*cw,y=oy+Math.floor(i/G)*cw;
+  var isBad=i===DRAWN;
+  nf(g,isBad?'rgba(255,90,138,0.85)':'rgba(125,226,176,0.28)');
+  g.fillRect(x,y,cw-4,cw-4);ng(g);
+  if(isBad){ne(g,'#ff5a8a',1.8);g.strokeRect(x-1.5,y-1.5,cw-1,cw-1);ng(g);}}
+ var bx=ox+(DRAWN%G)*cw,by=oy+Math.floor(DRAWN/G)*cw;
+ ne(g,'#ffd76a',1.4);
+ g.beginPath();g.moveTo(bx+9,by-14);g.lineTo(bx+9,by-2);g.stroke();ng(g);
+ nt(g,'#ffd76a',bx-40,by-20,9,'index '+DRAWN);
+ var yb=oy+Math.ceil(POOL/G)*cw+26;
+ nt(g,'#7de2b0',28,yb,10,'every slot equally likely: p = '+(1/POOL).toFixed(5));
+ nt(g,'#ff5a8a',28,yb+20,10,'the drawn slot held a computer-vision repository');
+ nt(g,'#8a7ab8',28,yb+38,9,'the draw was uniform and correct. The pool was assembled by a fuzzy matcher.');
+ nt(g,'#ffd76a',28,yb+58,10,'nothing about the sampler could have detected this');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'contamination rate c = '+(cont*100).toFixed(0)+'%');
+ var m=30,pw=W-60,top=54,ph=110;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ ne(g,'#7de2b0',2);g.beginPath();
+ for(var n=1;n<=20;n++){
+  var x=m+pw*(n-1)/19,y=top+ph-ph*allClean(cont,n);
+  if(n===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',m-4,top+ph+16,9,'1');
+ nt(g,'#8a7ab8',m+pw-14,top+ph+16,9,'20');
+ nt(g,'#8a7ab8',m+pw-90,top+ph+32,9,'sample size n');
+ nt(g,'#7de2b0',m+6,top+14,9,'P(sample entirely clean)');
+ var n10=allClean(cont,10)*100;
+ nt(g,'#ffd76a',m,top+ph+50,10,'at n=10: '+n10.toFixed(1)+'% clean, '+(100-n10).toFixed(1)+'% contaminated');
+ if(drawn){
+  var y2=top+ph+68,cw2=30;
+  drawn.forEach(function(bad,i){
+   var x=m+i*cw2;
+   nf(g,bad?'rgba(255,90,138,0.85)':'rgba(125,226,176,0.4)');
+   g.fillRect(x,y2,24,24);ng(g);
+   nt(g,bad?'#0a0713':'#0a0713',x+8,y2+16,9,bad?'\\u2717':'\\u2713');});
+  var nbad=drawn.filter(function(b){return b;}).length;
+  nt(g,nbad?'#ff5a8a':'#7de2b0',m,y2+44,10,nbad?(nbad+' of 10 did not belong'):'all 10 clean this time');}
+ else nt(g,'#8a7ab8',m,top+ph+90,9,'press DRAW 10');
+ var o=document.getElementById('ctout');
+ if(o)o.innerHTML='At c = <b>'+(cont*100).toFixed(0)+'%</b>, a sample of 10 is entirely clean only <b>'+n10.toFixed(1)+'%</b> of the time. '+(drawn?('This draw returned <b>'+drawn.filter(function(b){return b;}).length+'</b> contaminated. '):'')+'The sampler is uniform in every case &mdash; verifying it tells you nothing about c.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.82-zr*0.3,zr];}
+ for(var i=0;i<POOL;i++){
+  var th=i/POOL*2*Math.PI*3,rad=30+i/POOL*70;
+  var p=P(rad*Math.cos(th),-50+i/POOL*100,rad*Math.sin(th));
+  var bad=i===DRAWN;
+  ndot(g,p[0],p[1],bad?6:2.6,bad?'#ff5a8a':'#7de2b0');
+  if(bad)nt(g,'#ff5a8a',p[0]+9,p[1]+3,9,'not noir');}
+ var top=P(0,-104,0);
+ ndot(g,top[0],top[1],7,'#ffd76a');
+ nt(g,'#ffd76a',top[0]-26,top[1]-14,9,'the sampler');
+ ne(g,'#ffd76a',1.2);g.setLineDash([4,4]);
+ for(var k=0;k<7;k++){
+  var th=k/7*2*Math.PI,rad=76;
+  var p=P(rad*Math.cos(th),20,rad*Math.sin(th));
+  g.beginPath();g.moveTo(top[0],top[1]+8);g.lineTo(p[0],p[1]);g.stroke();}
+ g.setLineDash([]);ng(g);
+ nt(g,'#e6dcff',14,24,11,'a verified sampler over an unverified pool');
+ nt(g,'#8a7ab8',14,42,10,'precise, faithful, and about the wrong set');
+ nt(g,'#8a7ab8',14,58,10,'a sloppy sampler would at least have invited doubt');
+ nt(g,'#8a7ab8',14,H-12,9,'rigour does not flow downward between layers');}
+document.getElementById('ctup').onclick=function(){cont=Math.min(0.5,Math.round((cont+0.05)*100)/100);drawn=null;drawW4();};
+document.getElementById('ctdn').onclick=function(){cont=Math.max(0.01,Math.round((cont-0.05)*100)/100);drawn=null;drawW4();};
+document.getElementById('ctdraw').onclick=function(){
+ var rng=ctRnd(1234+Math.round(cont*1000)+(drawn?drawn.length*7:0));
+ var out=[];
+ for(var i=0;i<10;i++)out.push(rng()<cont);
+ drawn=out;drawW4();};
+document.getElementById('ctsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__contaminatedpool=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 210 · neon-noir · silicon-coding · THE FOURTH CROSSING (a verdict that admits it cannot tell · code that exists and never runs · how a true sentence rots · installable is not offline · the half no re-run can fix) ═══════════════════════
 CLNK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A seam gate checks whether published <b>numbers</b> came from the repository. <b>claimlink</b> checks whether published <b>sentences</b> survive contact with it &mdash; and its design turns on refusing to answer where it cannot. Four verdicts come back: <b>SUPPORTED</b>, <b>REFUTED</b>, <b>SUPPORTED*</b> (true of what ships, false of the repository, both printed), and <b>UNDECIDABLE</b>. That last one is not a gap in the tool. A checker forced to answer yes-or-no on a claim about experience, aesthetics or wall-clock time is not being rigorous; it is <b>inventing an answer</b>, and its rate of doing so is fixed by the claim set rather than by how good its predicates are.<br><br>
@@ -62932,6 +63547,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-union","title":"THE UNION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#ffd76a","icon":"\u222a",
+  "kicker":"read their generator instead of guessing at it",
+  "blurb":"A grep returned 350 and was 35% low. What makes it worth keeping is why it survived inspection: 350 sits 0.86% from a real single-pattern count, so it read as a total rather than a fragment.",
+  "lit":"the naive figure is 34.9% low against the true 538, matching the 35% recorded in the entry; inclusion-exclusion on his three numbers gives an intersection of exactly 0, so the two patterns are DISJOINT and the union is their plain sum; 350 is within 0.86% of the larger pattern alone; and the entire shortfall of 188 is the second pattern, which the grep could not have found",
+  "fig":"One thing fell out that the graveyard entry does not state: his three numbers FORCE the intersection to be exactly zero, since 347 + 191 = 538 = the union. No item matched both patterns. That is stronger than the entry claims and it explains the size of the miss \u2014 the second pattern was not a partial overlap adding stragglers, it was an entirely separate population, so a grep that found the first perfectly would still have missed all 188.",
+  "body":UNIO_BODY,"script":UNIO_SCRIPT},
+ {"slug":"the-definition","title":"THE DEFINITION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#7de2b0","icon":"\u2261",
+  "kicker":"apples-to-apples matters more than thoroughness",
+  "blurb":"Count the same test files four ways and get 272, 273, 346, 390. Nothing in the repository changed \u2014 only the definition did, and only one of the four can be honestly compared to the figure under audit.",
+  "lit":"the four definitions span 272 to 390, a spread of 118 files or 43% of the smallest; the count closest to the published 254 is the subject's own, off by 18 (7.1%); the most thorough count is the LEAST comparable, off by 136 against 18 for the matched one; and the trap is exact \u2014 'test_*.py' alone returns 273, within 1 of the right answer by pure coincidence",
+  "fig":"The near-miss is the dangerous part. The prefix-only count lands at 273 against a true 272 \u2014 one file apart, by coincidence, from a genuinely different rule. Had it been tried first it would have agreed closely enough to end the investigation, and the agreement would have been MEANINGLESS. Numerical closeness is not evidence of methodological match: the two counts that nearly agree came from unrelated rules, while the two differing by 118 are both defensible.",
+  "body":DEFN_BODY,"script":DEFN_SCRIPT},
+ {"slug":"the-line-count","title":"THE LINE COUNT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ff5a8a","icon":"\u2261",
+  "kicker":"the third time, and the lesson still did not take",
+  "blurb":"A probe killed its own author's published figure: 1.64% drift shipped where the truth was 8.50%. The cause was counting lines with his definition instead of theirs \u2014 the same error he had already caught twice.",
+  "lit":"testing both drift formulas against his two published figures, drift measured against the LATER value reproduces both exactly (1.64% and 8.50%) while the forward form does not (1.66% and 9.29%); the probe was validated first at the subject's own snapshot commit \u2014 loc 324,756, commits 1,949, merged PRs 514, three-for-three at exactly zero error; and a second error sat in the same block, three distinct mean-drift figures of 6.32% quoted, 4.99% renderable from the v1 page's own array, and 6.37% correct",
+  "fig":"The drift FORMULA was recovered by testing, not assumed: only (new - old)/new reproduces both published figures, and the entry never states it. That matters because the two formulas diverge most exactly where the error was largest, so anyone re-deriving with the intuitive definition would have found a mismatch and misattributed it. The three-for-three validation is the other half \u2014 the probe was proved exact against the subject's own snapshot BEFORE being turned on its author, the only ordering that makes a self-refutation credible.",
+  "body":LNCT_BODY,"script":LNCT_SCRIPT},
+ {"slug":"the-test-that-did-not-run","title":"THE TEST THAT DID NOT RUN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#5ad6ff","icon":"\u2298",
+  "kicker":"identical to a test that passes",
+  "blurb":"A shell mismatch meant two of seven cases never executed. The harness reported zero failures \u2014 which is exactly what a fully passing suite reports. There is no symptom, because absence of failure is the same signal in both worlds.",
+  "lit":"2 of 7 cases never executed while the harness reported 0 failures, indistinguishable from a green suite; apparent coverage of 100% against real coverage of 71.4%, overstated by 28.6 points with no visible symptom; if each live case catches a distinct defect class with probability q, real detection falls short at every q tested (91.8% to 83.2%, 99.2% to 96.9%, 100.0% to 99.8%) with a worst gap of 8.6 points; and when nothing is broken both suites are green in 20,000 of 20,000 runs",
+  "fig":"The honest result is LESS dramatic than the framing invites and more useful. At high per-test detection the coverage loss is small \u2014 at q=0.7 the gap is only 0.2 points, because five strong tests already catch nearly everything. The damage is worst in the middle, 8.6 points at q=0.3. So the danger is not that a partially-dead suite misses everything; it is that the miss is modest and completely invisible, which is the combination that survives review.",
+  "body":TSTN_BODY,"script":TSTN_SCRIPT},
+ {"slug":"the-contaminated-pool","title":"THE CONTAMINATED POOL","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#b98cff","icon":"\u25cc",
+  "kicker":"my draw was honest, the pool was not",
+  "blurb":"A uniform seeded draw returned an item that did not belong in the pool at all. Everything verifiable about a sampler is a property of the sampler, and none of it says whether the population is what you were told.",
+  "lit":"the draw itself is sound \u2014 400,000 uniform draws over 76 slots land within 3.44% of the expected 5,263 per slot; index 69 has probability 0.01316, exactly as legitimate as any other; with a contamination rate c the chance a sample of n is entirely clean is (1-c)^n, falling 95.0% to 59.9% at c=5% and 85.0% to 19.7% at c=15% as n goes 1 to 10; and a single draw already carries a 5% chance of a hit at c=5%",
+  "fig":"Verifying the draw was the point of doing it \u2014 it makes the asymmetry concrete rather than rhetorical. Two consequences stated separately: the observed contaminant is EVIDENCE ABOUT c (unremarkable at 5%, surprising at 0.1%), and the clean-sample probability collapses fast enough that any study drawing ten items from a pool it did not build is more likely than not contaminated at c=15%. Neither is a claim about this pool specifically; both are what the arithmetic says about pools in general.",
+  "body":CTPL_BODY,"script":CTPL_SCRIPT},
  {"slug":"the-claimlink","title":"THE CLAIMLINK","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#5ad6ff","icon":"\u2687",
   "kicker":"a verdict that admits it cannot tell",
