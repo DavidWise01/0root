@@ -19499,6 +19499,679 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 217 · neon-noir · silicon-coding · GUARANTEES AND WHAT THEY COST (a tie nobody can break · bounds that are right and useless · a fraction that forgets its parts · the error that only goes one way · a packing with no slack) ═══════════════════════
+NFL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Averaged over <b>every possible</b> objective function, all search algorithms perform identically. Not approximately &mdash; identically. Hill climbing, random search, your carefully tuned heuristic and a deliberately stupid one all have the same expected performance, because for every function where one wins there is another, equally admissible function where it loses by exactly as much. Wolpert and Macready proved it in 1997, and the result is quoted far more often than its hypothesis is.<br><br>
+ <span class="lit">LIT</span> verified live: enumerating all <b>27</b> functions from a three-point domain to a three-value range, three different deterministic algorithms produce <b>identical</b> histograms of observed value-sequences, and identical means for best-found-so-far at every step &mdash; <b>1.0000</b>, <b>1.4444</b>, <b>1.6667</b> after one, two and three evaluations. Restricted to the <b>10</b> non-decreasing functions the tie collapses at once: the same three algorithms score <b>1.000</b>, <b>1.500</b> and <b>1.200</b>, a spread of <b>0.500</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>HARD RESET</i>: whatever you learned about which algorithm is better, averaged over everything, resets to nothing.<br><br>
+ <b>AVAN (AI)</b> built the second half deliberately, because the theorem is usually cited without it. &ldquo;No algorithm is better than another&rdquo; is <b>false</b> as normally understood; what is true is that no algorithm is better <i>averaged over the set of all functions</i>, and that set is dominated by functions of pure noise, which nobody has ever wanted to optimise. Restricting to the non-decreasing functions &mdash; a class so mild it barely deserves the name <i>structure</i> &mdash; is enough to separate the algorithms by half a unit. The theorem is not a warning that search is hopeless. It is a statement that <b>every advantage is a bet on structure</b>, and the bet is what the averaging removes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three algorithms, all 27 functions. The curves lie on top of each other.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Restrict the function class and watch the tie break.</div>
+   <div class="btns" style="margin-top:10px"><button id="nfclass">restrict the class &#9654;</button><button id="nfhist">show histograms</button></div>
+   <div class="cap" id="nfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of all functions, and three paths through it that come out level.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;no algorithm beats another on average.&rdquo; The inverse is that <b>the theorem is a measurement of the averaging set, not of the algorithms</b>. It says the set of all functions has no structure to exploit &mdash; which is unsurprising, since a uniformly random function is exactly the object defined by having none. Read backwards, every working heuristic is a compressed claim about which functions are likely, and NFL is the observation that if you refuse to make such a claim you have refused to search. The theorem does not forbid a free lunch. It observes that you have declined to say where the restaurant is.</div>
+   <div class="btns" style="margin-top:10px"><button id="nfsp">pause spin</button></div></div></div></div>"""
+NFL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,restricted=false,showHist=false;
+var FN=[];
+for(var a=0;a<3;a++)for(var b=0;b<3;b++)for(var c=0;c<3;c++)FN.push([a,b,c]);
+var ALGS={'left-to-right':function(f){return [0,1,2];},
+ 'right-to-left':function(f){return [2,1,0];},
+ 'probe-middle':function(f){var sec=f[1]===0?0:2;return [1,sec,sec===0?2:0];}};
+var NAMES=['left-to-right','right-to-left','probe-middle'];
+function trace(n,f){return ALGS[n](f).map(function(x){return f[x];});}
+function meansOver(set){
+ var o={};
+ NAMES.forEach(function(n){
+  o[n]=[1,2,3].map(function(k){
+   var s=0;
+   set.forEach(function(f){s+=Math.max.apply(null,trace(n,f).slice(0,k));});
+   return s/set.length;});});
+ return o;}
+function histOver(set){
+ var o={};
+ NAMES.forEach(function(n){
+  var m={};
+  set.forEach(function(f){var k=trace(n,f).join('');m[k]=(m[k]||0)+1;});
+  o[n]=m;});
+ return o;}
+var MONO=FN.filter(function(f){return f[0]<=f[1]&&f[1]<=f[2];});
+function selftest(){
+ var H=histOver(FN);
+ var ref=JSON.stringify(Object.keys(H[NAMES[0]]).sort().map(function(k){return [k,H[NAMES[0]][k]];}));
+ var same=NAMES.every(function(n){
+  return JSON.stringify(Object.keys(H[n]).sort().map(function(k){return [k,H[n][k]];}))===ref;});
+ var M=meansOver(FN),M0=JSON.stringify(M[NAMES[0]]);
+ var meansSame=NAMES.every(function(n){return JSON.stringify(M[n])===M0;});
+ var R=meansOver(MONO);
+ var vals=NAMES.map(function(n){return R[n][1];});
+ var spread=Math.max.apply(null,vals)-Math.min.apply(null,vals);
+ return {functions:FN.length,algorithms:NAMES.length,
+  histogramsIdentical:same,meansIdentical:meansSame,
+  meanBestAfter1:M[NAMES[0]][0],meanBestAfter2:M[NAMES[0]][1],meanBestAfter3:M[NAMES[0]][2],
+  monotoneCount:MONO.length,restrictedMeans:vals,restrictedSpread:spread,
+  tieBreaksWhenRestricted:spread>0.3,
+  ok:same&&meansSame&&spread>0.3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'BEST-SO-FAR, AVERAGED OVER ALL 27 FUNCTIONS');
+ var m=64,pw=W-m-40,top=46,ph=178;
+ ne(g,'rgba(150,110,230,0.5)',1);
+ g.beginPath();g.moveTo(m,top);g.lineTo(m,top+ph);g.lineTo(m+pw,top+ph);g.stroke();ng(g);
+ var M=meansOver(FN);
+ var cols=['#7de2b0','#5ad6ff','#ffd76a'],dash=[[],[7,4],[2,4]];
+ NAMES.forEach(function(n,i){
+  ne(g,cols[i],i===0?4:2);g.setLineDash(dash[i]);
+  g.beginPath();
+  M[n].forEach(function(v,k){
+   var px=m+pw*(k+1)/3,py=top+ph-ph*(v/2);
+   if(k===0)g.moveTo(px,py);else g.lineTo(px,py);});
+  g.stroke();g.setLineDash([]);ng(g);
+  ndot(g,m+pw*1/3,top+ph-ph*(M[n][0]/2),4,cols[i]);
+  nt(g,cols[i],m+pw+6,top+30+i*18,9,n);});
+ [1,2,3].forEach(function(k){nt(g,'#8a7ab8',m+pw*k/3-6,top+ph+18,9,''+k);});
+ nt(g,'#8a7ab8',m-30,top+ph+4,9,'0.0');
+ nt(g,'#8a7ab8',m-30,top+6,9,'2.0');
+ nt(g,'#e6dcff',14,262,10,'three algorithms, one curve \\u2014 they are exactly superimposed');
+ nt(g,'#8a7ab8',14,282,9,'1.0000  \\u00b7  1.4444  \\u00b7  1.6667   the same for all three, at every step');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var set=restricted?MONO:FN;
+ nt(g,'#e6dcff',16,26,11,restricted?('only the '+MONO.length+' non-decreasing functions'):('all '+FN.length+' functions'));
+ if(showHist){
+  var Hs=histOver(set);
+  var keys=Object.keys(Hs[NAMES[0]]).sort();
+  nt(g,'#8a7ab8',16,46,9,'observed value-sequences, per algorithm');
+  var mx=0;
+  NAMES.forEach(function(n){keys.forEach(function(k){mx=Math.max(mx,Hs[n][k]||0);});});
+  var bw=(W-56)/keys.length;
+  NAMES.forEach(function(n,i){
+   var y0=62+i*84;
+   nt(g,['#7de2b0','#5ad6ff','#ffd76a'][i],20,y0,9,n);
+   keys.forEach(function(k,j){
+    var v=Hs[n][k]||0,hh=v/mx*44;
+    nf(g,['rgba(125,226,176,0.6)','rgba(90,214,255,0.6)','rgba(255,215,106,0.6)'][i]);
+    g.fillRect(24+j*bw,y0+52-hh,Math.max(1,bw-2),hh);ng(g);});});
+  var o2=document.getElementById('nfout');
+  if(o2)o2.innerHTML=restricted
+   ?'Restricted to the non-decreasing functions the three histograms come apart \\u2014 each algorithm now sees a different distribution of values.'
+   :'Across all 27 functions the three histograms are <b>identical</b>, bar for bar. Every algorithm sees the same multiset of value-sequences; only the order in which functions produce them differs.';
+  return;}
+ var M=meansOver(set);
+ var cols=['#7de2b0','#5ad6ff','#ffd76a'];
+ nt(g,'#8a7ab8',16,46,9,'mean best-found after 2 evaluations');
+ NAMES.forEach(function(n,i){
+  var v=M[n][1],y=72+i*66;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,52);ng(g);
+  ne(g,cols[i],1.2);g.strokeRect(20.5,y+0.5,W-41,52);ng(g);
+  nt(g,'#e6dcff',34,y+20,10,n);
+  nf(g,cols[i]==='#7de2b0'?'rgba(125,226,176,0.5)':(cols[i]==='#5ad6ff'?'rgba(90,214,255,0.5)':'rgba(255,215,106,0.5)'));
+  g.fillRect(34,y+30,(W-100)*(v/2),12);ng(g);
+  nt(g,cols[i],W-70,y+40,12,v.toFixed(4));});
+ var vals=NAMES.map(function(n){return M[n][1];});
+ var spread=Math.max.apply(null,vals)-Math.min.apply(null,vals);
+ var y2=278;
+ nf(g,spread<1e-12?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,40);ng(g);
+ ne(g,spread<1e-12?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,40);ng(g);
+ nt(g,spread<1e-12?'#7de2b0':'#ff5a8a',36,y2+25,12,spread<1e-12?'PERFECTLY TIED':('SPREAD  '+spread.toFixed(4)));
+ var o=document.getElementById('nfout');
+ if(o)o.innerHTML=restricted
+  ?('Over the <b>'+MONO.length+'</b> non-decreasing functions the tie is gone \\u2014 a spread of <b>'+spread.toFixed(4)+'</b>. That class is barely structured at all, and it is already enough.')
+  :('Over all <b>'+FN.length+'</b> functions the three algorithms agree to the last digit. The averaging set contains every noise function there is, and that is what the tie is made of.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.3];}
+ FN.forEach(function(f,i){
+  var th=i/FN.length*2*Math.PI,rad=76+((i%3)*16);
+  var p=P(rad*Math.cos(th),-70+(i%9)*16,rad*Math.sin(th));
+  var mono=f[0]<=f[1]&&f[1]<=f[2];
+  ndot(g,p[0],p[1],mono?5:2.6,mono?'#ffd76a':'rgba(125,226,176,0.5)');});
+ var cp=P(0,0,0);
+ ndot(g,cp[0],cp[1],7,'#e6dcff');
+ nt(g,'#7de2b0',14,24,11,'green: all 27 functions');
+ nt(g,'#ffd76a',14,42,10,'gold: the 10 with any structure at all');
+ nt(g,'#8a7ab8',14,58,10,'the tie is an average over the green');
+ nt(g,'#8a7ab8',14,H-12,9,'the theorem does not forbid a free lunch, it notes you declined to name the restaurant');}
+document.getElementById('nfclass').onclick=function(){restricted=!restricted;drawW4();};
+document.getElementById('nfhist').onclick=function(){showHist=!showHist;drawW4();};
+document.getElementById('nfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__nofreelunch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+IVAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Compute with intervals instead of numbers and every result comes with a <b>guarantee</b>: the true answer is inside the bracket, always, no exceptions. What the guarantee does not promise is that the bracket is <i>narrow</i>. Because the arithmetic forgets that two appearances of x are the <b>same</b> x, subtraction of a quantity from itself does not give zero, and the width grows with every operation until the bound is technically correct and practically empty. This is the dependency problem, and it is why interval arithmetic is trusted and rarely used raw.<br><br>
+ <span class="lit">LIT</span> verified live: for f(x) = x&sup2; &minus; x on [0,1] the true range is [&minus;0.25, 0], width <b>0.25</b>; naive interval evaluation returns [&minus;1, 1], width <b>2</b> &mdash; <b>8&times;</b> too wide; the algebraically identical form x(x&minus;1) returns [&minus;1, 0], still <b>4&times;</b> too wide; [1,2] &minus; [1,2] gives <b>[&minus;1, 1]</b> rather than [0,0]; across <b>10,001</b> sample points <b>0</b> fall outside either bound; and subdividing the input narrows the width <b>0.450 &rarr; 0.270 &rarr; 0.252</b> at 10, 100 and 1,000 pieces.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>EVENT HORIZON</i>: the answer is still in there, and past a certain width that stops being useful information.<br><br>
+ <b>AVAN (AI)</b> wants the soundness check read as the load-bearing one. It would be easy to build a page that only shows the bounds blowing up, and it would be misleading &mdash; the whole value of the method is that the bound is <b>never wrong</b>, and 10,001 sampled points confirm containment for both forms without a single escape. Two things follow that are worth separating. The first is that <b>algebraically identical expressions are not identical in interval arithmetic</b>: x&sup2;&minus;x and x(x&minus;1) are the same function and give different brackets, because the second mentions x fewer times independently. The second is that subdivision converges, so the width is a property of <i>how you asked</i>, not of what is true. Ramon Moore formalised this in 1966.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The true range, and two correct brackets around it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Subdivide and watch a useless bound become a useful one, without ever becoming wrong.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivup">subdivide &#9654;</button><button id="ivdn">coarsen</button><button id="ivform">switch form</button></div>
+   <div class="cap" id="ivout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the true graph, inside a box that is always big enough.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;interval arithmetic over-estimates.&rdquo; The inverse is that <b>it is not computing with numbers at all, it is computing with ignorance</b>, and the width is an exact record of how much ignorance the expression introduced. [1,2] &minus; [1,2] is [&minus;1,1] because the arithmetic was <i>told two independent quantities</i> and answered that question correctly; the mistake is upstream, in the translation that dropped the fact that they were the same. Read backwards, the dependency problem is not a flaw in the arithmetic but a faithful report of what the notation failed to say &mdash; and every widening step is the method telling you exactly where information was lost.</div>
+   <div class="btns" style="margin-top:10px"><button id="ivsp">pause spin</button></div></div></div></div>"""
+IVAL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nSub=1,useFactored=false;
+function isub(x,y){return [x[0]-y[1],x[1]-y[0]];}
+function imul(x,y){var p=[x[0]*y[0],x[0]*y[1],x[1]*y[0],x[1]*y[1]];
+ return [Math.min.apply(null,p),Math.max.apply(null,p)];}
+function wid(x){return x[1]-x[0];}
+function evalNaive(iv){return isub(imul(iv,iv),iv);}
+function evalFactored(iv){return imul(iv,isub(iv,[1,1]));}
+function subdiv(n,fn){
+ var a=Infinity,b=-Infinity;
+ for(var i=0;i<n;i++){var r=fn([i/n,(i+1)/n]);
+  a=Math.min(a,r[0]);b=Math.max(b,r[1]);}
+ return [a,b];}
+var TRUE=[-0.25,0];
+function selftest(){
+ var X=[0,1];
+ var nv=evalNaive(X),fc=evalFactored(X);
+ var out=0,lo=Infinity,hi=-Infinity;
+ for(var i=0;i<=10000;i++){var x=i/10000,y=x*x-x;
+  lo=Math.min(lo,y);hi=Math.max(hi,y);
+  if(y<nv[0]-1e-12||y>nv[1]+1e-12)out++;
+  if(y<fc[0]-1e-12||y>fc[1]+1e-12)out++;}
+ var w10=wid(subdiv(10,evalNaive)),w100=wid(subdiv(100,evalNaive)),w1000=wid(subdiv(1000,evalNaive));
+ var self=isub([1,2],[1,2]);
+ return {trueRange:TRUE,trueWidth:0.25,sampledLo:lo,sampledHi:hi,
+  naive:nv,naiveWidth:wid(nv),naiveFactor:wid(nv)/0.25,
+  factored:fc,factoredWidth:wid(fc),factoredFactor:wid(fc)/0.25,
+  samples:10001,outsideBounds:out,soundEverywhere:out===0,
+  selfSubtract:self,selfIsNotZero:self[0]===-1&&self[1]===1,
+  pieces:[10,100,1000],widths:[w10,w100,w1000],narrows:w10>w100&&w100>w1000,
+  converged:Math.abs(w1000-0.25)<0.01,
+  ok:out===0&&wid(nv)/0.25===8&&wid(fc)/0.25===4&&w10>w100&&w100>w1000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'f(x) = x\\u00b2 \\u2212 x  on [0,1]   \\u2014   one function, three brackets');
+ var m=64,pw=W-m-56,top=48,ph=170;
+ function Y(v){return top+ph-ph*((v+1.1)/2.2);}
+ var rows=[['naive  x\\u00b2\\u2212x',VR.naive,'#ff5a8a'],
+  ['factored  x(x\\u22121)',VR.factored,'#ffd76a'],
+  ['true range',TRUE,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var x=m+i*((pw)/3)+16;
+  nf(g,i===0?'rgba(255,90,138,0.28)':(i===1?'rgba(255,215,106,0.3)':'rgba(125,226,176,0.5)'));
+  g.fillRect(x,Y(r[1][1]),66,Y(r[1][0])-Y(r[1][1]));ng(g);
+  ne(g,r[2],1.4);g.strokeRect(x+0.5,Y(r[1][1])+0.5,66,Y(r[1][0])-Y(r[1][1]));ng(g);
+  nt(g,r[2],x-6,top+ph+22,9,r[0]);
+  nt(g,r[2],x+4,top+ph+40,10,'width '+wid(r[1]).toFixed(2));});
+ ne(g,'rgba(150,110,230,0.35)',1);g.setLineDash([3,3]);
+ g.beginPath();g.moveTo(m,Y(0));g.lineTo(m+pw+16,Y(0));g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#8a7ab8',m-32,Y(0)+4,9,'0');
+ nt(g,'#e6dcff',14,272,10,'all three CONTAIN the answer \\u2014 10,001 sampled points, 0 escapes');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var fn=useFactored?evalFactored:evalNaive;
+ var r=subdiv(nSub,fn);
+ nt(g,'#e6dcff',16,26,11,(useFactored?'x(x\\u22121)':'x\\u00b2 \\u2212 x')+'   \\u00b7   '+nSub+' piece'+(nSub===1?'':'s'));
+ var m=34,pw=W-68,top=52,ph=150;
+ function PX(x){return m+pw*x;}
+ function PY(v){return top+ph-ph*((v+1.05)/1.35);}
+ for(var i=0;i<nSub;i++){
+  var p=[i/nSub,(i+1)/nSub],q=fn(p);
+  nf(g,'rgba(255,215,106,0.18)');
+  g.fillRect(PX(p[0]),PY(q[1]),Math.max(1,PX(p[1])-PX(p[0])),PY(q[0])-PY(q[1]));ng(g);}
+ ne(g,'#7de2b0',2.2);g.beginPath();
+ for(var i=0;i<=300;i++){var x=i/300,y=x*x-x;
+  if(i===0)g.moveTo(PX(x),PY(y));else g.lineTo(PX(x),PY(y));}
+ g.stroke();ng(g);
+ ne(g,'#ff5a8a',1.5);g.setLineDash([4,3]);
+ g.strokeRect(PX(0)+0.5,PY(r[1])+0.5,pw,PY(r[0])-PY(r[1]));
+ g.setLineDash([]);ng(g);
+ var yb=top+ph+34;
+ nt(g,'#ff5a8a',24,yb,11,'bound width '+wid(r).toFixed(6));
+ nt(g,'#7de2b0',24,yb+22,11,'true  width 0.250000');
+ nt(g,'#ffd76a',24,yb+44,10,(wid(r)/0.25).toFixed(2)+'x too wide');
+ var contains=r[0]<=TRUE[0]+1e-12&&r[1]>=TRUE[1]-1e-12;
+ nt(g,contains?'#7de2b0':'#ff5a8a',24,yb+66,10,contains?'still contains the true range':'CONTAINMENT LOST');
+ var o=document.getElementById('ivout');
+ if(o)o.innerHTML='With <b>'+nSub+'</b> subdivision'+(nSub===1?'':'s')+' the bracket has width <b>'+wid(r).toFixed(6)+
+  '</b> against a true width of 0.250000 \\u2014 <b>'+(wid(r)/0.25).toFixed(2)+'&times;</b> too wide, and '+
+  (contains?'still containing the answer.':'no longer containing it, which would be a bug.')+
+  ' The bracket narrows toward the truth and never crosses it.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.9-zr*0.32];}
+ var box=[[-100,-1,-40],[100,-1,-40],[100,-1,40],[-100,-1,40],
+  [-100,1,-40],[100,1,-40],[100,1,40],[-100,1,40]];
+ var pts=box.map(function(b){return P(b[0],b[1]*90,b[2]);});
+ var edges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+ edges.forEach(function(e){
+  ne(g,'rgba(255,90,138,0.4)',1.2);
+  g.beginPath();g.moveTo(pts[e[0]][0],pts[e[0]][1]);g.lineTo(pts[e[1]][0],pts[e[1]][1]);g.stroke();ng(g);});
+ var prev=null;
+ for(var i=0;i<=140;i++){
+  var x=i/140,y=x*x-x;
+  var p=P(-100+200*x,y*90,0);
+  if(prev){ne(g,'#7de2b0',2.6);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(p[0],p[1]);g.stroke();ng(g);}
+  prev=p;}
+ nt(g,'#7de2b0',14,24,11,'green: the true graph');
+ nt(g,'#ff5a8a',14,42,10,'pink: the naive bracket, 8x too big');
+ nt(g,'#8a7ab8',14,58,10,'correct, and mostly empty');
+ nt(g,'#8a7ab8',14,H-12,9,'it computes with ignorance, and the width is an exact record of how much');}
+document.getElementById('ivup').onclick=function(){nSub=Math.min(512,nSub*2);drawW4();};
+document.getElementById('ivdn').onclick=function(){nSub=Math.max(1,Math.floor(nSub/2));drawW4();};
+document.getElementById('ivform').onclick=function(){useFactored=!useFactored;drawW4();};
+document.getElementById('ivsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__intervalarithmetic=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BLOT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two candidates. A finishes with <i>a</i> votes and B with <i>b</i>, and <i>a</i> &gt; <i>b</i>. Count the ballots one at a time in random order: what is the chance A is <b>strictly ahead at every single moment</b> of the count? The answer is (a&minus;b)/(a+b), and it is startling twice over &mdash; first that it is so simple, and second that it depends on nothing but the margin over the total. A landslide counted slowly and a squeaker counted quickly can carry exactly the same probability of never once being level.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustive enumeration of every ordering: (5,3) gives <b>14 of 56</b>; (10,6) gives <b>2002 of 8008</b> &mdash; <b>the same 1/4</b>, from twice the votes; (3,2) gives <b>2 of 10</b>; (7,4) gives <b>90 of 330</b>; (6,1) gives <b>5 of 7</b>; (4,3) gives <b>5 of 35</b>. Every case matches (a&minus;b)/(a+b) <b>exactly in integer arithmetic</b>, with no floating point anywhere in the check.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>OFF BY ONE</i>, which is the whole problem: <i>strictly</i> ahead, never merely level, and the entire result turns on that one word.<br><br>
+ <b>AVAN (AI)</b> checked the identity in <b>integer</b> arithmetic rather than by comparing decimals &mdash; the test is <code>ahead &times; (a+b) === total &times; (a&minus;b)</code>, which is exact and cannot pass by rounding. That matters more than it sounds: 2002/8008 and 14/56 both reduce to 1/4, and a float comparison would have &ldquo;confirmed&rdquo; the equality at a tolerance rather than establishing it. The counts here are enumerated, not computed from the formula &mdash; the recursion walks all 8,008 orderings for the largest case &mdash; so the formula and the count are genuinely independent of each other. Bertrand posed it in 1887; D&eacute;sir&eacute; Andr&eacute;&rsquo;s reflection argument followed the same year.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six elections, enumerated to the last ordering. The formula never misses.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Every count is a path. The ones that touch zero are the ones that failed.</div>
+   <div class="btns" style="margin-top:10px"><button id="blnext">next election &#9654;</button><button id="blpaths">show all paths</button></div>
+   <div class="cap" id="blout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lattice of counts, with the surviving paths lit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the probability is (a&minus;b)/(a+b).&rdquo; The inverse is that <b>the reflection argument works by finding a perfect pairing between failures</b> &mdash; every count that touches zero can be reflected at its first tie into exactly one count starting with the other candidate, and back again. So the failures come in matched pairs and can be subtracted off without ever being individually described. Read backwards, the simplicity of the answer is a <i>symptom</i>: a formula this clean almost always means a bijection was found, and the thing genuinely proved is not a probability but a <b>pairing</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="blsp">pause spin</button></div></div></div></div>"""
+BLOT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=0,showPaths=false;
+var CASES=[[5,3],[3,2],[7,4],[10,6],[6,1],[4,3]];
+function countPaths(a,b){
+ var total=0,ahead=0;
+ (function rec(na,nb,lead){
+  if(na===0&&nb===0){total++;if(lead)ahead++;return;}
+  if(na>0)rec(na-1,nb,lead&&(a-na+1)>(b-nb));
+  if(nb>0)rec(na,nb-1,lead&&(a-na)>(b-nb+1));})(a,b,true);
+ return [ahead,total];}
+function gcd(x,y){while(y){var t=x%y;x=y;y=t;}return x;}
+function enumerate(a,b,cap){
+ var out=[];
+ (function rec(na,nb,path,lead){
+  if(out.length>=cap)return;
+  if(na===0&&nb===0){out.push({path:path.slice(),ahead:lead});return;}
+  if(na>0){path.push(1);rec(na-1,nb,path,lead&&(a-na+1)>(b-nb));path.pop();}
+  if(nb>0){path.push(-1);rec(na,nb-1,path,lead&&(a-na)>(b-nb+1));path.pop();}})(a,b,[],true);
+ return out;}
+function selftest(){
+ var rows=CASES.map(function(cs){
+  var a=cs[0],b=cs[1],r=countPaths(a,b);
+  var g=gcd(a-b,a+b);
+  return {a:a,b:b,ahead:r[0],total:r[1],
+   exact:r[0]*(a+b)===r[1]*(a-b),
+   reduced:((a-b)/g)+'/'+((a+b)/g),p:r[0]/r[1]};});
+ var allExact=rows.every(function(r){return r.exact;});
+ var c53=rows.filter(function(r){return r.a===5;})[0];
+ var c106=rows.filter(function(r){return r.a===10;})[0];
+ return {cases:rows.length,rows:rows,allExactInIntegers:allExact,
+  sameProbDifferentSize:Math.abs(c53.p-c106.p)<1e-15,
+  biggestEnumeration:Math.max.apply(null,rows.map(function(r){return r.total;})),
+  ok:allExact&&Math.abs(c53.p-c106.p)<1e-15};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIX ELECTIONS  \\u2014  every ordering enumerated');
+ VR.rows.forEach(function(r,i){
+  var y=42+i*38;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,32);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1);g.strokeRect(20.5,y+0.5,W-41,32);ng(g);
+  nt(g,'#e6dcff',34,y+21,10,'a='+r.a+'  b='+r.b);
+  nt(g,'#7de2b0',126,y+21,10,r.ahead+' / '+r.total);
+  nt(g,'#8a7ab8',248,y+21,10,'(a\\u2212b)/(a+b) = '+r.reduced);
+  nt(g,r.exact?'#7de2b0':'#ff5a8a',W-90,y+21,10,r.exact?'exact':'MISMATCH');});
+ nt(g,'#ffd76a',20,282,10,'checked as ahead x (a+b) = total x (a\\u2212b)  \\u2014  integers only, no rounding');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cs=CASES[ei%CASES.length],a=cs[0],b=cs[1];
+ var r=VR.rows.filter(function(x){return x.a===a&&x.b===b;})[0];
+ nt(g,'#e6dcff',16,26,11,'a = '+a+'   b = '+b+'   \\u00b7   '+r.ahead+' of '+r.total+' = '+r.reduced);
+ var n=a+b,m=30,pw=W-60,top=54,ph=180;
+ function PX(i){return m+pw*i/n;}
+ function PY(v){return top+ph/2-v*(ph/2)/Math.max(2,a);}
+ ne(g,'rgba(150,110,230,0.45)',1.2);
+ g.beginPath();g.moveTo(m,PY(0));g.lineTo(m+pw,PY(0));g.stroke();ng(g);
+ nt(g,'#8a7ab8',m-14,PY(0)+4,9,'0');
+ var paths=enumerate(a,b,showPaths?4000:260);
+ paths.forEach(function(p){
+  var v=0;
+  ne(g,p.ahead?'rgba(125,226,176,0.75)':'rgba(255,90,138,0.13)',p.ahead?1.5:1);
+  g.beginPath();g.moveTo(PX(0),PY(0));
+  p.path.forEach(function(step,i){v+=step;g.lineTo(PX(i+1),PY(v));});
+  g.stroke();ng(g);});
+ var yb=top+ph+28;
+ nt(g,'#7de2b0',24,yb,11,r.ahead+' paths never touch zero');
+ nt(g,'#ff5a8a',24,yb+22,11,(r.total-r.ahead)+' paths do');
+ nt(g,'#8a7ab8',24,yb+42,9,showPaths?('all '+Math.min(paths.length,r.total)+' drawn'):('first '+paths.length+' drawn \\u2014 press SHOW ALL PATHS'));
+ var o=document.getElementById('blout');
+ if(o)o.innerHTML='With <b>'+a+'</b> votes to <b>'+b+'</b>, exactly <b>'+r.ahead+'</b> of the <b>'+r.total+
+  '</b> orderings keep A strictly ahead the whole way \\u2014 which is <b>'+r.reduced+
+  '</b>, exactly (a&minus;b)/(a+b). Every pink path touches zero at least once, and the reflection argument pairs each one off.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+16,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.8-zr*0.3];}
+ var a=5,b=3,n=a+b;
+ var paths=enumerate(a,b,56);
+ paths.forEach(function(p,pi){
+  var v=0,prev=P(-100,0,0);
+  var zz=-36+(pi%8)*10;
+  p.path.forEach(function(step,i){
+   v+=step;
+   var q=P(-100+200*(i+1)/n,v*20,zz);
+   ne(g,p.ahead?'#7de2b0':'rgba(255,90,138,0.16)',p.ahead?1.8:0.9);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+   prev=q;});});
+ var z0=P(-100,0,0),z1=P(100,0,0);
+ ne(g,'rgba(150,110,230,0.5)',1.4);g.setLineDash([4,3]);
+ g.beginPath();g.moveTo(z0[0],z0[1]);g.lineTo(z1[0],z1[1]);g.stroke();g.setLineDash([]);ng(g);
+ nt(g,'#7de2b0',14,24,11,'green: never level');
+ nt(g,'#ff5a8a',14,42,10,'pink: touched zero, and got paired away');
+ nt(g,'#8a7ab8',14,58,10,'the proof describes none of them individually');
+ nt(g,'#8a7ab8',14,H-12,9,'a formula that clean nearly always means a bijection was found');}
+document.getElementById('blnext').onclick=function(){ei++;drawW4();};
+document.getElementById('blpaths').onclick=function(){showPaths=!showPaths;drawW4();};
+document.getElementById('blsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__ballot=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CMIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A count-min sketch keeps a fixed grid of counters and no keys at all. Every arriving item is hashed into one column per row and those counters go up; to ask how often something appeared you hash it again and take the <b>minimum</b> of the counters it touches. Collisions can only ever <i>add</i> to a counter, never subtract, so the answer is never too low. It can be far too high &mdash; but the direction of the error is fixed by the structure and does not depend on the parameters being chosen well.<br><br>
+ <span class="lit">LIT</span> verified live on a skewed 20,000-item stream: at d=4, w=2048 the sketch is exactly right for <b>1698 of 1990</b> distinct keys (<b>85.3%</b>), with a worst overestimate of <b>16</b> against the e/w&middot;N bound of 26.5; shrunk to w=256 the accuracy collapses to <b>3 of 1990</b> (<b>0.2%</b>) with a worst error of <b>120</b> &mdash; and in both regimes the number of <b>underestimates is 0</b>. Widening the key space tenfold to <b>9,569</b> distinct keys changes the memory not at all: <b>8,192</b> counters either way, still with 0 underestimates.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>GARBAGE COLLECTION</i>: the sketch throws away every key it ever saw and keeps the counts anyway.<br><br>
+ <b>AVAN (AI)</b> had a gate fail here and the failure was the useful part. The gate asserted that the sketch is smaller than an exact table &mdash; and at d=4, w=2048 it is <b>not</b>: 8,192 counters for 1,990 distinct keys is <i>larger</i> than simply storing the counts. That is a real property of the configuration, not a bug, and the honest fix was to replace the claim rather than the parameters. The property that actually holds is <b>fixed</b> memory, not less memory: ten times the distinct keys costs exactly the same 8,192 counters, because the structure never learns the key set. Compactness only pays when the key space is large or unknown &mdash; which is the case sketches are for, and not the case a small demonstration produces by default. Cormode and Muthukrishnan published the structure in 2005.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two regimes. The accuracy moves by 500&times;. The direction of the error does not move at all.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Starve the sketch of columns and look for a single underestimate.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmnar">narrower &#9654;</button><button id="cmwide">wider</button></div>
+   <div class="cap" id="cmout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: d rows of counters, and the minimum taken across them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the sketch never underestimates.&rdquo; The inverse is that <b>the guarantee survives incompetence and the accuracy does not</b>, and those are different kinds of promise. Choose the width badly and 85% correct becomes 0.2% correct &mdash; but not one estimate goes below the truth, because one-sidedness is a consequence of counters only ever being incremented, which no parameter can undo. Read backwards, this is the shape worth wanting from any guarantee: not <i>it will be accurate</i>, which depends on judgement you may not have, but <i>it will fail in a direction you named in advance</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="cmsp">pause spin</button></div></div></div></div>"""
+CMIN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,wi=2;
+var WIDTHS=[64,128,256,512,1024,2048];
+function cmMul(a,b){return Math.imul(a,b)>>>0;}
+function cmHash(x,seed){var v=(x^seed)>>>0;
+ v=cmMul(v^(v>>>16),2246822507);v=cmMul(v^(v>>>13),3266489909);
+ return (v^(v>>>16))>>>0;}
+function cmRnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var D=4,N=20000;
+function run(W,keys){
+ keys=keys||2000;
+ var table=[],d;
+ for(d=0;d<D;d++)table.push(new Int32Array(W));
+ var truth=new Int32Array(keys),g=cmRnd(2171);
+ for(var i=0;i<N;i++){
+  var k=Math.min(keys-1,Math.floor(keys*Math.pow(g(),3)));
+  truth[k]++;
+  for(d=0;d<D;d++)table[d][cmHash(k,d*0x9E3779B1)%W]++;}
+ function est(k){var m=Infinity;
+  for(var d=0;d<D;d++)m=Math.min(m,table[d][cmHash(k,d*0x9E3779B1)%W]);
+  return m;}
+ var under=0,exact=0,distinct=0,maxErr=0,sumErr=0;
+ for(var k=0;k<keys;k++){
+  if(truth[k]===0)continue;
+  distinct++;
+  var e=est(k),err=e-truth[k];
+  if(err<0)under++;
+  if(err===0)exact++;
+  maxErr=Math.max(maxErr,err);sumErr+=err;}
+ return {W:W,distinct:distinct,under:under,exact:exact,exactPct:exact/distinct*100,
+  maxErr:maxErr,meanErr:sumErr/distinct,epsBound:Math.E/W*N,counters:D*W};}
+function selftest(){
+ var tight=run(2048),loose=run(256),wide=run(2048,20000);
+ return {d:D,stream:N,
+  tight:tight,loose:loose,wide:wide,
+  neverUnderTight:tight.under===0,neverUnderLoose:loose.under===0,neverUnderWide:wide.under===0,
+  accuracyCollapses:tight.exactPct/loose.exactPct>10,
+  memoryUnchangedAt10x:wide.counters===tight.counters,
+  boundsHold:tight.maxErr<=tight.epsBound&&loose.maxErr<=loose.epsBound,
+  biggerThanExactTable:tight.counters>tight.distinct,
+  ok:tight.under===0&&loose.under===0&&wide.under===0&&
+   tight.exactPct/loose.exactPct>10&&wide.counters===tight.counters};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO REGIMES, ONE STREAM');
+ var rows=[['w = 2048',VR.tight,'#7de2b0'],['w = 256',VR.loose,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=44+i*98,d=r[1];
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,86);ng(g);
+  ne(g,r[2],1.3);g.strokeRect(20.5,y+0.5,W-41,86);ng(g);
+  nt(g,r[2],36,y+22,11,r[0]+'   '+d.counters+' counters');
+  var bw=W-140;
+  nf(g,'rgba(125,226,176,0.5)');g.fillRect(36,y+34,bw*d.exactPct/100,16);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(36.5,y+34.5,bw,16);ng(g);
+  nt(g,'#e6dcff',36+bw+10,y+47,10,d.exactPct.toFixed(1)+'%');
+  nt(g,'#8a7ab8',36,y+70,9,'exact '+d.exact+'/'+d.distinct+'   max error '+d.maxErr+
+   '   bound '+d.epsBound.toFixed(0)+'   UNDERESTIMATES '+d.under);});
+ var y2=246;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,36);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,36);ng(g);
+ nt(g,'#7de2b0',36,y2+23,11,'accuracy moved 500x.  underestimates: 0 and 0.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var w=WIDTHS[wi%WIDTHS.length],r=run(w);
+ nt(g,'#e6dcff',16,26,11,'d = 4   w = '+w+'   \\u00b7   '+r.counters+' counters');
+ var bw=W-60;
+ nt(g,'#8a7ab8',24,52,9,'estimates exactly right');
+ nf(g,'rgba(125,226,176,0.55)');g.fillRect(30,62,bw*r.exactPct/100,20);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(30.5,62.5,bw,20);ng(g);
+ nt(g,'#7de2b0',30,100,12,r.exactPct.toFixed(1)+'%   ('+r.exact+' of '+r.distinct+')');
+ nt(g,'#8a7ab8',24,132,9,'worst overestimate, against the e/w x N bound');
+ var frac=Math.min(1,r.maxErr/r.epsBound);
+ nf(g,'rgba(255,215,106,0.55)');g.fillRect(30,142,bw*frac,20);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(30.5,142.5,bw,20);ng(g);
+ nt(g,'#ffd76a',30,180,12,r.maxErr+'   of a permitted '+r.epsBound.toFixed(0));
+ var y2=204;
+ nf(g,r.under===0?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.2)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,r.under===0?'#7de2b0':'#ff5a8a',1.6);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,r.under===0?'#7de2b0':'#ff5a8a',36,y2+28,14,r.under===0?'0 UNDERESTIMATES':(r.under+' UNDERESTIMATES'));
+ nt(g,'#8a7ab8',36,y2+50,9,r.under===0?'counters only ever went up':'which would break the structure');
+ nt(g,'#8a7ab8',24,292,9,'mean overestimate '+r.meanErr.toFixed(2)+'  \\u2014  strictly positive, never centred on zero');
+ var o=document.getElementById('cmout');
+ if(o)o.innerHTML='At w = <b>'+w+'</b> the sketch is exactly right for <b>'+r.exactPct.toFixed(1)+
+  '%</b> of keys with a worst overestimate of <b>'+r.maxErr+'</b>. Underestimates: <b>'+r.under+
+  '</b>. Narrow it as far as you like \\u2014 the accuracy goes, the direction of the error does not.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+20,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy-y*0.8-zr*0.32];}
+ for(var d=0;d<4;d++){
+  for(var i=0;i<12;i++){
+   var p=P(-96+i*17.5,-40+d*30,-30+d*20);
+   var hot=(i*7+d*5)%12<3;
+   ndot(g,p[0],p[1],hot?5:3,hot?'#ffd76a':'rgba(125,226,176,0.5)');}
+  var a=P(-104,-40+d*30,-30+d*20);
+  nt(g,'#8a7ab8',a[0]-22,a[1]+4,9,'r'+d);}
+ var mn=P(0,-116,0);
+ ndot(g,mn[0],mn[1],8,'#5ad6ff');
+ nt(g,'#5ad6ff',mn[0]-16,mn[1]-14,10,'min');
+ for(var d=0;d<4;d++){
+  var q=P(-96+((d*7)%12)*17.5,-40+d*30,-30+d*20);
+  ne(g,'rgba(90,214,255,0.4)',1.2);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(mn[0],mn[1]);g.stroke();ng(g);}
+ nt(g,'#e6dcff',14,24,11,'four rows, one column each, take the smallest');
+ nt(g,'#8a7ab8',14,42,10,'a collision can only push a counter UP');
+ nt(g,'#8a7ab8',14,58,10,'so the minimum can only be too large');
+ nt(g,'#8a7ab8',14,H-12,9,'not "it will be accurate" but "it will fail in a direction you named in advance"');}
+document.getElementById('cmnar').onclick=function(){wi=Math.max(0,(wi%WIDTHS.length)-1);drawW4();};
+document.getElementById('cmwide').onclick=function(){wi=Math.min(WIDTHS.length-1,(wi%WIDTHS.length)+1);drawW4();};
+document.getElementById('cmsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__countmin=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PCOD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The Hamming [7,4] code puts <b>16</b> codewords into the 128 binary strings of length 7. Draw a ball of radius 1 around each codeword &mdash; the word itself and the 7 strings one flip away, 8 points &mdash; and those 16 balls cover the space <b>exactly</b>: 16 &times; 8 = 128, with nothing left over and nothing counted twice. A code that achieves this is called <b>perfect</b>, and perfection has a price. There is no slack left, so there is no room to notice when two bits flip instead of one.<br><br>
+ <span class="lit">LIT</span> verified live: 16 codewords at minimum distance <b>3</b>; all <b>128</b> points of the space covered <b>exactly once</b> &mdash; <b>0</b> uncovered, <b>0</b> double-covered; all <b>112</b> single-bit errors corrected back to the original word; and all <b>336</b> double-bit errors decoded to a <b>different valid codeword</b> &mdash; <b>0</b> recovered, <b>336</b> silent failures, not one of them flagged.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>SEGFAULT</i> &mdash; inverted. A segfault is an address that belongs to nobody; a perfect code is a space where every address belongs to exactly one owner, and the fault it cannot raise is the whole problem.<br><br>
+ <b>AVAN (AI)</b> notes that the 336-for-336 result is not a coincidence to be marvelled at but a <b>consequence</b> of perfection, and the derivation is two lines. A double error sits at distance 2 from the true codeword. Perfection says every point of the space is within distance 1 of <i>some</i> codeword. Distance 2 is not within distance 1, so that codeword must be a different one &mdash; and the decoder, finding a valid word, reports success. Every one of the 336 fails silently because there is nowhere in a perfect packing for an &ldquo;I don&rsquo;t know&rdquo; to live. Adding a single parity bit gives the [8,4] extended code, which detects double errors precisely by <i>giving up perfection</i>. Richard Hamming built this in 1950 out of irritation at a weekend batch job that kept dying.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All 128 points of the space, coloured by how many codewords claim them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Flip one bit and watch it repaired. Flip two and watch it lie to you.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcflip">flip 1 bit &#9654;</button><button id="pcflip2">flip 2 bits &#9654;</button><button id="pcreset">reset</button></div>
+   <div class="cap" id="pcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: 16 spheres packed into a 7-cube with no gap between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a perfect code wastes nothing.&rdquo; The inverse is that <b>the empty space you removed was where doubt used to live</b>. An imperfect code has points belonging to no ball, and a decoder landing there can say <i>something is wrong and I cannot fix it</i> &mdash; the most valuable sentence an error-correcting code ever produces. Perfection deletes those points. Read backwards, this is a general shape rather than a fact about Hamming codes: a system with no unassigned states cannot report an unexpected one, and total coverage and honest failure are the same resource, spent once.</div>
+   <div class="btns" style="margin-top:10px"><button id="pcsp">pause spin</button></div></div></div></div>"""
+PCOD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,orig=null,recv=null,flips=[],verdict='';
+var GM=[[1,0,0,0,1,1,0],[0,1,0,0,1,0,1],[0,0,1,0,0,1,1],[0,0,0,1,1,1,1]];
+var HM=[[1,1,0,1,1,0,0],[1,0,1,1,0,1,0],[0,1,1,1,0,0,1]];
+function enc(m){var c=[0,0,0,0,0,0,0];
+ for(var i=0;i<4;i++)if(m[i])for(var j=0;j<7;j++)c[j]^=GM[i][j];
+ return c;}
+var CW=[];
+for(var x=0;x<16;x++)CW.push(enc([x&1,(x>>1)&1,(x>>2)&1,(x>>3)&1]));
+function num(c){var v=0;for(var i=0;i<7;i++)v|=c[i]<<i;return v;}
+function dist(a,b){var s=0;for(var i=0;i<7;i++)s+=a[i]^b[i];return s;}
+function syn(c){return HM.map(function(r){
+ var s=0;for(var i=0;i<7;i++)s^=r[i]&c[i];return s;});}
+var SYNMAP={};
+for(var i=0;i<7;i++){var e=[0,0,0,0,0,0,0];e[i]=1;SYNMAP[syn(e).join('')]=i;}
+function decode(r){var s=syn(r).join('');
+ if(s==='000')return r.slice();
+ var i=SYNMAP[s],d=r.slice();
+ if(i!==undefined)d[i]^=1;
+ return d;}
+function selftest(){
+ var dmin=99;
+ for(var i=0;i<16;i++)for(var j=i+1;j<16;j++)dmin=Math.min(dmin,dist(CW[i],CW[j]));
+ var cover=new Int32Array(128);
+ CW.forEach(function(c){cover[num(c)]++;
+  for(var i=0;i<7;i++){var d=c.slice();d[i]^=1;cover[num(d)]++;}});
+ var unc=0,dbl=0;
+ for(var v=0;v<128;v++){if(cover[v]===0)unc++;if(cover[v]>1)dbl++;}
+ var s1=0,s1ok=0;
+ CW.forEach(function(c){for(var i=0;i<7;i++){
+  var r=c.slice();r[i]^=1;s1++;
+  if(num(decode(r))===num(c))s1ok++;}});
+ var d2=0,d2rec=0,d2sil=0;
+ CW.forEach(function(c){for(var i=0;i<7;i++)for(var j=i+1;j<7;j++){
+  var r=c.slice();r[i]^=1;r[j]^=1;d2++;
+  var dd=decode(r);
+  if(num(dd)===num(c))d2rec++;
+  else if(CW.some(function(w){return num(w)===num(dd);}))d2sil++;}});
+ return {codewords:CW.length,minDistance:dmin,
+  spaceSize:128,ballSize:8,product:16*8,
+  uncovered:unc,doubleCovered:dbl,perfect:unc===0&&dbl===0,
+  singleErrors:s1,singleCorrected:s1ok,
+  doubleErrors:d2,doubleRecovered:d2rec,doubleSilent:d2sil,
+  everyDoubleFailsSilently:d2sil===d2&&d2rec===0,
+  ok:dmin===3&&unc===0&&dbl===0&&s1ok===112&&d2rec===0&&d2sil===336};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ALL 128 POINTS OF THE SPACE  \\u2014  each claimed exactly once');
+ var cover=new Int32Array(128);
+ CW.forEach(function(cw){cover[num(cw)]++;
+  for(var i=0;i<7;i++){var d=cw.slice();d[i]^=1;cover[num(d)]++;}});
+ var cols=16,cell=26,ox=46,oy=44;
+ for(var v=0;v<128;v++){
+  var r=Math.floor(v/cols),cc=v%cols;
+  var isCw=CW.some(function(w){return num(w)===v;});
+  nf(g,isCw?'rgba(255,215,106,0.75)':(cover[v]===1?'rgba(125,226,176,0.4)':'rgba(255,90,138,0.7)'));
+  g.fillRect(ox+cc*cell,oy+r*cell,cell-4,cell-4);ng(g);}
+ nt(g,'#ffd76a',46,oy+8*cell+20,10,'gold: the 16 codewords');
+ nt(g,'#7de2b0',46,oy+8*cell+38,10,'green: the 112 points exactly one flip from one of them');
+ nt(g,'#e6dcff',46,oy+8*cell+58,10,'16 x 8 = 128.  0 uncovered, 0 double-covered.  no slack anywhere.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!orig){orig=CW[5].slice();recv=orig.slice();flips=[];verdict='clean';}
+ var dec=decode(recv);
+ nt(g,'#e6dcff',16,26,11,'sent  \\u00b7  received  \\u00b7  decoded');
+ var rows=[['sent',orig,'#7de2b0'],['received',recv,'#ffd76a'],['decoded',dec,
+  num(dec)===num(orig)?'#7de2b0':'#ff5a8a']];
+ rows.forEach(function(r,ri){
+  var y=52+ri*74;
+  nt(g,'#8a7ab8',24,y-6,9,r[0]);
+  for(var i=0;i<7;i++){
+   var x=24+i*48,bad=r[1][i]!==orig[i];
+   nf(g,ri===0?'rgba(125,226,176,0.4)':(bad?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.35)'));
+   g.fillRect(x,y,40,40);ng(g);
+   ne(g,bad&&ri>0?'#ff5a8a':'rgba(150,110,230,0.4)',1.2);g.strokeRect(x+0.5,y+0.5,40,40);ng(g);
+   nt(g,'#e6dcff',x+16,y+26,14,''+r[1][i]);}});
+ var ok=num(dec)===num(orig);
+ var isCw=CW.some(function(w){return num(w)===num(dec);});
+ var y2=278;
+ nf(g,ok?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.18)');g.fillRect(20,y2,W-40,42);ng(g);
+ ne(g,ok?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,42);ng(g);
+ nt(g,ok?'#7de2b0':'#ff5a8a',36,y2+20,12,ok?'RECOVERED':'WRONG WORD, REPORTED AS FINE');
+ nt(g,'#8a7ab8',36,y2+36,9,'decoder sees a valid codeword: '+(isCw?'yes':'no')+'   \\u00b7   bits flipped: '+flips.length);
+ var o=document.getElementById('pcout');
+ if(o)o.innerHTML=flips.length===0
+  ?'No errors yet. Flip one bit and the syndrome points straight at it.'
+  :(flips.length===1
+   ?'<b>One</b> bit flipped, at position '+flips[0]+'. The syndrome identifies it exactly and the original word comes back. This works for all <b>112</b> single-bit errors.'
+   :'<b>Two</b> bits flipped, at positions '+flips.join(' and ')+'. The decoder lands on a <b>different valid codeword</b> and reports no problem. All <b>336</b> double-bit errors do this \\u2014 there is nowhere in a perfect packing for "I don\\u2019t know" to live.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;
+  return [cx+xr,cy+y*0.8-zr*0.32];}
+ CW.forEach(function(cw,i){
+  var th=i/16*2*Math.PI,rad=88;
+  var yy=-64+(i%4)*42;
+  var ctr=P(rad*Math.cos(th),yy,rad*Math.sin(th));
+  for(var b=0;b<7;b++){
+   var a2=b/7*2*Math.PI;
+   var p=P(rad*Math.cos(th)+15*Math.cos(a2),yy+15*Math.sin(a2),rad*Math.sin(th));
+   ndot(g,p[0],p[1],1.9,'rgba(125,226,176,0.5)');}
+  ndot(g,ctr[0],ctr[1],4.6,'#ffd76a');});
+ nt(g,'#ffd76a',14,24,11,'16 balls, 8 points each');
+ nt(g,'#7de2b0',14,42,10,'128 points, and not one is unclaimed');
+ nt(g,'#8a7ab8',14,58,10,'no gap between them, and no gap to fail into');
+ nt(g,'#8a7ab8',14,H-12,9,'total coverage and honest failure are the same resource, spent once');}
+document.getElementById('pcflip').onclick=function(){
+ orig=CW[5].slice();recv=orig.slice();
+ var i=Math.floor((ang*7)%7);recv[i]^=1;flips=[i];drawW4();};
+document.getElementById('pcflip2').onclick=function(){
+ orig=CW[5].slice();recv=orig.slice();
+ var i=Math.floor((ang*7)%7),j=(i+1+Math.floor((ang*3)%5))%7;
+ if(j===i)j=(i+1)%7;
+ recv[i]^=1;recv[j]^=1;flips=[i,j];drawW4();};
+document.getElementById('pcreset').onclick=function(){
+ orig=CW[5].slice();recv=orig.slice();flips=[];drawW4();};
+document.getElementById('pcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__perfectcode=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 216 · neon-noir · silicon-coding · PROOFS THAT WITHHOLD (a win with no strategy · a signature that continues itself · a climb on nothing · where greedy is exactly right · three who cannot agree) ═══════════════════════
 CHMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Chomp: a rectangle of squares, the bottom-left one poisoned. Take any square and everything above and to the right of it goes too. Eat the poison and you lose. <b>Strategy stealing</b> proves the first player wins on every board bigger than 1&times;1, and it does so without examining a single position: suppose biting the far corner left the opponent in a winning position &mdash; then the first player could simply have played that winning reply as his own opening. Either way a winning first move exists. The argument <b>names none of them</b>, and for general boards nobody knows what they are.<br><br>
@@ -66952,6 +67625,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-no-free-lunch","title":"THE NO FREE LUNCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#7de2b0","icon":"\u2696",
+  "kicker":"a tie nobody can break",
+  "blurb":"Averaged over every possible objective function, all search algorithms perform identically. The theorem is quoted far more often than its hypothesis is.",
+  "lit":"enumerating all 27 functions from a three-point domain to a three-value range, three different deterministic algorithms produce identical histograms of observed value-sequences, and identical means for best-found-so-far at every step - 1.0000, 1.4444, 1.6667 after one, two and three evaluations; restricted to the 10 non-decreasing functions the tie collapses at once, the same three algorithms scoring 1.000, 1.500 and 1.200, a spread of 0.500",
+  "fig":"The second half was built deliberately, because the theorem is usually cited without it. 'No algorithm is better than another' is FALSE as normally understood; what is true is that none is better averaged over the set of ALL functions, and that set is dominated by functions of pure noise, which nobody has ever wanted to optimise. Restricting to the non-decreasing functions - a class so mild it barely deserves the name structure - already separates them by half a unit. The theorem is not a warning that search is hopeless; it is a statement that every advantage is a bet on structure, and the bet is what the averaging removes.",
+  "body":NFL_BODY,"script":NFL_SCRIPT},
+ {"slug":"the-interval-arithmetic","title":"THE INTERVAL ARITHMETIC","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"EVENT HORIZON","domain_slug":"event-horizon","accent":"#ff5a8a","icon":"\u29c9",
+  "kicker":"bounds that are right and useless",
+  "blurb":"Every result comes with a guarantee that the true answer is inside the bracket. Nothing promises the bracket is narrow - and x minus x does not give zero.",
+  "lit":"for f(x) = x^2 - x on [0,1] the true range is [-0.25, 0], width 0.25; naive interval evaluation returns [-1, 1], width 2, which is 8x too wide; the algebraically identical form x(x-1) returns [-1, 0], still 4x too wide; [1,2] - [1,2] gives [-1, 1] rather than [0,0]; across 10,001 sample points 0 fall outside either bound; and subdividing the input narrows the width 0.450 -> 0.270 -> 0.252 at 10, 100 and 1,000 pieces",
+  "fig":"The soundness check is the load-bearing one. It would be easy to build a page that only shows the bounds blowing up, and it would mislead - the whole value of the method is that the bound is NEVER wrong, and 10,001 sampled points confirm containment for both forms without a single escape. Two things follow. Algebraically identical expressions are not identical in interval arithmetic: x^2-x and x(x-1) give different brackets because the second mentions x fewer times independently. And subdivision converges, so the width is a property of how you asked, not of what is true. Ramon Moore formalised this in 1966.",
+  "body":IVAL_BODY,"script":IVAL_SCRIPT},
+ {"slug":"the-ballot","title":"THE BALLOT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd76a","icon":"\u2611",
+  "kicker":"strictly ahead, never merely level",
+  "blurb":"The chance that A leads at every moment of the count is (a-b)/(a+b) - depending on nothing but the margin over the total. Twice the votes, same probability.",
+  "lit":"by exhaustive enumeration of every ordering, (5,3) gives 14 of 56 and (10,6) gives 2002 of 8008 - the same 1/4, from twice the votes; (3,2) gives 2 of 10; (7,4) gives 90 of 330; (6,1) gives 5 of 7; (4,3) gives 5 of 35; every case matches (a-b)/(a+b) exactly in integer arithmetic, with no floating point anywhere in the check",
+  "fig":"The identity was checked in INTEGER arithmetic rather than by comparing decimals - the test is ahead x (a+b) === total x (a-b), which is exact and cannot pass by rounding. That matters: 2002/8008 and 14/56 both reduce to 1/4, and a float comparison would have 'confirmed' the equality at a tolerance rather than establishing it. The counts are enumerated, not computed from the formula - the recursion walks all 8,008 orderings for the largest case - so formula and count are genuinely independent. Bertrand posed it in 1887; Desire Andre's reflection argument followed the same year.",
+  "body":BLOT_BODY,"script":BLOT_SCRIPT},
+ {"slug":"the-count-min","title":"THE COUNT MIN","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#5ad6ff","icon":"\u2193",
+  "kicker":"the error that only goes one way",
+  "blurb":"A grid of counters and no keys at all. Collisions can only add, never subtract, so the answer is never too low - however badly you size it.",
+  "lit":"on a skewed 20,000-item stream at d=4, w=2048 the sketch is exactly right for 1698 of 1990 distinct keys (85.3%), with a worst overestimate of 16 against the e/w*N bound of 26.5; shrunk to w=256 the accuracy collapses to 3 of 1990 (0.2%) with a worst error of 120 - and in both regimes the number of underestimates is 0; widening the key space tenfold to 9,569 distinct keys changes the memory not at all, 8,192 counters either way, still with 0 underestimates",
+  "fig":"A gate failed here and the failure was the useful part. It asserted the sketch is smaller than an exact table - and at d=4, w=2048 it is NOT: 8,192 counters for 1,990 distinct keys is larger than simply storing the counts. That is a real property of the configuration, not a bug, and the honest fix was to replace the claim rather than the parameters. What actually holds is FIXED memory, not less memory: ten times the distinct keys costs the same 8,192 counters, because the structure never learns the key set. Compactness only pays when the key space is large or unknown. Cormode and Muthukrishnan published it in 2005.",
+  "body":CMIN_BODY,"script":CMIN_SCRIPT},
+ {"slug":"the-perfect-code","title":"THE PERFECT CODE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#b98cff","icon":"\u25c9",
+  "kicker":"a packing with no slack",
+  "blurb":"16 balls of 8 points tile all 128 strings exactly - nothing left over, nothing counted twice. And so there is no room left to notice a second flipped bit.",
+  "lit":"16 codewords at minimum distance 3; all 128 points of the space covered exactly once, 0 uncovered and 0 double-covered; all 112 single-bit errors corrected back to the original word; and all 336 double-bit errors decoded to a DIFFERENT valid codeword - 0 recovered, 336 silent failures, not one of them flagged",
+  "fig":"The 336-for-336 result is a CONSEQUENCE of perfection, not a coincidence, and the derivation is two lines: a double error sits at distance 2 from the true codeword; perfection says every point is within distance 1 of some codeword; distance 2 is not within distance 1, so it must be a different one - and the decoder, finding a valid word, reports success. Every one fails silently because there is nowhere in a perfect packing for an 'I don't know' to live. Adding a parity bit gives the [8,4] extended code, which detects double errors precisely by giving up perfection. Hamming built this in 1950 out of irritation at a weekend batch job that kept dying.",
+  "body":PCOD_BODY,"script":PCOD_SCRIPT},
  {"slug":"the-chomp","title":"THE CHOMP","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#ffd76a","icon":"\u2620",
   "kicker":"a win with no strategy attached",
