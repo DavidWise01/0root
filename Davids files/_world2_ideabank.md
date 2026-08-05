@@ -135,3 +135,51 @@ Was free as of 2026-08-04 (all now built):
 NOTE ON SKOLEM SEQUENCES: free by slug, but deliberately SKIPPED — too close to the already-built
 Langford pairing (same family). Near-duplicates are a real trap; batch 205 skipped `the-dither`
 for the same reason (batch 42 already ships Floyd–Steinberg dithering).
+
+## VEIN G — REFILL (added 2026-08-05, batch 229). Veins A–F are EXHAUSTED.
+Batch 229 checked 40 candidates. **18 of the first 20 were already built** — the corpus is at
+1280 and extremely dense. Always run the three-way check (generator slug + fold.json +
+ud0/world2 file listing) before drafting anything, and check the STEM too.
+
+TAKEN as of 2026-08-05 (do not re-draft): the-bbp, the-perrin, the-kolakoski, the-stern-brocot,
+the-golomb-ruler, the-look-and-say, the-superpermutation, the-zeckendorf, the-farey,
+the-carmichael, the-sylvester, the-recaman, the-wieferich, the-thue-morse, the-de-bruijn,
+the-gray-code, the-cantor-pairing, the-hofstadter, the-eertree, the-alias-method,
+the-dancing-links, the-sidon-set, the-van-der-corput, the-fractional-cascading, the-treap,
+the-euler-tour.
+
+BUILT in batch 229: THE ZERO-ONE PRINCIPLE, THE MARSAGLIA PLANES, THE LYNDON WORD,
+THE DAVENPORT-SCHINZEL, THE HASHLIFE.
+
+STILL FREE as of 2026-08-05 (verified by the three-way check — RE-CHECK before drafting):
+1. THE COSTAS ARRAY — a permutation matrix whose displacement vectors are all distinct.
+   CLAIM: exhaustively count Costas arrays for n ≤ 7 (1, 2, 4, 12, 40, 116, 200) and confirm
+   every one has n(n−1)/2 pairwise-distinct difference vectors.
+2. THE ULAM — the Ulam sequence 1, 2, 3, 4, 6, 8, 11, … each term the smallest integer that is
+   a sum of two distinct earlier terms in exactly one way. CLAIM: generate to N and confirm the
+   uniqueness condition holds term by term; the near-periodicity of the residues mod 21.6 is
+   an OPEN observation and must be stamped AMBER if mentioned.
+3. THE SPECTRAL TEST — Knuth's LCG quality measure. NOTE: near-duplicate of the-marsaglia-planes
+   (batch 229). Only build if framed on the ν_t computation itself, not on the plane-counting.
+4. THE BATCHER — odd-even mergesort as its own sphere. NOTE: near-duplicate of
+   the-zero-one-principle (batch 229), which already builds and draws the Batcher network.
+   Probably skip.
+5. THE ZIGGURAT — Marsaglia & Tsang's rejection sampler for the normal distribution.
+   CLAIM: build the 128-layer table, confirm every layer has equal area to machine precision,
+   and measure the acceptance rate against the predicted 98.8%.
+6. THE FINGER TREE — Hinze & Paterson's 2-3 finger tree. CLAIM: amortised O(1) access at both
+   ends and O(log min(i, n−i)) at index i — measure node touches against that bound.
+7. THE SCAPEGOAT — Galperin & Rivest's rebalance-by-rebuild tree. CLAIM: with α = 0.57, the
+   measured amortised rebuild cost per insert stays bounded while worst-case depth stays under
+   log_{1/α}(n).
+8. THE MIDDLE SQUARE — von Neumann 1946, and its collapse. CLAIM: over all 10,000 four-digit
+   seeds, count how many reach zero and the exact cycle-length distribution — exhaustive.
+9. THE EXACT COVER — Knuth's Algorithm X without the dancing-links implementation.
+   NOTE: the-dancing-links is TAKEN; only build if framed on the cover problem itself.
+10. THE HASH LIFE TIME-DOUBLING — the half batch 229 deliberately did NOT implement. CLAIM: a
+    node of size 2^k advances 2^(k−2) generations in one memoised lookup; measure the actual
+    speedup against naive Life on a Gosper glider gun. This is a genuine open follow-up.
+
+NOTE ON NEAR-DUPLICATES: batch 229 skipped the-spectral-test and the-batcher for exactly this
+reason, as batch 205 skipped the-dither and batch 206 skipped Skolem sequences. A free slug is
+not the same as a free idea.

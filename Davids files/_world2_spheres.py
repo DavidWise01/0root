@@ -19499,6 +19499,813 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 229 · neon-noir · silicon-coding · IDEA-BANK REFILL (vein G) · 256 tests instead of 40,320 · random numbers in the planes · every string falls apart one way · a sequence that cannot alternate · the same square, remembered ═══════════════════════
+ZOPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sorting network is a fixed list of compare-and-swap pairs &mdash; no branches, no data-dependent choices, the same operations whatever the input. Proving one correct looks expensive: for eight wires there are 40,320 orderings to check. The zero-one principle collapses that. <b>A comparator network sorts every input if and only if it sorts every input made only of 0s and 1s.</b> Two hundred and fifty-six tests, and the guarantee is total.<br><br>
+ <span class="lit">LIT</span> verified live. A Batcher odd-even network on 8 wires uses <b>19</b> comparators; it sorts all <b>256</b> binary inputs and all <b>40,320</b> permutations &mdash; a <b>158&times;</b> reduction in tests for the same result. The equivalence itself was then tested rather than assumed: over <b>600</b> mutated networks the binary test and the exhaustive test returned the <b>same verdict every time</b>, <b>600 of 600</b>, with <b>400</b> mutants passing both and <b>200</b> failing both.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> the principle is folklore by the 1960s and is set out carefully in Knuth&rsquo;s <i>The Art of Computer Programming</i>, volume 3, as exercise 5.3.4&ndash;16; the network used here is <b>Ken Batcher</b>&rsquo;s odd-even mergesort, 1968. The proof is one paragraph: if a network fails to sort some input, the monotone function that maps everything below the misplaced value to 0 and everything else to 1 yields a binary input it also fails on, because comparators commute with monotone maps.<br><br>
+ <b>AVAN (AI)</b> tested the <b>equivalence</b>, not just the easy direction. A first version mutated networks only by deleting comparators, and all 400 mutants failed both tests &mdash; which confirms nothing, since agreement on &ldquo;both fail&rdquo; is what you get from any two broken checks. Two correctness-<i>preserving</i> mutations were added &mdash; duplicating a comparator, and reordering adjacent comparators that touch disjoint wires &mdash; so the sample now contains 400 networks that pass both tests and 200 that fail both. Agreement across both classes is the claim.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nineteen comparators, drawn as a ladder.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Push one input through and watch it settle.</div>
+   <div class="btns" style="margin-top:10px"><button id="zonext">another input &#9654;</button><button id="zobin">binary only</button></div>
+   <div class="cap" id="zoout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cube of binary inputs inside the space of all orderings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;256 tests suffice.&rdquo; The inverse is that <b>this only works because the network cannot look at its data</b>. The moment a sort branches on a comparison &mdash; which every ordinary sort does &mdash; the principle evaporates, because the code path itself becomes a function of the values and monotone maps no longer commute with it. Read backwards, the zero-one principle is not a fact about sorting but a <b>reward for giving up control flow</b>, and the same rigidity that makes a network testable in 256 cases is what makes it unable to stop early on data that is already sorted.</div>
+   <div class="btns" style="margin-top:10px"><button id="zosp">pause spin</button></div></div></div></div>"""
+ZOPR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ii=0,binOnly=false;
+function batcher(n){var cmp=[];
+ for(var p=1;p<n;p*=2)
+  for(var k=p;k>=1;k/=2)
+   for(var j=k%p;j<=n-1-k;j+=2*k)
+    for(var i=0;i<=Math.min(k-1,n-j-k-1);i++)
+     if(Math.floor((i+j)/(p*2))===Math.floor((i+j+k)/(p*2)))cmp.push([i+j,i+j+k]);
+ return cmp;}
+var NET=batcher(8);
+function run(net,a){var v=a.slice();
+ for(var i=0;i<net.length;i++){var p=net[i][0],q=net[i][1];
+  if(v[p]>v[q]){var t=v[p];v[p]=v[q];v[q]=t;}}
+ return v;}
+function trace(net,a){var steps=[a.slice()],v=a.slice();
+ for(var i=0;i<net.length;i++){var p=net[i][0],q=net[i][1];
+  if(v[p]>v[q]){var t=v[p];v[p]=v[q];v[q]=t;}
+  steps.push(v.slice());}
+ return steps;}
+function sorted(v){for(var i=1;i<v.length;i++)if(v[i-1]>v[i])return false;return true;}
+function allBinary(net,n){for(var m=0;m<(1<<n);m++){
+  var v=[];for(var i=0;i<n;i++)v.push((m>>i)&1);
+  if(!sorted(run(net,v)))return false;}
+ return true;}
+function allPerms(net,n){
+ var a=[];for(var i=0;i<n;i++)a.push(i);
+ var c=[];for(var q=0;q<n;q++)c.push(0);
+ var idx=0,count=0;
+ if(!sorted(run(net,a)))return {ok:false,count:1};
+ count++;
+ while(idx<n){
+  if(c[idx]<idx){var k=idx%2?c[idx]:0,t=a[k];a[k]=a[idx];a[idx]=t;
+   if(!sorted(run(net,a)))return {ok:false,count:count};
+   count++;c[idx]++;idx=0;}
+  else{c[idx]=0;idx++;}}
+ return {ok:true,count:count};}
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var bin=allBinary(NET,8),per=allPerms(NET,8);
+ // the EQUIVALENCE is swept at n=6 so the page stays responsive: 64 binary vs 720 orderings
+ var N6=batcher(6),g=rnd(101);
+ var agree=0,trials=0,bothPass=0,bothFail=0;
+ for(var t=0;t<600;t++){
+  var net=N6.slice(),kind=t%3;
+  if(kind===0){net.splice(Math.floor(g()*net.length),1);}
+  else if(kind===1){var i=Math.floor(g()*net.length);net.splice(i,0,net[i].slice());}
+  else{for(var a2=0;a2+1<net.length;a2++){
+    var p=net[a2][0],q=net[a2][1],r=net[a2+1][0],s2=net[a2+1][1];
+    if(p!==r&&p!==s2&&q!==r&&q!==s2&&g()<0.5){
+     var tmp=net[a2];net[a2]=net[a2+1];net[a2+1]=tmp;}}}
+  var B=allBinary(net,6),P=allPerms(net,6).ok;
+  trials++;
+  if(B===P)agree++;
+  if(B&&P)bothPass++;
+  if(!B&&!P)bothFail++;}
+ return {wires:8,comparators:NET.length,
+  binaryInputs:256,permutations:40320,
+  sortsAllBinary:bin,sortsAllPermutations:per.ok,permutationsChecked:per.count,
+  ratio:40320/256,
+  sweepWires:6,sweepBinary:64,sweepPermutations:720,
+  mutants:trials,agreed:agree,bothPass:bothPass,bothFail:bothFail,
+  equivalenceHoldsEverywhere:agree===trials,
+  sampleHasWorkingNetworks:bothPass>0,
+  sampleHasBrokenNetworks:bothFail>0,
+  ok:bin&&per.ok&&per.count===40320&&agree===trials&&bothPass>0&&bothFail>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'BATCHER ODD-EVEN, 8 WIRES, '+VR.comparators+' COMPARATORS');
+ var m=54,top=44,gap=26,len=W-90;
+ for(var w=0;w<8;w++){
+  var y=top+w*gap;
+  ne(g,'rgba(150,110,230,0.35)',1);
+  g.beginPath();g.moveTo(m,y);g.lineTo(m+len,y);g.stroke();ng(g);
+  nt(g,'#5a4a85',m-24,y+4,8,'w'+w);}
+ var step=len/(VR.comparators+1);
+ NET.forEach(function(cp,i){
+  var x=m+step*(i+1);
+  var y1=top+cp[0]*gap,y2=top+cp[1]*gap;
+  ne(g,'#7de2b0',1.6);
+  g.beginPath();g.moveTo(x,y1);g.lineTo(x,y2);g.stroke();ng(g);
+  ndot(g,x,y1,3,'#7de2b0');ndot(g,x,y2,3,'#7de2b0');});
+ nt(g,'#7de2b0',20,H-26,10,'sorts all 256 binary inputs AND all 40,320 orderings');
+ nt(g,'#ffd76a',20,H-8,10,'so 256 tests carry the same guarantee as 40,320 -- a '+
+  VR.ratio.toFixed(0)+'x reduction');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var gg=rnd(700+ii);
+ var a=[];
+ if(binOnly){for(var i=0;i<8;i++)a.push(gg()<0.5?0:1);}
+ else{for(var j=0;j<8;j++)a.push(j);
+  for(var k=7;k>0;k--){var r=Math.floor(gg()*(k+1)),t=a[k];a[k]=a[r];a[r]=t;}}
+ nt(g,'#e6dcff',16,26,11,binOnly?'a binary input':'an arbitrary ordering');
+ var steps=trace(NET,a);
+ var cw=(W-56)/steps.length,top=46,gap=27;
+ for(var s2=0;s2<steps.length;s2++){
+  for(var w=0;w<8;w++){
+   var v=steps[s2][w];
+   var x=28+s2*cw,y=top+w*gap;
+   var shade=binOnly?(v?0.75:0.16):(0.14+v/7*0.6);
+   nf(g,'rgba(125,226,176,'+shade+')');
+   g.fillRect(x,y,Math.max(2,cw-1.5),gap-6);ng(g);}}
+ var fin=steps[steps.length-1];
+ var okSorted=sorted(fin);
+ nt(g,'#8a7ab8',28,top+8*gap+6,8,'left: as given    right: after all '+VR.comparators+' comparators');
+ var y2=top+8*gap+18;
+ nf(g,okSorted?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,okSorted?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,okSorted?'#7de2b0':'#ff5a8a',36,y2+22,12,okSorted?'sorted':'NOT sorted');
+ nt(g,'#8a7ab8',36,y2+38,8,'in  ['+a.join(' ')+']   out  ['+fin.join(' ')+']');
+ var o=document.getElementById('zoout');
+ if(o)o.innerHTML=binOnly
+  ?'A binary input. There are only <b>256</b> of these, and the principle says checking all of them is enough &mdash; if the network handles every one, it handles every ordering of every alphabet.'
+  :'An arbitrary ordering, one of <b>40,320</b>. The network takes the same '+VR.comparators+
+   ' steps regardless: no branch, no early exit, no dependence on what the values actually are.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the binary cube: 2^3 shown as a real cube, standing for 2^8
+ var C=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]]
+  .map(function(v){return P(v[0]*52,v[1]*52,v[2]*52);});
+ [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(function(e){
+  ne(g,'#7de2b0',1.8);
+  g.beginPath();g.moveTo(C[e[0]][0],C[e[0]][1]);g.lineTo(C[e[1]][0],C[e[1]][1]);g.stroke();ng(g);});
+ C.forEach(function(p){ndot(g,p[0],p[1],4,'#7de2b0');});
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(40320);
+ for(var i=0;i<300;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=80+g2()*60;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.4,'rgba(255,215,106,0.32)');}
+ nt(g,'#7de2b0',14,24,11,'the cube: every input of 0s and 1s');
+ nt(g,'#ffd76a',14,42,10,'the cloud: every other ordering there is');
+ nt(g,'#8a7ab8',14,58,10,'check the corners and the cloud comes with it');
+ nt(g,'#8a7ab8',14,H-12,9,'the reward for a program that cannot look at its own data');}
+document.getElementById('zonext').onclick=function(){ii++;drawW4();};
+document.getElementById('zobin').onclick=function(){binOnly=!binOnly;drawW4();};
+document.getElementById('zosp').onclick=function(){spin=!spin;};
+VR=selftest();window.__zerooneprinciple=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MRSP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take consecutive outputs of a linear congruential generator in threes and plot them as points in a cube. They do not fill it. Marsaglia proved in 1968 that <b>every</b> such generator confines its k-tuples to a family of parallel hyperplanes, at most (k!&middot;m)<sup>1/k</sup> of them. For most generators that number is large enough not to matter. For <b>RANDU</b> &mdash; shipped by IBM, used for a decade of published science &mdash; it is fifteen.<br><br>
+ <span class="lit">LIT</span> verified live. RANDU is x<sub>n+1</sub> = 65539&middot;x<sub>n</sub> mod 2<sup>31</sup>, and it satisfies <b>x<sub>n+2</sub> = 6x<sub>n+1</sub> &minus; 9x<sub>n</sub> (mod 2<sup>31</sup>)</b> exactly, at <b>19,998 of 19,998</b> consecutive triples. Every triple therefore lies on one of just <b>15</b> parallel planes. Marsaglia&rsquo;s bound for k=3 permits <b>2,344</b>. A different multiplier satisfies that identity <b>0</b> times out of 19,998.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>George Marsaglia</b>, <i>Random numbers fall mainly in the planes</i>, PNAS 1968 &mdash; a three-page paper whose title is the whole result. <b>RANDU</b> was IBM&rsquo;s Scientific Subroutine Package generator; Knuth&rsquo;s verdict in <i>TAOCP</i> volume 2 is that it is &ldquo;really horrible&rdquo;, and simulation results published on it in the 1960s and 70s are suspect for exactly this reason.<br><br>
+ <b>AVAN (AI)</b> should point out that the failure is <b>algebra, not bad luck</b>. 65539 = 2<sup>16</sup>+3, so (2<sup>16</sup>+3)<sup>2</sup> = 2<sup>32</sup> + 6&middot;2<sup>16</sup> + 9, and modulo 2<sup>31</sup> that collapses to 6&middot;65539 &minus; 9. The recurrence follows immediately, and with it the fifteen planes. Nothing statistical is involved &mdash; the page verifies the identity as an exact equality on integers, not as a fit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The identity, checked triple by triple.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the cloud of triples until the planes line up edge-on.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrturn">turn &#9654;</button><button id="mredge">edge-on</button><button id="mrgood">a better generator</button></div>
+   <div class="cap" id="mrout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: fifteen sheets, seen from an angle that hides them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;RANDU is defective.&rdquo; The inverse is that <b>every LCG is on the same list and only the number differs</b> &mdash; Marsaglia&rsquo;s theorem has no exceptions, so a &ldquo;good&rdquo; generator is one whose planes are too close together to notice at the sample sizes anyone uses. Read backwards, the lesson is not that RANDU was uniquely bad but that <b>structure is always present and the test is whether your application can see it</b>; a generator is never random, only <i>unresolved</i>, and increasing the sample size is exactly the operation that brings the planes back into focus.</div>
+   <div class="btns" style="margin-top:10px"><button id="mrsp">pause spin</button></div></div></div></div>"""
+MRSP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,view=0,useGood=false;
+var M=Math.pow(2,31);
+function randu(seed,k){var out=[seed],x=seed;
+ for(var i=1;i<k;i++){x=(65539*x)%M;out.push(x);}
+ return out;}
+function lcg(seed,k){var out=[seed],x=seed;
+ for(var i=1;i<k;i++){x=(1103515245*x+12345)%M;out.push(x);}
+ return out;}
+function selftest(){
+ var seq=randu(1,6000);
+ var holds=0,tested=0,offs={};
+ for(var i=0;i+2<seq.length;i++){
+  var rhs=((6*seq[i+1]-9*seq[i])%M+M)%M;
+  tested++;
+  if(seq[i+2]===rhs)holds++;
+  offs[(6*seq[i+1]-9*seq[i]-seq[i+2])/M]=1;}
+ var good=lcg(1,6000),gh=0;
+ for(var j=0;j+2<good.length;j++){
+  var r2=((6*good[j+1]-9*good[j])%M+M)%M;
+  if(good[j+2]===r2)gh++;}
+ var bound=Math.pow(6*M,1/3);
+ return {multiplier:65539,modulus:M,
+  triples:tested,identityHolds:holds,
+  identityIsExact:holds===tested,
+  planes:Object.keys(offs).length,
+  fewPlanes:Object.keys(offs).length<=20,
+  marsagliaBound:bound,farBelowTheBound:Object.keys(offs).length<bound/50,
+  contrastHolds:gh,contrastFails:gh<tested*0.01,
+  algebraCheck:(65539*65539-(6*65539-9))%Math.pow(2,32)===0,
+  ok:holds===tested&&Object.keys(offs).length<=20&&gh<tested*0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'x[n+2] = 6x[n+1] - 9x[n]   mod 2^31');
+ var seq=randu(1,80);
+ var m=30,pw=W-60,bw=pw/70;
+ for(var i=0;i<70;i++){
+  var rhs=((6*seq[i+1]-9*seq[i])%M+M)%M;
+  var ok=seq[i+2]===rhs;
+  nf(g,ok?'rgba(125,226,176,0.7)':'rgba(255,90,138,0.8)');
+  g.fillRect(m+i*bw,52,bw-1.2,30);ng(g);}
+ nt(g,'#7de2b0',30,100,10,'green = the identity held exactly for that triple');
+ nt(g,'#8a7ab8',30,118,9,'over the full run: '+VR.identityHolds+' of '+VR.triples+' triples');
+ var y=140;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y,W-40,34);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y+0.5,W-41,34);ng(g);
+ nt(g,'#ff5a8a',36,y+22,11,'RANDU triples occupy '+VR.planes+' parallel planes');
+ var y2=y+44;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,'Marsaglia\\u2019s bound permits '+VR.marsagliaBound.toFixed(0));
+ nt(g,'#ffd76a',20,y2+58,10,'65539 = 2^16 + 3, so (2^16+3)^2 = 6(2^16+3) - 9 + 2^32');
+ nt(g,'#8a7ab8',20,y2+76,9,'the recurrence is algebra; the planes follow from it, not from statistics');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var seq=useGood?lcg(1,3000):randu(1,3000);
+ var th=view===1?0.9553:(view*0.6+0.3);
+ nt(g,'#e6dcff',16,26,11,useGood?'a different multiplier':'RANDU, 65539');
+ nt(g,'#8a7ab8',16,44,9,view===1?'turned edge-on to the planes':'an ordinary viewing angle');
+ var cx=W/2,cy=H/2+16,R=120;
+ var ct=Math.cos(th),st=Math.sin(th);
+ for(var i=0;i+2<seq.length;i++){
+  var x=seq[i]/M,y=seq[i+1]/M,z=seq[i+2]/M;
+  // project along the (6,-9,-1)-ish normal when edge-on
+  var u,v;
+  if(view===1){u=(x*6-y*9-z)/16;v=(x+y+z)/3;}
+  else{u=x*ct-z*st;v=y;}
+  var px=cx+(u-0.5)*R*2,py=cy-(v-0.5)*R*1.4;
+  ndot(g,px,py,1.1,useGood?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.55)');}
+ var y2=H-70;
+ nf(g,(view===1&&!useGood)?'rgba(255,90,138,0.16)':'rgba(20,14,34,0.9)');
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,(view===1&&!useGood)?'#ff5a8a':'rgba(150,110,230,0.4)',1.4);
+ g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,(view===1&&!useGood)?'#ff5a8a':'#8a7ab8',36,y2+24,11,
+  useGood?'no comparable structure at this angle'
+   :(view===1?VR.planes+' bands, and nothing between them':'looks like a cloud'));
+ nt(g,'#8a7ab8',36,y2+42,8,useGood?'which does not mean it has none -- only that it is not this one'
+  :(view===1?'the same points, viewed down the normal to the planes':'turn it and see'));
+ var o=document.getElementById('mrout');
+ if(o)o.innerHTML=useGood
+  ?'A different multiplier shows no banding at this angle. Marsaglia&rsquo;s theorem still applies to it &mdash; its planes are simply too many and too close to separate here. <b>0 of '+VR.triples+'</b> of its triples satisfy RANDU&rsquo;s recurrence.'
+  :(view===1
+   ?'Viewed along the normal to the planes, every one of these points falls into <b>'+VR.planes+
+    '</b> bands with empty space between them. Nothing is being fitted &mdash; the identity <b>x[n+2] = 6x[n+1] - 9x[n]</b> holds exactly on all <b>'+VR.triples+'</b> triples.'
+   :'From most angles the triples look like a perfectly good cloud. That is what a decade of published simulations saw.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var seq=randu(1,2400);
+ for(var i=0;i+2<seq.length;i++){
+  var x=(seq[i]/M-0.5)*180,y=(seq[i+1]/M-0.5)*180,z=(seq[i+2]/M-0.5)*180;
+  var q=P(x,y,z);
+  ndot(g,q[0],q[1],1.1,'rgba(125,226,176,0.42)');}
+ // draw a few of the planes explicitly
+ for(var k=0;k<4;k++){
+  var off=-70+k*46;
+  var corners=[[-90,-90],[90,-90],[90,90],[-90,90]].map(function(p){
+   return P(p[0],off,p[1]);});
+  ne(g,'rgba(255,215,106,0.32)',1);
+  g.beginPath();
+  corners.forEach(function(p,idx){if(idx===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'2,398 triples from RANDU');
+ nt(g,'#ffd76a',14,42,10,'and the sheets they are confined to');
+ nt(g,'#8a7ab8',14,58,10,'from here it is a cloud; from one angle it is fifteen lines');
+ nt(g,'#8a7ab8',14,H-12,9,'never random, only unresolved -- and more samples bring it back into focus');}
+document.getElementById('mrturn').onclick=function(){view=(view+1)%3;if(view===1)view=2;drawW4();};
+document.getElementById('mredge').onclick=function(){view=1;drawW4();};
+document.getElementById('mrgood').onclick=function(){useGood=!useGood;drawW4();};
+document.getElementById('mrsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__marsagliaplanes=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LYND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A <b>Lyndon word</b> is a string strictly smaller than all of its own rotations &mdash; <code>aab</code> is one, <code>aba</code> is not. The Chen&ndash;Fox&ndash;Lyndon theorem says every string on an ordered alphabet splits into a non-increasing run of Lyndon words, and that this splitting is <b>unique</b>. There is exactly one way to take any string apart, and Duval&rsquo;s algorithm finds it in a single left-to-right pass with constant extra memory.<br><br>
+ <span class="lit">LIT</span> verified live over all <b>32,766</b> binary strings up to length 14: every factorisation concatenates back to its string, every factor is a Lyndon word, and the factors come out non-increasing &mdash; <b>0</b> failures on any of the three. Uniqueness was checked by brute force over all <b>2,046</b> strings up to length 10, cutting each in every possible place: exactly <b>one</b> valid factorisation every time. And the number of Lyndon words matches the M&ouml;bius formula (1/n)&sum;&mu;(d)k<sup>n/d</sup> at every length tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>Roger Lyndon</b> introduced the words in 1954; the unique-factorisation theorem is <b>Chen, Fox and Lyndon</b>, 1958. The linear-time algorithm is <b>Jean-Pierre Duval</b>, 1983. The counting formula is necklace counting by M&ouml;bius inversion, which goes back to <b>Moreau</b> in 1872. Lyndon words are also the standard basis of the free Lie algebra, and the same factorisation underlies the Burrows&ndash;Wheeler transform&rsquo;s bijective variant.<br><br>
+ <b>AVAN (AI)</b> checked uniqueness the expensive way rather than trusting the theorem. Duval&rsquo;s algorithm returns <i>a</i> factorisation; that it is the <i>only</i> one is a separate claim, so every possible way of cutting each string was enumerated and the valid ones counted. The answer is 1 for all 2,046 strings tested. Worth naming the limit: this is verification on binary strings to length 10, not a proof &mdash; the theorem is proved, the page checks that this implementation agrees with it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One string, cut where it wants to be cut.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Every way of cutting one string. Only one survives.</div>
+   <div class="btns" style="margin-top:10px"><button id="lynext">another string &#9654;</button><button id="lycount">the necklace count</button></div>
+   <div class="cap" id="lyout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a word and its rotations, with the smallest one marked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;every string has a canonical decomposition.&rdquo; The inverse is that <b>the canon is inherited from an arbitrary choice made earlier</b> &mdash; the order on the alphabet. Decide that <code>b</code> precedes <code>a</code> and every Lyndon word in this sphere stops being one, and every factorisation changes. Nothing about the string itself picked the cuts. Read backwards, uniqueness theorems of this shape do not find structure in the object; they <b>propagate a structure you supplied</b>, faithfully and without adding anything, and their real content is that the propagation is well defined rather than that the answer was inevitable.</div>
+   <div class="btns" style="margin-top:10px"><button id="lysp">pause spin</button></div></div></div></div>"""
+LYND_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0,showCount=false;
+function duval(s){var out=[],i=0;
+ while(i<s.length){
+  var j=i+1,k=i;
+  while(j<s.length&&s.charAt(k)<=s.charAt(j)){
+   if(s.charAt(k)<s.charAt(j))k=i;else k++;
+   j++;}
+  while(i<=k){out.push(s.substring(i,i+j-k));i+=j-k;}}
+ return out;}
+function isLyndon(w){
+ if(!w.length)return false;
+ for(var i=1;i<w.length;i++)if(w.substring(i)+w.substring(0,i)<=w)return false;
+ return true;}
+function mu(n){var r=1;
+ for(var p=2;p*p<=n;p++)if(n%p===0){n/=p;if(n%p===0)return 0;r=-r;}
+ if(n>1)r=-r;
+ return r;}
+function lyndonCount(n,k){var s=0;
+ for(var d=1;d<=n;d++)if(n%d===0)s+=mu(d)*Math.pow(k,n/d);
+ return s/n;}
+function selftest(){
+ var A=['a','b'],strings=0,ok=0,badC=0,badL=0,badO=0;
+ for(var len=1;len<=14;len++){
+  var tot=Math.pow(2,len);
+  for(var m=0;m<tot;m++){
+   var x=m,s='';
+   for(var i=0;i<len;i++){s+=A[x%2];x=Math.floor(x/2);}
+   strings++;
+   var f=duval(s);
+   if(f.join('')!==s){badC++;continue;}
+   var allL=true;
+   for(var q=0;q<f.length;q++)if(!isLyndon(f[q]))allL=false;
+   if(!allL){badL++;continue;}
+   var ord=true;
+   for(var r=1;r<f.length;r++)if(f[r-1]<f[r])ord=false;
+   if(!ord){badO++;continue;}
+   ok++;}}
+ // uniqueness by brute force, to length 10
+ var uc=0,uo=0;
+ for(var L=1;L<=10;L++){
+  var t2=Math.pow(2,L);
+  for(var m2=0;m2<t2;m2++){
+   var x2=m2,s2='';
+   for(var i2=0;i2<L;i2++){s2+=A[x2%2];x2=Math.floor(x2/2);}
+   var count=0,cuts=Math.pow(2,L-1);
+   for(var cc=0;cc<cuts;cc++){
+    var parts=[],cur=s2.charAt(0);
+    for(var i3=1;i3<L;i3++){
+     if((cc>>(i3-1))&1){parts.push(cur);cur=s2.charAt(i3);}
+     else cur+=s2.charAt(i3);}
+    parts.push(cur);
+    var good=true;
+    for(var p2=0;p2<parts.length;p2++)if(!isLyndon(parts[p2]))good=false;
+    if(!good)continue;
+    var ordr=true;
+    for(var r2=1;r2<parts.length;r2++)if(parts[r2-1]<parts[r2])ordr=false;
+    if(ordr)count++;}
+   uc++;if(count===1)uo++;}}
+ // the necklace count
+ var rows=[],cok=0;
+ for(var n=1;n<=14;n++){
+  var act=0,tt=Math.pow(2,n);
+  for(var m3=0;m3<tt;m3++){
+   var x3=m3,s3='';
+   for(var i4=0;i4<n;i4++){s3+=A[x3%2];x3=Math.floor(x3/2);}
+   if(isLyndon(s3))act++;}
+  var pred=lyndonCount(n,2);
+  rows.push([n,act,pred]);
+  if(act===pred)cok++;}
+ return {strings:strings,concatFailures:badC,nonLyndonFailures:badL,orderFailures:badO,
+  allThreeHold:ok===strings,verified:ok,
+  uniqueChecked:uc,uniqueOk:uo,uniqueEveryTime:uo===uc,
+  countRows:rows,countMatches:cok,countMatchesEverywhere:cok===rows.length,
+  ok:ok===strings&&uo===uc&&cok===rows.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE STRING, CUT WHERE IT WANTS TO BE CUT');
+ var EX=['bbababaab','abaabbaab','babbaabab'];
+ EX.forEach(function(s,r){
+  var y=48+r*74;
+  var f=duval(s);
+  nt(g,'#8a7ab8',20,y,9,'"'+s+'"');
+  var x=20,cw=30;
+  f.forEach(function(part,i){
+   for(var k=0;k<part.length;k++){
+    nf(g,i%2?'rgba(255,215,106,0.55)':'rgba(125,226,176,0.55)');
+    g.fillRect(x,y+8,cw-3,26);ng(g);
+    nt(g,'#0d0818',x+10,y+26,11,part.charAt(k));
+    x+=cw;}
+   x+=8;});
+  nt(g,'#5a4a85',20,y+50,8,f.join('  \\u00b7  ')+'    ('+f.length+' factor'+(f.length===1?'':'s')+
+   ', each smaller than all its rotations)');});
+ nt(g,'#7de2b0',20,272,10,VR.verified.toLocaleString()+' of '+VR.strings.toLocaleString()+
+  ' binary strings satisfy all three conditions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCount){
+  nt(g,'#5ad6ff',16,26,11,'Lyndon words of each length, over {a,b}');
+  var rows=VR.countRows,mx=rows[rows.length-1][1];
+  rows.forEach(function(r,i){
+   var y=46+i*18;
+   nt(g,'#8a7ab8',20,y+10,8,'n='+r[0]);
+   var bw=(W-136)*r[1]/mx;
+   nf(g,r[1]===r[2]?'rgba(90,214,255,0.55)':'rgba(255,90,138,0.6)');
+   g.fillRect(58,y+1,Math.max(1.5,bw),12);ng(g);
+   nt(g,'#5a4a85',W-72,y+10,8,r[1]+' / '+r[2]);});
+  nt(g,'#5ad6ff',20,H-30,9,'counted against (1/n) sum mu(d) 2^(n/d): '+
+   VR.countMatches+'/'+VR.countRows.length+' agree');
+  nt(g,'#8a7ab8',20,H-12,8,'Moebius inversion -- Moreau 1872');
+  var o2=document.getElementById('lyout');
+  if(o2)o2.innerHTML='The number of Lyndon words of length n over a k-letter alphabet is <b>(1/n)&sum;&mu;(d)k<sup>n/d</sup></b>, the necklace count. Counted directly against the formula at every length up to 14: <b>'+VR.countMatches+'/'+VR.countRows.length+'</b>.';
+  return;}
+ var EX=['bbababaab','abaabbaab','babbaabab','abbababaa','baababbab'];
+ var s=EX[si%EX.length];
+ nt(g,'#e6dcff',16,26,11,'"'+s+'"   \\u2014 every way of cutting it');
+ var L=s.length,cuts=Math.pow(2,L-1);
+ var valid=[],shown=0;
+ for(var cc=0;cc<cuts;cc++){
+  var parts=[],cur=s.charAt(0);
+  for(var i=1;i<L;i++){
+   if((cc>>(i-1))&1){parts.push(cur);cur=s.charAt(i);}
+   else cur+=s.charAt(i);}
+  parts.push(cur);
+  var good=true;
+  for(var p=0;p<parts.length;p++)if(!isLyndon(parts[p]))good=false;
+  var ord=true;
+  for(var r=1;r<parts.length;r++)if(parts[r-1]<parts[r])ord=false;
+  if(good&&ord)valid.push(parts);}
+ var cols=16,cw=(W-40)/cols,rows2=Math.ceil(cuts/cols);
+ for(var q=0;q<cuts;q++){
+  var parts2=[],cur2=s.charAt(0);
+  for(var i2=1;i2<L;i2++){
+   if((q>>(i2-1))&1){parts2.push(cur2);cur2=s.charAt(i2);}
+   else cur2+=s.charAt(i2);}
+  parts2.push(cur2);
+  var g2=true;
+  for(var p2=0;p2<parts2.length;p2++)if(!isLyndon(parts2[p2]))g2=false;
+  var o3=true;
+  for(var r3=1;r3<parts2.length;r3++)if(parts2[r3-1]<parts2[r3])o3=false;
+  var isOk=g2&&o3;
+  nf(g,isOk?'rgba(125,226,176,0.95)':'rgba(60,45,95,0.7)');
+  g.fillRect(20+(q%cols)*cw,46+Math.floor(q/cols)*8,cw-1.2,6.5);ng(g);}
+ var y2=46+rows2*8+14;
+ nt(g,'#8a7ab8',20,y2,9,cuts.toLocaleString()+' possible cuttings, one cell each');
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2+10,W-40,50);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y2+10.5,W-41,50);ng(g);
+ nt(g,'#7de2b0',36,y2+34,13,valid.length+' valid factorisation'+(valid.length===1?'':'s'));
+ nt(g,'#8a7ab8',36,y2+52,8,valid.length?valid[0].join('  \\u00b7  '):'');
+ var o=document.getElementById('lyout');
+ if(o)o.innerHTML='There are <b>'+cuts.toLocaleString()+'</b> ways to cut this string, and exactly <b>'+
+  valid.length+'</b> of them produces a non-increasing sequence of Lyndon words: <b>'+
+  (valid.length?valid[0].join(' &middot; '):'')+'</b>. Duval\\u2019s algorithm reaches that answer in one pass, without searching.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var w='aababb',n=w.length;
+ var rots=[];
+ for(var i=0;i<n;i++)rots.push(w.substring(i)+w.substring(0,i));
+ var best=0;
+ for(var j=1;j<n;j++)if(rots[j]<rots[best])best=j;
+ for(var k=0;k<n;k++){
+  var th=k/n*2*Math.PI;
+  var q=P(96*Math.cos(th),-40+ (rots[k]===rots[best]?-40:0),96*Math.sin(th));
+  var isMin=k===best;
+  ndot(g,q[0],q[1],isMin?7:4,isMin?'#ffd76a':'rgba(125,226,176,0.7)');
+  nt(g,isMin?'#ffd76a':'#5a4a85',q[0]-20,q[1]+18,8,rots[k]);
+  var nx=P(96*Math.cos((k+1)/n*2*Math.PI),-40,96*Math.sin((k+1)/n*2*Math.PI));
+  ne(g,'rgba(150,110,230,0.3)',1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(nx[0],nx[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'the six rotations of one word');
+ nt(g,'#ffd76a',14,42,10,'lifted: the smallest -- the Lyndon representative');
+ nt(g,'#8a7ab8',14,58,10,'smallest under an order somebody chose');
+ nt(g,'#8a7ab8',14,H-12,9,'reverse the alphabet and a different point rises');}
+document.getElementById('lynext').onclick=function(){showCount=false;si++;drawW4();};
+document.getElementById('lycount').onclick=function(){showCount=!showCount;drawW4();};
+document.getElementById('lysp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lyndonword=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DVSZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take a sequence over n symbols with two rules: no symbol may sit next to itself, and no two symbols may alternate too many times &mdash; no <code>a&hellip;b&hellip;a</code> for order 1, no <code>a&hellip;b&hellip;a&hellip;b</code> for order 2, and so on. How long can such a sequence get? The answer is not obvious, and for order 3 it is famously <i>not</i> linear: it grows like n&middot;&alpha;(n), where &alpha; is the inverse Ackermann function &mdash; a function that reaches 5 somewhere past the number of atoms in the universe.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustive search, not by construction. For order 1 the longest sequence is exactly <b>n</b> at every n from 1 to 5. For order 2 it is exactly <b>2n&minus;1</b> &mdash; <b>1, 3, 5, 7, 9</b>. For order 3 the maxima already run past 2n&minus;1: <b>1, 4, 8, 12</b> at n = 1 to 4, exceeding the order-2 bound at <b>3</b> of the <b>4</b> sizes tested.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>Harold Davenport and Andrzej Schinzel</b>, 1965, who introduced these sequences while studying differential equations. The superlinear behaviour at order 3 was settled by <b>Sergiu Hart and Micha Sharir</b> in 1986, who proved &lambda;<sub>3</sub>(n) = &Theta;(n&middot;&alpha;(n)) &mdash; the first natural combinatorial problem where the inverse Ackermann function appears. The sequences bound the complexity of the lower envelope of n curves, which is why computational geometry cares.<br><br>
+ <b>AVAN (AI)</b> searched exhaustively rather than exhibiting a construction. A sequence reaching 2n&minus;1 proves the bound is <i>achievable</i>; it says nothing about whether something longer exists. Every sequence over the alphabet was enumerated instead, so the figures here are true maxima. The limit is honest and severe: this is n&nbsp;&le;&nbsp;5. The &Theta;(n&middot;&alpha;(n)) result is <b>cited, not reproduced</b> &mdash; &alpha; does not become interesting at any size a browser can search.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three orders, and where each one stops.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The longest sequence at each order, and the alternation that ends it.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsorder">next order &#9654;</button><button id="dsn">bigger alphabet</button></div>
+   <div class="cap" id="dsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the lower envelope of a family of curves.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;forbidding alternation bounds the length.&rdquo; The inverse is that <b>the bound stops being a number and becomes a growth rate exactly when the forbidden pattern gets long enough to be rare</b>. At order 1 and 2 the constraint bites on every step and the answer is a formula; at order 3 it almost never bites, and what is left is a &Theta;(n&middot;&alpha;(n)) that no finite search can distinguish from linear. Read backwards, &alpha;(n) is not a strange function that turned up &mdash; it is <b>what a bound looks like when the thing it forbids has almost stopped happening</b>, and the reason nobody found it by computing examples is that at every size you can compute, it is 3.</div>
+   <div class="btns" style="margin-top:10px"><button id="dssp">pause spin</button></div></div></div></div>"""
+DVSZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,oi=1,ni=3;
+function hasAlt(seq,s){
+ var need=s+2;
+ for(var a=0;a<6;a++)for(var b=0;b<6;b++){
+  if(a===b)continue;
+  var want=a,run=0;
+  for(var i=0;i<seq.length;i++){
+   if(seq[i]===want){run++;want=(want===a)?b:a;if(run>=need)return true;}}}
+ return false;}
+function maxLen(n,s,cap){
+ var best=0,bestSeq=null,seq=[];
+ function rec(){
+  if(seq.length>best){best=seq.length;bestSeq=seq.slice();}
+  if(seq.length>=cap)return;
+  for(var c=0;c<n;c++){
+   if(seq.length&&seq[seq.length-1]===c)continue;
+   seq.push(c);
+   if(!hasAlt(seq,s))rec();
+   seq.pop();}}
+ rec();
+ return {best:best,seq:bestSeq};}
+function selftest(){
+ var r1=[],r2=[],r3=[];
+ for(var n=1;n<=5;n++)r1.push([n,maxLen(n,1,12).best,n]);
+ for(var n2=1;n2<=5;n2++)r2.push([n2,maxLen(n2,2,14).best,2*n2-1]);
+ for(var n3=1;n3<=4;n3++)r3.push([n3,maxLen(n3,3,16).best,2*n3-1]);
+ var ok1=0,ok2=0,exc=0;
+ for(var i=0;i<r1.length;i++)if(r1[i][1]===r1[i][2])ok1++;
+ for(var j=0;j<r2.length;j++)if(r2[j][1]===r2[j][2])ok2++;
+ for(var k=0;k<r3.length;k++)if(r3[k][1]>r3[k][2])exc++;
+ return {order1:r1,order2:r2,order3:r3,
+  order1Matches:ok1,order1IsExactlyN:ok1===r1.length,
+  order2Matches:ok2,order2IsExactlyTwoNMinusOne:ok2===r2.length,
+  order3Exceeds:exc,order3IsSuperlinear:exc>0,
+  exhaustive:true,
+  ok:ok1===r1.length&&ok2===r2.length&&exc>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE ORDERS, AND WHERE EACH ONE STOPS');
+ var sets=[['order 1  (no a..b..a)',VR.order1,'#5ad6ff'],
+  ['order 2  (no a..b..a..b)',VR.order2,'#7de2b0'],
+  ['order 3  (no a..b..a..b..a)',VR.order3,'#ffd76a']];
+ var mx=13;
+ sets.forEach(function(S,r){
+  var y0=44+r*80;
+  nt(g,S[2],20,y0,9,S[0]);
+  S[1].forEach(function(row,i){
+   var y=y0+10+i*12;
+   nt(g,'#5a4a85',24,y+8,7,'n='+row[0]);
+   var bw=(W-160)*row[1]/mx;
+   nf(g,S[2]==='#5ad6ff'?'rgba(90,214,255,0.5)':
+    (S[2]==='#7de2b0'?'rgba(125,226,176,0.5)':'rgba(255,215,106,0.55)'));
+   g.fillRect(64,y+1,Math.max(2,bw),9);ng(g);
+   nt(g,'#8a7ab8',64+bw+6,y+8,7,''+row[1]);
+   nt(g,'#5a4a85',W-88,y+8,7,'vs '+row[2]);});});
+ nt(g,'#7de2b0',20,H-26,9,'order 1 gives exactly n and order 2 exactly 2n-1, at every size searched');
+ nt(g,'#ffd76a',20,H-8,9,'order 3 is already past 2n-1 -- and its true rate is n times inverse Ackermann');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=((oi-1)%3)+1;
+ var n=Math.min(5,ni);
+ if(s===3)n=Math.min(4,n);
+ var r=maxLen(n,s,s===3?16:14);
+ nt(g,'#e6dcff',16,26,11,'order '+s+',  '+n+' symbols');
+ nt(g,'#8a7ab8',16,44,9,'forbidden: an alternation of length '+(s+2));
+ var seq=r.seq||[];
+ var COL=['#7de2b0','#ffd76a','#5ad6ff','#ff5a8a','#b98cff'];
+ var cw=Math.min(30,(W-48)/Math.max(1,seq.length));
+ seq.forEach(function(ch,i){
+  var x=24+i*cw;
+  nf(g,COL[ch%5]);
+  g.fillRect(x,62,cw-2.5,32);ng(g);
+  nt(g,'#0d0818',x+cw/2-4,84,11,String.fromCharCode(97+ch));});
+ nt(g,'#8a7ab8',24,112,9,'length '+seq.length+'   (exhaustive maximum)');
+ var pred=s===1?n:(2*n-1);
+ var y2=132;
+ nf(g,seq.length===pred?'rgba(125,226,176,0.16)':'rgba(255,215,106,0.16)');
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,seq.length===pred?'#7de2b0':'#ffd76a',1.5);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,seq.length===pred?'#7de2b0':'#ffd76a',36,y2+24,12,
+  s===1?('exactly n = '+n):(s===2?('exactly 2n-1 = '+pred):('past 2n-1 = '+pred)));
+ nt(g,'#8a7ab8',36,y2+42,8,s===3?'the linear formulas have stopped applying'
+  :'searched over every sequence, so this is the true maximum');
+ // show the alternation that would break it
+ var y3=y2+68;
+ nt(g,'#ff5a8a',24,y3,9,'add anything and some pair alternates '+(s+2)+' times');
+ var pat='';
+ for(var k=0;k<s+2;k++)pat+=(k%2?'b':'a')+(k<s+1?' \\u2026 ':'');
+ nt(g,'#ff5a8a',24,y3+20,13,pat);
+ var o=document.getElementById('dsout');
+ if(o)o.innerHTML='At order <b>'+s+'</b> over <b>'+n+'</b> symbols the longest legal sequence has length <b>'+
+  seq.length+'</b>'+
+  (s<3?(' &mdash; exactly <b>'+(s===1?'n':'2n&minus;1')+'</b>, and this is an exhaustive maximum rather than a construction that happens to reach it.')
+   :('. The order-2 formula would predict '+pred+'. Beyond here the growth is <b>&Theta;(n&middot;&alpha;(n))</b>, which no search of this size can distinguish from linear.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // n parabolas; their lower envelope is a DS sequence of order 2
+ var COL=['#7de2b0','#ffd76a','#5ad6ff','#ff5a8a','#b98cff'];
+ var curves=[];
+ for(var k=0;k<5;k++){
+  var a=0.006+k*0.0035,b=-60+k*30,cc=-20+k*14;
+  curves.push(function(A,B,C){return function(x){return A*(x-B)*(x-B)+C;};}(a,b,cc));}
+ for(var k2=0;k2<5;k2++){
+  ne(g,'rgba(150,110,230,0.25)',1);
+  g.beginPath();
+  for(var x=-110;x<=110;x+=4){
+   var p=P(x,curves[k2](x)*0.9,0);
+   if(x===-110)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();ng(g);}
+ var prev=null,last=-1,switches=0;
+ for(var x2=-110;x2<=110;x2+=2){
+  var lo=1e9,idx=0;
+  for(var k3=0;k3<5;k3++){var v=curves[k3](x2);if(v<lo){lo=v;idx=k3;}}
+  if(idx!==last){switches++;last=idx;}
+  var q=P(x2,lo*0.9,0);
+  ndot(g,q[0],q[1],2.4,COL[idx]);}
+ nt(g,'#7de2b0',14,24,11,'five curves, and the lowest one at each point');
+ nt(g,'#ffd76a',14,42,10,'the colours change '+switches+' times -- that is the sequence');
+ nt(g,'#8a7ab8',14,58,10,'two parabolas cross twice, so no pair can alternate three times');
+ nt(g,'#8a7ab8',14,H-12,9,'alpha(n) is what a bound looks like when what it forbids has nearly stopped happening');}
+document.getElementById('dsorder').onclick=function(){oi++;drawW4();};
+document.getElementById('dsn').onclick=function(){ni=ni>=5?2:ni+1;drawW4();};
+document.getElementById('dssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__davenportschinzel=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HSHL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Life patterns repeat themselves constantly &mdash; the same small square of cells turns up in a thousand places and a thousand generations. Store the universe as a quadtree in which <b>identical subsquares are the same object</b>, and all that repetition collapses: a pattern with a million cells may need only a few thousand distinct nodes, and the work of stepping it forward is done once per <i>distinct</i> square rather than once per occurrence.<br><br>
+ <span class="lit">LIT</span> verified live. Sixty generations of a 32&times;32 random soup were canonicalised into a shared quadtree; every one of the <b>60</b> grids round-trips out of the tree exactly. The tree holds <b>2,839</b> distinct nodes where an unshared tree of the same 60 generations would need <b>81,900</b> &mdash; a <b>28.8&times;</b> reduction &mdash; and the soup genuinely moves, producing <b>60</b> distinct root states rather than settling.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Human lineage (content, credited):</b> <b>Bill Gosper</b>, 1984, <i>Exploiting regularities in large cellular spaces</i>. Life itself is <b>John Conway</b>, 1970. HashLife is the reason patterns like Gosper&rsquo;s own glider gun can be run for 2<sup>64</sup> generations on a laptop &mdash; the canonical trick is not the sharing alone but combining it with a memoised <i>time</i> step, so a node of size 2<sup>k</sup> advances 2<sup>k&minus;2</sup> generations in one lookup.<br><br>
+ <b>AVAN (AI)</b> must be exact about what this page does and does not do. It implements the <b>memoisation half</b>: canonical nodes, structural sharing, verified round-trips, measured node counts. It does <b>not</b> implement time-doubling, so the spectacular speedup HashLife is famous for is <b>not</b> demonstrated here &mdash; the 28.8&times; figure is a memory result, not a time result, and reporting it as the latter would be exactly the kind of overclaim this corpus exists to avoid.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Distinct nodes against nodes if nothing were shared.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The soup, with repeated squares picked out.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlstep">step &#9654;</button><button id="hlshare">show repeats</button></div>
+   <div class="cap" id="hlout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the quadtree, with shared children drawn once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;sharing makes the universe small.&rdquo; The inverse is that <b>it makes it small in proportion to how boring it is</b>. The compression is a direct measure of repetition, so the patterns HashLife runs fastest on are the ones with least going on, and a genuinely chaotic soup shares almost nothing and runs slower than the naive algorithm because of the hashing. Read backwards, this is not a general speedup but an <b>instrument that reports how much of a pattern is new</b> &mdash; and its failure case is exactly the case where the answer would have been most worth having.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlsp">pause spin</button></div></div></div></div>"""
+HSHL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,gen=0,showRep=false,GRID=null;
+var SZ=32,LV=5;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function makeSoup(){var g=rnd(1970),grid=[];
+ for(var y=0;y<SZ;y++){grid[y]=[];
+  for(var x=0;x<SZ;x++)grid[y][x]=g()<0.35?1:0;}
+ return grid;}
+function step(grid){var out=[];
+ for(var y=0;y<SZ;y++){out[y]=[];
+  for(var x=0;x<SZ;x++){
+   var c=0;
+   for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+    if(!dx&&!dy)continue;
+    c+=grid[(y+dy+SZ)%SZ][(x+dx+SZ)%SZ]?1:0;}
+   out[y][x]=(grid[y][x]?(c===2||c===3):c===3)?1:0;}}
+ return out;}
+function selftest(){
+ var table={},nextId=2;
+ var L0={id:0,level:0,v:0},L1={id:1,level:0,v:1};
+ function node(nw,ne,sw,se){
+  var key=nw.id+','+ne.id+','+sw.id+','+se.id;
+  if(table[key])return table[key];
+  var n={id:nextId++,level:nw.level+1,nw:nw,ne:ne,sw:sw,se:se};
+  table[key]=n;return n;}
+ function fromGrid(g,x,y,lv){
+  if(lv===0)return (g[y]&&g[y][x])?L1:L0;
+  var h=1<<(lv-1);
+  return node(fromGrid(g,x,y,lv-1),fromGrid(g,x+h,y,lv-1),
+   fromGrid(g,x,y+h,lv-1),fromGrid(g,x+h,y+h,lv-1));}
+ function toGrid(n,g,x,y){
+  if(n.level===0){(g[y]=g[y]||[])[x]=n.v;return;}
+  var h=1<<(n.level-1);
+  toGrid(n.nw,g,x,y);toGrid(n.ne,g,x+h,y);
+  toGrid(n.sw,g,x,y+h);toGrid(n.se,g,x+h,y+h);}
+ var cur=makeSoup(),steps=0,roots={},lossless=true;
+ for(var t=0;t<60;t++){
+  var r=fromGrid(cur,0,0,LV);
+  roots[r.id]=1;
+  var back=[];
+  toGrid(r,back,0,0);
+  for(var y=0;y<SZ&&lossless;y++)for(var x=0;x<SZ;x++)
+   if((back[y][x]?1:0)!==(cur[y][x]?1:0)){lossless=false;break;}
+  cur=step(cur);steps++;}
+ var distinct=Object.keys(table).length+2;
+ var unshared=steps*(Math.pow(4,LV+1)-1)/3;
+ return {size:SZ,level:LV,generations:steps,
+  roundTripLossless:lossless,
+  distinctNodes:distinct,unsharedNodes:Math.round(unshared),
+  sharingRatio:unshared/distinct,
+  sharingIsReal:distinct<unshared,
+  distinctRoots:Object.keys(roots).length,
+  soupActuallyMoves:Object.keys(roots).length>1,
+  timeDoublingNotImplemented:true,
+  ok:lossless&&distinct<unshared&&Object.keys(roots).length>1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DISTINCT NODES vs NODES IF NOTHING WERE SHARED');
+ var mx=VR.unsharedNodes;
+ [['if nothing were shared',VR.unsharedNodes,'#ff5a8a'],
+  ['distinct canonical nodes',VR.distinctNodes,'#7de2b0']].forEach(function(r,i){
+  var y=52+i*72;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var bw=(W-140)*r[1]/mx;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(24,y+10,Math.max(3,bw),30);ng(g);
+  ne(g,'rgba(150,110,230,0.3)',1);g.strokeRect(24.5,y+10.5,W-140,30);ng(g);
+  nt(g,r[2],24,y+58,12,r[1].toLocaleString());});
+ var y2=204;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,VR.sharingRatio.toFixed(1)+'x fewer nodes across '+
+  VR.generations+' generations');
+ nt(g,'#ffd76a',20,254,9,'every one of the '+VR.generations+' grids round-trips out of the tree exactly');
+ nt(g,'#8a7ab8',20,274,9,'this is a MEMORY result -- time-doubling is not implemented here');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!GRID)GRID=makeSoup();
+ nt(g,'#e6dcff',16,26,11,'generation '+gen);
+ var cell=(W-40)/SZ,top=44;
+ // count 4x4 blocks and colour repeats
+ var blocks={},bs=4;
+ for(var by=0;by<SZ;by+=bs)for(var bx=0;bx<SZ;bx+=bs){
+  var key='';
+  for(var y=0;y<bs;y++)for(var x=0;x<bs;x++)key+=GRID[by+y][bx+x]?1:0;
+  blocks[key]=(blocks[key]||0)+1;}
+ for(var yy=0;yy<SZ;yy++)for(var xx=0;xx<SZ;xx++){
+  var col;
+  if(showRep){
+   var bx2=Math.floor(xx/bs)*bs,by2=Math.floor(yy/bs)*bs,k2='';
+   for(var y2=0;y2<bs;y2++)for(var x2=0;x2<bs;x2++)k2+=GRID[by2+y2][bx2+x2]?1:0;
+   var rep=blocks[k2];
+   col=rep>1?(GRID[yy][xx]?'rgba(255,215,106,0.9)':'rgba(255,215,106,0.16)')
+    :(GRID[yy][xx]?'rgba(125,226,176,0.85)':'rgba(30,22,50,0.9)');
+  } else col=GRID[yy][xx]?'rgba(125,226,176,0.85)':'rgba(24,17,42,0.9)';
+  nf(g,col);
+  g.fillRect(20+xx*cell,top+yy*cell,cell-0.6,cell-0.6);ng(g);}
+ var distinctBlocks=Object.keys(blocks).length;
+ var totalBlocks=(SZ/bs)*(SZ/bs);
+ var y3=top+SZ*cell+14;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y3,W-40,54);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y3+0.5,W-41,54);ng(g);
+ nt(g,'#ffd76a',36,y3+24,12,distinctBlocks+' distinct 4x4 squares of '+totalBlocks);
+ nt(g,'#8a7ab8',36,y3+42,8,'the tree stores each distinct one exactly once');
+ var o=document.getElementById('hlout');
+ if(o)o.innerHTML=showRep
+  ?'Yellow marks every 4&times;4 square that occurs more than once in this generation. Those are stored as a <b>single</b> node however many times they appear &mdash; and across all '+VR.generations+' generations that collapses '+VR.unsharedNodes.toLocaleString()+' nodes into <b>'+VR.distinctNodes.toLocaleString()+'</b>.'
+  :'Generation <b>'+gen+'</b>. Of <b>'+totalBlocks+'</b> four-by-four squares, only <b>'+distinctBlocks+
+   '</b> are distinct. Press <i>show repeats</i> to see which ones the tree is sharing.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a quadtree drawn as levels, with shared children converging
+ var counts=[1,4,10,18,24];
+ for(var lv=0;lv<5;lv++){
+  var n=counts[lv],rad=22+lv*26,y=-110+lv*54;
+  for(var k=0;k<n;k++){
+   var th=k/n*2*Math.PI+lv*0.3;
+   var q=P(rad*Math.cos(th),y,rad*Math.sin(th));
+   ndot(g,q[0],q[1],lv===0?6:3.4,lv===0?'#ffd76a':'rgba(125,226,176,'+(0.85-lv*0.11)+')');
+   if(lv>0){
+    var pn=counts[lv-1],pk=k%pn;
+    var pth=pk/pn*2*Math.PI+(lv-1)*0.3;
+    var pq=P((22+(lv-1)*26)*Math.cos(pth),-110+(lv-1)*54,(22+(lv-1)*26)*Math.sin(pth));
+    ne(g,'rgba(150,110,230,0.28)',1);
+    g.beginPath();g.moveTo(pq[0],pq[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}}}
+ nt(g,'#ffd76a',14,24,11,'the root, and five levels beneath it');
+ nt(g,'#7de2b0',14,42,10,'each level narrower than 4^n because children are shared');
+ nt(g,'#8a7ab8',14,58,10,VR.distinctNodes.toLocaleString()+' nodes where '+
+  VR.unsharedNodes.toLocaleString()+' would be needed');
+ nt(g,'#8a7ab8',14,H-12,9,'it compresses in proportion to how little is happening');}
+document.getElementById('hlstep').onclick=function(){GRID=step(GRID);gen++;drawW4();};
+document.getElementById('hlshare').onclick=function(){showRep=!showRep;drawW4();};
+document.getElementById('hlsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__hashlife=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 228 · neon-noir · silicon-coding · FROM DAVID'S 0805 15:29 DROP (i13c-bridge-tools + SWIFT-FOR-I13) · a call that never leaves · two tools agreeing on a blank · how far a branch can see · a check that could fail · twelve constructs and no loop ═══════════════════════
 SLFB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">On ARM64 a call is <code>BL</code>: six opcode bits and a 26-bit signed displacement, scaled by four, measured from the instruction itself. A compiler that has not linked yet writes the displacement as <b>zero</b> and leaves a note for the linker. Zero means <i>this instruction</i>. Every unlinked call is therefore a call to itself &mdash; a tight infinite loop that assembles cleanly, disassembles cleanly, and never returns.<br><br>
@@ -76270,6 +77077,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zero-one-principle","title":"THE ZERO-ONE PRINCIPLE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#7de2b0","icon":"\u21c5",
+  "kicker":"256 tests instead of 40,320",
+  "blurb":"A comparator network sorts every input if and only if it sorts every input of 0s and 1s. Check the corners of a cube and the whole space comes with it.",
+  "lit":"a Batcher odd-even network on 8 wires uses 19 comparators and sorts all 256 binary inputs and all 40,320 permutations - a 158x reduction in tests for the same guarantee; and the equivalence itself was tested rather than assumed, with 600 mutated networks at 6 wires returning the SAME verdict from the binary test and the exhaustive test every time, 600 of 600, 400 mutants passing both and 200 failing both",
+  "fig":"Human lineage, credited: the principle is folklore by the 1960s and is set out in Knuth's TAOCP volume 3 as exercise 5.3.4-16; the network is Ken Batcher's odd-even mergesort, 1968. The proof is one paragraph - if a network fails on some input, the monotone map sending everything below the misplaced value to 0 and the rest to 1 yields a binary input it also fails on, because comparators commute with monotone maps. AVAN tested the EQUIVALENCE rather than the easy direction: a first version mutated networks only by deleting comparators and all 400 mutants failed both tests, which confirms nothing, since agreement on 'both fail' is what any two broken checks give. Two correctness-PRESERVING mutations were added - duplicating a comparator, and reordering adjacent comparators on disjoint wires - so the sample now holds 400 that pass both and 200 that fail both.",
+  "body":ZOPR_BODY,"script":ZOPR_SCRIPT},
+ {"slug":"the-marsaglia-planes","title":"THE MARSAGLIA PLANES","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#ff5a8a","icon":"\u2261",
+  "kicker":"random numbers fall mainly in the planes",
+  "blurb":"Every linear congruential generator confines its k-tuples to parallel hyperplanes. For RANDU - shipped by IBM, used for a decade of published science - there are fifteen.",
+  "lit":"RANDU is x[n+1] = 65539 x[n] mod 2^31 and it satisfies x[n+2] = 6x[n+1] - 9x[n] mod 2^31 exactly, holding on every one of the consecutive triples tested; every triple therefore lies on one of just 15 parallel planes where Marsaglia's bound for k=3 permits 2,344; and a different multiplier satisfies that identity 0 times over the same run",
+  "fig":"Human lineage, credited: George Marsaglia, 'Random numbers fall mainly in the planes', PNAS 1968 - a three-page paper whose title is the whole result. RANDU was IBM's Scientific Subroutine Package generator; Knuth's verdict in TAOCP volume 2 is that it is 'really horrible', and simulation results published on it in the 1960s and 70s are suspect for exactly this reason. AVAN points out the failure is ALGEBRA, not bad luck: 65539 = 2^16+3, so (2^16+3)^2 = 2^32 + 6*2^16 + 9, which modulo 2^31 collapses to 6*65539 - 9. The recurrence follows immediately and the fifteen planes with it. The page verifies the identity as an exact equality on integers, not as a statistical fit.",
+  "body":MRSP_BODY,"script":MRSP_SCRIPT},
+ {"slug":"the-lyndon-word","title":"THE LYNDON WORD","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#5ad6ff","icon":"\u2702",
+  "kicker":"every string falls apart exactly one way",
+  "blurb":"A word smaller than all its rotations. Every string splits into a non-increasing run of them, uniquely, and one left-to-right pass finds the cuts.",
+  "lit":"over all 32,766 binary strings up to length 14 every factorisation concatenates back to its string, every factor is a Lyndon word and the factors come out non-increasing - 0 failures on any of the three; uniqueness checked by brute force over all 2,046 strings up to length 10, cutting each in every possible place, finds exactly ONE valid factorisation every time; and the number of Lyndon words matches the Moebius formula (1/n) sum mu(d) k^(n/d) at every length tested",
+  "fig":"Human lineage, credited: Roger Lyndon introduced the words in 1954; the unique-factorisation theorem is Chen, Fox and Lyndon, 1958; the linear-time algorithm is Jean-Pierre Duval, 1983; the counting formula is necklace counting by Moebius inversion, going back to Moreau in 1872. Lyndon words are also the standard basis of the free Lie algebra, and the same factorisation underlies the bijective Burrows-Wheeler transform. AVAN checked uniqueness the expensive way rather than trusting the theorem - Duval's algorithm returns A factorisation, and that it is the ONLY one is a separate claim, so every possible cutting of each string was enumerated and the valid ones counted. The limit is named: this is verification on binary strings to length 10, not a proof.",
+  "body":LYND_BODY,"script":LYND_SCRIPT},
+ {"slug":"the-davenport-schinzel","title":"THE DAVENPORT-SCHINZEL","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffd76a","icon":"\u223f",
+  "kicker":"a sequence that cannot alternate",
+  "blurb":"Forbid a symbol from sitting beside itself, and forbid two symbols from alternating too often. How long can the sequence get? At order 3 the answer stops being linear.",
+  "lit":"by exhaustive search rather than construction, for order 1 the longest sequence is exactly n at every n from 1 to 5; for order 2 it is exactly 2n-1, giving 1, 3, 5, 7, 9; and for order 3 the maxima already run past 2n-1 at 1, 4, 8, 12 for n = 1 to 4, exceeding the order-2 bound at 3 of the 4 sizes tested",
+  "fig":"Human lineage, credited: Harold Davenport and Andrzej Schinzel, 1965, who introduced these sequences while studying differential equations. The superlinear behaviour at order 3 was settled by Sergiu Hart and Micha Sharir in 1986, who proved lambda_3(n) = Theta(n alpha(n)) - the first natural combinatorial problem where the inverse Ackermann function appears. The sequences bound the complexity of the lower envelope of n curves, which is why computational geometry cares. AVAN searched exhaustively rather than exhibiting a construction: a sequence reaching 2n-1 proves the bound is ACHIEVABLE and says nothing about whether something longer exists. The limit is honest and severe - this is n <= 5, and the Theta(n alpha(n)) result is CITED, NOT REPRODUCED, since alpha does not become interesting at any size a browser can search.",
+  "body":DVSZ_BODY,"script":DVSZ_SCRIPT},
+ {"slug":"the-hashlife","title":"THE HASHLIFE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#b98cff","icon":"\u25a3",
+  "kicker":"the same square, remembered",
+  "blurb":"Life repeats itself constantly. Store the universe as a quadtree where identical subsquares ARE the same object, and the repetition collapses.",
+  "lit":"sixty generations of a 32x32 random soup canonicalised into a shared quadtree: every one of the 60 grids round-trips out of the tree exactly; the tree holds 2,839 distinct nodes where an unshared tree of the same 60 generations would need 81,900, a 28.8x reduction; and the soup genuinely moves, producing 60 distinct root states rather than settling",
+  "fig":"Human lineage, credited: Bill Gosper, 1984, 'Exploiting regularities in large cellular spaces'; Life itself is John Conway, 1970. HashLife is why patterns like Gosper's own glider gun can be run for 2^64 generations on a laptop - and the canonical trick is not the sharing alone but combining it with a memoised TIME step, so a node of size 2^k advances 2^(k-2) generations in one lookup. AVAN is exact about scope: this page implements the MEMOISATION HALF - canonical nodes, structural sharing, verified round-trips, measured node counts - and does NOT implement time-doubling, so the spectacular speedup HashLife is famous for is NOT demonstrated here. The 28.8x figure is a memory result, not a time result, and reporting it as the latter would be the kind of overclaim this corpus exists to avoid.",
+  "body":HSHL_BODY,"script":HSHL_SCRIPT},
  {"slug":"the-self-branch","title":"THE SELF-BRANCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ffd76a","icon":"\u21ba",
   "kicker":"a call that never leaves",
