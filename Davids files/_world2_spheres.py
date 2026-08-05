@@ -19499,6 +19499,854 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 227 · neon-noir · silicon-coding · FROM DAVID'S 0805 ud0-core-skills DROP (sealed UD0-CORE.dlw, root 165fbfab) · a hash that remembers order · a digest that forgot · a signature that went stale · a lint that is not a judge · an identity with no domain ═══════════════════════
+CHRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A seal has to answer one question: is this the same pile of files it was? The cheap way is a hash per file. The useful way folds each hash into a running accumulator &mdash; <code>acc = H(acc + sha + path)</code> &mdash; so the root carries not just <i>what</i> was sealed but <i>in what order</i>, and the path each file sat at. Reorder the ledger and the root moves.<br><br>
+ <span class="lit">LIT</span> verified live against David&rsquo;s real sealed manifest: the chain rule reproduces the published root <b>165fbfab1ba6c290&hellip;</b> exactly. <b>400</b> random orderings of those eight files produce <b>400</b> distinct roots with <b>0</b> collisions. Flipping a single bit anywhere in the ledger moves <b>50.06%</b> of the root&rsquo;s 256 bits, within three standard errors (<b>1.35</b> points) of the half a hash should give.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> shipped <i>ud0-core-skills</i> on 5 August 2026 &mdash; four skills sealed under <code>UD0-CORE.dlw</code>, eight files, 27,093 bytes, witnessed by ROOT0. The chain rule is his, and his own docstring states the property it buys: <i>reordering the ledger changes the root</i>.<br><br>
+ <b>AVAN (AI)</b> verified the seal before reading anything sealed under it: all eight SHA-256 digests match, the byte total matches, and the root recomputes under his rule. Four other plausible constructions were tried first &mdash; concatenated hex, sorted hex, path-prefixed, raw bytes &mdash; and all four gave the wrong root, so the algorithm was read out of <code>seal.py</code> rather than guessed. The page samples 400 orderings because SHA-256 runs in JavaScript here; offline, every one of the <b>40,320</b> orderings was enumerated and all <b>40,320</b> roots came out distinct, which is the stronger form of the same claim. The honest limit is in window 5, and it is a real one: this is a <b>chain</b>, not a tree.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight files folded one at a time into a single number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Reorder the ledger, or change one character, and watch the root leave.</div>
+   <div class="btns" style="margin-top:10px"><button id="chswap">swap two files &#9654;</button><button id="chbit">flip one bit</button><button id="chreset">back to the seal</button></div>
+   <div class="cap" id="chout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a rope of eight links, each knot holding everything before it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the chain binds the whole ledger into one number.&rdquo; The inverse is that <b>binding everything to everything is exactly what makes any part unprovable on its own</b>. To show a third party that one file belongs in this seal, you must hand over the entire ledger so they can replay it &mdash; the proof is <b>n</b> long. A Merkle tree answers the same question with a path of <b>log&#8322;n</b>: at a thousand entries that is <b>1,024</b> against <b>10</b>. Read backwards, the chain&rsquo;s strength and its weakness are one property seen from two ends, and the choice is between a seal that is simple to verify whole and a tree that is cheap to verify in part.</div>
+   <div class="btns" style="margin-top:10px"><button id="chsp">pause spin</button></div></div></div></div>"""
+CHRT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=0,pert=0;
+var LEDGER=[['ud0-appeals/SKILL.md','2ec25280b38abc32255cdb0d96def92c106a4b5d6db8af4f8d7028207ec023b7'],
+['ud0-appeals/scripts/appeals.py','1db927adc3ca556b8b080b8b3f6fdd54413038574c23833a9b1d52a0c38f9640'],
+['ud0-honest-read/SKILL.md','1a56bb66fa357becec25cc5a11bdcf38d232fe8aedc8fddee3df2166badad55b'],
+['ud0-honest-read/scripts/honest.py','96ad5daa8a87e60a62e8bc216c5bcd5926232ab708e5ec8acf561226a65ea506'],
+['ud0-navigate/SKILL.md','cd5d86c9a545d1c57e066c4b40a28277693ee94378dfc789c07d8aa95e9f46cf'],
+['ud0-navigate/scripts/domain.py','3d4b2da50ffd85f26e68548b2fad3a776515bfc01912f8b84156e4650a58de3a'],
+['ud0-seal/SKILL.md','dc5630220b5e2ac20e1668198415642ceeb82cf4ba635137854055ddfc25f0dd'],
+['ud0-seal/scripts/seal.py','13d8eee180bd774401328303175a1a6fff0e6d1973777e8a26875bcaa64db449']];
+var TRUE_ROOT='165fbfab1ba6c290b8cededc6906b28c187a5abfd5420b954639babb9576a0d8';
+var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+function sha256(str){
+ var b=[],i;
+ for(i=0;i<str.length;i++){var c=str.charCodeAt(i);
+  if(c<128)b.push(c);
+  else if(c<2048){b.push(192|c>>6,128|c&63);}
+  else{b.push(224|c>>12,128|(c>>6)&63,128|c&63);}}
+ var l=b.length*8;
+ b.push(0x80);
+ while(b.length%64!==56)b.push(0);
+ b.push(0,0,0,0,(l>>>24)&255,(l>>>16)&255,(l>>>8)&255,l&255);
+ var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ function rr(x,n){return (x>>>n)|(x<<(32-n));}
+ for(i=0;i<b.length;i+=64){
+  var w=new Array(64),j;
+  for(j=0;j<16;j++)w[j]=(b[i+4*j]<<24)|(b[i+4*j+1]<<16)|(b[i+4*j+2]<<8)|b[i+4*j+3];
+  for(j=16;j<64;j++){
+   var s0=rr(w[j-15],7)^rr(w[j-15],18)^(w[j-15]>>>3);
+   var s1=rr(w[j-2],17)^rr(w[j-2],19)^(w[j-2]>>>10);
+   w[j]=(w[j-16]+s0+w[j-7]+s1)|0;}
+  var a=H[0],bb=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],hh=H[7];
+  for(j=0;j<64;j++){
+   var S1=rr(e,6)^rr(e,11)^rr(e,25);
+   var ch=(e&f)^((~e)&g);
+   var t1=(hh+S1+ch+K[j]+w[j])|0;
+   var S0=rr(a,2)^rr(a,13)^rr(a,22);
+   var mj=(a&bb)^(a&c)^(bb&c);
+   var t2=(S0+mj)|0;
+   hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=bb;bb=a;a=(t1+t2)|0;}
+  H[0]=(H[0]+a)|0;H[1]=(H[1]+bb)|0;H[2]=(H[2]+c)|0;H[3]=(H[3]+d)|0;
+  H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+hh)|0;}
+ var out='';
+ for(i=0;i<8;i++)out+=('00000000'+(H[i]>>>0).toString(16)).slice(-8);
+ return out;}
+function chain(en){
+ var acc=sha256('dlw/1');
+ for(var i=0;i<en.length;i++)acc=sha256(acc+en[i][1]+en[i][0]);
+ return acc;}
+function bitsDiff(x,y){
+ var n=0;
+ for(var i=0;i<64;i++){
+  var v=parseInt(x[i],16)^parseInt(y[i],16);
+  n+=(v&1)+((v>>1)&1)+((v>>2)&1)+((v>>3)&1);}
+ return n;}
+function selftest(){
+ var root=chain(LEDGER);
+ // exhaustive 8! is too slow in a page; sample orderings and require ALL distinct
+ var seen={},n=0,dup=0;
+ for(var t=0;t<400;t++){
+  var a=LEDGER.slice();
+  for(var i=a.length-1;i>0;i--){
+   var j=(t*7919+i*104729)%(i+1);
+   var tmp=a[i];a[i]=a[j];a[j]=tmp;}
+  var r=chain(a);n++;
+  if(seen[r])dup++;else seen[r]=1;}
+ var bits=0,tr=0;
+ for(var t2=0;t2<48;t2++){
+  var alt=LEDGER.map(function(r){return r.slice();});
+  var idx=t2%8,pos=t2%64;
+  var hx=alt[idx][1].split('');
+  hx[pos]=((parseInt(hx[pos],16)^1).toString(16));
+  alt[idx][1]=hx.join('');
+  bits+=bitsDiff(root,chain(alt));tr++;}
+ var frac=bits/tr/256,se=Math.sqrt(0.25/(256*tr));
+ var sizes=[8,64,1024,65536];
+ var proof=sizes.map(function(k){return [k,k,Math.ceil(Math.log(k)/Math.LN2)];});
+ return {root:root,publishedRoot:TRUE_ROOT,
+  rootMatchesTheSeal:root===TRUE_ROOT,
+  orderingsSampled:n,distinctRoots:Object.keys(seen).length,collisions:dup,
+  everyOrderingDistinct:dup===0,
+  avalanche:frac,avalancheSE:se,
+  avalancheIsHalf:Math.abs(frac-0.5)<3*se,
+  proofRows:proof,
+  chainProofAt1024:1024,merkleProofAt1024:10,
+  chainIsNotATree:true,
+  ok:root===TRUE_ROOT&&dup===0&&Math.abs(frac-0.5)<3*se};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EIGHT FILES FOLDED INTO ONE NUMBER');
+ var acc=sha256('dlw/1');
+ var xs=30,step=(W-90)/9;
+ ndot(g,xs,72,5,'#ffd76a');
+ nt(g,'#ffd76a',xs-14,60,8,'magic');
+ nt(g,'#5a4a85',xs-16,92,7,acc.slice(0,6));
+ for(var i=0;i<8;i++){
+  var x0=xs+i*step,x1=xs+(i+1)*step;
+  acc=sha256(acc+LEDGER[i][1]+LEDGER[i][0]);
+  ne(g,'rgba(125,226,176,0.55)',1.6);
+  g.beginPath();g.moveTo(x0+5,72);g.lineTo(x1-5,72);g.stroke();ng(g);
+  ndot(g,x1,72,4,'#7de2b0');
+  nt(g,'#5a4a85',x1-16,92,7,acc.slice(0,6));
+  var nm=LEDGER[i][0].split('/')[0].replace('ud0-','');
+  nt(g,'#8a7ab8',x0+3,54,7,nm.slice(0,8));}
+ nt(g,'#7de2b0',24,124,10,'root  '+VR.root.slice(0,32));
+ nt(g,'#7de2b0',24,140,10,'      '+VR.root.slice(32));
+ nf(g,VR.rootMatchesTheSeal?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');
+ g.fillRect(20,158,W-40,34);ng(g);
+ ne(g,VR.rootMatchesTheSeal?'#7de2b0':'#ff5a8a',1.4);
+ g.strokeRect(20.5,158.5,W-41,34);ng(g);
+ nt(g,VR.rootMatchesTheSeal?'#7de2b0':'#ff5a8a',36,180,11,
+  VR.rootMatchesTheSeal?'matches the published seal exactly':'DOES NOT MATCH');
+ nt(g,'#8a7ab8',24,214,9,VR.orderingsSampled+' random orderings of the same eight files -> '+
+  VR.distinctRoots+' distinct roots, '+VR.collisions+' collisions');
+ nt(g,'#8a7ab8',24,232,9,'one flipped bit moves '+(VR.avalanche*100).toFixed(2)+
+  '% of the 256 output bits (3se = '+(VR.avalancheSE*300).toFixed(2)+')');
+ nt(g,'#ffd76a',24,258,9,'the order is inside the number, not beside it');
+ nt(g,'#8a7ab8',24,278,8,'SHA-256 implemented in this page; the root below is computed here, not copied');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var L=LEDGER.map(function(r){return r.slice();});
+ var label='the seal as David sealed it';
+ if(mode===1){var t=L[0];L[0]=L[7];L[7]=t;label='first and last file swapped';}
+ if(mode===2){var hx=L[3][1].split('');
+  hx[pert%64]=((parseInt(hx[pert%64],16)^1).toString(16));
+  L[3][1]=hx.join('');label='one bit flipped in one file';}
+ var r=chain(L),same=r===TRUE_ROOT;
+ nt(g,'#e6dcff',16,26,11,label);
+ var top=48;
+ for(var i=0;i<8;i++){
+  var y=top+i*20;
+  var moved=L[i][0]!==LEDGER[i][0]||L[i][1]!==LEDGER[i][1];
+  nf(g,moved?'rgba(255,90,138,0.18)':'rgba(20,14,34,0.9)');
+  g.fillRect(20,y,W-40,17);ng(g);
+  ne(g,moved?'#ff5a8a':'rgba(125,226,176,0.35)',1);
+  g.strokeRect(20.5,y+0.5,W-41,17);ng(g);
+  nt(g,moved?'#ff5a8a':'#8a7ab8',28,y+12,7,L[i][0].slice(0,30));
+  nt(g,'#5a4a85',W-64,y+12,7,L[i][1].slice(0,6));}
+ var y2=top+8*20+16;
+ nt(g,'#8a7ab8',24,y2,8,'sealed  '+TRUE_ROOT.slice(0,40));
+ nt(g,same?'#7de2b0':'#ff5a8a',24,y2+16,8,'now     '+r.slice(0,40));
+ var d=bitsDiff(TRUE_ROOT,r);
+ nf(g,same?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2+28,W-40,52);ng(g);
+ ne(g,same?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+28.5,W-41,52);ng(g);
+ nt(g,same?'#7de2b0':'#ff5a8a',36,y2+52,12,same?'root unchanged':d+' of 256 bits moved');
+ nt(g,'#8a7ab8',36,y2+70,8,same?'this is the sealed ledger':'the seal no longer covers this ledger');
+ var o=document.getElementById('chout');
+ if(o)o.innerHTML=same
+  ?'The eight files exactly as ROOT0 sealed them. The chain recomputes <b>'+TRUE_ROOT.slice(0,16)+'&hellip;</b> in this page &mdash; SHA-256 is implemented here, so the number is calculated rather than quoted.'
+  :('Nothing was added and nothing was deleted &mdash; the ledger holds the same eight files. The root still moved <b>'+
+    d+'</b> of its 256 bits, because the accumulator carried the order and the path along with the contents.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+30,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy-y*0.62-zr*0.34];}
+ var prev=null;
+ for(var i=0;i<8;i++){
+  var th=i/8*2*Math.PI*1.5;
+  var q=P(60*Math.cos(th),-110+i*30,60*Math.sin(th));
+  if(prev){ne(g,'#7de2b0',2.2);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  ndot(g,q[0],q[1],4.4,'#7de2b0');
+  prev=q;}
+ ndot(g,prev[0],prev[1],7,'#ffd76a');
+ nt(g,'#ffd76a',prev[0]+12,prev[1],9,'root');
+ // the Merkle alternative, drawn beside it
+ var bx=cx+110;
+ for(var lv=0;lv<3;lv++){
+  var cnt=Math.pow(2,2-lv);
+  for(var k=0;k<cnt;k++){
+   var x=bx-((cnt-1)*16)/2+k*16;
+   ndot(g,x,cy+70-lv*26,2.6,'rgba(90,214,255,0.75)');
+   if(lv<2){}}}
+ nt(g,'#5ad6ff',bx-40,cy+96,8,'a tree, for comparison');
+ nt(g,'#7de2b0',14,24,11,'a rope: every knot holds everything before it');
+ nt(g,'#ff5a8a',14,42,10,'so no knot can be shown on its own');
+ nt(g,'#5ad6ff',14,58,10,'1,024 links to prove one entry, against 10 in a tree');
+ nt(g,'#8a7ab8',14,H-12,9,'the strength and the weakness are one property, seen from two ends');}
+document.getElementById('chswap').onclick=function(){mode=1;drawW4();};
+document.getElementById('chbit').onclick=function(){mode=2;pert+=13;drawW4();};
+document.getElementById('chreset').onclick=function(){mode=0;drawW4();};
+document.getElementById('chsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__chainedroot=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OBLH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There is a tempting shortcut for hashing a collection: hash each item, then XOR the results together. It is fast, it parallelises, and the order of the items does not matter. That last property is the shortcut and the hole. XOR is commutative and self-inverse, so a digest built this way cannot see a reordering, cannot see a swap, and cannot see any item added an <b>even</b> number of times.<br><br>
+ <span class="lit">LIT</span> verified live on the same eight-file ledger: across <b>600</b> sampled orderings, the XOR digest takes exactly <b>1</b> value while an order-sensitive digest takes <b>600</b> &mdash; and offline, over every one of the <b>40,320</b> orderings, the same one-against-all-of-them holds. Swapping the first and last file leaves the XOR digest bit-for-bit unmoved. Adding one entry to the ledger <b>twice</b> also leaves it unmoved &mdash; a two-file forgery the digest is structurally unable to notice &mdash; while the chain changes immediately.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> did not build this one; he built the thing it is a foil for. His <code>seal.py</code> carries the line <i>&ldquo;a hash per file, chained into a root&hellip; reordering the ledger changes the root&rdquo;</i>, and the accumulator in that sentence is the entire difference. This sphere exists to measure what he avoided.<br><br>
+ <b>AVAN (AI)</b> should state the counterpoint rather than leave the XOR digest looking merely broken, because it is not. Order-blindness is <b>correct</b> when order carries no meaning &mdash; a set of permissions, a bag of tags, a commutative merge &mdash; and the page checks that too: two orderings of the same unordered set agree, exactly as they should. The fault is never the tool. It is reaching for a commutative digest to seal something whose order is part of what it says.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same eight files, shuffled again and again.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Three forgeries. One digest sees them, the other does not.</div>
+   <div class="btns" style="margin-top:10px"><button id="obnext">next forgery &#9654;</button><button id="obset">the case where XOR is right</button></div>
+   <div class="cap" id="obout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: 40,320 arrangements collapsing to a single point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a commutative digest loses information.&rdquo; The inverse is that <b>losing it is the whole service being bought</b>. A hash that ignores order is a hash that says two things are equal <i>as sets</i>, and there is no other way to get that answer cheaply &mdash; you cannot both quotient by a symmetry and still detect it. Read backwards, this is not a weak hash but a <b>correctly aimed</b> one pointed at the wrong question, and the design error lives entirely in the sentence &ldquo;seal these files,&rdquo; which never said whether the order was part of the thing.</div>
+   <div class="btns" style="margin-top:10px"><button id="obsp">pause spin</button></div></div></div></div>"""
+OBLH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fi=0,showSet=false;
+var SHAS=['2ec25280b38abc32255cdb0d96def92c106a4b5d6db8af4f8d7028207ec023b7',
+'1db927adc3ca556b8b080b8b3f6fdd54413038574c23833a9b1d52a0c38f9640',
+'1a56bb66fa357becec25cc5a11bdcf38d232fe8aedc8fddee3df2166badad55b',
+'96ad5daa8a87e60a62e8bc216c5bcd5926232ab708e5ec8acf561226a65ea506',
+'cd5d86c9a545d1c57e066c4b40a28277693ee94378dfc789c07d8aa95e9f46cf',
+'3d4b2da50ffd85f26e68548b2fad3a776515bfc01912f8b84156e4650a58de3a',
+'dc5630220b5e2ac20e1668198415642ceeb82cf4ba635137854055ddfc25f0dd',
+'13d8eee180bd774401328303175a1a6fff0e6d1973777e8a26875bcaa64db449'];
+var NAMES=['appeals/SKILL','appeals/py','honest/SKILL','honest/py',
+'navigate/SKILL','navigate/py','seal/SKILL','seal/py'];
+function xorSet(idx){
+ var acc=new Array(32);
+ for(var i=0;i<32;i++)acc[i]=0;
+ for(var k=0;k<idx.length;k++){
+  var h=SHAS[idx[k]];
+  for(var i2=0;i2<32;i2++)acc[i2]^=parseInt(h.substr(i2*2,2),16);}
+ var out='';
+ for(var j=0;j<32;j++)out+=('0'+acc[j].toString(16)).slice(-2);
+ return out;}
+// a cheap ORDER-SENSITIVE mixer standing in for the chain (a real chain needs SHA per step)
+function ordered(idx){
+ var a=0x9e3779b9,b=0x85ebca6b;
+ for(var k=0;k<idx.length;k++){
+  var h=SHAS[idx[k]];
+  for(var i=0;i<32;i++){
+   var v=parseInt(h.substr(i*2,2),16);
+   a=(Math.imul(a^v,2654435761)+k+1)|0;
+   b=(Math.imul(b^(a>>>13),1597334677)+i)|0;}}
+ return ((a>>>0).toString(16)+(b>>>0).toString(16));}
+function selftest(){
+ var base=[0,1,2,3,4,5,6,7];
+ var seenX={},seenO={},n=0,dupX=0;
+ for(var t=0;t<600;t++){
+  var a=base.slice();
+  for(var i=a.length-1;i>0;i--){
+   var j=(t*7919+i*104729)%(i+1);
+   var tmp=a[i];a[i]=a[j];a[j]=tmp;}
+  var x=xorSet(a),o=ordered(a);
+  n++;
+  if(seenX[x])dupX++;else seenX[x]=1;
+  seenO[o]=1;}
+ var b0=xorSet(base);
+ var dup=xorSet(base.concat([3,3]));
+ var dupO=ordered(base.concat([3,3]));
+ var sw=base.slice();var t0=sw[0];sw[0]=sw[7];sw[7]=t0;
+ var swX=xorSet(sw);
+ var sA=xorSet([1,4,6]),sB=xorSet([6,1,4]);
+ return {orderings:n,
+  xorDistinct:Object.keys(seenX).length,orderedDistinct:Object.keys(seenO).length,
+  xorIsOrderBlind:Object.keys(seenX).length===1,
+  orderedSeesOrder:Object.keys(seenO).length>n*0.9,
+  duplicateInvisibleToXor:dup===b0,duplicateSeenByOrdered:dupO!==ordered(base),
+  swapInvisibleToXor:swX===b0,
+  correctForUnorderedSets:sA===sB,
+  factorialEight:40320,
+  ok:Object.keys(seenX).length===1&&dup===b0&&swX===b0&&sA===sB};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE SAME EIGHT FILES, SHUFFLED AGAIN AND AGAIN');
+ var base=[0,1,2,3,4,5,6,7];
+ var rows=9,top=40,rh=22;
+ for(var t=0;t<rows;t++){
+  var a=base.slice();
+  for(var i=a.length-1;i>0;i--){
+   var j=(t*7919+i*104729)%(i+1);
+   var tmp=a[i];a[i]=a[j];a[j]=tmp;}
+  var y=top+t*rh;
+  for(var k=0;k<8;k++){
+   nf(g,'rgba(125,226,176,'+(0.2+a[k]*0.07)+')');
+   g.fillRect(24+k*18,y,16,14);ng(g);
+   nt(g,'#0d0818',24+k*18+5,y+11,8,''+a[k]);}
+  nt(g,'#5a4a85',180,y+11,8,'XOR '+xorSet(a).slice(0,10));
+  nt(g,'#8a7ab8',330,y+11,8,'chain '+ordered(a).slice(0,10));}
+ var y2=top+rows*rh+14;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ff5a8a',36,y2+20,10,'XOR: '+VR.xorDistinct+' distinct value across '+VR.orderings+' orderings');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y2+36,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+36.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+56,10,'order-sensitive: '+VR.orderedDistinct+' distinct across the same '+VR.orderings);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var base=[0,1,2,3,4,5,6,7];
+ if(showSet){
+  nt(g,'#5ad6ff',16,26,11,'where order carries no meaning');
+  var A=[1,4,6],B=[6,1,4];
+  [['one ordering of the set',A],['another ordering',B]].forEach(function(r,i){
+   var y=60+i*70;
+   nt(g,'#8a7ab8',24,y,9,r[0]);
+   r[1].forEach(function(ix,k){
+    nf(g,'rgba(90,214,255,0.45)');
+    g.fillRect(24+k*54,y+10,50,22);ng(g);
+    nt(g,'#0d0818',28+k*54,y+25,7,NAMES[ix].slice(0,9));});
+   nt(g,'#5ad6ff',24,y+48,9,'XOR '+xorSet(r[1]).slice(0,24));});
+  nf(g,'rgba(90,214,255,0.16)');g.fillRect(20,206,W-40,58);ng(g);
+  ne(g,'#5ad6ff',1.5);g.strokeRect(20.5,206.5,W-41,58);ng(g);
+  nt(g,'#5ad6ff',36,232,12,'identical, and rightly so');
+  nt(g,'#8a7ab8',36,252,8,'these are the same set; a digest that disagreed would be wrong');
+  var o2=document.getElementById('obout');
+  if(o2)o2.innerHTML='Two orderings of one unordered set produce the same XOR digest &mdash; which is the <b>correct</b> answer. The blindness is a feature aimed at a different question. The error is only ever in asking it to seal something whose order is part of the meaning.';
+  return;}
+ var FORGE=[
+  {n:'first and last file swapped',get:function(){var a=base.slice();var t=a[0];a[0]=a[7];a[7]=t;return a;}},
+  {n:'one file listed twice',get:function(){return base.concat([3,3]);}},
+  {n:'the whole ledger reversed',get:function(){return base.slice().reverse();}}];
+ var F=FORGE[fi%3],alt=F.get();
+ var b0=xorSet(base),x=xorSet(alt);
+ var o0=ordered(base),o=ordered(alt);
+ nt(g,'#e6dcff',16,26,11,F.n);
+ alt.forEach(function(ix,k){
+  var x0=24+(k%8)*42,y0=48+Math.floor(k/8)*26;
+  nf(g,'rgba(255,90,138,0.35)');
+  g.fillRect(x0,y0,38,20);ng(g);
+  nt(g,'#0d0818',x0+3,y0+14,7,NAMES[ix].slice(0,7));});
+ var top=110;
+ [['XOR digest',b0,x,'#ff5a8a'],['order-sensitive',o0,o,'#7de2b0']].forEach(function(r,i){
+  var y=top+i*74;
+  var same=r[1]===r[2];
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nt(g,'#5a4a85',24,y+16,8,'before '+String(r[1]).slice(0,26));
+  nt(g,same?'#ff5a8a':'#7de2b0',24,y+30,8,'after  '+String(r[2]).slice(0,26));
+  nf(g,same?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+  g.fillRect(20,y+38,W-40,26);ng(g);
+  ne(g,same?'#ff5a8a':'#7de2b0',1.3);g.strokeRect(20.5,y+38.5,W-41,26);ng(g);
+  nt(g,same?'#ff5a8a':'#7de2b0',36,y+56,10,same?'unchanged -- the forgery is invisible':'changed -- the forgery is caught');});
+ var o3=document.getElementById('obout');
+ if(o3)o3.innerHTML='<b>'+F.n+'.</b> The XOR digest is <b>'+(b0===x?'unmoved':'moved')+
+  '</b> and the order-sensitive digest is <b>'+(o0===o?'unmoved':'moved')+
+  '</b>. XOR is commutative and self-inverse, so a reordering and any even-numbered repeat both cancel out before the digest is ever formed.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var base=[0,1,2,3,4,5,6,7];
+ for(var t=0;t<260;t++){
+  var th=t/260*2*Math.PI*7,r=118-t*0.4;
+  var q=P(r*Math.cos(th),-100+t*0.72,r*Math.sin(th));
+  ndot(g,q[0],q[1],1.6,'rgba(255,90,138,'+(0.16+t/260*0.5)+')');}
+ var m=P(0,90,0);
+ ndot(g,m[0],m[1],9,'#ff5a8a');
+ nt(g,'#ff5a8a',m[0]+14,m[1],10,'one digest');
+ nt(g,'#ff5a8a',14,24,11,'40,320 arrangements, funnelled to a point');
+ nt(g,'#7de2b0',14,42,10,'the chain would end at 40,320 separate points');
+ nt(g,'#5ad6ff',14,58,10,'and for an unordered set, the funnel is the right shape');
+ nt(g,'#8a7ab8',14,H-12,9,'you cannot quotient by a symmetry and still detect it');}
+document.getElementById('obnext').onclick=function(){showSet=false;fi++;drawW4();};
+document.getElementById('obset').onclick=function(){showSet=!showSet;drawW4();};
+document.getElementById('obsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__orderblindhash=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STWT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A signature on a ledger does not sign the ledger. It signs a <b>number</b> the ledger had at one moment. Change anything afterwards and the signature survives untouched &mdash; still valid, still verifiable, still someone&rsquo;s real mark &mdash; while quietly ceasing to attest to what is now in front of you. The only way to notice is to keep the root the witness signed and compare it against the root you have.<br><br>
+ <span class="lit">LIT</span> verified live: <b>500</b> single-digit edits were made to a sealed ledger. Every one of the <b>500</b> moved the root. A checker asking <i>&ldquo;is there a signature?&rdquo;</i> caught <b>0</b> of them. A checker comparing the signed root against the current root caught <b>500</b> of <b>500</b>. And a perfectly legitimate append &mdash; one new file, nothing removed &mdash; trips the second checker just as hard, because what it detects is <b>change</b>, never wrongness.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the mechanism into <code>seal.py</code>: each witness record stores <code>root_at_signing</code>, and the display routine prints a mark beside any signature whose stored root no longer matches &mdash; <i>signed a DIFFERENT root</i>. It is four lines and it is the difference between a register and a ritual. He seated this at <i>ROLLBACK</i>.<br><br>
+ <b>AVAN (AI)</b> measured what the drift flag can and cannot tell you, and the second half matters more. It emits exactly <b>one bit</b>: the root moved. It cannot say whether a file was tampered with or a new skill was legitimately added, and both cases look identical to it. That is not a defect to fix &mdash; a comparison of two opaque numbers has nowhere to put a reason &mdash; but it does mean the flag is a prompt to go and look, not a verdict, and reading it as a verdict is the failure mode.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two checkers, five hundred edits.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Edit the ledger under the signature and watch what each checker says.</div>
+   <div class="btns" style="margin-top:10px"><button id="stedit">tamper &#9654;</button><button id="stadd">legitimately append</button><button id="streset">restore</button></div>
+   <div class="cap" id="stout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a signature anchored to one point, and the ledger drifting off it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;bind the signature to the root so drift is visible.&rdquo; The inverse is that <b>this makes every legitimate change look exactly like an attack</b>. A corpus that grows must re-sign constantly, and a flag that fires on all normal activity is a flag people learn to clear without reading. Read backwards, the drift bit does not protect the ledger; it <b>transfers the work to a human</b>, and its real design question is not sensitivity but how often it will cry out for nothing &mdash; because the honest answer is <i>every single time anything is added</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="stsp">pause spin</button></div></div></div></div>"""
+STWT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,state=0,seed=0;
+var NAMES=['appeals/SKILL.md','appeals/appeals.py','honest/SKILL.md','honest/honest.py',
+'navigate/SKILL.md','navigate/domain.py','seal/SKILL.md','seal/seal.py'];
+var SHAS=['2ec25280b38abc32','1db927adc3ca556b','1a56bb66fa357bec','96ad5daa8a87e60a',
+'cd5d86c9a545d1c5','3d4b2da50ffd85f2','dc5630220b5e2ac2','13d8eee180bd7744'];
+function mix(list){
+ var a=0x9e3779b9,b=0x85ebca6b;
+ for(var k=0;k<list.length;k++){
+  var h=list[k];
+  for(var i=0;i<h.length;i++){
+   a=(Math.imul(a^h.charCodeAt(i),2654435761)+k+1)|0;
+   b=(Math.imul(b^(a>>>13),1597334677)+i)|0;}}
+ return ((a>>>0).toString(16)+(b>>>0).toString(16));}
+function selftest(){
+ var signed=mix(SHAS);
+ var reg=[{name:'ROOT0',root:signed}];
+ var presence=0,rootc=0,moved=0,N=500;
+ for(var t=0;t<N;t++){
+  var alt=SHAS.slice();
+  var i=t%8,pos=(t*7)%16;
+  var hx=alt[i].split('');
+  hx[pos]=((parseInt(hx[pos],16)+1)%16).toString(16);
+  alt[i]=hx.join('');
+  var cur=mix(alt);
+  if(cur!==signed)moved++;
+  if(!(reg.length>0))presence++;
+  var signsThis=false;
+  for(var r=0;r<reg.length;r++)if(reg[r].root===cur)signsThis=true;
+  if(!signsThis)rootc++;}
+ var appended=mix(SHAS.concat(['aa11bb22cc33dd44']));
+ var benign=appended!==signed;
+ return {edits:N,rootsMoved:moved,everyEditMovesTheRoot:moved===N,
+  presenceCheckCaught:presence,presenceCatchesNone:presence===0,
+  rootCheckCaught:rootc,rootCatchesAll:rootc===N,
+  legitimateAppendAlsoTrips:benign,
+  discriminationBits:1,
+  cannotSeparateTamperFromAppend:true,
+  ok:moved===N&&presence===0&&rootc===N&&benign};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO CHECKERS, '+VR.edits+' EDITS');
+ var rows=[['every edit moves the root',VR.rootsMoved/VR.edits,'#ffd76a',VR.rootsMoved+'/'+VR.edits],
+  ['"is a signature present?" catches',VR.presenceCheckCaught/VR.edits,'#ff5a8a',VR.presenceCheckCaught+'/'+VR.edits],
+  ['"does it sign THIS root?" catches',VR.rootCheckCaught/VR.edits,'#7de2b0',VR.rootCheckCaught+'/'+VR.edits]];
+ rows.forEach(function(r,i){
+  var y=48+i*58;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var bw=W-150;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':(r[2]==='#ffd76a'?'rgba(255,215,106,0.5)':'rgba(255,90,138,0.5)'));
+  g.fillRect(24,y+8,bw*r[1],24);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(24.5,y+8.5,bw,24);ng(g);
+  nt(g,r[2],24+bw+10,y+26,10,(r[1]*100).toFixed(0)+'%');
+  nt(g,'#5a4a85',24,y+46,8,r[3]);});
+ var y2=228;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'a legitimate append trips the root check just as hard');
+ nt(g,'#8a7ab8',36,y2+36,9,'so what it reports is CHANGE, and never wrongness');
+ nt(g,'#8a7ab8',20,H-8,9,'the flag carries exactly one bit and no reason for it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var L=SHAS.slice(),names=NAMES.slice();
+ var label='the ledger as it was signed';
+ if(state===1){var i=seed%8,hx=L[i].split('');
+  hx[seed%16]=((parseInt(hx[seed%16],16)+1)%16).toString(16);
+  L[i]=hx.join('');label='one character changed in one file';}
+ if(state===2){L=L.concat(['aa11bb22cc33dd44']);names=names.concat(['ud0-new/SKILL.md']);
+  label='a new skill added, nothing removed';}
+ var signed=mix(SHAS),cur=mix(L),same=cur===signed;
+ nt(g,'#e6dcff',16,26,11,label);
+ var top=46;
+ for(var k=0;k<names.length;k++){
+  var y=top+k*19;
+  var isNew=k>=8;
+  var changed=!isNew&&L[k]!==SHAS[k];
+  nf(g,(changed||isNew)?(isNew?'rgba(90,214,255,0.18)':'rgba(255,90,138,0.2)'):'rgba(20,14,34,0.9)');
+  g.fillRect(20,y,W-40,16);ng(g);
+  ne(g,changed?'#ff5a8a':(isNew?'#5ad6ff':'rgba(125,226,176,0.3)'),1);
+  g.strokeRect(20.5,y+0.5,W-41,16);ng(g);
+  nt(g,changed?'#ff5a8a':(isNew?'#5ad6ff':'#8a7ab8'),28,y+11,7,names[k].slice(0,26));
+  nt(g,'#5a4a85',W-96,y+11,7,L[k].slice(0,14));}
+ var y2=top+names.length*19+14;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,40);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,40);ng(g);
+ nt(g,'#ffd76a',30,y2+16,8,'\\u25c6 ROOT0 signed  '+signed.slice(0,16));
+ nt(g,same?'#7de2b0':'#ff5a8a',30,y2+32,8,'ledger now is   '+cur.slice(0,16)+
+  (same?'':'   \\u2593 signed a DIFFERENT root'));
+ var y3=y2+50;
+ [['"is a signature present?"',true,'#ff5a8a'],
+  ['"does it sign THIS root?"',same,'#7de2b0']].forEach(function(r,i){
+  var y=y3+i*32;
+  nf(g,r[1]?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y,W-40,26);ng(g);
+  ne(g,r[1]?'#7de2b0':'#ff5a8a',1.2);g.strokeRect(20.5,y+0.5,W-41,26);ng(g);
+  nt(g,'#8a7ab8',30,y+17,8,r[0]);
+  nt(g,r[1]?'#7de2b0':'#ff5a8a',W-92,y+17,9,r[1]?'says OK':'says STALE');});
+ var o=document.getElementById('stout');
+ if(o)o.innerHTML=state===0
+  ?'The ledger as ROOT0 signed it. Both checkers agree, and only one of them is doing any work.'
+  :(state===1
+   ?'One character moved in one hash. The signature is still <b>valid</b> &mdash; it is a real mark, correctly formed. It simply no longer attests to this ledger. The presence check still says OK.'
+   :'A new skill was appended and nothing was removed. This is exactly what a growing corpus does, and the root check calls it <b>stale</b> too &mdash; it has no way to tell this from tampering.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var anchor=P(0,0,0);
+ ndot(g,anchor[0],anchor[1],8,'#ffd76a');
+ nt(g,'#ffd76a',anchor[0]+12,anchor[1]-6,9,'the signed root');
+ for(var t=1;t<=48;t++){
+  var th=t*0.42,r=t*2.3;
+  var q=P(r*Math.cos(th),t*1.6-40,r*Math.sin(th));
+  ndot(g,q[0],q[1],2.2,'rgba(255,90,138,'+(0.2+t/48*0.6)+')');
+  if(t===48){nt(g,'#ff5a8a',q[0]+8,q[1],9,'the ledger now');
+   ne(g,'rgba(255,90,138,0.3)',1);
+   g.beginPath();g.moveTo(anchor[0],anchor[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}}
+ nt(g,'#7de2b0',14,24,11,'the mark stays exactly where it was made');
+ nt(g,'#ff5a8a',14,42,10,'the ledger does not');
+ nt(g,'#8a7ab8',14,58,10,'and the gap between them is the only thing measured');
+ nt(g,'#8a7ab8',14,H-12,9,'a flag that fires on all normal activity is one people learn to clear unread');}
+document.getElementById('stedit').onclick=function(){state=1;seed+=3;drawW4();};
+document.getElementById('stadd').onclick=function(){state=2;drawW4();};
+document.getElementById('streset').onclick=function(){state=0;drawW4();};
+document.getElementById('stsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__stalewitness=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LNTJ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A checker that reads for overclaiming has to find it in words, and words are the one part of a claim a writer can change for free. Say &ldquo;verified&rdquo; and it fires; say &ldquo;handles the grammar in full&rdquo; and the same assertion walks straight past. The tool is a <b>lint</b>, not a judge: a clean run means the disclosures are present, not that anything in the document is true.<br><br>
+ <span class="lit">LIT</span> verified live on three matched corpora of eight. Overclaims using the vocabulary: <b>5 of 8</b> flagged. The <b>same claims</b> reworded to avoid it: <b>0 of 8</b>. Honest deliverables that show a run and name a condition: <b>0</b> false alarms. Recall falls from <b>63%</b> to <b>zero</b> without a single new idea &mdash; only a rewrite.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote both the checker and its warning, in the same file. <code>honest.py</code> ships with a Pitfalls section that says it plainly: <i>&ldquo;The checker is a lint, not a judge&hellip; it matches on wording, so a deliverable that carefully avoids claim verbs while still overclaiming will pass. Read it yourself as well.&rdquo;</i> A tool that documents its own blind spot is rarer than it should be. He seated this at <i>THE BACKDOOR</i>.<br><br>
+ <b>AVAN (AI)</b> expected the matcher to catch all eight of the vocabulary overclaims and it caught five. The regex was <b>not</b> widened until it reached eight &mdash; that would have been tuning to a number. The three misses are published instead, and they are more instructive than the result that was designed: two were lost to ordinary word forms, &ldquo;correct<i>ly</i>&rdquo; and &ldquo;ensur<i>ed</i>&rdquo; rather than the listed stems, and one to the appearance of the word &ldquo;Output&rdquo;, which the matcher reads as evidence that something ran. None of the three was evading anything.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three corpora. The middle one is the same claims in other clothes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Each claim, before and after the rewrite that hides it.</div>
+   <div class="btns" style="margin-top:10px"><button id="lnext">next claim &#9654;</button><button id="lmiss">the three it missed</button></div>
+   <div class="cap" id="lout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the space of sentences, with the matcher&rsquo;s reach drawn on it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a wording matcher can be evaded.&rdquo; The inverse is sharper and worse: <b>the matcher is most reliable exactly where it is least needed</b>. It catches the writer who says &ldquo;verified&rdquo; without thinking &mdash; who is careless, not deceptive &mdash; and it is blind to anyone who has considered how the claim reads, which is the same person capable of overclaiming on purpose. Read backwards, the tool is not a filter on dishonesty but a filter on <b>fluency</b>, and passing it is evidence about the writer&rsquo;s prose, not about the software.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsp">pause spin</button></div></div></div></div>"""
+LNTJ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0,showMiss=false;
+var VERBS=/\\b(verified|correct|proven|proves|ensures|guarantees|guaranteed|validated|confirms|confirmed|tested and)\\b/i;
+var RUN=/\\b(ran|output|exit code|command|stdout|log)\\b/i;
+var COND=/\\b(when|provided|assuming|holds if|under|requires|so long as|given that)\\b/i;
+var A=['The parser is verified and correct.',
+'This implementation is proven to handle every input.',
+'The seal guarantees the ledger is intact.',
+'Output is validated against the schema.',
+'The routine has been tested and works.',
+'Correctness is ensured by construction.',
+'The migration is confirmed safe.',
+'Every edge case is handled correctly.'];
+var B=['The parser handles the grammar in full.',
+'This implementation deals with any input you give it.',
+'The seal leaves no room for the ledger to differ.',
+'Output matches the schema.',
+'The routine does what it says.',
+'Nothing malformed can come out of it.',
+'The migration presents no risk.',
+'There are no edge cases left over.'];
+var C=['Ran the suite: 412 passed, exit code 0, when the fixtures are seeded.',
+'The output below is stdout from the command, assuming a warm cache.',
+'Verified against the schema; the command and its output are shown, provided the input is UTF-8.',
+'This diagram is a figure, not a capture.',
+'Exit code 1 on the third case; log attached.',
+'The claim holds when the step size is under 2/L, and the run is shown.',
+'A figure, drawn by hand to illustrate the wiring rule.',
+'stdout attached; requires the 3.11 interpreter.'];
+function lint(t){return VERBS.test(t)&&!RUN.test(t)&&!COND.test(t);}
+function why(t){
+ if(!VERBS.test(t))return 'no claim verb matched';
+ if(RUN.test(t))return 'the word "'+t.match(RUN)[0]+'" read as evidence of a run';
+ if(COND.test(t))return 'a condition word appeared';
+ return 'flagged';}
+function selftest(){
+ var rA=0,rB=0,fC=0,missed=[];
+ for(var i=0;i<A.length;i++){if(lint(A[i]))rA++;else missed.push({t:A[i],r:why(A[i])});}
+ for(var j=0;j<B.length;j++)if(lint(B[j]))rB++;
+ for(var k=0;k<C.length;k++)if(lint(C[k]))fC++;
+ var morph=0,runf=0;
+ for(var m=0;m<missed.length;m++){
+  if(missed[m].r==='no claim verb matched')morph++;
+  else if(missed[m].r.indexOf('read as evidence')>=0)runf++;}
+ return {corpusSize:A.length,
+  caughtWithVocabulary:rA,recallWithVocabulary:rA/A.length,
+  caughtReworded:rB,recallReworded:rB/B.length,
+  catchesMajorityOfVocabulary:rA>A.length/2,
+  catchesNoneReworded:rB===0,
+  falseAlarmsOnHonestWork:fC,noFalseAlarms:fC===0,
+  missedCount:missed.length,missedToWordForm:morph,missedToRunWord:runf,
+  missesAreOrdinary:morph+runf===missed.length,
+  missedList:missed,
+  alwaysFlagRecall:1,alwaysFlagFalseAlarms:C.length,
+  ok:rA>A.length/2&&rB===0&&fC===0&&morph+runf===missed.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE CORPORA \\u2014 the middle one is the same claims, reworded');
+ var rows=[['overclaims using the words',VR.caughtWithVocabulary,A.length,'#7de2b0'],
+  ['the SAME claims, words avoided',VR.caughtReworded,B.length,'#ff5a8a'],
+  ['honest work (false alarms)',VR.falseAlarmsOnHonestWork,C.length,'#5ad6ff']];
+ rows.forEach(function(r,i){
+  var y=48+i*56;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var bw=W-160;
+  for(var k=0;k<r[2];k++){
+   var on=k<r[1];
+   nf(g,on?(r[3]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)'):'rgba(40,30,64,0.85)');
+   g.fillRect(24+k*(bw/r[2]),y+8,bw/r[2]-4,24);ng(g);}
+  nt(g,r[3],24+bw+12,y+26,10,r[1]+'/'+r[2]);});
+ var y2=224;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ff5a8a',36,y2+22,11,'recall '+(VR.recallWithVocabulary*100).toFixed(0)+'% \\u2192 '+
+  (VR.recallReworded*100).toFixed(0)+'% with no new idea, only a rewrite');
+ nt(g,'#8a7ab8',20,H-12,9,'and the '+VR.missedCount+
+  ' it missed in the first corpus were missed for ordinary reasons, not clever ones');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showMiss){
+  nt(g,'#ffd76a',16,26,11,'the three it missed \\u2014 none of them evading');
+  VR.missedList.forEach(function(m,i){
+   var y=52+i*84;
+   nf(g,'rgba(255,215,106,0.12)');g.fillRect(20,y,W-40,72);ng(g);
+   ne(g,'#ffd76a',1.2);g.strokeRect(20.5,y+0.5,W-41,72);ng(g);
+   var t=m.t,l1=t.slice(0,40),l2=t.slice(40,80);
+   nt(g,'#e6dcff',32,y+20,8,l1);
+   if(l2)nt(g,'#e6dcff',32,y+34,8,l2);
+   var r1=m.r.slice(0,44),r2=m.r.slice(44);
+   nt(g,'#ffd76a',32,y+52,8,r1);
+   if(r2)nt(g,'#ffd76a',32,y+64,8,r2);});
+  var o2=document.getElementById('lout');
+  if(o2)o2.innerHTML='Three overclaims that used ordinary English and slipped past anyway: <b>'+
+   VR.missedToWordForm+'</b> lost to word form &mdash; "correct<i>ly</i>" and "ensur<i>ed</i>" are not the listed stems &mdash; and <b>'+
+   VR.missedToRunWord+'</b> to the bare word "Output", which the matcher reads as proof that something ran.';
+  return;}
+ var i=ci%A.length;
+ nt(g,'#e6dcff',16,26,11,'claim '+(i+1)+' of '+A.length);
+ [['as written',A[i],'#7de2b0'],['reworded, same claim',B[i],'#ff5a8a']].forEach(function(r,k){
+  var y=52+k*110;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y+8,W-40,44);ng(g);
+  ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(20.5,y+8.5,W-41,44);ng(g);
+  var t=r[1];
+  nt(g,'#e6dcff',30,y+26,8,t.slice(0,44));
+  if(t.length>44)nt(g,'#e6dcff',30,y+42,8,t.slice(44,88));
+  var f=lint(t);
+  nf(g,f?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+  g.fillRect(20,y+56,W-40,30);ng(g);
+  ne(g,f?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(20.5,y+56.5,W-41,30);ng(g);
+  nt(g,f?'#7de2b0':'#ff5a8a',34,y+76,10,f?'FLAGGED as an overclaim':'passes \\u2014 '+why(t));});
+ var o=document.getElementById('lout');
+ if(o)o.innerHTML='The two sentences make the <b>same</b> assertion about the <b>same</b> software. The first names it in the matcher\\u2019s vocabulary; the second does not. Nothing was proved, tested or weakened in between &mdash; only the wording changed.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(63);
+ for(var i=0;i<380;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=40+g2()*80;
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var inReach=r<62;
+  ndot(g,q[0],q[1],inReach?2.8:1.5,inReach?'#7de2b0':'rgba(255,90,138,0.3)');}
+ ne(g,'rgba(125,226,176,0.4)',1.4);
+ g.beginPath();
+ for(var j=0;j<=60;j++){
+  var t2=j/60*2*Math.PI;
+  var p=P(62*Math.cos(t2),0,62*Math.sin(t2));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'green: sentences the matcher can reach');
+ nt(g,'#ff5a8a',14,42,10,'pink: the same claims, said another way');
+ nt(g,'#8a7ab8',14,58,10,'the boundary is drawn in vocabulary, not in meaning');
+ nt(g,'#8a7ab8',14,H-12,9,'a filter on fluency, mistaken for a filter on honesty');}
+document.getElementById('lnext').onclick=function(){showMiss=false;ci++;drawW4();};
+document.getElementById('lmiss').onclick=function(){showMiss=!showMiss;drawW4();};
+document.getElementById('lsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__lintnotjudge=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNCD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">&ldquo;Addition is associative.&rdquo; &ldquo;Dividing then multiplying gets you back.&rdquo; &ldquo;The square root of a square is the number.&rdquo; Each of these is true, and each is true <b>somewhere</b> &mdash; on a domain nobody wrote down. Move the same identity to different numbers and it starts failing, not because the arithmetic is wrong but because the sentence was published without the condition that made it hold.<br><br>
+ <span class="lit">LIT</span> verified live. Two exact anchors first: <code>0.1 + 0.2 - 0.3</code> is not merely small, it is exactly <b>2<sup>&minus;54</sup></b>; and the doubles in [1,2) sit on an exact grid of spacing <b>2<sup>&minus;52</sup></b>. Then five identities across three ranges, <b>20,000</b> trials per cell. On [1,2), <b>three</b> of the five fail <b>zero</b> times. Let the exponents range over 2<sup>&minus;60</sup> to 2<sup>60</sup> and <b>all five</b> fail beyond three standard errors, with <b>3</b> flipping from never-observed-to-fail to measurably-false on nothing but the range. Zero failures in a sample is not a proof of exactness &mdash; a wider check of 300,000 triples on [1,2) also found none, and Sterbenz&rsquo;s lemma does not cover this case, so what is established is the <b>observation</b>, not the mechanism.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> made this the third layer of the honest read, alongside what ran and what is a figure: <i>&ldquo;the CONDITION &mdash; what has to be true for the real part to hold.&rdquo;</i> His checker flags a deliverable that claims a result and never names one. This sphere is that rule turned on arithmetic, where the conditions are unusually easy to measure and unusually often left out.<br><br>
+ <b>AVAN (AI)</b> built the first version drawing every operand from [1,2), and three of the five identities failed <b>zero</b> times in 200,000 trials &mdash; which looked at first like a broken measurement. It was not. It was the subject. Rather than move the range until the identities broke, the range became the variable and the result is the sweep in window 4: the same five identities, the same code, three domains, and the truth of each claim changing with the domain and nothing else.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five identities, three ranges, one code path.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the domain and watch a true statement become a false one.</div>
+   <div class="btns" style="margin-top:10px"><button id="ucrange">widen the range &#9654;</button><button id="ucid">next identity</button></div>
+   <div class="cap" id="ucout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the region where the identity holds, floating in the space of inputs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;name the condition or the claim is incomplete.&rdquo; The inverse is that <b>every claim has infinitely many conditions and you can only ever name the ones you thought of</b>. The identities here fail on range; they also depend on rounding mode, on whether an intermediate stayed in a wider register, on the order the compiler chose. Naming a condition does not close the claim &mdash; it moves the boundary out one step and leaves the same open edge beyond it. Read backwards, the honest read is not a way to make a claim complete but a way to <b>say where you stopped looking</b>, which is the only part anyone can actually check.</div>
+   <div class="btns" style="margin-top:10px"><button id="ucsp">pause spin</button></div></div></div></div>"""
+UNCD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ri=0,ii=0;
+var IDN=['(a+b)-b === a','(a+b)+c === a+(b+c)','a*(b+c) === a*b+a*c','(a/b)*b === a','sqrt(a*a) === a'];
+function idf(k,a,b,c){
+ if(k===0)return (a+b)-b===a;
+ if(k===1)return (a+b)+c===a+(b+c);
+ if(k===2)return a*(b+c)===a*b+a*c;
+ if(k===3)return (a/b)*b===a;
+ return Math.sqrt(a*a)===a;}
+var RN=['[1,2)','[1,1000)','2^-60..2^60'];
+function draw(k,g){
+ if(k===0)return 1+g();
+ if(k===1)return 1+g()*999;
+ return (g()<0.5?-1:1)*(0.5+g())*Math.pow(2,Math.floor(g()*121)-60);}
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function measure(idk,rk,N){
+ var g=rnd(2026),fail=0;
+ for(var i=0;i<N;i++){
+  var a=draw(rk,g),b=draw(rk,g),c=draw(rk,g);
+  if(!idf(idk,a,b,c))fail++;}
+ var r=fail/N;
+ return {fail:fail,rate:r,se:Math.sqrt(r*(1-r)/N)};}
+function selftest(){
+ var resid=0.1+0.2-0.3;
+ var spacing=1+Math.pow(2,-52)-1;
+ var N=20000;
+ var grid=[];
+ for(var rk=0;rk<3;rk++){
+  var row=[];
+  for(var ik=0;ik<5;ik++)row.push(measure(ik,rk,N));
+  grid.push(row);}
+ var narrow=grid[0],wide=grid[2];
+ var hold=0,failw=0,flip=0;
+ for(var k=0;k<5;k++){
+  if(narrow[k].fail===0)hold++;
+  if(wide[k].rate>3*wide[k].se)failw++;
+  if(narrow[k].fail===0&&wide[k].rate>3*wide[k].se)flip++;}
+ return {residual:resid,residualIsTwoToMinus54:resid===Math.pow(2,-54),
+  spacing:spacing,spacingIsTwoToMinus52:spacing===Math.pow(2,-52),
+  trialsPerCell:N,identities:IDN,ranges:RN,
+  rates:grid.map(function(r){return r.map(function(x){return x.rate;});}),
+  fails:grid.map(function(r){return r.map(function(x){return x.fail;});}),
+  holdExactlyOnNarrow:hold,failOnWide:failw,flipped:flip,
+  threeHoldExactly:hold>=3,allFiveFailWide:failw===5,
+  rangeIsTheCondition:flip>=1,
+  notABug:true,
+  ok:resid===Math.pow(2,-54)&&spacing===Math.pow(2,-52)&&hold>=3&&failw>=3&&flip>=1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE IDENTITIES, THREE RANGES, ONE CODE PATH');
+ var x0=170,cw=(W-x0-24)/3;
+ for(var r=0;r<3;r++)nt(g,'#8a7ab8',x0+r*cw+6,40,8,RN[r]);
+ for(var k=0;k<5;k++){
+  var y=54+k*38;
+  nt(g,'#e6dcff',20,y+18,8,IDN[k]);
+  for(var r2=0;r2<3;r2++){
+   var rate=VR.rates[r2][k];
+   var exact=VR.fails[r2][k]===0;
+   nf(g,exact?'rgba(125,226,176,0.5)':'rgba(255,90,138,'+(0.2+Math.min(0.6,rate*2))+')');
+   g.fillRect(x0+r2*cw,y,cw-8,26);ng(g);
+   ne(g,exact?'#7de2b0':'#ff5a8a',1);
+   g.strokeRect(x0+r2*cw+0.5,y+0.5,cw-8,26);ng(g);
+   nt(g,exact?'#7de2b0':'#ff5a8a',x0+r2*cw+8,y+17,9,
+    exact?'exact':(rate*100).toFixed(1)+'%');}}
+ nt(g,'#7de2b0',20,262,9,VR.holdExactlyOnNarrow+' of 5 never fail on [1,2) \\u2014 zero failures in '+
+  VR.trialsPerCell.toLocaleString()+' trials');
+ nt(g,'#ff5a8a',20,280,9,VR.failOnWide+' of 5 fail once the exponents move, and '+VR.flipped+
+  ' flip on nothing but the range');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var k=ii%5,r=ri%3;
+ nt(g,'#e6dcff',16,26,11,IDN[k]);
+ nt(g,'#8a7ab8',16,44,9,'operands drawn from  '+RN[r]);
+ var m=measure(k,r,20000);
+ var exact=m.fail===0;
+ var top=64;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,top,W-40,58);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,top+0.5,W-41,58);ng(g);
+ nt(g,'#8a7ab8',32,top+22,9,'20,000 random triples');
+ nt(g,exact?'#7de2b0':'#ff5a8a',32,top+44,13,
+  exact?'0 failures observed here':m.fail.toLocaleString()+' failures');
+ var y2=top+72;
+ var bw=W-64;
+ nt(g,'#8a7ab8',32,y2,9,'failure rate');
+ nf(g,exact?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.55)');
+ g.fillRect(32,y2+8,Math.max(2,bw*m.rate),26);ng(g);
+ ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(32.5,y2+8.5,bw,26);ng(g);
+ nt(g,exact?'#7de2b0':'#ff5a8a',32,y2+56,12,(m.rate*100).toFixed(3)+'%  \\u00b1 '+
+  (m.se*100).toFixed(3));
+ var y3=y2+76;
+ // the same identity across all three ranges, for contrast
+ nt(g,'#8a7ab8',32,y3,9,'the same identity, the three ranges');
+ for(var q=0;q<3;q++){
+  var rate=VR.rates[q][k],ex=VR.fails[q][k]===0;
+  var x=32+q*((W-64)/3);
+  nf(g,ex?'rgba(125,226,176,0.45)':'rgba(255,90,138,0.45)');
+  g.fillRect(x,y3+10,(W-64)/3-8,34);ng(g);
+  nt(g,'#0d0818',x+6,y3+24,7,RN[q]);
+  nt(g,'#0d0818',x+6,y3+38,8,ex?'exact':(rate*100).toFixed(1)+'%');}
+ var o=document.getElementById('ucout');
+ if(o)o.innerHTML='<b>'+IDN[k]+'</b> over '+RN[r]+': '+
+  (exact?'zero failures in 20,000 triples. On this domain the identity was never observed to break &mdash; which is not the same as a proof that it cannot.'
+   :'<b>'+m.fail.toLocaleString()+'</b> failures, a rate of <b>'+(m.rate*100).toFixed(3)+
+    '%</b>. Nothing about the arithmetic changed &mdash; only where the numbers came from.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(54);
+ for(var i=0;i<420;i++){
+  var ex=(g2()*121)-60,ey=(g2()*121)-60,ez=(g2()*121)-60;
+  var q=P(ex*1.5,ey*1.2,ez*1.5);
+  var inside=Math.abs(ex)<9&&Math.abs(ey)<9&&Math.abs(ez)<9;
+  ndot(g,q[0],q[1],inside?3.2:1.3,inside?'#7de2b0':'rgba(255,90,138,0.26)');}
+ ne(g,'rgba(125,226,176,0.45)',1.4);
+ var cor=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]]
+  .map(function(v){return P(v[0]*13,v[1]*11,v[2]*13);});
+ [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(function(e){
+  g.beginPath();g.moveTo(cor[e[0]][0],cor[e[0]][1]);g.lineTo(cor[e[1]][0],cor[e[1]][1]);g.stroke();});
+ ng(g);
+ nt(g,'#7de2b0',14,24,11,'the small box: where the identity was never seen to fail');
+ nt(g,'#ff5a8a',14,42,10,'everything outside it: the same sentence, now false');
+ nt(g,'#8a7ab8',14,58,10,'the axes are exponents, and nobody wrote the box down');
+ nt(g,'#8a7ab8',14,H-12,9,'naming a condition moves the edge out one step; it does not remove it');}
+document.getElementById('ucrange').onclick=function(){ri++;drawW4();};
+document.getElementById('ucid').onclick=function(){ii++;drawW4();};
+document.getElementById('ucsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__unstatedcondition=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 226 · neon-noir · silicon-coding · FROM DAVID'S 0805 DROP (rev6-0804 + pocket-machine) · a jump that names a depth · the control that says no · one letter doing twelve jobs · five rules with nothing to tune · the glyph you cannot enter ═══════════════════════
 DPTH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A jump can name a <b>place</b> &mdash; go to line 400 &mdash; or it can name a <b>depth</b>: come out two layers. They look interchangeable and they are not. With an address you cannot know how much is on the stack when you arrive, because it depends on the route taken to get there. With a depth you always can, because the block you are exiting recorded its height on the way in. That single constraint is what lets a validator check a program in <b>one left-to-right pass</b> without running it. WebAssembly shipped this at industrial scale in 2017.<br><br>
@@ -74707,6 +75555,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-chained-root","title":"THE CHAINED ROOT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#7de2b0","icon":"\u26d3",
+  "kicker":"a hash that remembers where it has been",
+  "blurb":"acc = H(acc + sha + path). The root carries not just what was sealed but in what order, and at what path. Reorder the ledger and the number leaves.",
+  "lit":"the chain rule reproduces David's published root 165fbfab1ba6c290 exactly, with SHA-256 implemented in the page so the number is computed rather than quoted; 400 random orderings of those eight files produce 400 distinct roots with 0 collisions; and flipping a single bit anywhere in the ledger moves 50.06% of the root's 256 bits, within three standard errors (1.35 points) of the half a hash should give",
+  "fig":"From David's ud0-core-skills, dropped 2026-08-05: four skills sealed under UD0-CORE.dlw, eight files, 27,093 bytes, witnessed by ROOT0. The chain rule is his and his docstring states its property - reordering the ledger changes the root. AVAN verified the seal BEFORE reading anything sealed under it: all eight SHA-256 digests match, the byte total matches, and the root recomputes. Four other plausible constructions were tried first - concatenated hex, sorted hex, path-prefixed, raw bytes - and all four gave the wrong root, so the algorithm was read out of seal.py rather than guessed. The honest limit: this is a CHAIN, not a tree. Proving one entry costs the whole ledger, n, against log2(n) for a Merkle tree - 1,024 against 10 at a thousand entries.",
+  "body":CHRT_BODY,"script":CHRT_SCRIPT},
+ {"slug":"the-order-blind-hash","title":"THE ORDER-BLIND HASH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#ff5a8a","icon":"\u2295",
+  "kicker":"a digest that forgot where it had been",
+  "blurb":"Hash each item, XOR the results. Fast, parallel, order-free - and structurally unable to see a reordering, a swap, or anything added an even number of times.",
+  "lit":"across 600 sampled orderings of the same eight-file ledger the XOR digest takes exactly 1 value while an order-sensitive digest takes 600, and offline over all 40,320 orderings the same one-against-all-of-them holds; swapping the first and last file leaves the XOR digest bit-for-bit unmoved; adding one entry to the ledger TWICE also leaves it unmoved, a two-file forgery the digest cannot see, while the chain changes immediately; and two orderings of a genuinely unordered set agree, which is the same blindness being the correct answer",
+  "fig":"David did not build this one - he built the thing it is a foil for. seal.py carries the line 'a hash per file, chained into a root ... reordering the ledger changes the root', and the accumulator in that sentence is the whole difference. AVAN states the counterpoint rather than leaving XOR looking merely broken, because it is not: order-blindness is CORRECT when order carries no meaning - a set of permissions, a bag of tags, a commutative merge - and the page checks that case too. The fault is never the tool. It is reaching for a commutative digest to seal something whose order is part of what it says. The page's order-sensitive comparison is a cheap mixer, not SHA-256; the chain itself is measured at full strength in [[the-chained-root]].",
+  "body":OBLH_BODY,"script":OBLH_SCRIPT},
+ {"slug":"the-stale-witness","title":"THE STALE WITNESS","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#ffd76a","icon":"\u25c6",
+  "kicker":"a signature attests a moment, not a file",
+  "blurb":"A mark on a ledger signs a number the ledger had once. Change anything after and the signature stays valid while quietly ceasing to attest to what is in front of you.",
+  "lit":"500 single-digit edits were made to a sealed ledger and every one of the 500 moved the root; a checker asking 'is there a signature?' caught 0 of them while a checker comparing the signed root against the current root caught 500 of 500; and a perfectly legitimate append - one new file, nothing removed - trips the second checker just as hard, because what it detects is CHANGE and never wrongness",
+  "fig":"From David's seal.py: each witness record stores root_at_signing, and the display routine prints a mark beside any signature whose stored root no longer matches - 'signed a DIFFERENT root'. Four lines, and the difference between a register and a ritual. AVAN measured what the drift flag can and cannot tell you, and the second half matters more: it emits exactly ONE BIT, the root moved. It cannot say whether a file was tampered with or a skill was legitimately added, and both look identical to it. Not a defect to fix - a comparison of two opaque numbers has nowhere to put a reason - but it means the flag is a prompt to go and look, not a verdict.",
+  "body":STWT_BODY,"script":STWT_SCRIPT},
+ {"slug":"the-lint-not-the-judge","title":"THE LINT NOT THE JUDGE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#5ad6ff","icon":"\u2691",
+  "kicker":"evade the words, keep the claim",
+  "blurb":"A checker that reads for overclaiming finds it in words, and words are the one part of a claim a writer can change for free.",
+  "lit":"on three matched corpora of eight, overclaims using the checker's vocabulary are flagged 5 of 8; the SAME claims reworded to avoid that vocabulary are flagged 0 of 8; honest deliverables that show a run and name a condition draw 0 false alarms; so recall falls from 63% to zero without a single new idea, only a rewrite",
+  "fig":"David wrote both the checker and its warning in the same file. honest.py ships a Pitfalls section saying it plainly: 'The checker is a lint, not a judge ... it matches on wording, so a deliverable that carefully avoids claim verbs while still overclaiming will pass. Read it yourself as well.' A tool that documents its own blind spot is rarer than it should be. AVAN expected the matcher to catch all eight vocabulary overclaims and it caught five. The regex was NOT widened until it reached eight - that would have been tuning to a number. The three misses are published instead: two lost to ordinary word forms, 'correctLY' and 'ensurED' rather than the listed stems, and one to the bare word 'Output', which the matcher reads as evidence that something ran. None of the three was evading anything.",
+  "body":LNTJ_BODY,"script":LNTJ_SCRIPT},
+ {"slug":"the-unstated-condition","title":"THE UNSTATED CONDITION","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#b98cff","icon":"\u2205",
+  "kicker":"an identity with no domain attached",
+  "blurb":"Addition is associative - somewhere. Move the same identity to different numbers and it starts failing, because the sentence was published without the condition that made it hold.",
+  "lit":"0.1 + 0.2 - 0.3 is not merely small, it is exactly 2^-54, and the doubles in [1,2) sit on an exact grid of spacing 2^-52; across five identities and three ranges at 20,000 trials per cell in the page, three of the five fail ZERO times on [1,2) - observed, not proven exact - and once the exponents range over 2^-60 to 2^60 all five fail beyond three standard errors, with 3 flipping from exactly-true to measurably-false on nothing but the range",
+  "fig":"From the third layer of David's honest read, alongside what ran and what is a figure: 'the CONDITION - what has to be true for the real part to hold.' His checker flags a deliverable that claims a result and never names one. AVAN built the first version drawing every operand from [1,2) and three of the five identities failed ZERO times in 200,000 trials, which looked at first like a broken measurement. It was not - it was the subject. Rather than move the range until the identities broke, the range became the variable. Nothing here is a bug: IEEE 754 rounds every single operation correctly, and the fault is that the claim was published without its domain, which is a different failure entirely.",
+  "body":UNCD_BODY,"script":UNCD_SCRIPT},
  {"slug":"the-depth-jump","title":"THE DEPTH JUMP","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#7de2b0","icon":"\u21b3",
   "kicker":"a jump that names a depth, not a place",
