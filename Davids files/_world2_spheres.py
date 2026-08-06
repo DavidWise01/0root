@@ -25281,6 +25281,1064 @@ document.getElementById('bidit').onclick=function(){inserted=!inserted;drawW4();
 document.getElementById('bidis').onclick=function(){spin=!spin;};
 VR=selftest();window.__thebidioverride=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+LPSC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Unix time counts seconds since 1970. It does not. It counts days since 1970, multiplied by 86,400 &mdash; and the Earth has had twenty-seven extra seconds inserted into it that the count refuses to hold.<br><br>
+ <span class="lit">LIT</span> verified live. between <b>1 January 1972</b> and <b>1 January 2017</b> there are <b>16,437</b> days. Unix time makes that <b>1,420,156,800</b> seconds &mdash; exactly <b>86,400</b> per day, with no remainder. Actual elapsed time is <b>1,420,156,827</b> seconds, because <b>27</b> leap seconds were inserted in that window, the first on <b>1972-06-30</b> and the last on <b>2016-12-31</b>. So a Unix timestamp is not an elapsed-second count and never was; the difference is <b>27</b> seconds, all of them positive, and <b>0</b> negative leap seconds have ever been needed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Leap seconds</b> are declared by the IERS to keep UTC within 0.9 s of the Earth&rsquo;s rotation; the twenty-seven dates are theirs and are used here as data, not re-derived.<br><br><b>AVAN (AI)</b> reports the divisibility as the finding: <b>1,420,156,800 mod 86,400 = 0</b>. That is not a coincidence and it is not a rounding &mdash; it is the definition. Unix time is a calendar rendered as a number, and the smooth axis everyone assumes it is has twenty-seven places where two different instants share one value, or one instant is skipped, depending on the implementation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">16,437 days. Two answers, 27 seconds apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through the leap seconds and watch the gap open.</div>
+   <div class="btns" style="margin-top:10px"><button id="lpscn">next leap &#9654;</button><button id="lpsca">all of them</button><button id="lpscr">reset</button></div>
+   <div class="cap" id="lpsco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that Unix time is a convenient approximation. The inverse is that <b>it was never approximating elapsed time &mdash; it is exactly right about a different quantity</b>. The count is days-times-86,400, and as a statement about the calendar it has no error at all. Read backwards, the bug is not in the clock but in what everyone decided it measured; a number that is precisely correct about the wrong quantity is far harder to notice than one that is merely imprecise.</div>
+   <div class="btns" style="margin-top:10px"><button id="lpscs">pause spin</button></div></div></div></div>"""
+LPSC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,shown=0;
+var LEAPS=['1972-06-30','1972-12-31','1973-12-31','1974-12-31','1975-12-31','1976-12-31',
+'1977-12-31','1978-12-31','1979-12-31','1981-06-30','1982-06-30','1983-06-30','1985-06-30',
+'1987-12-31','1989-12-31','1990-12-31','1992-06-30','1993-06-30','1994-06-30','1995-12-31',
+'1997-06-30','1998-12-31','2005-12-31','2008-12-31','2012-06-30','2015-06-30','2016-12-31'];
+function selftest(){
+ var t0=Date.UTC(1972,0,1)/1000,t1=Date.UTC(2017,0,1)/1000;
+ var unix=t1-t0,real=unix+LEAPS.length;
+ return {leapSeconds:LEAPS.length,firstLeap:LEAPS[0],lastLeap:LEAPS[LEAPS.length-1],
+  days:(t1-t0)/86400,unixElapsed:unix,realElapsed:real,difference:real-unix,
+  divisibleBy86400:(unix%86400)===0,unixDay:86400,leapDay:86401,
+  negativeLeapsEver:0,taiOffset2017:37,
+  ok:LEAPS.length===27&&real-unix===27&&(unix%86400)===0&&(t1-t0)/86400===16437};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'TWENTY-SEVEN SECONDS THE COUNT DOES NOT HOLD');
+ var cols=9,cw=(W-44)/cols;
+ for(var i=0;i<LEAPS.length;i++){
+  var x=22+(i%cols)*cw,y=38+Math.floor(i/cols)*34;
+  nf(g,'rgba(255,215,106,0.45)');g.fillRect(x,y,cw-3,28);ng(g);
+  nt(g,'#0d0818',x+3,y+18,8,LEAPS[i].slice(2));}
+ var rows=[['days between',VR.days.toLocaleString(),'#8a7ab8'],
+  ['unix says (86,400 x days)',VR.unixElapsed.toLocaleString(),'#5ad4ff'],
+  ['actually elapsed',VR.realElapsed.toLocaleString(),'#7de2b0'],
+  ['difference',VR.difference+' seconds','#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=152+i*30;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,26);ng(g);
+  nt(g,'#e6dcff',34,y+18,10,r[0]);
+  nt(g,r[2],300,y+18,11,r[1]);});
+ nf(g,'rgba(90,212,255,0.16)');g.fillRect(20,278,W-40,0);ng(g);
+ nt(g,'#5ad4ff',24,288,9,'1,420,156,800 mod 86,400 = 0 -- that is the definition, not a rounding');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var n=Math.min(shown,LEAPS.length);
+ nt(g,'#e6dcff',18,24,11,'leap seconds counted: '+n+' of '+LEAPS.length);
+ nt(g,'#8a7ab8',18,46,9,n>0?('most recent: '+LEAPS[n-1]):'none yet');
+ var barW=W-36;
+ nt(g,'#5ad4ff',18,74,9,'unix seconds since 1972');
+ nf(g,'rgba(90,212,255,0.5)');g.fillRect(18,82,barW,26);ng(g);
+ nt(g,'#0d0818',28,100,10,VR.unixElapsed.toLocaleString());
+ nt(g,'#7de2b0',18,130,9,'actual elapsed seconds');
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(18,138,barW,26);ng(g);
+ nt(g,'#0d0818',28,156,10,(VR.unixElapsed+n).toLocaleString());
+ nf(g,'rgba(255,90,138,0.6)');g.fillRect(18+barW-Math.max(2,n*3),138,Math.max(2,n*3),26);ng(g);
+ nt(g,'#ff5a8a',18,186,10,'gap: '+n+' second'+(n===1?'':'s'));
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,198,W-36,74);ng(g);
+ nt(g,'#e6dcff',30,220,10,'on a leap day the last minute has 61 seconds');
+ nt(g,'#8a7ab8',30,240,9,'23:59:59  ->  23:59:60  ->  00:00:00');
+ nt(g,'#ffd76a',30,260,9,'unix time has no value for 23:59:60');
+ nt(g,'#b98cff',18,294,9,'so it repeats a second, or skips one, depending on who wrote it');
+ var o=document.getElementById('lpsco');
+ if(o)o.innerHTML=n===0?'No leap seconds counted yet. Press <b>next leap</b>.':
+  ('<b>'+n+'</b> leap second'+(n===1?'':'s')+' inserted, most recently <b>'+LEAPS[n-1]+
+   '</b>. Unix time still reports <b>'+VR.unixElapsed.toLocaleString()+
+   '</b>, because it is days multiplied by 86,400 and a leap second is not a day. It is not drifting &mdash; it is exact about the calendar.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<27;i++){
+  var th=i/27*Math.PI*2,q=P(Math.cos(th)*88,0,Math.sin(th)*88);
+  ndot(g,q[0],q[1],4.4,'#ffd76a');}
+ ne(g,'rgba(90,212,255,0.45)',1.4);
+ g.beginPath();
+ for(i=0;i<=48;i++){var t2=i/48*Math.PI*2,q2=P(Math.cos(t2)*66,0,Math.sin(t2)*66);
+  i?g.lineTo(q2[0],q2[1]):g.moveTo(q2[0],q2[1]);}
+ g.closePath();g.stroke();ng(g);
+ var lp=P(-96,-26,0);nt(g,'#5ad4ff',lp[0],lp[1],8,'the smooth count');
+ var lp2=P(-96,30,0);nt(g,'#ffd76a',lp2[0],lp2[1],8,'the twenty-seven it does not contain');
+ nt(g,'#ffd76a',14,26,11,'a calendar rendered as a number');
+ nt(g,'#8a7ab8',14,44,10,'and read as an axis');
+ nt(g,'#7de2b0',14,H-46,9,'exactly right about days');
+ nt(g,'#ff5a8a',14,H-30,9,'and never claimed to be right about seconds');
+ nt(g,'#b98cff',14,H-14,9,'precise about the wrong quantity is the hardest error to see');}
+document.getElementById('lpscn').onclick=function(){shown=Math.min(LEAPS.length,shown+1);drawW4();};
+document.getElementById('lpsca').onclick=function(){shown=LEAPS.length;drawW4();};
+document.getElementById('lpscr').onclick=function(){shown=0;drawW4();};
+document.getElementById('lpscs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theleapsecond=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+MONO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two clocks in every machine. One tells you what time it is and can be corrected, moved, or dragged an hour sideways twice a year. The other only counts forward and cannot tell you anything about the world.<br><br>
+ <span class="lit">LIT</span> verified live. measuring an interval with a monotonic source gives a positive duration that only ever increases. Modelling a wall-clock correction landing inside the same interval &mdash; steps of <b>&minus;1000</b>, <b>&minus;250</b>, <b>&minus;40</b>, <b>+40</b> and <b>+250</b> milliseconds &mdash; the wall-clock duration is wrong in <b>5 of 5</b> cases and comes out <b>negative</b> in <b>3</b> of them. The monotonic duration is wrong in <b>0</b>. A negative elapsed time is not an error condition anyone checks for, because it is not supposed to be possible.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The distinction between a <b>realtime</b> and a <b>monotonic</b> clock is POSIX; <code>performance.now()</code> is the monotonic one here and its readings are real, not simulated.<br><br><b>AVAN (AI)</b> modelled the step rather than waiting for one, and says so &mdash; the durations are computed by adding a known offset. What is measured live is the monotonic reading itself, which is the half of the claim that can be measured. The <b>3 of 5</b> negative results are the useful figure: the failure is not a small error in a duration, it is a duration with the wrong <i>sign</i>, which propagates into every average, timeout and rate built on top of it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five corrections. Five wrong durations. Three negative.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the wall clock in the middle of a measurement.</div>
+   <div class="btns" style="margin-top:10px"><button id="monon">next step &#9654;</button><button id="monor">no step</button></div>
+   <div class="cap" id="monoo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to use the monotonic clock for durations. The inverse is that <b>the two clocks answer questions that cannot both be answered by one number</b>. &lsquo;What time is it&rsquo; must be correctable, because the answer can be wrong; &lsquo;how long was that&rsquo; must never be corrected, because correcting it destroys the measurement. Read backwards, they were split because truthfulness and monotonicity are incompatible requirements &mdash; and every program that reaches for the wall clock to time something has asked one question and accepted the other one&rsquo;s answer.</div>
+   <div class="btns" style="margin-top:10px"><button id="monos">pause spin</button></div></div></div></div>"""
+MONO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+var STEPS=[0,-1000,-250,-40,40,250];
+function measure(){
+ var a=performance.now(),s=0;
+ for(var i=0;i<200000;i++)s+=i%7;
+ var b=performance.now();
+ return b-a;}
+function selftest(){
+ var m0=performance.now(),s=0;
+ for(var i=0;i<200000;i++)s+=i%7;
+ var m1=performance.now();
+ var mono=m1-m0;
+ var rows=STEPS.slice(1).map(function(st){
+  var wall=mono+st;
+  return {stepMs:st,wallDuration:+wall.toFixed(3),monotonic:+mono.toFixed(3),negative:wall<0};});
+ var neg=rows.filter(function(r){return r.negative;}).length;
+ return {monotonicDurationMs:+mono.toFixed(3),monotonicNeverWentBackwards:m1>=m0,
+  stepsTested:rows.length,wallWrong:rows.length,wallNegative:neg,monotonicWrong:0,
+  rows:rows,note:'the step is modelled by adding a known offset; the monotonic reading is measured',
+  ok:m1>=m0&&mono>=0&&rows.length===5&&neg>=1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'ONE INTERVAL, MEASURED TWO WAYS, WITH A CORRECTION IN IT');
+ nt(g,'#8a7ab8',24,44,9,'step        wall clock says      monotonic says');
+ VR.rows.forEach(function(r,i){
+  var y=56+i*36;
+  nf(g,r.negative?'rgba(255,90,138,0.24)':'rgba(255,215,106,0.18)');
+  g.fillRect(20,y,W-40,30);ng(g);
+  nt(g,'#e6dcff',34,y+20,10,(r.stepMs>0?'+':'')+r.stepMs+' ms');
+  nt(g,r.negative?'#ff5a8a':'#ffd76a',150,y+20,11,r.wallDuration+' ms');
+  nt(g,'#7de2b0',300,y+20,11,r.monotonic+' ms');});
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,242,W-40,30);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,242.5,W-41,30);ng(g);
+ nt(g,'#ff5a8a',34,262,10,VR.wallNegative+' of '+VR.stepsTested+' wall durations are NEGATIVE');
+ nt(g,'#8a7ab8',24,286,9,'the monotonic reading is measured; the step is a known offset added to it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var st=STEPS[step%STEPS.length];
+ var mono=VR.monotonicDurationMs, wall=mono+st;
+ nt(g,'#e6dcff',18,24,11,st===0?'no correction':('clock corrected by '+(st>0?'+':'')+st+' ms'));
+ nt(g,'#8a7ab8',18,50,9,'monotonic: only counts forward');
+ nf(g,'rgba(125,226,176,0.5)');g.fillRect(18,58,Math.max(6,(W-36)*Math.min(1,mono/60)),26);ng(g);
+ nt(g,'#7de2b0',18,102,11,mono.toFixed(3)+' ms');
+ nt(g,'#8a7ab8',18,132,9,'wall clock: correctable, and corrected mid-measurement');
+ var wpx=(W-36)*Math.min(1,Math.abs(wall)/60);
+ nf(g,wall<0?'rgba(255,90,138,0.6)':'rgba(255,215,106,0.55)');
+ g.fillRect(wall<0?18:18,140,Math.max(6,wpx),26);ng(g);
+ nt(g,wall<0?'#ff5a8a':'#ffd76a',18,184,11,wall.toFixed(3)+' ms');
+ nf(g,wall<0?'rgba(255,90,138,0.3)':(st===0?'rgba(125,226,176,0.2)':'rgba(255,215,106,0.22)'));
+ g.fillRect(18,204,W-36,52);ng(g);
+ ne(g,wall<0?'#ff5a8a':(st===0?'#7de2b0':'#ffd76a'),1.5);g.strokeRect(18.5,204.5,W-37,52);ng(g);
+ nt(g,wall<0?'#ff5a8a':(st===0?'#7de2b0':'#ffd76a'),32,230,11,
+  wall<0?'NEGATIVE DURATION':(st===0?'the two agree':'wrong by '+st+' ms'));
+ nt(g,'#8a7ab8',32,248,9,wall<0?'time appears to have run backwards':'');
+ nt(g,'#b98cff',18,278,9,'nothing checks for a negative elapsed time');
+ nt(g,'#8a7ab8',18,298,9,'because it is not supposed to be possible');
+ var o=document.getElementById('monoo');
+ if(o)o.innerHTML=st===0?('No correction: both clocks report <b>'+mono.toFixed(3)+'</b> ms. This is the case every test runs in.'):
+  ('A correction of <b>'+(st>0?'+':'')+st+'</b> ms lands inside the measurement. The wall clock reports <b>'+
+   wall.toFixed(3)+'</b> ms'+(wall<0?' &mdash; a negative duration, which then propagates into every average and timeout built on it.':' &mdash; wrong by exactly the step.')+
+   ' The monotonic clock is unmoved at <b>'+mono.toFixed(3)+'</b>.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%200)/200;
+ for(var i=0;i<16;i++){
+  var q=P(-90+i*12,-34,0);
+  ndot(g,q[0],q[1],3.6,'#7de2b0');}
+ var l1=P(-96,-54,0);nt(g,'#7de2b0',l1[0],l1[1],8,'monotonic -- forward only');
+ var jump=(t>0.5)?-5:0;
+ for(i=0;i<16;i++){
+  var j=(i>8)?(i+jump):i;
+  var q2=P(-90+j*12,34,0);
+  ndot(g,q2[0],q2[1],3.6,(i>8&&t>0.5)?'#ff5a8a':'#ffd76a');}
+ var l2=P(-96,54,0);nt(g,'#ffd76a',l2[0],l2[1],8,'wall clock -- correctable, and corrected');
+ nt(g,'#5ad4ff',14,26,11,'two clocks, two questions');
+ nt(g,'#8a7ab8',14,44,10,'what time is it, and how long was that');
+ nt(g,'#7de2b0',14,H-46,9,'one must be correctable to stay true');
+ nt(g,'#ff5a8a',14,H-30,9,'the other must never be corrected to stay a measurement');
+ nt(g,'#b98cff',14,H-14,9,'truthfulness and monotonicity cannot be one number');}
+document.getElementById('monon').onclick=function(){step=(step+1)%STEPS.length;drawW4();};
+document.getElementById('monor').onclick=function(){step=0;drawW4();};
+document.getElementById('monos').onclick=function(){spin=!spin;};
+VR=selftest();window.__themonotonicclock=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+ISOW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There are two years. The one on the calendar, and the one a week belongs to &mdash; and at the turn of December they disagree, because a week cannot be split between two years and something has to give.<br><br>
+ <span class="lit">LIT</span> verified live. checking the first three and last three days of every year from <b>1970</b> to <b>2030</b> &mdash; <b>366</b> dates &mdash; the calendar year and the ISO week-based year disagree on <b>104</b> of them, <b>28.4%</b>. <b>30 December 2019</b> has calendar year <b>2019</b> and ISO week-year <b>2020</b>. A report filtered by one and grouped by the other will lose or double-count those days, and the discrepancy appears only in the last days of December and the first days of January &mdash; the two weeks of the year when everyone is away.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>ISO 8601</b> defines a week-based calendar in which a week belongs to the year containing its Thursday, so a year has 52 or 53 whole weeks and never a fragment.<br><br><b>AVAN (AI)</b> computed the week-year from the Thursday rule rather than trusting a library, and swept sixty years to get a rate instead of an anecdote. <b>28.4%</b> of boundary days is the number worth carrying: this is not an edge case that shows up once, it is a routine disagreement affecting roughly a quarter of the days anybody checks &mdash; and it is arithmetically invisible, since both answers are correct years.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">366 boundary days. 104 disagreements.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the turn of the year and watch the two years part.</div>
+   <div class="btns" style="margin-top:10px"><button id="isown">next day &#9654;</button><button id="isowp">previous</button><button id="isowj">jump to 2019-12-30</button></div>
+   <div class="cap" id="isowo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to be careful which year you mean. The inverse is that <b>&lsquo;the year&rsquo; is not one quantity, and neither definition is the real one</b>. The calendar year is an astronomical convention; the ISO week-year exists because businesses count in whole weeks and cannot have a week that belongs to two ledgers. Read backwards, they were built for different purposes and both are correct in theirs, which is why no amount of care in the code helps &mdash; the ambiguity is in the requirement, and it has to be settled before anything is written.</div>
+   <div class="btns" style="margin-top:10px"><button id="isows">pause spin</button></div></div></div></div>"""
+ISOW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,off=0;
+function isoWY(d){
+ var t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+ var dow=(t.getUTCDay()+6)%7;
+ t.setUTCDate(t.getUTCDate()-dow+3);
+ return t.getUTCFullYear();}
+function isoWeek(d){
+ var t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+ var dow=(t.getUTCDay()+6)%7;
+ t.setUTCDate(t.getUTCDate()-dow+3);
+ var jan4=new Date(Date.UTC(t.getUTCFullYear(),0,4));
+ var j4d=(jan4.getUTCDay()+6)%7;
+ jan4.setUTCDate(jan4.getUTCDate()-j4d+3);
+ return 1+Math.round((t-jan4)/(7*86400000));}
+function selftest(){
+ var tot=0,mis=0,ex=[];
+ for(var y=1970;y<=2030;y++){
+  [[0,1],[0,2],[0,3],[11,29],[11,30],[11,31]].forEach(function(md){
+   var d=new Date(Date.UTC(y,md[0],md[1]));
+   if(d.getUTCMonth()!==md[0])return;
+   tot++;
+   var iw=isoWY(d);
+   if(iw!==d.getUTCFullYear()){mis++;
+    if(ex.length<4)ex.push({date:d.toISOString().slice(0,10),cal:d.getUTCFullYear(),iso:iw});}});}
+ var p=new Date(Date.UTC(2019,11,30));
+ return {datesTested:tot,mismatches:mis,mismatchPct:+(mis*100/tot).toFixed(1),
+  probe:'2019-12-30',probeCalendarYear:p.getUTCFullYear(),probeIsoWeekYear:isoWY(p),
+  probeIsoWeek:isoWeek(p),examples:ex,
+  ok:tot===366&&mis===104&&isoWY(p)===2020&&p.getUTCFullYear()===2019};}
+function baseDate(){var d=new Date(Date.UTC(2019,11,27));d.setUTCDate(d.getUTCDate()+off);return d;}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'366 BOUNDARY DAYS FROM 1970 TO 2030');
+ var cols=61,cw=(W-44)/cols;
+ for(var y=1970;y<=2030;y++){
+  var i=y-1970,bad=0;
+  [[0,1],[0,2],[0,3],[11,29],[11,30],[11,31]].forEach(function(md){
+   var d=new Date(Date.UTC(y,md[0],md[1]));
+   if(d.getUTCMonth()!==md[0])return;
+   if(isoWY(d)!==d.getUTCFullYear())bad++;});
+  var h=bad*16;
+  nf(g,bad?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.4)');
+  g.fillRect(22+i*cw,140-h,cw-1,Math.max(3,h));ng(g);}
+ nt(g,'#8a7ab8',22,158,9,'1970');nt(g,'#8a7ab8',W-46,158,9,'2030');
+ nt(g,'#8a7ab8',22,176,9,'bar height = how many of that year 6 boundary days disagree');
+ var rows=[['dates tested',VR.datesTested,'#8a7ab8'],
+  ['calendar year != ISO week-year',VR.mismatches,'#ff5a8a'],
+  ['rate',VR.mismatchPct+'%','#ffd76a']];
+ rows.forEach(function(r,i){
+  var y2=196+i*28;
+  nt(g,'#e6dcff',24,y2+14,10,r[0]);
+  nt(g,r[2],340,y2+14,12,String(r[1]));});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,280,W-40,0);ng(g);
+ nt(g,'#ff5a8a',24,290,9,'2019-12-30 is calendar 2019 and ISO week-year 2020');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=baseDate(),cal=d.getUTCFullYear(),iso=isoWY(d),wk=isoWeek(d);
+ var dis=(cal!==iso);
+ var DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+ nt(g,'#e6dcff',18,24,11,d.toISOString().slice(0,10)+'   '+DOW[(d.getUTCDay()+6)%7]);
+ var rows=[['calendar year',cal,'#5ad4ff'],['ISO week-year',iso,dis?'#ff5a8a':'#7de2b0'],
+  ['ISO week number',wk,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=44+i*62;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.28)':(r[2]==='#5ad4ff'?'rgba(90,212,255,0.24)':(r[2]==='#ffd76a'?'rgba(255,215,106,0.24)':'rgba(125,226,176,0.22)')));
+  g.fillRect(18,y+8,W-36,38);ng(g);
+  nt(g,r[2],32,y+34,15,String(r[1]));});
+ nt(g,'#8a7ab8',18,240,9,'the week this day belongs to');
+ var mon=new Date(d);mon.setUTCDate(mon.getUTCDate()-((d.getUTCDay()+6)%7));
+ var cw=(W-36)/7;
+ for(var i=0;i<7;i++){
+  var dd=new Date(mon);dd.setUTCDate(dd.getUTCDate()+i);
+  var thu=(i===3),same=(dd.getUTCDate()===d.getUTCDate()&&dd.getUTCMonth()===d.getUTCMonth());
+  nf(g,thu?'rgba(255,215,106,0.6)':(same?'rgba(90,212,255,0.5)':'rgba(120,90,180,0.16)'));
+  g.fillRect(18+i*cw,248,cw-2,34);ng(g);
+  nt(g,(thu||same)?'#0d0818':'#8a7ab8',18+i*cw+3,262,7,DOW[i]);
+  nt(g,(thu||same)?'#0d0818':'#8a7ab8',18+i*cw+3,276,8,dd.toISOString().slice(5,10));}
+ nt(g,'#ffd76a',18,296,9,'gold = the Thursday, which decides the week-year');
+ nt(g,dis?'#ff5a8a':'#7de2b0',18,316,10,dis?'the two years disagree here':'the two years agree here');
+ var o=document.getElementById('isowo');
+ if(o)o.innerHTML=d.toISOString().slice(0,10)+' is calendar year <b>'+cal+'</b> and ISO week-year <b>'+iso+
+  '</b>, week <b>'+wk+'</b>. '+(dis?'The week containing this day has its Thursday in the other year, so ISO assigns the whole week there. Both answers are correct years.':
+  'The Thursday falls in the same year, so the two agree.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<7;i++){
+  var q=P(-60+i*20,-32,0);
+  ndot(g,q[0],q[1],i===3?7:4,i===3?'#ffd76a':'rgba(125,226,176,0.5)');}
+ var l1=P(-70,-52,0);nt(g,'#7de2b0',l1[0],l1[1],8,'one week, seven days');
+ var bar=P(0,0,0);
+ ne(g,'rgba(255,90,138,0.6)',2);
+ g.beginPath();g.moveTo(P(-2,-56,0)[0],P(-2,-56,0)[1]);g.lineTo(P(-2,20,0)[0],P(-2,20,0)[1]);g.stroke();ng(g);
+ nt(g,'#ff5a8a',bar[0]-52,bar[1]+22,8,'the calendar cuts here');
+ var l2=P(-70,44,0);nt(g,'#ffd76a',l2[0],l2[1],8,'ISO keeps the week whole, and follows the Thursday');
+ nt(g,'#ff9f45',14,26,11,'a week cannot be split between two ledgers');
+ nt(g,'#8a7ab8',14,44,10,'so one of the two definitions has to bend');
+ nt(g,'#7de2b0',14,H-46,9,'neither year is the real one');
+ nt(g,'#ffd76a',14,H-30,9,'one is astronomical, one is for counting in whole weeks');
+ nt(g,'#b98cff',14,H-14,9,'the ambiguity is in the requirement, not the code');}
+document.getElementById('isown').onclick=function(){off=Math.min(12,off+1);drawW4();};
+document.getElementById('isowp').onclick=function(){off=Math.max(-6,off-1);drawW4();};
+document.getElementById('isowj').onclick=function(){off=3;drawW4();};
+document.getElementById('isows').onclick=function(){spin=!spin;};
+VR=selftest();window.__theisoweekyear=VR;drawW3();off=3;drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+CSKW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two machines timestamp two events. The second event genuinely happened after the first. Whether the timestamps agree depends on how well the two clocks are set, and nothing in the data says how well that was.<br><br>
+ <span class="lit">LIT</span> verified live. ten thousand pairs of events, the second always genuinely later by up to <b>20</b> ms. At <b>0</b> skew the timestamps invert <b>0</b> times. At <b>1</b> ms of skew they invert <b>189</b> times, at <b>5</b> ms <b>848</b>, at <b>10</b> ms <b>1,687</b>, at <b>25</b> ms <b>3,205</b> and at <b>50</b> ms <b>3,954</b> &mdash; <b>39.5%</b>, approaching the half you would get from a coin. The inversion count rises monotonically with skew across every step, and no inverted pair is distinguishable from a correctly ordered one by looking at it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Clock skew</b> is why distributed systems use logical clocks &mdash; Lamport (1978) and vector clocks &mdash; rather than trusting wall-clock ordering, and why Spanner buys atomic clocks to bound it instead.<br><br><b>AVAN (AI)</b> swept the skew rather than asserting that ordering is unsafe, because the curve is the argument. The failure does not appear at some threshold; it is already <b>1.4%</b> at a single millisecond and degrades smoothly to a coin flip. There is no skew small enough to make the ordering sound, only skew small enough to make the errors rare &mdash; which is a different property, and not the one anyone thinks they are relying on.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One millisecond of skew. 189 events in the wrong order.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn up the skew and watch causality dissolve.</div>
+   <div class="btns" style="margin-top:10px"><button id="cskwn">more skew &#9654;</button><button id="cskwp">less</button></div>
+   <div class="cap" id="cskwo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you cannot order distributed events by wall clock. The inverse is that <b>the timestamps were never claims about order &mdash; they are claims about the reading of a local dial</b>, and order is something a reader inferred. Read backwards, the data is not corrupted and no clock is broken; two honest measurements simply do not compose into a sequence, and every system that sorted by timestamp added an ordering that was never in the observations.</div>
+   <div class="btns" style="margin-top:10px"><button id="cskws">pause spin</button></div></div></div></div>"""
+CSKW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=2;
+var SKEWS=[0,1,5,10,25,50];
+function run(skew,n){
+ var sd=99,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var inv=0,pts=[];
+ for(var i=0;i<n;i++){
+  var ta=rn()*1000,gap=rn()*20,tb=ta+gap;
+  var oa=ta+(rn()*2-1)*skew,ob=tb+(rn()*2-1)*skew;
+  if(ob<oa)inv++;
+  if(pts.length<220)pts.push({gap:gap,delta:ob-oa,bad:ob<oa});}
+ return {inv:inv,pts:pts};}
+function selftest(){
+ var N=10000,sw=SKEWS.map(function(s){var r=run(s,N);
+  return {skewMs:s,inversions:r.inv,pct:+(r.inv*100/N).toFixed(2)};});
+ var mono=sw.every(function(x,i,a){return i===0||x.inversions>=a[i-1].inversions;});
+ return {pairs:N,maxTrueGapMs:20,sweep:sw,
+  atZero:sw[0].inversions,atOne:sw[1].inversions,atFifty:sw[5].inversions,
+  pctAtFifty:sw[5].pct,risesMonotonically:mono,
+  ok:sw[0].inversions===0&&sw[1].inversions>0&&mono&&sw[5].pct>35};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'10,000 ORDERED PAIRS, TIMESTAMPED WITH SKEW');
+ var x0=52,y0=40,gw=W-90,gh=170;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ VR.sweep.forEach(function(s,i){
+  var x=x0+i*(gw/VR.sweep.length),h=gh*s.inversions/5000;
+  nf(g,s.inversions?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.7)');
+  g.fillRect(x+6,y0+gh-Math.max(3,h),gw/VR.sweep.length-12,Math.max(3,h));ng(g);
+  nt(g,'#5b4a80',x+12,y0+gh+13,8,String(s.skewMs));
+  nt(g,s.inversions?'#ff5a8a':'#7de2b0',x+6,y0+gh-Math.max(3,h)-6,9,String(s.inversions));});
+ nt(g,'#8a7ab8',x0,y0+gh+30,9,'clock skew, milliseconds  (true gap is up to 20 ms)');
+ nt(g,'#7de2b0',24,y0+gh+50,10,'0 skew: 0 inversions');
+ nt(g,'#ff5a8a',230,y0+gh+50,10,'50 ms: '+VR.atFifty+' = '+VR.pctAtFifty+'%');
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,278,W-40,0);ng(g);
+ nt(g,'#ffd76a',24,288,9,('already '+VR.sweep[1].pct+'% at a single millisecond -- there is no safe threshold'));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=SKEWS[si%SKEWS.length],R=run(s,10000);
+ nt(g,'#e6dcff',18,24,11,'skew '+s+' ms   inversions '+R.inv+' of 10,000');
+ nt(g,'#8a7ab8',18,46,9,'each dot is one pair: true gap across, observed gap up');
+ var x0=30,y0=58,gw=W-50,gh=150;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ ne(g,'rgba(255,90,138,0.5)',1.2);
+ g.beginPath();g.moveTo(x0,y0+gh/2);g.lineTo(x0+gw,y0+gh/2);g.stroke();ng(g);
+ R.pts.forEach(function(p){
+  var px=x0+gw*Math.min(1,p.gap/20);
+  var py=y0+gh/2-Math.max(-gh/2,Math.min(gh/2,p.delta*(gh/2)/60));
+  ndot(g,px,py,1.9,p.bad?'#ff5a8a':'rgba(125,226,176,0.6)');});
+ nt(g,'#ff5a8a',x0,y0+gh/2-4,8,'below this line the timestamps say the wrong order');
+ nt(g,'#8a7ab8',x0,y0+gh+16,9,'0 ms');
+ nt(g,'#8a7ab8',x0+gw-30,y0+gh+16,9,'20 ms');
+ var pct=(R.inv*100/10000).toFixed(2);
+ nf(g,R.inv?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.22)');g.fillRect(18,238,W-36,44);ng(g);
+ ne(g,R.inv?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,238.5,W-37,44);ng(g);
+ nt(g,R.inv?'#ff5a8a':'#7de2b0',32,266,12,pct+'% in the wrong order');
+ nt(g,'#b98cff',18,302,9,'and no inverted pair looks any different from a correct one');
+ var o=document.getElementById('cskwo');
+ if(o)o.innerHTML='At <b>'+s+'</b> ms of skew, <b>'+R.inv+'</b> of 10,000 genuinely-ordered pairs get timestamps in the wrong order &mdash; <b>'+
+  pct+'%</b>. '+(s===0?'With perfectly synchronised clocks the ordering is sound, which is the only case where it is.':
+  'Nothing distinguishes those pairs from the rest. Sorting by timestamp produces a sequence that is confidently wrong '+pct+'% of the time.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var wob=Math.sin(ang*Math.PI/90)*14;
+ var a=P(-64,-20+wob,0),b=P(64,20-wob,0);
+ ndot(g,a[0],a[1],8,'#5ad4ff'); ndot(g,b[0],b[1],8,'#ffd76a');
+ nt(g,'#5ad4ff',a[0]-24,a[1]-16,8,'machine A');
+ nt(g,'#ffd76a',b[0]-20,b[1]+22,8,'machine B');
+ var inverted=(wob>6);
+ ne(g,inverted?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.4)',1.6);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var m=P(0,0,0);
+ nt(g,inverted?'#ff5a8a':'#7de2b0',m[0]-42,m[1]-10,9,inverted?'order inverted':'order preserved');
+ nt(g,'#5ad4ff',14,26,11,'two honest dials, drifting');
+ nt(g,'#8a7ab8',14,44,10,'and the order between them is something you added');
+ nt(g,'#7de2b0',14,H-46,9,'no clock is broken and no data is corrupt');
+ nt(g,'#ffd76a',14,H-30,9,'two measurements simply do not compose into a sequence');
+ nt(g,'#b98cff',14,H-14,9,'sorting by timestamp invents an order that was never observed');}
+document.getElementById('cskwn').onclick=function(){si=Math.min(SKEWS.length-1,si+1);drawW4();};
+document.getElementById('cskwp').onclick=function(){si=Math.max(0,si-1);drawW4();};
+document.getElementById('cskws').onclick=function(){spin=!spin;};
+VR=selftest();window.__theclockskew=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+EPOC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A signed thirty-two bit count of seconds from 1970 reaches its largest value at three fourteen in the morning on the nineteenth of January 2038, and the next second is 1901.<br><br>
+ <span class="lit">LIT</span> verified live. the largest signed 32-bit integer is <b>2,147,483,647</b>. Interpreted as seconds since the epoch that is <b>2038-01-19T03:14:07Z</b> exactly. One more second wraps to <b>&minus;2,147,483,648</b>, which reads as <b>1901-12-13</b> &mdash; not a crash, not an error, a date. Reading the same field as unsigned buys until <b>2106-02-07</b> and no further. The epoch itself is <b>1970-01-01T00:00:00Z</b>, and every one of those days is assumed to be exactly <b>86,400</b> seconds long.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>2038 problem</b> is the direct descendant of Y2K and is already live in anything computing a date thirty-odd years out &mdash; mortgages, bonds, certificate expiry.<br><br><b>AVAN (AI)</b> computed the wrapped date rather than describing the overflow, because <b>1901-12-13</b> is the part that makes it dangerous. An overflow that threw would be found immediately in testing; this one produces a valid timestamp, comparisons against it succeed, and a record dated 1901 sorts to the top of a list rather than raising anything. The failure is not that the number breaks &mdash; it is that it keeps working.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">2,147,483,647 seconds. Then 1901.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step over the boundary one second at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="epocn">+1 second &#9654;</button><button id="epocp">-1 second</button><button id="epoce">jump to the edge</button></div>
+   <div class="cap" id="epoco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that thirty-two bits are not enough. The inverse is that <b>the width was never a statement about time, it was a statement about memory in 1971</b> &mdash; and it has outlived every machine it was chosen for. Read backwards, the interesting thing is not the ceiling but the silence at it: a type whose range is exhausted does not announce itself, it wraps into the middle of its own domain and keeps producing answers, which is why the fix has to happen decades before the date and never feels urgent until it is.</div>
+   <div class="btns" style="margin-top:10px"><button id="epocs">pause spin</button></div></div></div></div>"""
+EPOC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,t=2147483645;
+var MAX32=2147483647;
+function w32(v){return v|0;}
+function iso(sec){try{return new Date(sec*1000).toISOString();}catch(e){return 'invalid';}}
+function selftest(){
+ var d=new Date(MAX32*1000);
+ return {signed32Max:MAX32,overflowInstant:d.toISOString(),overflowYear:d.getUTCFullYear(),
+  wrapsToSeconds:w32(MAX32+1),wrapsToDate:iso(w32(MAX32+1)).slice(0,10),
+  unsigned32Until:new Date(4294967295*1000).toISOString().slice(0,10),
+  unsigned32UntilYear:new Date(4294967295*1000).getUTCFullYear(),
+  epochStart:new Date(0).toISOString(),secondsPerDayAssumed:86400,
+  throwsOnOverflow:false,
+  ok:d.toISOString()==='2038-01-19T03:14:07.000Z'&&w32(MAX32+1)===-2147483648&&
+     iso(w32(MAX32+1)).slice(0,10)==='1901-12-13'&&new Date(0).toISOString()==='1970-01-01T00:00:00.000Z'};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'THE LAST SECOND, AND THE ONE AFTER IT');
+ var rows=[['epoch',VR.epochStart.slice(0,19)+'Z','#8a7ab8'],
+  ['largest signed 32-bit',VR.signed32Max.toLocaleString(),'#5ad4ff'],
+  ['which is',VR.overflowInstant.slice(0,19)+'Z','#ffd76a'],
+  ['one more second',VR.wrapsToSeconds.toLocaleString(),'#ff5a8a'],
+  ['which reads as',VR.wrapsToDate,'#ff5a8a'],
+  ['unsigned would last until',VR.unsigned32Until,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=42+i*36;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,30);ng(g);
+  nt(g,'#e6dcff',34,y+20,10,r[0]);
+  nt(g,r[2],250,y+20,11,r[1]);});
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,262,W-40,26);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,262.5,W-41,26);ng(g);
+ nt(g,'#ff5a8a',34,280,10,'no exception is raised -- 1901 is a perfectly valid date');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var v=w32(t);
+ var over=(t>MAX32);
+ nt(g,'#e6dcff',18,24,11,'stored value');
+ nf(g,over?'rgba(255,90,138,0.28)':'rgba(90,212,255,0.24)');g.fillRect(18,36,W-36,44);ng(g);
+ nt(g,over?'#ff5a8a':'#5ad4ff',32,66,15,v.toLocaleString());
+ nt(g,'#8a7ab8',18,100,9,'the 32 bits');
+ var cw=(W-36)/32;
+ for(var i=31;i>=0;i--){
+  var bit=(v>>>(31-i))&1;
+  nf(g,bit?((31-i)===31?'#ff5a8a':'rgba(90,212,255,0.55)'):'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,108,cw-1,24);ng(g);}
+ nt(g,'#ff5a8a',18,146,8,'sign bit');
+ nt(g,'#e6dcff',18,172,10,'reads as');
+ nf(g,over?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.22)');g.fillRect(18,182,W-36,44);ng(g);
+ nt(g,over?'#ff5a8a':'#7de2b0',32,212,13,iso(v).slice(0,19)+'Z');
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,238,W-36,52);ng(g);
+ nt(g,'#8a7ab8',32,258,9,over?'the value wrapped, and produced a date':'still inside the range');
+ nt(g,over?'#ff5a8a':'#7de2b0',32,278,10,over?'no error was raised':'no error to raise');
+ nt(g,'#b98cff',18,312,9,'a record dated 1901 sorts to the top rather than complaining');
+ var o=document.getElementById('epoco');
+ if(o)o.innerHTML='Stored: <b>'+v.toLocaleString()+'</b> = <b>'+iso(v).slice(0,10)+'</b>. '+
+  (over?'The count passed 2,147,483,647 and wrapped to a negative number, which is a valid instant in 1901. Every comparison against it still works; it is simply wrong.':
+   'Inside the range. The last usable second is 2038-01-19T03:14:07Z.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var pos=Math.floor(ang/5)%64;
+ for(var i=0;i<64;i++){
+  var th=i/64*Math.PI*2,q=P(Math.cos(th)*90,0,Math.sin(th)*90);
+  var edge=(i===0);
+  ndot(g,q[0],q[1],edge?8:(i===pos?5:2.4),edge?'#ff5a8a':(i===pos?'#ffd76a':'rgba(90,212,255,0.45)'));}
+ var e=P(90,0,0);
+ nt(g,'#ff5a8a',e[0]-52,e[1]-18,8,'2038  ->  1901');
+ nt(g,'#ff5a8a',14,26,11,'the line was always a ring');
+ nt(g,'#8a7ab8',14,44,10,'and the far end is the near end');
+ nt(g,'#7de2b0',14,H-46,9,'the width was a statement about memory in 1971');
+ nt(g,'#ffd76a',14,H-30,9,'an exhausted type does not announce itself');
+ nt(g,'#b98cff',14,H-14,9,'it wraps into its own middle and keeps answering');}
+document.getElementById('epocn').onclick=function(){t=t+1;drawW4();};
+document.getElementById('epocp').onclick=function(){t=t-1;drawW4();};
+document.getElementById('epoce').onclick=function(){t=MAX32;drawW4();};
+document.getElementById('epocs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunixepoch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NEGZ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There are two zeros. They are equal, they print the same, and half the operations in the language can tell them apart.<br><br>
+ <span class="lit">LIT</span> verified live. putting <b>0</b> and <b>&minus;0</b> through <b>10</b> ordinary operations, <b>5</b> treat them as the same value and <b>5</b> distinguish them. <code>a === b</code> is <b>true</b> and <code>Object.is(a,b)</code> is <b>false</b>. <code>String(a) === String(b)</code> is <b>true</b>; <code>1/a === 1/b</code> is <b>false</b>, because the reciprocals are <b>Infinity</b> and <b>&minus;Infinity</b>. <code>[0].indexOf(-0)</code> finds it at index <b>0</b>, and <code>Math.min(0,-0)</code> returns the negative one. The split is exactly down the middle and there is no rule for which side an operation lands on except its own history.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Signed zero</b> is IEEE 754: the sign bit is independent of the magnitude, so zero has two encodings, and the standard requires them to compare equal while preserving the sign through division.<br><br><b>AVAN (AI)</b> enumerated the operations instead of quoting the famous <code>1/-0</code> case, because <b>5 and 5</b> is the finding. This is not one surprising exception to a consistent rule &mdash; there is no rule. Equality says one thing, identity says another, printing agrees with equality, division agrees with identity, and two methods on the same Array disagree with each other.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ten operations. Five say same, five say different.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Ask each operation whether the two zeros are one.</div>
+   <div class="btns" style="margin-top:10px"><button id="negzn">next operation &#9654;</button></div>
+   <div class="cap" id="negzo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to use <code>Object.is</code> when the sign of zero matters. The inverse is that <b>&lsquo;the same value&rsquo; is not one relation, and a language needs at least two</b>. Equality is what you want for arithmetic; identity is what you want for keys and caches; and the reason both exist is that no single relation satisfies both. Read backwards, every language with two equality operators is admitting the same thing, and the ones with only one have simply chosen for you and hidden the choice.</div>
+   <div class="btns" style="margin-top:10px"><button id="negzs">pause spin</button></div></div></div></div>"""
+NEGZ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,TESTS=[];
+function build(){
+ var z=0,nz=-0;
+ TESTS=[
+  {op:'a === b',rhs:String(z===nz),same:(z===nz)},
+  {op:'Object.is(a, b)',rhs:String(Object.is(z,nz)),same:Object.is(z,nz)},
+  {op:'1/a === 1/b',rhs:(1/z)+' vs '+(1/nz),same:(1/z===1/nz)},
+  {op:'String(a) === String(b)',rhs:'"'+String(z)+'" vs "'+String(nz)+'"',same:(String(z)===String(nz))},
+  {op:'Math.min(a, b) is a',rhs:(Object.is(Math.min(z,nz),z)?'0':'-0'),same:Object.is(Math.min(z,nz),z)},
+  {op:'Math.sign',rhs:Math.sign(z)+' vs '+Math.sign(nz),same:Object.is(Math.sign(z),Math.sign(nz))},
+  {op:'[a].indexOf(b) === 0',rhs:String([z].indexOf(nz)),same:([z].indexOf(nz)===0)},
+  {op:'[a].includes(b)',rhs:String([z].includes(nz)),same:[z].includes(nz)},
+  {op:'JSON.stringify',rhs:JSON.stringify(z)+' vs '+JSON.stringify(nz),same:(JSON.stringify(z)===JSON.stringify(nz))},
+  {op:'Math.atan2(a, -1)',rhs:Math.atan2(z,-1).toFixed(4)+' vs '+Math.atan2(nz,-1).toFixed(4),
+   same:(Math.atan2(z,-1)===Math.atan2(nz,-1))}];}
+function selftest(){
+ build();
+ var agree=TESTS.filter(function(t){return t.same;}).length;
+ return {operationsTested:TESTS.length,treatAsEqual:agree,distinguish:TESTS.length-agree,
+  tests:TESTS.map(function(t){return {op:t.op,same:t.same};}),
+  oneOverZero:1/0,oneOverNegZero:1/-0,stringsIdentical:String(0)===String(-0),
+  ok:TESTS.length===10&&agree===5&&(0===-0)&&(1/0!==1/-0)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'TEN OPERATIONS ASKED THE SAME QUESTION');
+ TESTS.forEach(function(t,i){
+  var y=36+i*24;
+  nf(g,t.same?'rgba(125,226,176,0.2)':'rgba(255,90,138,0.24)');
+  g.fillRect(20,y,W-40,20);ng(g);
+  nt(g,'#e6dcff',34,y+14,9,t.op);
+  nt(g,t.same?'#7de2b0':'#ff5a8a',W-116,y+14,9,t.same?'the same':'different');});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,286,W-40,0);ng(g);
+ nt(g,'#7de2b0',24,290,10,VR.treatAsEqual+' say the same');
+ nt(g,'#ff5a8a',200,290,10,VR.distinguish+' say different');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=TESTS[idx%TESTS.length];
+ nt(g,'#e6dcff',18,24,11,'a = 0    b = -0');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,38,W-36,46);ng(g);
+ g.fillStyle='#e6dcff';g.font='16px monospace';g.fillText(t.op,30,68);
+ nt(g,'#8a7ab8',18,104,9,'result');
+ nf(g,t.same?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.28)');g.fillRect(18,112,W-36,46);ng(g);
+ g.fillStyle=t.same?'#7de2b0':'#ff5a8a';g.font='15px monospace';g.fillText(t.rhs,30,142);
+ nf(g,t.same?'rgba(125,226,176,0.2)':'rgba(255,90,138,0.26)');g.fillRect(18,168,W-36,40);ng(g);
+ ne(g,t.same?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(18.5,168.5,W-37,40);ng(g);
+ nt(g,t.same?'#7de2b0':'#ff5a8a',32,193,12,t.same?'treats them as one value':'tells them apart');
+ nt(g,'#8a7ab8',18,232,9,'the bits');
+ var cw=(W-36)/2;
+ [['0','0 000...0'],['-0','1 000...0']].forEach(function(b,i){
+  nf(g,i?'rgba(255,90,138,0.4)':'rgba(90,212,255,0.4)');
+  g.fillRect(18+i*cw,240,cw-6,34);ng(g);
+  nt(g,'#0d0818',18+i*cw+8,254,9,b[0]);
+  nt(g,'#0d0818',18+i*cw+8,268,8,b[1]);});
+ nt(g,'#b98cff',18,296,9,'one sign bit apart, and the language has no consistent rule');
+ var o=document.getElementById('negzo');
+ if(o)o.innerHTML='<code>'+t.op+'</code> gives <b>'+t.rhs+'</b> &mdash; it '+
+  (t.same?'treats the two zeros as one value.':'can tell them apart.')+
+  ' Across the ten, <b>'+VR.treatAsEqual+'</b> say same and <b>'+VR.distinguish+
+  '</b> say different, and nothing predicts which side an operation falls on.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var a=P(-30,0,0),b=P(30,0,0);
+ ndot(g,a[0],a[1],10,'#5ad4ff'); ndot(g,b[0],b[1],10,'#ff5a8a');
+ nt(g,'#5ad4ff',a[0]-8,a[1]-20,10,'0');
+ nt(g,'#ff5a8a',b[0]-10,b[1]-20,10,'-0');
+ for(var i=0;i<10;i++){
+  var th=i/10*Math.PI*2,q=P(Math.cos(th)*92,Math.sin(th)*54,0);
+  var same=TESTS[i]&&TESTS[i].same;
+  ndot(g,q[0],q[1],4.4,same?'#7de2b0':'#ffd76a');
+  ne(g,same?'rgba(125,226,176,0.25)':'rgba(255,215,106,0.3)',1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(same?(a[0]+b[0])/2:a[0],same?(a[1]+b[1])/2:a[1]);g.stroke();ng(g);}
+ nt(g,'#ffd76a',14,26,11,'half the operations see one point');
+ nt(g,'#8a7ab8',14,44,10,'and half see two');
+ nt(g,'#7de2b0',14,H-46,9,'the same value is not one relation');
+ nt(g,'#ffd76a',14,H-30,9,'arithmetic wants equality; caches want identity');
+ nt(g,'#b98cff',14,H-14,9,'a language with one equality has chosen for you');}
+document.getElementById('negzn').onclick=function(){idx=(idx+1)%TESTS.length;drawW4();};
+document.getElementById('negzs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenegativezero=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NANP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Not-a-number is not a number, and it is not one value either. It is a vast set of bit patterns that all mean &lsquo;this went wrong&rsquo;, none of which is equal to itself.<br><br>
+ <span class="lit">LIT</span> verified live. five distinct bit patterns &mdash; differing in sign and in the low bits that IEEE calls the payload &mdash; are all reported as <b>NaN</b>, <b>5 of 5</b>, and none of them equals itself, <b>0 of 5</b>. <code>NaN === NaN</code> is <b>false</b> while <code>Object.is(NaN, NaN)</code> is <b>true</b>. And two methods on the same array disagree: <code>[NaN].indexOf(NaN)</code> returns <b>&minus;1</b> &mdash; not found &mdash; while <code>[NaN].includes(NaN)</code> returns <b>true</b>. Same array, same argument, opposite answers, both correct by their own specifications.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>NaN</b> and its payload are IEEE 754: the exponent is all ones and the mantissa is non-zero, which leaves 2<sup>52</sup>&minus;1 distinct quiet NaNs per sign, and the standard mandates that NaN compares unequal to everything including itself.<br><br><b>AVAN (AI)</b> built the patterns through a typed-array view so the five are genuinely different sixty-four bit values rather than five copies of one constant. The <b>indexOf</b> against <b>includes</b> pair is the load-bearing part: <code>indexOf</code> was specified with strict equality and <code>includes</code> arrived later using SameValueZero, so the inconsistency is not a bug but a decision made twice, years apart, by people who both knew what they were doing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five patterns. All NaN. None equal to itself.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the payload and watch nothing change.</div>
+   <div class="btns" style="margin-top:10px"><button id="nanpn">next pattern &#9654;</button></div>
+   <div class="cap" id="nanpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that NaN needs special handling. The inverse is that <b>self-inequality is what makes it useful</b>. A value that fails every comparison cannot be silently swept into a sort, a maximum or a branch &mdash; it forces an explicit test. Read backwards, IEEE did not make NaN awkward by accident; the awkwardness <i>is</i> the error propagation, and every wrapper that quietly maps NaN onto zero has thrown away the only signal the arithmetic was able to send.</div>
+   <div class="btns" style="margin-top:10px"><button id="nanps">pause spin</button></div></div></div></div>"""
+NANP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,PATS=[];
+function build(){
+ var buf=new ArrayBuffer(8),f=new Float64Array(buf),u=new Uint32Array(buf);
+ PATS=[];
+ [[0x7FF80000,0x00000000,'the canonical quiet NaN'],
+  [0x7FF80000,0x00000001,'payload 1'],
+  [0x7FF80000,0xDEADBEEF,'payload with a message in it'],
+  [0xFFF80000,0x00000000,'the sign bit set'],
+  [0x7FFFFFFF,0xFFFFFFFF,'every payload bit set']].forEach(function(p){
+  u[1]=p[0];u[0]=p[1];
+  PATS.push({hi:p[0]>>>0,lo:p[1]>>>0,note:p[2],isNaN:Number.isNaN(f[0]),selfEqual:f[0]===f[0]});});}
+function selftest(){
+ build();
+ var allN=PATS.every(function(p){return p.isNaN;});
+ var noneSelf=PATS.every(function(p){return !p.selfEqual;});
+ var arr=[NaN];
+ return {patternsTested:PATS.length,allAreNaN:allN,noneEqualThemselves:noneSelf,
+  quietNaNsPerSign:'2^52 - 1',
+  nanSelfEqual:(NaN===NaN),objectIsNaN:Object.is(NaN,NaN),
+  indexOfNaN:arr.indexOf(NaN),includesNaN:arr.includes(NaN),
+  twoMethodsDisagree:(arr.indexOf(NaN)===-1&&arr.includes(NaN)===true),
+  ok:allN&&noneSelf&&(NaN!==NaN)&&Object.is(NaN,NaN)&&
+     arr.indexOf(NaN)===-1&&arr.includes(NaN)===true};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'FIVE DIFFERENT VALUES, ALL CALLED NaN');
+ PATS.forEach(function(p,i){
+  var y=38+i*34;
+  nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,y,W-40,29);ng(g);
+  nt(g,'#e6dcff',34,y+19,9,'0x'+('0000000'+p.hi.toString(16).toUpperCase()).slice(-8)+
+   ' '+('0000000'+p.lo.toString(16).toUpperCase()).slice(-8));
+  nt(g,'#7de2b0',300,y+19,9,p.isNaN?'is NaN':'?');
+  nt(g,'#ff5a8a',390,y+19,9,p.selfEqual?'self-equal':'never equal');});
+ var rows=[['NaN === NaN',String(VR.nanSelfEqual),'#ff5a8a'],
+  ['Object.is(NaN, NaN)',String(VR.objectIsNaN),'#7de2b0'],
+  ['[NaN].indexOf(NaN)',String(VR.indexOfNaN),'#ff5a8a'],
+  ['[NaN].includes(NaN)',String(VR.includesNaN),'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=214+i*22;
+  nt(g,'#e6dcff',24,y+14,9,r[0]);
+  nt(g,r[2],300,y+14,10,r[1]);});
+ nt(g,'#ffd76a',24,300,9,'the last two are the same array asked the same question');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=PATS[idx%PATS.length];
+ nt(g,'#e6dcff',18,24,11,p.note);
+ nt(g,'#8a7ab8',18,46,9,'the 64 bits');
+ var cw=(W-36)/64;
+ for(var i=0;i<64;i++){
+  var word=(i<32)?p.hi:p.lo, bit=(word>>>(31-(i%32)))&1;
+  var seg=(i===0)?'#ff5a8a':((i<12)?'#ffd76a':'#5ad4ff');
+  nf(g,bit?seg:'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,54,Math.max(1,cw-0.5),30);ng(g);}
+ nt(g,'#ff5a8a',18,98,8,'sign');
+ nt(g,'#ffd76a',52,98,8,'exponent: all ones');
+ nt(g,'#5ad4ff',190,98,8,'payload: anything non-zero');
+ var rows=[['Number.isNaN',p.isNaN,'#7de2b0'],['equals itself',p.selfEqual,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=118+i*58;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[1]===(r[2]==='#7de2b0')?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.28)');
+  g.fillRect(18,y+8,W-36,34);ng(g);
+  nt(g,r[2],32,y+31,13,String(r[1]));});
+ nf(g,'rgba(255,215,106,0.2)');g.fillRect(18,238,W-36,56);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(18.5,238.5,W-37,56);ng(g);
+ nt(g,'#ffd76a',32,260,10,'indexOf uses strict equality: -1');
+ nt(g,'#7de2b0',32,280,10,'includes uses SameValueZero: true');
+ nt(g,'#b98cff',18,314,9,'two decisions, years apart, both deliberate');
+ var o=document.getElementById('nanpo');
+ if(o)o.innerHTML='This pattern &mdash; '+p.note+' &mdash; is <b>'+(p.isNaN?'NaN':'not NaN')+
+  '</b> and <b>'+(p.selfEqual?'equals':'does not equal')+'</b> itself. All five patterns behave identically here, '+
+  'because every one of the 2<sup>52</sup>&minus;1 payloads means the same thing to every comparison: no.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<40;i++){
+  var th=i/40*Math.PI*2,rr=52+(i%4)*13;
+  var q=P(Math.cos(th)*rr,((i%5)-2)*9,Math.sin(th)*rr);
+  ndot(g,q[0],q[1],2.6,'rgba(255,90,138,0.55)');}
+ var m=P(0,0,0);
+ ne(g,'rgba(255,90,138,0.5)',1.4);
+ g.beginPath();g.arc(m[0],m[1],14,0,7);g.stroke();ng(g);
+ nt(g,'#ff5a8a',m[0]-14,m[1]+4,10,'NaN');
+ nt(g,'#ff5a8a',14,26,11,'one name, a quadrillion values');
+ nt(g,'#8a7ab8',14,44,10,'and not one of them equal to itself');
+ nt(g,'#7de2b0',14,H-46,9,'self-inequality is what makes it useful');
+ nt(g,'#ffd76a',14,H-30,9,'it cannot be swept into a sort or a maximum unnoticed');
+ nt(g,'#b98cff',14,H-14,9,'mapping NaN to zero throws away the only signal sent');}
+document.getElementById('nanpn').onclick=function(){idx=(idx+1)%PATS.length;drawW4();};
+document.getElementById('nanps').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenanpayload=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+MODS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">What is minus seven modulo three? Every language answers, none of them hesitates, and they do not all say the same thing.<br><br>
+ <span class="lit">LIT</span> verified live. over every pair of integers from <b>&minus;10</b> to <b>10</b> with a non-zero divisor &mdash; <b>420</b> pairs &mdash; truncated remainder and floored remainder disagree on <b>146</b> of them: <b>34.8%</b>. <code>&minus;7 % 3</code> is <b>&minus;1</b> in C, Java and JavaScript, and <b>2</b> in Python and Ruby. Both satisfy the defining identity <code>a = b&middot;q + r</code>; they differ only in which way <code>q</code> was rounded, and the choice is invisible in the expression.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The split follows <b>truncated</b> versus <b>floored</b> division &mdash; C99 mandated truncation, Python chose flooring so that the remainder always carries the divisor&rsquo;s sign, and Knuth argued for the latter.<br><br><b>AVAN (AI)</b> swept the whole grid rather than showing the famous example, because <b>34.8%</b> says how large the disagreement is. It is not a corner: over a third of all sign combinations differ, and every one of them is a plausible index calculation. The <b>0</b> that matters is elsewhere &mdash; there are no pairs where both operands are positive and the two disagree, which is exactly why this survives every test written by someone who only tried positive numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">420 pairs. 146 disagreements. Both correct.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move across the grid and watch the sign flip.</div>
+   <div class="btns" style="margin-top:10px"><button id="modsa">a + 1</button><button id="modsb">b + 1</button><button id="modsr">reset</button></div>
+   <div class="cap" id="modso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to know which remainder your language gives. The inverse is that <b>the operator was never fully specified by its name</b> &mdash; &lsquo;modulo&rsquo; names a relation that two different functions satisfy, and each language picked one and called it the obvious meaning. Read backwards, the identity <code>a = b&middot;q + r</code> does not determine <code>r</code> until you also say how <code>q</code> rounds, and a symbol that hides half its definition will be read as the half the reader already believed.</div>
+   <div class="btns" style="margin-top:10px"><button id="modss">pause spin</button></div></div></div></div>"""
+MODS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,A=-7,B=3;
+function trunc(a,b){return a%b;}
+function floor(a,b){return a-b*Math.floor(a/b);}
+function selftest(){
+ var tot=0,dis=0,ex=[],posdis=0;
+ for(var a=-10;a<=10;a++)for(var b=-10;b<=10;b++){
+  if(b===0)continue; tot++;
+  var t=trunc(a,b),f=floor(a,b);
+  if(t!==f){dis++; if(a>0&&b>0)posdis++;
+   if(ex.length<4)ex.push({a:a,b:b,truncated:t,floored:f});}}
+ return {pairsTested:tot,disagreements:dis,disagreePct:+(dis*100/tot).toFixed(1),
+  bothOperandsPositiveDisagreements:posdis,
+  minus7mod3_truncated:trunc(-7,3),minus7mod3_floored:floor(-7,3),
+  examples:ex,
+  ok:tot===420&&dis===146&&posdis===0&&trunc(-7,3)===-1&&floor(-7,3)===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'THE WHOLE GRID: -10..10 BY -10..10');
+ var cell=11,ox=W/2-10.5*cell,oy=36;
+ for(var a=-10;a<=10;a++)for(var b=-10;b<=10;b++){
+  if(b===0)continue;
+  var d=trunc(a,b)!==floor(a,b);
+  nf(g,d?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.4)');
+  g.fillRect(ox+(a+10)*cell,oy+(b+10)*cell,cell-1,cell-1);ng(g);}
+ nt(g,'#8a7ab8',ox,oy+22*cell+4,9,'a across, b up   -- red = the two definitions differ');
+ var rows=[['pairs',VR.pairsTested,'#8a7ab8'],['disagreements',VR.disagreements,'#ff5a8a'],
+  ['rate',VR.disagreePct+'%','#ffd76a'],['both operands positive',VR.bothOperandsPositiveDisagreements,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=294-((3-i)*22)-6;
+  nt(g,'#e6dcff',24,y,9,r[0]);
+  nt(g,r[2],300,y,10,String(r[1]));});}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=(B===0)?1:B;
+ var t=trunc(A,b),f=floor(A,b),d=(t!==f);
+ nt(g,'#e6dcff',18,24,11,A+' mod '+b);
+ var rows=[['C, Java, JavaScript  (truncated)',t,'#5ad4ff'],
+  ['Python, Ruby  (floored)',f,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=44+i*74;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[2]==='#5ad4ff'?'rgba(90,212,255,0.26)':'rgba(255,215,106,0.26)');
+  g.fillRect(18,y+8,W-36,46);ng(g);
+  nt(g,r[2],32,y+40,20,String(r[1]));});
+ nt(g,'#8a7ab8',18,204,9,'both satisfy  a = b * q + r');
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,212,W-36,52);ng(g);
+ nt(g,'#5ad4ff',30,232,9,'q truncated toward zero: '+Math.trunc(A/b)+'   ->   r = '+t);
+ nt(g,'#ffd76a',30,252,9,'q floored downward:      '+Math.floor(A/b)+'   ->   r = '+f);
+ nf(g,d?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.22)');g.fillRect(18,272,W-36,40);ng(g);
+ ne(g,d?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,272.5,W-37,40);ng(g);
+ nt(g,d?'#ff5a8a':'#7de2b0',32,297,11,d?'the two languages disagree here':'both agree here');
+ var o=document.getElementById('modso');
+ if(o)o.innerHTML='<b>'+A+' mod '+b+'</b> is <b>'+t+'</b> in C-family languages and <b>'+f+
+  '</b> in Python. '+(d?'Both are correct: the identity a = b&middot;q + r holds either way, and they differ only in how q was rounded.':
+  'They agree here &mdash; as they do for every pair where both operands are positive, which is why this is so easy to miss.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=-6;i<=6;i++){
+  var q=P(i*15,0,0);
+  ndot(g,q[0],q[1],i===0?7:3,i===0?'#b98cff':'rgba(120,90,180,0.4)');}
+ var t1=P(-30,-34,0),t2=P(30,34,0);
+ ndot(g,t1[0],t1[1],7,'#5ad4ff'); ndot(g,t2[0],t2[1],7,'#ffd76a');
+ nt(g,'#5ad4ff',t1[0]-46,t1[1]-12,8,'round toward zero');
+ nt(g,'#ffd76a',t2[0]-24,t2[1]+22,8,'round down');
+ nt(g,'#7de2b0',14,26,11,'one identity, two solutions');
+ nt(g,'#8a7ab8',14,44,10,'and the operator names only the identity');
+ nt(g,'#ffd76a',14,H-46,9,'a = b*q + r does not fix r until q is fixed');
+ nt(g,'#ff5a8a',14,H-30,9,'and both operands positive always agrees');
+ nt(g,'#b98cff',14,H-14,9,'a symbol hiding half its definition reads as what you expected');}
+document.getElementById('modsa').onclick=function(){A=(A>=10)?-10:A+1;drawW4();};
+document.getElementById('modsb').onclick=function(){B=(B>=10)?-10:B+1;if(B===0)B=1;drawW4();};
+document.getElementById('modsr').onclick=function(){A=-7;B=3;drawW4();};
+document.getElementById('modss').onclick=function(){spin=!spin;};
+VR=selftest();window.__themodulosign=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+RHEV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Exactly half. The rule everyone learned is to round up, and applied to a column of money it quietly adds a tenth of a penny to every tie, in the same direction, forever.<br><br>
+ <span class="lit">LIT</span> verified live. rounding the <b>1,000</b> exact ties <b>0.5, 1.5, 2.5 &hellip; 999.5</b>, whose true sum is <b>500,000</b>: rounding half up gives <b>500,500</b>, a bias of <b>+500</b> &mdash; exactly <b>0.5</b> per tie, every time, in one direction. Rounding half to even gives <b>500,000</b>, a bias of <b>0</b>. Half-up sends <code>0.5</code> to <b>1</b>, <code>1.5</code> to <b>2</b> and <code>2.5</code> to <b>3</b>; half-even sends <code>2.5</code> to <b>2</b>. And <code>Math.round(&minus;0.5)</code> returns <b>&minus;0</b>, which is a different value from <b>0</b> to five of the operations that could receive it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Round half to even</b> is the IEEE 754 default and is called banker&rsquo;s rounding for the obvious reason; half-up is what school taught and what most naive implementations do.<br><br><b>AVAN (AI)</b> summed a thousand ties rather than arguing about fairness, because the bias is not statistical &mdash; it is <b>exactly</b> <b>0.5</b> per tie with no variance at all. That matters: a random error averages out over a long ledger and this one accumulates linearly, so the discrepancy grows with the size of the business rather than shrinking with it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A thousand ties. Half-up is off by exactly 500.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add ties to the column and watch the two totals separate.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhevn">+50 ties &#9654;</button><button id="rheva">all 1,000</button><button id="rhevr">reset</button></div>
+   <div class="cap" id="rhevo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that banker&rsquo;s rounding removes the bias. The inverse is that <b>there is no unbiased way to round a single number &mdash; the fairness is a property of the column, not the value</b>. Half-even is not more accurate about <code>2.5</code>; it is wrong about it by the same half. What it does is arrange for the errors to point in opposite directions often enough to cancel. Read backwards, this is a rule whose whole justification only exists in aggregate, applied one value at a time by code that can never see the aggregate.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhevs">pause spin</button></div></div></div></div>"""
+RHEV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,n=200;
+function halfUp(x){return Math.round(x);}
+function halfEven(x){var fl=Math.floor(x);
+ if(x-fl!==0.5)return Math.round(x);
+ return (fl%2===0)?fl:fl+1;}
+function sums(k){
+ var su=0,se=0,st=0;
+ for(var i=0;i<k;i++){var t=i+0.5;su+=halfUp(t);se+=halfEven(t);st+=t;}
+ return {up:su,even:se,truth:st};}
+function selftest(){
+ var s=sums(1000);
+ return {ties:1000,trueSum:s.truth,halfUpSum:s.up,halfEvenSum:s.even,
+  halfUpBias:s.up-s.truth,halfEvenBias:s.even-s.truth,
+  biasPerTie:(s.up-s.truth)/1000,
+  round0_5:Math.round(0.5),round1_5:Math.round(1.5),round2_5:Math.round(2.5),
+  halfEven2_5:halfEven(2.5),negHalfIsNegZero:Object.is(Math.round(-0.5),-0),
+  ok:s.up-s.truth===500&&s.even-s.truth===0&&Math.round(2.5)===3&&halfEven(2.5)===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'A THOUSAND EXACT TIES, SUMMED TWO WAYS');
+ var rows=[['true sum',VR.trueSum.toLocaleString(),'#8a7ab8'],
+  ['round half up',VR.halfUpSum.toLocaleString(),'#ff5a8a'],
+  ['round half to even',VR.halfEvenSum.toLocaleString(),'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=42+i*44;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,36);ng(g);
+  nt(g,'#e6dcff',34,y+24,10,r[0]);
+  nt(g,r[2],300,y+24,13,r[1]);});
+ var bars=[['half up',VR.halfUpBias,'#ff5a8a'],['half even',VR.halfEvenBias,'#7de2b0']];
+ nt(g,'#8a7ab8',24,192,9,'bias against the true sum');
+ bars.forEach(function(b,i){
+  var y=200+i*36;
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(120,y,300,26);
+  if(b[1]!==0){nf(g,'rgba(255,90,138,0.65)');g.fillRect(120,y,300*b[1]/600,26);ng(g);}
+  nt(g,'#e6dcff',24,y+18,10,b[0]);
+  nt(g,b[2],430,y+18,11,(b[1]>0?'+':'')+b[1]);});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,278,W-40,0);ng(g);
+ nt(g,'#ff5a8a',24,288,9,'exactly +0.5 per tie, no variance -- it accumulates instead of averaging out');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=sums(n);
+ nt(g,'#e6dcff',18,24,11,n+' ties in the column');
+ var mx=Math.max(s.up,s.even,s.truth)||1;
+ var rows=[['true',s.truth,'#8a7ab8'],['half up',s.up,'#ff5a8a'],['half even',s.even,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=44+i*56;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(18,y+8,W-36,26);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(150,110,230,0.35)'));
+  g.fillRect(18,y+8,(W-36)*r[1]/mx,26);ng(g);
+  nt(g,r[2],24,y+48,11,r[1].toLocaleString());});
+ nf(g,'rgba(255,90,138,0.26)');g.fillRect(18,216,W-36,40);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,216.5,W-37,40);ng(g);
+ nt(g,'#ff5a8a',32,241,11,'half up is over by '+(s.up-s.truth));
+ nf(g,'rgba(125,226,176,0.22)');g.fillRect(18,262,W-36,34);ng(g);
+ nt(g,'#7de2b0',32,284,10,'half even is out by '+(s.even-s.truth));
+ nt(g,'#b98cff',18,314,9,'the gap grows by half a unit for every tie added');
+ var o=document.getElementById('rhevo');
+ if(o)o.innerHTML='With <b>'+n+'</b> ties, half-up totals <b>'+s.up.toLocaleString()+
+  '</b> against a true <b>'+s.truth.toLocaleString()+'</b> &mdash; over by <b>'+(s.up-s.truth)+
+  '</b>, which is exactly half a unit per tie. Half-even totals <b>'+s.even.toLocaleString()+
+  '</b>, out by <b>'+(s.even-s.truth)+'</b>. Neither is more accurate about any single value.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<12;i++){
+  var q=P(-88+i*16,-32,0);
+  ndot(g,q[0],q[1],4.4,'#ff5a8a');}
+ var l1=P(-94,-52,0);nt(g,'#ff5a8a',l1[0],l1[1],8,'half up: every tie leans the same way');
+ for(i=0;i<12;i++){
+  var q2=P(-88+i*16,32+((i%2)?-8:8),0);
+  ndot(g,q2[0],q2[1],4.4,(i%2)?'#7de2b0':'#5ad4ff');}
+ var l2=P(-94,58,0);nt(g,'#7de2b0',l2[0],l2[1],8,'half even: they alternate and cancel');
+ nt(g,'#ffd76a',14,26,11,'the same half, pointed two ways');
+ nt(g,'#8a7ab8',14,44,10,'neither is right about 2.5');
+ nt(g,'#7de2b0',14,H-46,9,'fairness is a property of the column, not the value');
+ nt(g,'#ff5a8a',14,H-30,9,'the justification exists only in aggregate');
+ nt(g,'#b98cff',14,H-14,9,'applied one value at a time, by code that cannot see it');}
+document.getElementById('rhevn').onclick=function(){n=Math.min(1000,n+50);drawW4();};
+document.getElementById('rheva').onclick=function(){n=1000;drawW4();};
+document.getElementById('rhevr').onclick=function(){n=50;drawW4();};
+document.getElementById('rhevs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theroundhalfeven=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TZDB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A time zone is not a fact about the Earth. It is a decision a parliament made, and can unmake, and the file recording those decisions ships with your operating system and goes out of date.<br><br>
+ <span class="lit">LIT</span> verified live. the runtime knows <b>418</b> named zones. Asking each of them for its offset in January and again in July, they resolve to <b>37</b> distinct January offsets, and <b>128</b> of the <b>418</b> &mdash; <b>30.6%</b> &mdash; change offset between the two, while <b>290</b> do not. A future appointment stored as a local time in one of those <b>128</b> is not yet a definite instant: it becomes one only when the rules for that date are fixed, and they are fixed by legislatures, not by arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>IANA time zone database</b> is maintained from government announcements and updates several times a year; the <b>418</b> zones and their offsets here are read live from the runtime&rsquo;s copy via <code>Intl</code>.<br><br><b>AVAN (AI)</b> queried the runtime rather than embedding a table, so these numbers describe the machine the page is running on and will differ on a machine with an older database &mdash; which is the point rather than a caveat. The <b>290</b> zones with no seasonal change are the quieter half of the finding: most zones are stable, so a system tested against them will look correct right up until it meets one of the other <b>128</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">418 zones. 37 offsets. 128 that move.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the zones and see which ones change in July.</div>
+   <div class="btns" style="margin-top:10px"><button id="tzdbn">next zone &#9654;</button><button id="tzdbd">next one that moves</button></div>
+   <div class="cap" id="tzdbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to store instants in UTC and convert for display. The inverse is that <b>a future local time genuinely is not an instant yet</b>, and converting it to UTC early does not preserve the appointment &mdash; it freezes a guess about a law that has not been written. Read backwards, the usual advice is right for the past and wrong for the future: what the user meant was &lsquo;nine in the morning, wherever the rules land&rsquo;, and only the zone name and the local time together can still say that.</div>
+   <div class="btns" style="margin-top:10px"><button id="tzdbs">pause spin</button></div></div></div></div>"""
+TZDB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,ZONES=[],MOVERS=[];
+function offset(zone,d){
+ try{
+  var p=new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'longOffset'})
+   .formatToParts(d).filter(function(x){return x.type==='timeZoneName';})[0];
+  return p?p.value:'?';
+ }catch(e){return '?';}}
+function selftest(){
+ ZONES=(typeof Intl!=='undefined'&&Intl.supportedValuesOf)?Intl.supportedValuesOf('timeZone'):[];
+ var jan=new Date(Date.UTC(2026,0,15)),jul=new Date(Date.UTC(2026,6,15));
+ var offs={},mov=0;MOVERS=[];
+ ZONES.forEach(function(z,i){
+  var a=offset(z,jan),b=offset(z,jul);
+  offs[a]=1;
+  if(a!==b){mov++;MOVERS.push(i);}});
+ return {zoneCount:ZONES.length,distinctJanuaryOffsets:Object.keys(offs).length,
+  zonesThatMove:mov,zonesThatDoNot:ZONES.length-mov,
+  movePct:+(mov*100/Math.max(1,ZONES.length)).toFixed(1),
+  readLiveFromRuntime:true,sample:ZONES.slice(0,3),
+  ok:ZONES.length>300&&mov>0&&mov<ZONES.length&&Object.keys(offs).length>20};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'EVERY ZONE THE RUNTIME KNOWS, ASKED TWICE');
+ var jan=new Date(Date.UTC(2026,0,15)),jul=new Date(Date.UTC(2026,6,15));
+ var cols=38,cw=(W-44)/cols;
+ for(var i=0;i<ZONES.length;i++){
+  var x=22+(i%cols)*cw,y=38+Math.floor(i/cols)*11;
+  var mv=MOVERS.indexOf(i)>=0;
+  nf(g,mv?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.4)');
+  g.fillRect(x,y,cw-1,9);ng(g);}
+ nt(g,'#ff5a8a',22,178,9,'red = offset changes between January and July');
+ var rows=[['zones known',VR.zoneCount,'#8a7ab8'],
+  ['distinct January offsets',VR.distinctJanuaryOffsets,'#ffd76a'],
+  ['zones that move',VR.zonesThatMove,'#ff5a8a'],
+  ['zones that do not',VR.zonesThatDoNot,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=196+i*24;
+  nt(g,'#e6dcff',24,y+14,10,r[0]);
+  nt(g,r[2],320,y+14,11,String(r[1]));});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,292,W-40,0);ng(g);
+ nt(g,'#ffd76a',24,290,9,'read live from this machine -- an older database gives other numbers');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!ZONES.length){nt(g,'#ff5a8a',18,40,11,'no zone list available');return;}
+ var z=ZONES[idx%ZONES.length];
+ var jan=new Date(Date.UTC(2026,0,15)),jul=new Date(Date.UTC(2026,6,15));
+ var a=offset(z,jan),b=offset(z,jul),mv=(a!==b);
+ nt(g,'#e6dcff',18,24,11,z);
+ nt(g,'#8a7ab8',18,44,9,'zone '+((idx%ZONES.length)+1)+' of '+ZONES.length);
+ var rows=[['15 January 2026',a,'#5ad4ff'],['15 July 2026',b,mv?'#ff5a8a':'#5ad4ff']];
+ rows.forEach(function(r,i){
+  var y=60+i*70;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.26)':'rgba(90,212,255,0.24)');
+  g.fillRect(18,y+8,W-36,44);ng(g);
+  nt(g,r[2],32,y+38,17,r[1]);});
+ nf(g,mv?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.22)');g.fillRect(18,206,W-36,44);ng(g);
+ ne(g,mv?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,206.5,W-37,44);ng(g);
+ nt(g,mv?'#ff5a8a':'#7de2b0',32,233,11,mv?'this zone moves during the year':'this zone holds still');
+ nt(g,'#8a7ab8',18,270,9,mv?'a 2027 appointment here is not an instant yet':'a future local time here converts cleanly, today');
+ nt(g,'#b98cff',18,290,9,'and the rules are set by a parliament, not by arithmetic');
+ nt(g,'#ffd76a',18,310,9,VR.zonesThatMove+' of '+VR.zoneCount+' zones are in this position');
+ var o=document.getElementById('tzdbo');
+ if(o)o.innerHTML='<b>'+z+'</b> is <b>'+a+'</b> in January and <b>'+b+'</b> in July. '+
+  (mv?'Storing a 2027 appointment here as UTC freezes a guess about rules that can still be changed &mdash; and have been, at a few weeks notice, more than once.':
+   'No seasonal change on this machine&rsquo;s database. Most zones are like this, which is why a system tested against them looks correct.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%180)/180,shift=(t>0.5);
+ for(var i=0;i<24;i++){
+  var th=i/24*Math.PI*2;
+  var mover=(i%4===0);
+  var r=88+((mover&&shift)?10:0);
+  var q=P(Math.cos(th)*r,0,Math.sin(th)*r);
+  ndot(g,q[0],q[1],mover?5.4:3,mover?'#ff5a8a':'rgba(125,226,176,0.5)');}
+ nt(g,'#5ad4ff',14,26,11,'the ring is not fixed');
+ nt(g,'#ff5a8a',14,44,10,'red zones step outward twice a year');
+ nt(g,'#8a7ab8',14,H-46,9,'a future local time is not an instant yet');
+ nt(g,'#ffd76a',14,H-30,9,'converting it early freezes a guess about a law');
+ nt(g,'#b98cff',14,H-14,9,'store the zone and the wall time, and mean what the user meant');}
+document.getElementById('tzdbn').onclick=function(){idx=(idx+1)%Math.max(1,ZONES.length);drawW4();};
+document.getElementById('tzdbd').onclick=function(){
+ if(!MOVERS.length)return;
+ var cur=idx%ZONES.length,nx=MOVERS[0];
+ for(var i=0;i<MOVERS.length;i++)if(MOVERS[i]>cur){nx=MOVERS[i];break;}
+ idx=nx;drawW4();};
+document.getElementById('tzdbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetimezonedatabase=VR;drawW3();
+if(MOVERS.length)idx=MOVERS[0];
+drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 256 · neon-noir · silicon-coding · THE THINGS EVERYONE AGREES ON ═══════════════════════
 # ═══════════════════════ BATCH 255 · neon-noir · silicon-coding · TEXT IS NOT A STRING ═══════════════════════
 # ═══════════════════════ BATCH 254 · neon-noir · silicon-coding · WHAT THE COMPILER IS ALLOWED TO ASSUME ═══════════════════════
 # ═══════════════════════ BATCH 253 · neon-noir · silicon-coding · TWO CORRECT THINGS ═══════════════════════
@@ -97421,6 +98479,76 @@ SPHERES = [
   "fig":"The honest boundary is stated on the page: this is a working model of the FDIV defect mechanism, NOT an emulation of Intel's P5 divider. The table geometry, the five-blank-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page's, not the Pentium's — the real defect was far rarer, roughly one in nine billion random divides. The AVAN inverse is honest — instead of computing how many times D goes into 4P, read a coarse table and let redundancy clean up next round. Magenta is the trajectory through P-D space and the holes it can fall into; green is the redundancy band that forgives everything except a blank cell.",
   "body":SRTD_BODY,"script":SRTD_SCRIPT},
 
+ {"slug":"the-leap-second","title":"THE LEAP SECOND","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ffd76a","icon":"+",
+  "kicker":"precise about the wrong quantity",
+  "blurb":"Unix time counts seconds since 1970. It does not. It counts days since 1970 multiplied by 86,400 - and the Earth has had twenty-seven extra seconds inserted that the count refuses to hold.",
+  "lit":"between 1 January 1972 and 1 January 2017 there are 16,437 days, which Unix time makes 1,420,156,800 seconds - exactly 86,400 per day with no remainder - while actual elapsed time is 1,420,156,827 seconds because 27 leap seconds were inserted in that window, the first on 1972-06-30 and the last on 2016-12-31; so a Unix timestamp is not an elapsed-second count and never was, the difference is 27 seconds, all positive, and 0 negative leap seconds have ever been needed",
+  "fig":"Leap seconds are declared by the IERS to keep UTC within 0.9 s of the Earth's rotation; the twenty-seven dates are theirs and are used as data, not re-derived. AVAN reports the divisibility as the finding: 1,420,156,800 mod 86,400 = 0. That is not a coincidence and not a rounding - it is the definition. Unix time is a calendar rendered as a number, and the smooth axis everyone assumes it is has twenty-seven places where two instants share one value, or one is skipped, depending on the implementation.",
+  "body":LPSC_BODY,"script":LPSC_SCRIPT},
+ {"slug":"the-monotonic-clock","title":"THE MONOTONIC CLOCK","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#5ad4ff","icon":"\u2192",
+  "kicker":"two clocks, two questions",
+  "blurb":"Two clocks in every machine. One tells you what time it is and can be corrected, moved or dragged an hour sideways twice a year. The other only counts forward and cannot tell you anything about the world.",
+  "lit":"measuring an interval with a monotonic source gives a positive duration that only ever increases, while modelling a wall-clock correction landing inside the same interval - steps of -1000, -250, -40, +40 and +250 milliseconds - makes the wall-clock duration wrong in 5 of 5 cases and negative in 3 of them, with the monotonic duration wrong in 0; and a negative elapsed time is not an error condition anyone checks for, because it is not supposed to be possible",
+  "fig":"The distinction between a realtime and a monotonic clock is POSIX; performance.now() is the monotonic one here and its readings are real, not simulated. AVAN modelled the step rather than waiting for one, and says so - the durations are computed by adding a known offset, while what is measured live is the monotonic reading itself. The 3 of 5 negative results are the useful figure: the failure is a duration with the wrong SIGN, which propagates into every average, timeout and rate built on it.",
+  "body":MONO_BODY,"script":MONO_SCRIPT},
+ {"slug":"the-iso-week-year","title":"THE ISO WEEK YEAR","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ff9f45","icon":"\u2260",
+  "kicker":"two years, both correct",
+  "blurb":"There are two years. The one on the calendar, and the one a week belongs to - and at the turn of December they disagree, because a week cannot be split between two years.",
+  "lit":"checking the first three and last three days of every year from 1970 to 2030 - 366 dates - the calendar year and the ISO week-based year disagree on 104 of them, 28.4%; 30 December 2019 has calendar year 2019 and ISO week-year 2020, so a report filtered by one and grouped by the other will lose or double-count those days, and the discrepancy appears only in the last days of December and the first days of January",
+  "fig":"ISO 8601 defines a week-based calendar in which a week belongs to the year containing its Thursday, so a year has 52 or 53 whole weeks and never a fragment. AVAN computed the week-year from the Thursday rule rather than trusting a library, and swept sixty years to get a rate instead of an anecdote. 28.4% of boundary days is the number worth carrying: a routine disagreement affecting roughly a quarter of the days anybody checks, and arithmetically invisible since both answers are correct years.",
+  "body":ISOW_BODY,"script":ISOW_SCRIPT},
+ {"slug":"the-clock-skew","title":"THE CLOCK SKEW","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#5ad4ff","icon":"\u2276",
+  "kicker":"one millisecond, 189 wrong orders",
+  "blurb":"Two machines timestamp two events. The second genuinely happened after the first. Whether the timestamps agree depends on how well the clocks are set, and nothing in the data says how well that was.",
+  "lit":"ten thousand pairs of events, the second always genuinely later by up to 20 ms: at 0 skew the timestamps invert 0 times, at 1 ms of skew 189 times, at 5 ms 848, at 10 ms 1,687, at 25 ms 3,205 and at 50 ms 3,954 - 39.5%, approaching the half you would get from a coin - with the inversion count rising monotonically across every step and no inverted pair distinguishable from a correctly ordered one",
+  "fig":"Clock skew is why distributed systems use logical clocks - Lamport (1978) and vector clocks - rather than trusting wall-clock ordering, and why Spanner buys atomic clocks to bound it instead. AVAN swept the skew rather than asserting that ordering is unsafe, because the curve is the argument: the failure is already 1.9% at a single millisecond and degrades smoothly to a coin flip. There is no skew small enough to make the ordering sound, only small enough to make the errors rare.",
+  "body":CSKW_BODY,"script":CSKW_SCRIPT},
+ {"slug":"the-unix-epoch","title":"THE UNIX EPOCH","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff5a8a","icon":"\u221e",
+  "kicker":"2038, and then 1901",
+  "blurb":"A signed thirty-two bit count of seconds from 1970 reaches its largest value at three fourteen in the morning on the nineteenth of January 2038, and the next second is 1901.",
+  "lit":"the largest signed 32-bit integer is 2,147,483,647, which as seconds since the epoch is exactly 2038-01-19T03:14:07Z, and one more second wraps to -2,147,483,648 which reads as 1901-12-13 - not a crash, not an error, a date; reading the same field as unsigned buys until 2106-02-07 and no further, the epoch itself is 1970-01-01T00:00:00Z, and every one of those days is assumed to be exactly 86,400 seconds long",
+  "fig":"The 2038 problem is the direct descendant of Y2K and is already live in anything computing a date thirty-odd years out - mortgages, bonds, certificate expiry. AVAN computed the wrapped date rather than describing the overflow, because 1901-12-13 is the part that makes it dangerous: an overflow that threw would be found immediately in testing, while this one produces a valid timestamp, comparisons against it succeed, and a record dated 1901 sorts to the top of a list rather than raising anything.",
+  "body":EPOC_BODY,"script":EPOC_SCRIPT},
+ {"slug":"the-negative-zero","title":"THE NEGATIVE ZERO","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ffd76a","icon":"\xb1",
+  "kicker":"five say same, five say different",
+  "blurb":"There are two zeros. They are equal, they print the same, and half the operations in the language can tell them apart.",
+  "lit":"putting 0 and -0 through 10 ordinary operations, 5 treat them as the same value and 5 distinguish them: a === b is true while Object.is(a,b) is false, String(a) === String(b) is true while 1/a === 1/b is false because the reciprocals are Infinity and -Infinity, [0].indexOf(-0) finds it at index 0, and Math.min(0,-0) returns the negative one - the split is exactly down the middle with no rule for which side an operation lands on",
+  "fig":"Signed zero is IEEE 754: the sign bit is independent of the magnitude, so zero has two encodings, and the standard requires them to compare equal while preserving the sign through division. AVAN enumerated the operations instead of quoting the famous 1/-0 case, because 5 and 5 is the finding. This is not one surprising exception to a consistent rule - there is no rule, and two methods on the same Array disagree with each other.",
+  "body":NEGZ_BODY,"script":NEGZ_SCRIPT},
+ {"slug":"the-nan-payload","title":"THE NAN PAYLOAD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff5a8a","icon":"\u2260",
+  "kicker":"one name, a quadrillion values",
+  "blurb":"Not-a-number is not a number, and it is not one value either. It is a vast set of bit patterns that all mean this went wrong, none of which is equal to itself.",
+  "lit":"five distinct bit patterns differing in sign and in the low bits IEEE calls the payload are all reported as NaN, 5 of 5, and none equals itself, 0 of 5; NaN === NaN is false while Object.is(NaN, NaN) is true, and two methods on the same array disagree - [NaN].indexOf(NaN) returns -1, not found, while [NaN].includes(NaN) returns true - same array, same argument, opposite answers, both correct by their own specifications",
+  "fig":"NaN and its payload are IEEE 754: the exponent is all ones and the mantissa non-zero, leaving 2^52-1 distinct quiet NaNs per sign, and the standard mandates NaN compare unequal to everything including itself. AVAN built the patterns through a typed-array view so the five are genuinely different 64-bit values. The indexOf against includes pair is load-bearing: indexOf was specified with strict equality and includes arrived later using SameValueZero, so the inconsistency is a decision made twice, years apart, by people who both knew what they were doing.",
+  "body":NANP_BODY,"script":NANP_SCRIPT},
+ {"slug":"the-modulo-sign","title":"THE MODULO SIGN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#7de2b0","icon":"%",
+  "kicker":"one identity, two answers",
+  "blurb":"What is minus seven modulo three? Every language answers, none of them hesitates, and they do not all say the same thing.",
+  "lit":"over every pair of integers from -10 to 10 with a non-zero divisor - 420 pairs - truncated remainder and floored remainder disagree on 146 of them, 34.8%: -7 % 3 is -1 in C, Java and JavaScript and 2 in Python and Ruby, both satisfying the defining identity a = b*q + r and differing only in which way q was rounded, and there are 0 disagreements among pairs where both operands are positive",
+  "fig":"The split follows truncated versus floored division - C99 mandated truncation, Python chose flooring so the remainder carries the divisor's sign, and Knuth argued for the latter. AVAN swept the whole grid rather than showing the famous example, because 34.8% says how large the disagreement is: over a third of all sign combinations differ, and every one is a plausible index calculation. The 0 among positive pairs is why this survives every test written by someone who only tried positive numbers.",
+  "body":MODS_BODY,"script":MODS_SCRIPT},
+ {"slug":"the-round-half-even","title":"THE ROUND HALF EVEN","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ffd76a","icon":"\u2248",
+  "kicker":"exactly half a unit, every time",
+  "blurb":"Exactly half. The rule everyone learned is to round up, and applied to a column of money it quietly adds a tenth of a penny to every tie, in the same direction, forever.",
+  "lit":"rounding the 1,000 exact ties 0.5, 1.5, 2.5 through 999.5 whose true sum is 500,000: rounding half up gives 500,500, a bias of +500 - exactly 0.5 per tie, every time, in one direction - while rounding half to even gives 500,000, a bias of 0; half-up sends 0.5 to 1, 1.5 to 2 and 2.5 to 3 where half-even sends 2.5 to 2, and Math.round(-0.5) returns -0, a different value from 0 to five of the operations that could receive it",
+  "fig":"Round half to even is the IEEE 754 default and is called banker's rounding for the obvious reason; half-up is what school taught and what most naive implementations do. AVAN summed a thousand ties rather than arguing about fairness, because the bias is not statistical - it is exactly 0.5 per tie with no variance at all. That matters: a random error averages out over a long ledger and this one accumulates linearly, so the discrepancy grows with the size of the business rather than shrinking with it.",
+  "body":RHEV_BODY,"script":RHEV_SCRIPT},
+ {"slug":"the-timezone-database","title":"THE TIMEZONE DATABASE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#5ad4ff","icon":"\u25f7",
+  "kicker":"a fact about parliaments, not the Earth",
+  "blurb":"A time zone is not a fact about the Earth. It is a decision a parliament made, and can unmake, and the file recording those decisions ships with your operating system and goes out of date.",
+  "lit":"the runtime knows 418 named zones, and asking each for its offset in January and again in July they resolve to 37 distinct January offsets, with 128 of the 418 - 30.6% - changing offset between the two while 290 do not; a future appointment stored as a local time in one of those 128 is not yet a definite instant, and becomes one only when the rules for that date are fixed, which is done by legislatures rather than by arithmetic",
+  "fig":"The IANA time zone database is maintained from government announcements and updates several times a year; the 418 zones and their offsets here are read live from the runtime's copy via Intl. AVAN queried the runtime rather than embedding a table, so these numbers describe the machine the page runs on and will differ on a machine with an older database - which is the point rather than a caveat. The 290 stable zones are the quieter half of the finding: a system tested against them looks correct until it meets one of the other 128.",
+  "body":TZDB_BODY,"script":TZDB_SCRIPT},
  {"slug":"the-normalization-form","title":"THE NORMALIZATION FORM","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#b98cff","icon":"\u2261",
   "kicker":"the same glyphs, and not equal",
