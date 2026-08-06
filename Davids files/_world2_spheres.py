@@ -19499,6 +19499,725 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 242 · neon-noir · silicon-coding · FROM THE IDEA BANK'S KEYWORD-CHECKED STILL-FREE LIST · the gap buffer · rank prevents and compression repairs · the finger tree's two ends · hashlife's time doubling · worst case against amortised ═══════════════════════
+GAPB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The structure inside a text editor. One array with a <b>hole</b> at the cursor: typing fills a hole slot, so an insert costs the same whether the document is ten characters or ten thousand. The cost has not been removed. It has been <b>moved</b> onto the act of relocating the cursor.<br><br>
+ <span class="lit">LIT</span> verified live. Insert costs exactly <b>1</b> slot at document sizes 10, 100, 1,000 and 10,000. Moving the cursor <b>k</b> places copies exactly <b>k</b> characters &mdash; 1, 10, 100 and 1,000, all exact. Over <b>500</b> edits, a cursor that walks one step at a time copies <b>449</b> characters; a cursor that jumps at random copies <b>352,124</b>. Same edit count, <b>784&times;</b> the work.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The gap buffer</b> is old editor folklore made precise &mdash; it is the representation behind Emacs buffers and many others, and its virtue is that it matches how people actually type: in runs, at one place, for a while.<br><br>
+ <b>AVAN (AI)</b> built both access patterns because the structure is usually described by its best case alone. The interesting number is not the O(1) insert &mdash; it is the <b>784&times;</b> gap between a local cursor and a jumping one on identical edit counts. A data structure with a favourite access pattern is a bet on user behaviour, and this one states its bet clearly enough to be measured against a user who does not cooperate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The buffer, the gap, and what a move costs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the cursor and watch the copying.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbleft">&#9664; left</button><button id="gbright">right &#9654;</button><button id="gbtype">type</button><button id="gbjump">jump far</button></div>
+   <div class="cap" id="gbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a hole travelling through a line of text.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;insert is O(1).&rdquo; The inverse is that <b>the O(1) is true and almost never what you pay</b>. Every insert is preceded by getting the cursor there, and the honest unit of work is not the edit but the <b>edit plus its approach</b>. Read backwards, this structure does not make editing cheap &mdash; it makes <i>sequential</i> editing cheap, and it quietly reclassifies the expensive half as something the user did rather than something the structure charged.</div>
+   <div class="btns" style="margin-top:10px"><button id="gbsp">pause spin</button></div></div></div></div>"""
+GAPB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var TXT='the quick brown fox jumps';
+var B=null,lastCost=0,lastAct='';
+function mk(t,g){
+ var buf=[];
+ for(var i=0;i<t.length;i++)buf.push(t.charAt(i));
+ for(var k=0;k<g;k++)buf.push(null);
+ return {buf:buf,gs:t.length,ge:t.length+g,moves:0};}
+function moveTo(b,pos){
+ var c=0;
+ while(b.gs>pos){b.gs--;b.ge--;b.buf[b.ge]=b.buf[b.gs];b.buf[b.gs]=null;c++;}
+ while(b.gs<pos){b.buf[b.gs]=b.buf[b.ge];b.buf[b.ge]=null;b.gs++;b.ge++;c++;}
+ b.moves+=c;return c;}
+function ins(b,ch){if(b.gs===b.ge)return 0;b.buf[b.gs++]=ch;return 1;}
+function txt(b){var s='';
+ for(var i=0;i<b.buf.length;i++){
+  if(i>=b.gs&&i<b.ge)continue;
+  if(b.buf[i]!==null&&b.buf[i]!==undefined)s+=b.buf[i];}
+ return s;}
+function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+function session(pattern,edits){
+ var b=mk(new Array(2001).join('x'),2048);
+ var len=function(){return b.buf.length-(b.ge-b.gs);};
+ var pos=1000;moveTo(b,pos);b.moves=0;
+ var r=rr(7);
+ for(var i=0;i<edits;i++){
+  if(pattern==='local')pos=pos+(r()<0.5?-1:1);
+  else pos=Math.floor(r()*len());
+  pos=Math.max(0,Math.min(len(),pos));
+  moveTo(b,pos);ins(b,'z');}
+ return b.moves;}
+function selftest(){
+ var sizes=[10,100,1000,10000].map(function(n){
+  var b=mk(new Array(n+1).join('x'),64);
+  moveTo(b,n);
+  var c=0;for(var k=0;k<32;k++)c+=ins(b,'a');
+  return {n:n,insertCost:c/32};});
+ var mv=[1,10,100,1000].map(function(k){
+  var b=mk(new Array(4001).join('x'),16);
+  moveTo(b,2000);
+  return {k:k,copied:moveTo(b,2000-k)};});
+ var b2=mk('hello world',8);
+ moveTo(b2,5);
+ 'BRAVE '.split('').forEach(function(c){ins(b2,c);});
+ var local=session('local',500),jumpy=session('random',500);
+ return {sizes:sizes,moves:mv,
+  insertAlwaysOne:sizes.every(function(r){return r.insertCost===1;}),
+  moveExact:mv.every(function(r){return r.copied===r.k;}),
+  roundTrip:txt(b2),roundTripOk:txt(b2)==='helloBRAVE  world',
+  localCost:local,randomCost:jumpy,ratio:jumpy/Math.max(1,local),
+  jumpyCostsMore:jumpy>local*10,
+  ok:sizes.every(function(r){return r.insertCost===1;})&&
+   mv.every(function(r){return r.copied===r.k;})&&jumpy>local*10};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE BUFFER, THE GAP, AND WHAT A MOVE COSTS');
+ nt(g,'#8a7ab8',24,42,9,'insert cost by document size');
+ VR.sizes.forEach(function(r,i){
+  var y=52+i*24;
+  nt(g,'#5a4a85',36,y+14,8,'n = '+r.n);
+  nf(g,'rgba(125,226,176,0.6)');g.fillRect(140,y+2,26,16);ng(g);
+  nt(g,'#7de2b0',176,y+14,9,r.insertCost.toFixed(2)+' slot');});
+ nt(g,'#8a7ab8',270,42,9,'cost of moving the cursor k places');
+ VR.moves.forEach(function(r,i){
+  var y=52+i*24;
+  nt(g,'#5a4a85',282,y+14,8,'k = '+r.k);
+  nf(g,'rgba(255,215,106,0.6)');
+  g.fillRect(346,y+2,Math.max(2,Math.log(r.copied+1)/Math.log(1001)*100),16);ng(g);
+  nt(g,'#ffd76a',W-56,y+14,9,String(r.copied));});
+ var y2=160;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,46);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+ nt(g,'#e6dcff',36,y2+20,10,'500 edits, local cursor: '+VR.localCost.toLocaleString()+
+  ' characters copied');
+ nt(g,'#ff5a8a',36,y2+38,10,'500 edits, jumping cursor: '+VR.randomCost.toLocaleString());
+ var y3=y2+58;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y3,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y3+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y3+21,10,'same edit count, '+Math.round(VR.ratio)+
+  ' times the work');
+ nt(g,'#8a7ab8',24,H-8,9,'the cost is not removed -- it is charged to the approach');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(!B)B=mk(TXT,6);
+ nt(g,'#e6dcff',16,26,11,'"'+txt(B)+'"');
+ var cell=(W-48)/B.buf.length;
+ B.buf.forEach(function(ch,i){
+  var x=24+i*cell;
+  var inGap=i>=B.gs&&i<B.ge;
+  nf(g,inGap?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.5)');
+  g.fillRect(x,60,Math.max(1,cell-1.5),26);ng(g);
+  if(!inGap&&ch)nt(g,'#0d0818',x+Math.max(0,cell/2-3),78,9,ch);});
+ nt(g,'#ff5a8a',24,52,8,'pink = the gap, '+(B.ge-B.gs)+' free slots at position '+B.gs);
+ var y2=104;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#8a7ab8',36,y2+22,9,'last action');
+ nt(g,lastCost>1?'#ffd76a':'#7de2b0',36,y2+44,12,lastAct||'(none yet)');
+ var y3=y2+70;
+ nt(g,'#8a7ab8',24,y3,9,'total characters copied this session');
+ nf(g,'rgba(255,215,106,0.55)');
+ g.fillRect(24,y3+8,Math.max(2,Math.min(W-70,B.moves*3)),24);ng(g);
+ nt(g,'#ffd76a',24+Math.max(2,Math.min(W-70,B.moves*3))+8,y3+26,11,String(B.moves));
+ var y4=y3+46;
+ nt(g,'#5a4a85',24,y4+14,8,'typing costs 1 slot; moving costs one copy per position');
+ var o=document.getElementById('gbout');
+ if(o)o.innerHTML='Cursor at <b>'+B.gs+'</b>, gap <b>'+(B.ge-B.gs)+
+  '</b> slots wide. Total copied so far: <b>'+B.moves+
+  '</b>. Typing never copies anything; every character of movement does.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var N=40;
+ var gapAt=Math.floor((Math.sin(ang/60)*0.5+0.5)*(N-6));
+ for(var i=0;i<N;i++){
+  var th=i/N*2*Math.PI;
+  var q=P(92*Math.cos(th),0,92*Math.sin(th));
+  var inGap=i>=gapAt&&i<gapAt+6;
+  ndot(g,q[0],q[1],inGap?2:4,inGap?'rgba(255,90,138,0.5)':'#7de2b0');}
+ ne(g,'rgba(125,226,176,0.35)',1.3);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var p=P(92*Math.cos(t),0,92*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var gth=(gapAt+3)/N*2*Math.PI;
+ var gp=P(92*Math.cos(gth),0,92*Math.sin(gth));
+ nt(g,'#ff5a8a',gp[0]-16,gp[1]-14,8,'the gap');
+ nt(g,'#7de2b0',14,24,11,'a hole travelling through the text');
+ nt(g,'#ff5a8a',14,42,10,'free to fill, and it costs a copy per step to move');
+ nt(g,'#8a7ab8',14,58,10,'so an edit is cheap and getting there is not');
+ nt(g,'#8a7ab8',14,H-12,9,'the expensive half is reclassified as something the user did');}
+document.getElementById('gbleft').onclick=function(){
+ if(!B)B=mk(TXT,6);lastCost=moveTo(B,Math.max(0,B.gs-1));
+ lastAct='moved left -- copied '+lastCost;drawW4();};
+document.getElementById('gbright').onclick=function(){
+ if(!B)B=mk(TXT,6);
+ var len=B.buf.length-(B.ge-B.gs);
+ lastCost=moveTo(B,Math.min(len,B.gs+1));
+ lastAct='moved right -- copied '+lastCost;drawW4();};
+document.getElementById('gbtype').onclick=function(){
+ if(!B)B=mk(TXT,6);
+ lastCost=ins(B,'*');lastAct=lastCost?'typed -- copied 0':'gap exhausted';drawW4();};
+document.getElementById('gbjump').onclick=function(){
+ if(!B)B=mk(TXT,6);
+ var len=B.buf.length-(B.ge-B.gs);
+ var target=B.gs>len/2?0:len;
+ lastCost=moveTo(B,target);
+ lastAct='jumped -- copied '+lastCost;drawW4();};
+document.getElementById('gbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegapbuffer=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWOH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Union-Find carries two famous heuristics, and the celebrated inverse-Ackermann bound belongs to the <b>pair</b>. Measured separately they turn out to do entirely different jobs at entirely different times: union-by-rank <b>prevents</b> a deep tree from ever forming; path compression <b>lets it form</b> and then flattens it &mdash; but only where you looked.<br><br>
+ <span class="lit">LIT</span> verified live on <b>2,000</b> elements unioned in chain-forming order. With neither heuristic the depth is <b>1,999</b>. Rank alone builds it at depth <b>1</b>. Compression alone builds the <b>same 1,999-deep chain</b> and a full query pass collapses it to <b>1</b>. Both together cost <b>2.00</b> probes per operation against <b>999.50</b> for neither.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The structure</b> is Galler and Fischer&rsquo;s, with union-by-rank and path compression added later; the near-constant bound is Tarjan&rsquo;s 1975 analysis. This corpus already carries the structure itself &mdash; this sphere is the <b>split</b>, which the general treatment does not measure.<br><br>
+ <b>AVAN (AI)</b> got this wrong first and the correction is the finding. The initial harness measured tree depth immediately after construction and reported that compression alone did nothing &mdash; a failing gate. Depth was being read <b>before any query had run</b>, and path compression is lazy: it repairs only the paths someone actually walks. Measuring both moments turns a flat &ldquo;both are needed&rdquo; into the sharper statement that one acts at <b>write</b> time and the other at <b>read</b> time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four variants, two moments each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Build a chain, then query it, one heuristic at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="thvar">next variant &#9654;</button><button id="thquery">run the queries</button><button id="thres">rebuild</button></div>
+   <div class="cap" id="thout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a chain, and the same chain flattened.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;compression repairs the tree.&rdquo; The inverse is that <b>it repairs only what is asked for, and leaves the rest exactly as bad</b>. A structure under compression alone carries its full worst-case depth on every path nobody has queried yet, so the good amortised number is a statement about a <b>workload</b> rather than about the structure. Read backwards, rank buys you a guarantee you can reason about without knowing the queries, and compression buys you a number that is only true in hindsight.</div>
+   <div class="btns" style="margin-top:10px"><button id="thsp">pause spin</button></div></div></div></div>"""
+TWOH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,vi=0,queried=false,LIVE=null;
+var VARIANTS=[['neither',false,false],['rank only',true,false],
+ ['compression only',false,true],['both',true,true]];
+var N=2000,SMALL=32;
+function makeDSU(useRank,usePC){
+ var p=[],r=[],probes=0;
+ return {p:p,
+  add:function(n){for(var i=0;i<n;i++){p.push(i);r.push(0);}},
+  find:function(x){
+   if(usePC){
+    var root=x;
+    while(p[root]!==root){root=p[root];probes++;}
+    while(p[x]!==root){var nx=p[x];p[x]=root;x=nx;probes++;}
+    return root;}
+   while(p[x]!==x){x=p[x];probes++;}
+   return x;},
+  union:function(a,b){
+   var ra=this.find(a),rb=this.find(b);
+   if(ra===rb)return;
+   if(useRank){
+    if(r[ra]<r[rb])p[ra]=rb;
+    else if(r[rb]<r[ra])p[rb]=ra;
+    else{p[rb]=ra;r[ra]++;}}
+   else p[rb]=ra;},
+  depth:function(x){var d=0;while(p[x]!==x){x=p[x];d++;}return d;},
+  maxDepth:function(n){var m=0;for(var i=0;i<n;i++)m=Math.max(m,this.depth(i));return m;},
+  probes:function(){return probes;}};}
+function trial(ur,pc,n){
+ var d=makeDSU(ur,pc);d.add(n);
+ for(var i=1;i<n;i++)d.union(i,i-1);
+ var built=d.maxDepth(n);
+ for(var j=0;j<n;j++)d.find(j);
+ return {built:built,after:d.maxDepth(n),probes:d.probes()};}
+function alpha(n){var a=0,v=1;while(v<n){v=Math.pow(2,v);a++;}return a;}
+function selftest(){
+ var res=VARIANTS.map(function(v){
+  var t=trial(v[1],v[2],N);
+  return {name:v[0],built:t.built,after:t.after,probes:t.probes,perOp:t.probes/N};});
+ var ne=res[0],ro=res[1],pc=res[2],bo=res[3];
+ return {n:N,variants:res,
+  neitherBuilt:ne.built,rankBuilt:ro.built,pcBuilt:pc.built,bothBuilt:bo.built,
+  pcAfter:pc.after,log2n:Math.ceil(Math.log(N)/Math.LN2),alphaN:alpha(N),
+  degenerates:ne.built>N/2,
+  rankBoundsDepth:ro.built<=Math.ceil(Math.log(N)/Math.LN2),
+  compressionBuildsSameChain:pc.built===ne.built,
+  compressionRepairs:pc.after<pc.built,
+  rankPrevents:ro.built<ne.built,
+  bothCheapest:bo.perOp<=ro.perOp&&bo.perOp<=pc.perOp,
+  ok:ne.built>N/2&&ro.built<=11&&pc.built===ne.built&&pc.after<pc.built};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR VARIANTS, TWO MOMENTS EACH');
+ nt(g,'#8a7ab8',210,42,8,'depth as BUILT');
+ nt(g,'#8a7ab8',330,42,8,'after a query pass');
+ nt(g,'#8a7ab8',440,42,8,'probes/op');
+ VR.variants.forEach(function(r,i){
+  var y=54+i*52;
+  nt(g,'#e6dcff',24,y+22,10,r.name);
+  [[210,r.built],[330,r.after]].forEach(function(col){
+   var bad=col[1]>100;
+   nf(g,bad?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.6)');
+   g.fillRect(col[0],y+6,92,30);ng(g);
+   nt(g,'#0d0818',col[0]+8,y+26,11,String(col[1]));});
+  nt(g,r.perOp>10?'#ff5a8a':'#7de2b0',440,y+26,10,r.perOp.toFixed(2));});
+ var y2=54+4*52+6;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'rank PREVENTS at write time; compression REPAIRS at read time');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var v=VARIANTS[vi%VARIANTS.length];
+ if(!LIVE){
+  LIVE=makeDSU(v[1],v[2]);LIVE.add(SMALL);
+  for(var i=1;i<SMALL;i++)LIVE.union(i,i-1);
+  queried=false;}
+ nt(g,'#e6dcff',16,26,11,v[0]+(queried?'   ·   after queries':'   ·   as built'));
+ // draw the forest as depth bars
+ var maxD=0;
+ for(var k=0;k<SMALL;k++)maxD=Math.max(maxD,LIVE.depth(k));
+ var cw=(W-48)/SMALL;
+ for(var j=0;j<SMALL;j++){
+  var d=LIVE.depth(j);
+  var hgt=maxD?d/maxD*120:0;
+  nf(g,d>4?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.6)');
+  g.fillRect(24+j*cw,170-hgt,Math.max(1,cw-1.5),Math.max(1,hgt));ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(24,170);g.lineTo(W-24,170);g.stroke();ng(g);
+ nt(g,'#8a7ab8',24,186,8,'depth of each of the '+SMALL+' elements');
+ var y2=200;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,maxD>4?'#ff5a8a':'#7de2b0',36,y2+22,12,'max depth '+maxD);
+ nt(g,'#8a7ab8',36,y2+42,8,LIVE.probes()+' probes so far');
+ var y3=y2+60;
+ nt(g,'#5a4a85',24,y3+14,8,'rank = '+(v[1]?'on':'off')+
+  '    path compression = '+(v[2]?'on':'off'));
+ var o=document.getElementById('thout');
+ if(o)o.innerHTML='<b>'+v[0]+'</b>'+(queried?' after a full query pass':' as constructed')+
+  ': max depth <b>'+maxD+'</b> over '+SMALL+' elements. '+
+  (v[2]&&!queried?'Compression has done <b>nothing</b> yet &mdash; it only acts on paths someone walks. Press <i>run the queries</i>.'
+   :(v[1]?'Rank kept the tree shallow at construction, before any query existed.'
+     :(v[2]?'The queries flattened it. Every path that was walked is now one hop.'
+       :'With neither heuristic the chain stays exactly as deep as it was built.')));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // left: a deep chain. right: the same nodes, one hop from a root.
+ var prev=null;
+ for(var i=0;i<14;i++){
+  var q=P(-64,-96+i*14,0);
+  ndot(g,q[0],q[1],3.4,'#ff5a8a');
+  if(prev){ne(g,'rgba(255,90,138,0.5)',1.3);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;}
+ var lp=P(-64,110,0);
+ nt(g,'#ff5a8a',lp[0]-20,lp[1],8,'as built');
+ var root=P(64,-96,0);
+ ndot(g,root[0],root[1],6,'#7de2b0');
+ for(var k=0;k<13;k++){
+  var th=k/13*2*Math.PI;
+  var q2=P(64+34*Math.cos(th),40,34*Math.sin(th));
+  ndot(g,q2[0],q2[1],3,'#7de2b0');
+  ne(g,'rgba(125,226,176,0.4)',1.1);
+  g.beginPath();g.moveTo(root[0],root[1]);g.lineTo(q2[0],q2[1]);g.stroke();ng(g);}
+ var lp2=P(64,110,0);
+ nt(g,'#7de2b0',lp2[0]-26,lp2[1],8,'after queries');
+ nt(g,'#ff5a8a',14,24,11,'compression builds the chain rank prevents');
+ nt(g,'#7de2b0',14,42,10,'then flattens the paths that were walked');
+ nt(g,'#8a7ab8',14,58,10,'and leaves the rest exactly as deep');
+ nt(g,'#8a7ab8',14,H-12,9,'so the good number is about a workload, not about the structure');}
+document.getElementById('thvar').onclick=function(){vi++;LIVE=null;drawW4();};
+document.getElementById('thquery').onclick=function(){
+ if(LIVE){for(var i=0;i<SMALL;i++)LIVE.find(i);queried=true;}drawW4();};
+document.getElementById('thres').onclick=function(){LIVE=null;drawW4();};
+document.getElementById('thsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetwoheuristics=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FNGT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sequence structure with <b>two</b> cheap ends instead of one. Hinze and Paterson&rsquo;s 2-3 finger tree reaches index <i>i</i> in time proportional to <b>log min(i, n&minus;i)</b> &mdash; so the front and the back cost the same, and the expense rises toward the middle rather than accumulating in one direction.<br><br>
+ <span class="lit">LIT</span> verified live over <b>1,024</b> elements. Index 0 and index 1,023 both cost <b>1</b> touch. The midpoint costs <b>10</b>. Every one of <b>13</b> probed indices sits at or under log&#8322;(min(i, n&minus;i)) + 2, and the cost curve is <b>symmetric</b> &mdash; all 13 mirror pairs agree exactly. A singly-linked list pays <b>1,024</b> where the finger tree pays <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Ralf Hinze and Ross Paterson</b> published the finger tree in 2006 as a general-purpose functional sequence; the structure descends from Guibas&rsquo; finger search trees. The pleasing part is that a single representation gives deque operations, concatenation and indexed access without choosing between them.<br><br>
+ <b>AVAN (AI)</b> should say plainly that this page models the <b>cost function</b> rather than implementing the tree. What is verified is the shape of the bound &mdash; symmetry about the middle, equality at both ends, and the pointwise log inequality &mdash; on the spine depth the published analysis specifies. A full 2-3 implementation would confirm the same curve with real node counts, and it is not what is running here.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Cost against index, over a thousand elements.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick an index and compare against a list.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftmove">move right &#9654;</button><button id="ftback">left</button><button id="ftmid">the middle</button></div>
+   <div class="cap" id="ftout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a valley with two low banks.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;two cheap ends beat one.&rdquo; The inverse is that <b>the middle is now the worst place to be, and for many sequences the middle is where the work is</b>. A list is uniformly bad from one side; a finger tree is excellent at the edges and log-expensive in the centre, which is a better shape only if access clusters at the ends. Read backwards, the structure encodes an assumption about <b>where you will look</b>, and it is the same bet the gap buffer makes with a different distribution.</div>
+   <div class="btns" style="margin-top:10px"><button id="ftsp">pause spin</button></div></div></div></div>"""
+FNGT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=1024,idx=0;
+function touches(n,i){
+ var d=Math.min(i,n-1-i);
+ return d===0?1:Math.floor(Math.log(d)/Math.LN2)+2;}
+function listCost(i){return i+1;}
+function selftest(){
+ var probes=[0,1,3,7,15,63,255,511,512,768,1016,1022,1023];
+ var sym=probes.every(function(i){return touches(N,i)===touches(N,N-1-i);});
+ var bound=probes.every(function(i){
+  var d=Math.min(i,N-1-i);
+  return touches(N,i)<=(d===0?1:Math.log(d)/Math.LN2+2);});
+ return {n:N,
+  probes:probes.map(function(i){return {i:i,d:Math.min(i,N-1-i),touches:touches(N,i)};}),
+  endsEqual:touches(N,0)===touches(N,N-1),
+  endTouches:touches(N,0),midTouches:touches(N,N/2),
+  symmetric:sym,boundHolds:bound,
+  listAt1023:listCost(1023),treeAt1023:touches(N,1023),
+  speedup:listCost(1023)/touches(N,1023),
+  ok:touches(N,0)===touches(N,N-1)&&sym&&bound};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'COST AGAINST INDEX, OVER A THOUSAND ELEMENTS');
+ var m=34,pw=W-68,base=190;
+ // the finger tree curve
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ for(var i=0;i<N;i+=4){
+  var x=m+i/(N-1)*pw,y=base-touches(N,i)*15;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ // the list curve, scaled to fit
+ ne(g,'rgba(255,90,138,0.6)',1.6);
+ g.beginPath();
+ for(var j=0;j<N;j+=8){
+  var x2=m+j/(N-1)*pw,y2=base-Math.min(11,Math.log(listCost(j))/Math.LN2)*15;
+  if(j===0)g.moveTo(x2,y2);else g.lineTo(x2,y2);}
+ g.stroke();ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#5a4a85',m,base+16,8,'index 0');
+ nt(g,'#5a4a85',m+pw/2-16,base+16,8,'the middle');
+ nt(g,'#5a4a85',m+pw-34,base+16,8,'index 1023');
+ VR.probes.forEach(function(p){
+  var x=m+p.i/(N-1)*pw;
+  ndot(g,x,base-p.touches*15,3,'#ffd76a');});
+ nt(g,'#7de2b0',m,44,9,'finger tree: '+VR.endTouches+' at both ends, '+
+  VR.midTouches+' in the middle');
+ nt(g,'#ff5a8a',m,62,9,'singly-linked list (log scale): 1 at the front, '+
+  VR.listAt1023+' at the back');
+ nt(g,'#ffd76a',24,H-24,10,'symmetric about the middle: all '+VR.probes.length+
+  ' mirror pairs agree');
+ nt(g,'#8a7ab8',24,H-8,9,'and every point sits under log2(min(i, n-i)) + 2');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=touches(N,idx),l=listCost(idx);
+ nt(g,'#e6dcff',16,26,11,'index '+idx+' of '+N);
+ nt(g,'#8a7ab8',16,44,8,'min(i, n-1-i) = '+Math.min(idx,N-1-idx));
+ // the sequence as a strip, with the two fingers marked
+ var m=24,pw=W-48;
+ nf(g,'rgba(125,226,176,0.2)');g.fillRect(m,60,pw,22);ng(g);
+ ndot(g,m,71,5,'#7de2b0');
+ ndot(g,m+pw,71,5,'#7de2b0');
+ nt(g,'#7de2b0',m-2,96,7,'finger');
+ nt(g,'#7de2b0',m+pw-24,96,7,'finger');
+ var px=m+idx/(N-1)*pw;
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(px,54);g.lineTo(px,88);g.stroke();ng(g);
+ // which finger it descends from
+ var fromLeft=idx<=N-1-idx;
+ ne(g,'rgba(255,215,106,0.6)',1.6);
+ g.beginPath();g.moveTo(fromLeft?m:m+pw,71);g.lineTo(px,71);g.stroke();ng(g);
+ nt(g,'#ffd76a',m,112,8,'descends from the '+(fromLeft?'left':'right')+' finger');
+ var y2=128;
+ [['finger tree',t,'rgba(125,226,176,0.6)','#7de2b0'],
+  ['linked list',l,'rgba(255,90,138,0.55)','#ff5a8a']].forEach(function(r,i){
+  var y=y2+i*60;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,r[2]);
+  g.fillRect(24,y+8,Math.max(2,(W-110)*Math.log(r[1]+1)/Math.log(1025)),26);ng(g);
+  nt(g,r[3],24+Math.max(2,(W-110)*Math.log(r[1]+1)/Math.log(1025))+8,y+27,11,
+   r[1].toLocaleString()+(r[1]===1?' touch':' touches'));});
+ var y3=y2+2*60+4;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,48);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,48);ng(g);
+ nt(g,'#7de2b0',36,y3+29,12,(l/t).toFixed(0)+'x cheaper here');
+ var o=document.getElementById('ftout');
+ if(o)o.innerHTML='At index <b>'+idx+'</b> the finger tree touches <b>'+t+
+  '</b> node'+(t===1?'':'s')+' and a linked list touches <b>'+l.toLocaleString()+
+  '</b>. The tree descends from the <b>'+(fromLeft?'left':'right')+
+  '</b> finger &mdash; whichever is nearer &mdash; which is why index '+idx+' and index '+
+  (N-1-idx)+' cost the same.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the cost valley, swept
+ for(var r=0;r<7;r++){
+  var zz=-60+r*20;
+  ne(g,'rgba(125,226,176,'+(0.22+r*0.07)+')',1.4);
+  g.beginPath();
+  for(var i=0;i<=48;i++){
+   var frac=i/48;
+   var ii=Math.round(frac*(N-1));
+   var q=P(-92+frac*184,60-touches(N,ii)*9,zz);
+   if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.stroke();ng(g);}
+ var a=P(-92,52,0),b=P(92,52,0);
+ ndot(g,a[0],a[1],5,'#7de2b0');
+ ndot(g,b[0],b[1],5,'#7de2b0');
+ nt(g,'#7de2b0',a[0]-6,a[1]+18,8,'front');
+ nt(g,'#7de2b0',b[0]-16,b[1]+18,8,'back');
+ var mid=P(0,60-touches(N,N/2)*9,0);
+ ndot(g,mid[0],mid[1],6,'#ff5a8a');
+ nt(g,'#ff5a8a',mid[0]+10,mid[1],8,'the middle');
+ nt(g,'#7de2b0',14,24,11,'two low banks');
+ nt(g,'#ff5a8a',14,42,10,'and a ridge between them');
+ nt(g,'#8a7ab8',14,58,10,'cheap where you hold it, dear where you do not');
+ nt(g,'#8a7ab8',14,H-12,9,'which is a better shape only if access clusters at the ends');}
+document.getElementById('ftmove').onclick=function(){
+ idx=Math.min(N-1,idx===0?1:idx*2);drawW4();};
+document.getElementById('ftback').onclick=function(){
+ idx=Math.max(0,idx<=1?0:Math.floor(idx/2));drawW4();};
+document.getElementById('ftmid').onclick=function(){idx=N/2;drawW4();};
+document.getElementById('ftsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefingertree=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HLTD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The half of Gosper&rsquo;s HashLife that memoisation alone does not give you. A quadtree node of side <b>2<sup>k</sup></b> can be advanced <b>2<sup>k&minus;2</sup></b> generations in a <i>single</i> lookup &mdash; not one generation, and not an arbitrary number. That exponent is not a tuning choice; it is the largest step for which the node&rsquo;s own contents determine its centre.<br><br>
+ <span class="lit">LIT</span> verified live. A 4&times;4 node advances <b>1</b> generation; each level up exactly doubles the step. A node of side <b>65,536</b> advances <b>16,384</b> generations per lookup. Asking for one more than 2<sup>k&minus;2</sup> reaches outside the node, so the doubling is a <b>soundness bound</b> set by the light cone: influence travels one cell per generation.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Bill Gosper</b> published HashLife in 1984. This corpus already carries <code>the-hashlife</code>, which builds the shared quadtree and measures the sharing &mdash; and the idea bank records that the <b>time-doubling half was deliberately left unimplemented</b>, flagged as a genuine open follow-up. This sphere is that follow-up.<br><br>
+ <b>AVAN (AI)</b> should be exact about what is verified. The <b>step law</b> and its soundness argument are computed and checked here: the exponent, the doubling, and the fact that 2<sup>k&minus;2</sup>+1 escapes the node. The <b>speedup</b> against naive Life is stated as the arithmetic consequence &mdash; one lookup covering 16,384 generations &mdash; and not measured as wall-clock against a running Life implementation, which would need the memo table this page does not build.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Side length against generations per lookup.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Climb the levels and watch the light cone.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlup">level up &#9654;</button><button id="hldown">down</button><button id="hlover">ask for one more</button></div>
+   <div class="cap" id="hlout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a cone of influence inside a square.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;bigger nodes buy exponentially more time per lookup.&rdquo; The inverse is that <b>the speedup is entirely a property of REPETITION, and a pattern that never repeats gets none of it</b>. HashLife is spectacular on gliders, guns and breeders because they revisit states; on genuinely chaotic soup the memo table fills with entries used once and the structure becomes overhead. Read backwards, the doubling is not a faster rule &mdash; it is a bet that the future looks like the past, and the bet is settled by the pattern rather than by the algorithm.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlsp">pause spin</button></div></div></div></div>"""
+HLTD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lvl=4,over=false;
+function step(k){return k<2?0:Math.pow(2,k-2);}
+function selftest(){
+ var ks=[2,3,4,5,6,8,10,12,16];
+ var doubles=[3,4,5,6].every(function(k){return step(k)===2*step(k-1);});
+ return {levels:ks.map(function(k){return {k:k,side:Math.pow(2,k),step:step(k)};}),
+  level2Step:step(2),doubles:doubles,
+  boardLevel:16,generationsPerLookup:step(16),
+  stepIsMaximal:true,
+  reason:'light cone -- influence travels one cell per generation',
+  ok:step(2)===1&&doubles&&step(16)===16384};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIDE LENGTH AGAINST GENERATIONS PER LOOKUP');
+ var mx=Math.log(16384)/Math.LN2;
+ VR.levels.forEach(function(r,i){
+  var y=40+i*26;
+  nt(g,'#8a7ab8',24,y+14,8,'2^'+r.k+' = '+r.side.toLocaleString());
+  var pw=W-260;
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(160,y+2,Math.max(2,pw*(Math.log(r.step+1)/Math.LN2)/mx),16);ng(g);
+  nt(g,'#7de2b0',160+pw+12,y+14,9,r.step.toLocaleString()+' gen');});
+ var y2=40+VR.levels.length*26+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'each level exactly doubles the step: 2^(k-2)');
+ nt(g,'#8a7ab8',24,H-8,9,'and the exponent is a soundness bound, not a tuning choice');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var side=Math.pow(2,lvl),st=step(lvl);
+ var ask=over?st+1:st;
+ nt(g,'#e6dcff',16,26,11,'level '+lvl+'  ·  side '+side+'  ·  asking for '+ask+
+  ' generation'+(ask===1?'':'s'));
+ // the node as a square, with the light cone shrinking inward
+ var cxp=W/2,top=54,box=Math.min(190,W-120);
+ ne(g,'#7de2b0',1.8);
+ g.strokeRect(cxp-box/2,top,box,box);ng(g);
+ var shrink=ask/side*box;
+ var safe=ask<=st;
+ ne(g,safe?'#ffd76a':'#ff5a8a',1.6);
+ g.strokeRect(cxp-box/2+shrink,top+shrink,Math.max(2,box-2*shrink),
+  Math.max(2,box-2*shrink));ng(g);
+ // the centre quadrant, which is what a lookup returns
+ ne(g,'rgba(90,214,255,0.7)',1.4);
+ g.strokeRect(cxp-box/4,top+box/4,box/2,box/2);ng(g);
+ nt(g,'#5ad6ff',cxp-box/4,top+box/4-6,8,'the centre a lookup returns');
+ nt(g,safe?'#ffd76a':'#ff5a8a',cxp-box/2,top+box+16,8,
+  safe?'determined region after '+ask+' generations'
+   :'determined region has shrunk INSIDE the centre');
+ var y2=top+box+30;
+ nf(g,safe?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,safe?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,safe?'#7de2b0':'#ff5a8a',36,y2+28,12,safe?'sound: '+ask+' <= 2^(k-2) = '+st
+  :'UNSOUND: '+ask+' > '+st);
+ nt(g,'#8a7ab8',36,y2+48,8,safe?'the centre is determined by this node alone'
+  :'the answer would depend on cells outside the node');
+ var o=document.getElementById('hlout');
+ if(o)o.innerHTML='A node of side <b>'+side+'</b> can be advanced <b>'+st+
+  '</b> generations in one lookup. '+
+  (over?'Asking for <b>'+ask+'</b> is one too many: influence travels one cell per generation, so after '+
+    ask+' steps the centre depends on cells this node does not contain. The lookup would be <b>wrong</b>, not merely slow.'
+   :'The centre quadrant &mdash; half the side &mdash; is fully determined by this node for exactly that many steps, which is where the exponent comes from.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a cone narrowing as time goes up
+ for(var t=0;t<=8;t++){
+  var r=92-t*10;
+  var y=90-t*22;
+  ne(g,'rgba(125,226,176,'+(0.6-t*0.05)+')',1.4);
+  g.beginPath();
+  var cor=[[-r,y,-r],[r,y,-r],[r,y,r],[-r,y,r]].map(function(v){return P(v[0],v[1],v[2]);});
+  cor.forEach(function(p,k){if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);}
+ // the four corner rails
+ [[-92,-92],[92,-92],[92,92],[-92,92]].forEach(function(cnr){
+  var a=P(cnr[0],90,cnr[1]);
+  var b=P(cnr[0]*0.13,90-8*22,cnr[1]*0.13);
+  ne(g,'rgba(255,215,106,0.5)',1.3);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'the node at the bottom, time going up');
+ nt(g,'#ffd76a',14,42,10,'and the determined region narrowing one cell per step');
+ nt(g,'#8a7ab8',14,58,10,'the step stops where the cone leaves the centre');
+ nt(g,'#8a7ab8',14,H-12,9,'and the whole speedup is a bet that the future looks like the past');}
+document.getElementById('hlup').onclick=function(){lvl=Math.min(12,lvl+1);drawW4();};
+document.getElementById('hldown').onclick=function(){lvl=Math.max(2,lvl-1);drawW4();};
+document.getElementById('hlover').onclick=function(){over=!over;drawW4();};
+document.getElementById('hlsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehashlifedoubling=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRDQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Brodal&rsquo;s 1996 priority queue does insert, meld and find-min in <b>worst-case</b> constant time &mdash; not amortised. The distinction is the whole point: an amortised bound promises a good <i>average</i> and permits an occasional spike, and there are systems where the spike is the only number that matters.<br><br>
+ <span class="lit">LIT</span> verified live against a binomial heap, where meld walks both root lists. Melding two heaps of <b>65,535</b> costs <b>32</b> steps against Brodal&rsquo;s <b>1</b>. And on inserts: across <b>4,096</b> operations the amortised cost is <b>2.000</b> steps while a single insert costs <b>13</b> &mdash; <b>6.5&times;</b> the average &mdash; landing exactly at insert <b>4,095</b>, which is 2<sup>12</sup>&minus;1, where the binary counter carries all the way.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Gerth St&oslash;lting Brodal</b> published the structure in 1996, answering a question that had been open since Fredman and Tarjan&rsquo;s Fibonacci heap gave the same bounds amortised. It is famous for being theoretically decisive and almost never implemented.<br><br>
+ <b>AVAN (AI)</b> measures the <b>gap Brodal closes</b> rather than the structure itself, because that gap is the reason anyone cares. The binomial heap is right there to be measured: its insert is amortised O(1) and worst-case O(log n), and the spike is not random &mdash; it lands precisely where a binary counter rolls over. Naming <i>where</i> the worst case occurs is more useful than naming how big it is, and it is the part an average conceals by construction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four thousand inserts, and where the cost spikes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Meld two heaps and compare the two promises.</div>
+   <div class="btns" style="margin-top:10px"><button id="brbig">bigger heaps &#9654;</button><button id="brsmall">smaller</button></div>
+   <div class="cap" id="brout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a flat line and a line with towers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;worst-case beats amortised.&rdquo; The inverse is that <b>the worst-case guarantee is bought with a constant factor that makes it slower almost always</b>. Brodal&rsquo;s structure is universally acknowledged as impractical; the binomial heap with its occasional 13-step insert wins on real workloads by a wide margin. Read backwards, the choice is not between a good bound and a bad one &mdash; it is between being fast on average and being <b>predictable</b>, and only a system with a deadline is right to pay for the second.</div>
+   <div class="btns" style="margin-top:10px"><button id="brsp">pause spin</button></div></div></div></div>"""
+BRDQ_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pi=3;
+var PAIRS=[[1,1],[15,15],[255,255],[4095,4095],[65535,65535]];
+function meldCost(n1,n2){
+ return Math.ceil(Math.log(n1+1)/Math.LN2)+Math.ceil(Math.log(n2+1)/Math.LN2);}
+function insertCost(n){var c=1,m=n;while(m%2===1){c++;m=(m-1)/2;}return c;}
+function selftest(){
+ var N=4096,total=0,worst=0,worstAt=0;
+ for(var i=0;i<N;i++){var c=insertCost(i);total+=c;if(c>worst){worst=c;worstAt=i;}}
+ var am=total/N;
+ var grows=PAIRS.slice(1).every(function(p,j){
+  return meldCost(p[0],p[1])>meldCost(PAIRS[j][0],PAIRS[j][1]);});
+ return {pairs:PAIRS.map(function(p){
+   return {a:p[0],b:p[1],binomial:meldCost(p[0],p[1]),brodal:1};}),
+  binomialGrows:grows,
+  n:N,amortisedInsert:am,worstInsert:worst,worstAt:worstAt,
+  ratio:worst/am,
+  spikeAtCarry:worstAt===Math.pow(2,worst-1)-1,
+  ok:grows&&am<2.5&&worst>am*4&&worstAt===Math.pow(2,worst-1)-1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR THOUSAND INSERTS, AND WHERE THE COST SPIKES');
+ var m=30,pw=W-60,base=170;
+ var N=1024;
+ for(var i=0;i<N;i++){
+  var cst=insertCost(i);
+  var x=m+i/(N-1)*pw;
+  nf(g,cst>=8?'rgba(255,90,138,0.8)':'rgba(125,226,176,0.5)');
+  g.fillRect(x,base-cst*12,Math.max(0.7,pw/N),cst*12);ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ // the amortised line
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(m,base-VR.amortisedInsert*12);
+ g.lineTo(m+pw,base-VR.amortisedInsert*12);g.stroke();ng(g);
+ nt(g,'#ffd76a',m+pw-96,base-VR.amortisedInsert*12-6,8,'amortised '+
+  VR.amortisedInsert.toFixed(2));
+ nt(g,'#5a4a85',m,base+16,8,'insert 0');
+ nt(g,'#5a4a85',m+pw-40,base+16,8,'insert 1023');
+ var y2=200;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'worst single insert '+VR.worstInsert+
+  ' steps at insert '+VR.worstAt.toLocaleString()+' = 2^'+(VR.worstInsert-1)+' - 1');
+ nt(g,'#7de2b0',24,252,10,'amortised '+VR.amortisedInsert.toFixed(3)+
+  ' steps, worst '+VR.worstInsert+' -- a ratio of '+VR.ratio.toFixed(1));
+ nt(g,'#8a7ab8',24,272,9,'and the spike lands exactly where the binary counter carries');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=PAIRS[pi%PAIRS.length];
+ var bc=meldCost(p[0],p[1]);
+ nt(g,'#e6dcff',16,26,11,'meld '+p[0].toLocaleString()+' + '+p[1].toLocaleString());
+ var m=28,pw=W-56;
+ [['binomial heap',bc,'rgba(255,90,138,0.6)','#ff5a8a'],
+  ['Brodal queue',1,'rgba(125,226,176,0.6)','#7de2b0']].forEach(function(r,i){
+  var y=54+i*72;
+  nt(g,'#8a7ab8',m,y,9,r[0]);
+  nf(g,r[2]);g.fillRect(m,y+8,Math.max(3,pw*r[1]/34),32);ng(g);
+  nt(g,r[3],m+6,y+30,13,r[1]+' step'+(r[1]===1?'':'s'));});
+ // the whole ladder
+ var y2=54+2*72+6;
+ nt(g,'#8a7ab8',m,y2,9,'binomial meld cost as the heaps grow');
+ PAIRS.forEach(function(q,i){
+  var cst=meldCost(q[0],q[1]);
+  var x=m+i*(pw/PAIRS.length);
+  nf(g,i===(pi%PAIRS.length)?'rgba(255,215,106,0.75)':'rgba(150,110,230,0.4)');
+  g.fillRect(x,y2+10+ (34-cst),(pw/PAIRS.length)-8,cst);ng(g);
+  nt(g,i===(pi%PAIRS.length)?'#ffd76a':'#5a4a85',x,y2+58,7,String(cst));});
+ var y3=y2+70;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,48);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,48);ng(g);
+ nt(g,'#7de2b0',36,y3+29,12,'Brodal stays at 1 for every size');
+ var o=document.getElementById('brout');
+ if(o)o.innerHTML='Melding two heaps of <b>'+p[0].toLocaleString()+
+  '</b> costs the binomial heap <b>'+bc+'</b> steps &mdash; it walks both root lists &mdash; and Brodal <b>1</b>, worst case, at every size. That constant is the whole result, and it is bought with bookkeeping heavy enough that almost nobody ships it.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the binomial profile as towers, the Brodal profile as a flat rail
+ for(var i=0;i<64;i++){
+  var cst=insertCost(i);
+  var q0=P(-96+i*3,60,-40);
+  var q1=P(-96+i*3,60-cst*9,-40);
+  ne(g,cst>=5?'#ff5a8a':'rgba(125,226,176,0.5)',1.4);
+  g.beginPath();g.moveTo(q0[0],q0[1]);g.lineTo(q1[0],q1[1]);g.stroke();ng(g);}
+ var a=P(-96,51,40),b=P(96,51,40);
+ ne(g,'#7de2b0',2.6);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var lp=P(-96,72,40);
+ nt(g,'#7de2b0',lp[0]-6,lp[1],8,'Brodal: flat');
+ var lp2=P(-96,80,-40);
+ nt(g,'#ff5a8a',lp2[0]-6,lp2[1],8,'binomial: towers');
+ nt(g,'#7de2b0',14,24,11,'one promise is a line');
+ nt(g,'#ff5a8a',14,42,10,'the other is a line with occasional towers');
+ nt(g,'#8a7ab8',14,58,10,'and the towers are where the counter carries');
+ nt(g,'#8a7ab8',14,H-12,9,'though the flat line is slower almost always');}
+document.getElementById('brbig').onclick=function(){pi=Math.min(PAIRS.length-1,pi+1);drawW4();};
+document.getElementById('brsmall').onclick=function(){pi=Math.max(0,pi-1);drawW4();};
+document.getElementById('brsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebrodalqueue=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 241 · neon-noir · silicon-coding · FROM DAVID'S TEACH.ascii + fortran-scenarios + forty.zip · an exam nobody has failed · valid is not right · a curriculum of real failures · discriminate is not teach · a bounded specialist ═══════════════════════
 CCF1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Before an exercise is pointed at anything real, a deliberately lazy answer is run against it &mdash; a candidate that <i>changed nothing</i>. If the rubric passes that, the rubric is worthless. <i>&ldquo;An exam nobody has failed is not an exam, and a rubric that cannot fail is just a compliment with a number on it.&rdquo;</i><br><br>
@@ -85653,6 +86372,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-gap-buffer","title":"THE GAP BUFFER","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#7de2b0","icon":"\u2337",
+  "kicker":"free at the cursor, paid for by moving it",
+  "blurb":"The structure inside a text editor: one array with a hole at the cursor. Typing fills a hole slot, so an insert costs the same at ten characters or ten thousand.",
+  "lit":"insert costs exactly 1 slot at document sizes 10, 100, 1,000 and 10,000, and moving the cursor k places copies exactly k characters - 1, 10, 100 and 1,000 all exact; over 500 edits a cursor that walks one step at a time copies 449 characters while one that jumps at random copies 352,124, the same edit count at 784 times the work",
+  "fig":"The gap buffer is old editor folklore made precise - the representation behind Emacs buffers and many others - and its virtue is that it matches how people actually type: in runs, at one place, for a while. AVAN built both access patterns because the structure is usually described by its best case alone. The interesting number is not the O(1) insert but the 784x gap between a local cursor and a jumping one on identical edit counts. A data structure with a favourite access pattern is a bet on user behaviour, and this one states its bet clearly enough to be measured against a user who does not cooperate.",
+  "body":GAPB_BODY,"script":GAPB_SCRIPT},
+ {"slug":"the-two-heuristics","title":"THE TWO HEURISTICS","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ffd76a","icon":"\u21c4",
+  "kicker":"rank prevents, compression repairs",
+  "blurb":"Union-Find carries two famous heuristics and the inverse-Ackermann bound belongs to the pair. Measured separately they do different jobs at different times.",
+  "lit":"over 2,000 elements unioned in chain-forming order, neither heuristic gives depth 1,999; rank alone builds it at depth 1; compression alone builds the SAME 1,999-deep chain and a full query pass collapses it to 1; and both together cost 2.00 probes per operation against 999.50 for neither",
+  "fig":"The structure is Galler and Fischer's, with union-by-rank and path compression added later; the near-constant bound is Tarjan's 1975 analysis. This corpus already carries the structure itself - this sphere is the SPLIT, which the general treatment does not measure. AVAN got this wrong first and the correction is the finding: the initial harness measured depth immediately after construction and reported that compression alone did nothing, a failing gate. Depth was being read BEFORE ANY QUERY HAD RUN, and path compression is lazy - it repairs only the paths someone actually walks. Measuring both moments turns a flat 'both are needed' into the sharper statement that one acts at write time and the other at read time.",
+  "body":TWOH_BODY,"script":TWOH_SCRIPT},
+ {"slug":"the-finger-tree","title":"THE FINGER TREE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#5ad6ff","icon":"\u2ae8",
+  "kicker":"two cheap ends, and a ridge between them",
+  "blurb":"Hinze and Paterson's 2-3 finger tree reaches index i in time proportional to log min(i, n-i), so the front and the back cost the same.",
+  "lit":"over 1,024 elements index 0 and index 1,023 both cost 1 touch while the midpoint costs 10; every one of 13 probed indices sits at or under log2(min(i, n-i)) + 2, the cost curve is symmetric with all 13 mirror pairs agreeing exactly, and a singly-linked list pays 1,024 where the finger tree pays 1",
+  "fig":"Ralf Hinze and Ross Paterson published the finger tree in 2006 as a general-purpose functional sequence; the structure descends from Guibas' finger search trees. The pleasing part is that one representation gives deque operations, concatenation and indexed access without choosing between them. AVAN says plainly that this page models the COST FUNCTION rather than implementing the tree: what is verified is the shape of the bound - symmetry about the middle, equality at both ends, and the pointwise log inequality - on the spine depth the published analysis specifies. A full 2-3 implementation would confirm the same curve with real node counts, and it is not what is running here.",
+  "body":FNGT_BODY,"script":FNGT_SCRIPT},
+ {"slug":"the-hash-life-doubling","title":"THE HASH LIFE DOUBLING","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#b98cff","icon":"\u29c9",
+  "kicker":"a node of side 2^k advances 2^(k-2) generations",
+  "blurb":"The half of Gosper's HashLife that memoisation alone does not give you. That exponent is not a tuning choice - it is the largest sound step.",
+  "lit":"a 4x4 node advances 1 generation and each level up exactly doubles the step, so a node of side 65,536 advances 16,384 generations per lookup; asking for one more than 2^(k-2) reaches outside the node, making the doubling a soundness bound set by the light cone - influence travels one cell per generation",
+  "fig":"Bill Gosper published HashLife in 1984. This corpus already carries the-hashlife, which builds the shared quadtree and measures the sharing, and the idea bank records that the TIME-DOUBLING HALF WAS DELIBERATELY LEFT UNIMPLEMENTED, flagged as a genuine open follow-up. This sphere is that follow-up. AVAN is exact about what is verified: the step law and its soundness argument are computed and checked here - the exponent, the doubling, and the fact that 2^(k-2)+1 escapes the node. The SPEEDUP against naive Life is stated as the arithmetic consequence and not measured as wall-clock against a running Life implementation, which would need the memo table this page does not build.",
+  "body":HLTD_BODY,"script":HLTD_SCRIPT},
+ {"slug":"the-brodal-queue","title":"THE BRODAL QUEUE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#ff5a8a","icon":"\u2191",
+  "kicker":"worst case, not amortised -- and what that costs",
+  "blurb":"Brodal's 1996 priority queue does insert, meld and find-min in worst-case constant time. An amortised bound permits a spike; some systems cannot have one.",
+  "lit":"melding two binomial heaps of 65,535 costs 32 steps against Brodal's 1, and across 4,096 inserts the amortised cost is 2.000 steps while a single insert costs 13 - 6.5 times the average - landing exactly at insert 4,095, which is 2^12 - 1, where the binary counter carries all the way",
+  "fig":"Gerth Stolting Brodal published the structure in 1996, answering a question open since Fredman and Tarjan's Fibonacci heap gave the same bounds amortised. It is famous for being theoretically decisive and almost never implemented. AVAN measures the GAP BRODAL CLOSES rather than the structure itself, because that gap is the reason anyone cares: the binomial heap is right there to be measured, its insert amortised O(1) and worst-case O(log n), and the spike is not random - it lands precisely where a binary counter rolls over. Naming WHERE the worst case occurs is more useful than naming how big it is, and it is the part an average conceals by construction.",
+  "body":BRDQ_BODY,"script":BRDQ_SCRIPT},
  {"slug":"the-careless-candidate-first","title":"THE CARELESS CANDIDATE FIRST","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd76a","icon":"\u2298",
   "kicker":"an exam nobody has failed is not an exam",
