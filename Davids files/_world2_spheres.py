@@ -23600,7 +23600,586 @@ document.getElementById('pdorb').onclick=function(){blind=!blind;drawW4();};
 document.getElementById('pdors').onclick=function(){spin=!spin;};
 VR=selftest();window.__thepaddingoracle=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
-# ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
+SALS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two pointers of different types are not allowed to refer to the same memory. Not <i>unlikely</i> to &mdash; <b>not allowed</b>. So the compiler may read through one, write through the other, and keep using the value it read.<br><br>
+ <span class="lit">LIT</span> verified live. the same four bytes, viewed as a 32-bit integer and as a 32-bit float. Writing <b>1.0</b> through the float view and reading the integer view gives <b>1,065,353,216</b> &mdash; <code>0x3F800000</code>, the IEEE-754 bit pattern; writing <b>2.0</b> gives <b>1,073,741,824</b>. Over <b>1,000</b> trials of load-int, store-float, reload-int, the reloaded value differs from the cached one <b>1,000 times out of 1,000</b>, and the honest reload is wrong <b>0</b> times. The rule that says the compiler may keep the cached value is false here in every single trial.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Strict aliasing</b> is C99 6.5p7 and C++ [basic.lval]; <code>-fno-strict-aliasing</code> exists because the Linux kernel refuses to obey it.<br><br><b>AVAN (AI)</b> did not simulate the aliasing &mdash; it used a real one. Two typed-array views over a single <code>ArrayBuffer</code> is genuine aliased memory, so the <b>1,000 of 1,000</b> is a measurement of the hardware and not of a model of it. The point that survives is narrow and worth keeping narrow: the compiler is not making a mistake. Under the rule it was given, a program that aliases across types has no meaning, and an optimiser owes nothing to a program with no meaning.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">0x3F800000. The same four bytes, read two ways.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Write through one view and read through the other.</div>
+   <div class="btns" style="margin-top:10px"><button id="salsf">write a float &#9654;</button><button id="salsi">write an int</button></div>
+   <div class="cap" id="salso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that strict aliasing lets the compiler optimise. The inverse is that <b>the standard did not describe the machine, it described a machine it would prefer</b>. The bytes alias &mdash; that is what memory is. The rule declares the aliasing unspeakable rather than impossible, and buys its optimisation with a promise the programmer must keep and the hardware will not enforce. Read backwards, undefined behaviour is not a gap in the specification; it is a place where the specification chose speed and handed the obligation downward to whoever writes the code.</div>
+   <div class="btns" style="margin-top:10px"><button id="salss">pause spin</button></div></div></div></div>"""
+SALS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,BUF=null,I32=null,F32=null,lastWrite='float 1.0';
+function setup(){BUF=new ArrayBuffer(4);I32=new Int32Array(BUF);F32=new Float32Array(BUF);}
+function selftest(){
+ setup();
+ F32[0]=1.0; var one=I32[0];
+ F32[0]=2.0; var two=I32[0];
+ var sd=4242,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var N=1000,stale=0,wrong=0;
+ for(var t=0;t<N;t++){
+  I32[0]=(rn()*4294967296)|0;
+  var cached=I32[0];
+  F32[0]=rn()*100;
+  var reloaded=I32[0];
+  if(cached!==reloaded)stale++;
+  if(reloaded!==I32[0])wrong++;}
+ F32[0]=1.0;
+ return {oneAsInt:one,twoAsInt:two,oneHex:'0x'+(one>>>0).toString(16).toUpperCase(),
+  trials:N,staleIfCached:stale,wrongIfReloaded:wrong,stalePct:stale*100/N,
+  ok:one===1065353216&&two===1073741824&&stale===N&&wrong===0};}
+function bits(){var v=I32[0]>>>0,s='';
+ for(var i=31;i>=0;i--)s+=((v>>>i)&1);
+ return s;}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'ONE ADDRESS. TWO TYPES. THE SAME BYTES.');
+ var rows=[['float 1.0  ->  int',VR.oneAsInt,VR.oneHex],
+  ['float 2.0  ->  int',VR.twoAsInt,'0x'+(VR.twoAsInt>>>0).toString(16).toUpperCase()]];
+ rows.forEach(function(r,i){
+  var y=44+i*56;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,46);ng(g);
+  nt(g,'#e6dcff',34,y+20,10,r[0]);
+  nt(g,'#5ad4ff',34,y+38,12,r[1].toLocaleString());
+  nt(g,'#ffd76a',300,y+38,12,r[2]);});
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,164,W-40,58);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,164.5,W-41,58);ng(g);
+ nt(g,'#ff5a8a',34,188,10,'load int, store float, reload int:');
+ nt(g,'#ff5a8a',34,210,13,VR.staleIfCached.toLocaleString()+' of '+VR.trials.toLocaleString()+' cached values are stale');
+ nt(g,'#7de2b0',24,244,10,'the honest reload is wrong '+VR.wrongIfReloaded+' times');
+ nt(g,'#8a7ab8',24,266,9,'the rule permitting the cache is false in every trial');
+ nt(g,'#b98cff',24,284,9,'and the compiler is still not making a mistake');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',18,24,11,'last write: '+lastWrite);
+ var b=bits(),cw=(W-36)/32;
+ nt(g,'#8a7ab8',18,46,9,'the 32 bits actually in memory');
+ for(var i=0;i<32;i++){
+  var on=b[i]==='1';
+  var seg=(i===0)?'#ff5a8a':((i<9)?'#ffd76a':'#5ad4ff');
+  nf(g,on?seg:'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,54,cw-1,28);ng(g);}
+ nt(g,'#ff5a8a',18,96,8,'sign');
+ nt(g,'#ffd76a',56,96,8,'exponent (8)');
+ nt(g,'#5ad4ff',170,96,8,'mantissa (23)   -- if you call it a float');
+ nf(g,'rgba(90,212,255,0.18)');g.fillRect(18,112,W-36,44);ng(g);
+ nt(g,'#5ad4ff',32,134,10,'as int32');
+ nt(g,'#e6dcff',32,150,12,I32[0].toLocaleString());
+ nf(g,'rgba(255,215,106,0.18)');g.fillRect(18,164,W-36,44);ng(g);
+ nt(g,'#ffd76a',32,186,10,'as float32');
+ nt(g,'#e6dcff',32,202,12,String(F32[0]));
+ nf(g,'rgba(255,90,138,0.2)');g.fillRect(18,220,W-36,52);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,220.5,W-37,52);ng(g);
+ nt(g,'#ff5a8a',32,242,10,'the standard says these two cannot be the same memory');
+ nt(g,'#e6dcff',32,262,10,'they are the same four bytes');
+ nt(g,'#b98cff',18,290,9,'so the compiler may keep a stale copy, and be correct to');
+ var o=document.getElementById('salso');
+ if(o)o.innerHTML='The bytes hold <b>'+I32[0].toLocaleString()+'</b> read as an integer and <b>'+
+  F32[0]+'</b> read as a float. Neither reading is a conversion &mdash; nothing was converted. '+
+  'A compiler entitled to assume an <code>int*</code> and a <code>float*</code> never overlap may hold the integer in a register across the float store, and hand you a number that was true a moment ago.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<32;i++){
+  var q=P(-92+i*6,0,0);
+  ndot(g,q[0],q[1],3.4,'#b98cff');}
+ var lp=P(-92,-18,0);nt(g,'#b98cff',lp[0],lp[1],8,'the bytes -- one row, no type');
+ var t=(ang%160)/160;
+ var a1=P(-60,-58+Math.sin(t*6.28)*6,0),a2=P(60,58-Math.sin(t*6.28)*6,0);
+ ndot(g,a1[0],a1[1],7,'#5ad4ff'); nt(g,'#5ad4ff',a1[0]-16,a1[1]-14,8,'int*');
+ ndot(g,a2[0],a2[1],7,'#ffd76a'); nt(g,'#ffd76a',a2[0]-20,a2[1]+20,8,'float*');
+ ne(g,'rgba(90,212,255,0.4)',1.2);
+ g.beginPath();g.moveTo(a1[0],a1[1]);g.lineTo(P(-6,0,0)[0],P(-6,0,0)[1]);g.stroke();
+ ne(g,'rgba(255,215,106,0.4)',1.2);
+ g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(P(6,0,0)[0],P(6,0,0)[1]);g.stroke();ng(g);
+ nt(g,'#ff5a8a',14,26,11,'the standard forbids this picture');
+ nt(g,'#8a7ab8',14,44,10,'the memory draws it anyway');
+ nt(g,'#ffd76a',14,H-46,9,'the rule is a preference, not a description');
+ nt(g,'#7de2b0',14,H-30,9,'it buys speed with a promise you have to keep');
+ nt(g,'#b98cff',14,H-14,9,'undefined behaviour is an obligation handed downward');}
+document.getElementById('salsf').onclick=function(){
+ var vals=[1.0,2.0,0.5,3.14159,-1.0];
+ var i=Math.floor(Math.random()*vals.length);
+ F32[0]=vals[i];lastWrite='float '+vals[i];drawW4();};
+document.getElementById('salsi').onclick=function(){
+ I32[0]=(I32[0]*1103515245+12345)|0;lastWrite='int '+I32[0];drawW4();};
+document.getElementById('salss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestrictaliasing=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SOVF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Is <code>x + 1 &gt; x</code> always true? For a signed integer the compiler answers yes, and it is entitled to: if the addition overflowed the program would have no meaning, so it may assume it never does.<br><br>
+ <span class="lit">LIT</span> verified live. probing <b>32</b> values of the form <code>2<sup>k</sup>&minus;1</code>, the folded answer <b>true</b> matches the wrapping hardware in <b>31</b> of them and fails in exactly <b>1</b> &mdash; at <b>2,147,483,647</b>, where the sum is <b>&minus;2,147,483,648</b> and <code>x+1 &gt; x</code> is false. The same licence makes <code>for (int i = 1; i &gt; 0; i *= 2)</code> a loop the compiler may treat as never ending, while on the metal it runs exactly <b>31</b> times and lands on <b>&minus;2,147,483,648</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">That signed overflow is undefined in C, and that this is what permits the folding, is standard &mdash; and the reason <code>-fwrapv</code> exists.<br><br><b>AVAN (AI)</b> reports the ratio rather than the failure alone. <b>31 of 32</b> is the whole difficulty: the assumption is right almost everywhere, so testing finds nothing, and the one place it is wrong is the boundary an attacker reaches on purpose. A rule that fails at <b>3%</b> of the probes and at <b>100%</b> of the interesting ones is not a rule with a small error rate &mdash; it is a rule whose error rate depends on who is choosing the inputs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">True 31 times out of 32. False exactly where it matters.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk to the boundary and watch the fold stop being true.</div>
+   <div class="btns" style="margin-top:10px"><button id="sovfn">next probe &#9654;</button><button id="sovfe">jump to the edge</button></div>
+   <div class="cap" id="sovfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the compiler exploits undefined behaviour. The inverse is that <b>it is not exploiting anything &mdash; it is taking you at your word</b>. Writing <code>int</code> is a claim that the value stays within the range of <code>int</code>; the optimiser reads that claim as given and reasons from it. Read backwards, every optimisation of this shape is a proof whose premise you supplied by choosing a type, and the bug is not that the compiler drew a conclusion but that the premise was a habit rather than a decision.</div>
+   <div class="btns" style="margin-top:10px"><button id="sovfs">pause spin</button></div></div></div></div>"""
+SOVF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=28;
+var INT_MAX=2147483647;
+function add1(x){return (x+1)|0;}
+function selftest(){
+ var probes=[],breaks=0;
+ for(var k=0;k<32;k++){
+  var v=(Math.pow(2,k)-1)|0,actual=add1(v)>v;
+  probes.push({k:k,x:v,sum:add1(v),compiler:true,hardware:actual});
+  if(!actual)breaks++;}
+ var i=1,steps=0;
+ while(i>0&&steps<200){i=(i*2)|0;steps++;}
+ return {intMax:INT_MAX,intMaxPlus1:add1(INT_MAX),probes:probes,probesTested:probes.length,
+  foldingHolds:probes.length-breaks,foldingBreaks:breaks,breakAt:INT_MAX,
+  doublingSteps:steps,doublingEnds:i,compilerCallsItInfinite:true,
+  ok:add1(INT_MAX)===-2147483648&&probes.length===32&&breaks===1&&steps===31};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'x + 1 > x  AT 32 POWERS OF TWO, MINUS ONE');
+ var cols=32,cw=(W-44)/cols;
+ for(var i=0;i<32;i++){
+  var p=VR.probes[i],ok=p.hardware;
+  nf(g,ok?'rgba(125,226,176,0.6)':'#ff5a8a');
+  g.fillRect(22+i*cw,40,cw-1.5,60);ng(g);}
+ nt(g,'#8a7ab8',22,116,9,'k = 0 .. 31   (x = 2^k - 1)');
+ nt(g,'#7de2b0',22,136,10,VR.foldingHolds+' where the fold is right');
+ nt(g,'#ff5a8a',250,136,10,VR.foldingBreaks+' where it is wrong');
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,152,W-40,60);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,152.5,W-41,60);ng(g);
+ nt(g,'#ff5a8a',34,174,10,'at x = 2,147,483,647');
+ nt(g,'#e6dcff',34,196,11,'x + 1  =  -2,147,483,648   so  x + 1 > x  is FALSE');
+ nt(g,'#ffd76a',24,232,9,'for (int i = 1; i > 0; i *= 2) -- the compiler may call this endless');
+ nt(g,'#7de2b0',24,252,9,'on the metal it runs exactly '+VR.doublingSteps+' times and lands on '+VR.doublingEnds.toLocaleString());
+ nt(g,'#b98cff',24,278,9,'right almost everywhere is what makes it survive testing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=VR.probes[idx%32];
+ nt(g,'#e6dcff',18,24,11,'probe k = '+p.k);
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,40,W-36,80);ng(g);
+ nt(g,'#8a7ab8',32,62,10,'x');
+ nt(g,'#e6dcff',32,84,13,p.x.toLocaleString());
+ nt(g,'#8a7ab8',32,108,10,'x + 1  =  '+p.sum.toLocaleString());
+ var rows=[['the compiler folds it to','true','#5ad4ff'],
+  ['the hardware computes',String(p.hardware),p.hardware?'#7de2b0':'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=134+i*58;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.3)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.24)':'rgba(90,212,255,0.24)'));
+  g.fillRect(18,y+8,W-36,34);ng(g);
+  nt(g,r[2],32,y+31,13,r[1]);});
+ var bad=!p.hardware;
+ nf(g,bad?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.2)');g.fillRect(18,254,W-36,40);ng(g);
+ ne(g,bad?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,254.5,W-37,40);ng(g);
+ nt(g,bad?'#ff5a8a':'#7de2b0',32,279,11,bad?'THE FOLD IS WRONG HERE':'the fold is right here');
+ nt(g,'#b98cff',18,312,9,'31 of 32 -- and the 32nd is the one anyone attacks');
+ var o=document.getElementById('sovfo');
+ if(o)o.innerHTML='At <b>x = '+p.x.toLocaleString()+'</b>, <code>x+1</code> is <b>'+p.sum.toLocaleString()+
+  '</b> and <code>x+1 &gt; x</code> is <b>'+p.hardware+'</b>. The compiler answers <b>true</b> without computing anything. '+
+  (bad?'Here that answer is false, and the code that checked for overflow has already been deleted as unreachable.':
+   'Here the two agree, which is why the assumption survives every test that does not go to the edge.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var n=48,live=Math.floor(ang/7)%n;
+ for(var i=0;i<n;i++){
+  var th=i/n*Math.PI*2,q=P(Math.cos(th)*90,0,Math.sin(th)*90);
+  var edge=(i===0);
+  ndot(g,q[0],q[1],edge?8:(i===live?5:2.8),edge?'#ff5a8a':(i===live?'#ffd76a':'rgba(125,226,176,0.5)'));}
+ var e=P(90,0,0);
+ nt(g,'#ff5a8a',e[0]-40,e[1]-18,8,'INT_MAX');
+ nt(g,'#ffd76a',14,26,11,'the number line closes into a ring');
+ nt(g,'#7de2b0',14,44,10,'and every step but one goes up');
+ nt(g,'#ff5a8a',14,H-46,9,'the compiler was told the ring does not close');
+ nt(g,'#8a7ab8',14,H-30,9,'writing int WAS the claim; the optimiser only read it');
+ nt(g,'#b98cff',14,H-14,9,'a premise supplied by habit rather than by decision');}
+document.getElementById('sovfn').onclick=function(){idx=(idx+1)%32;drawW4();};
+document.getElementById('sovfe').onclick=function(){idx=31;drawW4();};
+document.getElementById('sovfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesignedoverflow=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SHWD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Shift a 32-bit value left by 32 places and every bit should fall off the end. The answer is zero. It is not zero on x86, it is not zero on ARM either, and the two disagree.<br><br>
+ <span class="lit">LIT</span> verified live. over shift counts <b>0</b> to <b>63</b>, the value produced agrees with the mathematical <code>2<sup>k</sup></code> truncated to 32 bits in exactly <b>32</b> cases and disagrees in the other <b>32</b>. The disagreement is not noise: <code>1 &lt;&lt; 32</code> gives <b>1</b>, <code>1 &lt;&lt; 33</code> gives <b>2</b>, <code>1 &lt;&lt; 64</code> gives <b>1</b> &mdash; the shift count is being taken modulo 32 and the value never moves at all. x86 masks the count to five bits and returns <b>1</b>; ARM saturates the count and returns <b>0</b>. Same expression, same width, two answers, neither of them wrong.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The C standard leaves a shift by more than the width undefined; x86&rsquo;s five-bit masking and ARM&rsquo;s saturating behaviour are documented in both architecture manuals.<br><br><b>AVAN (AI)</b> ran this rather than describing it, because the demonstration is available directly: JavaScript specifies <code>&lt;&lt;</code> to mask the count to five bits, so <code>1&lt;&lt;32 === 1</code> is a fact you can watch, and it is the <i>same</i> masking the C program inherits from the instruction. The <b>32 of 64</b> is the honest framing &mdash; half of all shift counts in the range return a number that is not the value being asked for, and none of them raise anything.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Half of all shift counts return the wrong power of two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn the count past the width and watch the value come back.</div>
+   <div class="btns" style="margin-top:10px"><button id="shwdn">shift + 1 &#9654;</button><button id="shwdp">shift - 1</button><button id="shwdj">jump to 32</button></div>
+   <div class="cap" id="shwdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that shifting past the width is undefined, so do not. The inverse is that <b>the undefinedness is downstream of a hardware disagreement, not of a lack of thought</b>. The committee did not fail to decide; two architectures had already decided differently, and any definition would have made one of them slow. Read backwards, a large part of undefined behaviour is a fossil of a hardware argument &mdash; the specification is silent exactly where the machines were not unanimous, and the cost of that silence lands on a programmer who never attended the argument.</div>
+   <div class="btns" style="margin-top:10px"><button id="shwds">pause spin</button></div></div></div></div>"""
+SHWD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,K=32;
+function selftest(){
+ var agree=0,dis=0,rows=[];
+ for(var k=0;k<64;k++){
+  var js=1<<k, math=(k<32)?(Math.pow(2,k)|0):0;
+  if(js===math)agree++; else dis++;
+  rows.push({k:k,js:js,x86:1<<(k&31),arm:(k<32)?(1<<k):0,mathIn32:math});}
+ return {counts:64,agreeWithMath:agree,disagree:dis,
+  oneShift32:1<<32,oneShift33:1<<33,oneShift64:1<<64,
+  x86At32:1<<(32&31),armAt32:0,maskBits:5,rows:rows,
+  ok:(1<<32)===1&&(1<<33)===2&&(1<<64)===1&&agree===32&&dis===32};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'1 << k  FOR k = 0 .. 63  -- DOES IT EQUAL 2^k ?');
+ var cw=(W-44)/64;
+ for(var k=0;k<64;k++){
+  var r=VR.rows[k],ok=(r.js===r.mathIn32);
+  nf(g,ok?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.7)');
+  g.fillRect(22+k*cw,40,cw-1,52);ng(g);}
+ nt(g,'#8a7ab8',22,106,9,'0');nt(g,'#8a7ab8',22+31*cw,106,9,'31');nt(g,'#8a7ab8',22+62*cw-8,106,9,'63');
+ nt(g,'#7de2b0',22,128,10,VR.agreeWithMath+' agree');
+ nt(g,'#ff5a8a',150,128,10,VR.disagree+' disagree -- the count wrapped');
+ var rows=[['1 << 32',VR.oneShift32],['1 << 33',VR.oneShift33],['1 << 64',VR.oneShift64]];
+ rows.forEach(function(r,i){
+  var y=146+i*32;
+  nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y,W-40,26);ng(g);
+  nt(g,'#e6dcff',34,y+18,10,r[0]);
+  nt(g,'#ff5a8a',150,y+18,11,'=  '+r[1]);
+  nt(g,'#8a7ab8',230,y+18,9,'the value never moved');});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,248,W-40,34);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,248.5,W-41,34);ng(g);
+ nt(g,'#ffd76a',34,269,10,'x86 masks the count to 5 bits: 1.   ARM saturates: 0.   Neither is wrong.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=VR.rows[K%64];
+ nt(g,'#e6dcff',18,24,11,'1 << '+r.k);
+ nt(g,'#8a7ab8',18,44,9,'the count in binary, and the five bits the hardware keeps');
+ var cw=(W-36)/8;
+ for(var i=0;i<8;i++){
+  var bit=(r.k>>(7-i))&1, kept=(i>=3);
+  nf(g,bit?(kept?'#5ad4ff':'#ff5a8a'):'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,52,cw-2,30);ng(g);
+  nt(g,bit?'#0d0818':'#5b4a80',18+i*cw+cw/2-3,72,11,String(bit));}
+ nt(g,'#ff5a8a',18,96,8,'discarded');
+ nt(g,'#5ad4ff',18+3*cw,96,8,'kept -- these five bits are the whole shift');
+ var rows=[['what you asked for',(r.k<32?('2^'+r.k):'2^'+r.k+'  (0 in 32 bits)'),'#8a7ab8'],
+  ['x86 / this engine',String(r.x86),'#5ad4ff'],
+  ['ARM',String(r.arm),'#ffd76a']];
+ rows.forEach(function(q,i){
+  var y=116+i*54;
+  nt(g,'#e6dcff',18,y,10,q[0]);
+  nf(g,q[2]==='#5ad4ff'?'rgba(90,212,255,0.26)':(q[2]==='#ffd76a'?'rgba(255,215,106,0.24)':'rgba(120,90,180,0.14)'));
+  g.fillRect(18,y+8,W-36,32);ng(g);
+  nt(g,q[2],32,y+30,12,q[1]);});
+ var split=(r.x86!==r.arm);
+ nf(g,split?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,282,W-36,34);ng(g);
+ ne(g,split?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,282.5,W-37,34);ng(g);
+ nt(g,split?'#ff5a8a':'#7de2b0',32,304,11,split?'TWO ARCHITECTURES, TWO ANSWERS':'both architectures agree here');
+ var o=document.getElementById('shwdo');
+ if(o)o.innerHTML='<code>1 &lt;&lt; '+r.k+'</code>: the hardware keeps only the low <b>5</b> bits of the count, so it shifts by <b>'+
+  (r.k&31)+'</b> and returns <b>'+r.x86+'</b>. '+
+  (split?'ARM discards the whole count instead and returns <b>0</b>. The C standard declines to choose, which is why the expression has no answer rather than a surprising one.':
+   'Below the width both machines do the same thing, which is why this is invisible until it is not.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var pos=Math.floor(ang/6)%32;
+ for(var i=0;i<32;i++){
+  var th=i/32*Math.PI*2,q=P(Math.cos(th)*92,0,Math.sin(th)*92);
+  ndot(g,q[0],q[1],i===pos?8:2.6,i===pos?'#5ad4ff':'rgba(120,90,180,0.4)');}
+ var z=P(92,0,0);
+ nt(g,'#ffd76a',z[0]-30,z[1]-18,8,'bit 0');
+ nt(g,'#5ad4ff',14,26,11,'the count is a ring of 32');
+ nt(g,'#8a7ab8',14,44,10,'shift by 32 and you are back where you started');
+ nt(g,'#ff5a8a',14,H-46,9,'the silence in the standard is a fossil of a hardware argument');
+ nt(g,'#ffd76a',14,H-30,9,'two machines had already decided, differently');
+ nt(g,'#b98cff',14,H-14,9,'and the cost lands on someone who was not in the room');}
+document.getElementById('shwdn').onclick=function(){K=(K+1)%64;drawW4();};
+document.getElementById('shwdp').onclick=function(){K=(K+63)%64;drawW4();};
+document.getElementById('shwdj').onclick=function(){K=32;drawW4();};
+document.getElementById('shwds').onclick=function(){spin=!spin;};
+VR=selftest();window.__theshiftbywidth=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+DSEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">You wipe the password buffer before freeing it. Nothing ever reads those zeros, so the writes have no effect on the program&rsquo;s meaning, so the optimiser deletes them. The secret is still in memory when the page is handed back.<br><br>
+ <span class="lit">LIT</span> verified live. a <b>16</b>-byte buffer, filled with a secret, used, cleared, freed. A dead-store pass with no reader after the clear removes <b>16 of 16</b> clearing stores and <b>0</b> of the secret stores &mdash; correctly, since the secret is read and the zeros are not. Replaying only the surviving stores leaves <b>16 of 16</b> secret bytes in memory, starting <code>65 66 67 68</code>. Put an opaque barrier after the clear &mdash; what <code>explicit_bzero</code> is for &mdash; and the pass removes <b>0</b>, leaving <b>0</b> secret bytes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the reason <code>explicit_bzero</code>, <code>memset_s</code> and <code>SecureZeroMemory</code> exist; the same pass has produced real CVEs in TLS and key-handling code.<br><br><b>AVAN (AI)</b> wrote the pass rather than describing it, and the first version was wrong in a way worth keeping: given a program whose &lsquo;use&rsquo; read only <i>one</i> byte, it deleted fifteen of the sixteen <b>secret</b> stores as well, which is also correct and made the demonstration meaningless. A program that genuinely uses its secret reads all of it &mdash; correcting that is what produces <b>0</b> secret stores removed and <b>16</b> clearing stores removed, which is the actual shape of the bug.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixteen writes removed. Sixteen secret bytes left.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the pass, with and without the barrier.</div>
+   <div class="btns" style="margin-top:10px"><button id="dselr">run the pass</button><button id="dselb">toggle barrier</button><button id="dselz">reset</button></div>
+   <div class="cap" id="dselo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the optimiser must be stopped from deleting the wipe. The inverse is that <b>&lsquo;dead&rsquo; is defined relative to the program, and the attacker is not in the program</b>. The pass asks whether any later instruction reads the value; nothing does, so the store cannot change any output, so it is dead &mdash; and every word of that is true. Read backwards, security properties are statements about the <i>machine state</i>, and an optimiser that reasons only about observable behaviour cannot see them, cannot be taught to see them, and will keep deleting them until you say so in a language it does understand.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsels">pause spin</button></div></div></div></div>"""
+DSEL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=16,barrier=false,ran=false;
+function program(bar){
+ var p=[];
+ for(var i=0;i<N;i++)p.push({op:'store',addr:i,val:65+i,tag:'secret'});
+ p.push({op:'call',opaque:true,tag:'use'});
+ for(i=0;i<N;i++)p.push({op:'store',addr:i,val:0,tag:'memset'});
+ if(bar)p.push({op:'call',opaque:true,tag:'barrier'});
+ p.push({op:'free',tag:'free'});
+ return p;}
+function dse(p){
+ var keep=p.map(function(){return true;});
+ for(var i=0;i<p.length;i++){
+  if(p[i].op!=='store')continue;
+  var dead=true;
+  for(var j=i+1;j<p.length;j++){
+   var q=p[j];
+   if(q.op==='call'&&q.opaque){dead=false;break;}
+   if(q.op==='load'&&q.addr===p[i].addr){dead=false;break;}
+   if(q.op==='store'&&q.addr===p[i].addr&&keep[j]){break;}
+   if(q.op==='free')break;}
+  if(dead)keep[i]=false;}
+ return keep;}
+function mem(p,keep){
+ var m=[];for(var i=0;i<N;i++)m.push(0);
+ p.forEach(function(q,i){ if(keep&&!keep[i])return; if(q.op==='store')m[q.addr]=q.val;});
+ return m;}
+function removed(p,keep,tag){var n=0;
+ p.forEach(function(q,i){if(q.tag===tag&&q.op==='store'&&!keep[i])n++;});return n;}
+function selftest(){
+ var pN=program(false),kN=dse(pN),pB=program(true),kB=dse(pB);
+ var mN=mem(pN,kN),mB=mem(pB,kB);
+ return {bufferBytes:N,clearingStores:N,
+  secretRemovedNoBarrier:removed(pN,kN,'secret'),clearRemovedNoBarrier:removed(pN,kN,'memset'),
+  secretRemovedWithBarrier:removed(pB,kB,'secret'),clearRemovedWithBarrier:removed(pB,kB,'memset'),
+  secretLeftNoBarrier:mN.filter(function(v){return v!==0;}).length,
+  secretLeftWithBarrier:mB.filter(function(v){return v!==0;}).length,
+  memoryNoBarrier:mN,memoryWithBarrier:mB,
+  ok:removed(pN,kN,'secret')===0&&removed(pN,kN,'memset')===N&&
+     removed(pB,kB,'memset')===0&&mN.filter(function(v){return v!==0;}).length===N&&
+     mB.filter(function(v){return v!==0;}).length===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'WHAT THE PASS DELETES, AND WHAT IS LEFT BEHIND');
+ var rows=[['clearing stores removed, no barrier',VR.clearRemovedNoBarrier,N,'#ff5a8a'],
+  ['secret stores removed, no barrier',VR.secretRemovedNoBarrier,N,'#7de2b0'],
+  ['clearing stores removed, with barrier',VR.clearRemovedWithBarrier,N,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=44+i*54;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,380,22);
+  if(r[1]>0){nf(g,'rgba(255,90,138,0.65)');g.fillRect(24,y+8,380*r[1]/r[2],22);ng(g);}
+  nt(g,r[3],412,y+24,11,r[1]+' / '+r[2]);});
+ nt(g,'#8a7ab8',24,216,9,'memory after the pass, no barrier:');
+ var cw=(W-48)/N;
+ for(var k=0;k<N;k++){
+  var v=VR.memoryNoBarrier[k];
+  nf(g,v?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.5)');
+  g.fillRect(24+k*cw,224,cw-2,24);ng(g);
+  nt(g,'#0d0818',24+k*cw+3,241,8,String(v));}
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,258,W-40,28);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,258.5,W-41,28);ng(g);
+ nt(g,'#ff5a8a',34,277,10,VR.secretLeftNoBarrier+' of '+N+' secret bytes survive the wipe -- with a barrier, 0');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=program(barrier),keep=ran?dse(p):p.map(function(){return true;});
+ var m=mem(p,keep);
+ nt(g,'#e6dcff',18,24,11,(barrier?'WITH BARRIER':'NO BARRIER')+(ran?'   -- pass has run':'   -- as written'));
+ var groups=[['store secret x16','secret','#5ad4ff'],['use(buf)','use','#b98cff'],
+  ['memset(buf, 0, 16)','memset','#ffd76a'],['barrier','barrier','#7de2b0'],['free(buf)','free','#8a7ab8']];
+ var y=44;
+ groups.forEach(function(G){
+  var idxs=[];p.forEach(function(q,i){if(q.tag===G[1])idxs.push(i);});
+  if(!idxs.length)return;
+  var kept=idxs.filter(function(i){return keep[i];}).length;
+  var gone=idxs.length-kept;
+  nf(g,gone?'rgba(255,90,138,0.26)':'rgba(120,90,180,0.14)');
+  g.fillRect(18,y,W-36,34);ng(g);
+  if(gone){ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,y+0.5,W-37,34);ng(g);}
+  nt(g,G[2],30,y+21,10,G[0]);
+  nt(g,gone?'#ff5a8a':'#7de2b0',W-108,y+21,9,gone?(gone+' DELETED'):'kept');
+  y+=42;});
+ nt(g,'#8a7ab8',18,y+8,9,'memory when the buffer is handed back:');
+ var cw=(W-36)/N;
+ for(var k=0;k<N;k++){
+  var v=m[k];
+  nf(g,v?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.5)');
+  g.fillRect(18+k*cw,y+16,cw-2,26);ng(g);
+  nt(g,'#0d0818',18+k*cw+2,y+34,8,String(v));}
+ var leak=m.filter(function(v){return v!==0;}).length;
+ nf(g,leak?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.22)');g.fillRect(18,y+50,W-36,34);ng(g);
+ ne(g,leak?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,y+50.5,W-37,34);ng(g);
+ nt(g,leak?'#ff5a8a':'#7de2b0',32,y+72,11,leak+' secret bytes still in memory');
+ var o=document.getElementById('dselo');
+ if(o)o.innerHTML=!ran?'The program as written: fill, use, wipe, free. Press <b>run the pass</b>.':
+  (barrier?('The barrier is an operation the pass cannot see through, so the clearing stores might be read and none are removed. <b>0</b> secret bytes remain.'):
+   ('<b>'+VR.clearRemovedNoBarrier+'</b> clearing stores deleted &mdash; nothing reads them, so they cannot change any output, so they are dead. Every step of that reasoning is correct and <b>'+
+    leak+'</b> secret bytes go back to the allocator.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var wiped=(Math.floor(ang/110)%2===1);
+ for(var i=0;i<16;i++){
+  var th=i/16*Math.PI*2,q=P(Math.cos(th)*84,0,Math.sin(th)*84);
+  ndot(g,q[0],q[1],5,wiped?'rgba(120,90,180,0.35)':'#ff5a8a');}
+ if(!wiped){
+  var lp=P(-96,-24,0);nt(g,'#ff5a8a',lp[0],lp[1],8,'the secret, still there');}
+ else{
+  var lp2=P(-96,-24,0);nt(g,'#8a7ab8',lp2[0],lp2[1],8,'the wipe that was deleted');}
+ var ob=P(0,72,0);
+ ndot(g,ob[0],ob[1],7,'#5ad4ff');
+ nt(g,'#5ad4ff',ob[0]-56,ob[1]+20,8,'observable behaviour: unchanged');
+ nt(g,'#7de2b0',14,26,11,'nothing reads the zeros');
+ nt(g,'#8a7ab8',14,44,10,'so the writes cannot change any output');
+ nt(g,'#ff5a8a',14,H-46,9,'dead is defined relative to the program');
+ nt(g,'#ffd76a',14,H-30,9,'and the attacker is not in the program');
+ nt(g,'#b98cff',14,H-14,9,'say it in a language the optimiser understands, or lose it');}
+document.getElementById('dselr').onclick=function(){ran=true;drawW4();};
+document.getElementById('dselb').onclick=function(){barrier=!barrier;drawW4();};
+document.getElementById('dselz').onclick=function(){ran=false;barrier=false;drawW4();};
+document.getElementById('dsels').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedeadstoreelimination=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+RSTR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><code>restrict</code> is a promise, made by you, that two pointers never touch the same object. The compiler cannot check it. It can only believe you, keep values in registers, and produce a different answer if you were wrong.<br><br>
+ <span class="lit">LIT</span> verified live. adding two length-<b>8</b> vectors into an output that overlaps the input by a shift <i>k</i>: the honest loop reloads on every iteration, the loop compiled under a <code>restrict</code> promise reads the input once. At shift <b>0</b> &mdash; fully in place &mdash; the two agree, <b>0</b> positions differ. At shift <b>8</b> &mdash; disjoint, the promise true &mdash; they agree, <b>0</b> differ. In between they differ in exactly <b>8&minus;k</b> positions: <b>7, 6, 5, 4, 3, 2, 1</b>. The damage is exactly the size of the overlap, and both endpoints are silent.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><code>restrict</code> is C99 6.7.3.1; it is the reason Fortran vectorised better than C for two decades, since Fortran forbids aliasing by default.<br><br><b>AVAN (AI)</b> swept the whole overlap rather than showing the broken case, because the endpoints are the finding. A test with disjoint arrays passes; a test done fully in place also passes; the failure lives strictly between them and scales linearly with how wrong the promise was. A keyword whose violation is undetectable, silent at both extremes and proportional in the middle is not a sharp edge &mdash; it is a gradient, and gradients do not get caught by a test that samples the ends.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The damage is exactly the size of the overlap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the output across the input and watch the error grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="rstrn">shift + 1 &#9654;</button><button id="rstrp">shift - 1</button></div>
+   <div class="cap" id="rstro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that <code>restrict</code> lets the compiler keep values in registers. The inverse is that <b>it is the one place C asks you to prove something and then does not look at the proof</b>. Every other type error is checked; this one is a sworn statement. Read backwards, the keyword is not an optimisation hint, it is a transfer of <i>liability</i> &mdash; the compiler gains speed, you gain the obligation, and the only instrument that can detect the breach is the wrong answer itself, arriving later, in proportion to how wrong you were.</div>
+   <div class="btns" style="margin-top:10px"><button id="rstrs">pause spin</button></div></div></div></div>"""
+RSTR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=8,K=3;
+function honest(k){
+ var arr=[];for(var i=0;i<2*N;i++)arr.push(i+1);
+ var b=[];for(i=0;i<N;i++)b.push(100);
+ for(i=0;i<N;i++)arr[k+i]=arr[i]+b[i];
+ return arr.slice(k,k+N);}
+function assumed(k){
+ var arr=[];for(var i=0;i<2*N;i++)arr.push(i+1);
+ var b=[];for(i=0;i<N;i++)b.push(100);
+ var A=arr.slice(0,N);
+ for(i=0;i<N;i++)arr[k+i]=A[i]+b[i];
+ return arr.slice(k,k+N);}
+function selftest(){
+ var rows=[],tot=0,first=null;
+ for(var k=0;k<=N;k++){
+  var h=honest(k),a=assumed(k),d=0;
+  for(var i=0;i<N;i++)if(h[i]!==a[i])d++;
+  rows.push({shift:k,overlap:(k===0?N:(k<N?N-k:0)),differing:d});
+  tot+=d; if(d>0&&first===null)first=k;}
+ return {vectorLength:N,shifts:rows.length,rows:rows,totalDiffering:tot,
+  firstShiftThatDiffers:first,inPlaceDiffering:rows[0].differing,
+  disjointDiffering:rows[N].differing,
+  ok:rows[N].differing===0&&rows[0].differing===0&&tot>0&&
+     rows.slice(1,N).every(function(r){return r.differing===N-r.shift;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'WRONG POSITIONS AGAINST HOW FAR THE ARRAYS OVERLAP');
+ var x0=48,y0=42,gw=W-84,gh=168;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ VR.rows.forEach(function(r,i){
+  var x=x0+i*(gw/VR.rows.length),h=gh*r.differing/N;
+  nf(g,r.differing===0?'rgba(125,226,176,0.65)':'rgba(255,90,138,0.65)');
+  g.fillRect(x+4,y0+gh-Math.max(3,h),gw/VR.rows.length-8,Math.max(3,h));ng(g);
+  nt(g,'#5b4a80',x+12,y0+gh+13,8,String(r.shift));
+  nt(g,r.differing?'#ff5a8a':'#7de2b0',x+12,y0+gh-Math.max(3,h)-5,9,String(r.differing));});
+ nt(g,'#8a7ab8',x0,y0+gh+30,9,'shift of the output relative to the input');
+ nt(g,'#7de2b0',24,y0+gh+50,10,'shift 0: in place, 0 wrong');
+ nt(g,'#7de2b0',270,y0+gh+50,10,'shift 8: disjoint, 0 wrong');
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,268,W-40,20);ng(g);
+ nt(g,'#ff5a8a',34,283,9,'in between: exactly 8 - k wrong. both endpoints pass a test.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var h=honest(K),a=assumed(K),d=0;
+ for(var i=0;i<N;i++)if(h[i]!==a[i])d++;
+ nt(g,'#e6dcff',18,24,11,'output shifted by '+K+'   overlap '+(K===0?N:(K<N?N-K:0)));
+ var cw=(W-36)/(2*N);
+ nt(g,'#8a7ab8',18,46,9,'memory: input a at 0..7, output c at '+K+'..'+(K+N-1));
+ for(i=0;i<2*N;i++){
+  var inA=(i<N), inC=(i>=K&&i<K+N);
+  var col=(inA&&inC)?'rgba(255,159,69,0.7)':(inA?'rgba(90,212,255,0.5)':(inC?'rgba(255,215,106,0.5)':'rgba(120,90,180,0.14)'));
+  nf(g,col);g.fillRect(18+i*cw,54,cw-1.5,26);ng(g);}
+ nt(g,'#5ad4ff',18,94,8,'a');nt(g,'#ffd76a',60,94,8,'c');nt(g,'#ff9f45',100,94,8,'both -- the promise is false here');
+ nt(g,'#7de2b0',18,120,9,'honest loop (reload every iteration)');
+ for(i=0;i<N;i++){
+  var x=18+i*((W-36)/N);
+  nf(g,'rgba(125,226,176,0.45)');g.fillRect(x,128,(W-36)/N-2,26);ng(g);
+  nt(g,'#0d0818',x+4,146,9,String(h[i]));}
+ nt(g,'#ff5a8a',18,178,9,'compiled under the restrict promise');
+ for(i=0;i<N;i++){
+  var x2=18+i*((W-36)/N),bad=(h[i]!==a[i]);
+  nf(g,bad?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.45)');
+  g.fillRect(x2,186,(W-36)/N-2,26);ng(g);
+  nt(g,'#0d0818',x2+4,204,9,String(a[i]));}
+ nf(g,d?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.22)');g.fillRect(18,224,W-36,40);ng(g);
+ ne(g,d?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,224.5,W-37,40);ng(g);
+ nt(g,d?'#ff5a8a':'#7de2b0',32,249,12,d+' of '+N+' positions differ');
+ nt(g,'#8a7ab8',18,286,9,'nothing raised. nothing checked the promise.');
+ nt(g,'#b98cff',18,306,9,'the only detector is the wrong answer, later');
+ var o=document.getElementById('rstro');
+ if(o)o.innerHTML='At shift <b>'+K+'</b> the arrays overlap in <b>'+(K===0?N:(K<N?N-K:0))+
+  '</b> places and the two compilations differ in <b>'+d+'</b> positions. '+
+  (d===0?(K===0?'Fully in place, every read happens before its own write, so both agree &mdash; a test here passes.':
+   'Disjoint, so the promise is true and both agree &mdash; a test here passes too.'):
+   'The compiler read the input once because you promised it would not change. It changed.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%200)/200, shift=Math.floor(t*9);
+ for(var i=0;i<N;i++){
+  var q=P(-96+i*16,-30,0);
+  ndot(g,q[0],q[1],4.4,'#5ad4ff');}
+ for(i=0;i<N;i++){
+  var q2=P(-96+(i+shift)*16,30,0);
+  var over=(i+shift)<N;
+  ndot(g,q2[0],q2[1],4.4,over?'#ff5a8a':'#ffd76a');}
+ var l1=P(-104,-50,0);nt(g,'#5ad4ff',l1[0],l1[1],8,'a');
+ var l2=P(-104,52,0);nt(g,'#ffd76a',l2[0],l2[1],8,'c, sliding across it');
+ nt(g,'#ff9f45',14,26,11,'a promise nothing can check');
+ nt(g,'#ff5a8a',14,44,10,'red: where it is false');
+ nt(g,'#7de2b0',14,H-46,9,'silent when disjoint, silent in place');
+ nt(g,'#ffd76a',14,H-30,9,'wrong in proportion, in between');
+ nt(g,'#b98cff',14,H-14,9,'not a hint -- a transfer of liability');}
+document.getElementById('rstrn').onclick=function(){K=Math.min(N,K+1);drawW4();};
+document.getElementById('rstrp').onclick=function(){K=Math.max(0,K-1);drawW4();};
+document.getElementById('rstrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__therestrictkeyword=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 254 · neon-noir · silicon-coding · WHAT THE COMPILER IS ALLOWED TO ASSUME ═══════════════════════
+# ═══════════════════════ BATCH 253 · neon-noir · silicon-coding · TWO CORRECT THINGS ═══════════════════════
 # ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
 # ═══════════════════════ BATCH 251 · neon-noir · silicon-coding · THE SURFACE NOBODY CHECKS ═══════════════════════
 # ═══════════════════════ BATCH 250 · neon-noir · silicon-coding · ROUND 3 OF 3: THE SHARED WORLD ═══════════════════════
@@ -95738,6 +96317,41 @@ SPHERES = [
   "fig":"The honest boundary is stated on the page: this is a working model of the FDIV defect mechanism, NOT an emulation of Intel's P5 divider. The table geometry, the five-blank-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page's, not the Pentium's — the real defect was far rarer, roughly one in nine billion random divides. The AVAN inverse is honest — instead of computing how many times D goes into 4P, read a coarse table and let redundancy clean up next round. Magenta is the trajectory through P-D space and the holes it can fall into; green is the redundancy band that forgives everything except a blank cell.",
   "body":SRTD_BODY,"script":SRTD_SCRIPT},
 
+ {"slug":"the-strict-aliasing","title":"THE STRICT ALIASING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff5a8a","icon":"\u2260",
+  "kicker":"the standard forbids what the memory does",
+  "blurb":"Two pointers of different types are not allowed to refer to the same memory. Not unlikely to - not allowed. So the compiler may read through one, write through the other, and keep the value it read.",
+  "lit":"the same four bytes viewed as a 32-bit integer and as a 32-bit float: writing 1.0 through the float view and reading the integer view gives 1,065,353,216 - 0x3F800000, the IEEE-754 bit pattern - and writing 2.0 gives 1,073,741,824; over 1,000 trials of load-int, store-float, reload-int the reloaded value differs from the cached one 1,000 times out of 1,000 while the honest reload is wrong 0 times, so the rule permitting the cache is false in every single trial",
+  "fig":"Strict aliasing is C99 6.5p7 and C++ [basic.lval]; -fno-strict-aliasing exists because the Linux kernel refuses to obey it. AVAN did not simulate the aliasing - it used a real one. Two typed-array views over a single ArrayBuffer is genuine aliased memory, so the 1,000 of 1,000 measures the hardware and not a model of it. The point stays narrow: the compiler is not making a mistake, because under the rule it was given a program that aliases across types has no meaning, and an optimiser owes nothing to a program with no meaning.",
+  "body":SALS_BODY,"script":SALS_SCRIPT},
+ {"slug":"the-signed-overflow","title":"THE SIGNED OVERFLOW","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ffd76a","icon":"\u221e",
+  "kicker":"right 31 times out of 32",
+  "blurb":"Is x + 1 > x always true? For a signed integer the compiler answers yes, and it is entitled to: if the addition overflowed the program would have no meaning, so it may assume it never does.",
+  "lit":"probing 32 values of the form 2^k-1, the folded answer true matches the wrapping hardware in 31 of them and fails in exactly 1 - at 2,147,483,647, where the sum is -2,147,483,648 and x+1 > x is false; the same licence makes for (int i = 1; i > 0; i *= 2) a loop the compiler may treat as never ending, while on the metal it runs exactly 31 times and lands on -2,147,483,648",
+  "fig":"That signed overflow is undefined in C, and that this is what permits the folding, is standard - and the reason -fwrapv exists. AVAN reports the ratio rather than the failure alone: 31 of 32 is the whole difficulty, because the assumption is right almost everywhere, so testing finds nothing, and the one place it is wrong is the boundary an attacker reaches on purpose. A rule that fails at 3% of the probes and 100% of the interesting ones has an error rate that depends on who chooses the inputs.",
+  "body":SOVF_BODY,"script":SOVF_SCRIPT},
+ {"slug":"the-shift-by-width","title":"THE SHIFT BY WIDTH","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#5ad4ff","icon":"\u226a",
+  "kicker":"two machines, two answers, neither wrong",
+  "blurb":"Shift a 32-bit value left by 32 places and every bit should fall off the end. The answer is zero. It is not zero on x86, it is not zero on ARM either, and the two disagree.",
+  "lit":"over shift counts 0 to 63 the value produced agrees with the mathematical 2^k truncated to 32 bits in exactly 32 cases and disagrees in the other 32, and the disagreement is not noise: 1 << 32 gives 1, 1 << 33 gives 2, 1 << 64 gives 1, because the count is taken modulo 32 and the value never moves - x86 masks the count to five bits and returns 1 while ARM saturates the count and returns 0, same expression, same width, two answers",
+  "fig":"The C standard leaves a shift by more than the width undefined; x86's five-bit masking and ARM's saturating behaviour are documented in both architecture manuals. AVAN ran it rather than describing it, because the demonstration is directly available: JavaScript specifies << to mask the count to five bits, so 1<<32 === 1 is a fact you can watch, and it is the same masking a C program inherits from the instruction. Half of all shift counts in the range return a number that is not the value asked for, and none of them raise anything.",
+  "body":SHWD_BODY,"script":SHWD_SCRIPT},
+ {"slug":"the-dead-store-elimination","title":"THE DEAD STORE ELIMINATION","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#7de2b0","icon":"\u2327",
+  "kicker":"the wipe that was deleted for being pointless",
+  "blurb":"You wipe the password buffer before freeing it. Nothing ever reads those zeros, so the writes cannot change the program's meaning, so the optimiser deletes them. The secret is still there.",
+  "lit":"a 16-byte buffer filled with a secret, used, cleared and freed: a dead-store pass with no reader after the clear removes 16 of 16 clearing stores and 0 of the secret stores - correctly, since the secret is read and the zeros are not - and replaying only the surviving stores leaves 16 of 16 secret bytes in memory starting 65 66 67 68; put an opaque barrier after the clear, which is what explicit_bzero is for, and the pass removes 0, leaving 0 secret bytes",
+  "fig":"This is the reason explicit_bzero, memset_s and SecureZeroMemory exist; the same pass has produced real CVEs in TLS and key-handling code. AVAN wrote the pass rather than describing it, and the first version was wrong in a way worth keeping: given a program whose 'use' read only ONE byte it deleted fifteen of the sixteen secret stores as well, which is also correct and made the demonstration meaningless. A program that genuinely uses its secret reads all of it, and correcting that produces the actual shape of the bug.",
+  "body":DSEL_BODY,"script":DSEL_SCRIPT},
+ {"slug":"the-restrict-keyword","title":"THE RESTRICT KEYWORD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#ff9f45","icon":"\u2225",
+  "kicker":"a promise nothing can check",
+  "blurb":"restrict is a promise, made by you, that two pointers never touch the same object. The compiler cannot check it. It can only believe you, keep values in registers, and give a different answer if you were wrong.",
+  "lit":"adding two length-8 vectors into an output overlapping the input by a shift k, the honest loop reloads every iteration while the loop compiled under a restrict promise reads the input once: at shift 0, fully in place, 0 positions differ, and at shift 8, disjoint and the promise true, 0 differ - but in between they differ in exactly 8-k positions, 7, 6, 5, 4, 3, 2, 1, so the damage is exactly the size of the overlap and both endpoints are silent",
+  "fig":"restrict is C99 6.7.3.1; it is the reason Fortran vectorised better than C for two decades, since Fortran forbids aliasing by default. AVAN swept the whole overlap rather than showing the broken case, because the endpoints are the finding: a test with disjoint arrays passes, a test done fully in place also passes, and the failure lives strictly between them and scales linearly with how wrong the promise was. A gradient does not get caught by a test that samples the ends.",
+  "body":RSTR_BODY,"script":RSTR_SCRIPT},
  {"slug":"the-nagle-delayed-ack","title":"THE NAGLE DELAYED ACK","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffd76a","icon":"\u21c4",
   "kicker":"two polite algorithms waiting for each other",
