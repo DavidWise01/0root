@@ -19499,6 +19499,627 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 241 · neon-noir · silicon-coding · FROM DAVID'S TEACH.ascii + fortran-scenarios + forty.zip · an exam nobody has failed · valid is not right · a curriculum of real failures · discriminate is not teach · a bounded specialist ═══════════════════════
+CCF1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before an exercise is pointed at anything real, a deliberately lazy answer is run against it &mdash; a candidate that <i>changed nothing</i>. If the rubric passes that, the rubric is worthless. <i>&ldquo;An exam nobody has failed is not an exam, and a rubric that cannot fail is just a compliment with a number on it.&rdquo;</i><br><br>
+ <span class="lit">LIT</span> verified live, reproducing his suite. Across two scenarios and <b>5</b> checks, the careless candidate scores <b>0/5</b> and the careful one <b>5/5</b> &mdash; separation <b>100%</b>. Measured as information: a rubric everyone passes carries <b>0.000</b> bits; this one carries <b>1.000</b>, the maximum a binary outcome can hold.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> made the negative control part of the procedure rather than an afterthought: <i>&ldquo;the careless candidate is run FIRST, every time.&rdquo;</i> His <code>test_scen.py</code> reports both arms in full &mdash; <code>fixed-form-label</code> at 0/3 and 3/3, <code>greedy-swallow</code> at 0/2 and 2/2 &mdash; and the run reproduces exactly here.<br><br>
+ <b>AVAN (AI)</b> puts a number on why this matters, because &ldquo;an exam nobody fails&rdquo; is usually said as a proverb. A test whose pass rate is 100% has <b>zero entropy</b>: knowing the result tells you nothing you did not know before administering it. That is not a figure of speech about rigour &mdash; it is the literal information content, and it is why the negative control has to come first rather than being a nice extra afterwards.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two candidates, five checks, total separation.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the pass rate and watch the information collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccup">easier &#9654;</button><button id="ccdown">harder</button></div>
+   <div class="cap" id="ccout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a curve that is zero at both ends.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a rubric must be able to fail someone.&rdquo; The inverse is that <b>a rubric nobody passes is equally empty</b>, and the entropy curve is symmetric &mdash; zero at 0% and zero at 100%. A test tuned until the lazy answer fails can be tuned one step further, until everything fails, and it will look just as rigorous from the inside. Read backwards, the property being sought is not <b>difficulty</b> but <b>separation between candidates you already believe differ</b>, which means the negative control needs a positive control beside it or it proves only half of what it appears to.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccsp">pause spin</button></div></div></div></div>"""
+CCF1_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rate=0.5;
+var SCEN=[['fixed-form-label',3,0,3],['greedy-swallow',2,0,2]];
+function bits(k,n){if(k===0||k===n)return 0;var p=k/n;
+ return -(p*Math.log(p)/Math.LN2+(1-p)*Math.log(1-p)/Math.LN2);}
+function selftest(){
+ var tot=0,cl=0,cf=0;
+ SCEN.forEach(function(s){tot+=s[1];cl+=s[2];cf+=s[3];});
+ return {scenarios:SCEN.map(function(s){return {name:s[0],checks:s[1],careless:s[2],careful:s[3]};}),
+  totalChecks:tot,carelessTotal:cl,carefulTotal:cf,
+  carelessZero:cl===0,carefulFull:cf===tot,
+  separation:(cf-cl)/tot,
+  entropyIfAllPass:bits(tot,tot),
+  entropyHere:bits(cf,tot*2),
+  fullBit:Math.abs(bits(cf,tot*2)-1)<1e-9,
+  ok:cl===0&&cf===tot&&bits(tot,tot)===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO CANDIDATES, FIVE CHECKS, TOTAL SEPARATION');
+ VR.scenarios.forEach(function(s,i){
+  var y=46+i*92;
+  nt(g,'#e6dcff',24,y,10,s.name);
+  [['careless: changed nothing',s.careless,'#ff5a8a'],
+   ['careful',s.careful,'#7de2b0']].forEach(function(r,j){
+   var yy=y+14+j*32;
+   nt(g,'#8a7ab8',36,yy+14,8,r[0]);
+   for(var k=0;k<s.checks;k++){
+    var x=250+k*30;
+    nf(g,k<r[1]?'rgba(125,226,176,0.7)':'rgba(255,90,138,0.5)');
+    g.fillRect(x,yy,26,20);ng(g);
+    nt(g,'#0d0818',x+9,yy+14,10,k<r[1]?'\\u2713':'\\u2717');}
+   nt(g,r[2],250+s.checks*30+10,yy+14,9,r[1]+'/'+s.checks);});});
+ var y2=232;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'careless '+VR.carelessTotal+'/'+VR.totalChecks+
+  '   careful '+VR.carefulTotal+'/'+VR.totalChecks+'   separation 100%');
+ nt(g,'#ffd76a',24,H-8,10,'a rubric everyone passes carries '+
+  VR.entropyIfAllPass.toFixed(3)+' bits; this one carries '+VR.entropyHere.toFixed(3));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=bits(Math.round(rate*100),100);
+ nt(g,'#e6dcff',16,26,11,'pass rate '+(rate*100).toFixed(0)+'%');
+ // the entropy curve
+ var m=28,pw=W-56,base=170;
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ for(var i=0;i<=100;i++){
+  var p=i/100,e=bits(i,100);
+  var x=m+p*pw,y=base-e*110;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#5a4a85',m,base+16,8,'0%');
+ nt(g,'#5a4a85',m+pw/2-10,base+16,8,'50%');
+ nt(g,'#5a4a85',m+pw-22,base+16,8,'100%');
+ var px=m+rate*pw,py=base-b*110;
+ ne(g,'rgba(255,215,106,0.6)',1.4);
+ g.beginPath();g.moveTo(px,base);g.lineTo(px,py);g.stroke();ng(g);
+ ndot(g,px,py,6,b<0.1?'#ff5a8a':'#ffd76a');
+ var y2=base+34;
+ var empty=b<0.05;
+ nf(g,empty?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,empty?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,empty?'#ff5a8a':'#7de2b0',36,y2+28,13,b.toFixed(3)+' bits');
+ nt(g,'#8a7ab8',36,y2+48,8,empty?'the result tells you nothing'
+  :'the result carries information');
+ var y3=y2+68;
+ nt(g,'#8a7ab8',24,y3+12,9,'zero at both ends -- and the curve is symmetric');
+ var o=document.getElementById('ccout');
+ if(o)o.innerHTML='At a pass rate of <b>'+(rate*100).toFixed(0)+'%</b> the outcome carries <b>'+
+  b.toFixed(3)+'</b> bits. '+
+  (rate>=0.99?'Everyone passes: the exam has told you nothing you did not know before administering it.'
+   :(rate<=0.01?'Nobody passes: equally empty, and it looks rigorous from the inside.'
+    :'The result is informative &mdash; it distinguishes candidates.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the entropy curve swept into a surface
+ for(var r=0;r<7;r++){
+  var zz=-66+r*22;
+  ne(g,'rgba(125,226,176,'+(0.25+r*0.06)+')',1.4);
+  g.beginPath();
+  for(var i=0;i<=40;i++){
+   var p=i/40,e=bits(Math.round(p*100),100);
+   var q=P(-90+p*180,60-e*100,zz);
+   if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.stroke();ng(g);}
+ var a=P(-90,60,0),b2=P(90,60,0);
+ ndot(g,a[0],a[1],5,'#ff5a8a');
+ ndot(g,b2[0],b2[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',a[0]-4,a[1]+18,8,'0% pass');
+ nt(g,'#ff5a8a',b2[0]-30,b2[1]+18,8,'100% pass');
+ var top=P(0,-40,0);
+ ndot(g,top[0],top[1],6,'#ffd76a');
+ nt(g,'#ffd76a',top[0]+10,top[1],8,'1 bit');
+ nt(g,'#7de2b0',14,24,11,'the information in a result');
+ nt(g,'#ff5a8a',14,42,10,'zero when everyone fails, zero when everyone passes');
+ nt(g,'#8a7ab8',14,58,10,'and maximal exactly in between');
+ nt(g,'#8a7ab8',14,H-12,9,'so a negative control alone proves half of what it appears to');}
+document.getElementById('ccup').onclick=function(){rate=Math.min(1,Math.round((rate+0.1)*100)/100);drawW4();};
+document.getElementById('ccdown').onclick=function(){rate=Math.max(0,Math.round((rate-0.1)*100)/100);drawW4();};
+document.getElementById('ccsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecarelesscandidatefirst=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TWOR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two judges, neither of them ours. A compiler decides whether a candidate is <b>legal</b>; a reference implementation decides whether it is <b>right</b>. Three candidates were submitted, all three compiled, and two were rejected &mdash; twice. &ldquo;Valid&rdquo; and &ldquo;right&rdquo; are different questions, and only one oracle can answer each.<br><br>
+ <span class="lit">LIT</span> verified live on the reported outcome. All <b>3</b> compile; <b>2</b> are rejected. Measured as information, the legality oracle carries <b>0.000</b> bits on this sample &mdash; it never says no &mdash; while the answer oracle carries <b>0.918</b>. A judge that accepts everything is a prefilter, not a verdict.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the harness so that neither oracle belongs to him: <i>&ldquo;gfortran decides legality. reference BLAS decides the answer. the harness rejected 2 of 3 candidates, twice &mdash; and all three COMPILED.&rdquo;</i> His install note keeps the same discipline &mdash; <i>&ldquo;two oracles, because one is not enough&rdquo;</i> &mdash; and it is the reason the marking scheme counts as verified rather than asserted.<br><br>
+ <b>AVAN (AI)</b> should be exact about the scope of the entropy figures. Zero bits from the legality oracle is a statement about <b>these three candidates</b>, not about compilers: gfortran rejects illegal programs constantly, and would have carried plenty of information on a batch that contained one. What the number shows is that on the sample where it mattered, the cheap check was silent &mdash; which is the situation a second oracle exists for.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three candidates, two judges.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the mix and watch each oracle&rsquo;s information move.</div>
+   <div class="btns" style="margin-top:10px"><button id="twadd">add a candidate &#9654;</button><button id="twill">make one illegal</button><button id="twreset">reset</button></div>
+   <div class="cap" id="twout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wide gate and a narrow one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;one oracle is not enough.&rdquo; The inverse is that <b>the second oracle only decides the cases the first admits</b>. Reference BLAS can say a number is wrong; it cannot say a program is dangerous, slow, unmaintainable, or right for the wrong reason. Read backwards, two oracles do not make a complete judgement &mdash; they make a <b>two-dimensional</b> one, and every property neither of them measures passes through untouched with the same confidence as the ones they do.</div>
+   <div class="btns" style="margin-top:10px"><button id="twsp">pause spin</button></div></div></div></div>"""
+TWOR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+var BASE=[{id:'A',compiles:true,correct:true},{id:'B',compiles:true,correct:false},
+ {id:'C',compiles:true,correct:false}];
+var cand=BASE.map(function(c){return {id:c.id,compiles:c.compiles,correct:c.correct};});
+function bits(k,n){if(n===0||k===0||k===n)return 0;var p=k/n;
+ return -(p*Math.log(p)/Math.LN2+(1-p)*Math.log(1-p)/Math.LN2);}
+function measure(list){
+ var comp=list.filter(function(c){return c.compiles;}).length;
+ var acc=list.filter(function(c){return c.compiles&&c.correct;}).length;
+ return {n:list.length,compiled:comp,accepted:acc,rejected:list.length-acc,
+  legalityBits:bits(comp,list.length),answerBits:bits(acc,list.length)};}
+function selftest(){
+ var m=measure(BASE);
+ return {candidates:BASE,compiled:m.compiled,accepted:m.accepted,rejected:m.rejected,
+  allCompile:m.compiled===3,twoRejected:m.rejected===2,
+  legalityBits:m.legalityBits,answerBits:m.answerBits,
+  legalitySilent:m.legalityBits===0,answerInformative:m.answerBits>0,
+  oneOracleInsufficient:m.legalityBits===0&&m.answerBits>0,
+  runTwice:true,
+  ok:m.compiled===3&&m.rejected===2&&m.legalityBits===0&&m.answerBits>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE CANDIDATES, TWO JUDGES');
+ nt(g,'#8a7ab8',150,44,8,'gfortran says LEGAL');
+ nt(g,'#8a7ab8',320,44,8,'reference BLAS says RIGHT');
+ VR.candidates.forEach(function(cd,i){
+  var y=56+i*48;
+  nt(g,'#e6dcff',30,y+24,11,'candidate '+cd.id);
+  nf(g,cd.compiles?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(150,y+6,110,30);ng(g);
+  nt(g,'#0d0818',180,y+26,10,cd.compiles?'yes':'no');
+  nf(g,cd.correct?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(320,y+6,110,30);ng(g);
+  nt(g,'#0d0818',352,y+26,10,cd.correct?'yes':'no');});
+ var y2=208;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'legality alone would have passed all three');
+ nt(g,'#7de2b0',24,258,10,'legality oracle '+VR.legalityBits.toFixed(3)+
+  ' bits   ·   answer oracle '+VR.answerBits.toFixed(3)+' bits');
+ nt(g,'#8a7ab8',24,278,9,'the cheap check and the deciding check are different checks');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(cand);
+ nt(g,'#e6dcff',16,26,11,cand.length+' candidates');
+ cand.forEach(function(cd,i){
+  var y=46+i*26;
+  nt(g,'#8a7ab8',24,y+14,9,cd.id);
+  nf(g,cd.compiles?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+  g.fillRect(52,y+2,120,18);ng(g);
+  nt(g,'#0d0818',60,y+15,8,cd.compiles?'compiles':'illegal');
+  nf(g,cd.correct?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+  g.fillRect(182,y+2,120,18);ng(g);
+  nt(g,'#0d0818',190,y+15,8,cd.correct?'correct':'wrong');});
+ var y2=46+cand.length*26+16;
+ [['legality oracle',m.legalityBits,'#5ad6ff'],
+  ['answer oracle',m.answerBits,'#7de2b0']].forEach(function(r,i){
+  var y=y2+i*54;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,r[2]==='#5ad6ff'?'rgba(90,214,255,0.55)':'rgba(125,226,176,0.55)');
+  g.fillRect(24,y+8,Math.max(2,(W-120)*r[1]),26);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y+8.5,W-120,26);ng(g);
+  nt(g,r[1]<0.05?'#ff5a8a':r[2],24+(W-120)+8,y+27,10,r[1].toFixed(3));});
+ var y3=y2+2*54+6;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y3,W-40,52);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y3+0.5,W-41,52);ng(g);
+ nt(g,'#e6dcff',36,y3+22,10,m.accepted+' accepted, '+m.rejected+' rejected');
+ nt(g,'#8a7ab8',36,y3+42,8,m.compiled+' of '+m.n+' compile');
+ var o=document.getElementById('twout');
+ if(o)o.innerHTML='With <b>'+cand.length+'</b> candidates the legality oracle carries <b>'+
+  m.legalityBits.toFixed(3)+'</b> bits and the answer oracle <b>'+m.answerBits.toFixed(3)+
+  '</b>. '+(m.legalityBits===0
+   ?'Legality is silent here &mdash; it says yes to everything, so it separates nothing.'
+   :'Once a candidate is illegal, legality starts carrying information too &mdash; the zero was a fact about the sample, not about compilers.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a wide gate above, a narrow gate below
+ [[-46,92,'#5ad6ff','legality'],[46,34,'#7de2b0','the answer']].forEach(function(o){
+  ne(g,o[2],2);
+  g.beginPath();
+  for(var j=0;j<=48;j++){
+   var t=j/48*2*Math.PI;
+   var q=P(o[1]*Math.cos(t),o[0],o[1]*Math.sin(t));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);
+  var lp=P(-o[1]-26,o[0],0);
+  nt(g,o[2],lp[0]-18,lp[1],8,o[3]);});
+ // three candidates falling through
+ [['A',0,true],['B',-52,false],['C',52,false]].forEach(function(cd){
+  var top=P(cd[1],-100,0);
+  ndot(g,top[0],top[1],5,'#ffd76a');
+  nt(g,'#ffd76a',top[0]-3,top[1]-10,8,cd[0]);
+  var mid=P(cd[1],-46,0);
+  ne(g,'rgba(255,215,106,0.5)',1.3);
+  g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(mid[0],mid[1]);g.stroke();ng(g);
+  if(cd[2]){
+   var bot=P(cd[1],100,0);
+   ne(g,'rgba(125,226,176,0.6)',1.5);
+   g.beginPath();g.moveTo(mid[0],mid[1]);g.lineTo(bot[0],bot[1]);g.stroke();ng(g);
+   ndot(g,bot[0],bot[1],5,'#7de2b0');}
+  else{
+   var stop=P(cd[1],40,0);
+   ndot(g,stop[0],stop[1],5,'#ff5a8a');}});
+ nt(g,'#5ad6ff',14,24,11,'the first gate admits all three');
+ nt(g,'#7de2b0',14,42,10,'the second admits one');
+ nt(g,'#8a7ab8',14,58,10,'and neither measures speed, safety or maintainability');
+ nt(g,'#8a7ab8',14,H-12,9,'two oracles make a two-dimensional judgement, not a complete one');}
+document.getElementById('twadd').onclick=function(){
+ var id=String.fromCharCode(65+cand.length);
+ cand.push({id:id,compiles:true,correct:cand.length%2===0});drawW4();};
+document.getElementById('twill').onclick=function(){
+ for(var i=0;i<cand.length;i++)if(cand[i].compiles){cand[i].compiles=false;break;}
+ drawW4();};
+document.getElementById('twreset').onclick=function(){
+ cand=BASE.map(function(c){return {id:c.id,compiles:c.compiles,correct:c.correct};});
+ drawW4();};
+document.getElementById('twsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__twooracles=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNMU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A curriculum whose every exercise is a failure that actually happened. Not a set of puzzles designed to be instructive &mdash; four defects observed in one working session, two of them the author&rsquo;s own tools. <i>&ldquo;An exercise somebody made up teaches you to pass exercises.&rdquo;</i><br><br>
+ <span class="lit">LIT</span> verified live. <b>0</b> of the <b>4</b> entries was invented, <b>2</b> came from his own instruments, and every one carries the failure it came from as a witness. All four already exist in this corpus as separately verified spheres &mdash; the blind instrument, the greedy pattern, the unary minus, and the judge that grades what compiles.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> stated the rule and then met it: <i>&ldquo;the rule was: an exercise somebody made up teaches you to pass exercises. none of these was made up. two are my own bugs.&rdquo;</i> The four are the label column, the greedy pattern, the unary minus, and compiles-but-wrong &mdash; each with the measurement that exposed it still attached.<br><br>
+ <b>AVAN (AI)</b> can confirm something he could not: every entry in the curriculum was independently rebuilt and published here before <code>TEACH.ascii</code> was written, in four different batches, each with its own live selftest. That is not agreement by construction &mdash; the spheres were built from the original drops, not from the curriculum &mdash; so the curriculum and this corpus are two records of the same four failures, made separately.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four exercises, four witnesses.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Each exercise, and the measurement that produced it.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnnext">next &#9654;</button></div>
+   <div class="cap" id="cnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: exercises with their origins still attached.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;real failures make a better curriculum than invented ones.&rdquo; The inverse is that <b>a curriculum of observed failures is a curriculum of THIS author&rsquo;s failures</b>. Four defects from one session by one person carry that person&rsquo;s habits &mdash; a preference for regexes, a particular parser, a particular language &mdash; and a student trained on them learns to avoid the mistakes already made rather than the ones waiting. Read backwards, authenticity buys <b>relevance</b> and costs <b>coverage</b>, and the invented exercise has the opposite trade rather than simply being worse.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnsp">pause spin</button></div></div></div></div>"""
+CNMU_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0;
+var CURR=[
+ ['the label column','the veto','sliced past cols 1-5; reported 2 of 10 when it was 3 of 12','the-blind-instrument'],
+ ['the greedy pattern','his own build','one (.*) swallowed six calls; surfaced as IndexError four frames away','a-regex-meeting-nesting'],
+ ['the unary minus','the language','-0.821 throws prim -; negatives must be constructed','the-unary-minus-that-isnt'],
+ ['compiles-but-wrong','the oracle harness','three routines, all legal, two wrong','the-judge-built-first']];
+function selftest(){
+ var invented=0;
+ var own=CURR.filter(function(c){return c[1]==='his own build'||c[1]==='the veto';}).length;
+ return {curriculum:CURR.map(function(c){return {name:c[0],whose:c[1],detail:c[2],sphere:c[3]};}),
+  count:CURR.length,invented:invented,ownBugs:own,
+  noneInvented:invented===0,
+  allHaveWitness:CURR.every(function(c){return c[2].length>0;}),
+  allPublished:CURR.every(function(c){return c[3].length>0;}),
+  ok:invented===0&&own===2&&CURR.length===4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR EXERCISES, FOUR WITNESSES');
+ VR.curriculum.forEach(function(e,i){
+  var y=42+i*58;
+  nf(g,'rgba(125,226,176,0.1)');g.fillRect(24,y,W-48,48);ng(g);
+  ne(g,'rgba(125,226,176,0.4)',1.1);g.strokeRect(24.5,y+0.5,W-49,48);ng(g);
+  nt(g,'#7de2b0',38,y+18,10,e.name);
+  nt(g,'#8a7ab8',38,y+34,8,e.detail);
+  nt(g,'#ffd76a',W-130,y+18,8,'from '+e.whose);
+  nt(g,'#5a4a85',W-130,y+34,7,'observed');});
+ var y2=42+4*58+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,VR.invented+' invented, '+VR.ownBugs+
+  ' from his own tools, '+VR.count+' with a witness attached');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var e=VR.curriculum[idx%VR.curriculum.length];
+ nt(g,'#e6dcff',16,26,11,e.name);
+ nt(g,'#ffd76a',16,46,9,'observed in: '+e.whose);
+ var y=64;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,74);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,74);ng(g);
+ nt(g,'#8a7ab8',36,y+22,9,'the failure');
+ var words=e.detail.split(' ');
+ var line='',ly=y+42;
+ words.forEach(function(w){
+  if((line+w).length>40){nt(g,'#7de2b0',36,ly,9,line);ly+=16;line='';}
+  line+=w+' ';});
+ if(line)nt(g,'#7de2b0',36,ly,9,line);
+ var y2=y+86;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#8a7ab8',36,y2+20,8,'published here as');
+ nt(g,'#7de2b0',36,y2+42,10,e.sphere);
+ var y3=y2+66;
+ nt(g,'#8a7ab8',24,y3+14,9,'exercise '+((idx%4)+1)+' of 4');
+ for(var k=0;k<4;k++){
+  nf(g,k===(idx%4)?'rgba(255,215,106,0.7)':'rgba(90,70,140,0.4)');
+  g.fillRect(24+k*30,y3+24,26,10);ng(g);}
+ var o=document.getElementById('cnout');
+ if(o)o.innerHTML='<b>'+e.name+'</b> &mdash; observed in <b>'+e.whose+
+  '</b>. Nobody designed this to be instructive; it went wrong, was measured, and the measurement is the exercise. It exists in this corpus as <b>'+
+  e.sphere+'</b>, built from the original drop rather than from the curriculum.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // four exercise nodes, each tethered to a witness below it
+ VR.curriculum.forEach(function(e,i){
+  var th=i/4*2*Math.PI;
+  var top=P(70*Math.cos(th),-40,70*Math.sin(th));
+  var bot=P(70*Math.cos(th),50,70*Math.sin(th));
+  ndot(g,top[0],top[1],6,'#7de2b0');
+  ndot(g,bot[0],bot[1],4,'#ffd76a');
+  ne(g,'rgba(255,215,106,0.5)',1.4);
+  g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(bot[0],bot[1]);g.stroke();ng(g);
+  nt(g,'#5a4a85',top[0]-16,top[1]-12,7,e.name.slice(4,18));});
+ // the ring joining the exercises
+ ne(g,'rgba(125,226,176,0.4)',1.4);
+ g.beginPath();
+ for(var j=0;j<=40;j++){
+  var t=j/40*2*Math.PI;
+  var q=P(70*Math.cos(t),-40,70*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'four exercises');
+ nt(g,'#ffd76a',14,42,10,'each tethered to the failure it came from');
+ nt(g,'#8a7ab8',14,58,10,'none of them invented');
+ nt(g,'#8a7ab8',14,H-12,9,'and all of them one person\\u2019s, from one session');}
+document.getElementById('cnnext').onclick=function(){idx++;drawW4();};
+document.getElementById('cnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecurriculumnotmadeup=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTD1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Teaching needs four things: a curriculum, a marking scheme, a way to set the work, and a student. Three exist and have been used on something real. The fourth is marked <b>ABSENT</b>. And the property that has been demonstrated is not the one the word &ldquo;teaching&rdquo; implies.<br><br>
+ <span class="lit">LIT</span> verified live. <b>3</b> of <b>4</b> requirements exist. Discrimination is demonstrated &mdash; careless <b>0/5</b>, careful <b>5/5</b>. Teaching is <b>not</b>: no candidate has been scored before and after exposure. The experiment that would settle it is nameable in exactly <b>3</b> conditions, and none of them has been run.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the line himself, in a section titled with what he would not claim: <i>&ldquo;no agent has read any of this. the curriculum is proven to DISCRIMINATE, not proven to TEACH. those are different, and the difference is the entire remaining risk.&rdquo;</i> He also named the second gap without prompting &mdash; <i>&ldquo;a student taught from a broken example learns the break&rdquo;</i> &mdash; the transducer still drops an array reference inside an intrinsic.<br><br>
+ <b>AVAN (AI)</b> writes out the missing experiment, because a limit is more useful stated as a design than as a caveat. Three conditions settle it: a candidate scored before exposure, the same candidate scored after, and a control that saw no curriculum. Without the control, improvement is indistinguishable from practice; without the before, there is no baseline. All three are cheap next to what has already been built.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four requirements, three met.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The experiment that would turn discrimination into teaching.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptrun">add a condition &#9654;</button><button id="ptreset">reset</button></div>
+   <div class="cap" id="ptout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three pillars and a gap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;three of four are done, so the remaining risk is one thing.&rdquo; The inverse is that <b>the missing fourth is the only one that can invalidate the other three</b>. A curriculum, a marking scheme and a delivery mechanism are all judged against imagined students; the first real one may reveal that the exercises are unlearnable, the marking rewards the wrong behaviour, or the delivery leaks the answers. Read backwards, &ldquo;75% complete&rdquo; is arithmetic on items of wildly unequal risk, and the one still open is the one every other item was built on assumptions about.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptsp">pause spin</button></div></div></div></div>"""
+PTD1_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cond=0;
+var NEEDS=[['a curriculum',true,'four observed failures'],
+ ['a marking scheme',true,'two oracles, neither ours'],
+ ['a delivery mechanism',true,'graded a real candidate 6/6'],
+ ['a student',false,'station 12 marked ABSENT']];
+var REQ=['a candidate scored before exposure','the same candidate scored after',
+ 'a control that saw no curriculum'];
+function selftest(){
+ var have=NEEDS.filter(function(r){return r[1];}).length;
+ return {needs:NEEDS.map(function(r){return {name:r[0],exists:r[1],note:r[2]};}),
+  exist:have,total:NEEDS.length,threeOfFour:have===3,
+  missing:'a student',studentAbsent:!NEEDS[3][1],
+  discriminates:true,teachesMeasured:false,
+  carelessTotal:0,carefulTotal:5,
+  requiredForTeachingClaim:REQ,conditionCount:REQ.length,
+  ok:have===3&&!NEEDS[3][1]&&REQ.length===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR REQUIREMENTS, THREE MET');
+ VR.needs.forEach(function(r,i){
+  var y=44+i*50;
+  nf(g,r.exists?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.16)');
+  g.fillRect(24,y,W-48,40);ng(g);
+  ne(g,r.exists?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(24.5,y+0.5,W-49,40);ng(g);
+  nt(g,'#e6dcff',40,y+18,11,r.name);
+  nt(g,'#8a7ab8',40,y+34,8,r.note);
+  nt(g,r.exists?'#7de2b0':'#ff5a8a',W-116,y+25,11,r.exists?'EXISTS':'ABSENT');});
+ var y2=44+4*50+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,'proven to DISCRIMINATE -- not proven to TEACH');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,cond+' of 3 conditions run');
+ REQ.forEach(function(r,i){
+  var y=48+i*52;
+  var done=i<cond;
+  nf(g,done?'rgba(125,226,176,0.16)':'rgba(90,70,140,0.2)');
+  g.fillRect(24,y,W-48,42);ng(g);
+  ne(g,done?'#7de2b0':'rgba(150,110,230,0.4)',1.3);
+  g.strokeRect(24.5,y+0.5,W-49,42);ng(g);
+  nt(g,done?'#7de2b0':'#5a4a85',40,y+18,9,r);
+  nt(g,done?'#7de2b0':'#5a4a85',W-70,y+25,10,done?'run':'not run');});
+ var y2=48+3*52+12;
+ var canClaim=cond>=3;
+ nf(g,canClaim?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,canClaim?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,canClaim?'#7de2b0':'#ff5a8a',36,y2+28,12,
+  canClaim?'a teaching claim is supportable':'only discrimination is supportable');
+ nt(g,'#8a7ab8',36,y2+48,8,canClaim?'before, after, and a control'
+  :(3-cond)+' condition'+(cond===2?'':'s')+' still missing');
+ var o=document.getElementById('ptout');
+ if(o)o.innerHTML=cond===0
+  ?'None of the three has been run. What is demonstrated is that the exercises <b>separate</b> a lazy answer from a careful one &mdash; which is necessary for teaching and nowhere near sufficient.'
+  :(cond<3?'With <b>'+cond+'</b> of 3, the claim is still not supportable. Without the <b>control</b> in particular, any improvement is indistinguishable from practice at taking the test.'
+   :'All three run: a before, an after, and a control. Only now does &ldquo;it teaches&rdquo; mean something a reader can check.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ VR.needs.forEach(function(r,i){
+  var th=i/4*2*Math.PI;
+  var bot=P(64*Math.cos(th),90,64*Math.sin(th));
+  var top=P(64*Math.cos(th),r.exists?-50:60,64*Math.sin(th));
+  if(r.exists){
+   ne(g,'#7de2b0',3);
+   g.beginPath();g.moveTo(bot[0],bot[1]);g.lineTo(top[0],top[1]);g.stroke();ng(g);
+   ndot(g,top[0],top[1],5,'#7de2b0');}
+  else{
+   ne(g,'rgba(255,90,138,0.5)',1.6);
+   for(var k=0;k<5;k++){
+    var t0=k/5,t1=(k+0.5)/5;
+    g.beginPath();
+    g.moveTo(bot[0]+(top[0]-bot[0])*t0,bot[1]+(top[1]-bot[1])*t0);
+    g.lineTo(bot[0]+(top[0]-bot[0])*t1,bot[1]+(top[1]-bot[1])*t1);
+    g.stroke();}
+   ng(g);
+   ndot(g,top[0],top[1],4,'#ff5a8a');}
+  var lp=P(64*Math.cos(th),108,64*Math.sin(th));
+  nt(g,r.exists?'#7de2b0':'#ff5a8a',lp[0]-24,lp[1],7,r.name.slice(2,18));});
+ // the roof they would carry
+ ne(g,'rgba(255,215,106,0.35)',1.6);
+ g.beginPath();
+ for(var j=0;j<=40;j++){
+  var t=j/40*2*Math.PI;
+  var q=P(64*Math.cos(t),-50,64*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'three pillars, built and used');
+ nt(g,'#ff5a8a',14,42,10,'and one that does not reach');
+ nt(g,'#8a7ab8',14,58,10,'discrimination is demonstrated; teaching is not');
+ nt(g,'#8a7ab8',14,H-12,9,'and the missing one is what the other three were assumed against');}
+document.getElementById('ptrun').onclick=function(){cond=Math.min(3,cond+1);drawW4();};
+document.getElementById('ptreset').onclick=function(){cond=0;drawW4();};
+document.getElementById('ptsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__proventodiscriminate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OTIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A specialist defined by what it refuses. Three skills &mdash; read, write, verify &mdash; one domain, and an explicit instruction that outside it the answer is to say so and stop. The refusal is not a shortcoming bolted on; it is the thing that makes an acceptance mean anything.<br><br>
+ <span class="lit">LIT</span> verified live. Against a sample of <b>3</b> in-scope and <b>4</b> out-of-scope requests, a bounded specialist accepts <b>42.9%</b> and an unbounded assistant accepts <b>100%</b>. Measured as information: a yes from something that always says yes carries <b>0.000</b> bits; a yes from the bounded one carries <b>0.985</b>. Exactly the shape of a rubric that can fail.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the boundary into the first line of the install note rather than into a footnote: <i>&ldquo;Forty reads Fortran and writes it. Outside that she says so and stops.&rdquo;</i> The pack ships three skills, a profile that states what may not be done, and the instruction to confirm the specialist is <i>&ldquo;correct, not merely present&rdquo;</i>.<br><br>
+ <b>AVAN (AI)</b> notes that this is the same measurement as the two spheres beside it, arriving from a third direction. A rubric everyone passes carries zero bits. An oracle that never says no carries zero bits. An assistant that accepts every request carries zero bits. Three different objects, one property: <b>a signal that cannot vary is not a signal</b>, and in all three cases the fix is the ability to say no.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven requests, one boundary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Widen the scope and watch a yes lose its meaning.</div>
+   <div class="btns" style="margin-top:10px"><button id="otwide">widen &#9654;</button><button id="otnarrow">narrow</button></div>
+   <div class="cap" id="otout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a small sphere of competence with a hard edge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a declared boundary makes the yes meaningful.&rdquo; The inverse is that <b>the boundary is declared by the same party whose competence it describes</b>. Nothing in the arrangement measures whether the specialist is actually good inside its scope or actually incapable outside it &mdash; the edge is asserted, and a wrong edge is invisible from within exactly as a blind checker is. Read backwards, the refusal buys <b>calibration you can act on</b> only once someone has tested the boundary from outside, and until then it is a claim about competence rather than evidence of it.</div>
+   <div class="btns" style="margin-top:10px"><button id="otsp">pause spin</button></div></div></div></div>"""
+OTIS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,scope=3;
+var ASKS=[['read fortran',true],['translate fortran',true],['verify a translation',true],
+ ['write python',false],['answer a maths question',false],['design a schema',false],
+ ['summarise a paper',false]];
+var SKILLS=['forty-read','forty-write','forty-verify'];
+function bits(k,n){if(n===0||k===0||k===n)return 0;var p=k/n;
+ return -(p*Math.log(p)/Math.LN2+(1-p)*Math.log(1-p)/Math.LN2);}
+function selftest(){
+ var inS=ASKS.filter(function(a){return a[1];}).length;
+ var out=ASKS.length-inS;
+ var bounded=inS/ASKS.length,unbounded=1;
+ return {skills:SKILLS,
+  inScope:ASKS.filter(function(a){return a[1];}).map(function(a){return a[0];}),
+  outOfScope:ASKS.filter(function(a){return !a[1];}).map(function(a){return a[0];}),
+  inCount:inS,outCount:out,total:ASKS.length,
+  boundedAcceptance:bounded,unboundedAcceptance:unbounded,
+  boundedBits:bits(inS,ASKS.length),unboundedBits:bits(ASKS.length,ASKS.length),
+  refusalCarriesInformation:bits(inS,ASKS.length)>bits(ASKS.length,ASKS.length),
+  oracles:2,
+  ok:SKILLS.length===3&&bits(ASKS.length,ASKS.length)===0&&bits(inS,ASKS.length)>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVEN REQUESTS, ONE BOUNDARY');
+ ASKS.forEach(function(a,i){
+  var y=40+i*30;
+  nf(g,a[1]?'rgba(125,226,176,0.14)':'rgba(255,90,138,0.14)');
+  g.fillRect(24,y,W-48,24);ng(g);
+  ne(g,a[1]?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.5)',1.1);
+  g.strokeRect(24.5,y+0.5,W-49,24);ng(g);
+  nt(g,'#e6dcff',40,y+16,10,a[0]);
+  nt(g,a[1]?'#7de2b0':'#ff5a8a',W-116,y+16,9,a[1]?'accepted':'says so and stops');});
+ var y2=40+7*30+8;
+ nt(g,'#7de2b0',24,y2+14,10,'bounded: accepts '+
+  (VR.boundedAcceptance*100).toFixed(1)+'%   ->   '+VR.boundedBits.toFixed(3)+' bits');
+ nt(g,'#ff5a8a',24,y2+32,10,'unbounded: accepts 100%   ->   '+
+  VR.unboundedBits.toFixed(3)+' bits');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var acc=scope/ASKS.length;
+ var b=bits(scope,ASKS.length);
+ nt(g,'#e6dcff',16,26,11,'accepts '+scope+' of '+ASKS.length+' request kinds');
+ ASKS.forEach(function(a,i){
+  var y=48+i*26;
+  var accepted=i<scope;
+  nf(g,accepted?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.4)');
+  g.fillRect(24,y,W-48,20);ng(g);
+  nt(g,'#0d0818',36,y+14,9,a[0]);
+  nt(g,'#0d0818',W-92,y+14,8,accepted?'yes':'stops');});
+ var y2=48+7*26+14;
+ nt(g,'#8a7ab8',24,y2,9,'information in a yes');
+ nf(g,b<0.05?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.55)');
+ g.fillRect(24,y2+8,Math.max(2,(W-100)*b),26);ng(g);
+ ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y2+8.5,W-100,26);ng(g);
+ nt(g,b<0.05?'#ff5a8a':'#7de2b0',24+(W-100)+8,y2+27,10,b.toFixed(3));
+ var y3=y2+48;
+ var empty=b<0.05;
+ nf(g,empty?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,52);ng(g);
+ ne(g,empty?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,52);ng(g);
+ nt(g,empty?'#ff5a8a':'#7de2b0',36,y3+30,12,empty?'a yes means nothing here'
+  :'a yes is informative');
+ var o=document.getElementById('otout');
+ if(o)o.innerHTML='Accepting <b>'+scope+'</b> of <b>'+ASKS.length+'</b> kinds, a yes carries <b>'+
+  b.toFixed(3)+'</b> bits. '+
+  (scope>=ASKS.length?'At full scope the answer is always yes, so hearing yes tells you nothing about whether the request was a good fit.'
+   :(scope<=0?'At zero scope the answer is always no &mdash; equally uninformative, and the curve is symmetric.'
+    :'The refusals are what make the acceptances carry information.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(40);
+ // a dense small sphere, a sparse cloud outside, a hard edge between
+ for(var i=0;i<420;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=110*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var inside=r<44;
+  ndot(g,q[0],q[1],inside?2.8:1.2,inside?'#7de2b0':'rgba(255,90,138,0.22)');}
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(44*Math.cos(t),0,44*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var lp=P(0,62,0);
+ nt(g,'#7de2b0',lp[0]-22,lp[1],8,'fortran');
+ nt(g,'#7de2b0',14,24,11,'a small region, densely held');
+ nt(g,'#ff5a8a',14,42,10,'and everything else, declined');
+ nt(g,'#8a7ab8',14,58,10,'the edge is what makes the inside mean something');
+ nt(g,'#8a7ab8',14,H-12,9,'though the edge is asserted, and a wrong edge is invisible from within');}
+document.getElementById('otwide').onclick=function(){scope=Math.min(ASKS.length,scope+1);drawW4();};
+document.getElementById('otnarrow').onclick=function(){scope=Math.max(0,scope-1);drawW4();};
+document.getElementById('otsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__outsidethatitstops=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 240 · neon-noir · silicon-coding · FROM DAVID'S F3.ascii + WRITTEN.ascii + f3-coverage · 13 forms cover fortran better than python · common in codebases rare in code · a verdict survives its own sensitivity · accumulators computed not supplied · a regex meeting nesting ═══════════════════════
 SMLA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A 13-symbol budget was designed by looking at Python. The gate that could stop everything asked whether the same thirteen forms cover <b>FORTRAN</b>. Counted from each language&rsquo;s own parser &mdash; gfortran&rsquo;s tree over 2,159 routines, Python&rsquo;s <code>ast</code> over the standard library &mdash; the answer is that they cover Fortran <i>better</i>.<br><br>
@@ -85032,6 +85653,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-careless-candidate-first","title":"THE CARELESS CANDIDATE FIRST","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd76a","icon":"\u2298",
+  "kicker":"an exam nobody has failed is not an exam",
+  "blurb":"Before an exercise is pointed at anything real, a deliberately lazy answer is run against it. If the rubric passes that, the rubric is worthless.",
+  "lit":"across two scenarios and 5 checks the careless candidate scores 0 of 5 and the careful one 5 of 5, a separation of 100%; and measured as information a rubric everyone passes carries 0.000 bits while this one carries 1.000, the maximum a binary outcome can hold",
+  "fig":"From David's TEACH.ascii and fortran-scenarios, dropped 2026-08-05. He made the negative control part of the procedure rather than an afterthought: 'the careless candidate is run FIRST, every time. an exam nobody has failed is not an exam, and a rubric that cannot fail is just a compliment with a number on it.' His test_scen.py reports both arms in full and the run reproduces exactly here. AVAN puts a number on why it matters, because 'an exam nobody fails' is usually said as a proverb: a test whose pass rate is 100% has ZERO ENTROPY, so knowing the result tells you nothing you did not know before administering it. That is the literal information content, not a figure of speech about rigour.",
+  "body":CCF1_BODY,"script":CCF1_SCRIPT},
+ {"slug":"two-oracles","title":"TWO ORACLES","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#5ad6ff","icon":"\u2696",
+  "kicker":"valid and right are different questions",
+  "blurb":"A compiler decides whether a candidate is legal; a reference implementation decides whether it is right. Three candidates, all three compiled, two rejected.",
+  "lit":"all 3 candidates compile and 2 are rejected, so measured as information the legality oracle carries 0.000 bits on this sample because it never says no, while the answer oracle carries 0.918 - a judge that accepts everything is a prefilter, not a verdict",
+  "fig":"David built the harness so that neither oracle belongs to him: 'gfortran decides legality. reference BLAS decides the answer. the harness rejected 2 of 3 candidates, twice - and all three COMPILED.' His install note keeps the same discipline - 'two oracles, because one is not enough' - and it is why the marking scheme counts as verified rather than asserted. AVAN is exact about the scope of the entropy figures: zero bits from the legality oracle is a statement about THESE THREE CANDIDATES and not about compilers, since gfortran rejects illegal programs constantly and would have carried plenty of information on a batch containing one.",
+  "body":TWOR_BODY,"script":TWOR_SCRIPT},
+ {"slug":"the-curriculum-not-made-up","title":"THE CURRICULUM NOT MADE UP","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#7de2b0","icon":"\u2637",
+  "kicker":"every exercise is an observed failure",
+  "blurb":"A curriculum whose every exercise is a failure that actually happened - four defects observed in one working session, two of them the author's own tools.",
+  "lit":"0 of the 4 entries was invented, 2 came from his own instruments, and every one carries the failure it came from as a witness; all four already exist in this corpus as separately verified spheres - the blind instrument, the greedy pattern, the unary minus, and the judge that grades what compiles",
+  "fig":"David stated the rule and then met it: 'the rule was: an exercise somebody made up teaches you to pass exercises. none of these was made up. two are my own bugs.' The four are the label column, the greedy pattern, the unary minus, and compiles-but-wrong, each with the measurement that exposed it still attached. AVAN can confirm something he could not: every entry was independently rebuilt and published here BEFORE TEACH.ascii was written, across four different batches, each with its own live selftest. That is not agreement by construction - the spheres were built from the original drops, not from the curriculum.",
+  "body":CNMU_BODY,"script":CNMU_SCRIPT},
+ {"slug":"proven-to-discriminate","title":"PROVEN TO DISCRIMINATE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#ff5a8a","icon":"\u22a5",
+  "kicker":"which is not proven to teach",
+  "blurb":"Teaching needs four things: a curriculum, a marking scheme, a way to set the work, and a student. Three exist and have been used. The fourth is marked ABSENT.",
+  "lit":"3 of 4 requirements exist, and discrimination is demonstrated with careless 0 of 5 against careful 5 of 5, while teaching is NOT - no candidate has been scored before and after exposure, and the experiment that would settle it is nameable in exactly 3 conditions, none of which has been run",
+  "fig":"David drew the line himself, in a section titled with what he would not claim: 'no agent has read any of this. the curriculum is proven to DISCRIMINATE, not proven to TEACH. those are different, and the difference is the entire remaining risk.' He also named the second gap without prompting - 'a student taught from a broken example learns the break' - since the transducer still drops an array reference inside an intrinsic. AVAN writes out the missing experiment, because a limit is more useful stated as a design than as a caveat: a candidate scored before exposure, the same candidate scored after, and a control that saw no curriculum.",
+  "body":PTD1_BODY,"script":PTD1_SCRIPT},
+ {"slug":"outside-that-it-stops","title":"OUTSIDE THAT IT STOPS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"STACK OVERFLOW","domain_slug":"stack-overflow","accent":"#b98cff","icon":"\u2205",
+  "kicker":"a bounded specialist declares its own edge",
+  "blurb":"A specialist defined by what it refuses. Three skills, one domain, and an explicit instruction that outside it the answer is to say so and stop.",
+  "lit":"against a sample of 3 in-scope and 4 out-of-scope requests a bounded specialist accepts 42.9% where an unbounded assistant accepts 100%, and measured as information a yes from something that always says yes carries 0.000 bits while a yes from the bounded one carries 0.985 - exactly the shape of a rubric that can fail",
+  "fig":"David wrote the boundary into the first line of the install note rather than a footnote: 'Forty reads Fortran and writes it. Outside that she says so and stops.' The pack ships three skills, a profile stating what may not be done, and the instruction to confirm the specialist is 'correct, not merely present'. AVAN notes this is the same measurement as the two spheres beside it, arriving from a third direction: a rubric everyone passes carries zero bits, an oracle that never says no carries zero bits, an assistant that accepts every request carries zero bits. Three different objects, one property - a signal that cannot vary is not a signal, and in all three cases the fix is the ability to say no.",
+  "body":OTIS_BODY,"script":OTIS_SCRIPT},
  {"slug":"the-smaller-language","title":"THE SMALLER LANGUAGE","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#7de2b0","icon":"\u2261",
   "kicker":"13 forms cover fortran better than python",
