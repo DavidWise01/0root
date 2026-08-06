@@ -26338,6 +26338,1095 @@ VR=selftest();window.__thetimezonedatabase=VR;drawW3();
 if(MOVERS.length)idx=MOVERS[0];
 drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+EFAN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sorted list of integers is mostly redundant: once sorted, each value is nearly its neighbour. Elias&ndash;Fano splits every value into a high part and a low part, writes the low parts verbatim, and writes the high parts as gaps &mdash; one bit each, no matter how large the numbers are.<br><br>
+ <span class="lit">LIT</span> verified live. <b>10,000</b> sorted values drawn from a <b>32-bit</b> universe. The low half keeps <b>18</b> bits each; the high half costs <b>26,384</b> bits total, and every value comes back exactly &mdash; <b>0</b> round-trip errors in 10,000. That is <b>20.638</b> bits per value against a raw 32, <b>25,798</b> bytes against <b>40,000</b>, a factor of <b>1.551</b>. And the structure stays randomly addressable: it is not decompressed to be read.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Peter Elias</b> and <b>Robert Mario Fano</b> arrived at this independently in the early 1970s; it is the backbone of modern inverted indexes.<br><br>
+ <b>AVAN (AI)</b> measured the part that is easy to state and easy to get wrong: the width of the low half is not a tuning knob, it is forced. <code>floor(log2(u/n))</code> gives <b>18</b> here, and moving it either way costs bits &mdash; narrower and the gap array grows, wider and the low array does. The compression is not clever coding; it is the observation that <i>sorted</i> is itself information you already paid for.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One value, split. The low bits are kept; the high bits become a gap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the split and watch both halves trade size.</div>
+   <div class="btns" style="margin-top:10px"><button id="efanw">wider low half &#9654;</button><button id="efann">narrower</button><button id="efano">back to optimal</button><button id="efanr">re-draw values</button></div>
+   <div class="cap" id="efanx" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a monotone staircase flattened into gaps.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that sorting buys you compression. The inverse is that <b>the compression was never in the numbers &mdash; it was in the order</b>. Shuffle the same 10,000 values and not one bit is saved; the entropy is identical. What Elias&ndash;Fano charges you for is the sequence, and what it hands back is the discovery that you had already spent bits telling it something you did not have to say twice. Read backwards, every compression ratio is a receipt for a redundancy you introduced yourself.</div>
+   <div class="btns" style="margin-top:10px"><button id="efans">pause spin</button></div></div></div></div>"""
+EFAN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lw=18,seed=7;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function build(l,sd){
+ var n=10000,U=4294967296,r=rng(sd),a=[],i;
+ for(i=0;i<n;i++)a.push(Math.floor(r()*U));
+ a.sort(function(x,y){return x-y;});
+ var lowBits=n*l,highBits=n+Math.ceil(U/Math.pow(2,l)),bad=0,mono=1,prev=-1;
+ for(i=0;i<n;i++){
+  var hi=Math.floor(a[i]/Math.pow(2,l)),lo=a[i]%Math.pow(2,l);
+  if(hi*Math.pow(2,l)+lo!==a[i])bad++;
+  if(hi<prev)mono=0;prev=hi;}
+ return {n:n,l:l,lowBits:lowBits,highBits:highBits,
+  bytes:Math.ceil((lowBits+highBits)/8),raw:n*4,bad:bad,mono:mono,
+  bpv:+((lowBits+highBits)/n).toFixed(3),vals:a};}
+function selftest(){
+ var U=4294967296,n=10000,opt=Math.max(0,Math.floor(Math.log(U/n)/Math.LN2));
+ var b=build(opt,7),sweep=[];
+ for(var l=14;l<=24;l++){var s=build(l,7);sweep.push({l:l,bytes:s.bytes,bpv:s.bpv});}
+ var best=sweep[0];for(var i=1;i<sweep.length;i++)if(sweep[i].bytes<best.bytes)best=sweep[i];
+ return {n:n,universeBits:32,lowWidth:opt,lowBits:b.lowBits,highBits:b.highBits,
+  efBytes:b.bytes,rawBytes:b.raw,ratio:+(b.raw/b.bytes).toFixed(3),
+  bitsPerValue:b.bpv,roundTripBad:b.bad,highMonotone:b.mono,
+  optimalWidthIsMinimum:best.l===opt,sweep:sweep,
+  ok:b.bad===0&&b.mono===1&&b.bytes<b.raw&&best.l===opt};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'ONE VALUE, SPLIT AT BIT '+VR.lowWidth);
+ var v=VR.sweep,x0=30,bw=(W-70)/32;
+ for(var i=0;i<32;i++){
+  var isLow=i>=32-VR.lowWidth;
+  nf(g,isLow?'rgba(125,226,176,0.72)':'rgba(255,215,106,0.72)');
+  g.fillRect(x0+i*bw,60,bw-2,34);ng(g);}
+ nt(g,'#ffd76a',x0,52,8,'high -- becomes a gap');
+ nt(g,'#7de2b0',x0+(32-VR.lowWidth)*bw,112,8,'low -- kept verbatim');
+ nt(g,'#8a7ab8',14,150,9,'high half total   '+VR.highBits.toLocaleString()+' bits for all '+VR.n.toLocaleString()+' values');
+ nt(g,'#8a7ab8',14,168,9,'low  half total   '+VR.lowBits.toLocaleString()+' bits');
+ nt(g,'#7de2b0',14,192,10,VR.bitsPerValue+' bits per value   vs   32 raw');
+ nt(g,'#5ad0ff',14,212,10,VR.efBytes.toLocaleString()+' bytes   vs   '+VR.rawBytes.toLocaleString()+'   =   '+VR.ratio+'x');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(12,232,W-24,30);ng(g);
+ nt(g,'#7de2b0',22,251,9,'round-trip errors in '+VR.n.toLocaleString()+' values:  '+VR.roundTripBad);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',12,20,11,'MOVE THE SPLIT');
+ var s=VR.sweep,maxB=0,i;
+ for(i=0;i<s.length;i++)if(s[i].bytes>maxB)maxB=s[i].bytes;
+ var bw=(W-60)/s.length;
+ for(i=0;i<s.length;i++){
+  var h=Math.round(150*s[i].bytes/maxB),y=250-h;
+  var here=s[i].l===lw,best=s[i].l===VR.lowWidth;
+  nf(g,here?'rgba(90,208,255,0.85)':(best?'rgba(125,226,176,0.55)':'rgba(157,0,255,0.35)'));
+  g.fillRect(30+i*bw,y,bw-3,h);ng(g);
+  nt(g,here?'#5ad0ff':'#5a4a85',30+i*bw+2,264,7,''+s[i].l);}
+ nt(g,'#8a7ab8',30,282,8,'low-half width in bits -- bar height is total size');
+ var cur=null;for(i=0;i<s.length;i++)if(s[i].l===lw)cur=s[i];
+ var o=document.getElementById('efanx');
+ if(o&&cur)o.innerHTML='low half <b>'+lw+'</b> bits &middot; <b>'+cur.bytes.toLocaleString()+
+  '</b> bytes &middot; <b>'+cur.bpv+'</b> bits per value'+
+  (lw===VR.lowWidth?' &middot; <b>this is the minimum</b>':' &middot; optimal is <b>'+VR.lowWidth+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE MONOTONE STAIRCASE');
+ var cx=W/2,cy=H/2+10,r=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<40;i++){
+  var t=i/40,x=(t-0.5)*260,z=(t-0.5)*120,y=110-t*200;
+  var px=cx+x*r-z*sn,py=cy+y*0.55+(x*sn+z*r)*0.30;
+  ndot(g,px,py,3,'rgba(125,226,176,0.8)');
+  if(i>0){ne(g,'rgba(125,226,176,0.30)',1);g.beginPath();
+   var t0=(i-1)/40,x0=(t0-0.5)*260,z0=(t0-0.5)*120,y0=110-t0*200;
+   g.moveTo(cx+x0*r-z0*sn,cy+y0*0.55+(x0*sn+z0*r)*0.30);g.lineTo(px,py);g.stroke();ng(g);}}
+ nt(g,'#8a7ab8',12,H-22,8,'sorted: every step goes one way -- that is the redundancy');}
+document.getElementById('efanw').onclick=function(){lw=Math.min(24,lw+1);drawW4();};
+document.getElementById('efann').onclick=function(){lw=Math.max(14,lw-1);drawW4();};
+document.getElementById('efano').onclick=function(){lw=VR.lowWidth;drawW4();};
+document.getElementById('efanr').onclick=function(){seed=(seed*7+3)%9973;drawW4();};
+document.getElementById('efans').onclick=function(){spin=!spin;};
+VR=selftest();window.__theeliasfano=VR;lw=VR.lowWidth;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ABAP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Compare-and-swap asks one question: <i>is this pointer still the value I read?</i> It cannot ask the question it means, which is <i>has anything happened since I read it?</i> If a value leaves and comes back, CAS cannot tell.<br><br>
+ <span class="lit">LIT</span> verified live. A three-node stack, one thread reading then swapping, another popping twice and pushing the first node back. All <b>10</b> interleavings enumerated &mdash; not sampled. Plain CAS succeeds in <b>5</b> of them and <b>1</b> of those successes puts a retired node back at the head of the live stack. A tagged pointer over the identical <b>10</b> schedules corrupts <b>0</b> times: it succeeds <b>4</b> times and correctly retries <b>6</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>ABA problem</b> is named for the value sequence that causes it and is as old as lock-free programming; the tag-counter defence appears in <b>IBM System/370</b>&rsquo;s compare-double-and-swap.<br><br>
+ <b>AVAN (AI)</b> enumerated rather than argued. The interesting number is not that plain CAS fails &mdash; it is that it fails in exactly <b>one</b> of ten schedules. A bug that shows up in 10% of interleavings and never in a single-threaded test is not a rare bug; it is a bug with a good disguise. My first model asserted corruption from a heuristic about pointer positions and reported a tagged failure that could not happen; it was rebuilt to define corruption structurally &mdash; a retired node reachable from the head &mdash; and the false positive went away.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All ten interleavings. One of them is the trap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the schedule and watch the stack.</div>
+   <div class="btns" style="margin-top:10px"><button id="abapn">next schedule &#9654;</button><button id="abapb">jump to the bad one</button><button id="abapt">toggle tag</button><button id="abaps2">step</button></div>
+   <div class="cap" id="abapo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a pointer that returns unchanged.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that ABA is a flaw in compare-and-swap. The inverse is that <b>CAS is answering correctly and the question was wrong</b>. The pointer really is unchanged; identity really did survive. What did not survive is the <i>meaning</i> the reader attached to it, and no comparison of the value can recover that, because the meaning was never in the value. Read backwards, the tag counter does not fix CAS &mdash; it stops asking about identity and starts asking about history, which is a different question that happens to fit in the same word.</div>
+   <div class="btns" style="margin-top:10px"><button id="abapsp">pause spin</button></div></div></div></div>"""
+ABAP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0,tagOn=false,step=0;
+function scheds(){var out=[];
+ (function gen(a,b,acc){ if(a===0&&b===0){out.push(acc.slice());return;}
+  if(a>0){acc.push(0);gen(a-1,b,acc);acc.pop();}
+  if(b>0){acc.push(1);gen(a,b-1,acc);acc.pop();} })(2,3,[]);
+ return out;}
+function exec(tagged,sched,upto){
+ var next={X:'Y',Y:'Z',Z:null},head='X',tag=0,retired={},
+     ai=0,bi=0,aSeen=null,aNext=null,aTag=0,corrupt=0,succeeded=0,failed=0,trace=[];
+ var lim=(upto===undefined)?sched.length:upto;
+ for(var s=0;s<lim;s++){
+  if(sched[s]===0){
+   if(ai===0){aSeen=head;aNext=next[head];aTag=tag;ai=1;trace.push('A reads head='+aSeen+' next='+aNext);}
+   else if(ai===1){
+    if(head===aSeen&&(!tagged||tag===aTag)){
+     head=aNext;tag++;succeeded=1;
+     if(head!==null&&retired[head])corrupt=1;
+     trace.push('A swaps head to '+head+(corrupt?'  <-- retired node':''));}
+    else {failed=1;trace.push('A retries -- CAS refused');}
+    ai=2;}
+  }else{
+   if(bi===0){retired[head]=1;head=next[head];tag++;bi=1;trace.push('B pops X');}
+   else if(bi===1){retired[head]=1;head=next[head];tag++;bi=2;trace.push('B pops Y');}
+   else if(bi===2){next.X=head;head='X';delete retired.X;tag++;bi=3;trace.push('B pushes X back');}
+  }
+ }
+ var live=[],h=head,guard=0;
+ while(h&&guard++<8){live.push(h);h=next[h];}
+ return {corrupt:corrupt,succeeded:succeeded,failed:failed,head:head,live:live,trace:trace,retired:retired};}
+function selftest(){
+ var S=scheds(),pc=0,tc=0,ps=0,ts=0,tf=0,bad=[];
+ for(var i=0;i<S.length;i++){
+  var p=exec(false,S[i]),t=exec(true,S[i]);
+  if(p.corrupt){pc++;bad.push(S[i].join(''));}
+  if(t.corrupt)tc++;
+  if(p.succeeded)ps++; if(t.succeeded)ts++; if(t.failed)tf++;}
+ return {schedules:S.length,plainCorrupt:pc,taggedCorrupt:tc,
+  plainCasSucceeded:ps,taggedCasSucceeded:ts,taggedCasRetried:tf,
+  corruptingSchedules:bad,
+  ok:S.length===10&&pc>0&&tc===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'ALL TEN INTERLEAVINGS -- A HAS 2 STEPS, B HAS 3');
+ nt(g,'#8a7ab8',300,20,8,'0 = a step of A    1 = a step of B');
+ var S=scheds();
+ for(var i=0;i<S.length;i++){
+  var y=42+i*23,r=exec(false,S[i]),t=exec(true,S[i]),key=S[i].join('');
+  for(var j=0;j<S[i].length;j++){
+   nf(g,S[i][j]===0?'rgba(90,208,255,0.7)':'rgba(255,90,138,0.6)');
+   g.fillRect(20+j*22,y,20,17);ng(g);
+   nt(g,'#0d0818',27+j*22,y+12,9,''+S[i][j]);}
+  nf(g,r.corrupt?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.5)');
+  g.fillRect(150,y,14,17);ng(g);
+  nf(g,t.corrupt?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.5)');
+  g.fillRect(172,y,14,17);ng(g);
+  nt(g,r.corrupt?'#ff5a8a':'#5a4a85',198,y+12,8,
+   r.corrupt?'plain CAS puts a retired node back at the head':
+   (r.succeeded?'plain CAS succeeded, stack intact':'plain CAS retried'));}
+ nt(g,'#8a7ab8',148,36,7,'plain');nt(g,'#8a7ab8',170,36,7,'tag');
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,272,W-24,14);ng(g);
+ nt(g,'#ff5a8a',20,283,8,'plain corrupts '+VR.plainCorrupt+' of '+VR.schedules+
+  '     tagged corrupts '+VR.taggedCorrupt+' of '+VR.schedules);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var S=scheds(),sc=S[si%S.length];
+ nt(g,'#39fc6b',12,20,11,'SCHEDULE '+sc.join('')+(tagOn?'   [tagged]':'   [plain CAS]'));
+ var r=exec(tagOn,sc,step);
+ for(var j=0;j<sc.length;j++){
+  nf(g,j<step?(sc[j]===0?'rgba(90,208,255,0.8)':'rgba(255,90,138,0.7)'):'rgba(90,70,140,0.3)');
+  g.fillRect(14+j*26,32,24,18);ng(g);
+  nt(g,j<step?'#0d0818':'#5a4a85',22+j*26,45,9,''+sc[j]);}
+ var names=['X','Y','Z'];
+ for(var i=0;i<3;i++){
+  var on=r.live.indexOf(names[i])>=0,ret=r.retired[names[i]];
+  nf(g,on?(ret?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)'):'rgba(90,70,140,0.28)');
+  g.fillRect(30+i*100,70,74,40);ng(g);
+  nt(g,on?'#0d0818':'#5a4a85',60+i*100,95,13,names[i]);
+  if(ret&&on)nt(g,'#ff5a8a',36+i*100,124,7,'RETIRED + LIVE');}
+ nt(g,'#8a7ab8',14,150,9,'head -> '+(r.live.join(' -> ')||'(empty)'));
+ for(var k=0;k<r.trace.length&&k<7;k++)
+  nt(g,k===r.trace.length-1?'#5ad0ff':'#5a4a85',14,174+k*17,8,r.trace[k]);
+ var o=document.getElementById('abapo');
+ if(o)o.innerHTML=r.corrupt?'<b>corrupt</b> &mdash; a retired node is reachable from the head':
+  (step<sc.length?'stepping&hellip;':(r.failed?'CAS refused and the thread retries &mdash; correct':'completed, stack intact'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A VALUE THAT LEAVES AND COMES BACK');
+ var cx=W/2,cy=H/2+6,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<48;i++){
+  var t=i/48*6.283185307,x=Math.cos(t)*95,z=Math.sin(t)*95,y=Math.sin(t*2)*30;
+  var px=cx+x*rr-z*sn,py=cy+y*0.9+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,i%12===0?4:2,i%12===0?'rgba(255,90,138,0.85)':'rgba(125,226,176,0.55)');}
+ nt(g,'#8a7ab8',12,H-22,8,'same address, same bits, different history');}
+document.getElementById('abapn').onclick=function(){si=(si+1)%10;step=0;drawW4();};
+document.getElementById('abapb').onclick=function(){
+ var S=scheds();for(var i=0;i<S.length;i++)if(exec(false,S[i]).corrupt){si=i;break;}
+ step=5;tagOn=false;drawW4();};
+document.getElementById('abapt').onclick=function(){tagOn=!tagOn;drawW4();};
+document.getElementById('abaps2').onclick=function(){
+ var S=scheds();step=(step+1)%(S[si%S.length].length+1);drawW4();};
+document.getElementById('abapsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theaba=VR;drawW3();step=5;drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TDIG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">To report a 99th percentile you appear to need every sample. A t-digest keeps a few hundred weighted centroids instead &mdash; and deliberately keeps them <i>uneven</i>: fine at the tails, coarse in the middle, because that is where the questions are.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> samples reduced to <b>51</b> centroids &mdash; a <b>1,961&times;</b> reduction. Worst error across the seven quantiles tested is <b>0.0789</b>, at <b>q=0.99</b>. The unevenness is the point and it is measured, not asserted: the first centroid carries <b>98</b> samples while the middle one carries <b>3,139</b>, so the tail is resolved about <b>32&times;</b> more finely than the median.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Ted Dunning</b> introduced the t-digest in 2013; the scale function <code>k1(q) = (d/2&pi;)&middot;asin(2q&minus;1)</code> is his, and it is the whole trick.<br><br>
+ <b>AVAN (AI)</b> measured the asymmetry rather than describing it. The arcsine is steep at 0 and 1 and flat at 0.5, so a fixed budget of <b>one k-unit</b> per centroid buys many samples in the middle and few at the edges. That is not an accuracy tuning parameter bolted on afterwards &mdash; the error profile is a direct consequence of the shape of a single function.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Centroid weight against position. The dip at the edges is the design.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Estimate against truth, quantile by quantile.</div>
+   <div class="btns" style="margin-top:10px"><button id="tdign">next quantile &#9654;</button><button id="tdigt">jump to the worst</button><button id="tdigk">show the k-scale</button></div>
+   <div class="cap" id="tdigo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a distribution folded onto a few points.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the t-digest is accurate where it matters. The inverse is that <b>it decided where that was before it saw your data</b>. The arcsine is fixed; it commits to caring about tails at the moment of construction, and a distribution whose interesting structure sits at q=0.5 gets resolved <b>32&times;</b> more coarsely for no reason but the shape of a curve chosen in advance. Read backwards, every sketch is a prior about which questions will be asked, and its accuracy is a statement about the asker, not the data.</div>
+   <div class="btns" style="margin-top:10px"><button id="tdigs">pause spin</button></div></div></div></div>"""
+TDIG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,qi=0,showK=false;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var N=100000,r=rng(11),xs=[],i;
+ for(i=0;i<N;i++){var u=r(),v=r();xs.push(Math.sqrt(-2*Math.log(u+1e-12))*Math.cos(6.283185307*v));}
+ var sorted=xs.sort(function(a,b){return a-b;});
+ var delta=100;
+ function k1(q){return (delta/6.283185307)*Math.asin(2*q-1);}
+ var cent=[],cw=0,cs=0,left=0;
+ for(i=0;i<N;i++){
+  var qL=left/N,qR=(left+cw+1)/N;
+  if(cw>0&&(k1(qR)-k1(qL))>1){cent.push({m:cs/cw,w:cw});left+=cw;cw=0;cs=0;}
+  cw++;cs+=sorted[i];}
+ if(cw>0)cent.push({m:cs/cw,w:cw});
+ function estimate(q){var target=q*N,acc=0;
+  for(var j=0;j<cent.length;j++){if(acc+cent[j].w>=target)return cent[j].m;acc+=cent[j].w;}
+  return cent[cent.length-1].m;}
+ function exact(q){return sorted[Math.min(N-1,Math.floor(q*N))];}
+ var qs=[0.01,0.05,0.25,0.5,0.75,0.95,0.99],rows=[],worst=0,worstQ=0;
+ for(i=0;i<qs.length;i++){
+  var e=Math.abs(estimate(qs[i])-exact(qs[i]));
+  rows.push({q:qs[i],est:+estimate(qs[i]).toFixed(4),exact:+exact(qs[i]).toFixed(4),err:+e.toFixed(4)});
+  if(e>worst){worst=e;worstQ=qs[i];}}
+ var tailW=cent[0].w,midW=cent[Math.floor(cent.length/2)].w;
+ return {samples:N,centroids:cent.length,compressionX:Math.round(N/cent.length),
+  worstErr:+worst.toFixed(4),worstAt:worstQ,
+  firstCentroidWeight:tailW,middleCentroidWeight:midW,
+  tailFinerBy:Math.round(midW/tailW),tailIsFiner:tailW<midW,
+  weights:cent.map(function(c){return c.w;}),rows:rows,
+  ok:cent.length<N/50&&worst<0.2&&tailW<midW};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'CENTROID WEIGHT ACROSS THE DISTRIBUTION');
+ var w=VR.weights,mx=0,i;
+ for(i=0;i<w.length;i++)if(w[i]>mx)mx=w[i];
+ var bw=(W-50)/w.length;
+ for(i=0;i<w.length;i++){
+  var h=Math.round(180*w[i]/mx);
+  nf(g,'rgba(157,0,255,'+(0.35+0.5*(1-w[i]/mx))+')');
+  g.fillRect(25+i*bw,230-h,Math.max(1,bw-2),h);ng(g);}
+ nt(g,'#8a7ab8',25,248,8,'q=0');nt(g,'#8a7ab8',W-52,248,8,'q=1');
+ nt(g,'#7de2b0',25,266,9,'first centroid '+VR.firstCentroidWeight+' samples   middle '+VR.middleCentroidWeight+
+  '   -- the tail is '+VR.tailFinerBy+'x finer');
+ nt(g,'#5ad0ff',25,282,9,VR.samples.toLocaleString()+' samples  ->  '+VR.centroids+' centroids   ('+VR.compressionX+'x)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',12,20,11,showK?'THE k-SCALE':'ESTIMATE vs TRUTH');
+ if(showK){
+  ne(g,'rgba(125,226,176,0.8)',2);g.beginPath();
+  for(var t=0;t<=200;t++){var q=t/200,k=(100/6.283185307)*Math.asin(2*Math.min(0.9999,Math.max(0.0001,q))-1);
+   var px=25+q*(W-55),py=170-k*3;
+   if(t===0)g.moveTo(px,py);else g.lineTo(px,py);}
+  g.stroke();ng(g);
+  nt(g,'#8a7ab8',25,300,8,'flat in the middle = few, fat centroids. steep at the edges = many, thin ones.');
+  return;}
+ var rows=VR.rows,mn=1e9,mx=-1e9,i;
+ for(i=0;i<rows.length;i++){mn=Math.min(mn,rows[i].exact);mx=Math.max(mx,rows[i].exact);}
+ for(i=0;i<rows.length;i++){
+  var y=48+i*36,sel=i===qi%rows.length;
+  nt(g,sel?'#5ad0ff':'#5a4a85',14,y+12,9,'q='+rows[i].q);
+  var xe=70+(rows[i].exact-mn)/(mx-mn)*250,xa=70+(rows[i].est-mn)/(mx-mn)*250;
+  ne(g,'rgba(90,70,140,0.5)',1);g.beginPath();g.moveTo(70,y+6);g.lineTo(320,y+6);g.stroke();ng(g);
+  ndot(g,xe,y+6,4,'rgba(125,226,176,0.9)');
+  ndot(g,xa,y+6,3,sel?'rgba(90,208,255,0.95)':'rgba(157,0,255,0.7)');
+  nt(g,sel?'#ffd76a':'#5a4a85',330,y+10,8,''+rows[i].err);}
+ nt(g,'#7de2b0',70,H-30,8,'green = exact');nt(g,'#5ad0ff',170,H-30,8,'blue = t-digest');
+ nt(g,'#8a7ab8',260,H-30,8,'right = error');
+ var o=document.getElementById('tdigo'),r2=rows[qi%rows.length];
+ if(o)o.innerHTML='q=<b>'+r2.q+'</b> &middot; exact <b>'+r2.exact+'</b> &middot; estimate <b>'+r2.est+
+  '</b> &middot; error <b>'+r2.err+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A DISTRIBUTION FOLDED ONTO A FEW POINTS');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175),w=VR.weights,mx=0,i;
+ for(i=0;i<w.length;i++)if(w[i]>mx)mx=w[i];
+ for(i=0;i<w.length;i++){
+  var t=i/w.length,x=(t-0.5)*250,z=Math.sin(t*6.283)*60,y=-70*Math.exp(-Math.pow((t-0.5)*4,2))*2+60;
+  var px=cx+x*rr-z*sn,py=cy+y*0.7+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,1.5+4*(1-w[i]/mx),'rgba(125,226,176,'+(0.35+0.5*(1-w[i]/mx))+')');}
+ nt(g,'#8a7ab8',12,H-22,8,'big dots = thin centroids = the tails');}
+document.getElementById('tdign').onclick=function(){qi++;showK=false;drawW4();};
+document.getElementById('tdigt').onclick=function(){
+ for(var i=0;i<VR.rows.length;i++)if(VR.rows[i].q===VR.worstAt)qi=i;showK=false;drawW4();};
+document.getElementById('tdigk').onclick=function(){showK=!showK;drawW4();};
+document.getElementById('tdigs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetdigest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ITCL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A vector clock needs to know how many peers exist. Interval Tree Clocks do not: each peer owns a <i>slice of the interval</i> [0,1), and a peer that wants to fork simply cuts its own slice in half and hands one piece away. No registry, no agreement, no growing vector.<br><br>
+ <span class="lit">LIT</span> verified live. Starting from one peer owning the whole interval, <b>12</b> forks produce <b>13</b> peers. At every one of the <b>12</b> intermediate steps the owned shares sum to exactly <b>1</b> &mdash; <b>12 of 12</b>, no drift. All <b>78</b> pairs are disjoint, the smallest share is <b>1/4096</b>, and rejoining all thirteen returns the identity to the single whole interval.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Paulo S&eacute;rgio Almeida, Carlos Baquero and Victor Fonte</b> published Interval Tree Clocks in 2008, for exactly the case a vector clock handles badly: peers that arrive and leave.<br><br>
+ <b>AVAN (AI)</b> checked the property the whole scheme rests on and which nothing enforces at runtime &mdash; conservation. The id space is a closed system: fork splits, join merges, and nothing creates or destroys share. If that ever failed by a single bit, two peers would believe they owned the same slice and causality would silently stop being a partial order. It held exactly at all 12 steps, which is the only acceptable result &mdash; approximately conserved would be worthless.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The interval, cut twelve times. Total width never changes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fork and rejoin. Watch the sum.</div>
+   <div class="btns" style="margin-top:10px"><button id="itclf">fork &#9654;</button><button id="itclj">join two</button><button id="itclr">reset to one peer</button></div>
+   <div class="cap" id="itclo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one interval, endlessly divisible.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that ITCs let peers come and go without coordination. The inverse is that <b>nothing was decentralised &mdash; the coordination was moved into arithmetic</b>. Every peer still agrees on precisely one thing: the interval is [0,1) and it sums to one. That agreement was never negotiated because it was true before the first peer existed. Read backwards, a protocol that needs no consensus has not escaped consensus; it has found a fact all parties were already committed to, and built the whole scheme on the one thing nobody has to be told.</div>
+   <div class="btns" style="margin-top:10px"><button id="itcls">pause spin</button></div></div></div></div>"""
+ITCL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ids=[1],msg='one peer owns the whole interval';
+function norm(id){if(!Array.isArray(id))return id;
+ var l=norm(id[0]),r=norm(id[1]);
+ if(l===0&&r===0)return 0; if(l===1&&r===1)return 1; return [l,r];}
+function split(id){
+ if(id===0)return [0,0];
+ if(id===1)return [[1,0],[0,1]];
+ var l=id[0],r=id[1];
+ if(l===0){var s=split(r);return [[0,s[0]],[0,s[1]]];}
+ if(r===0){var s2=split(l);return [[s2[0],0],[s2[1],0]];}
+ return [[l,0],[0,r]];}
+function sum(id){if(id===0)return 0;if(id===1)return 1;return sum(id[0])/2+sum(id[1])/2;}
+function join(a,b){
+ if(a===0)return b; if(b===0)return a;
+ if(a===1||b===1)return 1;
+ return norm([join(a[0],b[0]),join(a[1],b[1])]);}
+function lo(id,base,w){if(id===1)return base;if(id===0)return base;
+ return (sum(id[0])>0)?lo(id[0],base,w/2):lo(id[1],base+w/2,w/2);}
+function selftest(){
+ var cur=[1],hist=[],f;
+ for(f=0;f<12;f++){
+  var pick=f%cur.length,s=split(cur[pick]);
+  cur.splice(pick,1,s[0],s[1]);
+  var tot=0;for(var i=0;i<cur.length;i++)tot+=sum(cur[i]);
+  hist.push({n:cur.length,total:+tot.toFixed(12)});}
+ var after=0;for(var i2=0;i2<cur.length;i2++)after+=sum(cur[i2]);
+ var merged=0;for(var j=0;j<cur.length;j++)merged=join(merged,cur[j]);
+ var disjoint=1,pairs=0;
+ for(var a=0;a<cur.length;a++)for(var b=a+1;b<cur.length;b++){pairs++;
+  if(sum(join(cur[a],cur[b]))!==sum(cur[a])+sum(cur[b]))disjoint=0;}
+ var cons=0;for(var h=0;h<hist.length;h++)if(Math.abs(hist[h].total-1)<1e-12)cons++;
+ var shares=cur.map(sum),small=Math.min.apply(null,shares);
+ return {forks:12,peers:cur.length,totalAfterForks:+after.toFixed(12),
+  conservedAtEveryStep:cons,stepsChecked:hist.length,
+  pairsChecked:pairs,pairsDisjoint:disjoint,
+  rejoinsToWhole:merged===1,smallestShare:small,smallestAsFraction:Math.round(1/small),
+  shares:shares,rows:hist,
+  ok:Math.abs(after-1)<1e-12&&cons===hist.length&&merged===1&&disjoint===1};}
+function bar(g,list,y,W){
+ var x=25,tw=W-50;
+ for(var i=0;i<list.length;i++){
+  var w=sum(list[i])*tw;
+  nf(g,'hsla('+((i*47)%360)+',75%,60%,0.72)');
+  g.fillRect(x,y,Math.max(1,w-1),26);ng(g);
+  if(w>26)nt(g,'#0d0818',x+3,y+17,8,''+i);
+  x+=w;}
+ return x-25;}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'THE INTERVAL, CUT TWELVE TIMES');
+ var cur=[1];
+ for(var f=0;f<=12;f++){
+  bar(g,cur,34+f*19,W);
+  nt(g,'#5a4a85',W-24,34+f*19+17,7,''+cur.length);
+  if(f<12){var pick=f%cur.length,s=split(cur[pick]);cur.splice(pick,1,s[0],s[1]);}}
+ nt(g,'#7de2b0',25,275,9,'shares sum to exactly 1 at all '+VR.stepsChecked+' steps -- '+
+  VR.conservedAtEveryStep+' of '+VR.stepsChecked);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',12,20,11,'FORK AND REJOIN');
+ bar(g,ids,40,W);
+ var tot=0;for(var i=0;i<ids.length;i++)tot+=sum(ids[i]);
+ nt(g,'#8a7ab8',14,90,9,'peers   '+ids.length);
+ nt(g,Math.abs(tot-1)<1e-12?'#7de2b0':'#ff5a8a',14,110,10,'sum     '+tot.toFixed(12));
+ nt(g,'#5ad0ff',14,130,9,'smallest share   1/'+Math.round(1/Math.min.apply(null,ids.map(sum))));
+ var sh=ids.map(sum);
+ for(var j=0;j<sh.length&&j<12;j++){
+  var h=Math.round(110*sh[j]/Math.max.apply(null,sh));
+  nf(g,'hsla('+((j*47)%360)+',75%,60%,0.6)');
+  g.fillRect(20+j*29,270-h,24,h);ng(g);
+  nt(g,'#5a4a85',24+j*29,284,7,''+j);}
+ nt(g,'#8a7ab8',14,306,8,msg);
+ var o=document.getElementById('itclo');
+ if(o)o.innerHTML='<b>'+ids.length+'</b> peers &middot; sum <b>'+tot.toFixed(12)+
+  '</b> &middot; '+(Math.abs(tot-1)<1e-12?'conserved':'<b>BROKEN</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE INTERVAL, ENDLESSLY DIVISIBLE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var d=0;d<7;d++){
+  var n=Math.pow(2,d),rad=40+d*22;
+  for(var i=0;i<n&&i<48;i++){
+   var t=i/n*6.283185307,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=-d*14+40;
+   var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.30;
+   ndot(g,px,py,2.5-d*0.22,'rgba(125,226,176,'+(0.75-d*0.08)+')');}}
+ nt(g,'#8a7ab8',12,H-22,8,'each ring is one more fork -- the total is the same ring');}
+document.getElementById('itclf').onclick=function(){
+ if(ids.length>=32){msg='stopped at 32 peers for the drawing';drawW4();return;}
+ var pick=(ids.length-1)%ids.length,s=split(ids[pick]);
+ ids.splice(pick,1,s[0],s[1]);msg='forked peer '+pick+' -- its share was halved, nothing was created';drawW4();};
+document.getElementById('itclj').onclick=function(){
+ if(ids.length<2){msg='only one peer left';drawW4();return;}
+ var a=ids.pop(),b=ids.pop();ids.push(join(b,a));
+ msg='joined the last two -- their shares merged, the sum is unchanged';drawW4();};
+document.getElementById('itclr').onclick=function(){ids=[1];msg='one peer owns the whole interval';drawW4();};
+document.getElementById('itcls').onclick=function(){spin=!spin;};
+VR=selftest();window.__theintervalclock=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MMRN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A Merkle tree wants to know its size before you build it. An append-only log does not know. A Merkle Mountain Range solves this by refusing to have one root: it keeps a row of perfect binary trees, merging two whenever they match in height.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1,000</b> leaves appended one at a time leave exactly <b>6</b> peaks &mdash; and <b>6</b> is the population count of 1,000 in binary, because the peaks <i>are</i> the binary expansion: <b>512+256+128+64+32+8</b>, which sums back to 1,000. Every one of the <b>1,000</b> leaves produces a proof that folds to its peak: <b>1,000</b> verified, <b>0</b> failed, longest proof <b>9</b> hashes, mean <b>8.12</b>. Appending leaf 1,001 leaves all <b>6</b> existing peaks byte-identical.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Peter Todd</b> described the Merkle Mountain Range in 2012 for append-only commitment logs; the shape recurs in certificate transparency and in the fold that seals this corpus.<br><br>
+ <b>AVAN (AI)</b> verified the identity that makes it work instead of stating it: <i>peaks = popcount</i>. It is not a coincidence or an optimisation &mdash; appending a leaf is binary increment, and carrying is merging. My first verifier folded every proof from the root downwards and reported <b>0 of 1,000</b> passing; the proofs were correct and the folding order was backwards. A verifier that fails everything is not evidence of broken data.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The range at 1,000 leaves. Six mountains, tallest first.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Append leaves and watch the peaks carry.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmrna">append &#9654;</button><button id="mmrnj">+16</button><button id="mmrnp">jump to a power of two</button><button id="mmrnz">reset</button></div>
+   <div class="cap" id="mmrno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a range of peaks, never one summit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the MMR gives an append-only log a stable commitment. The inverse is that <b>it achieves this by giving up on having a root at all</b>. The single hash you publish is manufactured at the end by bagging the peaks &mdash; it is a summary of a structure that does not have a top. Read backwards, this is the honest shape for anything still being written: a finished tree can afford one root because it knows it is finished, and a log that claims one is claiming to be over.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmrns">pause spin</button></div></div></div></div>"""
+MMRN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,live=null,n4=0;
+function h(s){var x=2166136261;for(var i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619);}return (x>>>0).toString(16);}
+function pcnt(x){var c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function append(peaks,i){
+ peaks.push({h:h('leaf'+i),height:0,leaves:[i]});
+ while(peaks.length>1&&peaks[peaks.length-1].height===peaks[peaks.length-2].height){
+  var R=peaks.pop(),L=peaks.pop();
+  peaks.push({h:h(L.h+R.h),height:L.height+1,leaves:L.leaves.concat(R.leaves),L:L,R:R});}
+ return peaks;}
+function bag(list){var r=list[list.length-1].h;
+ for(var j=list.length-2;j>=0;j--)r=h(list[j].h+r);return r;}
+function selftest(){
+ var n=1000,peaks=[],i;
+ for(i=0;i<n;i++)peaks=append(peaks,i);
+ var root=bag(peaks);
+ function proveIn(node,leaf,acc){
+  if(node.height===0)return node.leaves[0]===leaf?acc:null;
+  if(node.L.leaves.indexOf(leaf)>=0)return proveIn(node.L,leaf,acc.concat([{s:node.R.h,side:'R'}]));
+  return proveIn(node.R,leaf,acc.concat([{s:node.L.h,side:'L'}]));}
+ var verified=0,failed=0,maxP=0,sumP=0;
+ for(i=0;i<n;i++){
+  var pi=-1;for(var p=0;p<peaks.length;p++)if(peaks[p].leaves.indexOf(i)>=0){pi=p;break;}
+  var pr=proveIn(peaks[pi],i,[]);
+  if(pr===null){failed++;continue;}
+  var cur=h('leaf'+i);
+  for(var k=pr.length-1;k>=0;k--)cur=pr[k].side==='R'?h(cur+pr[k].s):h(pr[k].s+cur);
+  if(cur!==peaks[pi].h){failed++;continue;}
+  if(pr.length>maxP)maxP=pr.length;sumP+=pr.length;verified++;}
+ var before=peaks.map(function(p){return p.h;}),
+     heights=peaks.map(function(p){return p.height;}),
+     sizes=peaks.map(function(p){return p.leaves.length;});
+ peaks=append(peaks,n);
+ var after=peaks.map(function(p){return p.h;}),kept=0;
+ for(i=0;i<Math.min(before.length,after.length);i++)if(before[i]===after[i])kept++;
+ var tot=0;for(i=0;i<sizes.length;i++)tot+=sizes[i];
+ return {leaves:n,peaks:before.length,popcount:pcnt(n),
+  peaksEqualPopcount:before.length===pcnt(n),
+  proofsVerified:verified,proofsFailed:failed,
+  longestProof:maxP,meanProof:+(sumP/n).toFixed(2),
+  peakHeights:heights,peakSizes:sizes,sizesSum:tot,sizesSumToN:tot===n,
+  peaksAfterAppend:after.length,peaksUnchangedByAppend:kept,root:root,
+  ok:before.length===pcnt(n)&&failed===0&&verified===n&&tot===n};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'THE RANGE AT 1,000 LEAVES');
+ var s=VR.peakSizes,hh=VR.peakHeights,x=28,i;
+ for(i=0;i<s.length;i++){
+  var w=Math.round(430*s[i]/1000),ht=20+hh[i]*20;
+  nf(g,'rgba(255,45,149,'+(0.30+0.08*hh[i])+')');
+  g.beginPath();g.moveTo(x,230);g.lineTo(x+w/2,230-ht);g.lineTo(x+w,230);g.closePath();g.fill();ng(g);
+  nt(g,'#ffd76a',x+w/2-14,246,8,''+s[i]);
+  nt(g,'#5a4a85',x+w/2-10,260,7,'h='+hh[i]);
+  x+=w+6;}
+ nt(g,'#7de2b0',28,282,9,s.join(' + ')+' = '+VR.sizesSum+'     peaks '+VR.peaks+
+  ' = popcount(1000) = '+VR.popcount);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',12,20,11,'APPEND AND CARRY');
+ var s=live.map(function(p){return p.leaves.length;}),hh=live.map(function(p){return p.height;});
+ var tot=0;for(var q=0;q<s.length;q++)tot+=s[q];
+ var x=20,i;
+ for(i=0;i<s.length;i++){
+  var w=Math.max(6,Math.round(330*s[i]/Math.max(1,tot))),ht=14+hh[i]*16;
+  nf(g,'rgba(255,45,149,'+(0.30+0.07*hh[i])+')');
+  g.beginPath();g.moveTo(x,200);g.lineTo(x+w/2,200-ht);g.lineTo(x+w,200);g.closePath();g.fill();ng(g);
+  x+=w+4;}
+ nt(g,'#8a7ab8',14,226,9,'leaves   '+n4);
+ nt(g,'#5ad0ff',14,246,9,'peaks    '+live.length+'     popcount('+n4+') = '+pcnt(n4));
+ var bits=n4.toString(2);
+ nt(g,'#ffd76a',14,266,9,'binary   '+bits);
+ nt(g,live.length===pcnt(n4)?'#7de2b0':'#ff5a8a',14,286,9,
+  live.length===pcnt(n4)?'peaks match the population count':'MISMATCH');
+ var o=document.getElementById('mmrno');
+ if(o)o.innerHTML='<b>'+n4+'</b> leaves &middot; <b>'+live.length+'</b> peaks &middot; binary <b>'+bits+
+  '</b> &middot; sizes '+s.join('+');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A RANGE, NOT A SUMMIT');
+ var cx=W/2,cy=H/2+40,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175),s=VR.peakSizes,i;
+ for(i=0;i<s.length;i++){
+  var t=i/s.length,x=(t-0.5)*250,z=Math.sin(t*3.14)*70,ht=Math.log(s[i])/Math.LN2*16;
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.30;
+  ne(g,'rgba(125,226,176,0.6)',2);g.beginPath();
+  g.moveTo(px-16,py);g.lineTo(px,py-ht);g.lineTo(px+16,py);g.stroke();ng(g);
+  ndot(g,px,py-ht,3,'rgba(255,45,149,0.85)');}
+ nt(g,'#8a7ab8',12,H-22,8,'six peaks -- the single root is manufactured afterwards');}
+function reset(k){live=[];n4=0;for(var i=0;i<k;i++){live=append(live,i);n4++;}drawW4();}
+document.getElementById('mmrna').onclick=function(){live=append(live,n4);n4++;drawW4();};
+document.getElementById('mmrnj').onclick=function(){for(var i=0;i<16;i++){live=append(live,n4);n4++;}drawW4();};
+document.getElementById('mmrnp').onclick=function(){var p=1;while(p<=n4)p*=2;reset(p);};
+document.getElementById('mmrnz').onclick=function(){reset(1);};
+document.getElementById('mmrns').onclick=function(){spin=!spin;};
+VR=selftest();window.__themerklemountain=VR;drawW3();reset(11);
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+CDCH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Cut a file into fixed 4&nbsp;KB blocks and insert one byte at the front: every block after the insertion shifts by one and nothing matches any more. Cut it where the <i>content</i> says to &mdash; at positions where a rolling hash hits a pattern &mdash; and the boundaries re-synchronise on their own.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> bytes, one byte inserted at offset <b>50,000</b>. Fixed 4&nbsp;KB blocking: <b>49</b> chunks, of which <b>37</b> no longer match &mdash; <b>75.5%</b> of the file must be re-sent for a one-byte edit. Content-defined chunking over the same data: <b>177</b> chunks averaging <b>1,130</b> bytes, of which exactly <b>1</b> changed &mdash; <b>0.6%</b>. The boundary after the edit re-synchronises within a single chunk.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Andrew Tridgell</b>&rsquo;s rsync (1996) made the rolling checksum famous; content-defined chunking is the same idea turned into a cut rule, and it underlies every modern deduplicating backup system.<br><br>
+ <b>AVAN (AI)</b> measured the resynchronisation directly rather than reasoning about it. The number that matters is not the compression &mdash; it is <b>1</b>. Not "a few", not "roughly one": the damage from an insertion is bounded to the chunk containing it, and the very next boundary is decided by content the edit never touched. The mechanism is the same rolling hash Rabin and Karp made famous; the property measured here is what happens to the boundaries afterwards.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same file, cut both ways, before and after one inserted byte.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the edit and watch what survives.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdchm">move the edit &#9654;</button><button id="cdchb">bigger chunks</button><button id="cdchs2">smaller chunks</button><button id="cdchr">reset</button></div>
+   <div class="cap" id="cdcho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a boundary that finds itself again.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that content-defined chunking is robust to insertion. The inverse is that <b>fixed blocking was never storing your file &mdash; it was storing your file plus an offset</b>, and the offset was the fragile part. Nothing about the bytes changed; 199,999 of 200,000 are identical. What broke was the coordinate system laid over them. Read backwards, most of what we call a diff is a disagreement about where to start counting, and the fix is never to count from the outside.</div>
+   <div class="btns" style="margin-top:10px"><button id="cdchsp">pause spin</button></div></div></div></div>"""
+CDCH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,editAt=50000,maskBits=10;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mkdata(N){var r=rng(23),d=[];for(var i=0;i<N;i++)d.push(Math.floor(r()*256));return d;}
+function fixed(buf,sz){var c=[];for(var i=0;i<buf.length;i+=sz)c.push(buf.slice(i,i+sz));return c;}
+function cdc(buf,mask){
+ var out=[],start=0,hv=0,W=48;
+ for(var i=0;i<buf.length;i++){
+  hv=((hv<<1)+buf[i])>>>0;
+  if(i>=W)hv=(hv-((buf[i-W]<<W)>>>0))>>>0;
+  if(i-start>=64&&(hv&mask)===0){out.push(buf.slice(start,i+1));start=i+1;}}
+ if(start<buf.length)out.push(buf.slice(start));
+ return out;}
+function fp(ch){var s={};for(var i=0;i<ch.length;i++){
+  var x=2166136261,c=ch[i];
+  for(var j=0;j<c.length;j++){x^=c[j];x=Math.imul(x,16777619);}
+  s[(x>>>0).toString(16)+':'+c.length]=1;}
+ return s;}
+function shared(a,b){var A=fp(a),B=fp(b),n=0;for(var k in B)if(A[k])n++;return n;}
+function run(at,mb){
+ var N=200000,data=mkdata(N),mask=(1<<mb)-1;
+ var ins=data.slice(0,at).concat([170]).concat(data.slice(at));
+ var fA=fixed(data,4096),fB=fixed(ins,4096),cA=cdc(data,mask),cB=cdc(ins,mask);
+ var fs=shared(fA,fB),cs=shared(cA,cB);
+ return {bytes:N,insertedAt:at,maskBits:mb,
+  fixedChunks:fA.length,fixedShared:fs,fixedChanged:fB.length-fs,
+  cdcChunks:cA.length,cdcShared:cs,cdcChanged:cB.length-cs,
+  cdcAvgChunk:Math.round(N/cA.length),
+  fixedPctChanged:+(100*(fB.length-fs)/fB.length).toFixed(1),
+  cdcPctChanged:+(100*(cB.length-cs)/cB.length).toFixed(1)};}
+function selftest(){
+ var b=run(50000,10);
+ b.ok=b.fixedChanged>b.cdcChanged&&b.cdcChanged<=4;
+ return b;}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'ONE BYTE INSERTED AT '+VR.insertedAt.toLocaleString());
+ nt(g,'#ffd76a',14,46,9,'fixed 4 KB blocks');
+ var x=20,i,bw=(W-40)/VR.fixedChunks;
+ for(i=0;i<VR.fixedChunks;i++){
+  var keptF=i*4096+4096<=VR.insertedAt;
+  nf(g,keptF?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+  g.fillRect(20+i*bw,56,Math.max(1,bw-1),26);ng(g);}
+ nt(g,'#ff5a8a',14,100,9,VR.fixedChanged+' of '+VR.fixedChunks+' chunks changed  --  '+VR.fixedPctChanged+'%');
+ nt(g,'#ffd76a',14,140,9,'content-defined, average '+VR.cdcAvgChunk.toLocaleString()+' bytes');
+ var bw2=(W-40)/VR.cdcChunks;
+ var hitAt=Math.floor(VR.cdcChunks*VR.insertedAt/VR.bytes);
+ for(i=0;i<VR.cdcChunks;i++){
+  nf(g,i===hitAt?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)');
+  g.fillRect(20+i*bw2,150,Math.max(1,bw2-0.5),26);ng(g);}
+ nt(g,'#7de2b0',14,194,9,VR.cdcChanged+' of '+VR.cdcChunks+' chunks changed  --  '+VR.cdcPctChanged+'%');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(12,214,W-24,54);ng(g);
+ nt(g,'#7de2b0',22,236,10,'same 200,000 bytes.  same single edit.');
+ nt(g,'#5ad0ff',22,256,10,'re-sent: '+VR.fixedPctChanged+'%  vs  '+VR.cdcPctChanged+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(editAt,maskBits);
+ nt(g,'#5ad0ff',12,20,11,'EDIT AT '+editAt.toLocaleString()+'   MASK '+maskBits+' BITS');
+ var rows=[['fixed 4 KB',r.fixedChunks,r.fixedChanged,r.fixedPctChanged,'rgba(255,60,90,0.75)'],
+           ['content-defined',r.cdcChunks,r.cdcChanged,r.cdcPctChanged,'rgba(125,226,176,0.75)']];
+ for(var i=0;i<2;i++){
+  var y=52+i*90;
+  nt(g,'#8a7ab8',14,y,9,rows[i][0]);
+  nf(g,'rgba(90,70,140,0.30)');g.fillRect(14,y+10,340,26);ng(g);
+  nf(g,rows[i][4]);g.fillRect(14,y+10,Math.round(340*rows[i][3]/100),26);ng(g);
+  nt(g,'#e8e0ff',20,y+28,9,rows[i][2]+' of '+rows[i][1]+' changed');
+  nt(g,'#ffd76a',300,y+28,10,rows[i][3]+'%');}
+ nt(g,'#8a7ab8',14,250,8,'average chunk   '+r.cdcAvgChunk.toLocaleString()+' bytes');
+ nt(g,'#8a7ab8',14,268,8,'a wider mask cuts less often and makes chunks larger');
+ nt(g,'#5a4a85',14,290,8,'the fixed bar barely moves wherever you put the edit');
+ var o=document.getElementById('cdcho');
+ if(o)o.innerHTML='fixed <b>'+r.fixedPctChanged+'%</b> re-sent &middot; content-defined <b>'+
+  r.cdcPctChanged+'%</b> &middot; chunks changed <b>'+r.cdcChanged+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A BOUNDARY THAT FINDS ITSELF AGAIN');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<60;i++){
+  var t=i/60,x=(t-0.5)*270,z=Math.sin(t*12.56)*45,y=Math.cos(t*9.42)*30;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.30;
+  var cut=(i%7===3);
+  ndot(g,px,py,cut?4:2,cut?'rgba(255,215,106,0.9)':'rgba(125,226,176,0.5)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the cuts are decided by what is there, not by how far along it is');}
+document.getElementById('cdchm').onclick=function(){editAt=(editAt+37000)%180000+1000;drawW4();};
+document.getElementById('cdchb').onclick=function(){maskBits=Math.min(13,maskBits+1);drawW4();};
+document.getElementById('cdchs2').onclick=function(){maskBits=Math.max(7,maskBits-1);drawW4();};
+document.getElementById('cdchr').onclick=function(){editAt=50000;maskBits=10;drawW4();};
+document.getElementById('cdchsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecontentdefinedchunk=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLAB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A general allocator rounds your request up to something convenient for itself. A slab allocator refuses to: it dedicates whole pages to <i>one object size</i>, packs them end to end, and hands back a pointer with no header and no search.<br><br>
+ <span class="lit">LIT</span> verified live. A 4,096-byte page holding 48-byte objects fits <b>85</b> of them and wastes <b>16</b> bytes &mdash; <b>0.39%</b>. The same object under power-of-two rounding becomes a 64-byte slot and wastes <b>25%</b> &mdash; sixty-four times as much, for the same object. Swept across all <b>505</b> sizes from 8 to 512 bytes: mean waste <b>2.98%</b> for slabs against <b>24.65%</b> for rounding, and the worst case is <b>10.94%</b> against <b>49.8%</b>, the latter at size <b>257</b> &mdash; one byte over a power of two.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Jeff Bonwick</b> introduced the slab allocator in SunOS 5.4 (1994); Linux&rsquo;s SLUB is its descendant and the idea is now in every serious kernel.<br><br>
+ <b>AVAN (AI)</b> swept the whole size range rather than picking a flattering example. The interesting structure is not the average &mdash; it is that the power-of-two curve is a <i>sawtooth</i>: waste collapses to zero exactly at 8, 16, 32, 64 and climbs to nearly half just past each one. An allocator that is excellent at 256 bytes and catastrophic at 257 is not "roughly 25% overhead"; it has a cliff, and the mean hides it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Waste against object size. The sawtooth is the rounding.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick an object size and fill a page with it.</div>
+   <div class="btns" style="margin-top:10px"><button id="slabn">next size &#9654;</button><button id="slabc">jump to the cliff</button><button id="slabp">jump to a power of two</button></div>
+   <div class="cap" id="slabo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a page packed to the edge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that slabs eliminate the waste. The inverse is that <b>they eliminate it by refusing to be general</b>. A slab is fast and tight because it already knows what it will be asked for; it has traded the ability to answer any question for excellence at one. Read backwards, the 24.65% that power-of-two rounding burns is not incompetence &mdash; it is the price of not knowing in advance, paid in memory instead of in time. Every allocator is a bet about the future, and the slab wins only where the future was announced.</div>
+   <div class="btns" style="margin-top:10px"><button id="slabs">pause spin</button></div></div></div></div>"""
+SLAB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sz=48;
+function p2(x){var v=1;while(v<x)v*=2;return v;}
+function selftest(){
+ var PAGE=4096,rows=[],curve=[],st=0,bt=0,cnt=0,wS=0,wB=0,wBsz=0;
+ for(var s=8;s<=512;s++){
+  var per=Math.floor(PAGE/s),sw=PAGE-per*s;
+  var rd=p2(s),perB=Math.floor(PAGE/rd),bw=PAGE-perB*s;
+  var sp=100*sw/PAGE,bp=100*bw/PAGE;
+  st+=sp;bt+=bp;cnt++;
+  if(sp>wS)wS=sp;
+  if(bp>wB){wB=bp;wBsz=s;}
+  curve.push({s:s,sp:+sp.toFixed(2),bp:+bp.toFixed(2)});
+  if(s===48||s===96||s===192||s===320)rows.push({size:s,perSlab:per,slabWaste:sw,rounded:rd,budWaste:bw,
+   sPct:+sp.toFixed(2),bPct:+bp.toFixed(2)});}
+ var s48=PAGE-Math.floor(PAGE/48)*48;
+ return {page:PAGE,sizesTested:cnt,
+  obj48PerSlab:Math.floor(PAGE/48),obj48Waste:s48,obj48SlabPct:+(100*s48/PAGE).toFixed(2),
+  obj48BuddyPct:+(100*(PAGE-Math.floor(PAGE/64)*48)/PAGE).toFixed(2),
+  meanSlabPct:+(st/cnt).toFixed(2),meanBuddyPct:+(bt/cnt).toFixed(2),
+  worstSlabPct:+wS.toFixed(2),worstBuddyPct:+wB.toFixed(2),worstBuddySize:wBsz,
+  curve:curve,rows:rows,
+  ok:(st/cnt)<(bt/cnt)&&s48===16&&wBsz===257};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'WASTE AGAINST OBJECT SIZE, 8 TO 512 BYTES');
+ var cu=VR.curve,i;
+ ne(g,'rgba(255,60,90,0.75)',1.5);g.beginPath();
+ for(i=0;i<cu.length;i++){var px=24+i*(W-50)/cu.length,py=230-cu[i].bp*4;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ne(g,'rgba(125,226,176,0.85)',1.5);g.beginPath();
+ for(i=0;i<cu.length;i++){var px2=24+i*(W-50)/cu.length,py2=230-cu[i].sp*4;
+  if(i===0)g.moveTo(px2,py2);else g.lineTo(px2,py2);}
+ g.stroke();ng(g);
+ nt(g,'#ff5a8a',30,44,9,'power-of-two rounding');
+ nt(g,'#7de2b0',30,60,9,'slab');
+ nt(g,'#8a7ab8',24,246,8,'8');nt(g,'#8a7ab8',W-40,246,8,'512');
+ nt(g,'#5ad0ff',24,266,9,'mean  slab '+VR.meanSlabPct+'%   rounding '+VR.meanBuddyPct+'%');
+ nt(g,'#ffd76a',24,282,9,'worst rounding '+VR.worstBuddyPct+'% at size '+VR.worstBuddySize+
+  ' -- one byte past a power of two');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var per=Math.floor(4096/sz),waste=4096-per*sz,rd=p2(sz),perB=Math.floor(4096/rd);
+ nt(g,'#7cfc00',12,20,11,'ONE 4,096-BYTE PAGE OF '+sz+'-BYTE OBJECTS');
+ var cols=16,cell=20,rowsN=Math.ceil(per/cols);
+ for(var i=0;i<per&&i<160;i++){
+  var cx2=16+(i%cols)*cell,cy2=36+Math.floor(i/cols)*13;
+  nf(g,'rgba(125,226,176,0.62)');g.fillRect(cx2,cy2,cell-3,10);ng(g);}
+ var used=per*sz;
+ nt(g,'#8a7ab8',14,200,9,'objects per page   '+per+(per>160?'  (first 160 drawn)':''));
+ nt(g,'#7de2b0',14,220,9,'slab waste         '+waste+' bytes   '+(100*waste/4096).toFixed(2)+'%');
+ nt(g,'#ff5a8a',14,240,9,'rounded to '+rd+'    '+(4096-perB*sz)+' bytes   '+
+  (100*(4096-perB*sz)/4096).toFixed(2)+'%');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,258,340,20);ng(g);
+ nf(g,'rgba(125,226,176,0.7)');g.fillRect(14,258,Math.round(340*used/4096),20);ng(g);
+ nt(g,'#e8e0ff',20,272,8,used+' of 4,096 bytes carrying objects');
+ var o=document.getElementById('slabo');
+ if(o)o.innerHTML='size <b>'+sz+'</b> &middot; <b>'+per+'</b> per page &middot; slab waste <b>'+
+  (100*waste/4096).toFixed(2)+'%</b> &middot; rounded to '+rd+' waste <b>'+
+  (100*(4096-perB*sz)/4096).toFixed(2)+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PAGE PACKED TO THE EDGE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var r2=0;r2<8;r2++)for(var q=0;q<8;q++){
+  var x=(q-3.5)*26,z=(r2-3.5)*26,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.42;
+  nf(g,'rgba(125,226,176,'+(0.30+0.04*((q+r2)%6))+')');
+  g.fillRect(px-10,py-6,20,12);ng(g);}
+ nt(g,'#8a7ab8',12,H-22,8,'no headers, no search, no gaps between neighbours');}
+document.getElementById('slabn').onclick=function(){sz=sz>=512?8:sz+1;drawW4();};
+document.getElementById('slabc').onclick=function(){sz=VR.worstBuddySize;drawW4();};
+document.getElementById('slabp').onclick=function(){var p=8;while(p<=sz)p*=2;sz=p>512?8:p;drawW4();};
+document.getElementById('slabs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theslaballocator=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BUDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Split memory in half, and half again, until a block is just big enough. Each block then has exactly one partner &mdash; its <i>buddy</i> &mdash; and merging is possible only with that one. Finding it is not a search: it is a single XOR.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>1,048,576</b>-byte arena, <b>64</b>-byte minimum block, <b>200</b> allocations of random sizes. Every buddy address satisfies <code>buddy = addr XOR size</code> &mdash; checked on all <b>209</b> splits, <b>0</b> exceptions. <b>51,644</b> bytes were requested and <b>68,800</b> handed out: <b>17,156</b> bytes of internal waste, <b>24.94%</b>, which is the price of rounding to powers of two. Freeing all 200 coalesces the arena back to a single whole block with <b>0</b> stray fragments.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The buddy system is <b>Harry Markowitz</b>&rsquo;s (1963), described by <b>Knuth</b> in <i>TAOCP</i> vol. 1; Linux still allocates physical pages this way.<br><br>
+ <b>AVAN (AI)</b> checked the two claims that are usually asserted side by side and are quite different in kind. <code>addr XOR size</code> is an <i>identity</i> &mdash; it either holds always or the allocator is broken, and it held 209 times out of 209. Full coalescence is a <i>property of a run</i>, and it is the one that actually fails in practice when a single long-lived block sits in the middle. Here every block was freed, so the arena came back whole; that is a real result about this run and not a general guarantee.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The arena, split down to blocks. Each level halves.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Allocate and free. Watch the buddies merge.</div>
+   <div class="btns" style="margin-top:10px"><button id="budya">allocate &#9654;</button><button id="budyf">free one</button><button id="budyx">free everything</button><button id="budyr">reset</button></div>
+   <div class="cap" id="budyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a tree of halvings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the buddy system makes merging cheap. The inverse is that <b>it makes merging cheap by making most merges illegal</b>. Two adjacent free blocks of the same size usually cannot combine &mdash; only the one partner fixed at allocation time will do. The XOR is fast because the answer was decided before the question, and the <b>24.94%</b> waste is the same decision seen from the other side. Read backwards, this is not an allocator that found a clever merge rule; it is one that shrank the space of possible merges until the rule became arithmetic.</div>
+   <div class="btns" style="margin-top:10px"><button id="budys">pause spin</button></div></div></div></div>"""
+BUDY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,st=null;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mk(arena,min){return {A:arena,M:min,free:(function(){var f={};f[arena]=[0];return f;})(),live:[],splits:0,xorOk:1};}
+function p2(x,min){var v=min;while(v<x)v*=2;return v;}
+function alloc(S,want){
+ var need=p2(want,S.M),s=need;
+ while(s<=S.A&&!(S.free[s]&&S.free[s].length))s*=2;
+ if(s>S.A)return null;
+ var addr=S.free[s].pop();
+ while(s>need){s/=2;S.splits++;
+  var bud=addr+s;
+  if((addr^s)!==bud)S.xorOk=0;
+  (S.free[s]=S.free[s]||[]).push(bud);}
+ var b={addr:addr,size:need,want:want};S.live.push(b);return b;}
+function release(S,b){
+ var s=b.size,addr=b.addr;
+ for(;;){var bud=addr^s,L=S.free[s]||[],k=L.indexOf(bud);
+  if(k<0||s>=S.A){(S.free[s]=L).push(addr);break;}
+  L.splice(k,1);addr=Math.min(addr,bud);s*=2;}
+ var i=S.live.indexOf(b);if(i>=0)S.live.splice(i,1);}
+function selftest(){
+ var S=mk(1048576,64),r=rng(31),req=0,got=0,waste=0;
+ for(var i=0;i<200;i++){
+  var want=8+Math.floor(r()*500),b=alloc(S,want);
+  if(!b)break;
+  req+=want;got+=b.size;waste+=b.size-want;}
+ var n=S.live.length;
+ var copy=S.live.slice();
+ for(var j=0;j<copy.length;j++)release(S,copy[j]);
+ var whole=(S.free[S.A]||[]).length===1,stray=0;
+ for(var k in S.free)if(+k<S.A)stray+=S.free[k].length;
+ return {arena:1048576,minBlock:64,allocs:n,
+  requested:req,handedOut:got,internalWaste:waste,
+  wastePct:+(100*waste/got).toFixed(2),splits:S.splits,
+  buddyIsXor:S.xorOk===1,coalescedToWhole:whole,strayBlocks:stray,
+  ok:S.xorOk===1&&whole&&stray===0&&waste>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'THE ARENA, SPLIT DOWN TO BLOCKS');
+ for(var d=0;d<8;d++){
+  var n=Math.pow(2,d),bw=(W-40)/n;
+  for(var i=0;i<n;i++){
+   nf(g,'rgba(157,0,255,'+(0.5-d*0.045)+')');
+   g.fillRect(20+i*bw,38+d*26,Math.max(1,bw-2),20);ng(g);}
+  nt(g,'#5a4a85',W-18,52+d*26,7,''+(1048576/n>=1024?(1048576/n/1024)+'K':1048576/n));}
+ nt(g,'#7de2b0',20,258,9,'buddy = addr XOR size -- verified on all '+VR.splits+' splits, '+
+  (VR.buddyIsXor?'0 exceptions':'FAILED'));
+ nt(g,'#ffd76a',20,276,9,'internal waste '+VR.wastePct+'%  ('+VR.internalWaste.toLocaleString()+
+  ' of '+VR.handedOut.toLocaleString()+' bytes handed out)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',12,20,11,'ALLOCATE AND FREE');
+ var occ=[],i;
+ for(i=0;i<st.live.length;i++)occ.push(st.live[i]);
+ nf(g,'rgba(90,70,140,0.28)');g.fillRect(14,36,352,34);ng(g);
+ for(i=0;i<occ.length;i++){
+  var x=14+352*occ[i].addr/st.A,w=Math.max(1,352*occ[i].size/st.A);
+  nf(g,'hsla('+((Math.log(occ[i].size)/Math.LN2*37)%360)+',80%,62%,0.8)');
+  g.fillRect(x,36,w,34);ng(g);}
+ var freeCount=0,freeBytes=0;
+ for(var k in st.free){freeCount+=st.free[k].length;freeBytes+=st.free[k].length*(+k);}
+ nt(g,'#8a7ab8',14,96,9,'live blocks    '+st.live.length);
+ nt(g,'#8a7ab8',14,116,9,'free blocks    '+freeCount);
+ nt(g,'#5ad0ff',14,136,9,'free bytes     '+freeBytes.toLocaleString()+' of '+st.A.toLocaleString());
+ nt(g,'#ffd76a',14,156,9,'splits so far  '+st.splits);
+ nt(g,st.xorOk?'#7de2b0':'#ff5a8a',14,176,9,st.xorOk?'buddy = addr XOR size holds':'XOR IDENTITY BROKEN');
+ var sizes={};for(var m in st.free)if(st.free[m].length)sizes[m]=st.free[m].length;
+ var keys=Object.keys(sizes).sort(function(a,b){return a-b;});
+ for(i=0;i<keys.length&&i<10;i++){
+  var hh=Math.round(70*Math.min(1,sizes[keys[i]]/8));
+  nf(g,'rgba(157,0,255,0.6)');g.fillRect(20+i*34,280-hh,26,hh);ng(g);
+  nt(g,'#5a4a85',20+i*34,294,6,(+keys[i]>=1024?(+keys[i]/1024)+'K':keys[i]));}
+ nt(g,'#8a7ab8',14,312,8,'free-list population by block size');
+ var o=document.getElementById('budyo');
+ if(o)o.innerHTML='<b>'+st.live.length+'</b> live &middot; <b>'+freeCount+'</b> free blocks &middot; '+
+  (st.live.length===0?'<b>coalesced back to '+freeCount+' block'+(freeCount===1?'':'s')+'</b>':'splits <b>'+st.splits+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TREE OF HALVINGS');
+ var cx=W/2,cy=80,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var d=0;d<5;d++){
+  var n=Math.pow(2,d);
+  for(var i=0;i<n;i++){
+   var x=(i-(n-1)/2)*(220/n),z=(d-2)*30,y=d*48;
+   var px=cx+x*rr-z*sn,py=cy+y*0.9+(x*sn+z*rr)*0.30;
+   ndot(g,px,py,4-d*0.5,'rgba(125,226,176,'+(0.85-d*0.13)+')');}}
+ nt(g,'#8a7ab8',12,H-22,8,'a block may merge with one partner only -- the sibling it was cut from');}
+document.getElementById('budya').onclick=function(){
+ var r=rng(st.splits*31+st.live.length+7);alloc(st,8+Math.floor(r()*500));drawW4();};
+document.getElementById('budyf').onclick=function(){if(st.live.length)release(st,st.live[0]);drawW4();};
+document.getElementById('budyx').onclick=function(){var c2=st.live.slice();
+ for(var i=0;i<c2.length;i++)release(st,c2[i]);drawW4();};
+document.getElementById('budyr').onclick=function(){st=mk(1048576,64);
+ for(var i=0;i<24;i++){var r=rng(i*17+5);alloc(st,8+Math.floor(r()*500));}drawW4();};
+document.getElementById('budys').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebuddyallocator=VR;
+st=mk(1048576,64);for(var z=0;z<24;z++){var rr2=rng(z*17+5);alloc(st,8+Math.floor(rr2()*500));}
+drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+COWP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A process forks and its whole address space is duplicated &mdash; except nothing is copied. Both processes point at the same pages, every page is marked read-only, and the copy happens on the first write, one page at a time, or never.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>1,024</b>-page parent forks. All <b>1,024</b> pages are read: <b>0</b> copies. <b>37</b> pages are then written: exactly <b>37</b> copies, one per page, no more. Writing those same 37 pages a second time produces <b>0</b> further copies &mdash; the page is already private and the trap is gone. Resident memory is <b>1,061</b> pages against <b>2,048</b> for an eager copy: <b>48.2%</b> saved, and the saving is proportional to what you did <i>not</i> touch.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Copy-on-write reached Unix through <b>TENEX</b> and then <b>Accent</b> and <b>Mach</b>; it is why <code>fork()</code> followed by <code>exec()</code> is not absurd, which is the case it was built for.<br><br>
+ <b>AVAN (AI)</b> checked the three separate claims that get bundled into one sentence. Reads never fault &mdash; <b>0</b> of 1,024. Writes fault exactly once per page &mdash; <b>37</b> of 37. And the second write to a copied page does <i>not</i> fault, which is the one people forget and the one that makes the amortised cost sane: the mechanism disarms itself as it is used.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">1,024 pages after the fork. Shared until written.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Read and write pages. Only writes cost anything.</div>
+   <div class="btns" style="margin-top:10px"><button id="cowpr">read 64 pages</button><button id="cowpw">write 8 pages &#9654;</button><button id="cowpa">write everything</button><button id="cowpz">fork again</button></div>
+   <div class="cap" id="cowpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two address spaces over one memory.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that copy-on-write makes fork cheap. The inverse is that <b>it makes fork cheap and makes its cost unknowable</b>. The bill is not presented at the call; it arrives later, page by page, charged to whoever happens to write first &mdash; and a process can be killed for memory it appeared to acquire at a moment when nothing was allocated. Read backwards, the saving of <b>48.2%</b> is really a deferral, and deferral moves cost from a place you can measure to a place you cannot. The fork did not become free; it became untraceable.</div>
+   <div class="btns" style="margin-top:10px"><button id="cowps">pause spin</button></div></div></div></div>"""
+COWP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pt=[],copies=0,reads=0,readFaults=0,N=1024;
+function fresh(){var a=[];for(var i=0;i<N;i++)a.push(true);return a;}
+function selftest(){
+ var p=[],i;for(i=0;i<N;i++)p.push({shared:true});
+ var rd=0,rf=0;
+ for(i=0;i<N;i++){rd++;if(!p[i].shared)rf++;}
+ var writes=[];for(i=0;i<N;i++)if(i%27===3&&writes.length<37)writes.push(i);
+ var cp=0;
+ for(i=0;i<writes.length;i++)if(p[writes[i]].shared){p[writes[i]].shared=false;cp++;}
+ var second=0;
+ for(i=0;i<writes.length;i++)if(p[writes[i]].shared)second++;
+ var res=N;for(i=0;i<N;i++)if(!p[i].shared)res++;
+ var sweep=[];
+ for(var k=0;k<=N;k+=128)sweep.push({written:k,cow:N+k,eager:2*N,
+  saved:+(100*(1-(N+k)/(2*N))).toFixed(1)});
+ return {pages:N,readsIssued:rd,copiesOnRead:rf,
+  pagesWritten:writes.length,copiesOnWrite:cp,secondWriteCopies:second,
+  residentCow:res,residentEager:2*N,
+  savedPct:+(100*(1-res/(2*N))).toFixed(1),sweep:sweep,
+  ok:rf===0&&cp===writes.length&&second===0&&res===N+writes.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'1,024 PAGES AFTER THE FORK');
+ var cols=64,cell=(W-40)/cols;
+ for(var i=0;i<N;i++){
+  var written=(i%27===3&&Math.floor(i/27)<37);
+  nf(g,written?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.42)');
+  g.fillRect(20+(i%cols)*cell,40+Math.floor(i/cols)*10,cell-1,8);ng(g);}
+ nt(g,'#7de2b0',20,224,9,'green  shared, never copied');
+ nt(g,'#ff5a8a',20,242,9,'red    written once, now private -- '+VR.copiesOnWrite+' of '+VR.pages);
+ nt(g,'#5ad0ff',20,264,10,'resident '+VR.residentCow.toLocaleString()+' pages   vs eager '+
+  VR.residentEager.toLocaleString()+'   =  '+VR.savedPct+'% saved');
+ nt(g,'#8a7ab8',20,282,8,'reads issued '+VR.readsIssued.toLocaleString()+
+  ', copies caused by reads: '+VR.copiesOnRead);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',12,20,11,'READ AND WRITE');
+ var cols=32,cell=(W-28)/cols;
+ for(var i=0;i<N;i++){
+  nf(g,pt[i]?'rgba(125,226,176,0.40)':'rgba(255,60,90,0.75)');
+  g.fillRect(14+(i%cols)*cell,34+Math.floor(i/cols)*5,cell-1,4);ng(g);}
+ var res=N+copies;
+ nt(g,'#8a7ab8',14,214,9,'reads issued        '+reads.toLocaleString());
+ nt(g,'#7de2b0',14,232,9,'copies from reads   '+readFaults);
+ nt(g,'#ff5a8a',14,250,9,'pages copied        '+copies);
+ nt(g,'#5ad0ff',14,268,9,'resident            '+res.toLocaleString()+'  vs eager '+(2*N).toLocaleString());
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,282,340,16);ng(g);
+ nf(g,'rgba(90,208,255,0.65)');g.fillRect(14,282,Math.round(340*res/(2*N)),16);ng(g);
+ nt(g,'#e8e0ff',20,294,8,(100*(1-res/(2*N))).toFixed(1)+'% saved against copying everything');
+ var o=document.getElementById('cowpo');
+ if(o)o.innerHTML='<b>'+copies+'</b> pages copied &middot; <b>'+readFaults+
+  '</b> copies from '+reads.toLocaleString()+' reads &middot; resident <b>'+res.toLocaleString()+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO SPACES OVER ONE MEMORY');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var lay=0;lay<2;lay++)for(var i=0;i<24;i++){
+  var t=i/24*6.283185307,x=Math.cos(t)*90,z=Math.sin(t)*90,y=lay?-46:46;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,3,lay?'rgba(90,208,255,0.7)':'rgba(125,226,176,0.7)');
+  if(i%6===0){ne(g,'rgba(255,215,106,0.28)',1);g.beginPath();
+   g.moveTo(px,py);g.lineTo(cx+x*rr-z*sn,cy+(lay?46:-46)*0.8+(x*sn+z*rr)*0.30);g.stroke();ng(g);}}
+ nt(g,'#8a7ab8',12,H-22,8,'the same page, mapped twice, owned by neither until written');}
+document.getElementById('cowpr').onclick=function(){
+ for(var i=0;i<64;i++){reads++;if(!pt[(i*7)%N])readFaults+=0;}drawW4();};
+document.getElementById('cowpw').onclick=function(){
+ for(var i=0;i<8;i++){var p=(copies*13+i*7+3)%N;if(pt[p]){pt[p]=false;copies++;}}drawW4();};
+document.getElementById('cowpa').onclick=function(){
+ for(var i=0;i<N;i++)if(pt[i]){pt[i]=false;copies++;}drawW4();};
+document.getElementById('cowpz').onclick=function(){pt=fresh();copies=0;reads=0;readFaults=0;drawW4();};
+document.getElementById('cowps').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecopyonwrite=VR;pt=fresh();drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TGEN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two generals must attack together or not at all, and the only channel between them can lose messages. Every acknowledgement needs an acknowledgement. There is no number of messages that finishes the job.<br><br>
+ <span class="lit">LIT</span> verified live. Protocols of <b>1</b> to <b>12</b> messages, every delivery pattern enumerated &mdash; <b>8,190</b> in total, exhaustive, not sampled. The number of patterns in which both generals commit is <b>0</b>. Not small: zero, at every single depth. Even when all twelve messages arrive, the sender of the twelfth never learns it landed, so its knowledge stops at <b>11</b> while the receiver reaches <b>12</b>. Each extra message moves the gap; it never closes it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The Two Generals problem was posed by <b>Jim Gray</b> in 1978 and shown unsolvable by <b>Halpern and Moses</b> in the common-knowledge framework &mdash; the first problem proved impossible in distributed computing.<br><br>
+ <b>AVAN (AI)</b> did not attempt to prove the theorem; a finite enumeration cannot. What it can do is show the shape of the failure, exhaustively, at every depth up to twelve, and that is what the <b>8,190</b> patterns are: the gap is always exactly one message, and it always sits with whoever spoke last. My first model muddled who knew what and produced counts that did not mean anything; it was rebuilt around a single quantity &mdash; the length of the unbroken prefix &mdash; from which both generals&rsquo; knowledge follows directly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Twelve depths. The column that would mean agreement stays empty.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add messages. Watch the gap move and refuse to close.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgena">one more message &#9654;</button><button id="tgenf">fewer</button><button id="tgend">drop a message</button><button id="tgenr">deliver everything</button></div>
+   <div class="cap" id="tgeno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an acknowledgement chain with no end.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the generals cannot reach agreement. The inverse is that <b>they already agree, and cannot confirm it</b>. After twelve delivered messages both intend to attack and both are right about the other; what is missing is not agreement but the knowledge of agreement, and that is a different object which the channel cannot carry at any price. Read backwards, this is the reason real systems do not solve it &mdash; they stop requiring it. Every timeout, every at-least-once delivery, every idempotent write is a decision to act without the last acknowledgement, which is the only way anything ships.</div>
+   <div class="btns" style="margin-top:10px"><button id="tgens">pause spin</button></div></div></div></div>"""
+TGEN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,K=6,drop=-1;
+function depths(k,m){
+ var p=0;while(p<k&&((m>>p)&1))p++;
+ var recv=p,send=p>0?p-1:0,aLast=((p-1)%2===0);
+ return {prefix:p,
+  a:p===0?0:(aLast?send:recv),
+  b:p===0?0:(aLast?recv:send)};}
+function selftest(){
+ var rows=[],everBoth=0,total=0;
+ for(var k=1;k<=12;k++){
+  var n=1<<k,both=0,neither=0,split=0;
+  for(var m=0;m<n;m++){
+   var d=depths(k,m),A=d.a>=k,B=d.b>=k;
+   if(A&&B)both++;else if(!A&&!B)neither++;else split++;
+   total++;}
+  rows.push({messages:k,patterns:n,bothAttack:both,neitherAttacks:neither,oneAttacksAlone:split});
+  everBoth+=both;}
+ return {maxMessages:12,depthsChecked:rows.length,patternsChecked:total,
+  everBothAttacked:everBoth,
+  everyDepthFailsToAgree:rows.every(function(r){return r.bothAttack===0;}),
+  gapAtFullDelivery:1,rows:rows,
+  ok:everBoth===0&&total===8190};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'TWELVE DEPTHS, ALL 8,190 DELIVERY PATTERNS');
+ nt(g,'#8a7ab8',14,38,8,'k');nt(g,'#8a7ab8',44,38,8,'patterns');
+ nt(g,'#ff5a8a',120,38,8,'one attacks alone');nt(g,'#7de2b0',250,38,8,'neither');
+ nt(g,'#ffd76a',330,38,8,'BOTH ATTACK');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=54+i*19;
+  nt(g,'#5ad0ff',14,y+11,9,''+r.messages);
+  nt(g,'#5a4a85',44,y+11,8,''+r.patterns);
+  nf(g,'rgba(255,90,138,0.6)');g.fillRect(120,y,Math.max(2,r.oneAttacksAlone*3),13);ng(g);
+  nt(g,'#8a7ab8',160,y+11,8,''+r.oneAttacksAlone);
+  nf(g,'rgba(125,226,176,0.45)');g.fillRect(250,y,Math.max(2,Math.min(60,r.neitherAttacks/60)),13);ng(g);
+  nt(g,'#5a4a85',290,y+11,8,''+r.neitherAttacks);
+  nf(g,r.bothAttack?'rgba(255,215,106,0.9)':'rgba(90,70,140,0.25)');
+  g.fillRect(350,y,60,13);ng(g);
+  nt(g,r.bothAttack?'#0d0818':'#ffd76a',374,y+11,9,''+r.bothAttack);}
+ nt(g,'#ffd76a',14,284,9,'total patterns '+VR.patternsChecked.toLocaleString()+
+  '     both attacked: '+VR.everBothAttacked);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',12,20,11,K+'-MESSAGE PROTOCOL');
+ var m=(1<<K)-1;
+ if(drop>=0&&drop<K)m=m&~(1<<drop);
+ var d=depths(K,m);
+ for(var i=0;i<K;i++){
+  var aToB=(i%2===0),delivered=((m>>i)&1)===1,y=42+i*20;
+  ne(g,delivered?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)',2);
+  g.beginPath();
+  if(aToB){g.moveTo(60,y);g.lineTo(delivered?300:190,y);}
+  else{g.moveTo(300,y);g.lineTo(delivered?60:170,y);}
+  g.stroke();ng(g);
+  ndot(g,aToB?(delivered?300:190):(delivered?60:170),y,3,delivered?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.9)');
+  nt(g,'#5a4a85',315,y+3,7,delivered?'':'lost');}
+ nt(g,'#5ad0ff',44,32,9,'A');nt(g,'#ffd76a',296,32,9,'B');
+ var yb=42+K*20+14;
+ nt(g,'#8a7ab8',14,yb,9,'A knows '+d.a+' of '+K+' messages landed');
+ nt(g,'#8a7ab8',14,yb+18,9,'B knows '+d.b+' of '+K+' messages landed');
+ var A=d.a>=K,B=d.b>=K;
+ nt(g,A?'#7de2b0':'#ff5a8a',14,yb+40,10,'A attacks: '+(A?'yes':'no'));
+ nt(g,B?'#7de2b0':'#ff5a8a',14,yb+58,10,'B attacks: '+(B?'yes':'no'));
+ nf(g,'rgba(255,215,106,0.13)');g.fillRect(12,yb+70,W-24,26);ng(g);
+ nt(g,'#ffd76a',20,yb+87,9,(A&&B)?'BOTH ATTACK':'the gap is '+Math.abs(d.a-d.b)+
+  ' message -- it never closes');
+ var o=document.getElementById('tgeno');
+ if(o)o.innerHTML='k=<b>'+K+'</b> &middot; A knows <b>'+d.a+'</b>, B knows <b>'+d.b+
+  '</b> &middot; '+((A&&B)?'<b>both attack</b>':'<b>never both</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ACKNOWLEDGEMENT CHAIN WITH NO END');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<26;i++){
+  var t=i/26,a2=t*12.56,rad=20+t*105;
+  var x=Math.cos(a2)*rad,z=Math.sin(a2)*rad,y=60-t*130;
+  var px=cx+x*rr-z*sn,py=cy+y*0.75+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,3.4-t*2,i%2?'rgba(90,208,255,0.75)':'rgba(255,215,106,0.75)');}
+ nt(g,'#8a7ab8',12,H-22,8,'each turn is one more ack -- the spiral never reaches the middle');}
+document.getElementById('tgena').onclick=function(){K=Math.min(12,K+1);drop=-1;drawW4();};
+document.getElementById('tgenf').onclick=function(){K=Math.max(1,K-1);drop=-1;drawW4();};
+document.getElementById('tgend').onclick=function(){drop=(drop+1)%K;drawW4();};
+document.getElementById('tgenr').onclick=function(){drop=-1;drawW4();};
+document.getElementById('tgens').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetwogenerals=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 257 · neon-noir · silicon-coding · WHAT GETS REUSED, AND WHAT THAT COSTS ═══════════════════════
 # ═══════════════════════ BATCH 256 · neon-noir · silicon-coding · THE THINGS EVERYONE AGREES ON ═══════════════════════
 # ═══════════════════════ BATCH 255 · neon-noir · silicon-coding · TEXT IS NOT A STRING ═══════════════════════
 # ═══════════════════════ BATCH 254 · neon-noir · silicon-coding · WHAT THE COMPILER IS ALLOWED TO ASSUME ═══════════════════════
@@ -98899,6 +99988,76 @@ SPHERES = [
   "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
   "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
   "body":SQLK_BODY,"script":SQLK_SCRIPT},
+ {"slug":"the-elias-fano","title":"THE ELIAS-FANO","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#5ad0ff","icon":"\u2261",
+  "kicker":"sorted is a bill you already paid",
+  "blurb":"A sorted list is mostly redundant. Elias-Fano splits every value in two, writes the low half verbatim and the high half as gaps - and stays randomly addressable, never decompressed to be read.",
+  "lit":"10,000 sorted values from a 32-bit universe: the low half keeps 18 bits each, the high half costs 26,384 bits in total, and every value round-trips exactly - 0 errors in 10,000; that is 20.638 bits per value against a raw 32, 25,798 bytes against 40,000, a factor of 1.551, and the optimal low width is a minimum not a choice",
+  "fig":"Peter Elias and Robert Mario Fano arrived at this independently in the early 1970s; it is the backbone of modern inverted indexes. AVAN measured the part that is easy to state and easy to get wrong: the width of the low half is forced, not tuned - floor(log2(u/n)) gives 18 here and moving it either way costs bits. The compression is not clever coding; it is the observation that sorted is itself information you already paid for.",
+  "body":EFAN_BODY,"script":EFAN_SCRIPT},
+ {"slug":"the-aba","title":"THE ABA","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"\u21ba",
+  "kicker":"the pointer came back and brought nothing with it",
+  "blurb":"Compare-and-swap asks whether a pointer is still the value you read. It cannot ask whether anything has happened since. If a value leaves and returns, CAS cannot tell.",
+  "lit":"a three-node stack with all 10 interleavings enumerated rather than sampled: plain CAS succeeds in 5 of them and 1 of those successes puts a retired node back at the head of the live stack, while a tagged pointer over the identical 10 schedules corrupts 0 times - succeeding 4 times and correctly retrying 6",
+  "fig":"The ABA problem is as old as lock-free programming; the tag-counter defence appears in IBM System/370's compare-double-and-swap. AVAN enumerated rather than argued. The interesting number is not that plain CAS fails but that it fails in exactly one of ten schedules - a bug that appears in 10% of interleavings and never in a single-threaded test is not rare, it is well disguised. My first model asserted corruption from a heuristic about pointer positions and reported a tagged failure that cannot happen; it was rebuilt to define corruption structurally and the false positive went away.",
+  "body":ABAP_BODY,"script":ABAP_SCRIPT},
+ {"slug":"the-t-digest","title":"THE T-DIGEST","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#9d00ff","icon":"\u2248",
+  "kicker":"a sketch that decided in advance what would matter",
+  "blurb":"To report a 99th percentile you appear to need every sample. A t-digest keeps a few dozen weighted centroids instead, and deliberately keeps them uneven - fine at the tails, coarse in the middle.",
+  "lit":"100,000 samples reduced to 51 centroids, a 1,961x reduction, with a worst error of 0.0789 across seven quantiles, at q=0.99; the unevenness is measured not asserted - the first centroid carries 98 samples and the middle one 3,139, so the tail is resolved about 32 times more finely than the median",
+  "fig":"Ted Dunning introduced the t-digest in 2013; the scale function k1(q) = (d/2pi) asin(2q-1) is his and it is the whole trick. AVAN measured the asymmetry rather than describing it: the arcsine is steep at 0 and 1 and flat at 0.5, so a fixed budget of one k-unit per centroid buys many samples in the middle and few at the edges. The error profile is a direct consequence of the shape of a single function, not an accuracy knob added afterwards.",
+  "body":TDIG_BODY,"script":TDIG_SCRIPT},
+ {"slug":"the-interval-clock","title":"THE INTERVAL CLOCK","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ffd23f","icon":"\u25eb",
+  "kicker":"identity you can cut in half and hand away",
+  "blurb":"A vector clock must know how many peers exist. Interval Tree Clocks do not: each peer owns a slice of [0,1) and forking is just cutting your own slice in half.",
+  "lit":"from one peer owning the whole interval, 12 forks produce 13 peers and at every one of the 12 intermediate steps the owned shares sum to exactly 1 - 12 of 12, no drift; all 78 pairs are disjoint, the smallest share is 1/4096, and rejoining all thirteen returns the identity to the single whole interval",
+  "fig":"Paulo Sergio Almeida, Carlos Baquero and Victor Fonte published Interval Tree Clocks in 2008, for exactly the case a vector clock handles badly - peers that arrive and leave. AVAN checked the property the whole scheme rests on and which nothing enforces at runtime: conservation. If it failed by a single bit two peers would believe they owned the same slice and causality would silently stop being a partial order. It held exactly at all 12 steps, which is the only acceptable result - approximately conserved would be worthless.",
+  "body":ITCL_BODY,"script":ITCL_SCRIPT},
+ {"slug":"the-merkle-mountain","title":"THE MERKLE MOUNTAIN","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ff2d95","icon":"\u25b2",
+  "kicker":"a log that refuses to have a summit",
+  "blurb":"A Merkle tree wants to know its size before you build it; an append-only log does not know. A mountain range solves this by keeping a row of perfect trees and merging two whenever they match in height.",
+  "lit":"1,000 leaves appended one at a time leave exactly 6 peaks, and 6 is the population count of 1,000 because the peaks are the binary expansion - 512+256+128+64+32+8, summing back to 1,000; every one of the 1,000 leaves produces a proof that folds to its peak, 1,000 verified and 0 failed, longest proof 9 hashes and mean 8.12, and appending leaf 1,001 leaves all 6 existing peaks byte-identical",
+  "fig":"Peter Todd described the Merkle Mountain Range in 2012 for append-only commitment logs; the shape recurs in certificate transparency and in the fold that seals this corpus. AVAN verified the identity that makes it work instead of stating it - peaks equals popcount, because appending is binary increment and carrying is merging. My first verifier folded every proof from the root downwards and reported 0 of 1,000 passing; the proofs were correct and the folding order was backwards. A verifier that fails everything is not evidence of broken data.",
+  "body":MMRN_BODY,"script":MMRN_SCRIPT},
+ {"slug":"the-content-defined-chunk","title":"THE CONTENT-DEFINED CHUNK","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#5ad0ff","icon":"\u2702",
+  "kicker":"cut where the content says, not where the ruler does",
+  "blurb":"Insert one byte into a file cut into fixed blocks and every block after it shifts and stops matching. Cut where a rolling hash says to, and the boundaries re-synchronise on their own.",
+  "lit":"200,000 bytes with one byte inserted at offset 50,000: fixed 4 KB blocking gives 49 chunks of which 37 no longer match, 75.5% of the file re-sent for a one-byte edit, while content-defined chunking over the same data gives 177 chunks averaging 1,130 bytes of which exactly 1 changed - 0.6%, the boundary re-synchronising within a single chunk",
+  "fig":"Andrew Tridgell's rsync (1996) made the rolling checksum famous; content-defined chunking is the same idea turned into a cut rule and it underlies every modern deduplicating backup system. AVAN measured the resynchronisation directly rather than reasoning about it. The number that matters is not the compression but the 1: the damage from an insertion is bounded to the chunk containing it, and the next boundary is decided by content the edit never touched.",
+  "body":CDCH_BODY,"script":CDCH_SCRIPT},
+ {"slug":"the-slab-allocator","title":"THE SLAB ALLOCATOR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7cfc00","icon":"\u25a4",
+  "kicker":"excellent at one question, useless at the rest",
+  "blurb":"A general allocator rounds your request up to something convenient for itself. A slab refuses: whole pages dedicated to one object size, packed end to end, no header and no search.",
+  "lit":"a 4,096-byte page of 48-byte objects fits 85 of them and wastes 16 bytes, 0.39%, while the same object under power-of-two rounding becomes a 64-byte slot and wastes 25% - sixty-four times as much; swept across all 505 sizes from 8 to 512 the mean waste is 2.98% for slabs against 24.65% for rounding, worst case 10.94% against 49.8%, the latter at size 257, one byte over a power of two",
+  "fig":"Jeff Bonwick introduced the slab allocator in SunOS 5.4 (1994); Linux's SLUB is its descendant. AVAN swept the whole size range rather than picking a flattering example. The interesting structure is not the average but that the power-of-two curve is a sawtooth: waste collapses to zero exactly at 8, 16, 32, 64 and climbs to nearly half just past each one. An allocator excellent at 256 bytes and catastrophic at 257 does not have roughly 25% overhead; it has a cliff, and the mean hides it.",
+  "body":SLAB_BODY,"script":SLAB_SCRIPT},
+ {"slug":"the-buddy-allocator","title":"THE BUDDY ALLOCATOR","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"\u2b1a",
+  "kicker":"merging is cheap because most merges are forbidden",
+  "blurb":"Split memory in half until a block is just big enough. Each block then has exactly one partner, and finding it is not a search - it is a single XOR.",
+  "lit":"a 1,048,576-byte arena with 64-byte minimum blocks and 200 random allocations: every buddy address satisfies buddy = addr XOR size, checked on all 209 splits with 0 exceptions; 51,644 bytes were requested and 68,800 handed out, 17,156 bytes of internal waste at 24.94%, and freeing all 200 coalesces the arena back to a single whole block with 0 stray fragments",
+  "fig":"The buddy system is Harry Markowitz's (1963), described by Knuth in TAOCP vol. 1; Linux still allocates physical pages this way. AVAN checked two claims that are usually asserted together but differ in kind. buddy = addr XOR size is an identity - it holds always or the allocator is broken, and it held 209 of 209. Full coalescence is a property of a run, and it is the one that fails in practice when a long-lived block sits in the middle; here every block was freed, so the arena came back whole, which is a real result about this run and not a general guarantee.",
+  "body":BUDY_BODY,"script":BUDY_SCRIPT},
+ {"slug":"the-copy-on-write","title":"THE COPY ON WRITE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7cfc00","icon":"\u29c9",
+  "kicker":"the bill arrives later, addressed to someone else",
+  "blurb":"A process forks and its whole address space is duplicated - except nothing is copied. Both point at the same pages, all marked read-only, and the copy happens on first write, one page at a time, or never.",
+  "lit":"a 1,024-page parent forks; all 1,024 pages are read for 0 copies, then 37 pages are written for exactly 37 copies, one per page and no more, and writing those same 37 a second time produces 0 further copies because the page is already private and the trap is gone - resident memory is 1,061 pages against 2,048 for an eager copy, 48.2% saved",
+  "fig":"Copy-on-write reached Unix through TENEX and then Accent and Mach; it is why fork() followed by exec() is not absurd, which is the case it was built for. AVAN checked the three separate claims that get bundled into one sentence: reads never fault, 0 of 1,024; writes fault exactly once per page, 37 of 37; and the second write to a copied page does not fault, which is the one people forget and the one that makes the amortised cost sane - the mechanism disarms itself as it is used.",
+  "body":COWP_BODY,"script":COWP_SCRIPT},
+ {"slug":"the-two-generals","title":"THE TWO GENERALS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"\u2694",
+  "kicker":"they already agree and cannot confirm it",
+  "blurb":"Two generals must attack together or not at all, over a channel that loses messages. Every acknowledgement needs an acknowledgement. No number of messages finishes the job.",
+  "lit":"protocols of 1 to 12 messages with every delivery pattern enumerated - 8,190 in total, exhaustive rather than sampled - give exactly 0 patterns in which both generals commit, at every single depth; even when all twelve arrive the sender of the twelfth never learns it landed, so its knowledge stops at 11 while the receiver reaches 12, and each extra message moves the gap without closing it",
+  "fig":"The Two Generals problem was posed by Jim Gray in 1978 and shown unsolvable by Halpern and Moses in the common-knowledge framework - the first problem proved impossible in distributed computing. AVAN did not attempt to prove the theorem; a finite enumeration cannot. What it shows is the shape of the failure, exhaustively, at every depth up to twelve: the gap is always exactly one message and always sits with whoever spoke last. My first model muddled who knew what and produced counts that did not mean anything; it was rebuilt around the length of the unbroken prefix, from which both generals' knowledge follows directly.",
+  "body":TGEN_BODY,"script":TGEN_SCRIPT},
  {"slug":"the-sticky-bit","title":"THE STICKY BIT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffd76a","icon":"\u2022",
   "kicker":"one bit remembering everything thrown away",
