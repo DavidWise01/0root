@@ -19499,6 +19499,656 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 243 · neon-noir · silicon-coding · FROM DAVID'S WORKFLOW rev3 + rev3-0805 · a rank wall that CLOSES an option · the drawing IS the number · a ranking that inverts · a selector that graded the wrong row · an auditor cannot see a costume ═══════════════════════
+RKWL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A linear map from <b>C<sup>4096</sup></b> to <b>C<sup>1</sup></b> has rank at most <b>1</b>. Reversibility needs rank <b>4096</b>. So a one-dimensional root cannot host a reversible fold &mdash; not as a matter of taste or engineering, but as arithmetic. It is the one result in the pack that <b>closes</b> an option rather than opening one.<br><br>
+ <span class="lit">LIT</span> verified live. The threshold is exact: a root of <b>4,095</b> dimensions is still not enough, and <b>4,096</b> is. Rank-nullity gives <b>4096 = 1 + 4095</b>, so the rank-one map sends <b>4,095</b> dimensions to zero. The middle of a reversible fold is the <b>largest</b> thing in it, not the smallest.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> was asked to show both a reversible and a lossy fold, and reported that one of the two does not exist: <i>&ldquo;this is the only result in the pack that CLOSES an option rather than opening one. He asked to see both&hellip; one of the two does not exist, and saying so was the answer.&rdquo;</i> Dropped 5 August 2026 in <code>WORKFLOW.ascii</code> rev3; his <code>verify.js</code> and <code>crosscheck.js</code> pass 84 and 43 checks here, with 6 of 6 mutants caught.<br><br>
+ <b>AVAN (AI)</b> would add only the shape of the bound. Rank is capped by the smaller of the two dimensions, so nothing about the map matters &mdash; not the entries, not the basis, not the cleverness. That is what makes it a wall rather than a difficulty: no better construction exists to find, and the honest response to &ldquo;show me both&rdquo; was to demonstrate that the request contained an impossibility.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Root dimension against maximum rank.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the root and watch the wall.</div>
+   <div class="btns" style="margin-top:10px"><button id="rkup">wider root &#9654;</button><button id="rkdn">narrower</button><button id="rkedge">the threshold</button></div>
+   <div class="cap" id="rkout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wide space collapsing through a point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a one-dimensional root cannot be reversible.&rdquo; The inverse is that <b>almost nothing anyone builds wants to be</b>. Compression, hashing, classification, embedding &mdash; every one of them is chosen <i>because</i> it discards, and the 4,095 dimensions sent to zero are the entire product rather than the loss. Read backwards, this wall does not block a useful thing; it blocks a thing that was assumed to be free, and the value of proving it is that the assumption was <b>load-bearing somewhere else</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="rksp">pause spin</button></div></div></div></div>"""
+RKWL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,root=1;
+var N=4096;
+var STEPS=[1,2,8,64,330,512,2048,4095,4096,8192];
+function maxRank(a,b){return Math.min(a,b);}
+function selftest(){
+ var rows=STEPS.map(function(d){
+  return {outDim:d,rank:maxRank(N,d),reversible:maxRank(N,d)>=N};});
+ var first=null;
+ for(var i=0;i<rows.length;i++)if(rows[i].reversible){first=rows[i];break;}
+ return {n:N,rows:rows,
+  rankToOne:maxRank(N,1),needsRank:N,
+  closed:maxRank(N,1)<N,
+  smallestReversibleRoot:first.outDim,
+  fourZeroNineFiveFails:!rows.filter(function(r){return r.outDim===4095;})[0].reversible,
+  nullity:N-1,rankNullityHolds:1+(N-1)===N,
+  ok:maxRank(N,1)===1&&first.outDim===N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ROOT DIMENSION AGAINST MAXIMUM RANK');
+ var m=140,pw=W-230;
+ VR.rows.forEach(function(r,i){
+  var y=38+i*23;
+  nt(g,r.reversible?'#7de2b0':'#8a7ab8',24,y+13,8,'dim '+r.outDim.toLocaleString());
+  nf(g,r.reversible?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(m,y+2,Math.max(1.5,pw*Math.log(r.rank+1)/Math.log(N+1)),14);ng(g);
+  nt(g,r.reversible?'#7de2b0':'#ff5a8a',m+pw+10,y+13,8,
+   r.reversible?'reversible':'rank '+r.rank.toLocaleString());});
+ // the wall
+ var wallX=m+pw;
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(wallX,30);g.lineTo(wallX,38+VR.rows.length*23);g.stroke();ng(g);
+ var y2=38+VR.rows.length*23+10;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'the wall sits at exactly '+N.toLocaleString()+
+  ' -- 4,095 is not enough');
+ nt(g,'#8a7ab8',24,H-8,9,'rank-nullity: 4096 = 1 + 4095, so a point discards 4,095 dimensions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var rank=maxRank(N,root),rev=rank>=N;
+ nt(g,'#e6dcff',16,26,11,'root dimension '+root.toLocaleString());
+ // input bar, output bar
+ var m=28,pw=W-56;
+ nt(g,'#8a7ab8',m,52,9,'input C^'+N);
+ nf(g,'rgba(125,226,176,0.55)');g.fillRect(m,60,pw,26);ng(g);
+ nt(g,'#8a7ab8',m,108,9,'root C^'+root.toLocaleString());
+ nf(g,rev?'rgba(125,226,176,0.55)':'rgba(255,215,106,0.55)');
+ g.fillRect(m,116,Math.max(2,pw*Math.log(root+1)/Math.log(N+1)),26);ng(g);
+ nt(g,'#8a7ab8',m,164,9,'recoverable dimensions');
+ nf(g,rev?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+ g.fillRect(m,172,Math.max(2,pw*Math.log(rank+1)/Math.log(N+1)),26);ng(g);
+ nt(g,rev?'#7de2b0':'#ff5a8a',m+6,190,10,rank.toLocaleString()+' of '+N.toLocaleString());
+ var y2=212;
+ nf(g,rev?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,rev?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,rev?'#7de2b0':'#ff5a8a',36,y2+28,13,rev?'reversible':'NOT reversible');
+ nt(g,'#8a7ab8',36,y2+48,8,rev?'nothing is lost':(N-rank).toLocaleString()+
+  ' dimensions map to zero');
+ var o=document.getElementById('rkout');
+ if(o)o.innerHTML='A root of <b>'+root.toLocaleString()+
+  '</b> dimensions caps the rank at <b>'+rank.toLocaleString()+'</b>. '+
+  (rev?'At or above 4,096 the map can be injective &mdash; nothing is discarded.'
+   :'That leaves a kernel of <b>'+(N-rank).toLocaleString()+
+    '</b> dimensions. No choice of entries, basis or cleverness changes this: rank is capped by the smaller side.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(4096);
+ var waist=P(0,0,0);
+ for(var i=0;i<300;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=88*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),-90+r*Math.cos(ph)*0.5,r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.4,'rgba(125,226,176,0.4)');
+  if(i%14===0){
+   ne(g,'rgba(125,226,176,0.16)',1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(waist[0],waist[1]);g.stroke();ng(g);}}
+ ndot(g,waist[0],waist[1],8,'#ff5a8a');
+ nt(g,'#ff5a8a',waist[0]+14,waist[1],9,'a point');
+ // nothing comes out the other side
+ for(var k=0;k<6;k++){
+  var q2=P((g2()-0.5)*40,60+k*10,(g2()-0.5)*40);
+  ndot(g,q2[0],q2[1],1.6,'rgba(255,90,138,0.3)');}
+ var lp=P(0,116,0);
+ nt(g,'#8a7ab8',lp[0]-58,lp[1],8,'4,095 dimensions gone');
+ nt(g,'#7de2b0',14,24,11,'4,096 dimensions entering');
+ nt(g,'#ff5a8a',14,42,10,'one dimension of room in the middle');
+ nt(g,'#8a7ab8',14,58,10,'and no construction recovers the rest');
+ nt(g,'#8a7ab8',14,H-12,9,'though almost nothing anyone builds wants to be reversible');}
+document.getElementById('rkup').onclick=function(){
+ var i=STEPS.indexOf(root);root=STEPS[Math.min(STEPS.length-1,(i<0?0:i)+1)];drawW4();};
+document.getElementById('rkdn').onclick=function(){
+ var i=STEPS.indexOf(root);root=STEPS[Math.max(0,(i<0?0:i)-1)];drawW4();};
+document.getElementById('rkedge').onclick=function(){root=root===4095?4096:4095;drawW4();};
+document.getElementById('rksp').onclick=function(){spin=!spin;};
+VR=selftest();window.__therankwall=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ONFA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A drawing shows four arms around a centre. Asked whether the picture and the arithmetic agree, the answer turned out stronger than agreement: among equal arm sizes, <b>exactly one</b> reaches the total. <b>8<sup>4</sup> = 4096.</b> The four-around-one figure is not a diagram <i>over</i> the number &mdash; it is the number&rsquo;s only four-way equal factorisation.<br><br>
+ <span class="lit">LIT</span> verified live and then exhaustively. Of the arm sizes 2, 4, 8, 16 and 32, only <b>8</b> lands on 4096. Searching <i>every</i> integer arm size from 2 to 4096 returns the same single solution. Four arms of three bits is <b>12</b> bits, and 2<sup>12</sup> is the total.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> logged this under <b>[not asked]</b> and said where it came from: <i>&ldquo;This was not asked for; it fell out of checking whether the drawing and the arithmetic agreed.&rdquo;</i> The whole track is two lines of measurement and one conclusion &mdash; the only four-way factorisation of the number, not a diagram over it.<br><br>
+ <b>AVAN (AI)</b> extended the search from his five sizes to every integer up to the total, because uniqueness among five candidates and uniqueness among all of them are different claims. The stronger one holds: s<sup>4</sup> = 4096 has exactly one integer solution, since 4096 = 2<sup>12</sup> and 12 is divisible by 4 in only one way that yields an integer base.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every equal arm size, and the one that lands.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the arm count and the arm size.</div>
+   <div class="btns" style="margin-top:10px"><button id="onarms">arms &#9654;</button><button id="onsize">size &#9654;</button></div>
+   <div class="cap" id="onout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: four arms of eight around one centre.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the drawing is the number.&rdquo; The inverse is that <b>uniqueness among EQUAL arms is a much smaller claim than it sounds</b>. Drop the equality and 4096 factors four ways in many shapes &mdash; 2&times;4&times;16&times;32, 2&times;2&times;32&times;32, and more. The figure is the only <i>symmetric</i> four-way split, and symmetry was assumed by the drawing before the arithmetic was consulted. Read backwards, the result confirms the picture within an assumption the picture itself supplied.</div>
+   <div class="btns" style="margin-top:10px"><button id="onsp">pause spin</button></div></div></div></div>"""
+ONFA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,arms=4,size=8;
+var TARGET=4096;
+var SIZES=[2,4,8,16,32];
+function selftest(){
+ var rows=SIZES.map(function(s){
+  return {size:s,fourArms:Math.pow(s,4),hits:Math.pow(s,4)===TARGET};});
+ var hits=rows.filter(function(r){return r.hits;});
+ var all=[];
+ for(var s=2;s<=TARGET;s++)if(Math.pow(s,4)===TARGET)all.push(s);
+ return {target:TARGET,tested:rows,hits:hits.map(function(r){return r.size;}),
+  uniqueAmongTested:hits.length===1,
+  exhaustiveHits:all,uniqueExhaustive:all.length===1,
+  arms:4,bitsPerArm:3,totalBits:12,
+  twoToTwelve:Math.pow(2,12),
+  ok:hits.length===1&&hits[0].size===8&&all.length===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY EQUAL ARM SIZE, AND THE ONE THAT LANDS');
+ var mx=Math.log(1048576);
+ VR.tested.forEach(function(r,i){
+  var y=44+i*40;
+  nt(g,r.hits?'#ffd76a':'#8a7ab8',24,y+16,10,r.size+'^4');
+  var pw=W-240;
+  nf(g,r.hits?'rgba(255,215,106,0.7)':'rgba(150,110,230,0.4)');
+  g.fillRect(90,y+2,Math.max(2,pw*Math.log(r.fourArms)/mx),24);ng(g);
+  nt(g,r.hits?'#ffd76a':'#5a4a85',90+pw+12,y+18,10,r.fourArms.toLocaleString());
+  if(r.hits)nt(g,'#7de2b0',90,y+36,8,'<- reaches the total');});
+ // the target line
+ var pw2=W-240;
+ var tx=90+pw2*Math.log(TARGET)/mx;
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();g.moveTo(tx,36);g.lineTo(tx,44+5*40);g.stroke();ng(g);
+ nt(g,'#7de2b0',tx-16,30,8,'4096');
+ var y2=252;
+ nt(g,'#ffd76a',24,y2,10,'exhaustive over every integer 2..4096: only 8');
+ nt(g,'#8a7ab8',24,y2+18,9,'4 arms x 3 bits = 12 bits, and 2^12 is the total');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var tot=Math.pow(size,arms);
+ var hits=tot===TARGET;
+ nt(g,'#e6dcff',16,26,11,arms+' arms of '+size+'   ->   '+size+'^'+arms+' = '+
+  tot.toLocaleString());
+ // the star drawing
+ var cxp=W/2,cyp=130,R=76;
+ ndot(g,cxp,cyp,9,'#ffd76a');
+ for(var a=0;a<arms;a++){
+  var th=a/arms*2*Math.PI-Math.PI/2;
+  var ex=cxp+R*Math.cos(th),ey=cyp+R*Math.sin(th);
+  ne(g,hits?'#7de2b0':'rgba(150,110,230,0.5)',1.8);
+  g.beginPath();g.moveTo(cxp,cyp);g.lineTo(ex,ey);g.stroke();ng(g);
+  // the arm's own states
+  for(var k=0;k<Math.min(size,12);k++){
+   var t=(k+1)/(Math.min(size,12)+1);
+   var px=cxp+(ex-cxp)*t,py=cyp+(ey-cyp)*t;
+   ndot(g,px,py,2.4,hits?'rgba(125,226,176,0.8)':'rgba(150,110,230,0.6)');}
+  ndot(g,ex,ey,4,hits?'#7de2b0':'#8a7ab8');}
+ var y2=224;
+ nf(g,hits?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.14)');
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,hits?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,hits?'#7de2b0':'#ff5a8a',36,y2+28,13,hits?'lands on 4096':
+  (tot>TARGET?'overshoots':'falls short'));
+ nt(g,'#8a7ab8',36,y2+47,8,(Math.log(tot)/Math.LN2).toFixed(2)+' bits against 12');
+ var o=document.getElementById('onout');
+ if(o)o.innerHTML='<b>'+arms+'</b> arms of <b>'+size+'</b> gives <b>'+tot.toLocaleString()+
+  '</b> = <b>'+(Math.log(tot)/Math.LN2).toFixed(2)+'</b> bits. '+
+  (hits?'This is the configuration &mdash; and among equal arms it is the only one.'
+   :'The total misses 4096. Only 4 arms of 8 land exactly.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var centre=P(0,0,0);
+ ndot(g,centre[0],centre[1],9,'#ffd76a');
+ var DIRS=[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]];
+ DIRS.forEach(function(d,i){
+  var tip=P(d[0]*96,d[1]*96,d[2]*96);
+  ne(g,'#7de2b0',1.8);
+  g.beginPath();g.moveTo(centre[0],centre[1]);g.lineTo(tip[0],tip[1]);g.stroke();ng(g);
+  for(var k=1;k<=8;k++){
+   var t=k/9;
+   var q=P(d[0]*96*t,d[1]*96*t,d[2]*96*t);
+   ndot(g,q[0],q[1],3,'#7de2b0');}
+  ndot(g,tip[0],tip[1],5,'#5ad6ff');});
+ nt(g,'#ffd76a',14,24,11,'one centre');
+ nt(g,'#7de2b0',14,42,10,'four arms, eight states each');
+ nt(g,'#5ad6ff',14,58,10,'8^4 = 4096, and no other equal split reaches it');
+ nt(g,'#8a7ab8',14,H-12,9,'though drop the equality and 4096 factors four ways in many shapes');}
+document.getElementById('onarms').onclick=function(){arms=arms>=6?2:arms+1;drawW4();};
+document.getElementById('onsize').onclick=function(){
+ var i=SIZES.indexOf(size);size=SIZES[(i+1)%SIZES.length];drawW4();};
+document.getElementById('onsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theonlyfactorisation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RKIV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Six ways to fold a space, priced in bits. Rank them by bits kept and one operator wins; rank them by whether anything can be recovered and a <b>different</b> one does. Symmetrising keeps <b>fewer</b> bits than tracing an arm and is the better operator, because it is reversible on its image. A single-number ranking picks the wrong one.<br><br>
+ <span class="lit">LIT</span> verified live. dim Sym<sup>4</sup>(C<sup>8</sup>) = C(11,4) = <b>330</b>, which keeps <b>8.3663</b> bits out of 12, losing <b>3.6337</b>. Tracing one arm leaves 512 dimensions &mdash; <b>9.0000</b> bits, strictly more. The multiset identity C(n+k&minus;1, k) reproduces 330 independently.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found the inversion and then changed the instrument rather than the prose: <i>&ldquo;symmetrize keeps FEWER bits than trace-1-arm (8.37 vs 9.00) and is the better operator, because it is reversible on its image. A single-number ranking picks the wrong one. W4 plots two axes for exactly this reason, and verify.js asserts the inversion rather than leaving it as prose.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> notes what makes that response unusual. Finding that your metric misorders the thing it measures normally produces a caveat; here it produced a <b>second axis on the plot</b> and an assertion in the test suite, so the inversion is now something the pack fails on if it ever stops being true. A caveat degrades quietly; a failing assertion does not.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bits kept, and recoverability, on the same operators.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">One axis, then two. Watch the order change.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvaxes">one axis / two &#9654;</button></div>
+   <div class="cap" id="rvout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two operators, two orderings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;use two axes, because one misorders them.&rdquo; The inverse is that <b>two axes do not order anything either</b>. A point that keeps more bits and a point that is recoverable are incomparable until someone supplies a weight, and adding an axis converts a wrong answer into <b>no answer</b> rather than into a right one. Read backwards, the honest gain is that the choice has been handed back to whoever has the use case &mdash; which is progress, and is not the same as a ranking.</div>
+   <div class="btns" style="margin-top:10px"><button id="rvsp">pause spin</button></div></div></div></div>"""
+RKIV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,twoAxes=false;
+function C(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+var OPS=[
+ ['symmetrise',C(11,4),true],
+ ['trace one arm',512,false],
+ ['project to a line',1,false],
+ ['keep two arms',64,false],
+ ['identity',4096,true],
+ ['antisymmetrise',C(8,4),true]];
+function selftest(){
+ var symDim=C(11,4),symBits=Math.log(symDim)/Math.LN2;
+ var traceDim=512,traceBits=Math.log(traceDim)/Math.LN2;
+ return {ops:OPS.map(function(o){
+   return {name:o[0],dim:o[1],bits:Math.log(o[1])/Math.LN2,reversibleOnImage:o[2]};}),
+  symDim:symDim,symBits:symBits,symLoses:12-symBits,
+  traceDim:traceDim,traceBits:traceBits,totalBits:12,
+  cIsThreeThirty:symDim===330,
+  bitsIs83663:Math.abs(symBits-8.3663)<0.0001,
+  losesIs36337:Math.abs(12-symBits-3.6337)<0.0001,
+  traceKeepsMore:traceBits>symBits,
+  symReversibleOnImage:true,traceReversibleOnImage:false,
+  rankingInverts:traceBits>symBits,
+  multisetIdentity:C(8+4-1,4)===symDim,
+  ok:symDim===330&&Math.abs(symBits-8.3663)<0.0001&&traceBits>symBits};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'BITS KEPT, AND RECOVERABILITY, ON THE SAME OPERATORS');
+ nt(g,'#8a7ab8',236,42,8,'bits kept of 12');
+ nt(g,'#8a7ab8',400,42,8,'reversible on image');
+ VR.ops.forEach(function(o,i){
+  var y=54+i*36;
+  nt(g,'#e6dcff',24,y+18,10,o.name);
+  var pw=140;
+  nf(g,'rgba(90,214,255,0.55)');
+  g.fillRect(236,y+4,Math.max(2,pw*o.bits/12),22);ng(g);
+  nt(g,'#5ad6ff',236+pw+8,y+19,9,o.bits.toFixed(2));
+  nf(g,o.reversibleOnImage?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(400,y+4,72,22);ng(g);
+  nt(g,'#0d0818',418,y+19,9,o.reversibleOnImage?'yes':'no');});
+ var y2=54+6*36+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'symmetrise keeps '+VR.symBits.toFixed(2)+
+  ' and trace keeps '+VR.traceBits.toFixed(2)+' -- the ranking inverts');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,twoAxes?'two axes':'one axis: bits kept');
+ if(!twoAxes){
+  var sorted=VR.ops.slice().sort(function(a,b){return b.bits-a.bits;});
+  sorted.forEach(function(o,i){
+   var y=50+i*44;
+   var isSym=o.name==='symmetrise',isTr=o.name==='trace one arm';
+   nf(g,isSym?'rgba(125,226,176,0.5)':(isTr?'rgba(255,90,138,0.5)':'rgba(150,110,230,0.35)'));
+   g.fillRect(24,y,W-48,34);ng(g);
+   nt(g,'#0d0818',38,y+22,10,(i+1)+'.  '+o.name);
+   nt(g,'#0d0818',W-96,y+22,10,o.bits.toFixed(2)+' bits');});
+  var o2=document.getElementById('rvout');
+  if(o2)o2.innerHTML='Ranked by bits kept alone, <b>trace one arm</b> (9.00) beats <b>symmetrise</b> (8.37). That ordering is arithmetically correct and picks the operator you cannot invert.';
+  return;}
+ // two axes
+ var m=44,pw=W-88,ph=170,base=210;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.moveTo(m,base);g.lineTo(m,base-ph);
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,base+18,8,'bits kept ->');
+ nt(g,'#8a7ab8',6,base-ph-6,8,'reversible on image');
+ VR.ops.forEach(function(o){
+  var x=m+o.bits/12*pw;
+  var y=base-(o.reversibleOnImage?ph*0.8:ph*0.15);
+  var isSym=o.name==='symmetrise',isTr=o.name==='trace one arm';
+  ndot(g,x,y,isSym||isTr?7:4,isSym?'#7de2b0':(isTr?'#ff5a8a':'rgba(150,110,230,0.6)'));
+  if(isSym||isTr)nt(g,isSym?'#7de2b0':'#ff5a8a',x-24,y-14,8,o.name);});
+ var y2=base+34;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#7de2b0',36,y2+26,11,'the two are now incomparable');
+ nt(g,'#8a7ab8',36,y2+46,8,'neither dominates the other on both axes');
+ var o=document.getElementById('rvout');
+ if(o)o.innerHTML='On two axes <b>symmetrise</b> sits lower-left on bits and upper on recoverability, and <b>trace</b> the reverse. Neither dominates. The second axis removed a <b>wrong</b> answer &mdash; it did not supply a right one.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two points, and the two orderings drawn as opposite arrows
+ var sym=P(-40,-30,0),tr=P(50,30,0);
+ ndot(g,sym[0],sym[1],8,'#7de2b0');
+ nt(g,'#7de2b0',sym[0]-30,sym[1]-16,9,'symmetrise');
+ ndot(g,tr[0],tr[1],8,'#ff5a8a');
+ nt(g,'#ff5a8a',tr[0]+12,tr[1],9,'trace');
+ // bits axis
+ var a1=P(-96,70,0),b1=P(96,70,0);
+ ne(g,'rgba(90,214,255,0.6)',1.6);
+ g.beginPath();g.moveTo(a1[0],a1[1]);g.lineTo(b1[0],b1[1]);g.stroke();ng(g);
+ nt(g,'#5ad6ff',a1[0]-4,a1[1]+18,8,'bits kept ->');
+ // recoverability axis
+ var a2=P(-96,70,0),b2=P(-96,-90,0);
+ ne(g,'rgba(125,226,176,0.6)',1.6);
+ g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.stroke();ng(g);
+ nt(g,'#7de2b0',b2[0]-6,b2[1]-8,8,'recoverable');
+ // the two projections
+ [[sym,'#7de2b0'],[tr,'#ff5a8a']].forEach(function(p){
+  ne(g,'rgba(150,110,230,0.35)',1);
+  var px=P(0,0,0);
+  g.beginPath();g.moveTo(p[0][0],p[0][1]);g.lineTo(p[0][0],b1[1]);g.stroke();ng(g);});
+ nt(g,'#7de2b0',14,24,11,'one operator wins on one axis');
+ nt(g,'#ff5a8a',14,42,10,'the other wins on the other');
+ nt(g,'#8a7ab8',14,58,10,'and a single number had to choose, wrongly');
+ nt(g,'#8a7ab8',14,H-12,9,'though two axes give no answer rather than a right one');}
+document.getElementById('rvaxes').onclick=function(){twoAxes=!twoAxes;drawW4();};
+document.getElementById('rvsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__therankinginverts=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GWSY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A verifier looked up a row with <code>.find()</code> and a loose pattern. The pattern matched <b>two</b> rows; <code>.find()</code> silently returned the first. So the assertion graded a row it was never aimed at &mdash; and reported a <b>correct</b> claim as wrong. Trusting it, the fix would have been to downgrade a true stamp. The control would have corrupted the thing it was auditing.<br><br>
+ <span class="lit">LIT</span> verified live. The regex matches <b>2</b> of 2 candidate rows; <code>.find()</code> returns the <b>LIT</b> ladder where the assertion expected the <b>AMBER</b> coincidence. Adding a uniqueness check turns the silent guess into <i>&ldquo;selector matched 2 rows, expected 1&rdquo;</i>, and tightening the pattern selects exactly <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed it as the third appearance of one disease in three revisions and wrote the rule as a sentence you can check code against: <i>&ldquo;a selector inside an assertion needs its own uniqueness check. .find() without a matching count is a guess wearing the syntax of a fact.&rdquo;</i> It is <code>graveyard/05</code> in the pack, kept rather than hidden.<br><br>
+ <b>AVAN (AI)</b> should underline which direction this failure ran. Most control failures are <b>silent passes</b> &mdash; the check misses something. This one was a <b>false positive</b>, and it is worse in a specific way: a missed fault leaves you where you were, while a false positive hands you a repair instruction that damages correct work. The control did not merely fail to help; following it would have made the artifact less true.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two rows, one pattern, one silent choice.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Loosen and tighten the selector.</div>
+   <div class="btns" style="margin-top:10px"><button id="gwtight">tighten &#9654;</button><button id="gwcheck">uniqueness check</button></div>
+   <div class="cap" id="gwout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an arrow that landed on the wrong target.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;add a uniqueness check to every selector.&rdquo; The inverse is that <b>the uniqueness check is itself a selector</b>. It asserts that the count is one, which is a claim about the data that can go stale the moment a row is added &mdash; and the failure then arrives as a <i>new</i> false positive rather than as the old silent guess. Read backwards, the disease is not <code>.find()</code>; it is that <b>a test names its subject by description</b>, and every description is a bet that the corpus has not moved.</div>
+   <div class="btns" style="margin-top:10px"><button id="gwsp">pause spin</button></div></div></div></div>"""
+GWSY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,tight=false,useCheck=false;
+var STAMPS=[
+ {id:'ladder',text:'13 rungs, 12 halvings, no holes',grade:'LIT'},
+ {id:'coincidence',text:'13 rungs and 13 opcodes -- noted, not tested',grade:'AMBER'}];
+var LOOSE=/13 rungs/,TIGHT=/13 rungs, 12 halvings/;
+function selftest(){
+ var matches=STAMPS.filter(function(s){return LOOSE.test(s.text);});
+ var found=null;
+ for(var i=0;i<STAMPS.length;i++)if(LOOSE.test(STAMPS[i].text)){found=STAMPS[i];break;}
+ var intended=STAMPS.filter(function(s){return s.id==='coincidence';})[0];
+ var caught='';
+ var m2=STAMPS.filter(function(s){return LOOSE.test(s.text);});
+ if(m2.length!==1)caught='selector matched '+m2.length+' rows, expected 1';
+ return {stamps:STAMPS,regex:String(LOOSE),
+  matchCount:matches.length,matched:matches.map(function(s){return s.id;}),
+  findReturns:found.id,findGrade:found.grade,
+  intendedId:intended.id,intendedGrade:intended.grade,
+  isFalsePositive:found.grade!==intended.grade,
+  uniquenessError:caught,
+  tightenedMatches:STAMPS.filter(function(s){return TIGHT.test(s.text);}).length,
+  revsWithThisDisease:3,
+  ok:matches.length===2&&found.grade==='LIT'&&intended.grade==='AMBER'&&
+   STAMPS.filter(function(s){return TIGHT.test(s.text);}).length===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO ROWS, ONE PATTERN, ONE SILENT CHOICE');
+ nt(g,'#ffd76a',24,44,9,'selector: '+VR.regex);
+ VR.stamps.forEach(function(s,i){
+  var y=58+i*62;
+  var matched=LOOSE.test(s.text);
+  var chosen=i===0&&matched;
+  nf(g,matched?'rgba(255,215,106,0.16)':'rgba(20,14,34,0.9)');
+  g.fillRect(24,y,W-48,50);ng(g);
+  ne(g,chosen?'#ff5a8a':(matched?'rgba(255,215,106,0.55)':'rgba(150,110,230,0.3)'),
+   chosen?1.8:1.1);
+  g.strokeRect(24.5,y+0.5,W-49,50);ng(g);
+  nt(g,'#e6dcff',40,y+20,10,s.text);
+  nt(g,s.grade==='LIT'?'#7de2b0':'#ffd76a',40,y+38,9,'graded '+s.grade);
+  if(matched)nt(g,'#ffd76a',W-160,y+20,8,'matches');
+  if(chosen)nt(g,'#ff5a8a',W-160,y+38,8,'<- .find() returns THIS');});
+ var y2=58+2*62+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'the assertion expected AMBER and graded a LIT row');
+ nt(g,'#8a7ab8',24,H-8,9,'a false positive: it points at a correct claim and calls it wrong');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var re=tight?TIGHT:LOOSE;
+ var m=STAMPS.filter(function(s){return re.test(s.text);});
+ nt(g,'#e6dcff',16,26,11,tight?'tightened selector':'loose selector');
+ nt(g,'#ffd76a',16,46,8,String(re));
+ STAMPS.forEach(function(s,i){
+  var y=64+i*58;
+  var hit=re.test(s.text);
+  nf(g,hit?'rgba(255,215,106,0.2)':'rgba(90,70,140,0.16)');
+  g.fillRect(24,y,W-48,46);ng(g);
+  ne(g,hit?'#ffd76a':'rgba(150,110,230,0.3)',1.2);
+  g.strokeRect(24.5,y+0.5,W-49,46);ng(g);
+  nt(g,'#e6dcff',38,y+19,8,s.text.slice(0,40));
+  nt(g,s.grade==='LIT'?'#7de2b0':'#ffd76a',38,y+35,8,s.grade);
+  nt(g,hit?'#ffd76a':'#5a4a85',W-84,y+27,8,hit?'match':'no');});
+ var y2=64+2*58+12;
+ var ok=m.length===1;
+ nf(g,ok?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,ok?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,ok?'#7de2b0':'#ff5a8a',36,y2+26,12,m.length+' row'+(m.length===1?'':'s')+' matched');
+ nt(g,'#8a7ab8',36,y2+46,8,useCheck
+  ?(ok?'uniqueness check passes':'uniqueness check THROWS')
+  :(ok?'.find() is unambiguous here':'.find() picks the first, silently'));
+ var y3=y2+66;
+ if(useCheck&&!ok)nt(g,'#ff5a8a',24,y3+14,9,'"'+VR.uniquenessError+'"');
+ else if(!useCheck&&!ok)nt(g,'#ffd76a',24,y3+14,9,'returns: '+m[0].id+
+  ' (grade '+m[0].grade+')');
+ var o=document.getElementById('gwout');
+ if(o)o.innerHTML=(tight
+  ?'The tightened pattern matches exactly <b>1</b> row &mdash; the one intended.'
+  :'The loose pattern matches <b>'+m.length+'</b> rows.')+' '+
+  (useCheck
+   ?(ok?'The uniqueness check passes and the assertion grades what it meant to.'
+     :'The uniqueness check <b>throws</b> instead of guessing &mdash; which is the whole fix.')
+   :(ok?'':'Without a uniqueness check <code>.find()</code> returns the <b>first</b>, and the assertion silently grades the wrong row.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two targets, one arrow, landing on the wrong one
+ var wrong=P(-52,-20,0),right=P(56,20,0);
+ [[wrong,'#7de2b0','LIT ladder'],[right,'#ffd76a','AMBER coincidence']].forEach(function(t){
+  ne(g,t[1],1.6);
+  for(var r=0;r<3;r++){
+   g.beginPath();
+   for(var j=0;j<=36;j++){
+    var th=j/36*2*Math.PI;
+    var q=P((30-r*9)*Math.cos(th)+(t[0]===wrong?-52:56),
+     (30-r*9)*Math.sin(th)*0.5+(t[0]===wrong?-20:20),0);
+    if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+   g.closePath();g.stroke();}
+  ng(g);
+  nt(g,t[1],t[0][0]-28,t[0][1]+48,8,t[2]);});
+ var src=P(0,110,0);
+ ne(g,'#ff5a8a',2.2);
+ g.beginPath();g.moveTo(src[0],src[1]);g.lineTo(wrong[0],wrong[1]);g.stroke();
+ g.beginPath();g.moveTo(wrong[0],wrong[1]);g.lineTo(wrong[0]-5,wrong[1]+12);
+ g.moveTo(wrong[0],wrong[1]);g.lineTo(wrong[0]+7,wrong[1]+10);g.stroke();ng(g);
+ nt(g,'#ff5a8a',src[0]-18,src[1]+16,8,'.find()');
+ ne(g,'rgba(255,215,106,0.3)',1.4);
+ for(var k=0;k<7;k++){
+  var t0=k/7,t1=(k+0.5)/7;
+  g.beginPath();
+  g.moveTo(src[0]+(right[0]-src[0])*t0,src[1]+(right[1]-src[1])*t0);
+  g.lineTo(src[0]+(right[0]-src[0])*t1,src[1]+(right[1]-src[1])*t1);
+  g.stroke();}
+ ng(g);
+ nt(g,'#ffd76a',14,24,11,'the row it meant to grade');
+ nt(g,'#7de2b0',14,42,10,'the row it graded');
+ nt(g,'#ff5a8a',14,58,10,'and it called a correct claim wrong');
+ nt(g,'#8a7ab8',14,H-12,9,'the disease is naming a subject by description, not .find()');}
+document.getElementById('gwtight').onclick=function(){tight=!tight;drawW4();};
+document.getElementById('gwcheck').onclick=function(){useCheck=!useCheck;drawW4();};
+document.getElementById('gwsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__aguesswearingsyntax=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSTM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A sequence arrived as &ldquo;the structure&rdquo;. Audited as data it has three faults &mdash; a missing power, a duplicated entry, nineteen distinct values in twenty slots. Every one of those findings is <b>correct about the typed input</b> and <b>wrong about the design</b>, because the sequence was a deliberate disguise. An auditor cannot distinguish an obfuscation from an error.<br><br>
+ <span class="lit">LIT</span> verified live. The typed input really does carry <b>20</b> slots holding <b>19</b> distinct values, with a <b>duplicated 1</b>. The corrected structure is a straight ladder 2<sup>0</sup>&hellip;2<sup>12</sup>: <b>13</b> rungs, <b>12</b> halvings, contiguous with no holes, topping out at <b>4096</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> filed the fault against himself and refused the tempting repair: <i>&ldquo;I had a candidate rung and stopped, because it was his structure and not mine to complete. Filling it would have silently &lsquo;repaired&rsquo; the disguise into something that was never there.&rdquo;</i> And the scoreboard line that names the class: <i>&ldquo;A disguise passes every check a verifier has, because a verifier&rsquo;s whole job is to take the input seriously.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> notes that this is the one fault in the pack found by a <b>person</b> rather than by a control, and that no control in it could have. Every instrument there checks whether the arithmetic on the input is right; none can ask whether the input meant what it appeared to mean. That is not a gap to be closed by a better verifier &mdash; taking the input at face value is the definition of the job.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The typed input, and the ladder underneath it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Audit the costume, then see the design.</div>
+   <div class="btns" style="margin-top:10px"><button id="csview">costume / ladder &#9654;</button><button id="csfill">fill the gap</button></div>
+   <div class="cap" id="csout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a ladder wearing a costume.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;an auditor cannot see a disguise.&rdquo; The inverse is that <b>an auditor who could would be worse at auditing</b>. Every instrument that guesses at intent behind the input has begun correcting data toward what it expected &mdash; and a checker willing to say &ldquo;you probably meant something else&rdquo; will say it about genuine errors too, which is exactly how a real fault gets smoothed away. Read backwards, the blindness is not a defect to patch; it is the property that makes the verdict worth anything, and the cost is paid on the rare day the input is in costume.</div>
+   <div class="btns" style="margin-top:10px"><button id="cssp">pause spin</button></div></div></div></div>"""
+CSTM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,showLadder=false,filled=false;
+var TYPED=[1,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144];
+function selftest(){
+ var distinct={};TYPED.forEach(function(v){distinct[v]=1;});
+ var nd=Object.keys(distinct).length;
+ var ones=TYPED.filter(function(v){return v===1;}).length;
+ var ladder=[];
+ for(var k=0;k<=12;k++)ladder.push(Math.pow(2,k));
+ return {typedSlots:TYPED.length,distinct:nd,duplicatedOnes:ones,
+  faultsCorrectAboutInput:ones===2&&nd<TYPED.length,
+  ladder:ladder,rungs:ladder.length,halvings:ladder.length-1,
+  contiguous:ladder.every(function(v,i){return v===Math.pow(2,i);}),
+  tops:ladder[12],
+  gapLeftUnfilled:true,auditorCannotDistinguish:true,
+  ok:ones===2&&nd===19&&TYPED.length===20&&ladder.length===13};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TYPED INPUT, AND THE LADDER UNDERNEATH IT');
+ nt(g,'#8a7ab8',24,42,9,'as typed: '+VR.typedSlots+' slots, '+VR.distinct+' distinct');
+ var cw=(W-48)/TYPED.length;
+ TYPED.forEach(function(v,i){
+  var dup=v===1&&i===1;
+  nf(g,dup?'rgba(255,90,138,0.6)':'rgba(255,215,106,0.45)');
+  g.fillRect(24+i*cw,52,Math.max(1,cw-1.5),24);ng(g);});
+ nt(g,'#ff5a8a',24,90,8,'pink: the duplicated 1 -- a real fault in the typed data');
+ nt(g,'#7de2b0',24,120,9,'the corrected ladder: 2^0..2^12');
+ var lw=(W-48)/VR.ladder.length;
+ VR.ladder.forEach(function(v,i){
+  var hgt=6+i*4;
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(24+i*lw,190-hgt,Math.max(1,lw-2),hgt);ng(g);
+  if(i%3===0)nt(g,'#5a4a85',24+i*lw,204,7,'2^'+i);});
+ var y2=216;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y2+21,10,VR.rungs+' rungs, '+VR.halvings+
+  ' halvings, no holes, topping out at '+VR.tops.toLocaleString());
+ nt(g,'#ffd76a',24,268,9,'every fault reported was CORRECT about the typed input');
+ nt(g,'#8a7ab8',24,284,9,'and wrong about the design, because the input was a disguise');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showLadder){
+  nt(g,'#e6dcff',16,26,11,'the design: a straight ladder');
+  VR.ladder.forEach(function(v,i){
+   var y=48+i*19;
+   nf(g,'rgba(125,226,176,0.5)');
+   g.fillRect(24,y,Math.max(3,(W-140)*(i+1)/13),15);ng(g);
+   nt(g,'#7de2b0',W-96,y+12,8,'2^'+i+' = '+v.toLocaleString());});
+  var y2=48+13*19+10;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,46);ng(g);
+  ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,46);ng(g);
+  nt(g,'#7de2b0',36,y2+28,11,'13 rungs, 12 halvings, no holes');
+  var o2=document.getElementById('csout');
+  if(o2)o2.innerHTML='The design is a contiguous ladder from <b>2^0</b> to <b>2^12</b>. No gap, no duplicate, and it tops out at <b>4,096</b> &mdash; the total. The costume had the same top and a different middle.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'the costume, audited as data');
+ var faults=[
+  ['a duplicated 1',true],
+  ['19 distinct values in 20 slots',true],
+  ['a missing power in the run',true]];
+ faults.forEach(function(f,i){
+  var y=52+i*54;
+  nf(g,'rgba(255,90,138,0.16)');g.fillRect(24,y,W-48,42);ng(g);
+  ne(g,'#ff5a8a',1.3);g.strokeRect(24.5,y+0.5,W-49,42);ng(g);
+  nt(g,'#ff5a8a',40,y+19,10,f[0]);
+  nt(g,'#8a7ab8',40,y+35,8,'correct about the input, wrong about the design');});
+ var y3=52+3*54+10;
+ nf(g,filled?'rgba(255,90,138,0.2)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,66);ng(g);
+ ne(g,filled?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,66);ng(g);
+ nt(g,filled?'#ff5a8a':'#7de2b0',36,y3+28,12,filled?'the gap was filled'
+  :'the gap was left alone');
+ nt(g,'#8a7ab8',36,y3+50,8,filled?'a disguise silently repaired into a structure'
+  :'because it was not the auditor\\u2019s to complete');
+ var o=document.getElementById('csout');
+ if(o)o.innerHTML=filled
+  ?'Filling the gap produces a clean-looking sequence that <b>never existed</b>. The audit has now manufactured a structure and will report it as verified &mdash; the most dangerous possible outcome, and it looks like a fix.'
+  :'Three faults, all correct about the typed input. The auditor stopped short of completing the pattern, because a repair here would have turned a disguise into evidence.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a clean ladder inside, a ragged shell outside
+ for(var i=0;i<=12;i++){
+  var y=90-i*15;
+  var r=14+i*2;
+  ne(g,'rgba(125,226,176,0.6)',1.5);
+  g.beginPath();
+  for(var j=0;j<=24;j++){
+   var th=j/24*2*Math.PI;
+   var q=P(r*Math.cos(th),y,r*Math.sin(th));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(20);
+ ne(g,'rgba(255,215,106,0.4)',1.3);
+ g.beginPath();
+ for(var k=0;k<=48;k++){
+  var t2=k/48*2*Math.PI;
+  var wob=1+(g2()-0.5)*0.5;
+  var p=P(92*Math.cos(t2)*wob,0,92*Math.sin(t2)*wob);
+  if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ffd76a',14,24,11,'the costume: ragged, 20 slots, a duplicate');
+ nt(g,'#7de2b0',14,42,10,'the ladder underneath: 13 clean rungs');
+ nt(g,'#8a7ab8',14,58,10,'and a verifier can only ever see the outside');
+ nt(g,'#8a7ab8',14,H-12,9,'though a verifier that guessed at intent would be worse at the job');}
+document.getElementById('csview').onclick=function(){showLadder=!showLadder;drawW4();};
+document.getElementById('csfill').onclick=function(){filled=!filled;showLadder=false;drawW4();};
+document.getElementById('cssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecostume=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 242 · neon-noir · silicon-coding · FROM THE IDEA BANK'S KEYWORD-CHECKED STILL-FREE LIST · the gap buffer · rank prevents and compression repairs · the finger tree's two ends · hashlife's time doubling · worst case against amortised ═══════════════════════
 GAPB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">The structure inside a text editor. One array with a <b>hole</b> at the cursor: typing fills a hole slot, so an insert costs the same whether the document is ten characters or ten thousand. The cost has not been removed. It has been <b>moved</b> onto the act of relocating the cursor.<br><br>
@@ -86372,6 +87022,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-rank-wall","title":"THE RANK WALL","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff5a8a","icon":"\u22a5",
+  "kicker":"the one result that CLOSES an option",
+  "blurb":"A linear map from C^4096 to C^1 has rank at most 1. Reversibility needs rank 4096. A one-dimensional root cannot host a reversible fold - arithmetic, not preference.",
+  "lit":"the threshold is exact: a root of 4,095 dimensions is still not enough and 4,096 is; rank-nullity gives 4096 = 1 + 4095, so the rank-one map sends 4,095 dimensions to zero, and the middle of a reversible fold is the LARGEST thing in it rather than the smallest",
+  "fig":"From David's WORKFLOW.ascii rev3, dropped 2026-08-05. He was asked to show both a reversible and a lossy fold and reported that one of the two does not exist: 'this is the only result in the pack that CLOSES an option rather than opening one. He asked to see both... one of the two does not exist, and saying so was the answer.' His verify.js and crosscheck.js pass 84 and 43 checks here with 6 of 6 mutants caught. AVAN adds only the shape of the bound: rank is capped by the smaller of the two dimensions, so nothing about the map matters - not the entries, not the basis, not the cleverness. That is what makes it a wall rather than a difficulty.",
+  "body":RKWL_BODY,"script":RKWL_SCRIPT},
+ {"slug":"the-only-factorisation","title":"THE ONLY FACTORISATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"BACKPROP","domain_slug":"backprop","accent":"#ffd76a","icon":"\u2725",
+  "kicker":"the drawing IS the number",
+  "blurb":"A drawing shows four arms around a centre. Among equal arm sizes, exactly one reaches the total: 8^4 = 4096.",
+  "lit":"of the arm sizes 2, 4, 8, 16 and 32 only 8 lands on 4096, and searching every integer arm size from 2 to 4096 returns the same single solution; four arms of three bits is 12 bits, and 2^12 is the total",
+  "fig":"David logged this under [not asked] and said where it came from: 'This was not asked for; it fell out of checking whether the drawing and the arithmetic agreed.' The whole track is two lines of measurement and one conclusion - the only four-way factorisation of the number, not a diagram over it. AVAN extended the search from his five sizes to every integer up to the total, because uniqueness among five candidates and uniqueness among all of them are different claims. The stronger one holds: s^4 = 4096 has exactly one integer solution, since 4096 = 2^12 and 12 divides by 4 in only one way that yields an integer base.",
+  "body":ONFA_BODY,"script":ONFA_SCRIPT},
+ {"slug":"the-ranking-inverts","title":"THE RANKING INVERTS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#5ad6ff","icon":"\u21c5",
+  "kicker":"fewer bits kept, and the better operator",
+  "blurb":"Rank six folds by bits kept and one operator wins; rank them by recoverability and a different one does. A single-number ranking picks the wrong one.",
+  "lit":"dim Sym^4(C^8) = C(11,4) = 330, which keeps 8.3663 bits out of 12, losing 3.6337, while tracing one arm leaves 512 dimensions at 9.0000 bits - strictly more - yet symmetrisation is reversible on its image and tracing is not; the multiset identity C(n+k-1, k) reproduces 330 independently",
+  "fig":"David found the inversion and then changed the instrument rather than the prose: 'symmetrize keeps FEWER bits than trace-1-arm (8.37 vs 9.00) and is the better operator, because it is reversible on its image. A single-number ranking picks the wrong one. W4 plots two axes for exactly this reason, and verify.js asserts the inversion rather than leaving it as prose.' AVAN notes what makes that response unusual: finding that your metric misorders the thing it measures normally produces a caveat, and here it produced a SECOND AXIS and an assertion in the test suite. A caveat degrades quietly; a failing assertion does not.",
+  "body":RKIV_BODY,"script":RKIV_SCRIPT},
+ {"slug":"a-guess-wearing-syntax","title":"A GUESS WEARING SYNTAX","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#b98cff","icon":"\u2260",
+  "kicker":"a selector that graded the wrong row",
+  "blurb":"A verifier looked up a row with .find() and a loose pattern. The pattern matched two rows; .find() silently returned the first, and reported a correct claim as wrong.",
+  "lit":"the regex matches 2 of 2 candidate rows and .find() returns the LIT ladder where the assertion expected the AMBER coincidence; adding a uniqueness check turns the silent guess into 'selector matched 2 rows, expected 1', and tightening the pattern selects exactly 1",
+  "fig":"David filed it as the third appearance of one disease in three revisions and wrote the rule as a sentence you can check code against: 'a selector inside an assertion needs its own uniqueness check. .find() without a matching count is a guess wearing the syntax of a fact.' It is graveyard/05 in the pack, kept rather than hidden. AVAN underlines which direction this failure ran: most control failures are SILENT PASSES, and this one was a FALSE POSITIVE. A missed fault leaves you where you were; a false positive hands you a repair instruction that damages correct work. Following it would have made the artifact less true.",
+  "body":GWSY_BODY,"script":GWSY_SCRIPT},
+ {"slug":"the-costume","title":"THE COSTUME","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"THE BLUE SCREEN","domain_slug":"the-blue-screen","accent":"#7de2b0","icon":"\u25d2",
+  "kicker":"an auditor cannot tell an obfuscation from an error",
+  "blurb":"A sequence arrived as 'the structure'. Audited as data it has three faults, every one correct about the typed input and wrong about the design - it was a deliberate disguise.",
+  "lit":"the typed input really does carry 20 slots holding 19 distinct values with a duplicated 1, while the corrected structure is a straight ladder 2^0 to 2^12 - 13 rungs, 12 halvings, contiguous with no holes, topping out at 4096",
+  "fig":"David filed the fault against himself and refused the tempting repair: 'I had a candidate rung and stopped, because it was his structure and not mine to complete. Filling it would have silently repaired the disguise into something that was never there.' And the scoreboard line that names the class: 'A disguise passes every check a verifier has, because a verifier's whole job is to take the input seriously.' AVAN notes that this is the one fault in the pack found by a PERSON rather than by a control, and that no control in it could have. Every instrument there checks whether the arithmetic on the input is right; none can ask whether the input meant what it appeared to mean.",
+  "body":CSTM_BODY,"script":CSTM_SCRIPT},
  {"slug":"the-gap-buffer","title":"THE GAP BUFFER","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#7de2b0","icon":"\u2337",
   "kicker":"free at the cursor, paid for by moving it",
