@@ -148,6 +148,9 @@ function flatten(obj, out, depth) {
 // authors, etc.) — this gate reports, it does not nag.
 function litClaims(lit) {
   const claims = [];
+  // A hex literal is a NAME for a constant, not a numeric measurement. Left in,
+  // "0x077CB531" is read as the claim "531". Strip them before extracting.
+  lit = lit.replace(/0x[0-9A-Fa-f]+/g, ' ');
   const push = (raw, val, kind) => { if (isFinite(val)) claims.push({ raw, val, kind }); };
   // scientific notation, incl. unicode minus/superscript forms already stripped to text
   for (const m of lit.matchAll(/(\d+(?:\.\d+)?)\s*(?:e|E|×10\^?)\s*[-−]?\s*(\d+)/g))
