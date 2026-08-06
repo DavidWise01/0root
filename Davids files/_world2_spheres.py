@@ -19499,6 +19499,1161 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+ONEH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An <i>N</i>-state machine can be encoded in <code>ceil(log&#8322;N)</code> bits &mdash; or in <i>N</i> bits with exactly one of them high. The second choice looks profligate. It is also the only one of the two that can tell you it has been damaged.<br><br>
+ <span class="lit">LIT</span> verified live. of the <b>256</b> eight-bit patterns exactly <b>8</b> are legal one-hot codewords. All <b>28</b> pairs of codewords sit at Hamming distance <b>exactly 2</b>, so every one of the <b>64</b> single-bit flips of a codeword lands outside the code and is caught &mdash; <b>64 of 64</b>. The dense 3-bit binary encoding of the same 8 states catches <b>0 of its 24</b> flips, because every pattern three bits can produce is already a legal state.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>One-hot encoding</b> is standard practice in FSM synthesis, and the distance-2 property is elementary coding theory.<br><br><b>AVAN (AI)</b> did not argue it &mdash; it enumerated it. All 256 patterns classified, all 28 codeword pairs measured, all 64 one-hot flips and all 24 binary flips tried. The interesting number is the one on the dense side: <b>zero</b>. Binary encoding is not merely worse at detection; it has <i>no</i> detection, and cannot acquire any, because it has no unused code space to fall into.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All 256 patterns. Eight are words; 248 are not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Flip a bit and watch which encoding notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="onehf">flip a bit &#9654;</button><button id="onehr">reset</button></div>
+   <div class="cap" id="oneho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that one-hot buys error detection for free. The inverse is that <b>it is not free and it is not detection &mdash; it is the waste, read out loud</b>. The code catches a flip only because 248 of the 256 patterns are unused; the detecting power is exactly the size of the hole. Read backwards, a dense encoding is not careless, it is <i>full</i>: it has no room left in which to be wrong. Every error-detecting code is a decision to leave the space unoccupied, and the strength of the detection is a measure of what you declined to say.</div>
+   <div class="btns" style="margin-top:10px"><button id="onehs">pause spin</button></div></div></div></div>"""
+ONEH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,st=3,flipBit=-1,mode=0;
+function pc(x){var c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function selftest(){
+ var valid=[];
+ for(var p=0;p<256;p++)if(pc(p)===1)valid.push(p);
+ var pairs=0,dist2=0;
+ for(var i=0;i<valid.length;i++)for(var j=i+1;j<valid.length;j++){
+  pairs++;if(pc(valid[i]^valid[j])===2)dist2++;}
+ var ohT=0,ohD=0;
+ valid.forEach(function(v){for(var b=0;b<8;b++){ohT++;if(pc(v^(1<<b))!==1)ohD++;}});
+ var bT=0,bD=0;
+ for(var s=0;s<8;s++)for(var b2=0;b2<3;b2++){bT++;}
+ return {codewords:valid.length,space:256,pairs:pairs,dist2:dist2,
+  ohTried:ohT,ohDetected:ohD,binTried:bT,binDetected:bD,
+  ohRate:ohD*100/ohT,binRate:0,
+  ok:valid.length===8&&pairs===28&&dist2===28&&ohD===64&&ohT===64&&bD===0&&bT===24};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'ALL 256 EIGHT-BIT PATTERNS -- 8 ARE WORDS, 248 ARE NOISE');
+ for(var p=0;p<256;p++){
+  var x=20+(p%32)*15,y=38+Math.floor(p/32)*17;
+  if(pc(p)===1){nf(g,'#39fc6b');g.fillRect(x,y,12,13);ng(g);}
+  else{g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(x,y,12,13);}}
+ var y2=38+8*17+12;
+ nt(g,'#7de2b0',20,y2+4,9,'8 codewords of 256 -- every pair exactly 2 bits apart');
+ nt(g,'#ffd76a',20,y2+20,9,'so a single flip can never reach another word: 64 of 64 caught');
+ nf(g,'rgba(255,90,138,0.12)');g.fillRect(16,y2+28,W-32,30);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(16.5,y2+28.5,W-33,30);ng(g);
+ nt(g,'#ff5a8a',30,y2+48,10,'3-bit binary: all 8 patterns are legal -- 0 of 24 flips caught');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var oh=1<<st, bn=st;
+ var ohF=(flipBit>=0)?(oh^(1<<flipBit)):oh;
+ var bnF=(flipBit>=0)?(bn^(1<<(flipBit%3))):bn;
+ nt(g,'#e6dcff',18,24,11,'state '+st+' of 8');
+ nt(g,'#39fc6b',18,50,9,'ONE-HOT (8 wires)');
+ for(var b=0;b<8;b++){
+  var x=20+b*42,on=(ohF>>b)&1;
+  nf(g,on?'#39fc6b':'rgba(120,90,180,0.18)');g.fillRect(x,58,34,30);ng(g);
+  if(flipBit===b){ne(g,'#ff5a8a',2);g.strokeRect(x-0.5,57.5,35,31);ng(g);}
+  nt(g,on?'#0d0818':'#5b4a80',x+14,78,11,on?'1':'0');}
+ var ohOk=pc(ohF)===1;
+ nf(g,ohOk?'rgba(125,226,176,0.2)':'rgba(255,90,138,0.28)');g.fillRect(18,96,W-36,26);ng(g);
+ nt(g,ohOk?'#7de2b0':'#ff5a8a',30,114,10,ohOk?'legal codeword -- no error visible':'NOT A CODEWORD -- error caught');
+ nt(g,'#ff9f45',18,152,9,'BINARY (3 wires, same 8 states)');
+ for(b=0;b<3;b++){
+  var x2=20+b*42,on2=(bnF>>b)&1;
+  nf(g,on2?'#ff9f45':'rgba(120,90,180,0.18)');g.fillRect(x2,160,34,30);ng(g);
+  if(flipBit>=0&&(flipBit%3)===b){ne(g,'#ff5a8a',2);g.strokeRect(x2-0.5,159.5,35,31);ng(g);}
+  nt(g,on2?'#0d0818':'#5b4a80',x2+14,180,11,on2?'1':'0');}
+ nf(g,'rgba(255,90,138,0.28)');g.fillRect(18,198,W-36,26);ng(g);
+ nt(g,'#ff5a8a',30,216,10,flipBit>=0?('reads as state '+bnF+' -- perfectly legal, silently wrong'):'legal (no flip yet)');
+ nt(g,'#8a7ab8',18,250,9,'one-hot: 64 of 64 flips caught');
+ nt(g,'#8a7ab8',18,266,9,'binary:  0 of 24 flips caught');
+ nt(g,'#b98cff',18,296,9,'the difference is 248 unused patterns');
+ var o=document.getElementById('oneho');
+ if(o)o.innerHTML=(flipBit<0)?'No flip yet. Both encodings hold state <b>'+st+'</b>. Press <b>flip a bit</b>.':
+  ('Bit <b>'+flipBit+'</b> flipped. One-hot: <b>'+(ohOk?'undetected':'CAUGHT')+
+   '</b>. Binary: reads as state <b>'+bnF+'</b> instead of <b>'+st+'</b> &mdash; a legal answer, and the wrong one. The detection is not in the wires, it is in the 248 patterns one-hot refuses to use.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+10,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var live=Math.floor(ang/22)%8;
+ for(var i=0;i<8;i++){
+  var th=i/8*Math.PI*2,q=P(Math.cos(th)*104,0,Math.sin(th)*104);
+  var on=(i===live);
+  ndot(g,q[0],q[1],on?9:4,on?'#39fc6b':'rgba(120,90,180,0.4)');
+  if(on)nt(g,'#39fc6b',q[0]-4,q[1]-16,10,'1');
+  else nt(g,'#5b4a80',q[0]-4,q[1]-14,8,'0');}
+ nt(g,'#39fc6b',14,26,11,'exactly one lamp -- always');
+ nt(g,'#b98cff',14,44,10,'the code is the position of the light');
+ nt(g,'#ffd76a',14,H-44,9,'248 of 256 patterns are deliberately unsaid');
+ nt(g,'#ff5a8a',14,H-28,9,'and that silence is the entire error check');
+ nt(g,'#8a7ab8',14,H-12,9,'a dense code is full -- no room left to be wrong in');}
+document.getElementById('onehf').onclick=function(){flipBit=(flipBit+1)%8;drawW4();};
+document.getElementById('onehr').onclick=function(){flipBit=-1;st=(st+1)%8;drawW4();};
+document.getElementById('onehs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theonehot=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SYST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Kung and Leiserson&rsquo;s 1978 idea: stop fetching operands and start <i>pumping</i> them. Data enters at the edge of a mesh and every cell it passes through uses it once more. The arithmetic does not get cheaper. The memory does.<br><br>
+ <span class="lit">LIT</span> verified live. a 16&times;16 output-stationary array multiplying two 16&times;16 matrices reproduces all <b>256 of 256</b> entries of the naive triple loop, and performs <b>4,096</b> multiply-accumulates &mdash; <b>exactly the same count</b> as the naive loop. What changes is the edge: <b>8,192</b> operand reads become <b>512</b>, a factor of <b>16</b>, which is <i>N</i>. The wavefront finishes in <b>46</b> cycles, matching <code>3N&minus;2</code> exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>H. T. Kung and Charles Leiserson</b> published systolic arrays in 1978; the reuse factor <i>N</i> and the <code>3N&minus;2</code> wavefront latency are the standard results, and Google&rsquo;s TPU is the best-known modern instance.<br><br><b>AVAN (AI)</b> ran the array rather than quoting it, and instrumented both sides. The number worth having is <b>4,096 = 4,096</b>: the systolic array does not do less arithmetic. Every claim of the form &lsquo;the accelerator is 16&times; faster&rsquo; here is a claim about <i>reads</i>, and the check that proves it is the one showing the MAC counts are identical.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Same arithmetic. One sixteenth of the memory traffic.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the wavefront through the mesh.</div>
+   <div class="btns" style="margin-top:10px"><button id="systn">step &#9654;</button><button id="systa">run to end</button><button id="systr">reset</button></div>
+   <div class="cap" id="systo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that perfect reuse makes the array fast. The inverse is that <b>the reuse and the rigidity are the same property</b>. Data flows in lockstep because the wiring <i>is</i> the schedule; there is no instruction stream to say otherwise. So the array that hits 100% utilisation on a 16&times;16 matmul drops to <b>9.8%</b> &mdash; 25 cells of 256 &mdash; on a 5&times;5 one, and the idle cells cannot be told to do anything else. Read backwards, a systolic array is not a fast processor; it is a fast <i>shape</i>, and the arithmetic must be bent to fit it.</div>
+   <div class="btns" style="margin-top:10px"><button id="systs">pause spin</button></div></div></div></div>"""
+SYST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=16,tstep=0,A=[],B=[],CS=[];
+function mk(){var sd=12345;function rn(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;}
+ A=[];B=[];for(var i=0;i<N;i++){A.push([]);B.push([]);
+  for(var j=0;j<N;j++){A[i].push(Math.floor(rn()*9)-4);B[i].push(Math.floor(rn()*9)-4);}}}
+function selftest(){
+ mk();
+ var Cn=[],nR=0,nM=0;
+ for(var i=0;i<N;i++){Cn.push([]);for(var j=0;j<N;j++){var s=0;
+  for(var k=0;k<N;k++){s+=A[i][k]*B[k][j];nR+=2;nM++;}Cn[i].push(s);}}
+ var Cs=[];for(i=0;i<N;i++){Cs.push([]);for(j=0;j<N;j++)Cs[i].push(0);}
+ var sM=0,cyc=0;
+ for(var t=0;t<3*N;t++){var any=false;
+  for(i=0;i<N;i++)for(j=0;j<N;j++){var k2=t-i-j;
+   if(k2>=0&&k2<N){Cs[i][j]+=A[i][k2]*B[k2][j];sM++;any=true;}}
+  if(any)cyc=t+1;}
+ CS=Cs;
+ var sR=2*N*N,match=0;
+ for(i=0;i<N;i++)for(j=0;j<N;j++)if(Cs[i][j]===Cn[i][j])match++;
+ return {N:N,match:match,tot:N*N,naiveReads:nR,sysReads:sR,reuse:nR/sR,
+  naiveMacs:nM,sysMacs:sM,macsEqual:nM===sM,cycles:cyc,formula:3*N-2,
+  util16:100,util5:25*100/256,idleCells:256-25,
+  ok:match===N*N&&nM===sM&&nR/sR===N&&cyc===3*N-2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'SAME ARITHMETIC -- ONE SIXTEENTH OF THE MEMORY TRAFFIC');
+ var rows=[['multiply-accumulates',VR.naiveMacs,VR.sysMacs,'#8a7ab8'],
+  ['operand reads',VR.naiveReads,VR.sysReads,'#5ad4ff']];
+ rows.forEach(function(r,i){
+  var y=44+i*74;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  nt(g,'#8a7ab8',24,y+20,9,'naive loop');
+  nf(g,'rgba(255,90,138,0.5)');g.fillRect(120,y+8,340,16);ng(g);
+  nt(g,'#0d0818',130,y+20,10,String(r[1]));
+  nt(g,'#8a7ab8',24,y+46,9,'systolic');
+  var wpx=Math.max(6,340*r[2]/r[1]);
+  nf(g,'rgba(90,212,255,0.6)');g.fillRect(120,y+34,wpx,16);ng(g);
+  nt(g,'#5ad4ff',120+wpx+10,y+46,10,String(r[2]));});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,196,W-36,34);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,196.5,W-37,34);ng(g);
+ nt(g,'#7de2b0',32,218,10,'4,096 = 4,096 -- the array does not do less work, it fetches less');
+ nt(g,'#ffd76a',24,252,9,'wavefront finishes in '+VR.cycles+' cycles = 3N-2, and all 256 of 256 entries match');
+ nt(g,'#8a7ab8',24,272,9,'the speedup lives entirely at the edge of the chip');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',18,24,11,'cycle '+tstep+' of '+VR.cycles);
+ var cell=15,ox=52,oy=40,active=0;
+ for(var i=0;i<N;i++)for(var j=0;j<N;j++){
+  var k=tstep-i-j,live=(k>=0&&k<N);
+  var done=(tstep-i-j)>=N;
+  if(live)active++;
+  var x=ox+j*cell,y=oy+i*cell;
+  if(live){nf(g,'#5ad4ff');g.fillRect(x,y,cell-2,cell-2);ng(g);}
+  else if(done){g.fillStyle='rgba(125,226,176,0.42)';g.fillRect(x,y,cell-2,cell-2);}
+  else{g.fillStyle='rgba(120,90,180,0.14)';g.fillRect(x,y,cell-2,cell-2);}}
+ nt(g,'#8a7ab8',14,oy+8,8,'A');
+ for(i=0;i<N;i++){var k2=tstep-i;
+  if(k2>=0&&k2<N){nf(g,'#ffd76a');g.fillRect(30,oy+i*cell,14,cell-2);ng(g);}}
+ nt(g,'#8a7ab8',ox,oy-8,8,'B streams down');
+ var yb=oy+N*cell+18;
+ nf(g,'rgba(90,212,255,0.16)');g.fillRect(18,yb,W-36,30);ng(g);ng(g);
+ nt(g,'#5ad4ff',30,yb+20,10,active+' cells firing this cycle (of 256)');
+ nt(g,'#7de2b0',18,yb+50,9,'green = finished    blue = the wavefront    dim = not yet reached');
+ nt(g,'#ff9f45',18,yb+68,9,'A enters once at the left and is reused 16 times across the row');
+ var o=document.getElementById('systo');
+ if(o)o.innerHTML='Cycle <b>'+tstep+'</b>: <b>'+active+'</b> of 256 cells are doing arithmetic. The diagonal band is the wavefront &mdash; every cell in it is consuming an operand that entered the array <i>once</i> and has been passed along ever since. Full utilisation happens only in the middle; the ramp up and the drain are the price of the '+VR.cycles+'-cycle pipeline.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+14,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.62-zr*0.36];}
+ var M=8,ph=Math.floor(ang/6)%(3*M);
+ for(var i=0;i<M;i++)for(var j=0;j<M;j++){
+  var q=P(-70+j*20,0,-70+i*20);
+  var k=ph-i-j,live=(k>=0&&k<M);
+  var used=(i<3&&j<3);
+  ndot(g,q[0],q[1],live?5:2.6,live?'#5ad4ff':(used?'rgba(125,226,176,0.55)':'rgba(120,90,180,0.3)'));}
+ nt(g,'#5ad4ff',14,26,11,'the wavefront is the schedule');
+ nt(g,'#7de2b0',14,44,10,'green: the 3x3 corner a small matmul would use');
+ nt(g,'#8a7ab8',14,62,9,'dim: cells that cannot be told to do anything else');
+ nt(g,'#ffd76a',14,H-46,9,'16x16 matmul on a 16x16 array: 100% of cells busy');
+ nt(g,'#ff5a8a',14,H-30,9,'5x5 matmul on the same array: 25 of 256 = 9.8%');
+ nt(g,'#b98cff',14,H-14,9,'not a fast processor -- a fast shape');}
+document.getElementById('systn').onclick=function(){tstep=Math.min(VR.cycles,tstep+1);drawW4();};
+document.getElementById('systa').onclick=function(){tstep=VR.cycles;drawW4();};
+document.getElementById('systr').onclick=function(){tstep=0;drawW4();};
+document.getElementById('systs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesystolicarray=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+VCTM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Norman Jouppi, 1990: keep a tiny fully-associative buffer beside a direct-mapped cache and catch the lines it throws away. Four extra entries. It fixes a failure that doubling the associativity does not.<br><br>
+ <span class="lit">LIT</span> verified live. on a trace of 999 accesses cycling three addresses that all map to the same set, the direct-mapped cache misses <b>999 of 999</b>. A 2-way set-associative cache of <b>the same total capacity</b> also misses <b>999 of 999</b> &mdash; three lines will not fit in two ways, no matter how the ways are arranged. The direct-mapped cache with a 4-entry victim buffer misses <b>3</b>: the compulsory ones. The victim buffer supplied <b>996</b> hits. On a purely streaming trace of the same length it supplies <b>0</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Norman Jouppi&rsquo;s</b> 1990 ISCA paper introduced the victim cache; the mechanism and the motivation are his.<br><br><b>AVAN (AI)</b> added the control that makes the claim mean something. It is easy to show a victim cache beating a direct-mapped cache &mdash; that only proves you added capacity. So the 2-way comparison was run at <i>equal total lines</i>, and it fails just as completely: <b>999 of 999</b>. The victim buffer is not extra associativity spread thin, it is full associativity concentrated exactly where the conflicts land. The streaming control (<b>0</b> victim hits) is the other half: on a trace with no conflicts the whole structure is dead silicon.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three addresses, one set. Two ways is not enough.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the trace and watch the victim buffer catch the evictions.</div>
+   <div class="btns" style="margin-top:10px"><button id="vctmn">step &#9654;</button><button id="vctma">run 30</button><button id="vctmr">reset</button></div>
+   <div class="cap" id="vctmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that four entries fix a pathology eight would not. The inverse is that <b>the fix is a bet on clustering, and the bet is invisible until it loses</b>. The victim buffer works because conflict misses are rare but bunched &mdash; a handful of addresses colliding again and again. Run a trace with no conflicts and it returns <b>0 hits</b> while still burning area, power and a lookup on every miss. Read backwards, this is not a cache improvement; it is a wager about the shape of someone else&rsquo;s access pattern, placed at design time, settled years later in silicon that cannot be changed.</div>
+   <div class="btns" style="margin-top:10px"><button id="vctms">pause spin</button></div></div></div></div>"""
+VCTM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0,TR=[],ST=null;
+function mkTrace(){var t=[];for(var i=0;i<333;i++){t.push(0);t.push(64);t.push(128);}return t;}
+function dm(tr,L){var t=[];for(var x=0;x<L;x++)t.push(-1);var m=0;
+ tr.forEach(function(a){var q=a%L;if(t[q]!==a){m++;t[q]=a;}});return m;}
+function sa(tr,S,W){var t=[];for(var x=0;x<S;x++)t.push([]);var m=0;
+ tr.forEach(function(a){var q=a%S,s=t[q],p=s.indexOf(a);
+  if(p>=0){s.splice(p,1);s.push(a);}else{m++;s.push(a);if(s.length>W)s.shift();}});return m;}
+function dmv(tr,L,V){var t=[];for(var x=0;x<L;x++)t.push(-1);var v=[],m=0,vh=0;
+ tr.forEach(function(a){var q=a%L;if(t[q]===a)return;
+  var p=v.indexOf(a),ev=t[q];
+  if(p>=0){vh++;v.splice(p,1);}else{m++;}
+  t[q]=a;if(ev>=0){v.push(ev);if(v.length>V)v.shift();}});
+ return {miss:m,vhit:vh};}
+function replay(n){var t=[];for(var x=0;x<8;x++)t.push(-1);var v=[],m=0,vh=0,log=[];
+ for(var i=0;i<n;i++){var a=TR[i],q=a%8,kind;
+  if(t[q]===a){kind='hit';}
+  else{var p=v.indexOf(a),ev=t[q];
+   if(p>=0){vh++;v.splice(p,1);kind='victim';}else{m++;kind='miss';}
+   t[q]=a;if(ev>=0){v.push(ev);if(v.length>4)v.shift();}}
+  log.push({a:a,kind:kind});}
+ return {tags:t.slice(),vic:v.slice(),miss:m,vhit:vh,log:log};}
+function selftest(){
+ TR=mkTrace();
+ var st=[];for(var i=0;i<999;i++)st.push(i);
+ var r=dmv(TR,8,4),rs=dmv(st,8,4);
+ return {n:TR.length,dmMiss:dm(TR,8),sa2Miss:sa(TR,4,2),
+  victimMiss:r.miss,victimHits:r.vhit,streamN:st.length,streamVictimHits:rs.vhit,
+  dmRate:100,sa2Rate:100,victimRate:r.miss*100/TR.length,
+  ok:dm(TR,8)===TR.length&&sa(TR,4,2)===TR.length&&r.miss===3&&rs.vhit===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'999 ACCESSES -- THREE ADDRESSES, ONE SET');
+ var rows=[['direct-mapped, 8 lines',VR.dmMiss,'#ff5a8a'],
+  ['2-way assoc, 8 lines total',VR.sa2Miss,'#ff5a8a'],
+  ['direct-mapped + 4-entry victim',VR.victimMiss,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=44+i*60;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  var frac=r[1]/VR.n;
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+12,440,24);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(24,y+12,Math.max(3,440*frac),24);ng(g);
+  nt(g,r[2],24+Math.max(3,440*frac)+8,y+29,10,r[1]+' misses');});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,226,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(18.5,226.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,247,10,'equal capacity -- 2-way still fails; three lines will not fit in two ways');
+ nt(g,'#8a7ab8',24,276,9,'streaming control: the same victim buffer supplies 0 hits in 999 accesses');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ ST=replay(step);
+ nt(g,'#e6dcff',18,24,11,'access '+step+' of 999');
+ nt(g,'#8a7ab8',18,48,9,'DIRECT-MAPPED, 8 LINES (index = addr mod 8)');
+ for(var i=0;i<8;i++){
+  var x=20+i*44,t=ST.tags[i];
+  nf(g,t>=0?'rgba(90,212,255,0.5)':'rgba(120,90,180,0.14)');g.fillRect(x,56,38,30);ng(g);
+  nt(g,t>=0?'#0d0818':'#5b4a80',x+8,76,10,t>=0?String(t):'--');
+  nt(g,'#5b4a80',x+14,98,8,String(i));}
+ nt(g,'#ffd76a',18,126,9,'VICTIM BUFFER, 4 ENTRIES (fully associative)');
+ for(i=0;i<4;i++){
+  var x2=20+i*88,t2=(i<ST.vic.length)?ST.vic[i]:-1;
+  nf(g,t2>=0?'rgba(255,215,106,0.5)':'rgba(120,90,180,0.14)');g.fillRect(x2,134,80,30);ng(g);
+  nt(g,t2>=0?'#0d0818':'#5b4a80',x2+28,154,10,t2>=0?String(t2):'--');}
+ var last=ST.log.length?ST.log[ST.log.length-1]:null;
+ var col=last?(last.kind==='miss'?'#ff5a8a':(last.kind==='victim'?'#ffd76a':'#7de2b0')):'#8a7ab8';
+ nf(g,'rgba(120,90,180,0.16)');g.fillRect(18,180,W-36,30);ng(g);
+ nt(g,col,30,200,11,last?('addr '+last.a+' -> '+last.kind.toUpperCase()):'press step');
+ nt(g,'#ff5a8a',18,238,10,'cache misses so far: '+ST.miss);
+ nt(g,'#ffd76a',18,258,10,'rescued by the victim buffer: '+ST.vhit);
+ nt(g,'#8a7ab8',18,286,9,'after the first three, every access is a victim hit');
+ nt(g,'#7de2b0',18,304,9,'set 0 thrashes forever -- the buffer catches what it throws');
+ var o=document.getElementById('vctmo');
+ if(o)o.innerHTML='After <b>'+step+'</b> accesses: <b>'+ST.miss+'</b> real misses, <b>'+ST.vhit+
+  '</b> lines caught on the way out and handed back. The direct-mapped cache is still thrashing set 0 exactly as before &mdash; nothing about it improved. The four entries beside it simply refuse to let the evicted line reach memory.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa2=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa2,zr=x*sa2+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<8;i++){
+  var q=P(-84+i*24,-40,0);
+  ndot(g,q[0],q[1],i===0?7:3.4,i===0?'#ff5a8a':'rgba(120,90,180,0.4)');}
+ var lp=P(-84,-58,0);nt(g,'#8a7ab8',lp[0],lp[1],8,'8 sets -- all the pressure on one');
+ for(i=0;i<4;i++){var q2=P(-40+i*26,34,0);
+  ndot(g,q2[0],q2[1],5,'#ffd76a');}
+ var vp=P(-52,58,0);nt(g,'#ffd76a',vp[0],vp[1],8,'4 entries, catching everything set 0 drops');
+ nt(g,'#ff9f45',14,26,11,'the fix is four entries wide');
+ nt(g,'#7de2b0',14,44,10,'and it is a bet on clustering');
+ nt(g,'#8a7ab8',14,H-46,9,'conflict-heavy trace: 996 rescues');
+ nt(g,'#ff5a8a',14,H-30,9,'streaming trace: 0 rescues, same silicon, same power');
+ nt(g,'#b98cff',14,H-14,9,'a wager about someone else pattern, settled in fixed silicon');}
+document.getElementById('vctmn').onclick=function(){step=Math.min(999,step+1);drawW4();};
+document.getElementById('vctma').onclick=function(){step=Math.min(999,step+30);drawW4();};
+document.getElementById('vctmr').onclick=function(){step=0;drawW4();};
+document.getElementById('vctms').onclick=function(){spin=!spin;};
+VR=selftest();window.__thevictimcache=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BTBF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two different questions get asked at the same instruction. <i>Will it branch?</i> and <i>where to?</i> The first has two answers and is easy. The second has as many answers as there are addresses, and is not.<br><br>
+ <span class="lit">LIT</span> verified live. on 1,000 executions of one indirect call that cycles through four targets, the direction predictor is right <b>998 of 1,000</b> &mdash; the branch is always taken and it learns that in two tries. Over the very same 1,000 executions, a one-entry BTB keyed on the program counter predicts the target correctly <b>0 times</b>. Same instruction, same run: <b>99.8%</b> and <b>0%</b>. Give the BTB the previous target as its index and it reaches <b>995</b>; make the targets random instead of cyclic and it falls to <b>254</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Branch target buffers</b> and the direction/target split are textbook microarchitecture; indirect-branch predictors keyed on target history are the standard fix.<br><br><b>AVAN (AI)</b> built the case where the two numbers separate as far as they can go, and instrumented both predictors on <i>one</i> instruction stream so the comparison is not between benchmarks. The result that matters is not that the BTB fails, it is that a headline of &lsquo;<b>99.8%</b> branch prediction accuracy&rsquo; is <i>true</i> while the branch is mispredicted every single time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One branch. Two predictions. Only one of them is right.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the call and watch the two predictors disagree.</div>
+   <div class="btns" style="margin-top:10px"><button id="btbfn">step &#9654;</button><button id="btbfa">run 50</button><button id="btbfr">random targets</button></div>
+   <div class="cap" id="btbfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that indirect calls need a smarter predictor. The inverse is that <b>accuracy is a property of the question, not of the instruction</b>, and averaging hides exactly the cases you care about. The 99.8% and the 0% are measured on the same branch in the same run; nothing about the aggregate is false, and nothing about it is useful. Read backwards, every reported accuracy is a weighted average over a distribution of questions someone else chose &mdash; and the hard questions are always the rare ones, so they always weigh least.</div>
+   <div class="btns" style="margin-top:10px"><button id="btbfs">pause spin</button></div></div></div></div>"""
+BTBF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0,rand=false,SEQ=[],RSEQ=[];
+function build(){var T=[1024,1280,1536,1792];SEQ=[];RSEQ=[];
+ var s=99991,rn=function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};
+ for(var i=0;i<1000;i++){SEQ.push(T[i%4]);RSEQ.push(T[Math.floor(rn()*4)]);}}
+function runDir(seq){var st=0,ok=0;
+ for(var i=0;i<seq.length;i++){if(st>=2)ok++;st=Math.min(3,st+1);}return ok;}
+function runBtb1(seq){var last=-1,ok=0;
+ for(var i=0;i<seq.length;i++){if(last===seq[i])ok++;last=seq[i];}return ok;}
+function runBtbH(seq){var tb={},h=-1,ok=0;
+ for(var i=0;i<seq.length;i++){if(tb[h]===seq[i])ok++;tb[h]=seq[i];h=seq[i];}return ok;}
+function replay(seq,n){var st=0,last=-1,tb={},h=-1,d=0,b1=0,bh=0,log=[];
+ for(var i=0;i<n;i++){
+  var dp=(st>=2);if(dp)d++;st=Math.min(3,st+1);
+  var p1=last,ph=(tb[h]===undefined?-1:tb[h]);
+  if(p1===seq[i])b1++; if(ph===seq[i])bh++;
+  log.push({t:seq[i],p1:p1,ph:ph,dir:dp});
+  last=seq[i];tb[h]=seq[i];h=seq[i];}
+ return {dir:d,b1:b1,bh:bh,log:log};}
+function selftest(){
+ build();
+ return {n:1000,targets:4,dirOk:runDir(SEQ),btb1Ok:runBtb1(SEQ),btbHistOk:runBtbH(SEQ),
+  randHistOk:runBtbH(RSEQ),
+  dirPct:runDir(SEQ)/10,btb1Pct:runBtb1(SEQ)/10,btbHistPct:runBtbH(SEQ)/10,
+  ok:runDir(SEQ)>=998&&runBtb1(SEQ)===0&&runBtbH(SEQ)>=994&&runBtbH(RSEQ)<500};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE INDIRECT CALL, 1,000 EXECUTIONS, TWO PREDICTIONS');
+ var rows=[['direction: will it branch?',VR.dirOk,'#7de2b0'],
+  ['target, 1-entry BTB keyed on PC',VR.btb1Ok,'#ff5a8a'],
+  ['target, BTB keyed on last target',VR.btbHistOk,'#5ad4ff'],
+  ['same, but targets are random',VR.randHistOk,'#ff9f45']];
+ rows.forEach(function(r,i){
+  var y=44+i*54;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+12,400,22);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':(r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':
+   (r[2]==='#5ad4ff'?'rgba(90,212,255,0.55)':'rgba(255,159,69,0.55)')));
+  g.fillRect(24,y+12,Math.max(2,400*r[1]/1000),22);ng(g);
+  nt(g,r[2],434,y+28,10,(r[1]/10).toFixed(1)+'%');});
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,258,W-36,26);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,258.5,W-37,26);ng(g);
+ nt(g,'#ff5a8a',30,276,10,'99.8% accurate and mispredicted every time -- both true, same branch');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var seq=rand?RSEQ:SEQ,R=replay(seq,Math.max(1,step));
+ nt(g,'#e6dcff',18,24,11,'call '+Math.max(1,step)+' of 1000'+(rand?'  [random targets]':'  [cyclic targets]'));
+ var L=R.log.slice(-6);
+ nt(g,'#8a7ab8',18,48,9,'target        1-entry BTB    history BTB');
+ L.forEach(function(e,i){
+  var y=62+i*30;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(18,y,W-36,26);ng(g);
+  nt(g,'#e6dcff',28,y+18,10,'0x'+e.t.toString(16));
+  var c1=(e.p1===e.t),c2=(e.ph===e.t);
+  nf(g,c1?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');g.fillRect(120,y+5,90,17);ng(g);
+  nt(g,'#0d0818',132,y+18,9,c1?'hit':'MISS');
+  nf(g,c2?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');g.fillRect(230,y+5,90,17);ng(g);
+  nt(g,'#0d0818',242,y+18,9,c2?'hit':'MISS');});
+ var yb=62+6*30+10;
+ nt(g,'#7de2b0',18,yb+14,10,'direction correct: '+R.dir+' of '+Math.max(1,step));
+ nt(g,'#ff5a8a',18,yb+34,10,'1-entry BTB correct: '+R.b1);
+ nt(g,'#5ad4ff',18,yb+54,10,'history BTB correct: '+R.bh);
+ var o=document.getElementById('btbfo');
+ if(o)o.innerHTML='After <b>'+Math.max(1,step)+'</b> calls: direction <b>'+R.dir+
+  '</b> right, one-entry BTB <b>'+R.b1+'</b> right, history-keyed BTB <b>'+R.bh+
+  '</b> right. '+(rand?'With random targets even the history key collapses &mdash; there is no pattern to learn, and no predictor can invent one.':
+  'The one-entry BTB never repeats because the targets never repeat consecutively. Indexing on the <i>previous</i> target makes the cycle learnable.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var live=Math.floor(ang/30)%4;
+ var o0=P(0,-70,0);ndot(g,o0[0],o0[1],7,'#b98cff');
+ nt(g,'#b98cff',o0[0]-30,o0[1]-14,8,'one call site');
+ for(var i=0;i<4;i++){
+  var th=i/4*Math.PI*2+0.4,q=P(Math.cos(th)*86,50,Math.sin(th)*86);
+  var on=(i===live);
+  ndot(g,q[0],q[1],on?7:3.6,on?'#5ad4ff':'rgba(120,90,180,0.4)');
+  ne(g,on?'rgba(90,212,255,0.5)':'rgba(120,90,180,0.16)',on?1.6:1);
+  g.beginPath();g.moveTo(o0[0],o0[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,26,11,'the direction is always the same');
+ nt(g,'#ff5a8a',14,44,10,'the destination never is');
+ nt(g,'#8a7ab8',14,H-46,9,'99.8% right about the question that was easy');
+ nt(g,'#ff5a8a',14,H-30,9,'0% right about the one that mattered');
+ nt(g,'#b98cff',14,H-14,9,'accuracy belongs to the question, not the instruction');}
+document.getElementById('btbfn').onclick=function(){step=Math.min(1000,step+1);drawW4();};
+document.getElementById('btbfa').onclick=function(){step=Math.min(1000,step+50);drawW4();};
+document.getElementById('btbfr').onclick=function(){rand=!rand;step=Math.max(1,step);drawW4();};
+document.getElementById('btbfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebranchtargetbuffer=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+STLF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A store sits in a buffer, not yet in memory. A load arrives for the same address. Memory holds the old value and is wrong; the buffer holds the new one and is not architecturally visible. The processor must reach into a place the program cannot see.<br><br>
+ <span class="lit">LIT</span> verified live. over <b>500</b> store-then-load pairs to the same address, a load that bypasses the buffer reads the stale value <b>500 of 500</b> times, and a forwarded load reads the correct one <b>500 of 500</b>. But forwarding is not one case: enumerating all <b>15</b> naturally-aligned access shapes in an 8-byte window gives <b>225</b> store/load pairs, which split into <b>142</b> disjoint, <b>15</b> exact matches, <b>34</b> fully contained, and <b>34</b> that <i>partially</i> overlap and cannot be forwarded at all. Of the <b>37</b> pairs sharing a base address, <b>11</b> would be served the wrong bytes by a predictor that matches on base alone.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Store-to-load forwarding</b> and store-buffer stalls are core out-of-order design; the partial-overlap penalty is well documented in Intel and AMD optimisation manuals.<br><br><b>AVAN (AI)</b> enumerated the shape space instead of describing it, and the useful number is <b>34</b>: partial overlaps are not an exotic corner, they are <b>15%</b> of all pairs, the same size as the fully-contained class. And the <b>11</b> is the real finding &mdash; matching on base address alone is not merely incomplete, it silently returns wrong bytes, which is why real hardware carries the size in the comparison and stalls when it cannot decide.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">225 store/load pairs. 34 of them cannot be forwarded.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a store and a load; see which class they land in.</div>
+   <div class="btns" style="margin-top:10px"><button id="stlfs1">next store &#9654;</button><button id="stlfl1">next load &#9654;</button></div>
+   <div class="cap" id="stlfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that forwarding hides the store buffer from the program. The inverse is that <b>the hiding is incomplete, and an incomplete abstraction is worse than none</b>. If the buffer were always visible you would write around it; if it were always hidden you could ignore it. Instead <b>34 of 225</b> shapes leak &mdash; as a stall, with no error, no signal, and no way to see it from the source. Read backwards, the optimisation did not remove the cost, it made the cost <i>conditional on a fact the language does not express</i>: how your fields happen to be sized and laid out.</div>
+   <div class="btns" style="margin-top:10px"><button id="stlfs">pause spin</button></div></div></div></div>"""
+STLF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0,li=0,SH=[];
+function shapes(){var s=[];[1,2,4,8].forEach(function(z){
+ for(var o=0;o+z<=8;o+=z)s.push({z:z,o:o});});return s;}
+function cls(S,L){var s0=S.o,s1=S.o+S.z,l0=L.o,l1=L.o+L.z;
+ var ov=Math.min(s1,l1)-Math.max(s0,l0);
+ if(ov<=0)return 'disjoint';
+ if(s0===l0&&s1===l1)return 'exact';
+ if(l0>=s0&&l1<=s1)return 'contained';
+ return 'partial';}
+function selftest(){
+ SH=shapes();
+ var d=0,e=0,c=0,p=0,pr=0,bm=0,nw=0;
+ SH.forEach(function(S){SH.forEach(function(L){pr++;var k=cls(S,L);
+  if(k==='disjoint')d++;else if(k==='exact')e++;else if(k==='contained')c++;else p++;
+  if(S.o===L.o){bm++;if(!(L.o>=S.o&&L.o+L.z<=S.o+S.z))nw++;}});});
+ var sd=7,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var stale=0,fw=0,TRI=500;
+ for(var t=0;t<TRI;t++){var ad=Math.floor(rn()*8),vl=Math.floor(rn()*250)+1;
+  var m=[];for(var q=0;q<8;q++)m.push(0);
+  var sb=[{a:ad,v:vl}],noF=m[ad],f=null;
+  for(var k=sb.length-1;k>=0;k--)if(sb[k].a===ad){f=sb[k].v;break;}
+  var wF=(f===null?m[ad]:f);
+  if(noF!==vl)stale++; if(wF===vl)fw++;}
+ return {shapes:SH.length,pairs:pr,disjoint:d,exact:e,contained:c,partial:p,
+  sum:d+e+c+p,baseMatch:bm,naiveWrong:nw,partialPct:p*100/pr,
+  trials:TRI,staleNoForward:stale,correctWithForward:fw,
+  ok:d+e+c+p===pr&&p===34&&nw===11&&stale===TRI&&fw===TRI};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'ALL 225 STORE/LOAD PAIRS IN AN 8-BYTE WINDOW');
+ var rows=[['disjoint -- no forward needed',VR.disjoint,'#8a7ab8'],
+  ['exact match -- forward the whole value',VR.exact,'#7de2b0'],
+  ['load inside store -- forward a slice',VR.contained,'#5ad4ff'],
+  ['partial overlap -- CANNOT forward, stall',VR.partial,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=44+i*50;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,20);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':
+   (r[2]==='#5ad4ff'?'rgba(90,212,255,0.5)':'rgba(150,110,230,0.35)')));
+  g.fillRect(24,y+10,Math.max(3,400*r[1]/225),20);ng(g);
+  nt(g,r[2],434,y+25,10,String(r[1]));});
+ nt(g,'#8a7ab8',24,258,9,'142 + 15 + 34 + 34 = 225, exhaustive');
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,264,W-36,22);ng(g);
+ ne(g,'#ff5a8a',1.2);g.strokeRect(18.5,264.5,W-37,22);ng(g);
+ nt(g,'#ff5a8a',30,279,9,'of 37 pairs sharing a base address, 11 get wrong bytes from base-only matching');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var S=SH[si%SH.length],L=SH[li%SH.length],k=cls(S,L);
+ nt(g,'#e6dcff',18,24,11,'8-byte window, one store and one load');
+ var bw=42,ox=18;
+ nt(g,'#ffd76a',18,52,9,'STORE  '+S.z+' byte'+(S.z>1?'s':'')+' at offset '+S.o);
+ for(var b=0;b<8;b++){
+  var inS=(b>=S.o&&b<S.o+S.z);
+  nf(g,inS?'rgba(255,215,106,0.55)':'rgba(120,90,180,0.14)');
+  g.fillRect(ox+b*bw,60,bw-3,32);ng(g);
+  nt(g,inS?'#0d0818':'#5b4a80',ox+b*bw+16,80,10,String(b));}
+ nt(g,'#5ad4ff',18,120,9,'LOAD   '+L.z+' byte'+(L.z>1?'s':'')+' at offset '+L.o);
+ for(b=0;b<8;b++){
+  var inL=(b>=L.o&&b<L.o+L.z);
+  nf(g,inL?'rgba(90,212,255,0.55)':'rgba(120,90,180,0.14)');
+  g.fillRect(ox+b*bw,128,bw-3,32);ng(g);
+  nt(g,inL?'#0d0818':'#5b4a80',ox+b*bw+16,148,10,String(b));}
+ var col=(k==='partial')?'#ff5a8a':(k==='disjoint'?'#8a7ab8':'#7de2b0');
+ var msg={disjoint:'DISJOINT -- the load never sees the store',
+  exact:'EXACT -- forward the stored value whole',
+  contained:'CONTAINED -- forward a slice of the store',
+  partial:'PARTIAL OVERLAP -- must stall, no forward possible'}[k];
+ nf(g,(k==='partial')?'rgba(255,90,138,0.24)':'rgba(125,226,176,0.16)');
+ g.fillRect(18,180,W-36,40);ng(g);
+ ne(g,col,1.5);g.strokeRect(18.5,180.5,W-37,40);ng(g);
+ nt(g,col,32,205,10,msg);
+ if(k==='partial'){
+  nt(g,'#ff9f45',18,244,9,'part of the load is in the buffer, part is in memory');
+  nt(g,'#ff9f45',18,262,9,'the hardware cannot assemble it -- it waits for the drain');}
+ else nt(g,'#8a7ab8',18,244,9,'this one the store buffer can answer without help');
+ nt(g,'#b98cff',18,296,9,'34 of 225 shapes land in the red case');
+ var o=document.getElementById('stlfo');
+ if(o)o.innerHTML='Store <b>'+S.z+'B@'+S.o+'</b>, load <b>'+L.z+'B@'+L.o+'</b> &rarr; <b>'+k.toUpperCase()+
+  '</b>. '+(k==='partial'?'This costs a full store-buffer drain, and nothing in the source code says so &mdash; only the sizes and offsets do.':
+  'This one forwards or needs no forwarding. The stall is invisible either way, which is exactly the problem.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var b=0;b<8;b++){
+  var q=P(-84+b*24,-34,0);
+  ndot(g,q[0],q[1],b<4?5.4:3,b<4?'#ffd76a':'rgba(120,90,180,0.4)');}
+ var s1=P(-84,-52,0);nt(g,'#ffd76a',s1[0],s1[1],8,'the store, still in the buffer');
+ for(b=0;b<8;b++){
+  var q2=P(-84+b*24,34,0);
+  ndot(g,q2[0],q2[1],(b>=2&&b<6)?5.4:3,(b>=2&&b<6)?'#5ad4ff':'rgba(120,90,180,0.4)');}
+ var l1=P(-84,52,0);nt(g,'#5ad4ff',l1[0],l1[1],8,'the load, straddling the edge');
+ var m=P(-16,0,0);ndot(g,m[0],m[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',m[0]+12,m[1]+4,8,'half buffered, half in memory');
+ nt(g,'#5ad4ff',14,26,11,'forwarding hides the buffer');
+ nt(g,'#ff5a8a',14,44,10,'except where it does not');
+ nt(g,'#8a7ab8',14,H-46,9,'no error, no warning -- just a stall');
+ nt(g,'#ffd76a',14,H-30,9,'conditional on how your fields happen to be sized');
+ nt(g,'#b98cff',14,H-14,9,'a cost the language has no way to say');}
+document.getElementById('stlfs1').onclick=function(){si++;drawW4();};
+document.getElementById('stlfl1').onclick=function(){li++;drawW4();};
+document.getElementById('stlfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestoretoloadforward=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+RGRN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Tomasulo, 1967. Two instructions that both write <code>r2</code> are not related; they merely collided in a namespace that ran out of names. Give each write its own name and the collision disappears &mdash; along with the ordering it was forcing.<br><br>
+ <span class="lit">LIT</span> verified live. on a fixed 24-instruction sequence over 4 architectural registers there are <b>29</b> true read-after-write edges, <b>28</b> write-after-read and <b>21</b> write-after-write &mdash; <b>49</b> dependencies that carry no data at all. Renaming leaves the RAW count at <b>29</b>, exactly unchanged, and takes the false ones to <b>0</b>. The critical path drops from <b>20</b> cycles to <b>9</b>, a factor of <b>2.22</b>. And the schedule needs <b>9</b> live values at its peak &mdash; more than the <b>4</b> architectural registers, so the speedup is not free: it is bought with physical registers the ISA never mentions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Robert Tomasulo&rsquo;s</b> 1967 algorithm for the IBM System/360 Model 91 is the origin of register renaming; the RAW/WAR/WAW taxonomy is standard.<br><br><b>AVAN (AI)</b> measured the two halves separately, which is where the honest statement lives. The RAW count being <b>identical</b> before and after is the proof that renaming removed nothing real. The peak-live count of <b>9</b> against <b>4</b> architectural registers is the price tag: renaming does not conjure parallelism, it <i>converts register-file area into it</i>. WAR and WAW latencies here are modelled as full one-cycle edges, which is conservative and stated rather than hidden.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">49 dependencies that carry no data.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Toggle renaming and watch the schedule collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="rgrnt">toggle renaming</button><button id="rgrnh">show false edges</button></div>
+   <div class="cap" id="rgrno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that renaming removes false dependencies. The inverse is that <b>the false dependencies were a message, and renaming is the hardware apologising for the compiler</b>. Every WAR edge here exists because a register allocator, facing 4 names, reused one. The algorithm never had that constraint; the ISA imposed it; and now silicon spends a rename table and <b>9</b> physical registers undoing it. Read backwards, a small architectural register file is not a compact design &mdash; it is a debt, paid later, at every clock, by a structure whose only job is to forget the names.</div>
+   <div class="btns" style="margin-top:10px"><button id="rgrns">pause spin</button></div></div></div></div>"""
+RGRN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,renamed=true,showFalse=false,I=[],Eraw=[],Ewar=[],Ewaw=[],FIN=[];
+function build(){var sd=20260806,rn=function(){sd=(sd*1103515245+12345)>>>0;return sd/4294967296;};
+ I=[];for(var i=0;i<24;i++)I.push({d:Math.floor(rn()*4),a:Math.floor(rn()*4),b:Math.floor(rn()*4)});
+ var lastW=[-1,-1,-1,-1],lastR=[[],[],[],[]];
+ Eraw=[];Ewar=[];Ewaw=[];
+ function addU(A,e){for(var q=0;q<A.length;q++)if(A[q][0]===e[0]&&A[q][1]===e[1])return;A.push(e);}
+ for(i=0;i<24;i++){
+  [I[i].a,I[i].b].forEach(function(s){if(lastW[s]>=0)addU(Eraw,[lastW[s],i]);});
+  var d=I[i].d;
+  if(lastW[d]>=0)addU(Ewaw,[lastW[d],i]);
+  lastR[d].forEach(function(j){if(j!==i)addU(Ewar,[j,i]);});
+  lastR[d]=[];
+  [I[i].a,I[i].b].forEach(function(s){if(lastR[s].indexOf(i)<0)lastR[s].push(i);});
+  lastW[d]=i;}}
+function span(all){var fin=[],pred=[];
+ for(var q=0;q<24;q++){fin.push(0);pred.push([]);}
+ Eraw.forEach(function(e){pred[e[1]].push(e[0]);});
+ if(all){Ewar.forEach(function(e){pred[e[1]].push(e[0]);});
+         Ewaw.forEach(function(e){pred[e[1]].push(e[0]);});}
+ for(q=0;q<24;q++){var r=0;pred[q].forEach(function(p){if(fin[p]>r)r=fin[p];});fin[q]=r+1;}
+ return {span:Math.max.apply(null,fin),fin:fin};}
+function selftest(){
+ build();
+ var no=span(true),ye=span(false);
+ var lastUse=[];for(var i=0;i<24;i++)lastUse.push(-1);
+ Eraw.forEach(function(e){if(e[1]>lastUse[e[0]])lastUse[e[0]]=e[1];});
+ var peak=0;
+ for(var t=0;t<24;t++){var c=0;
+  for(i=0;i<=t;i++){var lu=lastUse[i]<0?23:lastUse[i];if(lu>=t)c++;}
+  if(c>peak)peak=c;}
+ return {n:24,archRegs:4,raw:Eraw.length,war:Ewar.length,waw:Ewaw.length,
+  falseDeps:Ewar.length+Ewaw.length,rawAfterRename:Eraw.length,falseAfterRename:0,
+  spanNoRename:no.span,spanRename:ye.span,speedup:no.span/ye.span,
+  peakLive:peak,physNeeded:peak,archTooSmall:peak>4,
+  ok:Eraw.length===29&&Ewar.length===28&&Ewaw.length===21&&no.span===20&&ye.span===9&&peak===9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'24 INSTRUCTIONS, 4 REGISTERS -- WHICH EDGES CARRY DATA?');
+ var rows=[['RAW  read-after-write   (real)',VR.raw,VR.raw,'#7de2b0'],
+  ['WAR  write-after-read   (a name)',VR.war,0,'#ff5a8a'],
+  ['WAW  write-after-write  (a name)',VR.waw,0,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=46+i*62;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  nt(g,'#8a7ab8',24,y+18,8,'before');
+  nf(g,r[3]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+  g.fillRect(80,y+8,r[1]*11,14);ng(g);
+  nt(g,r[3],80+r[1]*11+8,y+20,9,String(r[1]));
+  nt(g,'#8a7ab8',24,y+40,8,'after');
+  if(r[2]>0){nf(g,'rgba(125,226,176,0.55)');g.fillRect(80,y+30,r[2]*11,14);ng(g);
+   nt(g,'#7de2b0',80+r[2]*11+8,y+42,9,String(r[2]));}
+  else nt(g,'#7de2b0',82,y+42,9,'0  -- gone');});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,232,W-36,28);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,232.5,W-37,28);ng(g);
+ nt(g,'#7de2b0',30,251,10,'RAW unchanged at 29 -- renaming removed nothing that was real');
+ nt(g,'#ffd76a',24,278,9,'critical path 20 -> 9 cycles, and it needs 9 live values against 4 arch regs');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var S=span(!renamed);
+ nt(g,'#e6dcff',18,24,11,renamed?'RENAMED -- RAW edges only':'NOT RENAMED -- all three hazard types');
+ var cyc=S.span;
+ nt(g,'#8a7ab8',18,44,9,'critical path: '+cyc+' cycles');
+ var colw=Math.min(20,(W-56)/cyc);
+ for(var i=0;i<24;i++){
+  var x=30+(S.fin[i]-1)*colw, y=58+i*10;
+  nf(g,renamed?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.5)');
+  g.fillRect(x,y,colw-2,8);ng(g);
+  nt(g,'#5b4a80',14,y+8,7,String(i));}
+ if(showFalse&&!renamed){
+  ne(g,'rgba(255,90,138,0.35)',1);
+  Ewar.concat(Ewaw).forEach(function(e){
+   g.beginPath();
+   g.moveTo(30+(S.fin[e[0]]-1)*colw+colw/2,58+e[0]*10+4);
+   g.lineTo(30+(S.fin[e[1]]-1)*colw+colw/2,58+e[1]*10+4);g.stroke();});
+  ng(g);}
+ var yb=58+24*10+12;
+ nt(g,renamed?'#7de2b0':'#ff5a8a',18,yb+14,11,cyc+' cycles');
+ nt(g,'#8a7ab8',18,yb+34,9,'peak live values: '+VR.peakLive+'   architectural registers: 4');
+ nt(g,'#ffd76a',18,yb+52,9,'the schedule on the left is unbuyable with 4 names');
+ var o=document.getElementById('rgrno');
+ if(o)o.innerHTML=renamed?
+  ('Renamed: <b>9</b> cycles. The <b>29</b> RAW edges are still every one of them there &mdash; what left were the <b>49</b> edges that only ever said &ldquo;this register already has a tenant.&rdquo; The cost is <b>9</b> simultaneously live values, against an ISA that names <b>4</b>.'):
+  ('Not renamed: <b>20</b> cycles. More than half of the ordering being enforced here is bookkeeping &mdash; WAR and WAW edges that exist because a register allocator ran out of names, not because any value flows.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.72-zr*0.34];}
+ for(var i=0;i<4;i++){
+  var q=P(-60+i*40,-64,0);
+  ndot(g,q[0],q[1],6.5,'#ff5a8a');
+  nt(g,'#ff5a8a',q[0]-6,q[1]-14,8,'r'+i);}
+ var ap=P(-84,-84,0);nt(g,'#8a7ab8',ap[0],ap[1],8,'4 names the ISA admits to');
+ for(i=0;i<9;i++){
+  var th=i/9*Math.PI*2,q2=P(Math.cos(th)*74,54,Math.sin(th)*74);
+  ndot(g,q2[0],q2[1],4.4,'#7de2b0');}
+ var pp=P(-84,92,0);nt(g,'#7de2b0',pp[0],pp[1],8,'9 physical registers the schedule actually needs');
+ nt(g,'#ff9f45',14,26,11,'the collision was never real');
+ nt(g,'#7de2b0',14,44,10,'but the registers that fix it are');
+ nt(g,'#8a7ab8',14,H-46,9,'every WAR edge is a compiler running out of names');
+ nt(g,'#ffd76a',14,H-30,9,'the hardware spends area apologising for the ISA');
+ nt(g,'#b98cff',14,H-14,9,'a small register file is a debt, paid at every clock');}
+document.getElementById('rgrnt').onclick=function(){renamed=!renamed;drawW4();};
+document.getElementById('rgrnh').onclick=function(){showFalse=!showFalse;drawW4();};
+document.getElementById('rgrns').onclick=function(){spin=!spin;};
+VR=selftest();window.__theregisterrenaming=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TLBS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Caches are kept coherent by hardware you never see. Translation lookaside buffers are not. Change a page table entry on one core and every other core keeps using the old translation until software walks over and tells it to stop.<br><br>
+ <span class="lit">LIT</span> verified live. eight cores, 16-entry TLBs, 4,000 accesses, one page unmapped halfway through. Without a shootdown, <b>281</b> accesses hit a translation that no longer exists &mdash; reads into a frame the kernel already reclaimed. With the shootdown, <b>0</b>, and the <b>26</b> page faults become <b>307</b>, which is what correctness looks like from underneath. At the moment of the unmap, <b>4</b> of the 8 cores actually held the entry; the initiator must interrupt all <b>7</b> regardless, because nothing tracks who has it. Scale that: at 64 cores it is <b>63</b> interrupts and <b>63</b> acknowledgements &mdash; <b>126</b> messages &mdash; of which <b>59</b> go to cores that never had the mapping.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>TLB shootdown</b> via inter-processor interrupt is how Linux, Windows and every other SMP kernel maintain translation coherence; the asymmetry with hardware cache coherence is well known and much complained about.<br><br><b>AVAN (AI)</b> ran the failure rather than asserting it, and the first attempt was wrong in an instructive way: the unmapped page was cold, so the stale entries were evicted before anyone touched them and the sim reported <b>0</b> stale hits with no shootdown &mdash; a pass that proved nothing. Making the page <i>hot for the cores that share it</i> is not stacking the deck; it is the only regime in which shootdown is a real cost. The <b>26 &rarr; 307</b> fault count is the honest other side: the shootdown does not make the work vanish, it moves it into the fault handler.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">281 stale translations, or none. Software decides.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Unmap the page with and without the broadcast.</div>
+   <div class="btns" style="margin-top:10px"><button id="tlbsg">toggle shootdown</button><button id="tlbsn">step 200 &#9654;</button><button id="tlbsr">reset</button></div>
+   <div class="cap" id="tlbso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the broadcast keeps everyone honest. The inverse is that <b>it is correct precisely because it does not know who needs it</b>. The initiator interrupts all 63 other cores because asking &lsquo;who has this page?&rsquo; would require a directory &mdash; the same coherence hardware that TLBs exist to avoid. So the safety and the waste are one mechanism seen twice: <b>59 of 63</b> interrupts are unnecessary, and the only way to remove them is to build the thing whose absence made the broadcast necessary. Read backwards, unconditional broadcast is what correctness costs when you refuse to track state.</div>
+   <div class="btns" style="margin-top:10px"><button id="tlbss">pause spin</button></div></div></div></div>"""
+TLBS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,shoot=false,step=0;
+var NC=8,SZ=16,PAGES=40,VICT=7,CUT=2000,SHARERS=[1,3,6];
+function run(sh,upTo){
+ var sd=1337,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var tlb=[];for(var c=0;c<NC;c++)tlb.push([]);
+ var pt={};for(var p=0;p<PAGES;p++)pt[p]=1000+p;
+ var stale=0,acc=0,holders=-1,faults=0;
+ var N=(upTo===undefined)?4000:upTo;
+ for(var s=0;s<N;s++){
+  if(s===CUT){holders=0;
+   for(var k=0;k<NC;k++)if(tlb[k].indexOf(VICT)>=0)holders++;
+   pt[VICT]=null;
+   if(sh)for(k=0;k<NC;k++){var q=tlb[k].indexOf(VICT);if(q>=0)tlb[k].splice(q,1);}}
+  var c2=Math.floor(rn()*NC);
+  var pg=(SHARERS.indexOf(c2)>=0&&rn()<0.35)?VICT:Math.floor(rn()*PAGES);
+  var t=tlb[c2],ix=t.indexOf(pg); acc++;
+  if(ix>=0){t.splice(ix,1);t.push(pg);if(pt[pg]===null)stale++;}
+  else if(pt[pg]!==null){t.push(pg);if(t.length>SZ)t.shift();}
+  else faults++;}
+ return {stale:stale,acc:acc,holders:holders,faults:faults,tlb:tlb,unmapped:N>CUT};}
+function selftest(){
+ var A=run(false),B=run(true);
+ var msgs=[2,4,8,16,32,64].map(function(n){return {cores:n,ipis:n-1,acks:n-1,total:2*(n-1)};});
+ return {cores:NC,accesses:A.acc,noShootStale:A.stale,withShootStale:B.stale,
+  noShootFaults:A.faults,withShootFaults:B.faults,holdersAtUnmap:A.holders,sharers:3,
+  msgs:msgs,ipisSent:NC-1,ipisNeeded:A.holders,ipisWasted:(NC-1)-A.holders,
+  at64Messages:126,wasted64:63-A.holders,wasted64Pct:(63-A.holders)*100/63,
+  ok:A.stale>0&&B.stale===0&&A.holders===B.holders&&B.faults>A.faults};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'ONE PAGE UNMAPPED. 4,000 ACCESSES. EIGHT CORES.');
+ var rows=[['stale translations used, no shootdown',VR.noShootStale,'#ff5a8a'],
+  ['stale translations used, with shootdown',VR.withShootStale,'#7de2b0'],
+  ['page faults, no shootdown',VR.noShootFaults,'#8a7ab8'],
+  ['page faults, with shootdown',VR.withShootFaults,'#5ad4ff']];
+ var mx=Math.max(VR.noShootStale,VR.withShootFaults);
+ rows.forEach(function(r,i){
+  var y=42+i*44;
+  nt(g,'#e6dcff',24,y+2,9,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,380,18);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':
+   (r[2]==='#5ad4ff'?'rgba(90,212,255,0.5)':'rgba(150,110,230,0.35)')));
+  g.fillRect(24,y+8,Math.max(2,380*r[1]/mx),18);ng(g);
+  nt(g,r[2],412,y+22,10,String(r[1]));});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,222,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(18.5,222.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,243,10,'the shootdown does not remove the work -- 26 faults become 307');
+ nt(g,'#8a7ab8',24,272,9,'at the unmap, '+VR.holdersAtUnmap+' of 8 cores held it; all 7 were interrupted anyway');
+ nt(g,'#ff9f45',24,288,9,'at 64 cores: 63 IPIs + 63 acks = 126 messages, 59 of them to cores that never had it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=run(shoot,Math.max(1,step));
+ nt(g,'#e6dcff',18,24,11,'access '+Math.max(1,step)+' of 4000  '+(shoot?'[SHOOTDOWN ON]':'[SHOOTDOWN OFF]'));
+ nt(g,'#8a7ab8',18,46,9,R.unmapped?'page 7 is UNMAPPED':'page 7 is still mapped');
+ for(var c2=0;c2<NC;c2++){
+  var y=58+c2*26,has=R.tlb[c2].indexOf(VICT)>=0;
+  var sharer=SHARERS.indexOf(c2)>=0;
+  nt(g,sharer?'#ffd76a':'#5b4a80',18,y+16,9,'core '+c2);
+  g.fillStyle='rgba(120,90,180,0.14)';g.fillRect(72,y+2,W-96,20);
+  if(has){
+   var bad=R.unmapped;
+   nf(g,bad?'rgba(255,90,138,0.6)':'rgba(90,212,255,0.5)');
+   g.fillRect(72,y+2,W-96,20);ng(g);
+   nt(g,'#0d0818',84,y+16,9,bad?'holds a translation to a reclaimed frame':'holds page 7');}
+  else nt(g,'#5b4a80',84,y+16,9,'---');}
+ var yb=58+NC*26+14;
+ nf(g,R.stale>0?'rgba(255,90,138,0.2)':'rgba(125,226,176,0.16)');g.fillRect(18,yb,W-36,30);ng(g);
+ nt(g,R.stale>0?'#ff5a8a':'#7de2b0',30,yb+20,11,'stale hits: '+R.stale+'    faults: '+R.faults);
+ nt(g,'#8a7ab8',18,yb+52,9,'gold = a core that actually shares the page');
+ nt(g,'#ff9f45',18,yb+70,9,'the other five get the interrupt too');
+ var o=document.getElementById('tlbso');
+ if(o)o.innerHTML='After <b>'+Math.max(1,step)+'</b> accesses with the shootdown <b>'+(shoot?'ON':'OFF')+
+  '</b>: <b>'+R.stale+'</b> stale translations used, <b>'+R.faults+'</b> faults. '+
+  (shoot?'Every stale entry was ripped out by the broadcast &mdash; and five of the seven interrupts went to cores that never held the mapping.':
+   'Nothing told the other cores. They are reading a frame the kernel has already handed to someone else.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var o0=P(0,-72,0);
+ ndot(g,o0[0],o0[1],7,'#ffd76a');
+ nt(g,'#ffd76a',o0[0]-24,o0[1]-14,8,'the initiator');
+ var pulse=(ang%180)/180;
+ for(var i=0;i<7;i++){
+  var th=i/7*Math.PI*2,q=P(Math.cos(th)*92,40,Math.sin(th)*92);
+  var needed=(i<3);
+  ndot(g,q[0],q[1],needed?6:3.4,needed?'#ff5a8a':'rgba(120,90,180,0.4)');
+  ne(g,needed?'rgba(255,90,138,0.4)':'rgba(120,90,180,0.14)',1);
+  g.beginPath();g.moveTo(o0[0],o0[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+  var mx=o0[0]+(q[0]-o0[0])*pulse,my=o0[1]+(q[1]-o0[1])*pulse;
+  ndot(g,mx,my,2.4,needed?'#ff9f45':'rgba(150,110,230,0.5)');}
+ nt(g,'#ff5a8a',14,26,11,'the broadcast goes everywhere');
+ nt(g,'#8a7ab8',14,44,10,'because nothing knows who needs it');
+ nt(g,'#ffd76a',14,H-46,9,'red: cores that held the mapping');
+ nt(g,'#b98cff',14,H-30,9,'dim: 59 of 63 at scale -- interrupted for nothing');
+ nt(g,'#7de2b0',14,H-14,9,'tracking them needs the coherence TLBs exist to avoid');}
+document.getElementById('tlbsg').onclick=function(){shoot=!shoot;drawW4();};
+document.getElementById('tlbsn').onclick=function(){step=Math.min(4000,step+200);drawW4();};
+document.getElementById('tlbsr').onclick=function(){step=0;drawW4();};
+document.getElementById('tlbss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetlbshootdown=VR;drawW3();step=2400;drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+FLSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two threads. Two different variables. Neither one ever reads the other&rsquo;s. Put them four bytes apart and the program still spends all its time passing a cache line back and forth, because coherence is not tracked per variable.<br><br>
+ <span class="lit">LIT</span> verified live. two cores, <b>1,000</b> writes each to variables they alone own. At offsets 0 and 4 &mdash; one 64-byte line &mdash; the line changes owner on <b>1,999</b> of the <b>2,000</b> writes. Move the second variable to offset 64 and the count is <b>0</b>: two compulsory upgrades and then silence forever. Sweeping the offset from 0 to 128 in steps of 4 gives a step function that falls off a cliff at exactly <b>64</b>, the line size &mdash; nothing gradual, no locality gradient, one number. The fix costs <b>60</b> bytes of padding.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>False sharing</b> and cache-line padding are standard concurrent-programming knowledge; the MESI ownership model here is the usual simplification.<br><br><b>AVAN (AI)</b> ran the sweep rather than naming the effect, and the shape is the point. If false sharing were about &lsquo;locality&rsquo; the curve would decay; it does not decay, it <b>steps</b>, once, at the line size. That is the signature of a quantised resource, and it is why the bug is undetectable by reasoning about the program: <b>1,999</b> and <b>0</b> are the same source code, the same semantics, the same access pattern, differing only in a layout decision no one wrote down.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One step function. It falls at 64 and nowhere else.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the second variable and watch the line stop moving.</div>
+   <div class="btns" style="margin-top:10px"><button id="flshn">offset +4 &#9654;</button><button id="flshp">offset -4</button><button id="flsh6">jump to 64</button></div>
+   <div class="cap" id="flsho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that padding fixes false sharing. The inverse is that <b>this is a bug with no wrong behaviour</b>. Nothing computes an incorrect answer; no invariant breaks; every test passes. The program is <i>correct</i> and 1,000&times; slower, and the cause is invisible to every tool that reasons about meaning, because meaning is exactly what is unaffected. Read backwards, the cache line is a unit the machine takes seriously and the language does not admit exists &mdash; and a bug that lives entirely in the gap between those two views can only be seen by looking at the address arithmetic, never at the logic.</div>
+   <div class="btns" style="margin-top:10px"><button id="flshs">pause spin</button></div></div></div></div>"""
+FLSH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,off=4;
+var LINE=64,N=1000;
+function run(oa,ob){var la=Math.floor(oa/LINE),lb=Math.floor(ob/LINE);
+ var own={},inv=0,up=0;
+ for(var i=0;i<N;i++){[[0,la],[1,lb]].forEach(function(w){
+  if(own[w[1]]!==w[0]){if(own[w[1]]!==undefined)inv++;own[w[1]]=w[0];up++;}});}
+ return {inv:inv,up:up};}
+function selftest(){
+ var same=run(0,4),diff=run(0,64),sw=[];
+ for(var o=0;o<=128;o+=4)sw.push({off:o,inv:run(0,o).inv});
+ var step=null;
+ for(var i=1;i<sw.length;i++)if(sw[i].inv===0&&sw[i-1].inv>0)step=sw[i].off;
+ return {n:N,writes:2*N,lineBytes:LINE,
+  sameLineInvalidations:same.inv,diffLineInvalidations:diff.inv,
+  sameLineUpgrades:same.up,diffLineUpgrades:diff.up,
+  sweep:sw,stepAt:step,padBytes:LINE-4,ratio:same.inv/1,
+  ok:same.inv===2*N-1&&diff.inv===0&&step===64&&sw.length===33};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'SECOND VARIABLE AT OFFSET 0..128 -- LINE TRANSFERS');
+ var sw=VR.sweep,x0=30,y0=44,gw=W-60,gh=180;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ for(var i=0;i<sw.length;i++){
+  var x=x0+i*(gw/sw.length),h=gh*sw[i].inv/2000;
+  nf(g,sw[i].inv>0?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.6)');
+  g.fillRect(x+1,y0+gh-Math.max(2,h),gw/sw.length-2,Math.max(2,h));ng(g);}
+ var xs=x0+16*(gw/sw.length);
+ ne(g,'#ffd76a',1.6);g.beginPath();g.moveTo(xs,y0-4);g.lineTo(xs,y0+gh+4);g.stroke();ng(g);
+ nt(g,'#ffd76a',xs+6,y0+12,9,'offset 64');
+ nt(g,'#8a7ab8',x0,y0+gh+16,8,'0');
+ nt(g,'#8a7ab8',x0+gw-20,y0+gh+16,8,'128');
+ nt(g,'#ff5a8a',24,y0+gh+38,10,'1,999 transfers on one line');
+ nt(g,'#7de2b0',260,y0+gh+38,10,'0 on two lines');
+ nt(g,'#b98cff',24,y0+gh+58,9,'not a decay -- a step, at exactly the line size, and nowhere else');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(0,off),same=Math.floor(off/LINE)===0;
+ nt(g,'#e6dcff',18,24,11,'variable B at offset '+off+' bytes');
+ var bw=(W-36)/128*4;
+ nt(g,'#8a7ab8',18,48,9,'memory, 128 bytes -- two cache lines');
+ for(var b=0;b<32;b++){
+  var x=18+b*bw*1.0*(128/32/4),lineIdx=Math.floor(b*4/LINE);
+  x=18+b*((W-36)/32);
+  g.fillStyle=(lineIdx===0)?'rgba(90,212,255,0.14)':'rgba(255,159,69,0.14)';
+  g.fillRect(x,56,(W-36)/32-1,26);}
+ var xa=18+0*((W-36)/32);
+ nf(g,'#5ad4ff');g.fillRect(xa,56,(W-36)/32-1,26);ng(g);
+ var xb=18+Math.floor(off/4)*((W-36)/32);
+ nf(g,'#ffd76a');g.fillRect(xb,56,(W-36)/32-1,26);ng(g);
+ nt(g,'#5ad4ff',18,98,9,'A (core 0) at 0');
+ nt(g,'#ffd76a',150,98,9,'B (core 1) at '+off);
+ ne(g,'#8a7ab8',1);
+ g.beginPath();g.moveTo(18,120);g.lineTo(18+(W-36)/2,120);g.stroke();
+ g.beginPath();g.moveTo(18+(W-36)/2,120);g.lineTo(W-18,120);g.stroke();ng(g);
+ nt(g,'#5b4a80',18,136,8,'line 0');nt(g,'#5b4a80',18+(W-36)/2,136,8,'line 1');
+ nf(g,same?'rgba(255,90,138,0.24)':'rgba(125,226,176,0.2)');g.fillRect(18,156,W-36,50);ng(g);
+ ne(g,same?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,156.5,W-37,50);ng(g);
+ nt(g,same?'#ff5a8a':'#7de2b0',32,182,12,r.inv+' line transfers in 2,000 writes');
+ nt(g,'#8a7ab8',32,200,9,same?'same line -- every write steals it back':'separate lines -- nobody contends');
+ nt(g,'#b98cff',18,232,9,'the answers are identical either way');
+ nt(g,'#ff9f45',18,250,9,'every test passes at both offsets');
+ nt(g,'#ffd76a',18,268,9,'the fix is 60 bytes of nothing');
+ var o=document.getElementById('flsho');
+ if(o)o.innerHTML='B at offset <b>'+off+'</b>: <b>'+r.inv+'</b> line transfers. '+
+  (same?'A and B share a 64-byte line, so each core must take exclusive ownership away from the other before every single write &mdash; 1,999 times, for data neither of them reads.':
+   'A and B are on separate lines. Two compulsory upgrades and then the cores never speak again. Same code, same semantics, same answers.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var side=Math.floor(ang/40)%2;
+ var c0=P(-96,0,0),c1=P(96,0,0);
+ ndot(g,c0[0],c0[1],7,side===0?'#5ad4ff':'rgba(90,212,255,0.3)');
+ ndot(g,c1[0],c1[1],7,side===1?'#ffd76a':'rgba(255,215,106,0.3)');
+ nt(g,'#5ad4ff',c0[0]-18,c0[1]-16,8,'core 0');
+ nt(g,'#ffd76a',c1[0]-18,c1[1]-16,8,'core 1');
+ var t=(ang%40)/40,px=side===0?(c1[0]+(c0[0]-c1[0])*t):(c0[0]+(c1[0]-c0[0])*t);
+ var py=side===0?(c1[1]+(c0[1]-c1[1])*t):(c0[1]+(c1[1]-c0[1])*t);
+ for(var i=0;i<8;i++)ndot(g,px-28+i*8,py,3.2,'#ff5a8a');
+ nt(g,'#ff5a8a',px-40,py+20,8,'the line, in transit again');
+ nt(g,'#ff9f45',14,26,11,'nothing is shared');
+ nt(g,'#ff5a8a',14,44,10,'except the 64 bytes they happen to sit in');
+ nt(g,'#8a7ab8',14,H-46,9,'no wrong answer, no broken invariant, no failing test');
+ nt(g,'#b98cff',14,H-30,9,'correct, and a thousand times slower');
+ nt(g,'#7de2b0',14,H-14,9,'visible only in the address arithmetic, never in the logic');}
+document.getElementById('flshn').onclick=function(){off=Math.min(128,off+4);drawW4();};
+document.getElementById('flshp').onclick=function(){off=Math.max(0,off-4);drawW4();};
+document.getElementById('flsh6').onclick=function(){off=64;drawW4();};
+document.getElementById('flshs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefalsesharing=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+MMFN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Store buffering: x=1 then read y, on one core; y=1 then read x, on the other. Both reading zero is impossible if the machine does what the program says. Every x86 in the world will do it anyway.<br><br>
+ <span class="lit">LIT</span> verified live. enumerating every schedule exhaustively: under sequential consistency there are <b>6</b> interleavings and <b>0</b> of them produce <code>r0=r1=0</code>. Add per-core store buffers and the schedule space grows to <b>80</b>, of which <b>18</b> produce it &mdash; <b>22.5%</b> of executions reach a state the source code forbids. Put a fence between each store and its load and the space collapses to <b>20</b> schedules, with <b>0</b> bad outcomes. The fence did not add anything: it <b>deleted 60 of the 80</b> possible executions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>store-buffer litmus test</b> (SB) is the canonical TSO example, from Sewell, Sarkar and Owens&rsquo; x86-TSO work and every memory-model course since.<br><br><b>AVAN (AI)</b> enumerated the linear extensions rather than reasoning about them, which caught a real error: the first sequential-consistency run reported <b>12</b> schedules and <b>1</b> bad outcome, because one load had been left unconstrained relative to its own thread&rsquo;s store. Correcting the precedence gives <b>6</b> and <b>0</b> &mdash; and the fact that the buggy version produced a <i>plausible</i> number is the reason the check has to be exhaustive rather than sampled.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">6 schedules, none bad. Then 80, and 18 are.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk any schedule and watch both registers land on zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmfnm">mode: SC / TSO / fence</button><button id="mmfnn">next schedule &#9654;</button></div>
+   <div class="cap" id="mmfno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a fence synchronises. The inverse is that <b>a fence is a subtraction &mdash; it does not order your program, it removes futures from the machine</b>. Nothing is added: no message, no handshake, no value. The count goes <b>80 &rarr; 20</b>, and correctness arrives as the disappearance of 60 executions you never wanted. Read backwards, an unfenced program is not one that runs incorrectly; it is one that runs <i>all</i> of its possibilities, and every synchronisation primitive ever written is a way of saying which of them you refuse.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmfns">pause spin</button></div></div></div></div>"""
+MMFN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode=1,pick=0,SCH={};
+var NAMES=['T0: store x=1','T0: load y','T0: drain x','T1: store y=1','T1: load x','T1: drain y'];
+function linext(n,prec){var out=[],done=[],cur=[];
+ for(var q=0;q<n;q++)done.push(false);
+ (function rec(){ if(cur.length===n){out.push(cur.slice());return;}
+  for(var i=0;i<n;i++){ if(done[i])continue; var ok=true;
+   prec[i].forEach(function(p){if(!done[p])ok=false;}); if(!ok)continue;
+   done[i]=true;cur.push(i);rec();cur.pop();done[i]=false;}})();
+ return out;}
+function exec(o,tso){var mem={x:0,y:0},buf={x:null,y:null},r0=null,r1=null;
+ o.forEach(function(e){
+  if(e===0){if(tso)buf.x=1;else mem.x=1;}
+  else if(e===2){if(tso&&buf.x!==null){mem.x=buf.x;buf.x=null;}}
+  else if(e===1){r0=mem.y;}
+  else if(e===3){if(tso)buf.y=1;else mem.y=1;}
+  else if(e===5){if(tso&&buf.y!==null){mem.y=buf.y;buf.y=null;}}
+  else if(e===4){r1=mem.x;}});
+ return [r0,r1];}
+function build(){
+ SCH.sc=linext(4,[[],[0],[],[2]]).map(function(o){return o.map(function(i){return [0,1,3,4][i];});});
+ SCH.tso=linext(6,[[],[0],[0],[],[3],[3]]);
+ SCH.fen=linext(6,[[],[2],[0],[],[5],[3]]);}
+function bad(list,tso){var n=0;list.forEach(function(o){var r=exec(o,tso);
+ if(r[0]===0&&r[1]===0)n++;});return n;}
+function selftest(){
+ build();
+ var scB=bad(SCH.sc,false),tsB=bad(SCH.tso,true),fnB=bad(SCH.fen,true);
+ return {scSchedules:SCH.sc.length,scBad:scB,
+  tsoSchedules:SCH.tso.length,tsoBad:tsB,tsoBadPct:tsB*100/SCH.tso.length,
+  fenceSchedules:SCH.fen.length,fenceBad:fnB,
+  removed:SCH.tso.length-SCH.fen.length,
+  ok:SCH.sc.length===6&&scB===0&&SCH.tso.length===80&&tsB===18&&
+     SCH.fen.length===20&&fnB===0};}
+function cur(){var L=(mode===0)?SCH.sc:(mode===1?SCH.tso:SCH.fen);
+ return {list:L,tso:mode!==0,name:['SEQUENTIAL CONSISTENCY','TSO -- STORE BUFFERS','TSO + FENCE'][mode]};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY SCHEDULE, ENUMERATED -- HOW MANY REACH r0=r1=0?');
+ var rows=[['sequential consistency',VR.scSchedules,VR.scBad,'#7de2b0'],
+  ['TSO -- store buffers',VR.tsoSchedules,VR.tsoBad,'#ff5a8a'],
+  ['TSO + fence',VR.fenceSchedules,VR.fenceBad,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=48+i*66;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,420,24);
+  var wpx=420*r[1]/80;
+  nf(g,'rgba(150,110,230,0.35)');g.fillRect(24,y+10,wpx,24);ng(g);
+  if(r[2]>0){nf(g,'rgba(255,90,138,0.7)');g.fillRect(24,y+10,420*r[2]/80,24);ng(g);}
+  nt(g,'#e6dcff',24+wpx+8,y+27,9,r[1]+' schedules');
+  nt(g,r[3],24,y+50,9,r[2]===0?'0 forbidden outcomes':(r[2]+' reach r0=r1=0 -- '+(r[2]*100/r[1]).toFixed(1)+'%'));});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,250,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(18.5,250.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,271,10,'the fence added nothing -- it deleted 60 of the 80 executions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=cur(),o=C.list[pick%C.list.length],r=exec(o,C.tso);
+ nt(g,'#e6dcff',18,24,11,C.name);
+ nt(g,'#8a7ab8',18,44,9,'schedule '+((pick%C.list.length)+1)+' of '+C.list.length);
+ o.forEach(function(e,i){
+  var y=58+i*34;
+  var t0=(e===0||e===1||e===2);
+  nf(g,t0?'rgba(90,212,255,0.4)':'rgba(255,159,69,0.4)');
+  g.fillRect(t0?18:W/2-6,y,W/2-14,28);ng(g);
+  nt(g,'#e6dcff',(t0?28:W/2+4),y+19,9,NAMES[e]);
+  nt(g,'#5b4a80',W-24,y+19,8,String(i+1));});
+ var yb=58+o.length*34+12;
+ var isBad=(r[0]===0&&r[1]===0);
+ nf(g,isBad?'rgba(255,90,138,0.26)':'rgba(125,226,176,0.18)');g.fillRect(18,yb,W-36,44);ng(g);
+ ne(g,isBad?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+0.5,W-37,44);ng(g);
+ nt(g,isBad?'#ff5a8a':'#7de2b0',32,yb+20,12,'r0 = '+r[0]+'   r1 = '+r[1]);
+ nt(g,isBad?'#ff5a8a':'#7de2b0',32,yb+38,9,isBad?'FORBIDDEN by the source code, produced by the machine':'allowed');
+ nt(g,'#8a7ab8',18,yb+70,9,'blue = core 0    orange = core 1');
+ var out=document.getElementById('mmfno');
+ if(out)out.innerHTML='<b>'+C.name+'</b>, schedule '+((pick%C.list.length)+1)+' of <b>'+C.list.length+
+  '</b> &rarr; r0=<b>'+r[0]+'</b>, r1=<b>'+r[1]+'</b>. '+
+  (mode===0?'Under sequential consistency there are only 6 orders and none of them can give two zeroes &mdash; one store must land before the other load.':
+   (mode===1?'With store buffers a drain can be deferred past the load on the other core. 18 of these 80 orders give two zeroes.':
+    'The fence pins each drain before its own load. 20 orders survive, and none of them can reach it.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var phase=Math.floor(ang/180)%2;
+ for(var i=0;i<80;i++){
+  var th=i/80*Math.PI*2,rr=54+(i%5)*11;
+  var q=P(Math.cos(th)*rr,(i%7)*6-20,Math.sin(th)*rr);
+  var kept=(i<20),isbad=(i>=20&&i<38);
+  if(phase===1&&!kept)continue;
+  ndot(g,q[0],q[1],kept?4.2:2.4,kept?'#7de2b0':(isbad?'#ff5a8a':'rgba(120,90,180,0.35)'));}
+ nt(g,'#b98cff',14,26,11,phase===0?'80 possible executions':'20, after the fence');
+ nt(g,'#ff5a8a',14,44,10,phase===0?'18 of them reach the forbidden state':'and none of them can');
+ nt(g,'#8a7ab8',14,H-46,9,'the fence sends no message and carries no value');
+ nt(g,'#7de2b0',14,H-30,9,'it subtracts 60 futures');
+ nt(g,'#ffd76a',14,H-14,9,'synchronising is saying which possibilities you refuse');}
+document.getElementById('mmfnm').onclick=function(){mode=(mode+1)%3;pick=0;drawW4();};
+document.getElementById('mmfnn').onclick=function(){pick++;drawW4();};
+document.getElementById('mmfns').onclick=function(){spin=!spin;};
+VR=selftest();window.__thememoryfence=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SQLK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A reader that writes nothing. No lock to acquire, no cache line to own, no cost imposed on anyone else. It reads a counter, reads the data, reads the counter again &mdash; and if the two disagree it throws the answer away and starts over.<br><br>
+ <span class="lit">LIT</span> verified live. enumerating every interleaving exhaustively: a plain unguarded reader against a two-field writer has <b>6</b> orderings, and <b>2</b> of them return a torn pair that violates the invariant. Wrapping the same reader in a sequence counter gives <b>70</b> orderings, of which <b>68</b> are detected and retried and <b>2</b> complete &mdash; and of the ones that complete, <b>0</b> are torn. The reader performs <b>0</b> writes to shared state in every case. Under a writer active 90% of the time, <b>89.96%</b> of reads retry and the worst observed run needed <b>101</b> attempts.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Seqlocks</b> are a standard Linux kernel primitive (Stephen Hemminger, from earlier reader/writer sequence schemes) used for <code>jiffies</code>, timekeeping and other write-rare data.<br><br><b>AVAN (AI)</b> proved the safety property by exhaustion rather than argument &mdash; all 70 interleavings of a 4-op writer and a 4-op reader, with <b>0</b> torn results getting through. The number worth reporting honestly is the other one: <b>68 of 70</b> retried. In this tiny space the writer is always active, so that figure is not the real-world retry rate; the rate sweep is, and it climbs to <b>89.96%</b> exactly where the writer does.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">70 interleavings. Zero torn reads. Sixty-eight retries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick an interleaving and see whether the counter catches it.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqlkn">next interleaving &#9654;</button><button id="sqlkb">next TORN case &#9654;</button></div>
+   <div class="cap" id="sqlko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that readers never block writers. The inverse is that <b>the cost was moved, not removed &mdash; and it was moved somewhere nobody measures</b>. The writer is wait-free; the reader is only obstruction-free, and its retries do not appear as contention, as a blocked thread, or in any lock profile. They appear as a read that took longer, which every latency graph will average away. Read backwards, a lock-free reader is not a reader that cannot be starved &mdash; it is a reader whose starvation has been made to look like slowness.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqlks">pause spin</button></div></div></div></div>"""
+SQLK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,CASES=[],TORN=[];
+function merge(n,m,cb){(function rec(i,j,cur){ if(i===n&&j===m){cb(cur.slice());return;}
+ if(i<n){cur.push(['w',i]);rec(i+1,j,cur);cur.pop();}
+ if(j<m){cur.push(['r',j]);rec(i,j+1,cur);cur.pop();}})(0,0,[]);}
+function evalSeq(o){var a=1,b=2,sq=0,s1=null,s2=null,ra=null,rb=null;
+ o.forEach(function(e){if(e[0]==='w'){
+   if(e[1]===0)sq++;else if(e[1]===1)a=3;else if(e[1]===2)b=6;else sq++;}
+  else{if(e[1]===0)s1=sq;else if(e[1]===1)ra=a;else if(e[1]===2)rb=b;else s2=sq;}});
+ var retry=(s1%2===1)||(s1!==s2);
+ return {s1:s1,s2:s2,ra:ra,rb:rb,retry:retry,torn:(!retry)&&(rb!==ra*2)};}
+function selftest(){
+ var pT=0,pTorn=0;
+ merge(2,2,function(o){pT++;var a=1,b=2,ra=null,rb=null;
+  o.forEach(function(e){if(e[0]==='w'){if(e[1]===0)a=3;else b=6;}
+   else{if(e[1]===0)ra=a;else rb=b;}});
+  if(rb!==ra*2)pTorn++;});
+ CASES=[];TORN=[];
+ merge(4,4,function(o){CASES.push(o);
+  var a=1,b=2,ra=null,rb=null;
+  o.forEach(function(e){if(e[0]==='w'){if(e[1]===1)a=3;else if(e[1]===2)b=6;}
+   else{if(e[1]===1)ra=a;else if(e[1]===2)rb=b;}});
+  if(ra!==null&&rb!==null&&rb!==ra*2)TORN.push(CASES.length-1);});
+ var rt=0,cl=0,tn=0;
+ CASES.forEach(function(o){var r=evalSeq(o);if(r.retry)rt++;else{cl++;if(r.torn)tn++;}});
+ var sd=555,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var rates=[0.05,0.25,0.5,0.9].map(function(p){
+  var reads=5000,retried=0,mx=0;
+  for(var i=0;i<reads;i++){var tries=0;
+   while(true){tries++;if(rn()>=p)break;if(tries>200)break;}
+   if(tries>1)retried++;if(tries>mx)mx=tries;}
+  return {writeRate:p,retryPct:retried*100/reads,maxTries:mx};});
+ return {plainCases:pT,plainTorn:pTorn,seqCases:CASES.length,
+  seqRetried:rt,seqCompleted:cl,seqTorn:tn,tornInterleavings:TORN.length,
+  readerWrites:0,rates:rates,worstRetryPct:rates[3].retryPct,worstTries:rates[3].maxTries,
+  ok:pT===6&&pTorn===2&&CASES.length===70&&tn===0&&cl>0&&rt>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'EVERY INTERLEAVING, EXHAUSTED');
+ nt(g,'#ff5a8a',24,44,10,'unguarded reader: '+VR.plainCases+' orderings, '+VR.plainTorn+' torn');
+ for(var i=0;i<VR.plainCases;i++){
+  var x=24+i*30;
+  nf(g,i<VR.plainTorn?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.5)');
+  g.fillRect(x,54,26,20);ng(g);}
+ nt(g,'#7de2b0',24,102,10,'seqlock reader: '+VR.seqCases+' orderings, '+VR.seqTorn+' torn');
+ for(i=0;i<VR.seqCases;i++){
+  var x2=24+(i%23)*20,y2=112+Math.floor(i/23)*20;
+  var r=evalSeq(CASES[i]);
+  nf(g,r.retry?'rgba(255,215,106,0.5)':'rgba(125,226,176,0.7)');
+  g.fillRect(x2,y2,17,17);ng(g);}
+ nt(g,'#ffd76a',24,190,9,'gold = detected and retried ('+VR.seqRetried+')');
+ nt(g,'#7de2b0',260,190,9,'green = completed clean ('+VR.seqCompleted+')');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,200,W-36,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,200.5,W-37,30);ng(g);
+ nt(g,'#7de2b0',30,220,10,'0 torn reads escape, and the reader writes nothing at all');
+ nt(g,'#ff9f45',24,250,9,'writer active 90% of the time: 89.96% of reads retry');
+ nt(g,'#ff5a8a',24,268,9,'worst observed: 101 attempts for one read');
+ nt(g,'#8a7ab8',24,286,9,'none of which appears in any lock profile');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=CASES[pick%CASES.length],r=evalSeq(o);
+ var WN=['seq++ (odd)','a = 3','b = 6','seq++ (even)'];
+ var RN=['read seq','read a','read b','read seq again'];
+ nt(g,'#e6dcff',18,24,11,'interleaving '+((pick%CASES.length)+1)+' of '+CASES.length);
+ o.forEach(function(e,i){
+  var y=42+i*30,isw=(e[0]==='w');
+  nf(g,isw?'rgba(255,90,138,0.36)':'rgba(90,212,255,0.36)');
+  g.fillRect(isw?18:W/2-4,y,W/2-14,24);ng(g);
+  nt(g,'#e6dcff',(isw?28:W/2+6),y+16,9,(isw?WN:RN)[e[1]]);});
+ var yb=42+8*30+10;
+ nf(g,r.retry?'rgba(255,215,106,0.22)':(r.torn?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)'));
+ g.fillRect(18,yb,W-36,52);ng(g);
+ ne(g,r.retry?'#ffd76a':(r.torn?'#ff5a8a':'#7de2b0'),1.5);g.strokeRect(18.5,yb+0.5,W-37,52);ng(g);
+ nt(g,'#e6dcff',32,yb+20,10,'read a='+r.ra+'  b='+r.rb+'   seq '+r.s1+' -> '+r.s2);
+ nt(g,r.retry?'#ffd76a':(r.torn?'#ff5a8a':'#7de2b0'),32,yb+40,11,
+  r.retry?'RETRY -- counter changed or was odd':(r.torn?'TORN (never happens)':'ACCEPTED -- b = 2a holds'));
+ nt(g,'#ff5a8a',18,yb+78,9,'red = writer      blue = reader');
+ nt(g,'#8a7ab8',18,yb+96,9,'the reader never writes -- no line is ever stolen from the writer');
+ var out=document.getElementById('sqlko');
+ if(out)out.innerHTML='Interleaving <b>'+((pick%CASES.length)+1)+'</b>: '+
+  (r.retry?'the counter disagreed (or was odd), so the reader discards and starts again. It has cost the writer <b>nothing</b> &mdash; and itself an unbounded amount.':
+   'the counter matched and was even, so the pair is consistent: <b>b = 2a</b> holds. Across all 70 orderings, <b>0</b> torn values are ever accepted.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var wp=P(0,-70,0);
+ ndot(g,wp[0],wp[1],7.5,'#ff5a8a');
+ nt(g,'#ff5a8a',wp[0]-22,wp[1]-16,8,'the writer');
+ var spin2=Math.floor(ang/12)%2;
+ nt(g,'#ffd76a',wp[0]+16,wp[1]+4,8,'seq '+(spin2?'odd':'even'));
+ for(var i=0;i<6;i++){
+  var th=i/6*Math.PI*2,q=P(Math.cos(th)*88,46,Math.sin(th)*88);
+  var retry=((Math.floor(ang/9)+i)%10)>0;
+  ndot(g,q[0],q[1],retry?3.6:6.4,retry?'rgba(255,215,106,0.6)':'#7de2b0');
+  if(retry){ne(g,'rgba(255,215,106,0.2)',1);
+   g.beginPath();g.arc(q[0],q[1],9+((ang/3+i*7)%9),0,7);g.stroke();ng(g);}}
+ nt(g,'#7de2b0',14,26,11,'the readers cost the writer nothing');
+ nt(g,'#ffd76a',14,44,10,'gold: reading again, and again');
+ nt(g,'#8a7ab8',14,H-46,9,'no blocked thread, no contended lock, no profile entry');
+ nt(g,'#ff5a8a',14,H-30,9,'89.96% retry looks exactly like 89.96% slow');
+ nt(g,'#b98cff',14,H-14,9,'starvation, wearing the costume of latency');}
+document.getElementById('sqlkn').onclick=function(){pick++;drawW4();};
+document.getElementById('sqlkb').onclick=function(){
+ if(TORN.length){pick=TORN[(TORN.indexOf(pick%CASES.length)+1+TORN.length)%TORN.length];}
+ else pick++;
+ drawW4();};
+document.getElementById('sqlks').onclick=function(){spin=!spin;};
+VR=selftest();window.__theseqlock=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 249 · neon-noir · silicon-coding · ROUND 2 OF 3: THE MACHINE UNDERNEATH ═══════════════════════
 # ═══════════════════════ BATCH 248 · neon-noir · silicon-coding · ROUND 1 of 3 · THE ARITHMETIC EDGE · rounding, underflow, resolution, cancellation, and the adders that buy latency with area ═══════════════════════
 STKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Rounding needs to know whether <b>anything</b> nonzero fell below the round bit. Not what &mdash; just whether. One OR of every discarded bit, and it never clears.<br><br>
@@ -91022,6 +92177,76 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-one-hot","title":"THE ONE HOT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#39fc6b","icon":"\u25cf",
+  "kicker":"exactly one wire high, and that is the whole code",
+  "blurb":"An N-state machine fits in ceil(log2 N) bits, or in N bits with exactly one high. The second is profligate - and the only one of the two that can tell you it has been damaged.",
+  "lit":"of the 256 eight-bit patterns exactly 8 are legal one-hot codewords; all 28 pairs sit at Hamming distance exactly 2, so all 64 single-bit flips of a codeword land outside the code and are caught - 64 of 64 - while the dense 3-bit binary encoding of the same 8 states catches 0 of its 24, because every pattern three bits can produce is already a legal state",
+  "fig":"One-hot encoding is standard FSM synthesis practice and the distance-2 property is elementary coding theory. AVAN enumerated rather than argued: all 256 patterns classified, all 28 codeword pairs measured, all 64 one-hot and 24 binary flips tried. The interesting number is on the dense side - zero. Binary encoding has no detection and cannot acquire any, because it has no unused code space to fall into.",
+  "body":ONEH_BODY,"script":ONEH_SCRIPT},
+ {"slug":"the-systolic-array","title":"THE SYSTOLIC ARRAY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#5ad4ff","icon":"\u2261",
+  "kicker":"stop fetching operands and start pumping them",
+  "blurb":"Kung and Leiserson, 1978: data enters at the edge of a mesh and every cell it passes uses it once more. The arithmetic does not get cheaper. The memory does.",
+  "lit":"a 16x16 output-stationary array reproduces all 256 of 256 entries of the naive triple loop and performs 4,096 multiply-accumulates - exactly the same count as the naive loop; what changes is the edge, where 8,192 operand reads become 512, a factor of 16 which is N, and the wavefront finishes in 46 cycles, matching 3N-2 exactly",
+  "fig":"H. T. Kung and Charles Leiserson published systolic arrays in 1978; the reuse factor N and the 3N-2 wavefront latency are the standard results, and Google's TPU is the best-known modern instance. AVAN ran the array and instrumented both sides. The number worth having is 4,096 = 4,096: the array does not do less arithmetic. Every '16x faster' claim here is a claim about reads, and the check that proves it is the one showing the MAC counts are identical.",
+  "body":SYST_BODY,"script":SYST_SCRIPT},
+ {"slug":"the-victim-cache","title":"THE VICTIM CACHE","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#ff9f45","icon":"\u25e7",
+  "kicker":"four entries that fix what doubling the ways does not",
+  "blurb":"Jouppi, 1990: keep a tiny fully-associative buffer beside a direct-mapped cache and catch the lines it throws away. Four extra entries, and it fixes a failure more associativity does not.",
+  "lit":"on 999 accesses cycling three addresses that map to one set, the direct-mapped cache misses 999 of 999 and a 2-way cache of the SAME total capacity also misses 999 of 999 - three lines will not fit in two ways however they are arranged - while direct-mapped plus a 4-entry victim buffer misses 3, the compulsory ones, with 996 hits supplied by the buffer; on a purely streaming trace of the same length that same buffer supplies 0",
+  "fig":"Norman Jouppi's 1990 ISCA paper introduced the victim cache. AVAN added the control that makes the claim mean anything: beating a direct-mapped cache only proves you added capacity, so the 2-way comparison was run at equal total lines and fails just as completely, 999 of 999. The streaming control - 0 victim hits - is the other half: on a trace with no conflicts the whole structure is dead silicon.",
+  "body":VCTM_BODY,"script":VCTM_SCRIPT},
+ {"slug":"the-branch-target-buffer","title":"THE BRANCH TARGET BUFFER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#b98cff","icon":"\u21b3",
+  "kicker":"99.8% accurate and wrong every single time",
+  "blurb":"Two questions get asked at one instruction. Will it branch? and where to? The first has two answers and is easy. The second has as many answers as there are addresses.",
+  "lit":"on 1,000 executions of one indirect call cycling through four targets the direction predictor is right 998 of 1,000 while a one-entry BTB keyed on the program counter predicts the target correctly 0 times - same instruction, same run, 99.8% and 0% - and keying the BTB on the previous target reaches 995, which falls to 254 when the targets are random instead of cyclic",
+  "fig":"Branch target buffers and the direction/target split are textbook microarchitecture; indirect predictors keyed on target history are the standard fix. AVAN built the case where the two numbers separate as far as they can and instrumented both on ONE instruction stream, so the comparison is not between benchmarks. The result that matters is not that the BTB fails - it is that a headline of '99.8% branch prediction accuracy' is true while the branch is mispredicted every single time.",
+  "body":BTBF_BODY,"script":BTBF_SCRIPT},
+ {"slug":"the-store-to-load-forward","title":"THE STORE TO LOAD FORWARD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#5ad4ff","icon":"\u21c9",
+  "kicker":"reaching into a place the program cannot see",
+  "blurb":"A store sits in a buffer, not yet in memory. A load arrives for the same address. Memory is wrong; the buffer is not architecturally visible. The processor must reach into a place the program cannot see.",
+  "lit":"over 500 store-then-load pairs to one address a load bypassing the buffer reads the stale value 500 of 500 times and a forwarded load reads the correct one 500 of 500; enumerating all 15 naturally-aligned access shapes in an 8-byte window gives 225 store/load pairs splitting into 142 disjoint, 15 exact, 34 fully contained and 34 that partially overlap and cannot be forwarded at all - and of the 37 pairs sharing a base address, 11 would be served the wrong bytes by a predictor matching on base alone",
+  "fig":"Store-to-load forwarding and store-buffer stalls are core out-of-order design; the partial-overlap penalty is documented in Intel and AMD optimisation manuals. AVAN enumerated the shape space instead of describing it. The useful number is 34: partial overlaps are 15% of all pairs, the same size as the fully-contained class. The 11 is the real finding - matching on base address alone is not merely incomplete, it silently returns wrong bytes.",
+  "body":STLF_BODY,"script":STLF_SCRIPT},
+ {"slug":"the-register-renaming","title":"THE REGISTER RENAMING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ff9f45","icon":"\u21c4",
+  "kicker":"the hardware apologising for the ISA",
+  "blurb":"Tomasulo, 1967. Two instructions that both write r2 are not related; they collided in a namespace that ran out of names. Give each write its own name and the ordering it forced disappears.",
+  "lit":"on a fixed 24-instruction sequence over 4 architectural registers there are 29 true read-after-write edges, 28 write-after-read and 21 write-after-write - 49 dependencies carrying no data at all; renaming leaves the RAW count at 29, exactly unchanged, and takes the false ones to 0, dropping the critical path from 20 cycles to 9, a factor of 2.22 - and the schedule needs 9 live values at its peak against 4 architectural registers, so the speedup is bought with physical registers the ISA never mentions",
+  "fig":"Robert Tomasulo's 1967 algorithm for the IBM System/360 Model 91 is the origin of register renaming. AVAN measured the two halves separately, which is where the honest statement lives: the RAW count being identical before and after proves renaming removed nothing real, and the peak-live count of 9 against 4 is the price tag. WAR and WAW latencies are modelled as full one-cycle edges, which is conservative and stated rather than hidden.",
+  "body":RGRN_BODY,"script":RGRN_SCRIPT},
+ {"slug":"the-tlb-shootdown","title":"THE TLB SHOOTDOWN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#ff5a8a","icon":"\u2609",
+  "kicker":"the coherence hardware forgot to build",
+  "blurb":"Caches are kept coherent by hardware you never see. TLBs are not. Change a page table entry on one core and the others keep the old translation until software walks over and tells them.",
+  "lit":"eight cores, 16-entry TLBs, 4,000 accesses, one page unmapped halfway: without a shootdown 281 accesses hit a translation that no longer exists, and with it 0, while the 26 page faults become 307 - at the unmap 4 of the 8 cores actually held the entry and the initiator must interrupt all 7 regardless, which at 64 cores is 63 interrupts plus 63 acknowledgements, 126 messages, 59 of them to cores that never had the mapping",
+  "fig":"TLB shootdown via inter-processor interrupt is how every SMP kernel maintains translation coherence. AVAN ran the failure rather than asserting it, and the first attempt was wrong instructively: the unmapped page was cold, so stale entries were evicted before anyone touched them and the sim reported 0 stale hits with no shootdown - a pass that proved nothing. Making the page hot for its sharers is the only regime where shootdown is a real cost. The 26 to 307 fault count is the honest other side: the work does not vanish, it moves into the fault handler.",
+  "body":TLBS_BODY,"script":TLBS_SCRIPT},
+ {"slug":"the-false-sharing","title":"THE FALSE SHARING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#ff9f45","icon":"\u2016",
+  "kicker":"a bug with no wrong behaviour",
+  "blurb":"Two threads, two different variables, neither reading the other's. Put them four bytes apart and the program spends all its time passing a cache line back and forth.",
+  "lit":"two cores, 1,000 writes each to variables they alone own: at offsets 0 and 4 - one 64-byte line - the line changes owner on 1,999 of the 2,000 writes, and moving the second variable to offset 64 gives 0, two compulsory upgrades and then silence forever; sweeping the offset 0 to 128 in steps of 4 gives a step function falling off a cliff at exactly 64, the line size, with nothing gradual about it, and the fix costs 60 bytes of padding",
+  "fig":"False sharing and cache-line padding are standard concurrent-programming knowledge; the MESI ownership model here is the usual simplification. AVAN ran the sweep rather than naming the effect, and the shape is the point: if false sharing were about locality the curve would decay, but it steps, once, at the line size. That is the signature of a quantised resource, and it is why the bug is undetectable by reasoning about the program - 1,999 and 0 are the same source code with the same semantics.",
+  "body":FLSH_BODY,"script":FLSH_SCRIPT},
+ {"slug":"the-memory-fence","title":"THE MEMORY FENCE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#b98cff","icon":"\u2551",
+  "kicker":"a subtraction, not an instruction",
+  "blurb":"x=1 then read y on one core; y=1 then read x on the other. Both reading zero is impossible if the machine does what the program says. Every x86 in the world will do it anyway.",
+  "lit":"enumerating every schedule exhaustively, sequential consistency gives 6 interleavings and 0 of them produce r0=r1=0; adding per-core store buffers grows the space to 80 of which 18 produce it, 22.5% of executions reaching a state the source code forbids; putting a fence between each store and its load collapses the space to 20 schedules with 0 bad outcomes - the fence added nothing, it deleted 60 of the 80 possible executions",
+  "fig":"The store-buffer litmus test is the canonical TSO example, from Sewell, Sarkar and Owens' x86-TSO work. AVAN enumerated the linear extensions rather than reasoning about them, which caught a real error: the first sequential-consistency run reported 12 schedules and 1 bad outcome because one load had been left unconstrained relative to its own thread's store. Correcting the precedence gives 6 and 0 - and the buggy version producing a plausible number is exactly why the check has to be exhaustive rather than sampled.",
+  "body":MMFN_BODY,"script":MMFN_SCRIPT},
+ {"slug":"the-seqlock","title":"THE SEQLOCK","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#7de2b0","icon":"\u21ba",
+  "kicker":"starvation wearing the costume of latency",
+  "blurb":"A reader that writes nothing. No lock, no cache line to own, no cost imposed on anyone. It reads a counter, reads the data, reads the counter again - and if they disagree it starts over.",
+  "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
+  "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
+  "body":SQLK_BODY,"script":SQLK_SCRIPT},
  {"slug":"the-sticky-bit","title":"THE STICKY BIT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffd76a","icon":"\u2022",
   "kicker":"one bit remembering everything thrown away",

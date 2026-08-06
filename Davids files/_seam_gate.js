@@ -226,14 +226,20 @@ function main() {
   const VERBOSE = args.includes('-v') || args.includes('--verbose');
   const VERBOSE_ROWS = [];
   let ran = 0, noGlobal = 0, failedRun = 0, drift = 0, unmatched = 0, okFlagFalse = 0, legacy = 0;
+  let unreadable = 0, noScript = 0;
   let totalClaims = 0;
   const driftRows = [], unmatchedRows = [], badRows = [], legacyRows = [];
 
   for (const f of files) {
     const slug = f.replace(/\.html$/, '');
     let s;
-    try { s = readSphere(path.join(DIR, f)); } catch (e) { continue; }
-    if (!s.script) { continue; }
+    // Both of these used to `continue` silently, so a page could vanish from the sweep
+    // entirely -- neither run, nor failed, nor counted. the-memory-fence (batch 249) shipped
+    // with a broken JS string, produced no extractable script, and this gate passed it.
+    // Every page must now land in exactly one bucket, and the buckets must sum to the sweep.
+    try { s = readSphere(path.join(DIR, f)); }
+    catch (e) { unreadable++; badRows.push([slug, 'UNREADABLE: ' + e.message]); continue; }
+    if (!s.script) { noScript++; badRows.push([slug, 'NO SCRIPT EXTRACTED -- page ships no instrument']); continue; }
     const r = runScript(s.script);
     if (r.error) { failedRun++; badRows.push([slug, 'RUN ERROR: ' + r.error]); continue; }
     const keys = Object.keys(r.globals || {});
@@ -281,7 +287,12 @@ function main() {
   console.log('uncheckable       : ' + legacy + '   (no window.__X global -- predates the convention)');
   console.log('no __X global     : ' + noGlobal);
   console.log('script run errors : ' + failedRun);
+  console.log('no script found   : ' + noScript);
+  console.log('unreadable pages  : ' + unreadable);
   console.log('selftest ok:false : ' + okFlagFalse);
+  const accounted = ran + legacy + failedRun + noScript + unreadable;
+  console.log('accounted for     : ' + accounted + ' of ' + files.length +
+    (accounted === files.length ? '  OK' : '  ** ' + (files.length - accounted) + ' PAGES UNACCOUNTED **'));
   console.log('DRIFT claims      : ' + drift + '   (published number contradicts a live value)');
   console.log('unmatched claims  : ' + unmatched + '   (likely cited literature — human review)');
 
