@@ -19499,6 +19499,643 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 244 · neon-noir · silicon-coding · THE THREADS DAVID'S rev3 PACK LEFT OPEN · a dissent shipped unresolved · three holes carried three revs · nothing watches the gate · a coincidence left alone · the quadrant with no mutant in it ═══════════════════════
+OBRC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A panel filed an objection against the artifact it belongs to, and the artifact shipped with the objection still in it. The symmetric fold discards <b>3,766</b> of 4,096 dimensions on the grounds that the four arms are alike &mdash; and the arms are <b>drawn</b> alike, which is not a measurement.<br><br>
+ <span class="lit">LIT</span> verified live. Kept <b>330</b>, discarded <b>3,766</b>, and <b>zero</b> of the discarded have been verified to hold nothing but labelling &mdash; a verified coverage of the discard of exactly <b>0%</b>. The work that would settle it is enumerable: <b>3,766</b> checks, none run. The objection is scoped to the <b>price</b> and not the operator, so the rank bound and the ladder hold either way.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> gave the objection a symbol of its own and left it standing: <i>&ldquo;The arms are DRAWN alike; being drawn alike is not a measurement. Objection is to the PRICE, not to the operator &mdash; the rank bound and the ladder hold either way. W1 has not accepted this. Recorded.&rdquo;</i> Dropped 5 August 2026 in <code>WORKFLOW.ascii</code> rev3, with a dedicated scoreboard line: <i>dissents filed and unresolved &mdash; 1</i>.<br><br>
+ <b>AVAN (AI)</b> would name what is unusual structurally. Most review processes have two terminal states, <b>accepted</b> and <b>rejected</b>, and an unresolved disagreement is a process failure to be driven out before shipping. Here it is a <b>third recorded state</b>: the disagreement travels with the artifact, scoped, attributed and countable. That is more expensive to carry and it is the only arrangement under which a reader can see what the makers did not settle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What was kept, what was dropped, what was checked.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Verify some of the discard and watch the objection shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="obchk">verify 500 more &#9654;</button><button id="obreset">reset to zero</button></div>
+   <div class="cap" id="obout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a kept core inside an unexamined shell.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;record the dissent rather than resolving it.&rdquo; The inverse is that <b>a recorded dissent is also a permanent excuse not to do the 3,766 checks</b>. Filing an objection converts an open engineering task into a documented position, and a documented position is stable in a way an open task is not &mdash; it can be carried indefinitely at no further cost while looking like rigour. Read backwards, the honest version needs the <b>counter</b> beside the objection: not just that a dissent exists, but how many revisions it has survived.</div>
+   <div class="btns" style="margin-top:10px"><button id="obsp">pause spin</button></div></div></div></div>"""
+OBRC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,checked=0;
+var TOTAL=4096,KEPT=330,DISCARD=TOTAL-KEPT;
+function selftest(){
+ return {total:TOTAL,kept:KEPT,discarded:DISCARD,verified:0,
+  discardedIs3766:DISCARD===3766,
+  coverage:0,checksNeeded:DISCARD,
+  shipped:true,resolved:false,
+  objectionScope:'the price, not the operator',
+  ok:DISCARD===3766};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHAT WAS KEPT, WHAT WAS DROPPED, WHAT WAS CHECKED');
+ var m=28,pw=W-56;
+ // the whole space
+ nt(g,'#8a7ab8',m,44,9,'4,096 dimensions');
+ nf(g,'rgba(125,226,176,0.55)');g.fillRect(m,52,pw*KEPT/TOTAL,28);ng(g);
+ nf(g,'rgba(255,90,138,0.4)');g.fillRect(m+pw*KEPT/TOTAL,52,pw*DISCARD/TOTAL,28);ng(g);
+ nt(g,'#7de2b0',m+4,96,8,'kept '+KEPT);
+ nt(g,'#ff5a8a',m+pw*KEPT/TOTAL+4,96,8,'discarded '+DISCARD.toLocaleString());
+ // the verified sliver
+ nt(g,'#8a7ab8',m,128,9,'verified to hold nothing but labelling');
+ ne(g,'rgba(150,110,230,0.4)',1);g.strokeRect(m+0.5,136.5,pw,28);ng(g);
+ nt(g,'#ff5a8a',m+8,155,11,'0 of '+DISCARD.toLocaleString()+'   (0.0%)');
+ var y2=182;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ffd76a',36,y2+22,10,'the arms are DRAWN alike -- being drawn alike is not a measurement');
+ nt(g,'#e6dcff',24,238,10,'objection is to the PRICE, not the operator');
+ nt(g,'#8a7ab8',24,258,9,'the rank bound and the ladder hold either way');
+ nt(g,'#ff5a8a',24,280,10,'W1 has not accepted this. Recorded.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cov=checked/DISCARD;
+ nt(g,'#e6dcff',16,26,11,checked.toLocaleString()+' of '+DISCARD.toLocaleString()+
+  ' verified');
+ // a grid of the discard
+ var cols=38,rows=18;
+ var per=DISCARD/(cols*rows);
+ for(var i=0;i<cols*rows;i++){
+  var x=24+(i%cols)*((W-52)/cols),y=48+Math.floor(i/cols)*8;
+  var done=i*per<checked;
+  nf(g,done?'rgba(125,226,176,0.65)':'rgba(255,90,138,0.28)');
+  g.fillRect(x,y,(W-52)/cols-1,6);ng(g);}
+ var y2=48+rows*8+16;
+ nt(g,'#8a7ab8',24,y2,9,'verified coverage of the discard');
+ nf(g,cov>0?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+ g.fillRect(24,y2+8,Math.max(2,(W-110)*cov),24);ng(g);
+ ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y2+8.5,W-110,24);ng(g);
+ nt(g,cov>0?'#7de2b0':'#ff5a8a',24+(W-110)+8,y2+26,10,(cov*100).toFixed(1)+'%');
+ var y3=y2+46;
+ var settled=checked>=DISCARD;
+ nf(g,settled?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,settled?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,settled?'#7de2b0':'#ff5a8a',36,y3+28,12,settled?'the objection is settled'
+  :'the objection stands');
+ nt(g,'#8a7ab8',36,y3+48,8,(DISCARD-checked).toLocaleString()+' checks outstanding');
+ var o=document.getElementById('obout');
+ if(o)o.innerHTML=checked===0
+  ?'As shipped: <b>0</b> of <b>'+DISCARD.toLocaleString()+
+   '</b> discarded dimensions verified to hold nothing but labelling. The objection is not a matter of opinion &mdash; the work that would settle it is countable, and none of it is done.'
+  :('<b>'+checked.toLocaleString()+'</b> verified, <b>'+(DISCARD-checked).toLocaleString()+
+    '</b> outstanding, coverage <b>'+(cov*100).toFixed(1)+'%</b>. '+
+    (settled?'Every discarded dimension is now accounted for and the dissent can be closed.'
+     :'Until the last one, the price remains asserted rather than measured.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(3766);
+ for(var i=0;i<520;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=100*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var inside=r<38;
+  ndot(g,q[0],q[1],inside?3:1.2,inside?'#7de2b0':'rgba(255,90,138,0.24)');}
+ ne(g,'#7de2b0',2);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(38*Math.cos(t),0,38*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var lp=P(0,56,0);
+ nt(g,'#7de2b0',lp[0]-14,lp[1],8,'kept 330');
+ nt(g,'#ff5a8a',14,24,11,'3,766 dimensions dropped');
+ nt(g,'#8a7ab8',14,42,10,'0 of them opened and looked at');
+ nt(g,'#ffd76a',14,58,10,'and the objection shipped with the artifact');
+ nt(g,'#8a7ab8',14,H-12,9,'though a recorded dissent is also a permanent excuse not to check');}
+document.getElementById('obchk').onclick=function(){
+ checked=Math.min(DISCARD,checked+500);drawW4();};
+document.getElementById('obreset').onclick=function(){checked=0;drawW4();};
+document.getElementById('obsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theobjectionrecorded=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RSHL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three known gaps, carried forward through three revisions, none of them closed. Not hidden and not fixed &mdash; <b>named</b>, in the same place, three times. A residual hole is a different object from a fault: a fault is found and closed, a hole is named and carried.<br><br>
+ <span class="lit">LIT</span> verified live. Three holes across three revisions is <b>9</b> hole-revisions, of which <b>0</b> are closed. Over the same three revisions the pack found <b>1</b>, <b>1</b> and <b>2</b> faults &mdash; <b>4</b> in total. It improves at catching and not at fixing, and the second number is the one nobody usually prints.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> lists them under a heading that admits the state directly &mdash; <i>&ldquo;Residual holes carried forward, unfixed&rdquo;</i> &mdash; and closes with the line that makes it a measurement rather than a disclaimer: <i>&ldquo;Three revs in, none of these has moved.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> put the two counters side by side because a pack that reports only one of them reads very differently. Faults found is a flattering number that rises with diligence; holes closed is an unflattering one that rises only with work on the instrument itself. Printing both makes the shape visible: <b>4 faults found, 0 holes closed</b>, and the honest reading is that the effort went into detection and none of it went into the three things detection cannot reach.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three holes, three revisions, nine cells.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add revisions and watch the two counters diverge.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhrev">another rev &#9654;</button><button id="rhfix">close a hole</button><button id="rhres">reset</button></div>
+   <div class="cap" id="rhout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a rising line and a flat one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;name the holes you have not closed.&rdquo; The inverse is that <b>a named hole is easier to live with than an unnamed one</b>. Writing it down converts an uncomfortable absence into a managed item that has already been disclosed, and disclosure is a complete defence against the charge of hiding it &mdash; while changing nothing about the gap. Read backwards, the practice is honest and it is also <b>load-bearing for inaction</b>, which is why the count of revisions survived is the only part that costs anything to print.</div>
+   <div class="btns" style="margin-top:10px"><button id="rhsp">pause spin</button></div></div></div></div>"""
+RSHL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,revs=3,fixed=0;
+var HOLES=[['floors','coverage floors are human-maintained'],
+ ['mutant','no mutant models a working control that reports bad news'],
+ ['gate','nothing watches the gate']];
+var FAULTS=[1,1,2];
+function faultsAt(n){var t=0;for(var i=0;i<n;i++)t+=(FAULTS[i]!==undefined?FAULTS[i]:1);return t;}
+function selftest(){
+ var holeRevs=HOLES.length*3;
+ return {holes:HOLES.map(function(h){return {id:h[0],text:h[1],rev3:'open'};}),
+  revs:3,stillOpen:HOLES.length,holeRevs:holeRevs,closed:0,
+  faultsFound:FAULTS,holesClosed:[0,0,0],
+  totalFaultsFound:FAULTS.reduce(function(a,b){return a+b;},0),
+  noneMoved:true,
+  ok:HOLES.length===3&&holeRevs===9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE HOLES, THREE REVISIONS, NINE CELLS');
+ nt(g,'#8a7ab8',300,44,8,'rev1   rev2   rev3');
+ VR.holes.forEach(function(hh,i){
+  var y=54+i*58;
+  nt(g,'#e6dcff',24,y+18,10,hh.id);
+  nt(g,'#5a4a85',24,y+34,8,hh.text.slice(0,42));
+  for(var k=0;k<3;k++){
+   var x=300+k*54;
+   nf(g,'rgba(255,90,138,0.5)');
+   g.fillRect(x,y+4,42,28);ng(g);
+   nt(g,'#0d0818',x+13,y+23,10,'open');}});
+ var y2=54+3*58+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'0 of 9 hole-revisions closed');
+ nt(g,'#7de2b0',24,H-24,10,'faults found per rev: '+VR.faultsFound.join(', ')+
+  '   ('+VR.totalFaultsFound+' total)');
+ nt(g,'#8a7ab8',24,H-8,9,'holes closed per rev: 0, 0, 0');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,revs+' revision'+(revs===1?'':'s')+
+  '   ·   '+fixed+' hole'+(fixed===1?'':'s')+' closed');
+ var m=32,pw=W-64,base=176;
+ var maxY=Math.max(6,faultsAt(revs));
+ // faults found, cumulative
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var r=0;r<=revs;r++){
+  var x=m+(revs?r/revs:0)*pw,y=base-faultsAt(r)/maxY*120;
+  if(r===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ // holes closed, cumulative
+ ne(g,'#ff5a8a',2.2);
+ g.beginPath();
+ for(var r2=0;r2<=revs;r2++){
+  var x2=m+(revs?r2/revs:0)*pw;
+  var y2b=base-(r2===revs?fixed:0)/maxY*120;
+  if(r2===0)g.moveTo(x2,y2b);else g.lineTo(x2,y2b);}
+ g.stroke();ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#7de2b0',m,54,9,'faults found (cumulative)');
+ nt(g,'#ff5a8a',m,70,9,'holes closed (cumulative)');
+ nt(g,'#5a4a85',m,base+16,8,'rev 0');
+ nt(g,'#5a4a85',m+pw-30,base+16,8,'rev '+revs);
+ var y3=base+34;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y3,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
+ nt(g,'#7de2b0',36,y3+22,11,faultsAt(revs)+' faults found');
+ nt(g,fixed?'#7de2b0':'#ff5a8a',36,y3+42,11,fixed+' of 3 holes closed');
+ var y4=y3+60;
+ var gapv=faultsAt(revs)-fixed;
+ nf(g,gapv>0?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y4,W-40,44);ng(g);
+ ne(g,gapv>0?'#ff5a8a':'#7de2b0',1.4);g.strokeRect(20.5,y4+0.5,W-41,44);ng(g);
+ nt(g,gapv>0?'#ff5a8a':'#7de2b0',36,y4+27,11,gapv>0?'the lines diverge by '+gapv
+  :'the lines have met');
+ var o=document.getElementById('rhout');
+ if(o)o.innerHTML='After <b>'+revs+'</b> revision'+(revs===1?'':'s')+': <b>'+
+  faultsAt(revs)+'</b> faults found, <b>'+fixed+
+  '</b> of 3 holes closed. '+(fixed===0
+   ?'Detection improves every revision and the three things detection cannot reach do not move. Both counters belong on the board.'
+   :'Closing a hole is the only move that changes the second line, and it costs work on the instrument rather than on the artifact.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a rising staircase and a flat floor
+ var prev=null;
+ for(var r=0;r<=6;r++){
+  var q=P(-90+r*30,60-r*16,-30);
+  ndot(g,q[0],q[1],4,'#7de2b0');
+  if(prev){ne(g,'#7de2b0',2);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;}
+ var a=P(-90,60,30),b=P(90,60,30);
+ ne(g,'#ff5a8a',2.2);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ for(var k=0;k<=6;k++){
+  var q2=P(-90+k*30,60,30);
+  ndot(g,q2[0],q2[1],3.4,'#ff5a8a');}
+ var l1=P(-90,-46,-30),l2=P(-90,78,30);
+ nt(g,'#7de2b0',l1[0]-6,l1[1],8,'faults found');
+ nt(g,'#ff5a8a',l2[0]-6,l2[1]+16,8,'holes closed');
+ // the three holes as gaps in a ring
+ ne(g,'rgba(255,215,106,0.4)',1.4);
+ for(var seg=0;seg<3;seg++){
+  g.beginPath();
+  for(var j=0;j<=14;j++){
+   var t=(seg/3+j/14*0.24)*2*Math.PI;
+   var p=P(96*Math.cos(t),-90,96*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.stroke();}
+ ng(g);
+ var rp=P(0,-112,0);
+ nt(g,'#ffd76a',rp[0]-52,rp[1],8,'three gaps, three revs');
+ nt(g,'#7de2b0',14,24,11,'one line rises with diligence');
+ nt(g,'#ff5a8a',14,42,10,'the other only moves with work on the instrument');
+ nt(g,'#8a7ab8',14,58,10,'and printing both is what makes the shape visible');
+ nt(g,'#8a7ab8',14,H-12,9,'though a named hole is easier to live with than an unnamed one');}
+document.getElementById('rhrev').onclick=function(){revs=Math.min(6,revs+1);drawW4();};
+document.getElementById('rhfix').onclick=function(){fixed=Math.min(3,fixed+1);drawW4();};
+document.getElementById('rhres').onclick=function(){revs=3;fixed=0;drawW4();};
+document.getElementById('rhsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theresidualhole=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NWTG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The verifiers check the model. A gate checks the verifiers, by running deliberately broken copies and confirming each is caught. Nothing checks the gate. The regress does not go on forever &mdash; it stops, and <i>where</i> it stops is the finding.<br><br>
+ <span class="lit">LIT</span> verified live. Level 0 carries <b>127</b> assertions, level 1 carries <b>6</b> mutants, level 2 carries <b>0</b>. Coverage falls <b>95.28%</b> from the first level to the second and to <b>zero</b> at the third. The tower is <b>2</b> levels deep with the third unmanned, so the regress terminates in an <b>assumption</b> rather than an infinity.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote it as three words in a list of things he had not fixed: <i>&ldquo;nothing watches the gate.&rdquo;</i> It sits beside two others under <i>&ldquo;Residual holes carried forward, unfixed&rdquo;</i>, and it is the third revision in which it has appeared unchanged.<br><br>
+ <b>AVAN (AI)</b> would resist the tempting reading. This is often told as an infinite-regress puzzle &mdash; who watches the watchmen, and so on forever &mdash; but the measurement says something more useful: the regress is <b>short</b>, and the coverage collapses at each step rather than continuing at strength. Going from 127 checks to 6 is a 95% drop, and the next step is to nothing. The problem is not that the tower is infinite; it is that it is <b>two floors tall and thinning fast</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three levels, and what checks each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a floor to the tower. Watch where it ends.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwadd">add a watcher &#9654;</button><button id="nwres">reset</button></div>
+   <div class="cap" id="nwout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a tower that thins to nothing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the top of the tower is unverified.&rdquo; The inverse is that <b>it has to be, and adding a floor does not help</b>. Every new watcher is itself unwatched, so the unverified layer moves up rather than disappearing, and each floor costs real work while covering strictly less than the one below. Read backwards, the right response is not another level &mdash; it is to make the top floor as <b>small and legible</b> as possible, because whatever sits there will be trusted by inspection rather than by test.</div>
+   <div class="btns" style="margin-top:10px"><button id="nwsp">pause spin</button></div></div></div></div>"""
+NWTG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,extra=0;
+var BASE=[{n:0,name:'the model',by:'verify.js + crosscheck.js',checks:127},
+ {n:1,name:'the verifiers',by:'gate.js (6 mutants)',checks:6},
+ {n:2,name:'the gate',by:null,checks:0}];
+function tower(ex){
+ var t=BASE.slice(0,2).map(function(l){return {n:l.n,name:l.name,by:l.by,checks:l.checks};});
+ var last=6;
+ for(var k=0;k<ex;k++){
+  last=Math.max(1,Math.floor(last/3));
+  t.push({n:t.length,name:'watcher '+(k+1),by:'watcher '+(k+2),checks:last});}
+ t.push({n:t.length,name:ex?'watcher '+(ex+1):'the gate',by:null,checks:0});
+ return t;}
+function selftest(){
+ var lv=BASE;
+ var ratios=[];
+ for(var i=1;i<lv.length;i++)ratios.push(lv[i-1].checks===0?0:lv[i].checks/lv[i-1].checks);
+ return {levels:lv,ratios:ratios,
+  modelChecks:lv[0].checks,gateChecks:lv[1].checks,topChecks:lv[2].checks,
+  depth:2,terminatesInAssumption:lv[2].checks===0,
+  dropToLevel1:100*(1-ratios[0]),
+  ok:lv[0].checks===127&&lv[1].checks===6&&lv[2].checks===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE LEVELS, AND WHAT CHECKS EACH');
+ VR.levels.forEach(function(l,i){
+  var y=48+i*68;
+  var none=l.by===null;
+  nf(g,none?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.14)');
+  g.fillRect(24,y,W-48,54);ng(g);
+  ne(g,none?'#ff5a8a':'rgba(125,226,176,0.5)',1.3);
+  g.strokeRect(24.5,y+0.5,W-49,54);ng(g);
+  nt(g,'#e6dcff',40,y+22,11,'level '+l.n+'   '+l.name);
+  nt(g,none?'#ff5a8a':'#8a7ab8',40,y+40,9,'checked by '+(l.by||'NOTHING'));
+  nt(g,none?'#ff5a8a':'#7de2b0',W-120,y+31,14,String(l.checks));});
+ var y2=48+3*68+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'127 -> 6 is a '+VR.dropToLevel1.toFixed(2)+
+  '% drop, and then to zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=tower(extra);
+ nt(g,'#e6dcff',16,26,11,t.length+' levels, '+extra+' watcher'+(extra===1?'':'s')+' added');
+ var mx=127;
+ t.forEach(function(l,i){
+  var y=48+i*34;
+  var none=l.by===null;
+  nt(g,none?'#ff5a8a':'#8a7ab8',24,y+16,8,'L'+l.n+'  '+l.name.slice(0,14));
+  nf(g,none?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.55)');
+  g.fillRect(150,y+2,Math.max(2,(W-230)*Math.log(l.checks+1)/Math.log(mx+1)),20);ng(g);
+  nt(g,none?'#ff5a8a':'#7de2b0',W-64,y+16,10,String(l.checks));});
+ var y2=48+t.length*34+12;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,'#ff5a8a',36,y2+28,12,'the top level still has 0 checks');
+ nt(g,'#8a7ab8',36,y2+48,8,'adding a watcher moved the gap up, not away');
+ var o=document.getElementById('nwout');
+ if(o)o.innerHTML='With <b>'+extra+'</b> watcher'+(extra===1?'':'s')+
+  ' added the tower is <b>'+t.length+'</b> levels and the top still carries <b>0</b> checks. '+
+  (extra===0
+   ?'As shipped: 127 assertions, then 6 mutants, then nothing.'
+   :'Each new floor covers less than the one below and is itself unwatched. The unverified layer moves up; it does not vanish.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var LV=[[100,'#7de2b0',127],[46,'#5ad6ff',6],[8,'#ff5a8a',0]];
+ LV.forEach(function(l,i){
+  var y=90-i*76;
+  ne(g,l[1],l[2]===0?1.2:2);
+  g.beginPath();
+  for(var j=0;j<=48;j++){
+   var t=j/48*2*Math.PI;
+   var q=P(l[0]*Math.cos(t),y,l[0]*Math.sin(t));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);
+  var lp=P(-l[0]-8,y,0);
+  nt(g,l[1],lp[0]-38,lp[1],8,l[2]+' check'+(l[2]===1?'':'s'));
+  // the dots on each ring
+  var n=Math.min(l[2],28);
+  for(var k=0;k<n;k++){
+   var th=k/Math.max(1,n)*2*Math.PI;
+   var p=P(l[0]*Math.cos(th),y,l[0]*Math.sin(th));
+   ndot(g,p[0],p[1],2.4,l[1]);}});
+ // the open top
+ var top=P(0,-86,0);
+ ndot(g,top[0],top[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',top[0]+12,top[1],9,'unwatched');
+ nt(g,'#7de2b0',14,24,11,'127 assertions at the base');
+ nt(g,'#5ad6ff',14,42,10,'6 mutants above them');
+ nt(g,'#ff5a8a',14,58,10,'and nothing above that');
+ nt(g,'#8a7ab8',14,H-12,9,'so make the top floor small and legible -- it will be trusted by eye');}
+document.getElementById('nwadd').onclick=function(){extra=Math.min(4,extra+1);drawW4();};
+document.getElementById('nwres').onclick=function(){extra=0;drawW4();};
+document.getElementById('nwsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__nothingwatchesthegate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two thirteens in one project: <b>13</b> rungs on a ladder and <b>13</b> opcodes in an instruction set built elsewhere. It was noted as a coincidence and deliberately left untested &mdash; listed under <i>what is not in this pack</i>. That restraint is the interesting part, and it is defensible with a number.<br><br>
+ <span class="lit">LIT</span> verified live. The rung count is <b>forced</b>: log&#8322;(4096) + 1 = <b>13</b>, with no freedom in it. The opcode count is not determined by anything here. Under a flat prior over plausible instruction-set sizes 4 to 32, hitting exactly 13 has probability <b>1/29 = 0.0345</b> &mdash; uncommon, and nowhere near decisive. A match becomes expected after about <b>29</b> comparisons.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put it in the section titled <i>&ldquo;WHAT IS NOT IN THIS PACK&rdquo;</i>: <i>&ldquo;any map between the 13 rungs and the 13 opcodes elsewhere. Noted as a coincidence and left there.&rdquo;</i> No claim, no investigation, and no silent deletion either &mdash; the observation is recorded and marked as not pursued.<br><br>
+ <b>AVAN (AI)</b> would add the reason the restraint is correct, which is uncomfortable and applies to this page as much as to his. The prior used to price the coincidence was chosen <b>after</b> seeing the match. Any range picked afterwards can be made to produce whatever surprise is wanted, which is exactly the move that turns coincidences into findings. The 0.0345 is therefore an illustration of the scale rather than a measurement, and the honest conclusion is the one he reached without computing anything.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One number forced, one number free.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the prior. Watch the surprise follow you.</div>
+   <div class="btns" style="margin-top:10px"><button id="clwide">wider prior &#9654;</button><button id="clnarrow">narrower</button></div>
+   <div class="cap" id="clout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two numbers meeting, for no reason.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;leave the coincidence alone.&rdquo; The inverse is that <b>leaving it alone also preserves it</b>. An unexamined coincidence sits in the record looking meaningful, and every later reader meets it fresh &mdash; so restraint at the moment of discovery becomes a small permanent suggestion that something is there. Read backwards, the fully honest move is not silence but a <b>stated non-result</b>: not &ldquo;noted and left&rdquo;, which invites, but &ldquo;checked and nothing found&rdquo;, which costs a day and closes it.</div>
+   <div class="btns" style="margin-top:10px"><button id="clsp">pause spin</button></div></div></div></div>"""
+CLAL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lo=4,hi=32;
+function selftest(){
+ var span=32-4+1,p=1/span;
+ return {rungs:13,opcodes:13,match:true,
+  forcedRungs:Math.log(4096)/Math.LN2+1,
+  rungsAreForced:(Math.log(4096)/Math.LN2+1)===13,
+  opcodesForced:false,
+  priorLo:4,priorHi:32,span:span,p:p,
+  pIs0345:Math.abs(p-1/29)<1e-9,
+  uncommonNotDecisive:p>0.01&&p<0.05,
+  priorChosenAfter:true,expectedAfter:Math.ceil(1/p),
+  leftUntested:true,
+  ok:(Math.log(4096)/Math.LN2+1)===13&&Math.abs(p-1/29)<1e-9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE NUMBER FORCED, ONE NUMBER FREE');
+ // the ladder, forced
+ nt(g,'#7de2b0',24,48,10,'13 rungs -- forced by the total');
+ for(var i=0;i<=12;i++){
+  var x=24+i*32;
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(x,58,26,8+i*2);ng(g);}
+ nt(g,'#8a7ab8',24,116,9,'log2(4096) + 1 = 13, with no freedom in it');
+ // the opcodes, free
+ nt(g,'#ffd76a',24,152,10,'13 opcodes -- free, and it landed on 13');
+ for(var k=4;k<=32;k++){
+  var x2=24+(k-4)*((W-60)/29);
+  nf(g,k===13?'rgba(255,215,106,0.85)':'rgba(150,110,230,0.32)');
+  g.fillRect(x2,162,Math.max(2,(W-60)/29-1.5),20);ng(g);}
+ nt(g,'#5a4a85',24,196,8,'4');
+ nt(g,'#ffd76a',24+(13-4)*((W-60)/29)-4,196,8,'13');
+ nt(g,'#5a4a85',W-46,196,8,'32');
+ var y2=214;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,'P(exactly 13) = 1/29 = 0.0345 under a flat prior over 4..32');
+ nt(g,'#ff5a8a',24,264,10,'and the prior was chosen AFTER seeing the match');
+ nt(g,'#8a7ab8',24,284,9,'which is exactly the move that makes a coincidence look significant');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var span=hi-lo+1,p=1/span;
+ var inRange=13>=lo&&13<=hi;
+ nt(g,'#e6dcff',16,26,11,'prior over sizes '+lo+' to '+hi+
+  '   ('+span+' values)');
+ var cell=(W-52)/span;
+ for(var k=lo;k<=hi;k++){
+  var x=24+(k-lo)*cell;
+  nf(g,k===13?'rgba(255,215,106,0.85)':'rgba(150,110,230,0.3)');
+  g.fillRect(x,52,Math.max(1.5,cell-1),36);ng(g);}
+ nt(g,'#5a4a85',24,102,8,String(lo));
+ nt(g,'#5a4a85',W-40,102,8,String(hi));
+ if(inRange)nt(g,'#ffd76a',24+(13-lo)*cell-4,102,8,'13');
+ var y2=120;
+ nt(g,'#8a7ab8',24,y2,9,'P(exactly 13)');
+ nf(g,p>0.05?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
+ g.fillRect(24,y2+8,Math.max(2,(W-110)*Math.min(1,p*4)),26);ng(g);
+ nt(g,p>0.05?'#7de2b0':'#ff5a8a',24+(W-110)+8,y2+27,11,p.toFixed(4));
+ var y3=y2+50;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y3,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
+ nt(g,'#e6dcff',36,y3+22,10,'expected after about '+Math.ceil(1/p)+' comparisons');
+ nt(g,'#8a7ab8',36,y3+41,8,p<0.05?'below the conventional threshold':'above it');
+ var y4=y3+60;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y4,W-40,52);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y4+0.5,W-41,52);ng(g);
+ nt(g,'#ff5a8a',36,y4+30,11,'and you are choosing this range now');
+ var o=document.getElementById('clout');
+ if(o)o.innerHTML='Over <b>'+lo+'..'+hi+'</b> the match has probability <b>'+p.toFixed(4)+
+  '</b> and would be expected after about <b>'+Math.ceil(1/p)+
+  '</b> comparisons. Widen the range and the coincidence looks more impressive; narrow it and it looks like nothing. The range is not data &mdash; and it is being picked after the fact.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two rings of 13, meeting at a point, with no thread between them
+ [[-56,'#7de2b0','13 rungs'],[56,'#ffd76a','13 opcodes']].forEach(function(o){
+  for(var k=0;k<13;k++){
+   var th=k/13*2*Math.PI;
+   var q=P(o[0]+34*Math.cos(th),0,34*Math.sin(th));
+   ndot(g,q[0],q[1],3.4,o[1]);}
+  ne(g,o[1],1.4);
+  g.beginPath();
+  for(var j=0;j<=40;j++){
+   var t=j/40*2*Math.PI;
+   var p=P(o[0]+34*Math.cos(t),0,34*Math.sin(t));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);
+  var lp=P(o[0],56,0);
+  nt(g,o[1],lp[0]-20,lp[1],8,o[2]);});
+ // a dashed non-connection
+ var a=P(-22,0,0),b=P(22,0,0);
+ ne(g,'rgba(150,110,230,0.35)',1.3);
+ for(var k2=0;k2<5;k2++){
+  var t0=k2/5,t1=(k2+0.45)/5;
+  g.beginPath();
+  g.moveTo(a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0);
+  g.lineTo(a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1);
+  g.stroke();}
+ ng(g);
+ var mp=P(0,-26,0);
+ nt(g,'#8a7ab8',mp[0]-30,mp[1],8,'no map drawn');
+ nt(g,'#7de2b0',14,24,11,'thirteen on the left, forced');
+ nt(g,'#ffd76a',14,42,10,'thirteen on the right, free');
+ nt(g,'#8a7ab8',14,58,10,'and nothing between them was tested');
+ nt(g,'#8a7ab8',14,H-12,9,'though noted-and-left invites, where checked-and-nothing closes');}
+document.getElementById('clwide').onclick=function(){
+ lo=Math.max(2,lo-2);hi=Math.min(64,hi+6);drawW4();};
+document.getElementById('clnarrow').onclick=function(){
+ lo=Math.min(12,lo+2);hi=Math.max(14,hi-6);drawW4();};
+document.getElementById('clsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecoincidenceleftalone=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MSMT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A gate proves its verifiers work by running six deliberately broken copies and confirming every one is caught. <b>6 of 6</b>, on every revision. Sort the six by what they model and they all land in the <b>same quadrant</b> of a two-by-two &mdash; and the quadrant that already has a tombstone in it is empty.<br><br>
+ <span class="lit">LIT</span> verified live. All <b>6</b> mutants model a <i>broken</i> control; <b>1</b> of <b>4</b> quadrants is occupied and <b>3</b> are empty, including <i>working control that reports bad news</i> &mdash; the class where a gate held anyway. So &ldquo;6 of 6 caught&rdquo; is a perfect score inside a quarter of the space.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named the gap himself, in the list of things he had not fixed: <i>&ldquo;no mutant models a control that WORKS and reports bad news, which is the graveyard/04 class.&rdquo;</i> That class is not hypothetical &mdash; <code>graveyard/04</code> is titled <i>gate held over a failing control</i>, so it has happened once and is still untested.<br><br>
+ <b>AVAN (AI)</b> laid the mutants on the two-by-two to show the shape of the coverage rather than the count. A headline of 6/6 reads as complete; the same six sorted by <i>control works</i> against <i>reports bad news</i> occupy one cell. The score is honest and the space it covers was never stated, which is the ordinary way a perfect number ends up meaning less than it looks.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six mutants, sorted onto four quadrants.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a mutant to an empty quadrant.</div>
+   <div class="btns" style="margin-top:10px"><button id="msadd">add the missing mutant &#9654;</button><button id="msres">reset</button></div>
+   <div class="cap" id="msout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a full corner and three empty ones.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the mutant suite covers one quadrant of four.&rdquo; The inverse is that <b>the two-by-two is my frame, not his</b>. Nothing says the failure space has four cells; choose three axes and there are eight, choose a different pair and the six mutants scatter differently. Read backwards, drawing a grid around a test suite always makes it look sparse, because the grid is drawn <b>after</b> the tests and can be drawn until it does &mdash; and the only part of this that stands on its own is the one gap <b>he</b> named, which has a tombstone to prove it is real.</div>
+   <div class="btns" style="margin-top:10px"><button id="mssp">pause spin</button></div></div></div></div>"""
+MSMT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,added=false;
+var MUT=[['m1','throws midrun'],['m2','exits early'],['m3','zero checks'],
+ ['m4','NaN passes'],['m5','input missing'],['m6','lies in sentinel']];
+var QUAD=[['broken, silent',false,false],['broken, noisy',false,true],
+ ['working, quiet',true,false],['WORKING, reports bad news',true,true]];
+function selftest(){
+ var counts=QUAD.map(function(q){
+  return {label:q[0],n:(q[1]===false&&q[2]===false)?MUT.length:0};});
+ var empty=counts.filter(function(c){return c.n===0;});
+ var g04=counts.filter(function(c){return c.label==='WORKING, reports bad news';})[0];
+ return {mutants:MUT.map(function(m){
+   return {id:m[0],kind:m[1],controlWorks:false,reportsBad:false};}),
+  count:MUT.length,allBroken:true,
+  quadrants:counts,occupied:counts.filter(function(c){return c.n>0;}).length,
+  emptyQuadrants:empty.map(function(c){return c.label;}),
+  graveyard04Count:g04.n,
+  caughtScore:'6/6',scoreCoversQuadrants:1,totalQuadrants:4,
+  ok:MUT.length===6&&counts.filter(function(c){return c.n>0;}).length===1&&g04.n===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SIX MUTANTS, SORTED ONTO FOUR QUADRANTS');
+ VR.mutants.forEach(function(m,i){
+  var y=40+i*20;
+  nt(g,'#8a7ab8',24,y+13,8,m.id+'  '+m.kind);
+  nt(g,'#ff5a8a',200,y+13,8,'control broken');
+  nt(g,'#5a4a85',300,y+13,8,'silent');});
+ var y2=170;
+ var qw=(W-70)/2,qh=44;
+ VR.quadrants.forEach(function(q,i){
+  var col=i%2,row=Math.floor(i/2);
+  var x=28+col*(qw+14),y=y2+row*(qh+12);
+  nf(g,q.n>0?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.16)');
+  g.fillRect(x,y,qw,qh);ng(g);
+  ne(g,q.n>0?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(x+0.5,y+0.5,qw,qh);ng(g);
+  nt(g,q.n>0?'#0d0818':'#ff5a8a',x+10,y+20,9,q.label);
+  nt(g,q.n>0?'#0d0818':'#ff5a8a',x+10,y+36,10,q.n+' mutant'+(q.n===1?'':'s'));});
+ nt(g,'#ffd76a',24,H-24,10,'6 of 6 caught -- a perfect score inside one quadrant of four');
+ nt(g,'#8a7ab8',24,H-8,9,'and the empty one with a tombstone is "working, reports bad news"');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var counts=VR.quadrants.map(function(q){
+  return {label:q.label,n:q.n+((added&&q.label==='WORKING, reports bad news')?1:0)};});
+ var occupied=counts.filter(function(c){return c.n>0;}).length;
+ nt(g,'#e6dcff',16,26,11,occupied+' of 4 quadrants occupied');
+ var m=40,size=112;
+ counts.forEach(function(q,i){
+  var col=i%2,row=Math.floor(i/2);
+  var x=m+col*(size+16),y=56+row*(size+16);
+  nf(g,q.n>0?'rgba(125,226,176,0.45)':'rgba(90,70,140,0.2)');
+  g.fillRect(x,y,size,size);ng(g);
+  ne(g,q.n>0?'#7de2b0':'rgba(255,90,138,0.5)',1.3);
+  g.strokeRect(x+0.5,y+0.5,size,size);ng(g);
+  var words=q.label.split(', ');
+  nt(g,q.n>0?'#0d0818':'#ff5a8a',x+8,y+20,8,words[0]);
+  if(words[1])nt(g,q.n>0?'#0d0818':'#ff5a8a',x+8,y+34,8,words[1]);
+  nt(g,q.n>0?'#0d0818':'#5a4a85',x+8,y+size-12,14,String(q.n));
+  // dots
+  for(var k=0;k<Math.min(q.n,9);k++){
+   ndot(g,x+22+(k%3)*22,y+58+Math.floor(k/3)*18,4,q.n>0?'#0d0818':'#5a4a85');}});
+ nt(g,'#8a7ab8',m,48,8,'control broken  ->  control works');
+ var y2=56+2*(size+16)+8;
+ nf(g,occupied>1?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,occupied>1?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,occupied>1?'#7de2b0':'#ff5a8a',36,y2+29,12,
+  occupied>1?'the graveyard/04 class is now modelled':'the class with a tombstone is untested');
+ var o=document.getElementById('msout');
+ if(o)o.innerHTML=added
+  ?'A seventh mutant in the <b>working, reports bad news</b> cell would model the case that actually happened: a control doing its job while the gate held anyway. Coverage goes from <b>1</b> quadrant to <b>2</b>, and the score stops being a statement about one corner.'
+  :'All six sit in <b>broken, silent</b>. The headline <b>6/6</b> is accurate and describes a quarter of the space &mdash; and the empty cell that matters has a tombstone in the graveyard already.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var CORNERS=[[-56,-56,true],[56,-56,false],[-56,56,false],[56,56,false]];
+ CORNERS.forEach(function(cn){
+  var full=cn[2];
+  var cor=[[cn[0]-40,0,cn[1]-40],[cn[0]+40,0,cn[1]-40],
+   [cn[0]+40,0,cn[1]+40],[cn[0]-40,0,cn[1]+40]].map(function(v){return P(v[0],v[1],v[2]);});
+  ne(g,full?'#7de2b0':'rgba(255,90,138,0.45)',full?2:1.2);
+  g.beginPath();
+  cor.forEach(function(p,k){if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+  g.closePath();g.stroke();ng(g);
+  if(full){
+   for(var k2=0;k2<6;k2++){
+    var q=P(cn[0]-24+(k2%3)*24,0,cn[1]-14+Math.floor(k2/3)*28);
+    ndot(g,q[0],q[1],4,'#7de2b0');}}
+  else{
+   var mid=P(cn[0],0,cn[1]);
+   nt(g,'#ff5a8a',mid[0]-6,mid[1]+4,12,'0');}});
+ // the tombstone marker on the empty one that matters
+ var tomb=P(56,-30,56);
+ ndot(g,tomb[0],tomb[1],5,'#ffd76a');
+ nt(g,'#ffd76a',tomb[0]+10,tomb[1],8,'graveyard/04');
+ nt(g,'#7de2b0',14,24,11,'six mutants, one corner');
+ nt(g,'#ff5a8a',14,42,10,'and three corners with nothing in them');
+ nt(g,'#ffd76a',14,58,10,'one of which has already happened once');
+ nt(g,'#8a7ab8',14,H-12,9,'though the grid is mine, drawn after the tests -- his named gap is not');}
+document.getElementById('msadd').onclick=function(){added=!added;drawW4();};
+document.getElementById('msres').onclick=function(){added=false;drawW4();};
+document.getElementById('mssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__themissingmutant=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 243 · neon-noir · silicon-coding · FROM DAVID'S WORKFLOW rev3 + rev3-0805 · a rank wall that CLOSES an option · the drawing IS the number · a ranking that inverts · a selector that graded the wrong row · an auditor cannot see a costume ═══════════════════════
 RKWL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A linear map from <b>C<sup>4096</sup></b> to <b>C<sup>1</sup></b> has rank at most <b>1</b>. Reversibility needs rank <b>4096</b>. So a one-dimensional root cannot host a reversible fold &mdash; not as a matter of taste or engineering, but as arithmetic. It is the one result in the pack that <b>closes</b> an option rather than opening one.<br><br>
@@ -87022,6 +87659,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-objection-recorded","title":"THE OBJECTION RECORDED","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ff5a8a","icon":"\u26f6",
+  "kicker":"drawn alike is not measured",
+  "blurb":"A panel filed an objection against the artifact it belongs to, and the artifact shipped with the objection still in it.",
+  "lit":"the symmetric fold keeps 330 and discards 3,766 dimensions, and zero of the discarded have been verified to hold nothing but labelling - a verified coverage of the discard of exactly 0%; the work that would settle it is enumerable at 3,766 checks, none run, and the objection is scoped to the PRICE and not the operator so the rank bound and the ladder hold either way",
+  "fig":"From David's WORKFLOW.ascii rev3, dropped 2026-08-05. He gave the objection a symbol of its own and left it standing: 'The arms are DRAWN alike; being drawn alike is not a measurement. Objection is to the PRICE, not to the operator - the rank bound and the ladder hold either way. W1 has not accepted this. Recorded.' AVAN names what is unusual structurally: most review processes have two terminal states, accepted and rejected, and an unresolved disagreement is a process failure to drive out before shipping. Here it is a THIRD RECORDED STATE - the disagreement travels with the artifact, scoped, attributed and countable.",
+  "body":OBRC_BODY,"script":OBRC_SCRIPT},
+ {"slug":"the-residual-hole","title":"THE RESIDUAL HOLE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE DROP","domain_slug":"the-drop","accent":"#ffd76a","icon":"\u25cc",
+  "kicker":"three revs, and none of them has moved",
+  "blurb":"Three known gaps, carried forward through three revisions, none closed. Not hidden and not fixed - named, in the same place, three times.",
+  "lit":"three holes across three revisions is 9 hole-revisions of which 0 are closed, while over the same three revisions the pack found 1, 1 and 2 faults for 4 in total - it improves at catching and not at fixing, and the second number is the one nobody usually prints",
+  "fig":"David lists them under a heading that admits the state directly - 'Residual holes carried forward, unfixed' - and closes with the line that makes it a measurement rather than a disclaimer: 'Three revs in, none of these has moved.' AVAN put the two counters side by side because a pack reporting only one of them reads very differently: faults found is a flattering number that rises with diligence, holes closed is an unflattering one that rises only with work on the instrument itself. Printing both makes the shape visible - 4 faults found, 0 holes closed.",
+  "body":RSHL_BODY,"script":RSHL_SCRIPT},
+ {"slug":"nothing-watches-the-gate","title":"NOTHING WATCHES THE GATE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#5ad6ff","icon":"\u25b3",
+  "kicker":"a regress with a measurable depth",
+  "blurb":"The verifiers check the model. A gate checks the verifiers with deliberately broken copies. Nothing checks the gate - and where the regress stops is the finding.",
+  "lit":"level 0 carries 127 assertions, level 1 carries 6 mutants and level 2 carries 0, so coverage falls 95.28% from the first level to the second and to zero at the third; the tower is 2 levels deep with the third unmanned, so the regress terminates in an ASSUMPTION rather than an infinity",
+  "fig":"David wrote it as three words in a list of things he had not fixed: 'nothing watches the gate.' It sits beside two others under 'Residual holes carried forward, unfixed', and it is the third revision in which it has appeared unchanged. AVAN resists the tempting reading: this is often told as an infinite-regress puzzle, but the measurement says something more useful - the regress is SHORT and the coverage collapses at each step rather than continuing at strength. Going from 127 checks to 6 is a 95% drop and the next step is to nothing. The problem is not that the tower is infinite; it is that it is two floors tall and thinning fast.",
+  "body":NWTG_BODY,"script":NWTG_SCRIPT},
+ {"slug":"the-coincidence-left-alone","title":"THE COINCIDENCE LEFT ALONE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#7de2b0","icon":"\u2248",
+  "kicker":"13 rungs and 13 opcodes, noted and not tested",
+  "blurb":"Two thirteens in one project. Noted as a coincidence and deliberately left untested - listed under what is NOT in the pack.",
+  "lit":"the rung count is FORCED at log2(4096) + 1 = 13 with no freedom in it, while the opcode count is not determined by anything here; under a flat prior over plausible instruction-set sizes 4 to 32, hitting exactly 13 has probability 1/29 = 0.0345 - uncommon and nowhere near decisive - and a match becomes expected after about 29 comparisons",
+  "fig":"David put it in the section titled 'WHAT IS NOT IN THIS PACK': 'any map between the 13 rungs and the 13 opcodes elsewhere. Noted as a coincidence and left there.' No claim, no investigation, and no silent deletion either. AVAN adds the reason the restraint is correct, which is uncomfortable and applies to this page as much as to his: the prior used to price the coincidence was chosen AFTER seeing the match. Any range picked afterwards can be made to produce whatever surprise is wanted, so the 0.0345 is an illustration of scale rather than a measurement - and the honest conclusion is the one he reached without computing anything.",
+  "body":CLAL_BODY,"script":CLAL_SCRIPT},
+ {"slug":"the-missing-mutant","title":"THE MISSING MUTANT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#b98cff","icon":"\u229e",
+  "kicker":"the quadrant with no test in it",
+  "blurb":"A gate proves its verifiers work by catching six deliberately broken copies. 6 of 6, every revision - and all six land in the same quadrant of a two-by-two.",
+  "lit":"all 6 mutants model a BROKEN control, so 1 of 4 quadrants is occupied and 3 are empty including 'working control that reports bad news' - the class where a gate held anyway - which makes 6 of 6 caught a perfect score inside a quarter of the space",
+  "fig":"David named the gap himself, in the list of things he had not fixed: 'no mutant models a control that WORKS and reports bad news, which is the graveyard/04 class.' That class is not hypothetical - graveyard/04 is titled 'gate held over a failing control', so it has happened once and is still untested. AVAN laid the mutants on the two-by-two to show the shape of the coverage rather than the count: a headline of 6/6 reads as complete, and the same six sorted by 'control works' against 'reports bad news' occupy one cell. The score is honest and the space it covers was never stated.",
+  "body":MSMT_BODY,"script":MSMT_SCRIPT},
  {"slug":"the-rank-wall","title":"THE RANK WALL","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"GRADIENT DESCENT","domain_slug":"gradient-descent","accent":"#ff5a8a","icon":"\u22a5",
   "kicker":"the one result that CLOSES an option",
