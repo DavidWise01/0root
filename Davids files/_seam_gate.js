@@ -309,4 +309,8 @@ function main() {
   process.exit(drift > 0 || failedRun > 0 ? 1 : 0);
 }
 
-main();
+// Importable so _skills_score.js can measure with the exact same reader and
+// sandbox the gate uses -- a second copy would drift from this one.
+module.exports = { readSphere, runScript, flatten, litClaims, reproduces };
+
+if (require.main === module) main();
