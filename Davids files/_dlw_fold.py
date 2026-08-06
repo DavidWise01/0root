@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-_dlw_fold.py — THE .dlw.fold SEAL TOOL (WORLD II · THE FOLD).
+_dlw_fold.py — THE FOLD SEAL TOOL (WORLD II · THE FOLD).
 
 World I (MIRROR) seals into an append-only linear CHAIN (dlw-chain.json). World II
 FOLDS: every inhabitant's birth-seal folds pairwise up a Merkle tree to a single
-ROOT_0 hash — "4096 folded to 0". Each `.dlw.fold` sidecar carries its own MERKLE
-PROOF back to ROOT_0, so one file verifies itself (Cameron's line: one file carries
-its own proof). Re-runnable: the fold root is the CURRENT commitment to all of World
-II and updates as the world grows, until World II is itself sealed.
+ROOT_0 hash — "4096 folded to 0". Every leaf carries its own MERKLE PROOF back to
+ROOT_0 inside the one chain, so that file verifies itself (Cameron's line: one file
+carries its own proof). Re-runnable: the fold root is the CURRENT commitment to all
+of World II and updates as the world grows, until World II is itself sealed.
+
+2026-08-06: folded into ONE CONTINUOUS CHAIN. Each inhabitant used to get a
+<slug>.dlw.fold sidecar as well; the proofs moved into fold-chain.json and the 1,422
+sidecars were removed. Same seals, same proofs, same ROOT_0 — one file instead of
+1,423, which is also 1,422 fewer files for a static host to walk on every build.
 
 Reads ud0/world2/fold.json (the World II DB). Writes:
   - ud0/world2/fold-chain.json      (the ledger: anchor, genesis, leaves, ROOT_0)
-  - ud0/world2/<slug>.dlw.fold      (per-inhabitant seal + self-verifying proof)
   - updates fold.json with fold_root + per-item seals.
 Read-only otherwise. Run: python _dlw_fold.py
 """
@@ -78,23 +82,22 @@ root = levels[-1][0]            # ROOT_0 — the fold
 genesis = h(FOLD_ANCHOR)
 today = datetime.date.today().isoformat()
 
-# ── per-inhabitant .dlw.fold sidecars (self-verifying) ──
+# ── every leaf, with its own proof, in ONE chain ──
+# Until 2026-08-06 each inhabitant also got a <slug>.dlw.fold sidecar carrying a
+# copy of this proof. The sidecars were regenerated in full on every run (their
+# `sealed` date was always today, never a birth date), nothing linked to them —
+# no href, no fetch, no src anywhere in 1,420 pages — and every field in them was
+# either a run constant or already a leaf of this chain, except the proof. So the
+# proof moved in here and the 1,422 files went away. The chain is now the whole
+# record: one continuous build, and one file that verifies itself.
 ledger_leaves = []
 for i, ((kind, name, slug, blurb), seal) in enumerate(zip(items, leaves)):
     proof = proof_for(i, levels)
     assert verify(seal, proof, root), f"proof failed for {slug}"
-    fold = {
-        "schema": "dlw.fold/1", "world": "II", "kind": kind,
-        "name": name, "slug": slug, "seal": seal, "index": i,
-        "algo": "sha256(name|slug|blurb) + sha256 merkle-fold",
-        "anchor": FOLD_ANCHOR, "genesis": genesis,
-        "proof": proof, "folded_to": "ROOT_0", "root": root,
-        "verify": "fold seal up the proof (R: h(x+sib), L: h(sib+x)) -> root",
-        "sealed": today, "author": "David Lee Wise / ROOT0 / TriPod LLC",
-    }
-    open(os.path.join(W2, f"{slug}.dlw.fold"), "w", encoding="utf-8").write(
-        json.dumps(fold, indent=2, ensure_ascii=False))
-    ledger_leaves.append({"index": i, "kind": kind, "name": name, "slug": slug, "seal": seal})
+    ledger_leaves.append({
+        "index": i, "kind": kind, "name": name, "slug": slug,
+        "seal": seal, "proof": proof,
+    })
 
 # ── the ledger ──
 ledger = {
@@ -102,7 +105,8 @@ ledger = {
     "algo": "sha256(name|slug|blurb) folded pairwise (merkle) to a single root",
     "anchor": FOLD_ANCHOR, "genesis": genesis,
     "folded_to": "ROOT_0", "root": root, "count": len(leaves), "sealed": today,
-    "note": "Every World II inhabitant folds to ROOT_0. Live: the root updates as the world grows, until World II is sealed. Each <slug>.dlw.fold carries its own proof to this root.",
+    "verify": "each leaf carries its own proof: fold the leaf's seal up it (side R: h(x+sib), side L: h(sib+x)) and you land on root. The tree is also fully rebuildable from the seals alone, in index order, pairing (a,b) as h(a+b) and duplicating a lone last node.",
+    "note": "Every World II inhabitant folds to ROOT_0. Live: the root updates as the world grows, until World II is sealed. One continuous chain: every leaf carries its proof here, so this file alone verifies the whole fold. Superseded the per-inhabitant <slug>.dlw.fold sidecars on 2026-08-06 — same seals, same proofs, same root, one file.",
     "leaves": ledger_leaves,
     "author": "David Lee Wise / ROOT0 / TriPod LLC",
 }
@@ -119,9 +123,9 @@ for k in db.get("keepers", []):
     k["seal"] = seal_by_slug.get(slugify(k["name"]))
 json.dump(db, open(os.path.join(W2, "fold.json"), "w", encoding="utf-8"), indent=2, ensure_ascii=False)
 
-print(f"SEALED .dlw.fold — {len(leaves)} inhabitants folded to ROOT_0")
+print(f"SEALED THE FOLD — {len(leaves)} inhabitants folded to ROOT_0 in one chain")
 for L in ledger_leaves:
     print(f"  [{L['index']}] {L['kind']:7} {L['slug']:26} {L['seal'][:16]}…")
 print(f"ROOT_0 = {root}")
 print(f"genesis = {genesis[:16]}…  ·  every proof self-verified ✓")
-print(f"wrote fold-chain.json + {len(leaves)} <slug>.dlw.fold + stamped fold.json")
+print(f"wrote fold-chain.json (one chain, {len(leaves)} leaves each carrying its proof) + stamped fold.json")
