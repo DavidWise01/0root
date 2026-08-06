@@ -19499,6 +19499,650 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 245 · neon-noir · silicon-coding · FROM DAVID'S WORKFLOW rev4 + rev4-0806 · a partition that died on counting · what an unequal split costs in bits · two numbers 0.05 apart and not one · a dissent answered NO · the control that fires most ═══════════════════════
+PTIS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A figure shows four equal arms. The measured grouping of the twelve underlying items is <b>3, 3, 2, 4</b>. The claim that the four groups <i>are</i> the four arms is dead &mdash; and it died on <b>counting</b>, before any statistical test was needed.<br><br>
+ <span class="lit">LIT</span> verified live. Both partitions sum to <b>12</b>, and they are not the same partition. A null was computed anyway: there are exactly <b>15</b> partitions of 12 into four positive parts, so the equal one is <b>1 of 15</b> at <b>p = 0.0667</b> under a flat prior. But the claim had already failed on arithmetic you can see, which is the cheaper kind of death.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> stamped it DEAD and named the manner of death precisely: <i>&ldquo;died on counting, not on statistics. A null was computed anyway&hellip; but the claim failed on arithmetic before it got there.&rdquo;</i> It is <code>graveyard/06</code>. Dropped 6 August 2026 in <code>WORKFLOW.ascii</code> rev4, whose verifiers run <b>70</b> and <b>38</b> checks clean here with 6 of 6 mutants caught.<br><br>
+ <b>AVAN (AI)</b> would keep the ordering visible, because the null is the part that looks like rigour. Computing p = 0.0667 <i>after</i> the mismatch is already visible adds nothing to the verdict and could easily have replaced it &mdash; a borderline p-value invites a discussion the counting had already finished. Reporting both, in that order, is what keeps the test from becoming the argument.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two partitions of twelve, side by side.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk all fifteen partitions of twelve into four.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptnext">next partition &#9654;</button><button id="ptmeas">the measured one</button></div>
+   <div class="cap" id="ptout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: four arms that are not four equal arms.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;counting settled it, so the test was unnecessary.&rdquo; The inverse is that <b>the count only settles it if the grouping is the right grouping</b>. 3,3,2,4 is one analyst&rsquo;s partition of twelve items measured once; a different cut of the same corpus could yield 3,3,3,3 honestly, and then the figure would survive. Read backwards, the claim died against <b>a</b> measurement rather than against the world, and the pack says so itself &mdash; the partition carries the whole result and has been measured exactly once.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptsp">pause spin</button></div></div></div></div>"""
+PTIS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pi=0;
+var MEASURED=[3,3,2,4],FIGURE=[3,3,3,3];
+function allParts(n,k,min){
+ if(k===0)return n===0?[[]]:[];
+ var out=[];
+ for(var i=min;i*k<=n;i++){
+  var rest=allParts(n-i,k-1,i);
+  for(var r=0;r<rest.length;r++)out.push([i].concat(rest[r]));}
+ return out;}
+var ALL=allParts(12,4,1);
+function selftest(){
+ var sm=MEASURED.reduce(function(a,b){return a+b;},0);
+ var sf=FIGURE.reduce(function(a,b){return a+b;},0);
+ return {measured:MEASURED,figure:FIGURE,
+  sumMeasured:sm,sumFigure:sf,bothTwelve:sm===12&&sf===12,
+  same:MEASURED.join(',')===FIGURE.join(','),
+  partitionCount:ALL.length,nullP:1/ALL.length,
+  diedOnCounting:true,
+  ok:sm===12&&sf===12&&MEASURED.join(',')!==FIGURE.join(',')&&ALL.length===15};}
+function bars(g,parts,x,y,cw,col){
+ var off=0;
+ parts.forEach(function(p,i){
+  for(var k=0;k<p;k++){
+   nf(g,col);
+   g.fillRect(x+off*cw,y,cw-2,22);ng(g);
+   off++;}
+  off+=0.6;});}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO PARTITIONS OF TWELVE, SIDE BY SIDE');
+ [['the figure says',FIGURE,'rgba(255,90,138,0.55)','#ff5a8a'],
+  ['the measurement says',MEASURED,'rgba(125,226,176,0.6)','#7de2b0']].forEach(function(r,i){
+  var y=52+i*92;
+  nt(g,'#8a7ab8',24,y,9,r[0]+'   '+r[1].join(', '));
+  var cw=(W-90)/14;
+  bars(g,r[1],24,y+10,cw,r[2]);
+  // group brackets
+  var off=0;
+  r[1].forEach(function(p){
+   ne(g,r[3],1.4);
+   g.beginPath();
+   g.moveTo(24+off*cw,y+38);g.lineTo(24+(off+p)*cw-2,y+38);g.stroke();ng(g);
+   nt(g,r[3],24+off*cw+ (p*cw)/2-4,y+52,9,String(p));
+   off+=p+0.6;});});
+ var y2=232;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'same total, different shape -- the claim dies on counting');
+ nt(g,'#8a7ab8',24,282,9,'the null was computed anyway: 1 of '+VR.partitionCount+
+  ', p = '+VR.nullP.toFixed(4));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=ALL[pi%ALL.length];
+ var isMeas=p.slice().sort().join()===MEASURED.slice().sort().join();
+ var isFig=p.join()===FIGURE.join();
+ nt(g,'#e6dcff',16,26,11,'partition '+((pi%ALL.length)+1)+' of '+ALL.length+
+  ':   '+p.join(', '));
+ var cw=(W-70)/14;
+ bars(g,p,24,50,cw,isMeas?'rgba(125,226,176,0.65)':(isFig?'rgba(255,90,138,0.55)':'rgba(150,110,230,0.45)'));
+ var off=0;
+ p.forEach(function(q){
+  ne(g,isMeas?'#7de2b0':(isFig?'#ff5a8a':'rgba(150,110,230,0.7)'),1.4);
+  g.beginPath();g.moveTo(24+off*cw,80);g.lineTo(24+(off+q)*cw-2,80);g.stroke();ng(g);
+  nt(g,'#8a7ab8',24+off*cw+(q*cw)/2-4,94,8,String(q));
+  off+=q+0.6;});
+ // all fifteen as rows
+ var y2=112;
+ nt(g,'#8a7ab8',24,y2,9,'all '+ALL.length+' partitions of 12 into 4 parts');
+ ALL.forEach(function(q,i){
+  var yy=y2+10+Math.floor(i/3)*22;
+  var xx=24+(i%3)*((W-56)/3);
+  var sel=i===(pi%ALL.length);
+  nf(g,sel?'rgba(255,215,106,0.7)':(q.join()===FIGURE.join()?'rgba(255,90,138,0.4)':'rgba(90,70,140,0.32)'));
+  g.fillRect(xx,yy,(W-56)/3-6,18);ng(g);
+  nt(g,sel?'#0d0818':'#8a7ab8',xx+8,yy+13,8,q.join(','));});
+ var y3=y2+10+Math.ceil(ALL.length/3)*22+10;
+ nf(g,isMeas?'rgba(125,226,176,0.16)':(isFig?'rgba(255,90,138,0.16)':'rgba(20,14,34,0.9)'));
+ g.fillRect(20,y3,W-40,50);ng(g);
+ ne(g,isMeas?'#7de2b0':(isFig?'#ff5a8a':'rgba(150,110,230,0.4)'),1.4);
+ g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
+ nt(g,isMeas?'#7de2b0':(isFig?'#ff5a8a':'#8a7ab8'),36,y3+30,11,
+  isMeas?'this is the measured one':(isFig?'this is the figure\\u2019s one':'neither'));
+ var o=document.getElementById('ptout');
+ if(o)o.innerHTML='Partition <b>'+p.join(', ')+'</b>. '+
+  (isMeas?'This is what the corpus actually gave: two 3s, a 2 and a 4.'
+   :(isFig?'This is the equal split the figure assumes &mdash; 1 of '+ALL.length+
+     ', p = '+(1/ALL.length).toFixed(4)+' under a flat prior.'
+    :'One of the other '+(ALL.length-2)+' shapes twelve could have taken.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var centre=P(0,0,0);
+ ndot(g,centre[0],centre[1],7,'#ffd76a');
+ MEASURED.forEach(function(n,i){
+  var th=i/4*2*Math.PI;
+  var tip=P(96*Math.cos(th),0,96*Math.sin(th));
+  ne(g,'#7de2b0',1.6);
+  g.beginPath();g.moveTo(centre[0],centre[1]);g.lineTo(tip[0],tip[1]);g.stroke();ng(g);
+  for(var k=1;k<=n;k++){
+   var t=k/(n+1);
+   var q=P(96*Math.cos(th)*t,0,96*Math.sin(th)*t);
+   ndot(g,q[0],q[1],3.4,'#7de2b0');}
+  var lp=P(112*Math.cos(th),0,112*Math.sin(th));
+  nt(g,n===3?'#7de2b0':'#ff5a8a',lp[0]-4,lp[1],10,String(n));});
+ nt(g,'#7de2b0',14,24,11,'four arms');
+ nt(g,'#ff5a8a',14,42,10,'carrying 3, 3, 2 and 4 -- not four equal');
+ nt(g,'#8a7ab8',14,58,10,'the drawing and the count disagree');
+ nt(g,'#8a7ab8',14,H-12,9,'though the partition has been measured exactly once');}
+document.getElementById('ptnext').onclick=function(){pi++;drawW4();};
+document.getElementById('ptmeas').onclick=function(){
+ for(var i=0;i<ALL.length;i++)
+  if(ALL[i].slice().sort().join()===MEASURED.slice().sort().join()){pi=i;break;}
+ drawW4();};
+document.getElementById('ptsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepartitionthatisnt=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AUSH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">How much labelling survives a fold depends on how symmetric the thing being folded is &mdash; and symmetry here is countable. The permutations of the parts that leave the shape unchanged form a group, and the recoverable bits are the logarithm of its order. Four equal parts give <b>24</b>. Parts of sizes 3, 3, 2, 4 give <b>2</b>.<br><br>
+ <span class="lit">LIT</span> verified live. aut(3,3,2,4) = <b>2</b>, since only the two equal parts may swap; aut(3,3,3,3) = <b>24</b> = 4!. So the recoverable labelling is <b>1.0000</b> bits and not <b>4.5850</b> &mdash; a shortfall of <b>3.5850</b> bits, which is exactly log&#8322;(24) &minus; log&#8322;(2).</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> computed the consequence for a build he had already shipped: <i>&ldquo;recoverable labelling: 1.0000 bits, not 4.5850. SHORTFALL 3.5850 bits&hellip; the earlier build&rsquo;s cheapest result does not hold.&rdquo;</i> The measurement did not merely fail to support the earlier claim &mdash; it removed it.<br><br>
+ <b>AVAN (AI)</b> would point at where the asymmetry actually bites. The group order collapses from 24 to 2 because <b>one</b> part differs in size; the shape 3,3,3,3 is the only one of the fifteen with the full 4! symmetry, and every other partition of twelve into four loses most of it immediately. Symmetry is not a spectrum here so much as a cliff, and a figure drawn as four equal arms is standing on the single point where the cliff has a summit.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every partition of twelve, and what it can recover.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move one item between groups and watch the bits fall.</div>
+   <div class="btns" style="margin-top:10px"><button id="aumove">move an item &#9654;</button><button id="aureset">back to equal</button></div>
+   <div class="cap" id="auout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a symmetry that is a cliff, not a slope.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the unequal partition recovers 3.585 fewer bits.&rdquo; The inverse is that <b>those bits were never worth much</b>. Recoverable labelling counts how many ways the parts could be permuted without changing the object &mdash; which is information about <i>names</i>, not about content. A build whose cheapest result rests on 4.585 bits of part-labelling has priced its symmetry in the currency that symmetry is most abundant in. Read backwards, losing it costs less than the number suggests, and the more damaging finding is the one beside it: the arms are not alike.</div>
+   <div class="btns" style="margin-top:10px"><button id="ausp">pause spin</button></div></div></div></div>"""
+AUSH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cur=[3,3,3,3],moves=0;
+function autOrder(parts){
+ var counts={};
+ parts.forEach(function(p){counts[p]=(counts[p]||0)+1;});
+ var o=1;
+ Object.keys(counts).forEach(function(k){for(var i=2;i<=counts[k];i++)o*=i;});
+ return o;}
+function allParts(n,k,min){
+ if(k===0)return n===0?[[]]:[];
+ var out=[];
+ for(var i=min;i*k<=n;i++){
+  var rest=allParts(n-i,k-1,i);
+  for(var r=0;r<rest.length;r++)out.push([i].concat(rest[r]));}
+ return out;}
+var ALL=allParts(12,4,1);
+function selftest(){
+ var M=[3,3,2,4],F=[3,3,3,3];
+ var aM=autOrder(M),aF=autOrder(F);
+ var bM=Math.log(aM)/Math.LN2,bF=Math.log(aF)/Math.LN2;
+ return {measured:M,figure:F,autMeasured:aM,autFigure:aF,
+  bitsMeasured:bM,bitsFigure:bF,shortfall:bF-bM,
+  autMeasuredIs2:aM===2,autFigureIs24:aF===24,
+  shortfallIs35850:Math.abs(bF-bM-3.5850)<0.0001,
+  allPartitions:ALL.map(function(p){
+   return {parts:p,aut:autOrder(p),bits:Math.log(autOrder(p))/Math.LN2};}),
+  ok:aM===2&&aF===24&&Math.abs(bF-bM-3.5850)<0.0001};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY PARTITION OF TWELVE, AND WHAT IT CAN RECOVER');
+ var rows=VR.allPartitions.slice().sort(function(a,b){return b.aut-a.aut;});
+ rows.forEach(function(r,i){
+  var y=38+i*16;
+  var isF=r.parts.join()==='3,3,3,3';
+  var isM=r.parts.slice().sort().join()==='2,3,3,4';
+  nt(g,isF?'#ff5a8a':(isM?'#7de2b0':'#5a4a85'),24,y+11,8,r.parts.join(','));
+  var pw=W-260;
+  nf(g,isF?'rgba(255,90,138,0.6)':(isM?'rgba(125,226,176,0.65)':'rgba(150,110,230,0.35)'));
+  g.fillRect(110,y+1,Math.max(2,pw*r.bits/4.585),12);ng(g);
+  nt(g,isF?'#ff5a8a':(isM?'#7de2b0':'#5a4a85'),110+pw+10,y+11,8,
+   'aut '+r.aut+'  '+r.bits.toFixed(4)+' bits');});
+ var y2=38+rows.length*16+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'3,3,3,3 is the ONLY one of 15 with the full 4! symmetry');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=autOrder(cur),b=Math.log(a)/Math.LN2;
+ nt(g,'#e6dcff',16,26,11,cur.join(', ')+'   ·   aut = '+a);
+ // the four groups as stacks
+ var gw=(W-70)/4;
+ cur.forEach(function(n,i){
+  var x=26+i*gw;
+  for(var k=0;k<n;k++){
+   nf(g,'rgba(125,226,176,0.6)');
+   g.fillRect(x,150-k*22,gw-14,18);ng(g);}
+  nt(g,'#8a7ab8',x+(gw-14)/2-4,172,10,String(n));});
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(26,152);g.lineTo(W-30,152);g.stroke();ng(g);
+ var y2=190;
+ nt(g,'#8a7ab8',24,y2,9,'recoverable labelling');
+ nf(g,b>=4?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+ g.fillRect(24,y2+8,Math.max(2,(W-120)*b/4.585),26);ng(g);
+ ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y2+8.5,W-120,26);ng(g);
+ nt(g,b>=4?'#7de2b0':'#ff5a8a',24+(W-120)+8,y2+27,11,b.toFixed(4));
+ var y3=y2+48;
+ var full=Math.abs(b-4.585)<0.001;
+ nf(g,full?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,full?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,full?'#7de2b0':'#ff5a8a',36,y3+28,12,full?'full 4! symmetry'
+  :'shortfall '+(4.585-b).toFixed(4)+' bits');
+ nt(g,'#8a7ab8',36,y3+48,8,moves+' item'+(moves===1?'':'s')+' moved from equal');
+ var o=document.getElementById('auout');
+ if(o)o.innerHTML='Groups <b>'+cur.join(', ')+'</b> give an automorphism group of order <b>'+
+  a+'</b> and <b>'+b.toFixed(4)+'</b> recoverable bits. '+
+  (full?'All four parts are interchangeable &mdash; this is the single shape with the full 4! symmetry.'
+   :'Moving one item collapsed the order from <b>24</b> to <b>'+a+
+    '</b>. Symmetry here is a cliff, not a slope: it is lost almost entirely at the first inequality.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var rows=VR.allPartitions.slice().sort(function(a,b){return b.bits-a.bits;});
+ rows.forEach(function(r,i){
+  var th=i/rows.length*2*Math.PI;
+  var top=P(80*Math.cos(th),60-r.bits*26,80*Math.sin(th));
+  var base=P(80*Math.cos(th),60,80*Math.sin(th));
+  var isF=r.parts.join()==='3,3,3,3';
+  ne(g,isF?'#ff5a8a':'rgba(125,226,176,0.45)',isF?2.4:1.3);
+  g.beginPath();g.moveTo(base[0],base[1]);g.lineTo(top[0],top[1]);g.stroke();ng(g);
+  ndot(g,top[0],top[1],isF?6:2.6,isF?'#ff5a8a':'#7de2b0');});
+ nt(g,'#ff5a8a',14,24,11,'one tall spike: 3,3,3,3 at 4.585 bits');
+ nt(g,'#7de2b0',14,42,10,'and fourteen short ones');
+ nt(g,'#8a7ab8',14,58,10,'symmetry is a cliff with a single summit');
+ nt(g,'#8a7ab8',14,H-12,9,'though the bits it counts are about names, not content');}
+document.getElementById('aumove').onclick=function(){
+ var from=0,to=0;
+ for(var i=0;i<4;i++)if(cur[i]>cur[from])from=i;
+ for(var j=0;j<4;j++)if(cur[j]<cur[to])to=j;
+ if(cur[from]>1){cur=cur.slice();cur[from]--;cur[to]++;moves++;}
+ else{ // nudge deterministically
+  cur=cur.slice();cur[0]--;cur[3]++;moves++;}
+ drawW4();};
+document.getElementById('aureset').onclick=function(){cur=[3,3,3,3];moves=0;drawW4();};
+document.getElementById('ausp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theautomorphismshortfall=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TNNO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two quantities in one project, <b>3.5850</b> and <b>3.6337</b> bits, derived from entirely different things and sitting <b>0.0487</b> apart. Close enough that a later build would merge them into one finding without noticing. An assertion in the test suite now forbids it.<br><br>
+ <span class="lit">LIT</span> verified live. <b>A</b> = log&#8322;(24) &minus; log&#8322;(2) = <b>3.5850</b>, the labelling shortfall of an unequal partition. <b>B</b> = 12 &minus; log&#8322;(C(11,4)) = <b>3.6337</b>, the bit loss of a symmetric fold. Their derivations share exactly <b>one</b> term &mdash; the logarithm itself. They are not the same number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> caught the near-collision and moved it out of prose: <i>&ldquo;3.5850 and 3.6337 are NOT the same number&hellip; 0.05 apart, derived differently, unrelated quantities, and close enough to invite being merged into one finding. verify.js asserts they are distinct so a later build cannot quietly collapse them.&rdquo;</i> His scoreboard counts it as a fault found by a control.<br><br>
+ <b>AVAN (AI)</b> would name the mechanism, because it is not carelessness. Two numbers that agree to one decimal place in the same document acquire a gravitational pull toward each other: the mind offers &ldquo;so it&rsquo;s the same effect seen twice&rdquo; for free, and that reading is more satisfying than two unrelated findings. A prose caveat weakens as a document is edited. An assertion does not, and converting the observation into one is the whole move.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two derivations that meet by accident.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Zoom in until the two separate.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnzoom">zoom in &#9654;</button><button id="tnout2">zoom out</button></div>
+   <div class="cap" id="tnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two paths arriving near the same place.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;assert that they are distinct.&rdquo; The inverse is that <b>an assertion of distinctness is unfalsifiable in the direction that matters</b>. It will hold forever, because two differently-derived constants will never become equal &mdash; so the test can never fail and never earns its keep. What it actually does is leave a <b>note in executable form</b>, read by whoever next touches the numbers. Read backwards, it is documentation that cannot be edited away, which is worth having and is not the same as a check.</div>
+   <div class="btns" style="margin-top:10px"><button id="tnsp">pause spin</button></div></div></div></div>"""
+TNNO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,zoom=0;
+function C(n,k){var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function selftest(){
+ var A=Math.log(24)/Math.LN2-Math.log(2)/Math.LN2;
+ var B=12-Math.log(C(11,4))/Math.LN2;
+ var termsA=['log2','24','2','automorphism'],termsB=['12','log2','330','C(11,4)'];
+ var shared=termsA.filter(function(t){return termsB.indexOf(t)>=0;});
+ return {a:A,b:B,gap:Math.abs(B-A),
+  aIs35850:Math.abs(A-3.5850)<0.0001,
+  bIs36337:Math.abs(B-3.6337)<0.0001,
+  gapIs00487:Math.abs(Math.abs(B-A)-0.0487)<0.0005,
+  distinct:A!==B,sharedTerms:shared,
+  guardedByAssertion:true,
+  ok:Math.abs(A-3.5850)<0.0001&&Math.abs(B-3.6337)<0.0001&&A!==B};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO DERIVATIONS THAT MEET BY ACCIDENT');
+ [['A  log2(24) - log2(2)',VR.a,'the labelling shortfall of 3,3,2,4','#7de2b0'],
+  ['B  12 - log2(C(11,4))',VR.b,'the bit loss of the symmetric fold','#5ad6ff']].forEach(function(r,i){
+  var y=48+i*76;
+  nt(g,r[3],24,y,10,r[0]);
+  nt(g,'#5a4a85',24,y+16,8,r[2]);
+  var pw=W-200;
+  nf(g,r[3]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(90,214,255,0.55)');
+  g.fillRect(24,y+24,pw*r[1]/4,26);ng(g);
+  nt(g,r[3],24+pw*r[1]/4+10,y+43,12,r[1].toFixed(4));});
+ var y2=210;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,'they differ by '+VR.gap.toFixed(4)+
+  ' bits, and share exactly one term: log2');
+ nt(g,'#7de2b0',24,262,10,'verify.js asserts they are distinct');
+ nt(g,'#8a7ab8',24,280,9,'so a later build cannot quietly collapse them into one finding');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var spans=[4,1,0.4,0.15,0.06,0.02];
+ var span=spans[Math.min(zoom,spans.length-1)];
+ var mid=(VR.a+VR.b)/2;
+ var lo=mid-span/2,hi=mid+span/2;
+ nt(g,'#e6dcff',16,26,11,'window '+span.toFixed(3)+' bits wide');
+ var m=30,pw=W-60,axis=140;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,axis);g.lineTo(m+pw,axis);g.stroke();ng(g);
+ nt(g,'#5a4a85',m,axis+18,8,lo.toFixed(4));
+ nt(g,'#5a4a85',m+pw-40,axis+18,8,hi.toFixed(4));
+ function X(v){return m+(v-lo)/(hi-lo)*pw;}
+ var xa=X(VR.a),xb=X(VR.b);
+ var apart=Math.abs(xb-xa);
+ ndot(g,xa,axis,7,'#7de2b0');
+ ndot(g,xb,axis,7,'#5ad6ff');
+ nt(g,'#7de2b0',xa-8,axis-16,9,'A');
+ nt(g,'#5ad6ff',xb-8,axis-30,9,'B');
+ var y2=176;
+ nf(g,apart>18?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,apart>18?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,apart>18?'#7de2b0':'#ff5a8a',36,y2+28,12,apart>18?'clearly two points'
+  :'they read as one');
+ nt(g,'#8a7ab8',36,y2+48,8,apart.toFixed(0)+' pixels apart at this scale');
+ var y3=y2+68;
+ nt(g,'#8a7ab8',24,y3+14,9,'A = '+VR.a.toFixed(4)+'    B = '+VR.b.toFixed(4)+
+  '    gap '+VR.gap.toFixed(4));
+ var o=document.getElementById('tnout');
+ if(o)o.innerHTML='At a window of <b>'+span.toFixed(3)+
+  '</b> bits the two sit <b>'+apart.toFixed(0)+'</b> pixels apart. '+
+  (apart>18?'Separated, they are obviously two unrelated results.'
+   :'At this scale they read as a single value &mdash; which is exactly how two findings become one by accident. Zoom in.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two paths from different origins arriving at nearly the same point
+ var endA=P(-6,-40,0),endB=P(6,-46,0);
+ var startA=P(-90,90,-40),startB=P(90,90,40);
+ [[startA,endA,'#7de2b0','automorphism'],[startB,endB,'#5ad6ff','symmetric fold']].forEach(function(p){
+  ne(g,p[2],1.8);
+  g.beginPath();
+  for(var i=0;i<=20;i++){
+   var t=i/20;
+   var x=p[0][0]+(p[1][0]-p[0][0])*t;
+   var y=p[0][1]+(p[1][1]-p[0][1])*t+Math.sin(t*Math.PI)*(p[2]==='#7de2b0'?-24:24);
+   if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);
+  ndot(g,p[0][0],p[0][1],4,p[2]);
+  ndot(g,p[1][0],p[1][1],6,p[2]);
+  nt(g,p[2],p[0][0]-20,p[0][1]+18,8,p[3]);});
+ // the tiny gap between the endpoints
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(endA[0],endA[1]);g.lineTo(endB[0],endB[1]);g.stroke();ng(g);
+ nt(g,'#ffd76a',endB[0]+10,endB[1]-6,8,'0.0487');
+ nt(g,'#7de2b0',14,24,11,'two paths, no shared step but the logarithm');
+ nt(g,'#5ad6ff',14,42,10,'arriving 0.0487 bits apart');
+ nt(g,'#ffd76a',14,58,10,'and an assertion keeping them separate');
+ nt(g,'#8a7ab8',14,H-12,9,'though a test that can never fail is documentation, not a check');}
+document.getElementById('tnzoom').onclick=function(){zoom=Math.min(5,zoom+1);drawW4();};
+document.getElementById('tnout2').onclick=function(){zoom=Math.max(0,zoom-1);drawW4();};
+document.getElementById('tnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__twonumbersthatarenotone=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DSUP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One revision earlier, a panel filed a dissent: <i>nothing has checked whether the four arms are alike</i>. It shipped unresolved. The next revision measured the grouping and the answer came back <b>no</b> &mdash; so the dissent is upheld, against the build that raised it.<br><br>
+ <span class="lit">LIT</span> verified live. The measured grouping is <b>3, 3, 2, 4</b>, so the four are not alike. The dissent passed through <b>4</b> states &mdash; filed, unresolved at ship, answered by later data, upheld &mdash; and the scoreboard now carries both counters: dissents <b>filed</b> 1, dissents <b>resolved against a prior build</b> 1.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named what had happened rather than quietly folding it in: <i>&ldquo;its own W5 dissent &mdash; &lsquo;nothing has checked whether the four arms are alike&rsquo; &mdash; is now ANSWERED by his measured data, and answered NO. A dissent resolving against the build that raised it is the outcome dissent exists for. It only happened because the pretty unification got tested rather than admired.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> would note that this is the completion of something this corpus published one batch ago as unresolved. The earlier sphere recorded a dissent shipped with the artifact and argued that carrying it was worth the cost; the cost has now been paid and the answer went <b>against</b> the build. That is the only evidence that a recorded dissent is more than a decorative disclaimer &mdash; and it required a later measurement to land on, which nothing guaranteed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The lifecycle of one objection.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the dissent from filing to verdict.</div>
+   <div class="btns" style="margin-top:10px"><button id="dsstep">next state &#9654;</button><button id="dsres">back to filed</button></div>
+   <div class="cap" id="dsout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an objection that outlived the build.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the dissent was upheld, so recording it was worth it.&rdquo; The inverse is that <b>one resolution does not establish the practice</b>. This is a single dissent, filed and answered by the same author across two revisions of his own pack &mdash; the conditions most favourable to a dissent surviving long enough to be tested. A dissent filed against someone else&rsquo;s work, or one whose resolution would cost a rewrite, faces a different set of incentives entirely. Read backwards, what has been demonstrated is that the mechanism <b>can</b> work once, not that it does.</div>
+   <div class="btns" style="margin-top:10px"><button id="dssp">pause spin</button></div></div></div></div>"""
+DSUP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,st=0;
+var STATES=[['filed','a panel objects: nothing has checked whether the arms are alike'],
+ ['unresolved at ship','the artifact goes out with the objection inside it'],
+ ['answered by later data','the next revision measures the grouping: 3, 3, 2, 4'],
+ ['upheld','the arms are not alike -- the dissent wins against its own build']];
+var MEASURED=[3,3,2,4];
+function selftest(){
+ var alike=MEASURED.every(function(v){return v===MEASURED[0];});
+ return {question:'are the four groups alike',measured:MEASURED,
+  allAlike:alike,answer:'no',
+  states:STATES.map(function(s){return s[0];}),stateCount:STATES.length,
+  upheldAgainstRaiser:!alike,
+  filed:1,resolvedAgainstPrior:1,
+  testedNotAdmired:true,
+  ok:!alike&&STATES.length===4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE LIFECYCLE OF ONE OBJECTION');
+ STATES.forEach(function(s,i){
+  var y=44+i*56;
+  var last=i===STATES.length-1;
+  nf(g,last?'rgba(125,226,176,0.16)':'rgba(255,215,106,0.12)');
+  g.fillRect(24,y,W-48,44);ng(g);
+  ne(g,last?'#7de2b0':'rgba(255,215,106,0.5)',1.3);
+  g.strokeRect(24.5,y+0.5,W-49,44);ng(g);
+  nt(g,last?'#7de2b0':'#ffd76a',40,y+19,10,(i+1)+'.  '+s[0]);
+  nt(g,'#8a7ab8',40,y+35,8,s[1]);
+  if(i<STATES.length-1){
+   ne(g,'rgba(150,110,230,0.5)',1.4);
+   g.beginPath();g.moveTo(W/2,y+44);g.lineTo(W/2,y+56);g.stroke();ng(g);}});
+ var y2=44+4*56+6;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'dissents filed 1  ·  resolved against a prior build 1');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=STATES[st%STATES.length];
+ nt(g,'#e6dcff',16,26,11,'state '+((st%STATES.length)+1)+' of 4:  '+s[0]);
+ // the track
+ var m=34,pw=W-68;
+ ne(g,'rgba(150,110,230,0.4)',1.4);
+ g.beginPath();g.moveTo(m,68);g.lineTo(m+pw,68);g.stroke();ng(g);
+ STATES.forEach(function(q,i){
+  var x=m+i/(STATES.length-1)*pw;
+  var done=i<=(st%STATES.length);
+  ndot(g,x,68,done?7:4,done?(i===3?'#7de2b0':'#ffd76a'):'rgba(90,70,140,0.6)');
+  nt(g,done?'#8a7ab8':'#5a4a85',x-18,92,7,q[0].slice(0,12));});
+ var y=112;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,64);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,64);ng(g);
+ var words=s[1].split(' ');
+ var line='',ly=y+24;
+ words.forEach(function(w){
+  if((line+w).length>42){nt(g,'#e6dcff',36,ly,9,line);ly+=17;line='';}
+  line+=w+' ';});
+ if(line)nt(g,'#e6dcff',36,ly,9,line);
+ // the measurement, once reached
+ if((st%STATES.length)>=2){
+  var y2=190;
+  nt(g,'#8a7ab8',24,y2,9,'the measurement');
+  var gw=(W-70)/4;
+  MEASURED.forEach(function(n,i){
+   var x=26+i*gw;
+   for(var k=0;k<n;k++){
+    nf(g,'rgba(125,226,176,0.6)');
+    g.fillRect(x,y2+70-k*16,gw-14,13);ng(g);}
+   nt(g,n===3?'#7de2b0':'#ff5a8a',x+(gw-14)/2-4,y2+88,10,String(n));});}
+ var y3=290;
+ var upheld=(st%STATES.length)===3;
+ nf(g,upheld?'rgba(125,226,176,0.16)':'rgba(255,215,106,0.12)');
+ g.fillRect(20,y3,W-40,30);ng(g);
+ ne(g,upheld?'#7de2b0':'rgba(255,215,106,0.5)',1.4);
+ g.strokeRect(20.5,y3+0.5,W-41,30);ng(g);
+ nt(g,upheld?'#7de2b0':'#ffd76a',36,y3+20,10,upheld?'upheld -- the arms are not alike'
+  :'open');
+ var o=document.getElementById('dsout');
+ if(o)o.innerHTML='<b>'+s[0]+'</b> &mdash; '+s[1]+'. '+
+  (upheld?'The objection outlived the build that raised it and was answered by data the build did not have. That is the outcome a recorded dissent exists for.'
+   :'It is still open at this point, and nothing yet guarantees anything will ever land on it.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // rev3's ring, faded; rev4's ring, solid; an arrow from the dissent to the answer
+ [[-40,'rgba(150,110,230,0.4)','rev3'],[40,'#7de2b0','rev4']].forEach(function(o){
+  ne(g,o[1],o[0]<0?1.2:2);
+  g.beginPath();
+  for(var j=0;j<=44;j++){
+   var t=j/44*2*Math.PI;
+   var q=P(62*Math.cos(t),o[0],62*Math.sin(t));
+   if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);
+  var lp=P(-84,o[0],0);
+  nt(g,o[1],lp[0]-16,lp[1],8,o[2]);});
+ var d1=P(0,-40,62),d2=P(0,40,62);
+ ndot(g,d1[0],d1[1],6,'#ffd76a');
+ nt(g,'#ffd76a',d1[0]+10,d1[1]-8,8,'dissent filed');
+ ndot(g,d2[0],d2[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',d2[0]+10,d2[1]+12,8,'answered NO');
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(d1[0],d1[1]);g.lineTo(d2[0],d2[1]);g.stroke();
+ g.beginPath();g.moveTo(d2[0],d2[1]);g.lineTo(d2[0]-5,d2[1]-11);
+ g.moveTo(d2[0],d2[1]);g.lineTo(d2[0]+6,d2[1]-10);g.stroke();ng(g);
+ nt(g,'#ffd76a',14,24,11,'filed in one build');
+ nt(g,'#ff5a8a',14,42,10,'answered by the next, and answered against it');
+ nt(g,'#8a7ab8',14,58,10,'because the pretty claim was tested rather than admired');
+ nt(g,'#8a7ab8',14,H-12,9,'though one resolution shows the mechanism can work, not that it does');}
+document.getElementById('dsstep').onclick=function(){st++;drawW4();};
+document.getElementById('dsres').onclick=function(){st=0;drawW4();};
+document.getElementById('dssp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedissentupheld=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NTWK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A name was coined in conversation and deliberately kept out of the shipped artifact. A grep at step nine found it sitting in the page anyway &mdash; for the <b>second</b> build running. Of every control in the pack, the one that fires most often is not an assertion about a number. It is a search for a word.<br><br>
+ <span class="lit">LIT</span> verified live. The name grep has fired on <b>2</b> of the <b>2</b> builds where it existed &mdash; a rate of <b>100%</b>. The other three controls are numeric, and <b>none</b> of them can see a name at all. The leak needed a control of a different <i>kind</i>, not a stricter one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> logged the catch and drew the general conclusion from it: <i>&ldquo;the name coined this session, and one structure&rsquo;s proper name, were both sitting in the artifact. Redacted at the model and re-injected. Second build running where this grep has fired; it is now the control that catches most often, which says something about how easily a name walks into a deliverable.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> would add the reason the measurement is possible at all. A leak can only be counted if somebody decided in advance that the thing should not be there &mdash; a name nobody chose to withhold would never register as escaped. So the 100% rate is not a fact about names in general; it is a fact about the one class of content this pack has an explicit policy on, and the policy is what turned an ordinary editorial slip into a countable event.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four controls, and how often each fires.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Which control could have caught which fault.</div>
+   <div class="btns" style="margin-top:10px"><button id="ntnext">next fault &#9654;</button></div>
+   <div class="cap" id="ntout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a word slipping through a net of numbers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a name walks into a deliverable easily.&rdquo; The inverse is that <b>a control firing every single time is a control describing a broken process, not a working guard</b>. Two builds, two leaks, caught twice at step nine &mdash; the grep is doing its job and the thing upstream of it has not changed at all. Read backwards, a 100% catch rate should be read as an <b>outstanding defect</b> rather than as a success, and the fix is not a better grep but a step that stops the name reaching the artifact.</div>
+   <div class="btns" style="margin-top:10px"><button id="ntsp">pause spin</button></div></div></div></div>"""
+NTWK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,fi=0;
+var CONTROLS=[['name grep',2,2,'a string search at step 9','string'],
+ ['selector unique',0,1,'applied before it could bite again','structure'],
+ ['mutant gate',0,4,'6/6 caught every rev, no escapes','numeric'],
+ ['verify assertions',1,4,'caught two confusable numbers','numeric']];
+var FAULTS=[['the name in the shipped page','name grep','string'],
+ ['two confusable numbers','verify assertions','numeric'],
+ ['"13 opcodes" was false','NONE -- opening the file','none'],
+ ['no 4096 anywhere','NONE -- opening the file','none']];
+function selftest(){
+ var top=CONTROLS.slice().sort(function(a,b){return (b[1]/b[2])-(a[1]/a[2]);})[0];
+ var numeric=CONTROLS.filter(function(c){return c[4]==='numeric';}).length;
+ return {controls:CONTROLS.map(function(c){
+   return {id:c[0],fires:c[1],of:c[2],note:c[3],kind:c[4]};}),
+  topControl:top[0],topRate:top[1]/top[2],
+  firesEveryBuild:top[1]/top[2]===1,
+  numericControls:numeric,
+  faults:FAULTS.map(function(f){return {name:f[0],caughtBy:f[1],kind:f[2]};}),
+  foundByReading:FAULTS.filter(function(f){return f[2]==='none';}).length,
+  reason:'a name is not a number, so no numeric control sees it',
+  heldDeliberately:true,
+  ok:top[0]==='name grep'&&top[1]/top[2]===1&&numeric===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR CONTROLS, AND HOW OFTEN EACH FIRES');
+ VR.controls.forEach(function(r,i){
+  var y=48+i*58;
+  var rate=r.fires/r.of;
+  nt(g,rate===1?'#ff5a8a':'#8a7ab8',24,y,10,r.id);
+  nt(g,'#5a4a85',24,y+16,8,r.note);
+  var pw=W-250;
+  nf(g,rate===1?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.5)');
+  g.fillRect(220,y-10,Math.max(2,pw*rate),24);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(220.5,y-9.5,pw,24);ng(g);
+  nt(g,rate===1?'#ff5a8a':'#7de2b0',220+pw+10,y+7,9,r.fires+'/'+r.of);});
+ var y2=48+4*58;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'the string search fires on 100% of the builds it existed for');
+ nt(g,'#8a7ab8',24,H-8,9,'and no numeric control can see a name at all');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=VR.faults[fi%VR.faults.length];
+ nt(g,'#e6dcff',16,26,11,'fault '+((fi%VR.faults.length)+1)+' of '+VR.faults.length);
+ nt(g,'#ffd76a',16,48,10,f.name);
+ var y=68;
+ VR.controls.forEach(function(cc,i){
+  var yy=y+i*46;
+  var caught=cc.id===f.caughtBy;
+  nf(g,caught?'rgba(125,226,176,0.5)':'rgba(90,70,140,0.2)');
+  g.fillRect(24,yy,W-48,36);ng(g);
+  ne(g,caught?'#7de2b0':'rgba(150,110,230,0.3)',1.2);
+  g.strokeRect(24.5,yy+0.5,W-49,36);ng(g);
+  nt(g,caught?'#0d0818':'#5a4a85',40,yy+16,9,cc.id);
+  nt(g,caught?'#0d0818':'#5a4a85',40,yy+30,8,cc.kind);
+  nt(g,caught?'#0d0818':'#5a4a85',W-92,yy+23,9,caught?'CAUGHT':'blind');});
+ var y2=y+4*46+10;
+ var none=f.kind==='none';
+ nf(g,none?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,none?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,none?'#ff5a8a':'#7de2b0',36,y2+30,11,none?'no instrument could catch it'
+  :'caught by '+f.caughtBy);
+ var o=document.getElementById('ntout');
+ if(o)o.innerHTML='<b>'+f.name+'</b> &mdash; '+
+  (none?'found by <b>opening a file</b>. Every control here checks arithmetic on the input it is given; none can ask whether the input was ever real. Two of the four faults this revision died this way.'
+   :'caught by the <b>'+f.caughtBy+'</b>, which is a <b>'+f.kind+
+    '</b> control. A fault only gets caught by a control of its own kind.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a mesh of numeric checks with a word passing straight through
+ for(var i=-3;i<=3;i++){
+  var a=P(i*26,0,-84),b=P(i*26,0,84);
+  ne(g,'rgba(125,226,176,0.35)',1.2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  var a2=P(-84,0,i*26),b2=P(84,0,i*26);
+  g.beginPath();g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.stroke();ng(g);}
+ // numbers caught on the mesh
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(9);
+ for(var k=0;k<22;k++){
+  var q=P((g2()-0.5)*160,0,(g2()-0.5)*160);
+  ndot(g,q[0],q[1],3,'#7de2b0');}
+ // the word falling straight through
+ var top=P(20,-110,-20),bot=P(20,110,-20);
+ ne(g,'#ff5a8a',2.4);
+ g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(bot[0],bot[1]);g.stroke();
+ g.beginPath();g.moveTo(bot[0],bot[1]);g.lineTo(bot[0]-5,bot[1]-12);
+ g.moveTo(bot[0],bot[1]);g.lineTo(bot[0]+6,bot[1]-11);g.stroke();ng(g);
+ ndot(g,top[0],top[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',top[0]+10,top[1],9,'a name');
+ nt(g,'#7de2b0',14,24,11,'a mesh of numeric checks');
+ nt(g,'#ff5a8a',14,42,10,'and a word that passes straight through it');
+ nt(g,'#ffd76a',14,58,10,'caught only by a search for the word itself');
+ nt(g,'#8a7ab8',14,H-12,9,'and a control that fires every time describes a broken process');}
+document.getElementById('ntnext').onclick=function(){fi++;drawW4();};
+document.getElementById('ntsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenamethatwalks=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 244 · neon-noir · silicon-coding · THE THREADS DAVID'S rev3 PACK LEFT OPEN · a dissent shipped unresolved · three holes carried three revs · nothing watches the gate · a coincidence left alone · the quadrant with no mutant in it ═══════════════════════
 OBRC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A panel filed an objection against the artifact it belongs to, and the artifact shipped with the objection still in it. The symmetric fold discards <b>3,766</b> of 4,096 dimensions on the grounds that the four arms are alike &mdash; and the arms are <b>drawn</b> alike, which is not a measurement.<br><br>
@@ -19880,106 +20524,108 @@ VR=selftest();window.__nothingwatchesthegate=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 CLAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
- <div class="wintxt">Two thirteens in one project: <b>13</b> rungs on a ladder and <b>13</b> opcodes in an instruction set built elsewhere. It was noted as a coincidence and deliberately left untested &mdash; listed under <i>what is not in this pack</i>. That restraint is the interesting part, and it is defensible with a number.<br><br>
- <span class="lit">LIT</span> verified live. The rung count is <b>forced</b>: log&#8322;(4096) + 1 = <b>13</b>, with no freedom in it. The opcode count is not determined by anything here. Under a flat prior over plausible instruction-set sizes 4 to 32, hitting exactly 13 has probability <b>1/29 = 0.0345</b> &mdash; uncommon, and nowhere near decisive. A match becomes expected after about <b>29</b> comparisons.</div></div>
+ <div class="wintxt"><b>CORRECTED.</b> This sphere first published a coincidence &mdash; <b>13</b> rungs on a ladder and <b>13</b> opcodes in an instruction set &mdash; and priced how surprising it was. The next revision of the source pack opened the actual files. The instruction set has <b>SEVENTEEN</b>. There was never a match, and the pricing measured an event that did not occur.<br><br>
+ <span class="lit">LIT</span> verified live. The rung count is still <b>13</b> and still forced: log&#8322;(4096) + 1, with no freedom in it &mdash; and it decomposes as <b>12 verbs plus one referent</b>, the only one that is not a verb, with the twelve <i>measured</i> across <b>649,634</b> nodes in <b>504</b> files rather than designed. The opcode count is <b>17</b>. <b>13 &ne; 17</b>, so the coincidence is withdrawn.</div></div>
 <div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
- <div class="wintxt"><b>David (human)</b> put it in the section titled <i>&ldquo;WHAT IS NOT IN THIS PACK&rdquo;</i>: <i>&ldquo;any map between the 13 rungs and the 13 opcodes elsewhere. Noted as a coincidence and left there.&rdquo;</i> No claim, no investigation, and no silent deletion either &mdash; the observation is recorded and marked as not pursued.<br><br>
- <b>AVAN (AI)</b> would add the reason the restraint is correct, which is uncomfortable and applies to this page as much as to his. The prior used to price the coincidence was chosen <b>after</b> seeing the match. Any range picked afterwards can be made to produce whatever surprise is wanted, which is exactly the move that turns coincidences into findings. The 0.0345 is therefore an illustration of the scale rather than a measurement, and the honest conclusion is the one he reached without computing anything.</div></div>
+ <div class="wintxt"><b>David (human)</b> retracted it himself, against his own earlier turn: <i>&ldquo;the ISA has SEVENTEEN. I asserted a 13-vs-13 coincidence from memory in a previous turn and it was false at the premise. It survived exactly as long as nobody opened the file. Retracted.&rdquo;</i> He also checked, before claiming any numeric bridge, that <b>4096 appears nowhere</b> in the three source files &mdash; so what survives is structural and is stamped AMBER for exactly that reason.<br><br>
+ <b>AVAN (AI)</b> owns the second half of this. I built a sphere on that premise one batch after he stated it, computed a flat prior over instruction-set sizes, and published <b>p = 0.0345</b> for the match. The arithmetic was right and the event was not real. No instrument here could have caught it: a verifier checks the arithmetic on the input it is given and has no way to ask whether the input was ever true. It was killed by <b>opening a file</b>, which is the same way two of his four faults died this revision.</div></div>
 <div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
  <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
-  <div class="wctrl"><div class="cap">One number forced, one number free.</div></div></div></div>
+  <div class="wctrl"><div class="cap">What was claimed, and what the file says.</div></div></div></div>
 <div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
  <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
-  <div class="wctrl"><div class="cap">Move the prior. Watch the surprise follow you.</div>
-   <div class="btns" style="margin-top:10px"><button id="clwide">wider prior &#9654;</button><button id="clnarrow">narrower</button></div>
+  <div class="wctrl"><div class="cap">The retracted pricing, and the thing it priced.</div>
+   <div class="btns" style="margin-top:10px"><button id="clview">claimed / counted &#9654;</button><button id="clprice">the retracted pricing</button></div>
    <div class="cap" id="clout" style="margin-top:8px"></div></div></div></div>
 <div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
  <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
-  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two numbers meeting, for no reason.</div>
-   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;leave the coincidence alone.&rdquo; The inverse is that <b>leaving it alone also preserves it</b>. An unexamined coincidence sits in the record looking meaningful, and every later reader meets it fresh &mdash; so restraint at the moment of discovery becomes a small permanent suggestion that something is there. Read backwards, the fully honest move is not silence but a <b>stated non-result</b>: not &ldquo;noted and left&rdquo;, which invites, but &ldquo;checked and nothing found&rdquo;, which costs a day and closes it.</div>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two rings that were never the same size.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;check the premise before pricing the finding.&rdquo; The inverse is that <b>the pricing is what made the premise worth checking</b>. An unexamined 13-and-13 sat quietly for several turns; it was only once someone put a probability on it and built a page around it that opening the file became worth anyone&rsquo;s time. Read backwards, the error was productive in the one way errors can be &mdash; it raised the cost of leaving the premise unverified until somebody paid it &mdash; and that is a defence of the correction, not of the claim.</div>
    <div class="btns" style="margin-top:10px"><button id="clsp">pause spin</button></div></div></div></div>"""
 CLAL_SCRIPT = """(function(){""" + NOIR + """
-var ang=0,spin=true,VR=null,lo=4,hi=32;
+var ang=0,spin=true,VR=null,showPrice=false;
+var RUNGS=13,CLAIMED=13,ACTUAL=17,VERBS=12,REFERENT=1;
 function selftest(){
- var span=32-4+1,p=1/span;
- return {rungs:13,opcodes:13,match:true,
-  forcedRungs:Math.log(4096)/Math.LN2+1,
-  rungsAreForced:(Math.log(4096)/Math.LN2+1)===13,
-  opcodesForced:false,
-  priorLo:4,priorHi:32,span:span,p:p,
-  pIs0345:Math.abs(p-1/29)<1e-9,
-  uncommonNotDecisive:p>0.01&&p<0.05,
-  priorChosenAfter:true,expectedAfter:Math.ceil(1/p),
-  leftUntested:true,
-  ok:(Math.log(4096)/Math.LN2+1)===13&&Math.abs(p-1/29)<1e-9};}
+ var forced=Math.log(4096)/Math.LN2+1;
+ return {rungs:RUNGS,opcodesClaimed:CLAIMED,opcodesActual:ACTUAL,
+  matchExists:RUNGS===ACTUAL,
+  forcedRungs:forced,rungsAreForced:forced===RUNGS,
+  verbs:VERBS,referent:REFERENT,twelvePlusOne:VERBS+REFERENT===RUNGS,
+  measuredNodes:649634,measuredFiles:504,
+  retractedPricedP:1/29,
+  killedBy:'opening the file',foundByInstrument:false,
+  ok:forced===RUNGS&&ACTUAL===17&&RUNGS!==ACTUAL};}
 function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
  nb(g,W,H);
- nt(g,'#b98cff',14,20,11,'ONE NUMBER FORCED, ONE NUMBER FREE');
- // the ladder, forced
- nt(g,'#7de2b0',24,48,10,'13 rungs -- forced by the total');
- for(var i=0;i<=12;i++){
-  var x=24+i*32;
-  nf(g,'rgba(125,226,176,0.6)');
-  g.fillRect(x,58,26,8+i*2);ng(g);}
- nt(g,'#8a7ab8',24,116,9,'log2(4096) + 1 = 13, with no freedom in it');
- // the opcodes, free
- nt(g,'#ffd76a',24,152,10,'13 opcodes -- free, and it landed on 13');
- for(var k=4;k<=32;k++){
-  var x2=24+(k-4)*((W-60)/29);
-  nf(g,k===13?'rgba(255,215,106,0.85)':'rgba(150,110,230,0.32)');
-  g.fillRect(x2,162,Math.max(2,(W-60)/29-1.5),20);ng(g);}
- nt(g,'#5a4a85',24,196,8,'4');
- nt(g,'#ffd76a',24+(13-4)*((W-60)/29)-4,196,8,'13');
- nt(g,'#5a4a85',W-46,196,8,'32');
- var y2=214;
- nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
- ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
- nt(g,'#ffd76a',36,y2+21,10,'P(exactly 13) = 1/29 = 0.0345 under a flat prior over 4..32');
- nt(g,'#ff5a8a',24,264,10,'and the prior was chosen AFTER seeing the match');
- nt(g,'#8a7ab8',24,284,9,'which is exactly the move that makes a coincidence look significant');}
+ nt(g,'#ff5a8a',14,20,11,'CORRECTED -- WHAT WAS CLAIMED, AND WHAT THE FILE SAYS');
+ var rows=[['rungs, forced by the total',RUNGS,'#7de2b0','log2(4096) + 1'],
+  ['opcodes, claimed from memory',CLAIMED,'#ff5a8a','never checked'],
+  ['opcodes, counted in the file',ACTUAL,'#ffd76a','rev4, by opening it']];
+ rows.forEach(function(r,i){
+  var y=46+i*62;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  for(var k=0;k<r[1];k++){
+   nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':
+    (r[2]==='#ff5a8a'?'rgba(255,90,138,0.5)':'rgba(255,215,106,0.65)'));
+   g.fillRect(24+k*22,y+10,18,26);ng(g);}
+  nt(g,r[2],24+r[1]*22+10,y+29,12,String(r[1]));
+  nt(g,'#5a4a85',24,y+50,8,r[3]);});
+ var y2=232;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,11,'13 is not 17 -- the coincidence is withdrawn');
+ nt(g,'#7de2b0',24,282,10,'and the 13 is twelve verbs plus one referent, measured not designed');}
 function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
  nb(g,W,H);
- var span=hi-lo+1,p=1/span;
- var inRange=13>=lo&&13<=hi;
- nt(g,'#e6dcff',16,26,11,'prior over sizes '+lo+' to '+hi+
-  '   ('+span+' values)');
- var cell=(W-52)/span;
- for(var k=lo;k<=hi;k++){
-  var x=24+(k-lo)*cell;
-  nf(g,k===13?'rgba(255,215,106,0.85)':'rgba(150,110,230,0.3)');
-  g.fillRect(x,52,Math.max(1.5,cell-1),36);ng(g);}
- nt(g,'#5a4a85',24,102,8,String(lo));
- nt(g,'#5a4a85',W-40,102,8,String(hi));
- if(inRange)nt(g,'#ffd76a',24+(13-lo)*cell-4,102,8,'13');
- var y2=120;
- nt(g,'#8a7ab8',24,y2,9,'P(exactly 13)');
- nf(g,p>0.05?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.55)');
- g.fillRect(24,y2+8,Math.max(2,(W-110)*Math.min(1,p*4)),26);ng(g);
- nt(g,p>0.05?'#7de2b0':'#ff5a8a',24+(W-110)+8,y2+27,11,p.toFixed(4));
- var y3=y2+50;
- nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y3,W-40,50);ng(g);
- ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
- nt(g,'#e6dcff',36,y3+22,10,'expected after about '+Math.ceil(1/p)+' comparisons');
- nt(g,'#8a7ab8',36,y3+41,8,p<0.05?'below the conventional threshold':'above it');
- var y4=y3+60;
- nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y4,W-40,52);ng(g);
- ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y4+0.5,W-41,52);ng(g);
- nt(g,'#ff5a8a',36,y4+30,11,'and you are choosing this range now');
+ if(showPrice){
+  nt(g,'#e6dcff',16,26,11,'the retracted pricing');
+  nt(g,'#8a7ab8',16,46,8,'flat prior over instruction-set sizes 4..32');
+  var span=29,cell=(W-52)/span;
+  for(var k=4;k<=32;k++){
+   var x=24+(k-4)*cell;
+   nf(g,k===13?'rgba(255,90,138,0.8)':(k===17?'rgba(255,215,106,0.8)':'rgba(150,110,230,0.28)'));
+   g.fillRect(x,58,Math.max(1.5,cell-1),34);ng(g);}
+  nt(g,'#ff5a8a',24+(13-4)*cell-4,106,8,'13');
+  nt(g,'#ffd76a',24+(17-4)*cell-4,106,8,'17');
+  var y=124;
+  nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y,W-40,58);ng(g);
+  ne(g,'#ff5a8a',1.5);g.strokeRect(20.5,y+0.5,W-41,58);ng(g);
+  nt(g,'#ff5a8a',36,y+26,12,'p = 0.0345 -- WITHDRAWN');
+  nt(g,'#8a7ab8',36,y+46,8,'the arithmetic was right; the event did not occur');
+  var y2=y+68;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,58);ng(g);
+  ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+  nt(g,'#7de2b0',36,y2+26,11,'no instrument could catch this');
+  nt(g,'#8a7ab8',36,y2+46,8,'a verifier checks arithmetic, not whether the input was real');
+  var o2=document.getElementById('clout');
+  if(o2)o2.innerHTML='The published figure priced a match between <b>13</b> and <b>13</b>. The file says <b>17</b>. The probability was computed correctly for an event that never happened &mdash; which is a failure no numeric control in the pack can see.';
+  return;}
+ nt(g,'#e6dcff',16,26,11,'claimed against counted');
+ [['claimed',CLAIMED,'#ff5a8a'],['counted',ACTUAL,'#ffd76a']].forEach(function(r,i){
+  var y=52+i*118;
+  nt(g,'#8a7ab8',24,y,9,r[0]+': '+r[1]);
+  for(var k=0;k<r[1];k++){
+   var x=24+(k%9)*36,yy=y+10+Math.floor(k/9)*34;
+   nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.55)':'rgba(255,215,106,0.7)');
+   g.fillRect(x,yy,30,28);ng(g);
+   nt(g,'#0d0818',x+10,yy+19,9,String(k+1));}});
+ var y3=294;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y3,W-40,26);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y3+0.5,W-41,26);ng(g);
+ nt(g,'#ff5a8a',36,y3+18,10,'a difference of '+(ACTUAL-CLAIMED)+', not zero');
  var o=document.getElementById('clout');
- if(o)o.innerHTML='Over <b>'+lo+'..'+hi+'</b> the match has probability <b>'+p.toFixed(4)+
-  '</b> and would be expected after about <b>'+Math.ceil(1/p)+
-  '</b> comparisons. Widen the range and the coincidence looks more impressive; narrow it and it looks like nothing. The range is not data &mdash; and it is being picked after the fact.';}
+ if(o)o.innerHTML='Claimed from memory: <b>13</b>. Counted in the file: <b>17</b>. The gap is <b>'+
+  (ACTUAL-CLAIMED)+'</b>, and it existed the whole time &mdash; the claim survived exactly as long as nobody opened the file.';}
 function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
  nb(g,W,H);
  var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
  function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
- // two rings of 13, meeting at a point, with no thread between them
- [[-56,'#7de2b0','13 rungs'],[56,'#ffd76a','13 opcodes']].forEach(function(o){
-  for(var k=0;k<13;k++){
-   var th=k/13*2*Math.PI;
+ [[-56,13,'#7de2b0','13 rungs'],[56,17,'#ffd76a','17 opcodes']].forEach(function(o){
+  for(var k=0;k<o[1];k++){
+   var th=k/o[1]*2*Math.PI;
    var q=P(o[0]+34*Math.cos(th),0,34*Math.sin(th));
-   ndot(g,q[0],q[1],3.4,o[1]);}
-  ne(g,o[1],1.4);
+   ndot(g,q[0],q[1],3.2,o[2]);}
+  ne(g,o[2],1.4);
   g.beginPath();
   for(var j=0;j<=40;j++){
    var t=j/40*2*Math.PI;
@@ -19987,27 +20633,21 @@ function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.w
    if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
   g.closePath();g.stroke();ng(g);
   var lp=P(o[0],56,0);
-  nt(g,o[1],lp[0]-20,lp[1],8,o[2]);});
- // a dashed non-connection
+  nt(g,o[2],lp[0]-20,lp[1],8,o[3]);});
  var a=P(-22,0,0),b=P(22,0,0);
- ne(g,'rgba(150,110,230,0.35)',1.3);
- for(var k2=0;k2<5;k2++){
-  var t0=k2/5,t1=(k2+0.45)/5;
-  g.beginPath();
-  g.moveTo(a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0);
-  g.lineTo(a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1);
-  g.stroke();}
- ng(g);
- var mp=P(0,-26,0);
- nt(g,'#8a7ab8',mp[0]-30,mp[1],8,'no map drawn');
- nt(g,'#7de2b0',14,24,11,'thirteen on the left, forced');
- nt(g,'#ffd76a',14,42,10,'thirteen on the right, free');
- nt(g,'#8a7ab8',14,58,10,'and nothing between them was tested');
- nt(g,'#8a7ab8',14,H-12,9,'though noted-and-left invites, where checked-and-nothing closes');}
-document.getElementById('clwide').onclick=function(){
- lo=Math.max(2,lo-2);hi=Math.min(64,hi+6);drawW4();};
-document.getElementById('clnarrow').onclick=function(){
- lo=Math.min(12,lo+2);hi=Math.max(14,hi-6);drawW4();};
+ ne(g,'#ff5a8a',2);
+ g.beginPath();
+ g.moveTo(a[0]-6,a[1]-8);g.lineTo(b[0]+6,b[1]+8);
+ g.moveTo(b[0]+6,b[1]-8);g.lineTo(a[0]-6,a[1]+8);
+ g.stroke();ng(g);
+ var mp=P(0,-30,0);
+ nt(g,'#ff5a8a',mp[0]-30,mp[1],8,'no match');
+ nt(g,'#7de2b0',14,24,11,'thirteen on the left, forced and true');
+ nt(g,'#ffd76a',14,42,10,'seventeen on the right, counted in the file');
+ nt(g,'#ff5a8a',14,58,10,'and a page was built on their being equal');
+ nt(g,'#8a7ab8',14,H-12,9,'though pricing it is what finally made opening the file worth doing');}
+document.getElementById('clview').onclick=function(){showPrice=false;drawW4();};
+document.getElementById('clprice').onclick=function(){showPrice=!showPrice;drawW4();};
 document.getElementById('clsp').onclick=function(){spin=!spin;};
 VR=selftest();window.__thecoincidenceleftalone=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
@@ -87659,6 +88299,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-partition-that-isnt","title":"THE PARTITION THAT ISN'T","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#7de2b0","icon":"\u2337",
+  "kicker":"it died on counting, not on statistics",
+  "blurb":"A figure shows four equal arms. The measured grouping of the twelve underlying items is 3, 3, 2, 4.",
+  "lit":"both partitions sum to 12 and they are not the same partition; a null was computed anyway - there are exactly 15 partitions of 12 into four positive parts so the equal one is 1 of 15 at p = 0.0667 under a flat prior - but the claim had already failed on arithmetic you can see, which is the cheaper kind of death",
+  "fig":"From David's WORKFLOW.ascii rev4, dropped 2026-08-06. He stamped it DEAD and named the manner of death precisely: 'died on counting, not on statistics. A null was computed anyway... but the claim failed on arithmetic before it got there.' It is graveyard/06, and his verifiers run 70 and 38 checks clean here with 6 of 6 mutants caught. AVAN keeps the ordering visible, because the null is the part that looks like rigour: computing p = 0.0667 AFTER the mismatch is already visible adds nothing to the verdict and could easily have replaced it, since a borderline p-value invites a discussion the counting had already finished.",
+  "body":PTIS_BODY,"script":PTIS_SCRIPT},
+ {"slug":"the-automorphism-shortfall","title":"THE AUTOMORPHISM SHORTFALL","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd76a","icon":"\u2941",
+  "kicker":"what an unequal partition costs in bits",
+  "blurb":"How much labelling survives a fold depends on how symmetric the thing being folded is - and symmetry here is countable.",
+  "lit":"aut(3,3,2,4) = 2 since only the two equal parts may swap, while aut(3,3,3,3) = 24 = 4!, so the recoverable labelling is 1.0000 bits and not 4.5850 - a shortfall of 3.5850 bits, which is exactly log2(24) minus log2(2)",
+  "fig":"David computed the consequence for a build he had already shipped: 'recoverable labelling: 1.0000 bits, not 4.5850. SHORTFALL 3.5850 bits... the earlier build's cheapest result does not hold.' The measurement did not merely fail to support the earlier claim - it removed it. AVAN points at where the asymmetry bites: the group order collapses from 24 to 2 because ONE part differs in size, and 3,3,3,3 is the only one of the fifteen with the full 4! symmetry. Symmetry is not a spectrum here so much as a cliff, and a figure drawn as four equal arms is standing on the single point where the cliff has a summit.",
+  "body":AUSH_BODY,"script":AUSH_SCRIPT},
+ {"slug":"two-numbers-that-are-not-one","title":"TWO NUMBERS THAT ARE NOT ONE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#5ad6ff","icon":"\u2260",
+  "kicker":"0.05 apart, and asserted distinct",
+  "blurb":"Two quantities in one project, 3.5850 and 3.6337 bits, derived from entirely different things and close enough that a later build would merge them.",
+  "lit":"A = log2(24) - log2(2) = 3.5850, the labelling shortfall of an unequal partition, while B = 12 - log2(C(11,4)) = 3.6337, the bit loss of a symmetric fold; their derivations share exactly one term - the logarithm itself - and they sit 0.0487 apart, so they are not the same number",
+  "fig":"David caught the near-collision and moved it out of prose: '3.5850 and 3.6337 are NOT the same number... 0.05 apart, derived differently, unrelated quantities, and close enough to invite being merged into one finding. verify.js asserts they are distinct so a later build cannot quietly collapse them.' AVAN names the mechanism, because it is not carelessness: two numbers agreeing to one decimal place in the same document acquire a pull toward each other, since the mind offers 'so it is the same effect seen twice' for free and that reading is more satisfying than two unrelated findings. A prose caveat weakens as a document is edited; an assertion does not.",
+  "body":TNNO_BODY,"script":TNNO_SCRIPT},
+ {"slug":"the-dissent-upheld","title":"THE DISSENT UPHELD","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff5a8a","icon":"\u2611",
+  "kicker":"answered by the data, and answered no",
+  "blurb":"One revision earlier a panel filed a dissent: nothing has checked whether the four arms are alike. It shipped unresolved.",
+  "lit":"the measured grouping is 3, 3, 2, 4 so the four are not alike; the dissent passed through 4 states - filed, unresolved at ship, answered by later data, upheld - and the scoreboard now carries both counters, dissents filed 1 and dissents resolved against a prior build 1",
+  "fig":"David named what had happened rather than quietly folding it in: 'its own W5 dissent - nothing has checked whether the four arms are alike - is now ANSWERED by his measured data, and answered NO. A dissent resolving against the build that raised it is the outcome dissent exists for. It only happened because the pretty unification got tested rather than admired.' AVAN notes this completes something this corpus published one batch ago as unresolved: the earlier sphere recorded a dissent shipped with the artifact and argued carrying it was worth the cost. The cost has now been paid and the answer went AGAINST the build.",
+  "body":DSUP_BODY,"script":DSUP_SCRIPT},
+ {"slug":"the-name-that-walks","title":"THE NAME THAT WALKS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FIREWALL","domain_slug":"the-firewall","accent":"#b98cff","icon":"\u2707",
+  "kicker":"the control that fires most often",
+  "blurb":"A name was coined in conversation and deliberately kept out of the shipped artifact. A grep at step nine found it in the page anyway, for the second build running.",
+  "lit":"the name grep has fired on 2 of the 2 builds where it existed, a rate of 100%, while the other three controls are numeric and none of them can see a name at all - the leak needed a control of a different KIND, not a stricter one",
+  "fig":"David logged the catch and drew the general conclusion: 'the name coined this session, and one structure's proper name, were both sitting in the artifact. Redacted at the model and re-injected. Second build running where this grep has fired; it is now the control that catches most often, which says something about how easily a name walks into a deliverable.' AVAN adds the reason the measurement is possible at all: a leak can only be counted if somebody decided in advance that the thing should not be there. So the 100% rate is a fact about the one class of content this pack has an explicit policy on, and the policy is what turned an editorial slip into a countable event.",
+  "body":NTWK_BODY,"script":NTWK_SCRIPT},
  {"slug":"the-objection-recorded","title":"THE OBJECTION RECORDED","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#ff5a8a","icon":"\u26f6",
   "kicker":"drawn alike is not measured",
@@ -87680,12 +88355,12 @@ SPHERES = [
   "lit":"level 0 carries 127 assertions, level 1 carries 6 mutants and level 2 carries 0, so coverage falls 95.28% from the first level to the second and to zero at the third; the tower is 2 levels deep with the third unmanned, so the regress terminates in an ASSUMPTION rather than an infinity",
   "fig":"David wrote it as three words in a list of things he had not fixed: 'nothing watches the gate.' It sits beside two others under 'Residual holes carried forward, unfixed', and it is the third revision in which it has appeared unchanged. AVAN resists the tempting reading: this is often told as an infinite-regress puzzle, but the measurement says something more useful - the regress is SHORT and the coverage collapses at each step rather than continuing at strength. Going from 127 checks to 6 is a 95% drop and the next step is to nothing. The problem is not that the tower is infinite; it is that it is two floors tall and thinning fast.",
   "body":NWTG_BODY,"script":NWTG_SCRIPT},
- {"slug":"the-coincidence-left-alone","title":"THE COINCIDENCE LEFT ALONE","appeal_name":"LOOT","appeal_slug":"loot",
+ {"slug":"the-coincidence-left-alone","title":"THE COINCIDENCE THAT WASN'T","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#7de2b0","icon":"\u2248",
-  "kicker":"13 rungs and 13 opcodes, noted and not tested",
-  "blurb":"Two thirteens in one project. Noted as a coincidence and deliberately left untested - listed under what is NOT in the pack.",
-  "lit":"the rung count is FORCED at log2(4096) + 1 = 13 with no freedom in it, while the opcode count is not determined by anything here; under a flat prior over plausible instruction-set sizes 4 to 32, hitting exactly 13 has probability 1/29 = 0.0345 - uncommon and nowhere near decisive - and a match becomes expected after about 29 comparisons",
-  "fig":"David put it in the section titled 'WHAT IS NOT IN THIS PACK': 'any map between the 13 rungs and the 13 opcodes elsewhere. Noted as a coincidence and left there.' No claim, no investigation, and no silent deletion either. AVAN adds the reason the restraint is correct, which is uncomfortable and applies to this page as much as to his: the prior used to price the coincidence was chosen AFTER seeing the match. Any range picked afterwards can be made to produce whatever surprise is wanted, so the 0.0345 is an illustration of scale rather than a measurement - and the honest conclusion is the one he reached without computing anything.",
+  "kicker":"CORRECTED -- a coincidence that was never there",
+  "blurb":"This sphere first published a 13-and-13 coincidence and priced it. The next revision opened the files: the instruction set has SEVENTEEN. Withdrawn.",
+  "lit":"the rung count is still 13 and still FORCED at log2(4096) + 1 with no freedom in it, decomposing as 12 verbs plus one referent - the only one that is not a verb - with the twelve MEASURED across 649,634 nodes in 504 files rather than designed; the opcode count is 17, so 13 is not 17 and the coincidence is withdrawn",
+  "fig":"CORRECTED 2026-08-06. David retracted this himself, against his own earlier turn: 'the ISA has SEVENTEEN. I asserted a 13-vs-13 coincidence from memory in a previous turn and it was false at the premise. It survived exactly as long as nobody opened the file. Retracted.' He also checked, BEFORE claiming any numeric bridge, that 4096 appears nowhere in the three source files. AVAN owns the second half: I built a sphere on that premise one batch after he stated it, computed a flat prior over instruction-set sizes, and published p = 0.0345 for the match. The arithmetic was right and the event was not real. No instrument here could have caught it - a verifier checks the arithmetic on the input it is given and has no way to ask whether the input was ever true. It was killed by OPENING A FILE.",
   "body":CLAL_BODY,"script":CLAL_SCRIPT},
  {"slug":"the-missing-mutant","title":"THE MISSING MUTANT","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#b98cff","icon":"\u229e",
