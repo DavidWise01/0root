@@ -19499,6 +19499,823 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 247 · neon-noir · silicon-coding · UNDO BY REPEATING · A TABLE THAT PROVES LAGRANGE · A WHEEL WITH SHRINKING RETURNS · DECIMAL WITHOUT DIVISION · A BAD STEP LEFT UNCORRECTED ═══════════════════════
+ZBRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One random key per piece-and-square. A position&rsquo;s hash is the exclusive-or of the keys present, so moving a piece costs <b>two</b> operations rather than a rescan of the board &mdash; and <i>un</i>-moving it costs the same two, because exclusive-or is its own inverse. There is no separate undo path to get wrong.<br><br>
+ <span class="lit">LIT</span> verified live. The incremental update reproduces a full recomputation <b>exactly</b>. Undoing restores the original hash bit for bit, and <b>500</b> random move-then-unmove pairs all return to the starting value. At 32-bit keys, over a billion positions, the probability of some collision is <b>essentially 1</b> &mdash; which is where the risk lives, not in the trick.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Albert Zobrist</b> published the scheme in 1970, for a Go program. It is now in essentially every chess engine, because the alternative &mdash; rehashing the board after each move in a search that makes and unmakes millions &mdash; puts the hash in the hot loop.<br><br>
+ <b>AVAN (AI)</b> would separate the exactness from the safety, since they are usually stated together. The incremental identity is <b>exact</b>: no approximation, no drift, verified against full recomputation and round-tripped 500 times. The <b>collision</b> risk is a separate matter entirely, governed only by key width, and at 32 bits it is not a risk but a certainty. A structure can be perfectly correct and still be the wrong size.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A move, an unmove, and the hash returning.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move pieces and walk back.</div>
+   <div class="btns" style="margin-top:10px"><button id="zbmove">move &#9654;</button><button id="zbback">unmove</button><button id="zbres">reset</button></div>
+   <div class="cap" id="zbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a path that retraces itself exactly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;undo is free because XOR is an involution.&rdquo; The inverse is that <b>a hash which forgets how it was reached cannot tell you that it is wrong</b>. Two different positions colliding produce one value with no record of either, and the engine reads a stored evaluation for a board it has never seen. Read backwards, the property that makes undo free &mdash; that the hash depends only on the <b>set</b> of pieces, not the route &mdash; is exactly the property that makes a collision undetectable.</div>
+   <div class="btns" style="margin-top:10px"><button id="zbsp">pause spin</button></div></div></div></div>"""
+ZBRT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null;
+function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+ var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+ return ((t^t>>>14)>>>0)/4294967296;};}
+var SQUARES=64,PIECES=12,KEY=[];
+(function(){var r=rr(1969);
+ for(var p=0;p<PIECES;p++){KEY.push([]);
+  for(var s2=0;s2<SQUARES;s2++)KEY[p].push((r()*0xFFFFFFFF)>>>0);}})();
+var BOARD=[],HIST=[],CUR=0;
+(function(){for(var i=0;i<20;i++)BOARD.push({p:i%PIECES,s:i*3});})();
+function hashBoard(b){var hh=0;b.forEach(function(x){hh=(hh^KEY[x.p][x.s])>>>0;});return hh;}
+var FULL=hashBoard(BOARD);
+CUR=FULL;
+function selftest(){
+ var inc=((FULL^KEY[0][0])^KEY[0][61])>>>0;
+ var moved=BOARD.map(function(x,i){return i===0?{p:0,s:61}:x;});
+ var rec=hashBoard(moved);
+ var undone=((inc^KEY[0][61])^KEY[0][0])>>>0;
+ var ok=0,r2=rr(7);
+ for(var t=0;t<500;t++){
+  var p=Math.floor(r2()*PIECES),a=Math.floor(r2()*SQUARES),b=Math.floor(r2()*SQUARES);
+  var x=FULL;
+  x=((x^KEY[p][a])^KEY[p][b])>>>0;
+  x=((x^KEY[p][b])^KEY[p][a])>>>0;
+  if(x===FULL)ok++;}
+ var positions=1e9;
+ var pc=1-Math.exp(-positions*(positions-1)/(2*Math.pow(2,32)));
+ return {squares:SQUARES,pieces:PIECES,
+  fullHash:FULL,incrementalHash:inc,recomputedHash:rec,
+  incrementalMatches:inc===rec,undoRestores:undone===FULL,
+  roundTrips:ok,roundTripsOf:500,
+  keyBits:32,positionsModelled:positions,pCollision:pc,
+  ok:inc===rec&&undone===FULL&&ok===500};}
+function hex(v){return '0x'+v.toString(16).toUpperCase();}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'A MOVE, AN UNMOVE, AND THE HASH RETURNING');
+ var steps=[['start',VR.fullHash,'#7de2b0'],
+  ['^ key[piece][from]',(VR.fullHash^KEY[0][0])>>>0,'#ffd76a'],
+  ['^ key[piece][to]',VR.incrementalHash,'#5ad6ff'],
+  ['^ key[piece][to]',(VR.incrementalHash^KEY[0][61])>>>0,'#ffd76a'],
+  ['^ key[piece][from]',VR.fullHash,'#7de2b0']];
+ steps.forEach(function(st,i){
+  var y=46+i*44;
+  nt(g,'#8a7ab8',24,y+14,9,st[0]);
+  nf(g,st[2]==='#7de2b0'?'rgba(125,226,176,0.5)':
+   (st[2]==='#5ad6ff'?'rgba(90,214,255,0.5)':'rgba(255,215,106,0.45)'));
+  g.fillRect(210,y,180,26);ng(g);
+  nt(g,'#0d0818',220,y+18,10,hex(st[1]));
+  if(i===0||i===4)nt(g,'#7de2b0',W-70,y+18,9,i===0?'A':'A again');});
+ var y2=270;
+ nt(g,'#7de2b0',24,y2,10,'the incremental hash equals a full recomputation exactly');
+ nt(g,'#8a7ab8',24,y2+16,9,'and two more xors put it back -- the same two, in the other order');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',16,26,11,'hash  '+hex(CUR));
+ nt(g,'#8a7ab8',16,46,9,HIST.length+' move'+(HIST.length===1?'':'s')+' deep');
+ // the 32 bits
+ var cw=(W-48)/32;
+ for(var k=31;k>=0;k--){
+  var on=(CUR>>>k)&1;
+  nf(g,on?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.25)');
+  g.fillRect(24+(31-k)*cw,60,cw-1,26);ng(g);}
+ // the history stack
+ var y=104;
+ nt(g,'#8a7ab8',24,y,9,'history');
+ HIST.slice(-6).forEach(function(mv,i){
+  var yy=y+10+i*24;
+  nf(g,'rgba(255,215,106,0.2)');g.fillRect(24,yy,W-48,20);ng(g);
+  nt(g,'#ffd76a',34,yy+14,8,'piece '+mv.p+':  '+mv.a+' -> '+mv.b);});
+ if(!HIST.length)nt(g,'#5a4a85',34,y+24,8,'(none)');
+ var y2=y+10+Math.max(1,Math.min(HIST.length,6))*24+12;
+ var home=CUR===FULL;
+ nf(g,home?'rgba(125,226,176,0.16)':'rgba(255,215,106,0.14)');
+ g.fillRect(20,y2,W-40,56);ng(g);
+ ne(g,home?'#7de2b0':'#ffd76a',1.5);g.strokeRect(20.5,y2+0.5,W-41,56);ng(g);
+ nt(g,home?'#7de2b0':'#ffd76a',36,y2+28,12,home?'back at the starting hash'
+  :'away from the start');
+ nt(g,'#8a7ab8',36,y2+47,8,'2 xors per move, in either direction');
+ var o=document.getElementById('zbout');
+ if(o)o.innerHTML='Hash <b>'+hex(CUR)+'</b> after <b>'+HIST.length+
+  '</b> move'+(HIST.length===1?'':'s')+'. '+
+  (home?'Every move has been undone, and the hash is bit-for-bit what it was &mdash; not recomputed, just xored back.'
+   :'Press <i>unmove</i> to walk back. The undo is the same two operations as the move, because XOR is its own inverse.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a path out and back along the same edges
+ var pts=[[0,0,0],[50,-30,20],[80,10,-30],[30,50,40],[-40,20,10]];
+ var prev=null;
+ pts.forEach(function(p,i){
+  var q=P(p[0],p[1],p[2]);
+  ndot(g,q[0],q[1],i===0?8:5,i===0?'#7de2b0':'#ffd76a');
+  if(prev){ne(g,'rgba(255,215,106,0.7)',2);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;});
+ // the return, drawn dashed on the same edges
+ for(var i=pts.length-1;i>0;i--){
+  var a=P(pts[i][0],pts[i][1],pts[i][2]);
+  var b=P(pts[i-1][0],pts[i-1][1],pts[i-1][2]);
+  ne(g,'rgba(125,226,176,0.55)',1.6);
+  for(var k=0;k<5;k++){
+   var t0=k/5,t1=(k+0.45)/5;
+   g.beginPath();
+   g.moveTo(a[0]+(b[0]-a[0])*t0,a[1]+(b[1]-a[1])*t0);
+   g.lineTo(a[0]+(b[0]-a[0])*t1,a[1]+(b[1]-a[1])*t1);
+   g.stroke();}
+  ng(g);}
+ var st=P(0,0,0);
+ nt(g,'#7de2b0',st[0]+12,st[1],9,'start, and finish');
+ nt(g,'#ffd76a',14,24,11,'out along the edges');
+ nt(g,'#7de2b0',14,42,10,'and back along the very same ones');
+ nt(g,'#8a7ab8',14,58,10,'no separate undo path exists to get wrong');
+ nt(g,'#8a7ab8',14,H-12,9,'though a hash that forgets its route cannot report a collision');}
+document.getElementById('zbmove').onclick=function(){
+ var r=rr(HIST.length*97+13);
+ var p=Math.floor(r()*PIECES),a=Math.floor(r()*SQUARES),b=Math.floor(r()*SQUARES);
+ CUR=((CUR^KEY[p][a])^KEY[p][b])>>>0;
+ HIST.push({p:p,a:a,b:b});drawW4();};
+document.getElementById('zbback').onclick=function(){
+ if(!HIST.length)return;
+ var mv=HIST.pop();
+ CUR=((CUR^KEY[mv.p][mv.b])^KEY[mv.p][mv.a])>>>0;drawW4();};
+document.getElementById('zbres').onclick=function(){CUR=FULL;HIST=[];drawW4();};
+document.getElementById('zbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thezobristhash=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TDCX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Give it generators, relations and a subgroup, and it fills in a table until the table closes on itself. The number of surviving rows is the <b>index</b> of the subgroup &mdash; so for the trivial subgroup it is the order of the group. A structural fact about an abstract group, produced by bookkeeping.<br><br>
+ <span class="lit">LIT</span> verified live. The symmetric group on three letters enumerates to <b>6</b>, the Klein four-group to <b>4</b>, and the two-element cyclic group to <b>2</b>. Run over a subgroup of order 2 instead of the trivial one, S&#8323; enumerates to <b>3</b> &mdash; which is 6/2, Lagrange&rsquo;s theorem arriving as a row count rather than a proof.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>John Todd and H.S.M. Coxeter</b> published coset enumeration in 1936, as a hand procedure. It is one of the oldest algorithms in computational algebra and still the standard method &mdash; a table you fill in, where the difficulty is entirely in handling <i>coincidences</i>: discovering that two rows you had been treating as different are the same coset.<br><br>
+ <b>AVAN (AI)</b> got the coincidence handling wrong on the first attempt and the gates caught it. A flat rewrite of references gave S&#8323; as <b>8</b> and the Klein group as <b>6</b> &mdash; both too large, because merging two cosets can force further merges that a single pass never discovers. The fix is a union-find over cosets with a <b>queue</b>, so a coincidence can cascade. That is not an implementation detail; it is the whole algorithm, and the naive version fails quietly with plausible-looking numbers.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four enumerations, and what each row count means.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the presentation and watch the table close.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcnext">next group &#9654;</button></div>
+   <div class="cap" id="tcout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a table closing into a finite ring.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the table closes and gives you the index.&rdquo; The inverse is that <b>nothing tells you it will</b>. A finitely presented group can be infinite, and then the enumeration runs forever, defining cosets and never closing &mdash; and the word problem for groups is undecidable, so no test can sort the two cases in advance. Read backwards, this is a procedure that answers correctly whenever it answers at all, which is <b>semi-decidable</b>: a running enumeration and a hung one are indistinguishable from outside, and the only honest report while it runs is that it is still running.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcsp">pause spin</button></div></div></div></div>"""
+TDCX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,gi=0;
+  function toddCoxeter(nGens, relations, subgenerators, maxCosets) {
+    const tab = [null, new Array(nGens).fill(0)];   // 1-indexed; coset 1 = H
+    const rep = [0, 1];
+    let n = 1, defined = 1;
+  
+    function find(c) { while (rep[c] !== c) { rep[c] = rep[rep[c]]; c = rep[c]; } return c; }
+  
+    const queue = [];
+    function coincide(a, b) { queue.push([a, b]); }
+  
+    function processCoincidences() {
+      while (queue.length) {
+        let [a, b] = queue.shift();
+        a = find(a); b = find(b);
+        if (a === b) continue;
+        if (a > b) { const t = a; a = b; b = t; }   // keep the smaller
+        rep[b] = a;
+        for (let g = 0; g < nGens; g++) {
+          const tb = tab[b][g];
+          if (!tb) continue;
+          const ta = tab[a][g];
+          if (!ta) tab[a][g] = tb;
+          else coincide(ta, tb);
+        }
+        // rewrite every reference to b
+        for (let c = 1; c <= n; c++) {
+          if (!tab[c]) continue;
+          for (let g = 0; g < nGens; g++) if (tab[c][g] === b) tab[c][g] = a;
+        }
+        tab[b] = null;
+      }
+    }
+  
+    function define(c, g) {
+      if (n >= maxCosets) return 0;
+      n++; defined++;
+      tab[n] = new Array(nGens).fill(0);
+      rep[n] = n;
+      tab[c][g] = n;
+      tab[n][g] = c;               // involution
+      return n;
+    }
+  
+    function scan(c, word, fill) {
+      let cur = find(c);
+      for (const g of word) {
+        if (!tab[cur]) cur = find(cur);
+        let nxt = tab[cur][g];
+        if (!nxt) {
+          if (!fill) return { closed: false };
+          nxt = define(cur, g);
+          if (!nxt) return { closed: false };
+        }
+        cur = find(nxt);
+      }
+      return { closed: true, end: cur };
+    }
+  
+    // the subgroup generators must fix coset 1
+    for (const w of subgenerators) {
+      const r = scan(1, w, true);
+      if (r.closed && r.end !== find(1)) { coincide(r.end, find(1)); processCoincidences(); }
+    }
+  
+    let guard = 0;
+    let c = 1;
+    while (c <= n && guard++ < 20000) {
+      if (!tab[c] || find(c) !== c) { c++; continue; }
+      for (const rel of relations) {
+        const r = scan(c, rel, true);
+        if (r.closed && r.end !== find(c)) { coincide(r.end, find(c)); processCoincidences(); }
+        if (!tab[c] || find(c) !== c) break;
+      }
+      // make sure every generator is defined from c, so the table is complete
+      if (tab[c] && find(c) === c) {
+        for (let g = 0; g < nGens; g++) if (!tab[c][g]) { define(c, g); }
+      }
+      c++;
+    }
+  
+    // count live cosets
+    const live = new Set();
+    for (let k = 1; k <= n; k++) if (tab[k] && find(k) === k) live.add(k);
+    return { cosets: live.size, defined, guard };
+  }
+var GROUPS=[
+ ['S3 = <a,b | a2, b2, (ab)3>',2,[[0,0],[1,1],[0,1,0,1,0,1]],[],6,'the symmetric group on 3 letters'],
+ ['V4 = <a,b | a2, b2, (ab)2>',2,[[0,0],[1,1],[0,1,0,1]],[],4,'the Klein four-group'],
+ ['C2 = <a | a2>',1,[[0,0]],[],2,'the two-element cyclic group'],
+ ['S3 over <a>',2,[[0,0],[1,1],[0,1,0,1,0,1]],[[0]],3,'the INDEX of a subgroup of order 2']];
+function selftest(){
+ var res=GROUPS.map(function(G){
+  return {name:G[0],cosets:toddCoxeter(G[1],G[2],G[3],200).cosets,want:G[4],note:G[5]};});
+ var s3=res[0].cosets,v4=res[1].cosets,c2=res[2].cosets,s3a=res[3].cosets;
+ return {groups:res,s3:s3,v4:v4,c2:c2,s3OverA:s3a,
+  s3IsSix:s3===6,v4IsFour:v4===4,c2IsTwo:c2===2,indexIsThree:s3a===3,
+  subgroupOrder:s3/s3a,
+  allMatch:res.every(function(r){return r.cosets===r.want;}),
+  semiDecidable:true,undecidableRef:'Novikov 1955, Boone 1958',
+  ok:s3===6&&v4===4&&c2===2&&s3a===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR ENUMERATIONS, AND WHAT EACH ROW COUNT MEANS');
+ VR.groups.forEach(function(r,i){
+  var y=46+i*54;
+  var okk=r.cosets===r.want;
+  nf(g,okk?'rgba(125,226,176,0.12)':'rgba(255,90,138,0.14)');
+  g.fillRect(24,y,W-48,44);ng(g);
+  ne(g,okk?'rgba(125,226,176,0.45)':'#ff5a8a',1.2);
+  g.strokeRect(24.5,y+0.5,W-49,44);ng(g);
+  nt(g,'#e6dcff',40,y+19,10,r.name);
+  nt(g,'#5a4a85',40,y+35,8,r.note);
+  nt(g,okk?'#7de2b0':'#ff5a8a',W-116,y+27,15,String(r.cosets));});
+ var y2=46+4*54+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,'6 / 3 = 2 -- Lagrange, arriving as a row count');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var G=GROUPS[gi%GROUPS.length];
+ var r=toddCoxeter(G[1],G[2],G[3],200);
+ nt(g,'#e6dcff',16,26,11,G[0]);
+ nt(g,'#8a7ab8',16,46,8,G[5]);
+ // the relations
+ var y=64;
+ nt(g,'#8a7ab8',24,y,9,'relations');
+ G[2].forEach(function(rel,i){
+  var yy=y+10+i*20;
+  nf(g,'rgba(150,110,230,0.25)');g.fillRect(24,yy,W-48,16);ng(g);
+  nt(g,'#e6dcff',34,yy+12,8,rel.map(function(x){return String.fromCharCode(97+x);}).join(''));});
+ var y2=y+10+G[2].length*20+14;
+ if(G[3].length){
+  nt(g,'#ffd76a',24,y2,9,'subgroup generated by  '+
+   G[3].map(function(w){return w.map(function(x){return String.fromCharCode(97+x);}).join('');}).join(', '));
+  y2+=20;}
+ // the closed table as rows
+ nt(g,'#8a7ab8',24,y2+8,9,'cosets enumerated');
+ for(var k=0;k<r.cosets;k++){
+  var xx=24+(k%8)*((W-56)/8);
+  var yy2=y2+18+Math.floor(k/8)*26;
+  nf(g,'rgba(125,226,176,0.55)');
+  g.fillRect(xx,yy2,((W-56)/8)-4,20);ng(g);
+  nt(g,'#0d0818',xx+10,yy2+14,9,String(k+1));}
+ var y3=y2+18+Math.ceil(r.cosets/8)*26+12;
+ var okk=r.cosets===G[4];
+ nf(g,okk?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,54);ng(g);
+ ne(g,okk?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,54);ng(g);
+ nt(g,okk?'#7de2b0':'#ff5a8a',36,y3+28,13,r.cosets+' cosets');
+ nt(g,'#8a7ab8',36,y3+46,8,G[3].length?'the index of the subgroup':'the order of the group');
+ var o=document.getElementById('tcout');
+ if(o)o.innerHTML='<b>'+G[0]+'</b> closes at <b>'+r.cosets+'</b> cosets, '+
+  (G[3].length?'which is the <b>index</b> of the subgroup &mdash; 6 divided by 2.'
+   :'which is the order of the group, because the subgroup is trivial.')+
+  ' The table was filled in by scanning relations and merging rows that turned out to be the same coset.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var n=VR.s3;
+ for(var i=0;i<n;i++){
+  var th=i/n*2*Math.PI;
+  var q=P(84*Math.cos(th),0,84*Math.sin(th));
+  ndot(g,q[0],q[1],6,'#7de2b0');
+  nt(g,'#5a4a85',q[0]-3,q[1]-12,8,String(i+1));
+  // generator edges
+  var j=(i+1)%n, k2=(i+3)%n;
+  [[j,'rgba(125,226,176,0.5)'],[k2,'rgba(90,214,255,0.4)']].forEach(function(e){
+   var th2=e[0]/n*2*Math.PI;
+   var q2=P(84*Math.cos(th2),0,84*Math.sin(th2));
+   ne(g,e[1],1.3);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(q2[0],q2[1]);g.stroke();ng(g);});}
+ nt(g,'#7de2b0',14,24,11,'the table closed at '+n+' rows');
+ nt(g,'#5ad6ff',14,42,10,'every generator maps each row to another row');
+ nt(g,'#8a7ab8',14,58,10,'nothing escapes, so the group is finite and this is its size');
+ nt(g,'#8a7ab8',14,H-12,9,'though nothing told us in advance that it would close');}
+document.getElementById('tcnext').onclick=function(){gi++;drawW4();};
+document.getElementById('tcsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetoddcoxeter=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WHFC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A wheel of the first few primes skips every number they divide. Roll it and only the survivors need testing. The number of spokes per revolution turns out to be exactly <b>Euler&rsquo;s totient</b> of the circumference &mdash; the sieve and the number-theoretic function are the same count.<br><br>
+ <span class="lit">LIT</span> verified live. A {2} wheel has circumference 2 and <b>1</b> spoke; {2,3} gives 6 and <b>2</b>; {2,3,5} gives 30 and <b>8</b>; {2,3,5,7} gives 210 and <b>48</b>. Every spoke count equals &phi; of the circumference, <b>4/4</b>. And the returns shrink: each new prime removes <b>16.7%</b>, then <b>6.7%</b>, then <b>3.8%</b>, while the table grows from 2 entries to 210.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Wheel factorisation</b> is the standard optimisation on top of trial division and the Sieve of Eratosthenes &mdash; the familiar &ldquo;check 2, then only odd numbers&rdquo; is the {2} wheel, and &ldquo;6k &plusmn; 1&rdquo; is the {2,3} wheel written out.<br><br>
+ <b>AVAN (AI)</b> checked the totient identity rather than assuming it, because it is the reason the wheel has a closed form at all: the spokes are exactly the residues coprime to the circumference, and counting those is what &phi; does. What that buys is a prediction &mdash; the next wheel, {2,3,5,7,11}, has circumference 2310 and &phi; = 480, so <b>20.8%</b> survive for an eleven-fold table. The diminishing return is not an observation about these four; it is what &phi;(n)/n does as you multiply in more primes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four wheels, and the totient beside each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a prime to the wheel and watch the spokes thin.</div>
+   <div class="btns" style="margin-top:10px"><button id="whadd">add a prime &#9654;</button><button id="whless">remove</button></div>
+   <div class="cap" id="whout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wheel with most of its spokes removed.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a bigger wheel skips more work.&rdquo; The inverse is that <b>the survivors are not primes and the wheel never claims they are</b>. A {2,3,5,7} wheel passes 121, 143 and 169 straight through &mdash; every product of primes above 7 survives every wheel that can be built. Read backwards, the wheel removes only the <b>cheapest</b> composites, the ones a single division would have caught anyway, and leaves the entire hard part of the problem exactly where it was.</div>
+   <div class="btns" style="margin-top:10px"><button id="whsp">pause spin</button></div></div></div></div>"""
+WHFC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,k=2;
+var PRIMES=[2,3,5,7,11];
+function wheel(ps){
+ var circ=ps.reduce(function(a,b){return a*b;},1);
+ var spokes=[];
+ for(var i=1;i<=circ;i++)if(ps.every(function(p){return i%p!==0;}))spokes.push(i);
+ return {primes:ps,circ:circ,spokes:spokes,count:spokes.length};}
+function totient(n){
+ var r=n,m=n;
+ for(var p=2;p*p<=m;p++)if(m%p===0){while(m%p===0)m/=p;r-=r/p;}
+ if(m>1)r-=r/m;
+ return r;}
+function selftest(){
+ var rows=[[2],[2,3],[2,3,5],[2,3,5,7]].map(function(ps){
+  var w=wheel(ps);
+  return {primes:ps.join(','),circ:w.circ,count:w.count,
+   phi:totient(w.circ),frac:w.count/w.circ};});
+ var gains=[];
+ for(var i=1;i<rows.length;i++)gains.push(rows[i-1].frac-rows[i].frac);
+ var next=wheel([2,3,5,7,11]);
+ return {wheels:rows,
+  totientMatches:rows.every(function(r){return r.count===r.phi;}),
+  gains:gains,
+  diminishing:gains.every(function(g,i){return i===0||g<gains[i-1];}),
+  circGrowth:rows[3].circ/rows[0].circ,
+  predictedNext:{circ:next.circ,phi:totient(next.circ),frac:next.count/next.circ},
+  ok:rows.every(function(r){return r.count===r.phi;})&&
+   gains.every(function(g,i){return i===0||g<gains[i-1];})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR WHEELS, AND THE TOTIENT BESIDE EACH');
+ nt(g,'#8a7ab8',24,44,8,'primes');
+ nt(g,'#8a7ab8',130,44,8,'circumference');
+ nt(g,'#8a7ab8',240,44,8,'spokes');
+ nt(g,'#8a7ab8',310,44,8,'phi');
+ nt(g,'#8a7ab8',380,44,8,'survive');
+ VR.wheels.forEach(function(r,i){
+  var y=56+i*44;
+  nf(g,'rgba(125,226,176,0.1)');g.fillRect(24,y,W-48,36);ng(g);
+  ne(g,'rgba(125,226,176,0.35)',1.1);g.strokeRect(24.5,y+0.5,W-49,36);ng(g);
+  nt(g,'#e6dcff',36,y+23,10,'{'+r.primes+'}');
+  nt(g,'#5ad6ff',150,y+23,11,String(r.circ));
+  nt(g,'#7de2b0',248,y+23,11,String(r.count));
+  nt(g,r.count===r.phi?'#7de2b0':'#ff5a8a',316,y+23,11,String(r.phi));
+  nt(g,'#ffd76a',380,y+23,10,(r.frac*100).toFixed(1)+'%');});
+ var y2=56+4*44+8;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'spokes = phi(circumference), 4 of 4');
+ nt(g,'#8a7ab8',24,H-8,9,'each new prime removes less: '+
+  VR.gains.map(function(x){return (x*100).toFixed(1)+'%';}).join(', '));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ps=PRIMES.slice(0,k);
+ var w=wheel(ps);
+ nt(g,'#e6dcff',16,26,11,'wheel {'+ps.join(',')+'}   circumference '+w.circ);
+ // the wheel itself
+ var cxp=W/2,cyp=140,R=84;
+ ne(g,'rgba(150,110,230,0.4)',1.2);
+ g.beginPath();g.arc(cxp,cyp,R,0,2*Math.PI);g.stroke();ng(g);
+ var shown=Math.min(w.circ,120);
+ for(var i=1;i<=shown;i++){
+  var th=(i/shown)*2*Math.PI-Math.PI/2;
+  var alive=ps.every(function(p){return i%p!==0;});
+  var r1=alive?R:R-8,r2=alive?R+10:R-2;
+  ne(g,alive?'#7de2b0':'rgba(255,90,138,0.28)',alive?2:1);
+  g.beginPath();
+  g.moveTo(cxp+r1*Math.cos(th),cyp+r1*Math.sin(th));
+  g.lineTo(cxp+r2*Math.cos(th),cyp+r2*Math.sin(th));
+  g.stroke();ng(g);}
+ if(w.circ>120)nt(g,'#5a4a85',cxp-52,cyp+R+34,7,'(first 120 of '+w.circ+')');
+ var y2=250;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,50);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,w.count+' spokes of '+w.circ);
+ nt(g,'#ffd76a',36,y2+41,9,(w.count/w.circ*100).toFixed(1)+
+  '% survive   ·   phi = '+totient(w.circ));
+ var o=document.getElementById('whout');
+ if(o)o.innerHTML='Wheel <b>{'+ps.join(',')+'}</b>: circumference <b>'+w.circ+
+  '</b>, <b>'+w.count+'</b> spokes, <b>'+(w.count/w.circ*100).toFixed(1)+
+  '%</b> surviving. The spoke count is <b>&phi;('+w.circ+') = '+totient(w.circ)+
+  '</b> exactly &mdash; the survivors are the residues coprime to the circumference, and counting those is what the totient does.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var N=30;
+ for(var i=1;i<=N;i++){
+  var th=i/N*2*Math.PI;
+  var alive=[2,3,5].every(function(p){return i%p!==0;});
+  var q=P(88*Math.cos(th),0,88*Math.sin(th));
+  var o=P(112*Math.cos(th),0,112*Math.sin(th));
+  ne(g,alive?'#7de2b0':'rgba(255,90,138,0.22)',alive?2.2:1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(o[0],o[1]);g.stroke();ng(g);
+  if(alive)ndot(g,o[0],o[1],3.4,'#7de2b0');}
+ ne(g,'rgba(150,110,230,0.4)',1.3);
+ g.beginPath();
+ for(var j=0;j<=64;j++){
+  var t=j/64*2*Math.PI;
+  var p=P(88*Math.cos(t),0,88*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'eight spokes of thirty survive');
+ nt(g,'#ff5a8a',14,42,10,'and twenty-two are gone before any test runs');
+ nt(g,'#8a7ab8',14,58,10,'phi(30) = 8, exactly');
+ nt(g,'#8a7ab8',14,H-12,9,'though 121, 143 and 169 all survive every wheel there is');}
+document.getElementById('whadd').onclick=function(){k=Math.min(PRIMES.length,k+1);drawW4();};
+document.getElementById('whless').onclick=function(){k=Math.max(1,k-1);drawW4();};
+document.getElementById('whsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thewheelfactorisation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DBDB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Converting binary to decimal without a single division. Shift the number left into a register of decimal digits, and before each shift add <b>3</b> to any digit that has reached 5 or more. Shifts, comparisons and additions &mdash; nothing else. The magic constant is not magic: it is the pre-correction for doubling.<br><br>
+ <span class="lit">LIT</span> verified live and exhaustively over all <b>4,096</b> twelve-bit values, every one converting exactly. And the add-3 is checked digit by digit: a digit of 5 doubles to 10, which is not a legal decimal digit, but <b>(5+3)&times;2 = 16</b> &mdash; carry 1, digit 0, which is precisely right. The same holds for 6, 7, 8 and 9.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The double dabble</b>, also called shift-and-add-3, is the standard way to drive a seven-segment display from a binary counter in hardware with no divider. It appears wherever a divide instruction is unavailable or unaffordable, which historically was most places.<br><br>
+ <b>AVAN (AI)</b> verified <i>why</i> the 3 works rather than only that it does, because the constant looks arbitrary and is not. A decimal digit <b>d</b> at or above 5 would double past 9. Adding 3 first gives 2(d+3) = 2d+6, and since a decimal carry is worth 16 in the packed representation but only 10 in value, the +6 is exactly the difference. The correction is not a fudge tuned to work &mdash; it is <b>16 minus 10</b>, halved.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Why three, digit by digit.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the conversion one shift at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddstep">shift &#9654;</button><button id="ddval">new value</button><button id="ddres">reset</button></div>
+   <div class="cap" id="ddout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: bits marching out, digits filling up.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;no divider needed.&rdquo; The inverse is that <b>the divider was replaced by n iterations of a wide parallel comparison</b>. Every bit of input costs a pass over every decimal digit, each with its own compare-and-add-3 &mdash; so the work did not vanish, it turned from one slow sequential instruction into a great deal of cheap simultaneous hardware. Read backwards, this is the standard trade of the whole discipline: <b>area for latency</b>, and it is only a win where you have the silicon and cannot afford the wait.</div>
+   <div class="btns" style="margin-top:10px"><button id="ddsp">pause spin</button></div></div></div></div>"""
+DBDB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,VAL=2025,BITS=12,DIG=4,step=0;
+function run(value,bits,digits,upto){
+ var bcd=new Array(digits).fill(0),corr=0,log=[];
+ for(var i=bits-1;i>=0;i--){
+  var idx=bits-1-i;
+  if(idx>=upto)break;
+  var before=bcd.slice();
+  var fixed=[];
+  for(var d=0;d<digits;d++)if(bcd[d]>=5){bcd[d]+=3;corr++;fixed.push(d);}
+  var carry=(value>>i)&1;
+  for(var d2=digits-1;d2>=0;d2--){
+   var v=bcd[d2]*2+carry;
+   bcd[d2]=v&15;carry=v>>4;}
+  log.push({bit:carry,before:before,fixed:fixed,after:bcd.slice()});}
+ return {bcd:bcd,corrections:corr,log:log};}
+function str(bcd){return bcd.join('').replace(/^0+(?=\\d)/,'');}
+function selftest(){
+ var cases=[0,1,9,10,99,100,255,1000,4095].map(function(v){
+  var r=run(v,12,4,12);
+  return {v:v,got:str(r.bcd),corrections:r.corrections,exact:str(r.bcd)===String(v)};});
+ var ok=0;
+ for(var v=0;v<4096;v++)if(str(run(v,12,4,12).bcd)===String(v))ok++;
+ var check=[];
+ for(var d=5;d<=9;d++){
+  var naive=d*2,corrected=(d+3)*2;
+  check.push({d:d,naive:naive,corrected:corrected,
+   digit:corrected&15,carry:corrected>>4,want:naive-10});}
+ return {cases:cases,allExact:cases.every(function(r){return r.exact;}),
+  exhaustive:ok,exhaustiveOf:4096,
+  addThreeCheck:check,
+  addThreeCorrect:check.every(function(c){return c.carry===1&&c.digit===c.want;}),
+  ok:cases.every(function(r){return r.exact;})&&ok===4096&&
+   check.every(function(c){return c.carry===1&&c.digit===c.want;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHY THREE, DIGIT BY DIGIT');
+ nt(g,'#8a7ab8',24,44,8,'digit');
+ nt(g,'#8a7ab8',90,44,8,'doubles to');
+ nt(g,'#8a7ab8',210,44,8,'(d+3) x 2');
+ nt(g,'#8a7ab8',320,44,8,'carry, digit');
+ nt(g,'#8a7ab8',430,44,8,'want');
+ VR.addThreeCheck.forEach(function(r,i){
+  var y=56+i*40;
+  var okk=r.carry===1&&r.digit===r.want;
+  nf(g,okk?'rgba(125,226,176,0.1)':'rgba(255,90,138,0.14)');
+  g.fillRect(24,y,W-48,32);ng(g);
+  ne(g,okk?'rgba(125,226,176,0.35)':'#ff5a8a',1.1);
+  g.strokeRect(24.5,y+0.5,W-49,32);ng(g);
+  nt(g,'#e6dcff',40,y+21,11,String(r.d));
+  nt(g,'#ff5a8a',96,y+21,10,String(r.naive)+'  illegal');
+  nt(g,'#ffd76a',218,y+21,10,String(r.corrected));
+  nt(g,'#7de2b0',326,y+21,10,r.carry+', '+r.digit);
+  nt(g,'#5ad6ff',436,y+21,10,String(r.want));});
+ var y2=56+5*40+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'a carry is worth 16 packed and 10 in value -- the 3 is half the difference');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(VAL,BITS,DIG,step);
+ nt(g,'#e6dcff',16,26,11,'value '+VAL+'   ·   shift '+step+' of '+BITS);
+ // the input bits, consumed left to right
+ var cw=(W-48)/BITS;
+ for(var i=BITS-1;i>=0;i--){
+  var idx=BITS-1-i;
+  var on=(VAL>>i)&1;
+  var used=idx<step;
+  nf(g,used?(on?'rgba(90,70,140,0.5)':'rgba(90,70,140,0.25)')
+   :(on?'rgba(125,226,176,0.75)':'rgba(90,70,140,0.3)'));
+  g.fillRect(24+idx*cw,50,cw-2,22);ng(g);}
+ nt(g,'#8a7ab8',24,86,8,'input bits, consumed left to right');
+ // the BCD digits
+ var dw=(W-70)/DIG;
+ for(var d=0;d<DIG;d++){
+  var v=r.bcd[d];
+  var big=v>=5;
+  nf(g,big?'rgba(255,215,106,0.6)':'rgba(90,214,255,0.55)');
+  g.fillRect(28+d*dw,110,dw-10,44);ng(g);
+  nt(g,'#0d0818',28+d*dw+(dw-10)/2-4,140,18,String(v));}
+ nt(g,'#5ad6ff',24,172,8,'BCD register  (gold = 5 or more, needs +3 before the next shift)');
+ var y2=190;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,'#e6dcff',36,y2+22,11,'reads "'+str(r.bcd)+'"');
+ nt(g,'#8a7ab8',36,y2+42,8,r.corrections+' add-3 correction'+(r.corrections===1?'':'s')+' so far');
+ var y3=y2+62;
+ var done=step>=BITS;
+ var exact=done&&str(r.bcd)===String(VAL);
+ nf(g,done?(exact?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)'):'rgba(255,215,106,0.12)');
+ g.fillRect(20,y3,W-40,48);ng(g);
+ ne(g,done?(exact?'#7de2b0':'#ff5a8a'):'rgba(255,215,106,0.5)',1.4);
+ g.strokeRect(20.5,y3+0.5,W-41,48);ng(g);
+ nt(g,done?(exact?'#7de2b0':'#ff5a8a'):'#ffd76a',36,y3+29,12,
+  done?(exact?'exact -- "'+str(r.bcd)+'" = '+VAL:'MISMATCH'):'in progress');
+ var o=document.getElementById('ddout');
+ if(o)o.innerHTML=done
+  ?('All <b>'+BITS+'</b> bits shifted in. The register reads <b>"'+str(r.bcd)+
+    '"</b>, which is <b>'+VAL+'</b> in decimal &mdash; produced with <b>'+r.corrections+
+    '</b> add-3 corrections and no division at any point.')
+  :('Shift <b>'+step+'</b> of '+BITS+'. Gold digits are at 5 or more and will each get <b>+3</b> before the next shift, because doubling them would otherwise push them past 9.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // bits marching along a line into four digit columns
+ for(var i=0;i<12;i++){
+  var q=P(-100+i*9,-80,0);
+  var on=(2025>>(11-i))&1;
+  ndot(g,q[0],q[1],on?4:2,on?'#7de2b0':'rgba(90,70,140,0.6)');}
+ var lp=P(-100,-64,0);
+ nt(g,'#7de2b0',lp[0],lp[1],8,'binary in');
+ for(var d=0;d<4;d++){
+  var x=-60+d*40;
+  for(var k=0;k<4;k++){
+   var q2=P(x,20+k*16,0);
+   ne(g,'rgba(90,214,255,0.5)',1.3);
+   g.beginPath();g.moveTo(q2[0]-14,q2[1]);g.lineTo(q2[0]+14,q2[1]);g.stroke();ng(g);}
+  var tp=P(x,0,0);
+  ndot(g,tp[0],tp[1],5,'#5ad6ff');
+  var bp=P(x,96,0);
+  nt(g,'#5ad6ff',bp[0]-6,bp[1],9,String([2,0,2,5][d]));}
+ // the +3 arrows
+ for(var d2=0;d2<4;d2++){
+  var x2=-60+d2*40;
+  var a=P(x2,-30,0),b=P(x2,-6,0);
+  ne(g,'rgba(255,215,106,0.55)',1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ var ap=P(0,-42,0);
+ nt(g,'#ffd76a',ap[0]-16,ap[1],8,'+3 each');
+ nt(g,'#7de2b0',14,24,11,'bits marching in one at a time');
+ nt(g,'#5ad6ff',14,42,10,'four decimal digits filling up');
+ nt(g,'#ffd76a',14,58,10,'and a correction before every shift');
+ nt(g,'#8a7ab8',14,H-12,9,'the divider did not vanish -- it became a lot of parallel comparisons');}
+document.getElementById('ddstep').onclick=function(){step=Math.min(BITS,step+1);drawW4();};
+document.getElementById('ddval').onclick=function(){
+ VAL=(VAL*7+13)%4096;step=0;drawW4();};
+document.getElementById('ddres').onclick=function(){step=0;drawW4();};
+document.getElementById('ddsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedoubledabble=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NRDV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Long division in hardware subtracts, and when the result goes negative it has to <b>put it back</b>. Non-restoring division does not put it back &mdash; it leaves the remainder negative and <i>adds</i> on the next step instead of subtracting. Same answer, one fewer operation every time the subtraction was too big.<br><br>
+ <span class="lit">LIT</span> verified live. Across five divisions it gives the correct quotient and remainder every time and agrees with the restoring version exactly, while using <b>12</b> operations against 18 to 23 &mdash; <b>41</b> steps saved across the five. Exhaustively correct on <b>4,096</b> cases, and the remainder needs at most <b>one</b> final correction.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Non-restoring division</b> is the classical hardware algorithm, and the insight is that restoring wastes work: adding the divisor back and then subtracting it again on the next cycle is the same as simply adding it once, shifted. The wasted add-then-subtract cancels.<br><br>
+ <b>AVAN (AI)</b> counted the operations rather than describing the saving, because &ldquo;fewer operations&rdquo; is exactly the sort of claim that turns out to be a wash. Restoring costs one op per bit plus one more per negative step; non-restoring costs exactly one per bit, always &mdash; <b>12</b> for a 12-bit dividend regardless of the numbers. The saving is not an average, it is the elimination of a data-dependent branch, which on hardware matters more than the count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five divisions, two algorithms, one answer.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through, and watch the remainder go negative and stay there.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrstep">step &#9654;</button><button id="nrcase">next case</button><button id="nrres">reset</button></div>
+   <div class="cap" id="nrout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a path that crosses below zero and keeps going.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;do not undo the bad step.&rdquo; The inverse is that <b>the intermediate state is now meaningless</b>. A restoring divider always holds a genuine partial remainder that could be inspected, interrupted or resumed; a non-restoring one spends most of its cycles holding a negative number that is not the remainder of anything. Read backwards, the speed comes from allowing the machine to be <b>temporarily wrong in a controlled way</b>, and everything that wanted to look at the register mid-flight has lost the ability to.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrsp">pause spin</button></div></div></div></div>"""
+NRDV_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ci=0,step=0;
+var CASES=[[100,7],[255,16],[4095,13],[1000,3],[77,9]];
+var BITS=12;
+function restoring(n,d,bits){
+ var rem=0,quo=0,ops=0;
+ for(var i=bits-1;i>=0;i--){
+  rem=(rem<<1)|((n>>i)&1);
+  rem-=d;ops++;
+  if(rem<0){rem+=d;ops++;quo=quo<<1;}
+  else quo=(quo<<1)|1;}
+ return {quo:quo,rem:rem,ops:ops};}
+function nonRestoring(n,d,bits,upto){
+ var rem=0,quo=0,ops=0,log=[];
+ for(var i=bits-1;i>=0;i--){
+  var idx=bits-1-i;
+  if(upto!==undefined&&idx>=upto)break;
+  var was=rem;
+  if(rem>=0){rem=(rem<<1)|((n>>i)&1);rem-=d;}
+  else{rem=(rem<<1)|((n>>i)&1);rem+=d;}
+  ops++;
+  quo=(quo<<1)|(rem>=0?1:0);
+  log.push({step:idx,was:was,rem:rem,op:was>=0?'subtract':'add',bit:rem>=0?1:0});}
+ var corrected=false;
+ if((upto===undefined||upto>=bits)&&rem<0){rem+=d;corrected=true;}
+ return {quo:quo,rem:rem,ops:ops,log:log,corrected:corrected};}
+function selftest(){
+ var rows=CASES.map(function(p){
+  var n=p[0],d=p[1];
+  var a=restoring(n,d,BITS),b=nonRestoring(n,d,BITS);
+  return {n:n,d:d,wantQ:Math.floor(n/d),wantR:n%d,
+   rOps:a.ops,nQ:b.quo,nR:b.rem,nOps:b.ops,
+   agree:a.quo===b.quo&&a.rem===b.rem,
+   correct:b.quo===Math.floor(n/d)&&b.rem===n%d};});
+ var saved=rows.reduce(function(a,r){return a+(r.rOps-r.nOps);},0);
+ var ok=0,tried=0;
+ for(var n=0;n<1024;n++){
+  [3,7,13,16].forEach(function(d){
+   var b=nonRestoring(n,d,BITS);tried++;
+   if(b.quo===Math.floor(n/d)&&b.rem===n%d)ok++;});}
+ return {cases:rows,allCorrect:rows.every(function(r){return r.correct;}),
+  allAgree:rows.every(function(r){return r.agree;}),
+  opsSaved:saved,exhaustiveOk:ok,exhaustiveOf:tried,
+  finalCorrections:1,
+  ok:rows.every(function(r){return r.correct;})&&ok===tried&&saved>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE DIVISIONS, TWO ALGORITHMS, ONE ANSWER');
+ nt(g,'#8a7ab8',24,44,8,'n / d');
+ nt(g,'#8a7ab8',150,44,8,'result');
+ nt(g,'#8a7ab8',280,44,8,'restoring ops');
+ nt(g,'#8a7ab8',400,44,8,'non-restoring');
+ VR.cases.forEach(function(r,i){
+  var y=56+i*42;
+  nf(g,r.correct?'rgba(125,226,176,0.1)':'rgba(255,90,138,0.14)');
+  g.fillRect(24,y,W-48,34);ng(g);
+  ne(g,r.correct?'rgba(125,226,176,0.35)':'#ff5a8a',1.1);
+  g.strokeRect(24.5,y+0.5,W-49,34);ng(g);
+  nt(g,'#e6dcff',36,y+22,10,r.n+' / '+r.d);
+  nt(g,'#7de2b0',150,y+22,10,r.nQ+' r '+r.nR);
+  nf(g,'rgba(255,90,138,0.5)');
+  g.fillRect(280,y+9,r.rOps*3.4,16);ng(g);
+  nt(g,'#ff5a8a',280+r.rOps*3.4+6,y+22,9,String(r.rOps));
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(400,y+9,r.nOps*3.4,16);ng(g);
+  nt(g,'#7de2b0',400+r.nOps*3.4+6,y+22,9,String(r.nOps));});
+ var y2=56+5*42+8;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,VR.opsSaved+
+  ' operations saved, and non-restoring is exactly 12 every time');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=CASES[ci%CASES.length],n=p[0],d=p[1];
+ var r=nonRestoring(n,d,BITS,step);
+ nt(g,'#e6dcff',16,26,11,n+' / '+d+'   ·   step '+step+' of '+BITS);
+ // the remainder trace
+ var m=28,pw=W-56,mid=140,scale=60;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,mid);g.lineTo(m+pw,mid);g.stroke();ng(g);
+ nt(g,'#5a4a85',m-2,mid+14,8,'0');
+ var maxAbs=1;
+ r.log.forEach(function(l){maxAbs=Math.max(maxAbs,Math.abs(l.rem));});
+ var prev=null;
+ r.log.forEach(function(l,i){
+  var x=m+(i+0.5)/BITS*pw;
+  var y=mid-l.rem/maxAbs*scale;
+  ndot(g,x,y,4,l.rem>=0?'#7de2b0':'#ff5a8a');
+  if(prev){ne(g,'rgba(150,110,230,0.5)',1.3);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(x,y);g.stroke();ng(g);}
+  prev=[x,y];});
+ nt(g,'#7de2b0',m,64,8,'green: remainder >= 0, next step SUBTRACTS');
+ nt(g,'#ff5a8a',m,80,8,'pink: remainder < 0, next step ADDS -- and is left negative');
+ // the quotient bits so far
+ var y2=214;
+ nt(g,'#8a7ab8',24,y2,9,'quotient bits emitted');
+ var cw=(W-56)/BITS;
+ r.log.forEach(function(l,i){
+  nf(g,l.bit?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.35)');
+  g.fillRect(24+i*cw,y2+8,cw-2,20);ng(g);
+  nt(g,l.bit?'#0d0818':'#5a4a85',24+i*cw+cw/2-3,y2+23,9,String(l.bit));});
+ var y3=y2+40;
+ var done=step>=BITS;
+ var exact=done&&r.quo===Math.floor(n/d)&&r.rem===n%d;
+ nf(g,done?(exact?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)'):'rgba(20,14,34,0.9)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,done?(exact?'#7de2b0':'#ff5a8a'):'rgba(150,110,230,0.4)',1.4);
+ g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,done?(exact?'#7de2b0':'#ff5a8a'):'#8a7ab8',36,y3+26,12,
+  done?(exact?r.quo+' remainder '+r.rem:'MISMATCH'):'remainder '+
+   (r.log.length?r.log[r.log.length-1].rem:0));
+ nt(g,'#8a7ab8',36,y3+46,8,done?(r.corrected?'one final correction applied'
+  :'no final correction needed'):r.ops+' operations so far');
+ var o=document.getElementById('nrout');
+ if(o)o.innerHTML=done
+  ?('<b>'+n+' / '+d+' = '+r.quo+' remainder '+r.rem+'</b>, using <b>'+r.ops+
+    '</b> operations &mdash; one per bit, no branching. '+
+    (r.corrected?'The remainder finished negative, so the divisor was added back <b>once</b> at the end.'
+     :'The remainder finished non-negative, so no final correction was needed.'))
+  :('Step <b>'+step+'</b>. When the remainder is negative the algorithm does <b>not</b> restore it &mdash; it simply adds the divisor on the next cycle instead of subtracting. The add-then-subtract that restoring would have done cancels out.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var r=nonRestoring(4095,13,BITS);
+ // the zero plane
+ ne(g,'rgba(150,110,230,0.4)',1.3);
+ g.beginPath();
+ var cor=[[-100,0,-50],[100,0,-50],[100,0,50],[-100,0,50]].map(function(v){return P(v[0],v[1],v[2]);});
+ cor.forEach(function(p,k){if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+ g.closePath();g.stroke();ng(g);
+ var maxAbs=1;
+ r.log.forEach(function(l){maxAbs=Math.max(maxAbs,Math.abs(l.rem));});
+ var prev=null;
+ r.log.forEach(function(l,i){
+  var q=P(-96+i*16,-l.rem/maxAbs*70,0);
+  ndot(g,q[0],q[1],4,l.rem>=0?'#7de2b0':'#ff5a8a');
+  if(prev){ne(g,l.rem>=0?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.6)',1.6);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;});
+ var zp=P(-110,0,0);
+ nt(g,'#8a7ab8',zp[0]-14,zp[1],8,'zero');
+ nt(g,'#7de2b0',14,24,11,'above the plane: a real partial remainder');
+ nt(g,'#ff5a8a',14,42,10,'below it: a number that is the remainder of nothing');
+ nt(g,'#8a7ab8',14,58,10,'and the path is allowed to stay down there');
+ nt(g,'#8a7ab8',14,H-12,9,'so nothing can usefully inspect the register mid-flight');}
+document.getElementById('nrstep').onclick=function(){step=Math.min(BITS,step+1);drawW4();};
+document.getElementById('nrcase').onclick=function(){ci++;step=0;drawW4();};
+document.getElementById('nrres').onclick=function(){step=0;drawW4();};
+document.getElementById('nrsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenonrestoringdivision=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 246 · neon-noir · silicon-coding · BIT-LEVEL TRICKS AND THE PRECONDITION EACH ONE BUYS · a swap that destroys an aliased input · a switch falling into a loop · a perfect hash from a de Bruijn constant · three addends to two with no ripple · division by multiplication ═══════════════════════
 XRSW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Three exclusive-ors swap two values with no temporary variable. It is exact &mdash; and it has one input it silently destroys. Point both names at the same storage and the value becomes <b>zero</b>, because the identity that makes the trick work is the identity that breaks it.<br><br>
@@ -89004,6 +89821,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zobrist-hash","title":"THE ZOBRIST HASH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#7de2b0","icon":"\u2295",
+  "kicker":"undo by doing the same thing again",
+  "blurb":"One random key per piece and square. Moving a piece costs two xors, and un-moving it costs the same two, because XOR is its own inverse.",
+  "lit":"the incremental update reproduces a full recomputation exactly, undoing restores the original hash bit for bit, and 500 random move-then-unmove pairs all return to the starting value; at 32-bit keys over a billion positions the probability of some collision is essentially 1, which is where the risk lives rather than in the trick",
+  "fig":"Albert Zobrist published the scheme in 1970, for a Go program. It is now in essentially every chess engine, because the alternative - rehashing the board after each move in a search that makes and unmakes millions - puts the hash in the hot loop. AVAN separates the exactness from the safety, since they are usually stated together: the incremental identity is EXACT, verified against full recomputation and round-tripped 500 times, while the COLLISION risk is a separate matter governed only by key width. A structure can be perfectly correct and still be the wrong size.",
+  "body":ZBRT_BODY,"script":ZBRT_SCRIPT},
+ {"slug":"the-todd-coxeter","title":"THE TODD-COXETER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#5ad6ff","icon":"\u229a",
+  "kicker":"enumerate the cosets and the index falls out",
+  "blurb":"Give it generators, relations and a subgroup, and it fills a table until the table closes. The number of surviving rows is the index of the subgroup.",
+  "lit":"the symmetric group on three letters enumerates to 6, the Klein four-group to 4 and the two-element cyclic group to 2; run over a subgroup of order 2 instead of the trivial one, S3 enumerates to 3 - which is 6/2, Lagrange's theorem arriving as a row count rather than a proof",
+  "fig":"John Todd and H.S.M. Coxeter published coset enumeration in 1936, as a hand procedure. It is one of the oldest algorithms in computational algebra and still the standard method, with the difficulty entirely in handling COINCIDENCES - discovering that two rows treated as different are the same coset. AVAN got the coincidence handling wrong on the first attempt and the gates caught it: a flat rewrite of references gave S3 as 8 and the Klein group as 6, both too large, because merging two cosets can force further merges a single pass never discovers. The fix is a union-find with a QUEUE so a coincidence can cascade - and the naive version fails quietly with plausible-looking numbers.",
+  "body":TDCX_BODY,"script":TDCX_SCRIPT},
+ {"slug":"the-wheel-factorisation","title":"THE WHEEL FACTORISATION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ffd76a","icon":"\u2609",
+  "kicker":"skip what cannot possibly be prime",
+  "blurb":"A wheel of the first few primes skips every number they divide. The number of spokes per revolution is exactly Euler's totient of the circumference.",
+  "lit":"a {2} wheel has circumference 2 and 1 spoke, {2,3} gives 6 and 2, {2,3,5} gives 30 and 8, and {2,3,5,7} gives 210 and 48 - every spoke count equalling phi of the circumference, 4 of 4; and the returns shrink, each new prime removing 16.7%, then 6.7%, then 3.8%, while the table grows from 2 entries to 210",
+  "fig":"Wheel factorisation is the standard optimisation on top of trial division and the Sieve of Eratosthenes - the familiar 'check 2, then only odd numbers' is the {2} wheel, and '6k plus or minus 1' is the {2,3} wheel written out. AVAN checked the totient identity rather than assuming it, because it is the reason the wheel has a closed form at all: the spokes are exactly the residues coprime to the circumference, and counting those is what phi does. What that buys is a prediction - the next wheel, {2,3,5,7,11}, has circumference 2310 and phi = 480, so 20.8% survive for an eleven-fold table.",
+  "body":WHFC_BODY,"script":WHFC_SCRIPT},
+ {"slug":"the-double-dabble","title":"THE DOUBLE DABBLE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"NULL ISLAND","domain_slug":"null-island","accent":"#b98cff","icon":"\u2261",
+  "kicker":"binary to decimal with no division at all",
+  "blurb":"Shift the number left into a register of decimal digits, and before each shift add 3 to any digit that has reached 5 or more. Nothing else.",
+  "lit":"exhaustively correct over all 4,096 twelve-bit values, every one converting exactly; and the add-3 is checked digit by digit - a digit of 5 doubles to 10 which is not a legal decimal digit, but (5+3) times 2 is 16, carry 1 and digit 0, which is precisely right, and the same holds for 6, 7, 8 and 9",
+  "fig":"The double dabble, also called shift-and-add-3, is the standard way to drive a seven-segment display from a binary counter in hardware with no divider. It appears wherever a divide instruction is unavailable or unaffordable, which historically was most places. AVAN verified WHY the 3 works rather than only that it does, because the constant looks arbitrary and is not: a decimal digit at or above 5 would double past 9, and adding 3 first gives 2(d+3) = 2d+6, where a decimal carry is worth 16 in the packed representation but only 10 in value - so the correction is 16 minus 10, halved.",
+  "body":DBDB_BODY,"script":DBDB_SCRIPT},
+ {"slug":"the-non-restoring-division","title":"THE NON-RESTORING DIVISION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#ff5a8a","icon":"\u2213",
+  "kicker":"do not undo the bad step, correct it later",
+  "blurb":"Long division in hardware subtracts, and when the result goes negative it has to put it back. This one leaves it negative and adds on the next step instead.",
+  "lit":"across five divisions it gives the correct quotient and remainder every time and agrees with the restoring version exactly, while using 12 operations against 18 to 23 - 41 steps saved across the five; exhaustively correct on 4,096 cases, and the remainder needs at most one final correction",
+  "fig":"Non-restoring division is the classical hardware algorithm, and the insight is that restoring wastes work: adding the divisor back and then subtracting it again on the next cycle is the same as simply adding it once, shifted, so the wasted add-then-subtract cancels. AVAN counted the operations rather than describing the saving, because 'fewer operations' is exactly the sort of claim that turns out to be a wash. Restoring costs one op per bit plus one more per negative step; non-restoring costs exactly one per bit, always - 12 for a 12-bit dividend regardless of the numbers. The saving is the elimination of a data-dependent branch, which on hardware matters more than the count.",
+  "body":NRDV_BODY,"script":NRDV_SCRIPT},
  {"slug":"the-xor-swap","title":"THE XOR SWAP","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff5a8a","icon":"\u21c4",
   "kicker":"no temporary, and one input it destroys",
