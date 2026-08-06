@@ -24178,6 +24178,1110 @@ document.getElementById('rstrp').onclick=function(){K=Math.max(0,K-1);drawW4();}
 document.getElementById('rstrs').onclick=function(){spin=!spin;};
 VR=selftest();window.__therestrictkeyword=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NRMF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two strings, the same glyphs on screen, pixel for pixel. One holds a single code point; the other holds a letter followed by an instruction to put an accent on it. They are not equal, and no amount of looking will tell you which is which.<br><br>
+ <span class="lit">LIT</span> verified live. over the Latin-1 and Latin Extended-A blocks, <b>161</b> characters have a distinct decomposed form. All <b>161</b> get <i>longer</i> when decomposed, <b>0</b> of the <b>161</b> compare equal to their own decomposition, and all <b>161</b> compare equal after normalising. The letter <b>&eacute;</b> is <b>1</b> code unit composed and <b>2</b> decomposed, renders identically either way, and <code>===</code> answers <b>false</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Unicode normalization</b> (UAX #15) and the four forms NFC, NFD, NFKC, NFKD are the standard; the composed/decomposed split exists because Unicode had to round-trip with legacy encodings that made both choices.<br><br><b>AVAN (AI)</b> swept the block rather than showing the one famous example, because the <b>0</b> is the number that matters: not one of the <b>161</b> accidentally compares equal. This is not a rare collision to guard against, it is a total failure of equality across the whole class, and it is invisible on screen by design &mdash; the two forms are <i>required</i> to render the same.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">161 characters. 161 failures. 0 visible differences.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Compose and decompose the same letter and compare.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrmfn">next letter &#9654;</button><button id="nrmfd">toggle decomposed</button></div>
+   <div class="cap" id="nrmfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you should normalise before comparing. The inverse is that <b>equality of text is a choice, not a fact</b>. There is no true answer to whether &eacute; equals &eacute; &mdash; byte equality says no, canonical equivalence says yes, and case-insensitive compatibility says yes to things that do not even look alike. Read backwards, every string comparison in every program has silently picked one of these and called it <i>the</i> comparison, and the bug is not choosing wrong but never noticing there was a choice.</div>
+   <div class="btns" style="margin-top:10px"><button id="nrmfs">pause spin</button></div></div></div></div>"""
+NRMF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,decomposed=false,LIST=[];
+function build(){
+ LIST=[];
+ for(var cp=0x00C0;cp<=0x017F;cp++){
+  var nfc=String.fromCodePoint(cp).normalize('NFC');
+  var nfd=nfc.normalize('NFD');
+  if(nfd!==nfc)LIST.push({cp:cp,nfc:nfc,nfd:nfd});}}
+function selftest(){
+ build();
+ var longer=0,eqBefore=0,eqAfter=0;
+ LIST.forEach(function(x){
+  if(x.nfd.length>x.nfc.length)longer++;
+  if(x.nfd===x.nfc)eqBefore++;
+  if(x.nfd.normalize('NFC')===x.nfc)eqAfter++;});
+ var a=String.fromCodePoint(0xE9), b='e'+String.fromCodePoint(0x301);
+ return {decomposable:LIST.length,longerWhenDecomposed:longer,
+  equalBeforeNormalizing:eqBefore,equalAfterNormalizing:eqAfter,
+  eAcuteComposedUnits:a.length,eAcuteDecomposedUnits:b.length,
+  strictEqual:a===b,equalAfterNFC:a.normalize('NFC')===b.normalize('NFC'),
+  ok:LIST.length===161&&longer===LIST.length&&eqBefore===0&&eqAfter===LIST.length&&a!==b};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'161 LETTERS THAT HAVE TWO SPELLINGS');
+ var cols=23,cw=(W-44)/cols;
+ for(var i=0;i<LIST.length;i++){
+  var x=22+(i%cols)*cw,y=36+Math.floor(i/cols)*17;
+  nf(g,'rgba(184,140,255,0.5)');g.fillRect(x,y,cw-1.5,15);ng(g);}
+ var rows=[['get longer when decomposed',VR.longerWhenDecomposed,'#ffd76a'],
+  ['compare equal before normalizing',VR.equalBeforeNormalizing,'#ff5a8a'],
+  ['compare equal after normalizing',VR.equalAfterNormalizing,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=176+i*36;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,300,18);
+  if(r[1]>0){nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,215,106,0.6)');
+   g.fillRect(24,y+8,300*r[1]/LIST.length,18);ng(g);}
+  nt(g,r[2],334,y+22,11,r[1]+' / '+LIST.length);});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,282,W-40,0);ng(g);
+ nt(g,'#ff5a8a',24,290,9,'not one of the 161 accidentally compares equal -- it is the whole class');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var L=LIST[idx%LIST.length];
+ var shown=decomposed?L.nfd:L.nfc;
+ nt(g,'#e6dcff',18,24,11,'U+'+L.cp.toString(16).toUpperCase()+'   '+(decomposed?'decomposed (NFD)':'composed (NFC)'));
+ nf(g,'rgba(184,140,255,0.2)');g.fillRect(18,36,W-36,74);ng(g);
+ g.fillStyle='#e6dcff';g.font='54px serif';g.fillText(shown,W/2-18,90);
+ nt(g,'#8a7ab8',18,128,9,'the code units actually stored');
+ var cw=(W-36)/Math.max(2,shown.length);
+ for(var i=0;i<shown.length;i++){
+  var u=shown.charCodeAt(i);
+  nf(g,i===0?'rgba(90,212,255,0.5)':'rgba(255,215,106,0.5)');
+  g.fillRect(18+i*cw,136,cw-3,34);ng(g);
+  nt(g,'#0d0818',18+i*cw+6,158,10,'U+'+u.toString(16).toUpperCase());}
+ nt(g,'#5ad4ff',18,186,9,'the letter');
+ if(shown.length>1)nt(g,'#ffd76a',90,186,9,'+ a combining accent');
+ var rows=[['length',shown.length],['composed === decomposed',(L.nfc===L.nfd)],
+  ['after normalize',(L.nfc.normalize('NFC')===L.nfd.normalize('NFC'))]];
+ rows.forEach(function(r,i){
+  var y=202+i*38;
+  nf(g,(r[1]===false)?'rgba(255,90,138,0.26)':'rgba(125,226,176,0.2)');
+  g.fillRect(18,y,W-36,32);ng(g);
+  nt(g,'#e6dcff',30,y+21,10,r[0]);
+  nt(g,(r[1]===false)?'#ff5a8a':'#7de2b0',W-90,y+21,11,String(r[1]));});
+ nt(g,'#b98cff',18,322,9,'the two pictures above are identical');
+ var o=document.getElementById('nrmfo');
+ if(o)o.innerHTML='<b>'+L.nfc+'</b> is <b>'+L.nfc.length+'</b> code unit composed and <b>'+L.nfd.length+
+  '</b> decomposed. They render identically &mdash; Unicode requires it &mdash; and <code>===</code> says <b>false</b>. '+
+  'Normalising both to the same form makes them equal, which is a decision about what equality means, not a discovery about the letters.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var a=P(-56,0,0),b1=P(56,-14,0),b2=P(56,16,0);
+ ndot(g,a[0],a[1],9,'#7de2b0');
+ nt(g,'#7de2b0',a[0]-14,a[1]-18,9,'one glyph');
+ ndot(g,b1[0],b1[1],6,'#5ad4ff');
+ ndot(g,b2[0],b2[1],6,'#ffd76a');
+ nt(g,'#5ad4ff',b1[0]+12,b1[1]+4,8,'one code point');
+ nt(g,'#ffd76a',b2[0]+12,b2[1]+4,8,'letter + accent');
+ ne(g,'rgba(125,226,176,0.35)',1.3);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b1[0],b1[1]);g.stroke();
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b2[0],b2[1]);g.stroke();ng(g);
+ nt(g,'#b98cff',14,26,11,'one appearance, two spellings');
+ nt(g,'#8a7ab8',14,44,10,'and the screen is required to hide the difference');
+ nt(g,'#ffd76a',14,H-46,9,'equality of text is a choice, not a fact');
+ nt(g,'#7de2b0',14,H-30,9,'bytes say no, canonical says yes, compatibility says more');
+ nt(g,'#ff5a8a',14,H-14,9,'every comparison has already picked one, silently');}
+document.getElementById('nrmfn').onclick=function(){idx=(idx+1)%LIST.length;drawW4();};
+document.getElementById('nrmfd').onclick=function(){decomposed=!decomposed;drawW4();};
+document.getElementById('nrmfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenormalizationform=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+GRPH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">How long is a family emoji? Eleven, if you ask the string. Seven, if you ask how many characters. One, if you ask a person. All three answers are correct and they are answers to different questions.<br><br>
+ <span class="lit">LIT</span> verified live. the family <b>&#128104;&zwj;&#128105;&zwj;&#128103;&zwj;&#128102;</b> measures <b>11</b> UTF-16 code units, <b>7</b> code points and <b>1</b> grapheme cluster. The flag <b>&#127468;&#127463;</b> measures <b>4</b>, <b>2</b> and <b>1</b>. A skin-toned thumb measures <b>4</b>, <b>2</b> and <b>1</b>. Reversing the family by code unit does not return the original and neither does reversing it by code point &mdash; only the cluster is the unit a reversal can safely move.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Grapheme cluster boundaries</b> are UAX #29; <code>Intl.Segmenter</code> implements them, and this sphere uses it rather than approximating.<br><br><b>AVAN (AI)</b> reports all three numbers side by side because the bug is never that a program used the wrong one &mdash; it is that the program never knew there were three. <code>length</code> answers a storage question and gets used as a display question; truncating at <b>10</b> to fit a field splits the family in half and produces something that is not a character at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eleven, seven, one. Three right answers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Truncate the string and watch a person come apart.</div>
+   <div class="btns" style="margin-top:10px"><button id="grphn">cut one shorter &#9654;</button><button id="grphr">reset</button><button id="grphx">next sample</button></div>
+   <div class="cap" id="grpho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you should count grapheme clusters. The inverse is that <b>there is no such thing as the length of a string</b> &mdash; only the length of a string <i>for a purpose</i>. Storage wants code units, a database column wants bytes, a cursor wants clusters, and a line-break wants something else again. Read backwards, <code>length</code> is not a property being reported but a question being answered, and the single most common bug in text handling is a program that asked one question and used the answer for another.</div>
+   <div class="btns" style="margin-top:10px"><button id="grphs">pause spin</button></div></div></div></div>"""
+GRPH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cut=11,which=0,SEG=null,SAMP=[];
+function setup(){
+ SEG=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('en',{granularity:'grapheme'}):null;
+ var C=String.fromCodePoint, ZWJ=C(0x200D);
+ SAMP=[{n:'family',s:C(0x1F468)+ZWJ+C(0x1F469)+ZWJ+C(0x1F467)+ZWJ+C(0x1F466)},
+  {n:'flag',s:C(0x1F1EC)+C(0x1F1E7)},
+  {n:'thumb + tone',s:C(0x1F44D)+C(0x1F3FD)},
+  {n:'e with accent',s:'e'+C(0x301)}];}
+function counts(s){
+ return {units:s.length,points:Array.from(s).length,
+  graphemes:SEG?Array.from(SEG.segment(s)).length:null};}
+function selftest(){
+ setup();
+ var rows=SAMP.map(function(x){var c=counts(x.s);
+  return {name:x.n,units:c.units,points:c.points,graphemes:c.graphemes};});
+ var fam=SAMP[0].s;
+ var revU=fam.split('').reverse().join('');
+ var revP=Array.from(fam).reverse().join('');
+ return {rows:rows,familyUnits:rows[0].units,familyPoints:rows[0].points,familyGraphemes:rows[0].graphemes,
+  flagUnits:rows[1].units,flagPoints:rows[1].points,flagGraphemes:rows[1].graphemes,
+  threeDistinctAnswers:(rows[0].units!==rows[0].points&&rows[0].points!==rows[0].graphemes),
+  reverseByUnitRestores:revU===fam,reverseByPointRestores:revP===fam,
+  ok:!!SEG&&rows[0].units===11&&rows[0].points===7&&rows[0].graphemes===1&&
+     rows[1].units===4&&rows[1].points===2&&rows[1].graphemes===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'THREE WAYS TO ASK HOW LONG');
+ nt(g,'#8a7ab8',24,42,9,'                       code units   code points   graphemes');
+ VR.rows.forEach(function(r,i){
+  var y=54+i*46;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,38);ng(g);
+  nt(g,'#e6dcff',34,y+24,10,r.name);
+  nt(g,'#ff5a8a',210,y+24,14,String(r.units));
+  nt(g,'#ffd76a',300,y+24,14,String(r.points));
+  nt(g,'#7de2b0',400,y+24,14,String(r.graphemes));});
+ nf(g,'rgba(90,212,255,0.16)');g.fillRect(20,246,W-40,34);ng(g);
+ ne(g,'#5ad4ff',1.4);g.strokeRect(20.5,246.5,W-41,34);ng(g);
+ nt(g,'#5ad4ff',34,267,10,'11, 7 and 1 are all correct -- and answer different questions');
+ nt(g,'#8a7ab8',24,288,9,'reversing by unit or by point does not restore the family');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var S=SAMP[which%SAMP.length],s=S.s;
+ var k=Math.min(cut,s.length);
+ var head=s.slice(0,k);
+ var c2=counts(head);
+ nt(g,'#e6dcff',18,24,11,S.n+'   truncated to '+k+' code units');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,36,W-36,72);ng(g);
+ g.fillStyle='#e6dcff';g.font='42px serif';
+ try{g.fillText(head,24,84);}catch(e){}
+ nt(g,'#8a7ab8',18,126,9,'the units kept, and the units cut');
+ var cw=(W-36)/s.length;
+ for(var i=0;i<s.length;i++){
+  var kept=(i<k);
+  nf(g,kept?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.5)');
+  g.fillRect(18+i*cw,134,cw-1.5,30);ng(g);}
+ var rows=[['code units',c2.units,'#ff5a8a'],['code points',c2.points,'#ffd76a'],['graphemes',c2.graphemes,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=176+i*44;
+  nt(g,'#e6dcff',18,y+2,10,r[0]);
+  nf(g,'rgba(120,90,180,0.14)');g.fillRect(150,y-12,W-168,30);ng(g);
+  nt(g,r[2],164,y+8,13,String(r[1]));});
+ var broken=(k<s.length&&k>0);
+ nf(g,broken?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,306,W-36,0);ng(g);
+ nt(g,broken?'#ff5a8a':'#7de2b0',18,318,9,broken?'the cluster has been cut -- what is left is not a character':'whole');
+ var o=document.getElementById('grpho');
+ if(o)o.innerHTML='Kept <b>'+k+'</b> of <b>'+s.length+'</b> code units: that is <b>'+c2.points+
+  '</b> code points and <b>'+c2.graphemes+'</b> grapheme'+(c2.graphemes===1?'':'s')+'. '+
+  (broken?'A field that truncates at a code-unit count has just cut a person in half, and the remainder is not a character anyone can name.':
+   'Whole. The only cut that is always safe is a cut on a cluster boundary.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<11;i++){
+  var q=P(-86+i*17,-52,0);
+  ndot(g,q[0],q[1],3.4,'#ff5a8a');}
+ var l1=P(-92,-70,0);nt(g,'#ff5a8a',l1[0],l1[1],8,'11 code units');
+ for(i=0;i<7;i++){
+  var q2=P(-64+i*21,0,0);
+  ndot(g,q2[0],q2[1],4.4,'#ffd76a');}
+ var l2=P(-92,-14,0);nt(g,'#ffd76a',l2[0],l2[1],8,'7 code points');
+ var q3=P(0,54,0);
+ ndot(g,q3[0],q3[1],11,'#7de2b0');
+ var l3=P(-92,58,0);nt(g,'#7de2b0',l3[0],l3[1],8,'1 grapheme -- 1 person');
+ nt(g,'#5ad4ff',14,26,11,'the same text, three heights');
+ nt(g,'#8a7ab8',14,44,10,'storage, characters, and what a reader sees');
+ nt(g,'#ffd76a',14,H-46,9,'there is no length of a string');
+ nt(g,'#7de2b0',14,H-30,9,'only a length for a purpose');
+ nt(g,'#b98cff',14,H-14,9,'length is a question being answered, not a property');}
+document.getElementById('grphn').onclick=function(){cut=Math.max(0,cut-1);drawW4();};
+document.getElementById('grphr').onclick=function(){cut=99;drawW4();};
+document.getElementById('grphx').onclick=function(){which++;cut=99;drawW4();};
+document.getElementById('grphs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegraphemecluster=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TRKI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Lowercasing a string is not a property of the string. It is a property of the string <i>and a language</i>, and in Turkish the letter I does not become i.<br><br>
+ <span class="lit">LIT</span> verified live. ten ordinary identifiers &mdash; FILE, TITLE, ID, INFO, LIST, IMAGE, INDEX, ITEM, MAIN, ADMIN &mdash; lowercased under the English and Turkish locales disagree in <b>10 of 10</b>. <code>&quot;I&quot;</code> becomes <code>i</code> in English and <b>U+0131</b>, the dotless <b>&#305;</b>, in Turkish; <code>&quot;i&quot;</code> uppercases to <code>I</code> in English and to <b>U+0130</b>, the dotted <b>&#304;</b>, in Turkish. A case-insensitive comparison of <code>ADMIN</code> against <code>admin</code> is therefore false on a Turkish machine, and true on yours.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The Turkish dotted and dotless I are the standard example of locale-sensitive case mapping, and the reason <code>toLowerCase</code> and <code>toLocaleLowerCase</code> are different functions.<br><br><b>AVAN (AI)</b> chose identifiers rather than words, because the failure that matters is not a mis-spelled label &mdash; it is a security check. Every one of the ten contains an <b>I</b>, which is why the mismatch is <b>10 of 10</b> rather than a rate: the bug is not probabilistic, it fires on any identifier containing that one letter, and the affected set is decided by a locale set somewhere else entirely.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ten identifiers. Ten disagreements. One letter.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Lowercase the same word in two languages.</div>
+   <div class="btns" style="margin-top:10px"><button id="trkin">next word &#9654;</button><button id="trkil">toggle locale</button></div>
+   <div class="cap" id="trkio" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to use the locale-independent function for identifiers. The inverse is that <b>there is no locale-independent lowercase &mdash; there is only a default locale you have stopped noticing</b>. Calling the plain function does not step outside language; it picks one and hides the choice, and it happens to be the one that suits the people who wrote the runtime. Read backwards, <i>every</i> case-insensitive comparison in a program is a claim about which language the data is in, and that claim is almost never written down anywhere it can be checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="trkis">pause spin</button></div></div></div></div>"""
+TRKI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,turkish=false;
+var WORDS=['FILE','TITLE','ID','INFO','LIST','IMAGE','INDEX','ITEM','MAIN','ADMIN'];
+function selftest(){
+ var mis=0,rows=[];
+ WORDS.forEach(function(w){
+  var en=w.toLocaleLowerCase('en'),tr=w.toLocaleLowerCase('tr');
+  if(en!==tr)mis++;
+  rows.push({word:w,en:en,tr:tr,same:en===tr});});
+ var I='I',i='i';
+ return {wordsTested:WORDS.length,localeMismatches:mis,rows:rows,
+  I_lower_en:I.toLocaleLowerCase('en'),I_lower_tr:I.toLocaleLowerCase('tr'),
+  i_upper_en:i.toLocaleUpperCase('en'),i_upper_tr:i.toLocaleUpperCase('tr'),
+  dotlessCodePoint:'U+'+I.toLocaleLowerCase('tr').codePointAt(0).toString(16).toUpperCase(),
+  dottedCapCodePoint:'U+'+i.toLocaleUpperCase('tr').codePointAt(0).toString(16).toUpperCase(),
+  ok:mis===10&&I.toLocaleLowerCase('tr').codePointAt(0)===0x131&&
+     i.toLocaleUpperCase('tr').codePointAt(0)===0x130};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'THE SAME TEN WORDS, LOWERCASED TWICE');
+ nt(g,'#8a7ab8',24,42,9,'word            en            tr');
+ VR.rows.slice(0,7).forEach(function(r,i){
+  var y=52+i*26;
+  nf(g,r.same?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.22)');
+  g.fillRect(20,y,W-40,22);ng(g);
+  nt(g,'#e6dcff',34,y+16,10,r.word);
+  nt(g,'#7de2b0',150,y+16,10,r.en);
+  nt(g,'#ff5a8a',280,y+16,10,r.tr);});
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,238,W-40,30);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,238.5,W-41,30);ng(g);
+ nt(g,'#ff5a8a',34,258,10,VR.localeMismatches+' of '+VR.wordsTested+' disagree -- every word containing an I');
+ nt(g,'#ffd76a',24,282,9,'I -> '+VR.dotlessCodePoint+' dotless      i -> '+VR.dottedCapCodePoint+' dotted capital');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=VR.rows[idx%VR.rows.length];
+ var out=turkish?r.tr:r.en;
+ nt(g,'#e6dcff',18,24,11,'locale: '+(turkish?'tr  (Turkish)':'en  (English)'));
+ nf(g,'rgba(120,90,180,0.16)');g.fillRect(18,36,W-36,56);ng(g);
+ g.fillStyle='#e6dcff';g.font='30px monospace';g.fillText(r.word,30,74);
+ nt(g,'#8a7ab8',18,110,9,'lowercased');
+ nf(g,turkish?'rgba(255,90,138,0.24)':'rgba(125,226,176,0.22)');g.fillRect(18,118,W-36,56);ng(g);
+ g.fillStyle=turkish?'#ff5a8a':'#7de2b0';g.font='30px monospace';g.fillText(out,30,156);
+ nt(g,'#8a7ab8',18,192,9,'code points');
+ var cw=(W-36)/Math.max(1,out.length);
+ for(var i=0;i<out.length;i++){
+  var cp=out.codePointAt(i);
+  var odd=(cp>127);
+  nf(g,odd?'rgba(255,90,138,0.55)':'rgba(120,90,180,0.2)');
+  g.fillRect(18+i*cw,200,cw-2,30);ng(g);
+  nt(g,odd?'#0d0818':'#8a7ab8',18+i*cw+2,220,8,cp.toString(16).toUpperCase());}
+ var differs=(r.en!==r.tr);
+ nf(g,differs?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,242,W-36,44);ng(g);
+ ne(g,differs?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,242.5,W-37,44);ng(g);
+ nt(g,differs?'#ff5a8a':'#7de2b0',32,262,10,differs?'en and tr disagree on this word':'en and tr agree');
+ nt(g,'#8a7ab8',32,279,9,differs?('"'+r.en+'" vs "'+r.tr+'"'):'no I in it');
+ nt(g,'#b98cff',18,308,9,'a security check comparing these two is false in Turkey');
+ var o=document.getElementById('trkio');
+ if(o)o.innerHTML='<b>'+r.word+'</b> lowercases to <b>'+r.en+'</b> in English and <b>'+r.tr+
+  '</b> in Turkish. '+(differs?'The dotless <b>&#305;</b> is a different code point from <b>i</b>, so a case-insensitive equality test against a hardcoded lowercase string fails &mdash; on some machines and not others, for reasons the code never mentions.':
+  'No I, so both locales agree here.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var top=P(0,-64,0);
+ ndot(g,top[0],top[1],9,'#ffd76a');
+ nt(g,'#ffd76a',top[0]-8,top[1]-18,11,'I');
+ var l=P(-64,44,0),r2=P(64,44,0);
+ ndot(g,l[0],l[1],7,'#7de2b0'); ndot(g,r2[0],r2[1],7,'#ff5a8a');
+ nt(g,'#7de2b0',l[0]-20,l[1]+22,9,'i   (en)');
+ nt(g,'#ff5a8a',r2[0]-24,r2[1]+22,9,'dotless (tr)');
+ ne(g,'rgba(125,226,176,0.4)',1.3);
+ g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(l[0],l[1]);g.stroke();
+ ne(g,'rgba(255,90,138,0.4)',1.3);
+ g.beginPath();g.moveTo(top[0],top[1]);g.lineTo(r2[0],r2[1]);g.stroke();ng(g);
+ nt(g,'#ff9f45',14,26,11,'one letter, two destinations');
+ nt(g,'#8a7ab8',14,44,10,'and the fork is chosen elsewhere');
+ nt(g,'#ffd76a',14,H-46,9,'there is no locale-independent lowercase');
+ nt(g,'#7de2b0',14,H-30,9,'only a default you have stopped noticing');
+ nt(g,'#b98cff',14,H-14,9,'every case-insensitive test claims a language');}
+document.getElementById('trkin').onclick=function(){idx=(idx+1)%VR.rows.length;drawW4();};
+document.getElementById('trkil').onclick=function(){turkish=!turkish;drawW4();};
+document.getElementById('trkis').onclick=function(){spin=!spin;};
+VR=selftest();window.__theturkishi=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+HOMO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Cyrillic <b>&#1072;</b> is not Latin <b>a</b>. Different code point, different alphabet, different language &mdash; and on every screen you will ever look at, the same shape.<br><br>
+ <span class="lit">LIT</span> verified live. the word <code>paypal</code> has <b>5</b> positions whose Latin letter has a Cyrillic look-alike, giving <b>2<sup>5</sup> = 32</b> substitutions. All <b>32</b> are distinct strings &mdash; no two are equal &mdash; and exactly <b>1</b> of them is the original. The other <b>31</b> compare unequal to it, hash differently, sort differently, and render identically. Latin <b>a</b> is <b>U+0061</b>; Cyrillic <b>&#1072;</b> is <b>U+0430</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Homoglyph</b> attacks and the IDN spoofing problem are why registrars restrict mixed-script domains and why browsers show punycode for suspicious labels; Unicode publishes a confusables table (UTS #39).<br><br><b>AVAN (AI)</b> counted the space rather than showing one spoofed word, because <b>32</b> is the argument. A blocklist of known-bad strings is the usual defence and it is defeated arithmetically: the attacker picks a different one of the <b>31</b>. The defence that works is not enumeration, it is refusing to mix scripts in the first place &mdash; a rule about the <i>alphabet</i>, not about the words.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Thirty-two spellings. One shape.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Swap letters for their look-alikes and watch nothing change.</div>
+   <div class="btns" style="margin-top:10px"><button id="homon">swap one &#9654;</button><button id="homoa">swap all</button><button id="homor">reset</button></div>
+   <div class="cap" id="homoo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you cannot trust what a string looks like. The inverse is that <b>identity was never in the glyph &mdash; the glyph is a rendering decision, and rendering is designed to hide the difference</b>. Two code points that mean different letters in different alphabets are drawn the same because that is what the shapes <i>are</i>, historically. Read backwards, the spoof is not an abuse of Unicode; it is Unicode working, and any system that treated appearance as identity had already made an assumption the writing system never agreed to.</div>
+   <div class="btns" style="margin-top:10px"><button id="homos">pause spin</button></div></div></div></div>"""
+HOMO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mask=0;
+var WORD='paypal';
+var CONF={a:0x430,c:0x441,e:0x435,o:0x43E,p:0x440,x:0x445,y:0x443,i:0x456,s:0x455,j:0x458};
+function positions(){var out=[];
+ for(var k=0;k<WORD.length;k++)if(CONF[WORD[k]]!==undefined)out.push(k);
+ return out;}
+function variant(m){
+ var pos=positions(),out='',bi=0;
+ for(var k=0;k<WORD.length;k++){
+  if(CONF[WORD[k]]!==undefined){
+   out+=((m>>bi)&1)?String.fromCodePoint(CONF[WORD[k]]):WORD[k];bi++;}
+  else out+=WORD[k];}
+ return out;}
+function selftest(){
+ var pos=positions(),n=Math.pow(2,pos.length),seen={},same=0;
+ for(var m=0;m<n;m++){var v=variant(m);seen[v]=1;if(v===WORD)same++;}
+ return {word:WORD,confusablePositions:pos.length,variants:n,
+  distinctStrings:Object.keys(seen).length,identicalToOriginal:same,
+  latinA:'U+0061',cyrillicA:'U+0430',
+  ok:pos.length===5&&n===32&&Object.keys(seen).length===32&&same===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'32 SPELLINGS OF ONE WORD, ALL DRAWN THE SAME');
+ var cols=8,cw=(W-44)/cols;
+ for(var m=0;m<32;m++){
+  var x=22+(m%cols)*cw,y=38+Math.floor(m/cols)*30;
+  nf(g,m===0?'rgba(125,226,176,0.6)':'rgba(255,215,106,0.4)');
+  g.fillRect(x,y,cw-3,26);ng(g);
+  g.fillStyle=m===0?'#0d0818':'#0d0818';g.font='13px monospace';
+  g.fillText(variant(m),x+4,y+18);}
+ nt(g,'#7de2b0',22,180,9,'green = the real one');
+ nt(g,'#ffd76a',150,180,9,'gold = 31 impostors, each unequal to it');
+ var rows=[['positions with a look-alike',VR.confusablePositions],
+  ['substitutions',VR.variants],['distinct strings',VR.distinctStrings],
+  ['identical to the original',VR.identicalToOriginal]];
+ rows.forEach(function(r,i){
+  var y=198+i*24;
+  nt(g,'#e6dcff',24,y+12,10,r[0]);
+  nt(g,i===3?'#7de2b0':'#ffd76a',360,y+12,11,String(r[1]));});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,282,W-40,0);ng(g);
+ nt(g,'#ff5a8a',24,292,9,'a blocklist of known-bad strings loses to arithmetic: pick another of the 31');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var v=variant(mask),pos=positions();
+ nt(g,'#e6dcff',18,24,11,'substitution mask '+mask+' of 31');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,36,W-36,60);ng(g);
+ g.fillStyle='#e6dcff';g.font='34px monospace';g.fillText(v,30,78);
+ nt(g,'#8a7ab8',18,114,9,'the code points behind those glyphs');
+ var cw=(W-36)/v.length;
+ for(var i=0;i<v.length;i++){
+  var cp=v.codePointAt(i),cyr=(cp>0x400);
+  nf(g,cyr?'rgba(255,90,138,0.6)':'rgba(90,212,255,0.45)');
+  g.fillRect(18+i*cw,122,cw-2,34);ng(g);
+  nt(g,'#0d0818',18+i*cw+2,144,8,cp.toString(16).toUpperCase());}
+ nt(g,'#5ad4ff',18,172,9,'blue = Latin');
+ nt(g,'#ff5a8a',110,172,9,'red = Cyrillic, and indistinguishable above');
+ var eq=(v===WORD);
+ nf(g,eq?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.28)');g.fillRect(18,186,W-36,44);ng(g);
+ ne(g,eq?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(18.5,186.5,W-37,44);ng(g);
+ nt(g,eq?'#7de2b0':'#ff5a8a',32,213,11,eq?'=== the original':'!== the original');
+ var swapped=0;for(i=0;i<v.length;i++)if(v.codePointAt(i)>0x400)swapped++;
+ nt(g,'#ffd76a',18,252,10,swapped+' of '+pos.length+' letters swapped');
+ nt(g,'#8a7ab8',18,272,9,'and the picture above did not change');
+ nt(g,'#b98cff',18,296,9,'appearance was never identity');
+ var o=document.getElementById('homoo');
+ if(o)o.innerHTML='<b>'+swapped+'</b> letter'+(swapped===1?'':'s')+' replaced by Cyrillic look-alikes. The string is <b>'+
+  (eq?'the original':'not the original')+'</b> and the rendering is unchanged. There are <b>32</b> of these; blocking the one you have seen leaves <b>31</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var live=Math.floor(ang/10)%32;
+ for(var i=0;i<32;i++){
+  var th=i/32*Math.PI*2,q=P(Math.cos(th)*90,0,Math.sin(th)*90);
+  ndot(g,q[0],q[1],i===0?7:(i===live?5:2.6),i===0?'#7de2b0':(i===live?'#ffd76a':'rgba(255,215,106,0.35)'));}
+ var m=P(0,0,0);
+ ndot(g,m[0],m[1],10,'#b98cff');
+ nt(g,'#b98cff',m[0]-24,m[1]+22,9,'one shape');
+ nt(g,'#ffd76a',14,26,11,'thirty-two strings around one picture');
+ nt(g,'#7de2b0',14,44,10,'green is the only real one');
+ nt(g,'#8a7ab8',14,H-46,9,'the glyph is a rendering decision');
+ nt(g,'#ff5a8a',14,H-30,9,'and rendering is meant to hide the difference');
+ nt(g,'#b98cff',14,H-14,9,'not an abuse of Unicode -- Unicode working');}
+document.getElementById('homon').onclick=function(){mask=(mask+1)%32;drawW4();};
+document.getElementById('homoa').onclick=function(){mask=31;drawW4();};
+document.getElementById('homor').onclick=function(){mask=0;drawW4();};
+document.getElementById('homos').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehomoglyph=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SRPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sixteen bits held every character, once. Then there were more than sixty-five thousand of them, and the fix was to spend two units on the rest &mdash; two units that are not characters, and mean nothing apart.<br><br>
+ <span class="lit">LIT</span> verified live. the musical clef <b>U+1D11E</b> occupies <b>2</b> UTF-16 code units and is <b>1</b> code point. Sampling <b>768</b> code points across the range, <b>512</b> need two units and <b>256</b> fit in one. Cutting the string <code>a &#119070; b &#128512; c</code> at every one of its <b>8</b> indices produces a lone high surrogate <b>2</b> times &mdash; a value that is not a character, cannot be rendered, and is still a perfectly legal <code>string</code>. The string reports length <b>7</b>; it holds <b>5</b> characters.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>UTF-16</b> and the surrogate range U+D800&ndash;U+DFFF are how a 16-bit encoding was extended past the basic plane without breaking existing data.<br><br><b>AVAN (AI)</b> counted the lone surrogates produced by slicing rather than asserting that slicing is unsafe, because <b>2 of 8</b> is the shape of the hazard: not every cut is dangerous, so a test that slices once will usually pass. The type system is silent throughout &mdash; a lone surrogate has the same type as any other string, and there is no operation that will complain until something tries to draw it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven long, five characters, two bad places to cut.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cut the string at each index and find the broken halves.</div>
+   <div class="btns" style="margin-top:10px"><button id="srprn">cut one later &#9654;</button><button id="srprp">earlier</button></div>
+   <div class="cap" id="srpro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you must not index into UTF-16 blindly. The inverse is that <b>the encoding leaked into the type, and then the type became the interface</b>. A <code>string</code> was supposed to be a sequence of characters; it is a sequence of storage units, and every language that adopted UTF-16 in the nineties made that permanent by exposing <code>length</code> and <code>[i]</code> in those units. Read backwards, this is a twenty-year-old compatibility decision still being paid for in every truncated name and every mangled emoji, by people who never chose the encoding.</div>
+   <div class="btns" style="margin-top:10px"><button id="srprs">pause spin</button></div></div></div></div>"""
+SRPR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cut=3;
+var S='a'+String.fromCodePoint(0x1D11E)+'b'+String.fromCodePoint(0x1F600)+'c';
+function isLoneEnd(str){
+ if(!str.length)return false;
+ var last=str.charCodeAt(str.length-1);
+ return last>=0xD800&&last<=0xDBFF;}
+function selftest(){
+ var lone=0,tot=0;
+ for(var i=0;i<=S.length;i++){tot++; if(isLoneEnd(S.slice(0,i)))lone++;}
+ var two=0,one=0;
+ for(var cp=0;cp<=0x2FFFF;cp+=0x100){
+  if(String.fromCodePoint(cp).length===2)two++; else one++;}
+ var clef=String.fromCodePoint(0x1D11E);
+ return {clefUnits:clef.length,clefPoints:Array.from(clef).length,clefCodePoint:'U+1D11E',
+  sliceIndices:tot,slicesEndingInLoneSurrogate:lone,
+  sampledCodePoints:two+one,needingTwoUnits:two,fittingInOne:one,
+  stringLength:S.length,realCharacters:Array.from(S).length,
+  surrogateRange:'U+D800..U+DFFF',
+  ok:clef.length===2&&Array.from(clef).length===1&&tot===8&&lone===2&&
+     two===512&&one===256&&S.length===7&&Array.from(S).length===5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'ONE STRING, TWO COUNTS, EIGHT PLACES TO CUT');
+ var cw=(W-44)/S.length;
+ nt(g,'#8a7ab8',22,42,9,'the seven code units');
+ for(var i=0;i<S.length;i++){
+  var u=S.charCodeAt(i),sur=(u>=0xD800&&u<=0xDFFF);
+  nf(g,sur?'rgba(255,90,138,0.6)':'rgba(90,212,255,0.5)');
+  g.fillRect(22+i*cw,50,cw-3,34);ng(g);
+  nt(g,'#0d0818',22+i*cw+3,72,8,u.toString(16).toUpperCase());}
+ nt(g,'#ff5a8a',22,100,9,'red = a surrogate: half a character, alone meaningless');
+ var rows=[['string length (code units)',VR.stringLength,'#ff5a8a'],
+  ['real characters (code points)',VR.realCharacters,'#7de2b0'],
+  ['cut points that break a pair',VR.slicesEndingInLoneSurrogate+' of '+VR.sliceIndices,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=122+i*40;
+  nt(g,'#e6dcff',24,y+12,10,r[0]);
+  nt(g,r[2],380,y+12,13,String(r[1]));});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,246,W-40,34);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,246.5,W-41,34);ng(g);
+ nt(g,'#7de2b0',34,267,10,'sampled 768 code points: 512 need two units, 256 fit in one');
+ nt(g,'#8a7ab8',24,288,9,'a lone surrogate is still a perfectly legal string');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var k=Math.max(0,Math.min(cut,S.length));
+ var head=S.slice(0,k),tail=S.slice(k);
+ var broken=isLoneEnd(head);
+ nt(g,'#e6dcff',18,24,11,'cut at index '+k+' of '+S.length);
+ var cw=(W-36)/S.length;
+ for(var i=0;i<S.length;i++){
+  var kept=(i<k),u=S.charCodeAt(i),sur=(u>=0xD800&&u<=0xDFFF);
+  nf(g,kept?(sur?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.5)'):'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,40,cw-2,32);ng(g);}
+ ne(g,'#ffd76a',2);
+ g.beginPath();g.moveTo(18+k*cw-1,34);g.lineTo(18+k*cw-1,78);g.stroke();ng(g);
+ nt(g,'#8a7ab8',18,96,9,'the first half, drawn');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,104,W-36,56);ng(g);
+ g.fillStyle='#e6dcff';g.font='30px serif';
+ try{g.fillText(head,30,142);}catch(e){}
+ nt(g,'#8a7ab8',18,178,9,'the second half, drawn');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,186,W-36,56);ng(g);
+ g.fillStyle='#e6dcff';g.font='30px serif';
+ try{g.fillText(tail,30,224);}catch(e){}
+ nf(g,broken?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.2)');g.fillRect(18,252,W-36,44);ng(g);
+ ne(g,broken?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,252.5,W-37,44);ng(g);
+ nt(g,broken?'#ff5a8a':'#7de2b0',32,272,11,broken?'LONE SURROGATE -- half a character':'clean cut');
+ nt(g,'#8a7ab8',32,289,9,'characters left: '+Array.from(head).length+'   right: '+Array.from(tail).length);
+ nt(g,'#b98cff',18,318,9,'no operation complains until something tries to draw it');
+ var o=document.getElementById('srpro');
+ if(o)o.innerHTML='Cutting at <b>'+k+'</b>: '+(broken?
+  'the first half ends on a high surrogate with nothing to pair with. It is not a character, it has no glyph, and it is still a valid string that will travel through your program without complaint.':
+  'both halves are whole. Only <b>2</b> of the <b>8</b> cut points are dangerous, which is why a test that slices once usually passes.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var pairs=[[0,false],[1,true],[2,true],[3,false],[4,true],[5,true],[6,false]];
+ pairs.forEach(function(p,i){
+  var q=P(-84+i*28,0,0);
+  ndot(g,q[0],q[1],p[1]?5:6.5,p[1]?'#ff5a8a':'#7de2b0');});
+ for(var j=0;j<2;j++){
+  var a=P(-84+(1+j*3)*28,0,0),b=P(-84+(2+j*3)*28,0,0);
+  ne(g,'rgba(255,90,138,0.5)',2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ var lp=P(-92,-26,0);nt(g,'#ff5a8a',lp[0],lp[1],8,'joined pairs -- cutting between them breaks both');
+ nt(g,'#7de2b0',14,26,11,'five characters in seven units');
+ nt(g,'#8a7ab8',14,44,10,'and two of the joins must not be cut');
+ nt(g,'#ffd76a',14,H-46,9,'the encoding leaked into the type');
+ nt(g,'#ff5a8a',14,H-30,9,'and then the type became the interface');
+ nt(g,'#b98cff',14,H-14,9,'a 1990s compatibility decision, still being paid for');}
+document.getElementById('srprn').onclick=function(){cut=Math.min(S.length,cut+1);drawW4();};
+document.getElementById('srprp').onclick=function(){cut=Math.max(0,cut-1);drawW4();};
+document.getElementById('srprs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesurrogatepair=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+ZWJU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Some characters have no shape at all. They occupy no width, print nothing, survive copy and paste, and change what a string <i>is</i> without changing anything you can see.<br><br>
+ <span class="lit">LIT</span> verified live. five invisible code points &mdash; ZERO WIDTH SPACE, ZWNJ, ZWJ, WORD JOINER and ZWNBSP &mdash; inserted into the middle of a word give a string that is <b>not equal</b> to its visible twin in <b>5 of 5</b> cases, and all <b>5</b> belong to Unicode&rsquo;s format category, <code>\p{Cf}</code>. Trimming removes only <b>1</b> of them and leaves <b>4</b>. The family emoji <b>&#128104;&zwj;&#128105;&zwj;&#128103;</b> is <b>5</b> code points of which <b>2</b> are zero-width joiners; strip them and the same picture becomes <b>3</b> separate people.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Zero-width formatting characters</b> are ordinary Unicode &mdash; ZWJ is how emoji sequences are built, ZWNJ is required to write Persian and Hindi correctly. They are not an exploit; they are typography.<br><br><b>AVAN (AI)</b> tested the format category rather than eyeballing invisibility, because &lsquo;invisible&rsquo; is a rendering claim and <code>\p{Cf}</code> is a checkable one &mdash; all <b>5</b> match. The uncomfortable number is the trim result: only <b>1</b> of the <b>5</b> is stripped by the usual whitespace trim, because JavaScript counts just U+FEFF as whitespace. A defence that sanitises by trimming removes almost none of the class while looking like it did something.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five characters you cannot see. Five strings that are not equal.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Insert an invisible character and compare the two words.</div>
+   <div class="btns" style="margin-top:10px"><button id="zwjun">next invisible &#9654;</button><button id="zwjut">toggle inserted</button></div>
+   <div class="cap" id="zwjuo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that invisible characters should be stripped. The inverse is that <b>&lsquo;invisible&rsquo; is not a property of a character, it is a property of a font&rsquo;s decision not to draw it</b> &mdash; and the same characters are load-bearing typography in other scripts. Strip them and you break Persian; keep them and two identical-looking usernames are different accounts. Read backwards, there is no sanitising rule that is correct for every writing system at once, which means the choice is a policy about <i>whose</i> text you are willing to handle.</div>
+   <div class="btns" style="margin-top:10px"><button id="zwjus">pause spin</button></div></div></div></div>"""
+ZWJU_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,inserted=true;
+var INV=[{cp:0x200B,n:'ZERO WIDTH SPACE'},{cp:0x200C,n:'ZERO WIDTH NON-JOINER'},
+ {cp:0x200D,n:'ZERO WIDTH JOINER'},{cp:0x2060,n:'WORD JOINER'},{cp:0xFEFF,n:'ZWNBSP / BOM'}];
+function selftest(){
+ var notEq=0,trimmed=0,fmt=0;
+ var re=/\p{Cf}/u;
+ INV.forEach(function(x){
+  var ch=String.fromCodePoint(x.cp);
+  if(('ab'+ch+'cd')!=='abcd')notEq++;
+  if((ch+'x'+ch).trim()==='x')trimmed++;
+  if(re.test(ch))fmt++;});
+ var ZWJ=String.fromCodePoint(0x200D);
+ var fam=String.fromCodePoint(0x1F468)+ZWJ+String.fromCodePoint(0x1F469)+ZWJ+String.fromCodePoint(0x1F467);
+ var stripped=fam.split(ZWJ).join('');
+ return {invisibleTested:INV.length,notEqualToVisibleTwin:notEq,
+  removedByTrim:trimmed,matchingFormatCategory:fmt,
+  familyPoints:Array.from(fam).length,familyZWJs:2,
+  strippedPoints:Array.from(stripped).length,
+  ok:notEq===5&&fmt===5&&Array.from(fam).length===5&&Array.from(stripped).length===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE CHARACTERS WITH NO SHAPE');
+ INV.forEach(function(x,i){
+  var y=38+i*32;
+  nf(g,'rgba(184,140,255,0.16)');g.fillRect(20,y,W-40,28);ng(g);
+  nt(g,'#e6dcff',34,y+19,10,'U+'+x.cp.toString(16).toUpperCase());
+  nt(g,'#8a7ab8',110,y+19,9,x.n);
+  nt(g,'#7de2b0',W-70,y+19,9,'Cf');});
+ var rows=[['strings that are not equal to their twin',VR.notEqualToVisibleTwin,'#ff5a8a'],
+  ['matching the format category',VR.matchingFormatCategory,'#7de2b0'],
+  ['removed by an ordinary trim',VR.removedByTrim,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=206+i*28;
+  nt(g,'#e6dcff',24,y+14,10,r[0]);
+  nt(g,r[2],420,y+14,12,r[1]+' / 5');});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,290,W-40,0);ng(g);
+ nt(g,'#ffd76a',24,286,9,'trim removes 1 and leaves 4 -- it looks like a defence and is barely one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var x=INV[idx%INV.length],ch=String.fromCodePoint(x.cp);
+ var a='admin', b=inserted?('ad'+ch+'min'):'admin';
+ nt(g,'#e6dcff',18,24,11,'U+'+x.cp.toString(16).toUpperCase()+'   '+x.n);
+ nt(g,'#8a7ab8',18,48,9,'the stored username');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,56,W-36,48);ng(g);
+ g.fillStyle='#7de2b0';g.font='26px monospace';g.fillText(a,30,88);
+ nt(g,'#8a7ab8',18,124,9,'the one that was typed');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,132,W-36,48);ng(g);
+ g.fillStyle='#ffd76a';g.font='26px monospace';g.fillText(b,30,164);
+ nt(g,'#8a7ab8',18,198,9,'code points of the second');
+ var cw=(W-36)/b.length;
+ for(var i=0;i<b.length;i++){
+  var cp=b.codePointAt(i),hid=(cp>0x2000);
+  nf(g,hid?'rgba(255,90,138,0.65)':'rgba(90,212,255,0.4)');
+  g.fillRect(18+i*cw,206,cw-2,30);ng(g);
+  nt(g,'#0d0818',18+i*cw+1,226,7,cp.toString(16).toUpperCase());}
+ var eq=(a===b);
+ nf(g,eq?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.3)');g.fillRect(18,246,W-36,44);ng(g);
+ ne(g,eq?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(18.5,246.5,W-37,44);ng(g);
+ nt(g,eq?'#7de2b0':'#ff5a8a',32,266,11,eq?'the same string':'a different string');
+ nt(g,'#8a7ab8',32,283,9,'length '+a.length+' vs '+b.length+'   -- and the pictures match');
+ nt(g,'#b98cff',18,312,9,'two accounts, one appearance');
+ var o=document.getElementById('zwjuo');
+ if(o)o.innerHTML=inserted?('One <b>'+x.n+'</b> inserted. The two lines above are drawn identically and <code>===</code> says <b>false</b>. '+
+  'This is a second account, and no amount of looking at the screen distinguishes them.'):
+  ('Nothing inserted &mdash; the strings are equal. Press <b>toggle inserted</b>.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<5;i++){
+  var q=P(-70+i*35,-34,0);
+  ndot(g,q[0],q[1],5.4,'#7de2b0');}
+ var l1=P(-80,-54,0);nt(g,'#7de2b0',l1[0],l1[1],8,'what is drawn');
+ var order=[0,1,2,-1,3,4,-1];
+ for(i=0;i<order.length;i++){
+  var q2=P(-84+i*28,36,0);
+  var hidden=(order[i]<0);
+  ndot(g,q2[0],q2[1],hidden?3:5.4,hidden?'#ff5a8a':'rgba(125,226,176,0.5)');}
+ var l2=P(-92,58,0);nt(g,'#ff5a8a',l2[0],l2[1],8,'what is stored -- red draws nothing');
+ nt(g,'#b98cff',14,26,11,'the row you see is shorter than the row you have');
+ nt(g,'#8a7ab8',14,44,10,'and nothing on screen says so');
+ nt(g,'#ffd76a',14,H-46,9,'invisible is a font declining to draw, not a property');
+ nt(g,'#7de2b0',14,H-30,9,'these same marks are required to write Persian');
+ nt(g,'#ff5a8a',14,H-14,9,'no sanitising rule is right for every script at once');}
+document.getElementById('zwjun').onclick=function(){idx=(idx+1)%INV.length;drawW4();};
+document.getElementById('zwjut').onclick=function(){inserted=!inserted;drawW4();};
+document.getElementById('zwjus').onclick=function(){spin=!spin;};
+VR=selftest();window.__thezerowidthjoiner=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+UTF8_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There is exactly one correct way to encode a character in UTF-8, and several that also work. A decoder that accepts the extras will hand you a slash you did not see coming.<br><br>
+ <span class="lit">LIT</span> verified live. each of the <b>128</b> ASCII code points has <b>3</b> non-minimal encodings &mdash; padded out to two, three and four bytes &mdash; giving <b>384</b> overlong forms. A decoder that simply reassembles the bits accepts all <b>384</b> and returns the original character every time. The browser&rsquo;s standards-conforming decoder accepts <b>0</b> of them and returns the replacement character instead. The slash <code>/</code>, U+002F, has the overlong forms <code>C0 AF</code>, <code>E0 80 AF</code> and <code>F0 80 80 AF</code> &mdash; none of which contains the byte <code>0x2F</code> that a path filter is looking for.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Overlong UTF-8</b> was the mechanism behind the IIS directory-traversal worms of 2001; the Unicode standard made non-minimal forms illegal precisely because filters and decoders disagreed about them.<br><br><b>AVAN (AI)</b> ran both decoders &mdash; a hand-written naive one and the browser&rsquo;s <code>TextDecoder</code> &mdash; rather than describing the difference, so <b>384</b> against <b>0</b> is measured on the same inputs. The point is not that the naive decoder is badly written. It is that it is the <i>obvious</i> one: reassemble the bits and you get the right character, which is exactly the behaviour that makes the check upstream meaningless.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">384 spare spellings of 128 characters.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Encode a character the wrong number of ways.</div>
+   <div class="btns" style="margin-top:10px"><button id="utf8n">next character &#9654;</button><button id="utf8w">widen the encoding</button></div>
+   <div class="cap" id="utf8o" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that decoders must reject non-minimal forms. The inverse is that <b>the bug is never in the decoder, it is in the gap between two of them</b>. A filter reads bytes and looks for <code>0x2F</code>; a decoder reads bytes and produces characters; and the attack lives in the fact that these two answered the same question differently and neither was wrong on its own. Read backwards, every validate-then-transform pipeline has this shape, and the defence is not a better filter but refusing to validate anything before it is in its final form.</div>
+   <div class="btns" style="margin-top:10px"><button id="utf8s">pause spin</button></div></div></div></div>"""
+UTF8_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cpIdx=47,width=2;
+function overlong(cp,n){
+ if(n===2)return [0xC0|(cp>>6),0x80|(cp&0x3F)];
+ if(n===3)return [0xE0|(cp>>12),0x80|((cp>>6)&0x3F),0x80|(cp&0x3F)];
+ return [0xF0|(cp>>18),0x80|((cp>>12)&0x3F),0x80|((cp>>6)&0x3F),0x80|(cp&0x3F)];}
+function naive(b){
+ var f=b[0];
+ if(f<0x80)return f;
+ if((f&0xE0)===0xC0)return ((f&0x1F)<<6)|(b[1]&0x3F);
+ if((f&0xF0)===0xE0)return ((f&0x0F)<<12)|((b[1]&0x3F)<<6)|(b[2]&0x3F);
+ return ((f&0x07)<<18)|((b[1]&0x3F)<<12)|((b[2]&0x3F)<<6)|(b[3]&0x3F);}
+function selftest(){
+ var dec=new TextDecoder('utf-8',{fatal:false});
+ var tot=0,nOk=0,sOk=0,slash=[];
+ for(var cp=0;cp<128;cp++){
+  for(var n=2;n<=4;n++){
+   var by=overlong(cp,n);tot++;
+   if(naive(by)===cp)nOk++;
+   if(dec.decode(new Uint8Array(by))===String.fromCodePoint(cp))sOk++;
+   if(cp===0x2F)slash.push(by.map(function(x){return x.toString(16).toUpperCase();}).join(' '));}}
+ return {asciiCodePoints:128,formsPerChar:3,totalOverlongForms:tot,
+  naiveDecoderAccepts:nOk,strictDecoderAccepts:sOk,
+  slashOverlongForms:slash,minimalSlashByte:'2F',
+  ok:tot===384&&nOk===384&&sOk===0&&slash.length===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'384 OVERLONG FORMS. TWO DECODERS.');
+ var rows=[['a decoder that reassembles the bits',VR.naiveDecoderAccepts,'#ff5a8a'],
+  ['a standards-conforming decoder',VR.strictDecoderAccepts,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=46+i*66;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,26);
+  if(r[1]>0){nf(g,'rgba(255,90,138,0.65)');g.fillRect(24,y+10,400*r[1]/384,26);ng(g);}
+  nt(g,r[2],24,y+52,12,r[1]+' of 384 accepted');});
+ nt(g,'#ffd76a',24,186,10,'the slash, U+002F, spelled four ways:');
+ var forms=['2F'].concat(VR.slashOverlongForms);
+ forms.forEach(function(f,i){
+  var y=196+i*24;
+  nf(g,i===0?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.22)');
+  g.fillRect(24,y,W-48,20);ng(g);
+  nt(g,i===0?'#7de2b0':'#ff5a8a',36,y+14,10,f);
+  nt(g,'#8a7ab8',200,y+14,9,i===0?'the only legal one':'contains no 0x2F byte');});
+ nt(g,'#b98cff',24,290,9,'a filter looking for 0x2F sees nothing in the last three');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cp=cpIdx&127, by=overlong(cp,width);
+ var dec=new TextDecoder('utf-8',{fatal:false});
+ var strict=dec.decode(new Uint8Array(by));
+ var naiveCp=naive(by);
+ var ch=String.fromCodePoint(cp);
+ nt(g,'#e6dcff',18,24,11,'U+'+('000'+cp.toString(16).toUpperCase()).slice(-4)+
+  '   "'+(cp>32?ch:'space')+'"   encoded in '+width+' bytes');
+ nt(g,'#8a7ab8',18,48,9,'the bytes');
+ var cw=(W-36)/Math.max(4,by.length);
+ for(var i=0;i<by.length;i++){
+  nf(g,'rgba(255,90,138,0.55)');g.fillRect(18+i*cw,56,cw-3,36);ng(g);
+  nt(g,'#0d0818',18+i*cw+8,80,12,by[i].toString(16).toUpperCase());}
+ nt(g,'#8a7ab8',18,110,9,'the minimal encoding would be 1 byte: '+cp.toString(16).toUpperCase());
+ var rows=[['reassemble the bits',String.fromCodePoint(naiveCp)+'   (U+'+naiveCp.toString(16).toUpperCase()+')',naiveCp===cp,'#ff5a8a'],
+  ['standards decoder',strict+'   ('+(strict.codePointAt(0)===0xFFFD?'U+FFFD replacement':'U+'+strict.codePointAt(0).toString(16).toUpperCase())+')',strict===ch,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=128+i*68;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  nf(g,r[2]?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.22)');
+  g.fillRect(18,y+8,W-36,44);ng(g);
+  nt(g,r[2]?'#ff5a8a':'#7de2b0',32,y+36,12,r[1]);});
+ nf(g,'rgba(184,140,255,0.16)');g.fillRect(18,272,W-36,44);ng(g);
+ ne(g,'#b98cff',1.4);g.strokeRect(18.5,272.5,W-37,44);ng(g);
+ nt(g,'#b98cff',32,292,10,'a byte filter never sees 0x'+cp.toString(16).toUpperCase()+' in these bytes');
+ nt(g,'#8a7ab8',32,309,9,'and the naive decoder produces it anyway');
+ var o=document.getElementById('utf8o');
+ if(o)o.innerHTML='<b>'+width+'</b> bytes for a character that needs <b>1</b>. Reassembling the bits gives back <b>U+'+
+  naiveCp.toString(16).toUpperCase()+'</b> &mdash; the original. The conforming decoder returns the replacement character, because a non-minimal form is not valid UTF-8 at all. '+
+  'The attack is the difference between those two answers.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var one=P(0,-64,0);
+ ndot(g,one[0],one[1],9,'#7de2b0');
+ nt(g,'#7de2b0',one[0]-30,one[1]-18,9,'one character');
+ for(var i=0;i<4;i++){
+  var q=P(-72+i*48,50,0);
+  ndot(g,q[0],q[1],i===0?7:5,i===0?'#7de2b0':'#ff5a8a');
+  ne(g,i===0?'rgba(125,226,176,0.4)':'rgba(255,90,138,0.35)',1.2);
+  g.beginPath();g.moveTo(one[0],one[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+  nt(g,i===0?'#7de2b0':'#ff5a8a',q[0]-10,q[1]+20,8,(i+1)+' byte'+(i?'s':''));}
+ nt(g,'#5ad4ff',14,26,11,'one meaning, four spellings');
+ nt(g,'#7de2b0',14,44,10,'only the shortest is legal');
+ nt(g,'#8a7ab8',14,H-46,9,'the filter reads bytes, the decoder reads characters');
+ nt(g,'#ffd76a',14,H-30,9,'both correct, and the gap is the attack');
+ nt(g,'#b98cff',14,H-14,9,'do not validate anything before it is in final form');}
+document.getElementById('utf8n').onclick=function(){cpIdx=(cpIdx+1)&127;drawW4();};
+document.getElementById('utf8w').onclick=function(){width=width>=4?2:width+1;drawW4();};
+document.getElementById('utf8s').onclick=function(){spin=!spin;};
+VR=selftest();window.__theutf8overlong=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BOMK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A mark at the front of a file saying which end of a number comes first. UTF-8 has no ends to order. The mark got used anyway, as a label, and it is invisible.<br><br>
+ <span class="lit">LIT</span> verified live. the byte order mark is <b>U+FEFF</b>, encoded in UTF-8 as the three bytes <code>EF BB BF</code>. It belongs to Unicode&rsquo;s format category, so it draws nothing. Put it in front of a JSON document and <code>JSON.parse</code> <b>throws</b>; strip it and the identical document parses. The string <code>&quot;abc&quot;</code> with a leading mark has length <b>4</b> rather than <b>3</b> and is <b>not equal</b> to <code>&quot;abc&quot;</code> &mdash; and a whitespace trim happens to remove it, which means the bug appears and disappears depending on whether some earlier stage trimmed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>BOM</b> is required for UTF-16, optional and discouraged for UTF-8, and emitted by default by several Windows editors &mdash; which is why it is usually met as an unexplained parse error in a file that looks fine.<br><br><b>AVAN (AI)</b> made the JSON failure the measurement rather than the anecdote: the same bytes, minus three at the front, parse. That is the whole diagnosis and it is one line. The trim result is the part worth carrying &mdash; a bug that is removed by an unrelated cleanup step is a bug that will be reported as intermittent, and intermittent is what a defect looks like when the pipeline has more stages than the report mentions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three bytes at the front. Nothing on the screen.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Put the mark in front of a document and parse it.</div>
+   <div class="btns" style="margin-top:10px"><button id="bomkt">toggle the mark</button><button id="bomkp">parse it</button></div>
+   <div class="cap" id="bomko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to strip the BOM on input. The inverse is that <b>it is a label pretending to be content</b>. Every other piece of metadata about a file &mdash; its name, its type, its length &mdash; lives outside the bytes; this one was put <i>inside</i> them, so every reader must know to skip it and none of them can be told by the file itself. Read backwards, the mark is not the problem; putting metadata in the same channel as data is the problem, and this is simply the smallest possible example of it.</div>
+   <div class="btns" style="margin-top:10px"><button id="bomks">pause spin</button></div></div></div></div>"""
+BOMK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,withBom=true,parsed=null;
+var BOM=String.fromCodePoint(0xFEFF);
+var DOC='{"user":"ada","level":9}';
+function selftest(){
+ var enc=new TextEncoder();
+ var bytes=Array.from(enc.encode(BOM)).map(function(b){return b.toString(16).toUpperCase();});
+ var threw=false;
+ try{ JSON.parse(BOM+DOC); }catch(e){ threw=true; }
+ var okAfter=false;
+ try{ JSON.parse(DOC); okAfter=true; }catch(e){}
+ var s=BOM+'abc';
+ return {codePoint:'U+FEFF',utf8Bytes:bytes,byteCount:bytes.length,
+  jsonThrowsWithBom:threw,jsonParsesWithout:okAfter,
+  lengthWithBom:s.length,lengthWithout:3,strictEqual:s==='abc',
+  removedByTrim:s.trim()==='abc',isFormatChar:/\p{Cf}/u.test(BOM),
+  ok:bytes.length===3&&threw&&okAfter&&s.length===4&&s!=='abc'&&/\p{Cf}/u.test(BOM)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'THREE BYTES THAT DRAW NOTHING');
+ nf(g,'rgba(255,215,106,0.2)');g.fillRect(20,36,W-40,54);ng(g);
+ VR.utf8Bytes.forEach(function(b,i){
+  nf(g,'rgba(255,215,106,0.6)');g.fillRect(34+i*90,48,80,30);ng(g);
+  nt(g,'#0d0818',34+i*90+22,68,13,'0x'+b);});
+ nt(g,'#8a7ab8',24,106,9,'U+FEFF in UTF-8   -- category Cf, zero width');
+ var rows=[['JSON.parse with the mark',VR.jsonThrowsWithBom?'THROWS':'ok',VR.jsonThrowsWithBom,'#ff5a8a'],
+  ['JSON.parse without it',VR.jsonParsesWithout?'parses':'throws',!VR.jsonParsesWithout,'#7de2b0'],
+  ['"abc" length with the mark',VR.lengthWithBom,VR.lengthWithBom!==3,'#ffd76a'],
+  ['removed by an ordinary trim',String(VR.removedByTrim),VR.removedByTrim,'#ff9f45']];
+ rows.forEach(function(r,i){
+  var y=124+i*38;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,32);ng(g);
+  nt(g,'#e6dcff',34,y+21,10,r[0]);
+  nt(g,r[3],380,y+21,12,String(r[1]));});
+ nf(g,'rgba(255,159,69,0.16)');g.fillRect(20,282,W-40,0);ng(g);
+ nt(g,'#ff9f45',24,290,9,'a bug removed by an unrelated cleanup gets reported as intermittent');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var doc=withBom?(BOM+DOC):DOC;
+ nt(g,'#e6dcff',18,24,11,withBom?'the file, saved by an editor that adds the mark':'the same file, mark stripped');
+ nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,36,W-36,54);ng(g);
+ g.fillStyle='#e6dcff';g.font='13px monospace';
+ g.fillText(doc.slice(0,34),28,60);
+ nt(g,'#8a7ab8',28,80,9,'looks identical either way');
+ nt(g,'#8a7ab8',18,110,9,'the first six bytes on disk');
+ var enc=new TextEncoder(),by=Array.from(enc.encode(doc)).slice(0,6);
+ var cw=(W-36)/6;
+ for(var i=0;i<by.length;i++){
+  var mark=(withBom&&i<3);
+  nf(g,mark?'rgba(255,215,106,0.65)':'rgba(90,212,255,0.45)');
+  g.fillRect(18+i*cw,118,cw-3,34);ng(g);
+  nt(g,'#0d0818',18+i*cw+6,140,11,by[i].toString(16).toUpperCase());}
+ if(withBom)nt(g,'#ffd76a',18,168,9,'gold = the mark, invisible above');
+ else nt(g,'#5ad4ff',18,168,9,'the document starts immediately');
+ var threw=false,val=null;
+ try{ val=JSON.parse(doc); }catch(e){ threw=true; }
+ if(parsed!==null){
+  nf(g,threw?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.22)');g.fillRect(18,182,W-36,60);ng(g);
+  ne(g,threw?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,182.5,W-37,60);ng(g);
+  nt(g,threw?'#ff5a8a':'#7de2b0',32,206,11,threw?'JSON.parse THREW':'parsed');
+  nt(g,'#8a7ab8',32,226,9,threw?'unexpected token at position 0':'user = '+(val&&val.user));}
+ else{
+  nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,182,W-36,60);ng(g);
+  nt(g,'#8a7ab8',32,216,10,'press parse it');}
+ nt(g,'#b98cff',18,266,9,'length '+doc.length+'   characters you can see: '+DOC.length);
+ nt(g,'#8a7ab8',18,288,9,'the metadata is inside the data, so nothing can announce it');
+ var o=document.getElementById('bomko');
+ if(o)o.innerHTML=withBom?('The file begins <b>EF BB BF</b> and then the document. Nothing renders for those three bytes, the editor shows a normal file, and <code>JSON.parse</code> fails at position 0 on a character that is not there.'):
+  ('Same document, three bytes shorter, parses. The diagnosis is the difference between two byte counts and nothing on screen distinguishes them.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<20;i++){
+  var q=P(-92+i*10,0,0);
+  var mark=(i<3);
+  ndot(g,q[0],q[1],mark?6:3.4,mark?'#ffd76a':'rgba(90,212,255,0.5)');}
+ var l=P(-96,-24,0);nt(g,'#ffd76a',l[0],l[1],8,'the label, living in the data');
+ var l2=P(-30,26,0);nt(g,'#5ad4ff',l2[0],l2[1],8,'the document');
+ nt(g,'#ffd76a',14,26,11,'metadata in the same channel as data');
+ nt(g,'#8a7ab8',14,44,10,'so every reader must be told, and the file cannot tell them');
+ nt(g,'#7de2b0',14,H-46,9,'name, type and length all live outside the bytes');
+ nt(g,'#ff5a8a',14,H-30,9,'this one was put inside');
+ nt(g,'#b98cff',14,H-14,9,'the smallest possible example of a large mistake');}
+document.getElementById('bomkt').onclick=function(){withBom=!withBom;parsed=null;drawW4();};
+document.getElementById('bomkp').onclick=function(){parsed=1;drawW4();};
+document.getElementById('bomks').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebyteordermark=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+CSFD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Uppercase is not a permutation. Some letters get longer, some have no partner, and lowercasing an uppercased string does not give you back what you started with.<br><br>
+ <span class="lit">LIT</span> verified live. sweeping <b>8,417</b> code points, <b>90</b> grow when uppercased and <b>114</b> fail to survive a lower-upper-lower round trip. The German <b>&szlig;</b> uppercases to <b>SS</b> &mdash; <b>1</b> character becoming <b>2</b> &mdash; and lowercasing that gives <b>ss</b>, which is not <b>&szlig;</b>. So a system that stores names uppercased has silently merged <code>stra&szlig;e</code> and <code>strasse</code> into one, and cannot tell them apart again.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Case mapping</b> is one-to-many in Unicode by design (the SpecialCasing table); case <i>folding</i> is a separate operation defined precisely because mapping does not round-trip.<br><br><b>AVAN (AI)</b> counted both quantities separately &mdash; the <b>90</b> that change length and the <b>114</b> that break the round trip &mdash; because they are different failures with different consequences. Growing breaks fixed-width columns and truncation; not round-tripping destroys information. The second is the worse one and the harder to see, since nothing is lost at the moment it happens; it is lost later, when someone tries to go back.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ninety get longer. A hundred and fourteen never come home.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Uppercase a letter and try to lowercase it back.</div>
+   <div class="btns" style="margin-top:10px"><button id="csfdn">next letter &#9654;</button><button id="csfdb">next one that breaks</button></div>
+   <div class="cap" id="csfdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to use case folding rather than case mapping for comparison. The inverse is that <b>uppercase is a typographic convention, not an operation on data</b>, and it was never a function with an inverse. There is no capital <b>&szlig;</b> in the tradition the letter comes from &mdash; printers wrote SS &mdash; so the mapping is recording a human practice, not computing a transformation. Read backwards, the round trip fails because there was nothing to round-trip: the information was in the writing, and the writing had already thrown it away.</div>
+   <div class="btns" style="margin-top:10px"><button id="csfds">pause spin</button></div></div></div></div>"""
+CSFD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,BREAKS=[];
+function selftest(){
+ var grew=0,broke=0,tot=0,ex=[];BREAKS=[];
+ for(var cp=0x20;cp<=0x2100;cp++){
+  var ch=String.fromCodePoint(cp),up=ch.toUpperCase();
+  tot++;
+  if(up.length>ch.length){grew++; if(ex.length<4)ex.push({cp:cp,ch:ch,up:up});}
+  if(ch.toLowerCase().toUpperCase().toLowerCase()!==ch.toLowerCase()){broke++;BREAKS.push(cp);}}
+ var ss=String.fromCodePoint(0xDF);
+ return {codePointsTested:tot,growUnderUppercase:grew,roundTripFailures:broke,
+  sharpSUpper:ss.toUpperCase(),sharpSUpperLength:ss.toUpperCase().length,
+  sharpSRoundTrip:ss.toUpperCase().toLowerCase(),
+  roundTripRestoresSharpS:ss.toUpperCase().toLowerCase()===ss,
+  examples:ex,
+  ok:tot===8417&&grew===90&&broke===114&&ss.toUpperCase()==='SS'&&
+     ss.toUpperCase().toLowerCase()!==ss};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'8,417 CODE POINTS, TWO KINDS OF FAILURE');
+ var rows=[['grow when uppercased',VR.growUnderUppercase,'#ffd76a'],
+  ['fail a lower-upper-lower round trip',VR.roundTripFailures,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=46+i*62;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,26);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.65)':'rgba(255,215,106,0.6)');
+  g.fillRect(24,y+10,Math.max(4,400*r[1]/200),26);ng(g);
+  nt(g,r[2],24,y+52,12,String(r[1]));});
+ nt(g,'#8a7ab8',24,182,9,'bars are scaled to 200, not to 8,417');
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,196,W-40,60);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,196.5,W-41,60);ng(g);
+ g.fillStyle='#e6dcff';g.font='15px monospace';
+ g.fillText(String.fromCodePoint(0xDF)+'   ->   SS   ->   ss', 36, 232);
+ nt(g,'#ff5a8a',36,250,9,'one character out, two back, and never home again');
+ nt(g,'#b98cff',24,278,9,'growing breaks columns; not returning destroys information');
+ nt(g,'#8a7ab8',24,294,9,'and the loss is only noticed later, by whoever tries to go back');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cp=0x20+((idx%(0x2100-0x20)));
+ var ch=String.fromCodePoint(cp),up=ch.toUpperCase(),back=up.toLowerCase();
+ var breaks=(ch.toLowerCase().toUpperCase().toLowerCase()!==ch.toLowerCase());
+ nt(g,'#e6dcff',18,24,11,'U+'+('000'+cp.toString(16).toUpperCase()).slice(-4));
+ var stages=[['as written',ch,'#5ad4ff'],['uppercased',up,'#ffd76a'],['lowercased again',back,breaks?'#ff5a8a':'#7de2b0']];
+ stages.forEach(function(s,i){
+  var y=40+i*76;
+  nt(g,'#8a7ab8',18,y,9,s[0]+'   (length '+s[1].length+')');
+  nf(g,'rgba(120,90,180,0.18)');g.fillRect(18,y+8,W-36,52);ng(g);
+  g.fillStyle=s[2];g.font='34px serif';
+  try{g.fillText(s[1],30,y+46);}catch(e){}});
+ nf(g,breaks?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.22)');g.fillRect(18,272,W-36,46);ng(g);
+ ne(g,breaks?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,272.5,W-37,46);ng(g);
+ nt(g,breaks?'#ff5a8a':'#7de2b0',32,294,11,breaks?'does not come back':'round trip holds');
+ nt(g,'#8a7ab8',32,311,9,breaks?('"'+ch.toLowerCase()+'" went out and "'+back+'" came home'):'unchanged');
+ var o=document.getElementById('csfdo');
+ if(o)o.innerHTML='U+'+cp.toString(16).toUpperCase()+' uppercases to <b>'+up.length+
+  '</b> character'+(up.length===1?'':'s')+' and lowercases back to something '+
+  (breaks?'<b>different</b> from where it started. Anything stored uppercased has lost the distinction permanently.':
+   'identical. Most letters are fine, which is why the '+VR.roundTripFailures+' that are not go unnoticed.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var a=P(-70,-40,0),b1=P(70,0,0),b2=P(70,-30,0),cch=P(-70,42,0);
+ ndot(g,a[0],a[1],8,'#5ad4ff'); nt(g,'#5ad4ff',a[0]-20,a[1]-16,9,'one letter');
+ ndot(g,b1[0],b1[1],6,'#ffd76a'); ndot(g,b2[0],b2[1],6,'#ffd76a');
+ nt(g,'#ffd76a',b1[0]+12,b1[1]+4,8,'two letters');
+ ndot(g,cch[0],cch[1],8,'#ff5a8a'); nt(g,'#ff5a8a',cch[0]-26,cch[1]+22,9,'a different letter');
+ ne(g,'rgba(255,215,106,0.4)',1.3);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b2[0],b2[1]);g.stroke();
+ ne(g,'rgba(255,90,138,0.4)',1.3);
+ g.beginPath();g.moveTo(b1[0],b1[1]);g.lineTo(cch[0],cch[1]);g.stroke();ng(g);
+ nt(g,'#ff9f45',14,26,11,'out through two, back as one');
+ nt(g,'#8a7ab8',14,44,10,'and not the one you left with');
+ nt(g,'#ffd76a',14,H-46,9,'uppercase is a printing convention');
+ nt(g,'#7de2b0',14,H-30,9,'there was never a capital form to return to');
+ nt(g,'#b98cff',14,H-14,9,'the writing threw it away before the computer did');}
+document.getElementById('csfdn').onclick=function(){idx=(idx+1)%(0x2100-0x20);drawW4();};
+document.getElementById('csfdb').onclick=function(){
+ if(!BREAKS.length)return;
+ var cur=0x20+(idx%(0x2100-0x20)),nx=BREAKS[0];
+ for(var i=0;i<BREAKS.length;i++)if(BREAKS[i]>cur){nx=BREAKS[i];break;}
+ idx=nx-0x20;drawW4();};
+document.getElementById('csfds').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecasefolding=VR;drawW3();
+idx=0xDF-0x20;drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BIDI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Text has a logical order &mdash; the order the bytes are in &mdash; and a display order. Nine invisible characters let you set the second without touching the first, so a line of code can be shown in an order it does not have.<br><br>
+ <span class="lit">LIT</span> verified live. there are <b>9</b> bidirectional control characters: <b>U+202A</b> to <b>U+202E</b> and <b>U+2066</b> to <b>U+2069</b>. All <b>9</b> belong to Unicode&rsquo;s format category, all <b>9</b> are a single code unit, and all <b>9</b> draw nothing. A source line carrying <b>2</b> of them measures <b>35</b> code points of which <b>33</b> are visible &mdash; the compiler reads all <b>35</b> in byte order, the reviewer reads <b>33</b> in display order, and the two orders are not the same.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is <b>Trojan Source</b>, Boucher and Anderson (2021, CVE-2021-42574); the bidirectional algorithm itself is UAX #9 and is required to display Arabic and Hebrew correctly.<br><br><b>AVAN (AI)</b> checked the format category rather than trusting the word &lsquo;invisible&rsquo;, and reports the visible-versus-total count because that gap <i>is</i> the vulnerability: <b>35</b> against <b>33</b>. Nothing here is malformed, no parser is confused, and no standard is violated &mdash; the compiler and the reviewer are both reading correctly. They are reading two different orderings of the same bytes, and only one of them compiles.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine characters. Two readers. Two orders.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a control and watch the line rearrange itself.</div>
+   <div class="btns" style="margin-top:10px"><button id="bidin">next control &#9654;</button><button id="bidit">toggle it in</button></div>
+   <div class="cap" id="bidio" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that compilers should reject unbalanced bidi controls in source. The inverse is that <b>code review has always assumed the reviewer and the compiler read the same artifact, and they never did</b> &mdash; one reads rendered text, the other reads bytes. Read backwards, this is not a Unicode flaw but the first time that gap was made large enough to walk through, and every review process that signs off on an <i>appearance</i> is trusting a rendering pipeline nobody audits.</div>
+   <div class="btns" style="margin-top:10px"><button id="bidis">pause spin</button></div></div></div></div>"""
+BIDI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=4,inserted=true;
+var CTRL=[{cp:0x202A,n:'LRE  left-to-right embedding'},{cp:0x202B,n:'RLE  right-to-left embedding'},
+ {cp:0x202C,n:'PDF  pop directional formatting'},{cp:0x202D,n:'LRO  left-to-right override'},
+ {cp:0x202E,n:'RLO  right-to-left override'},{cp:0x2066,n:'LRI  left-to-right isolate'},
+ {cp:0x2067,n:'RLI  right-to-left isolate'},{cp:0x2068,n:'FSI  first strong isolate'},
+ {cp:0x2069,n:'PDI  pop directional isolate'}];
+function line(on){
+ var RLO=String.fromCodePoint(0x202E),PDF=String.fromCodePoint(0x202C);
+ return on?('if (level == ADMIN) { '+RLO+' // safe '+PDF+' }')
+          :('if (level == ADMIN) {  // safe  }');}
+function selftest(){
+ var re=/\p{Cf}/u,fmt=0,single=0;
+ CTRL.forEach(function(c){
+  var ch=String.fromCodePoint(c.cp);
+  if(re.test(ch))fmt++;
+  if(ch.length===1)single++;});
+ var L=line(true);
+ var pts=Array.from(L).length;
+ var vis=Array.from(L).filter(function(ch){return !re.test(ch);}).length;
+ return {controls:CTRL.length,matchingFormatCategory:fmt,singleCodeUnit:single,
+  logicalCodePoints:pts,visibleCharacters:vis,hiddenControls:pts-vis,
+  rangeA:'U+202A..U+202E',rangeB:'U+2066..U+2069',
+  ok:CTRL.length===9&&fmt===9&&single===9&&pts===35&&vis===33&&(pts-vis)===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'NINE CONTROLS THAT REORDER WITHOUT REWRITING');
+ CTRL.forEach(function(x,i){
+  var y=36+i*24;
+  nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y,W-40,20);ng(g);
+  nt(g,'#e6dcff',34,y+14,9,'U+'+x.cp.toString(16).toUpperCase());
+  nt(g,'#8a7ab8',110,y+14,9,x.n);
+  nt(g,'#7de2b0',W-58,y+14,8,'Cf');});
+ var rows=[['in the format category',VR.matchingFormatCategory],
+  ['a single code unit',VR.singleCodeUnit],
+  ['drawing anything',0]];
+ rows.forEach(function(r,i){
+  var y=254+i*0;
+  nt(g,'#e6dcff',24,258+i*14,9,r[0]+': '+r[1]+' of 9');});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,290,W-40,0);ng(g);
+ nt(g,'#ffd76a',24,296,9,'the compiler reads '+VR.logicalCodePoints+'; the reviewer sees '+VR.visibleCharacters);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var x=CTRL[idx%CTRL.length];
+ var L=line(inserted);
+ var re=/\p{Cf}/u;
+ var pts=Array.from(L),vis=pts.filter(function(ch){return !re.test(ch);});
+ nt(g,'#e6dcff',18,24,11,inserted?('with '+x.n.split('  ')[0]+' inserted'):'no controls');
+ nt(g,'#8a7ab8',18,48,9,'as the reviewer sees it');
+ nf(g,'rgba(120,90,180,0.2)');g.fillRect(18,56,W-36,44);ng(g);
+ g.fillStyle='#7de2b0';g.font='12px monospace';
+ g.fillText(vis.join('').slice(0,44),26,82);
+ nt(g,'#8a7ab8',18,120,9,'as the compiler reads it -- every code point, in order');
+ nf(g,'rgba(120,90,180,0.2)');g.fillRect(18,128,W-36,44);ng(g);
+ g.fillStyle='#ffd76a';g.font='12px monospace';
+ g.fillText(pts.map(function(ch){return re.test(ch)?'#':ch;}).join('').slice(0,44),26,154);
+ nt(g,'#ff5a8a',26,186,9,'# marks a control that draws nothing');
+ var rows=[['code points the compiler reads',pts.length,'#ffd76a'],
+  ['characters the reviewer sees',vis.length,'#7de2b0'],
+  ['hidden controls',pts.length-vis.length,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=200+i*34;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(18,y,W-36,28);ng(g);
+  nt(g,'#e6dcff',30,y+19,10,r[0]);
+  nt(g,r[2],W-58,y+19,12,String(r[1]));});
+ var gap=(pts.length!==vis.length);
+ nf(g,gap?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,306,W-36,0);ng(g);
+ nt(g,gap?'#ff5a8a':'#7de2b0',18,318,9,gap?'two readers, two artifacts, no error anywhere':'the two readings agree');
+ var o=document.getElementById('bidio');
+ if(o)o.innerHTML=inserted?('The line holds <b>'+(pts.length-vis.length)+
+  '</b> characters that draw nothing and reorder what follows. The compiler consumes all <b>'+pts.length+
+  '</b> in byte order; the reviewer reads <b>'+vis.length+
+  '</b> in display order. Neither is malformed and neither is confused &mdash; they are simply not reading the same sequence.'):
+  ('No controls. The rendered line and the byte order are the same, which is the assumption code review has always quietly made.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var flip=(Math.floor(ang/120)%2===1);
+ for(var i=0;i<12;i++){
+  var j=flip&&(i>=5&&i<10)?(14-i):i;
+  var q=P(-88+j*16,-30,0);
+  ndot(g,q[0],q[1],4.4,(i>=5&&i<10)?'#ffd76a':'rgba(125,226,176,0.55)');}
+ var l1=P(-96,-50,0);nt(g,'#7de2b0',l1[0],l1[1],8,flip?'display order':'byte order');
+ for(i=0;i<12;i++){
+  var q2=P(-88+i*16,34,0);
+  ndot(g,q2[0],q2[1],4.4,(i>=5&&i<10)?'#ffd76a':'rgba(90,212,255,0.5)');}
+ var l2=P(-96,54,0);nt(g,'#5ad4ff',l2[0],l2[1],8,'byte order, always');
+ nt(g,'#ff5a8a',14,26,11,'the same bytes, shown two ways');
+ nt(g,'#8a7ab8',14,44,10,'gold is the span a control reversed');
+ nt(g,'#ffd76a',14,H-46,9,'nothing malformed, no parser confused');
+ nt(g,'#7de2b0',14,H-30,9,'review assumed both readers see one artifact');
+ nt(g,'#b98cff',14,H-14,9,'signing off on an appearance trusts an unaudited renderer');}
+document.getElementById('bidin').onclick=function(){idx=(idx+1)%CTRL.length;drawW4();};
+document.getElementById('bidit').onclick=function(){inserted=!inserted;drawW4();};
+document.getElementById('bidis').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebidioverride=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 255 · neon-noir · silicon-coding · TEXT IS NOT A STRING ═══════════════════════
 # ═══════════════════════ BATCH 254 · neon-noir · silicon-coding · WHAT THE COMPILER IS ALLOWED TO ASSUME ═══════════════════════
 # ═══════════════════════ BATCH 253 · neon-noir · silicon-coding · TWO CORRECT THINGS ═══════════════════════
 # ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
@@ -96317,6 +97421,76 @@ SPHERES = [
   "fig":"The honest boundary is stated on the page: this is a working model of the FDIV defect mechanism, NOT an emulation of Intel's P5 divider. The table geometry, the five-blank-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page's, not the Pentium's — the real defect was far rarer, roughly one in nine billion random divides. The AVAN inverse is honest — instead of computing how many times D goes into 4P, read a coarse table and let redundancy clean up next round. Magenta is the trajectory through P-D space and the holes it can fall into; green is the redundancy band that forgives everything except a blank cell.",
   "body":SRTD_BODY,"script":SRTD_SCRIPT},
 
+ {"slug":"the-normalization-form","title":"THE NORMALIZATION FORM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#b98cff","icon":"\u2261",
+  "kicker":"the same glyphs, and not equal",
+  "blurb":"Two strings, the same glyphs on screen, pixel for pixel. One holds a single code point; the other a letter followed by an instruction to put an accent on it. They are not equal.",
+  "lit":"over the Latin-1 and Latin Extended-A blocks 161 characters have a distinct decomposed form, and all 161 get longer when decomposed, 0 of the 161 compare equal to their own decomposition, and all 161 compare equal after normalising; the letter e-acute is 1 code unit composed and 2 decomposed, renders identically either way, and === answers false",
+  "fig":"Unicode normalization (UAX #15) and the forms NFC, NFD, NFKC, NFKD are the standard; the composed/decomposed split exists because Unicode had to round-trip with legacy encodings that made both choices. AVAN swept the block rather than showing the one famous example, because the 0 is the number that matters: not one of the 161 accidentally compares equal. This is not a rare collision, it is a total failure of equality across the whole class, and it is invisible by design - the two forms are REQUIRED to render the same.",
+  "body":NRMF_BODY,"script":NRMF_SCRIPT},
+ {"slug":"the-grapheme-cluster","title":"THE GRAPHEME CLUSTER","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#5ad4ff","icon":"\u2295",
+  "kicker":"eleven, seven, one - all correct",
+  "blurb":"How long is a family emoji? Eleven, if you ask the string. Seven, if you ask how many characters. One, if you ask a person. All three are answers to different questions.",
+  "lit":"the family emoji measures 11 UTF-16 code units, 7 code points and 1 grapheme cluster; the flag measures 4, 2 and 1, and a skin-toned thumb measures 4, 2 and 1 - and reversing the family by code unit does not return the original, nor does reversing it by code point, because only the cluster is a unit a reversal can safely move",
+  "fig":"Grapheme cluster boundaries are UAX #29; Intl.Segmenter implements them and this sphere uses it rather than approximating. AVAN reports all three numbers side by side because the bug is never that a program used the wrong one - it is that the program never knew there were three. length answers a storage question and gets used as a display question; truncating at 10 to fit a field splits the family in half and produces something that is not a character at all.",
+  "body":GRPH_BODY,"script":GRPH_SCRIPT},
+ {"slug":"the-turkish-i","title":"THE TURKISH I","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff9f45","icon":"\u0131",
+  "kicker":"lowercase is a property of a language",
+  "blurb":"Lowercasing a string is not a property of the string. It is a property of the string AND a language, and in Turkish the letter I does not become i.",
+  "lit":"ten ordinary identifiers - FILE, TITLE, ID, INFO, LIST, IMAGE, INDEX, ITEM, MAIN, ADMIN - lowercased under the English and Turkish locales disagree in 10 of 10: I becomes i in English and U+0131 the dotless i in Turkish, while i uppercases to I in English and to U+0130 the dotted capital in Turkish, so a case-insensitive comparison of ADMIN against admin is false on a Turkish machine and true on yours",
+  "fig":"The Turkish dotted and dotless I are the standard example of locale-sensitive case mapping, and the reason toLowerCase and toLocaleLowerCase are different functions. AVAN chose identifiers rather than words, because the failure that matters is a security check, not a mis-spelled label. Every one of the ten contains an I, which is why the mismatch is 10 of 10 rather than a rate: the bug is not probabilistic, it fires on any identifier containing that one letter.",
+  "body":TRKI_BODY,"script":TRKI_SCRIPT},
+ {"slug":"the-homoglyph","title":"THE HOMOGLYPH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffd76a","icon":"\u2248",
+  "kicker":"thirty-two spellings, one shape",
+  "blurb":"Cyrillic a is not Latin a. Different code point, different alphabet, different language - and on every screen you will ever look at, the same shape.",
+  "lit":"the word paypal has 5 positions whose Latin letter has a Cyrillic look-alike, giving 2^5 = 32 substitutions, and all 32 are distinct strings with exactly 1 of them the original - the other 31 compare unequal to it, hash differently, sort differently and render identically, since Latin a is U+0061 and Cyrillic a is U+0430",
+  "fig":"Homoglyph attacks and IDN spoofing are why registrars restrict mixed-script domains and browsers show punycode for suspicious labels; Unicode publishes a confusables table (UTS #39). AVAN counted the space rather than showing one spoofed word, because 32 is the argument: a blocklist of known-bad strings is the usual defence and it is defeated arithmetically, since the attacker picks a different one of the 31. The defence that works is refusing to mix scripts - a rule about the alphabet, not about the words.",
+  "body":HOMO_BODY,"script":HOMO_SCRIPT},
+ {"slug":"the-surrogate-pair","title":"THE SURROGATE PAIR","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#7de2b0","icon":"\u29c9",
+  "kicker":"two units that are not characters",
+  "blurb":"Sixteen bits held every character, once. Then there were more than sixty-five thousand of them, and the fix was to spend two units on the rest - two units that mean nothing apart.",
+  "lit":"the musical clef U+1D11E occupies 2 UTF-16 code units and is 1 code point, and sampling 768 code points across the range, 512 need two units while 256 fit in one; cutting a five-character test string at every one of its 8 indices produces a lone high surrogate 2 times - a value that is not a character, cannot be rendered, and is still a perfectly legal string - and that string reports length 7 while holding 5 characters",
+  "fig":"UTF-16 and the surrogate range U+D800 to U+DFFF are how a 16-bit encoding was extended past the basic plane without breaking existing data. AVAN counted the lone surrogates produced by slicing rather than asserting that slicing is unsafe, because 2 of 8 is the shape of the hazard: not every cut is dangerous, so a test that slices once will usually pass. The type system is silent throughout - a lone surrogate has the same type as any other string.",
+  "body":SRPR_BODY,"script":SRPR_SCRIPT},
+ {"slug":"the-zero-width-joiner","title":"THE ZERO WIDTH JOINER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#b98cff","icon":"\u200b",
+  "kicker":"characters with no shape at all",
+  "blurb":"Some characters have no shape. They occupy no width, print nothing, survive copy and paste, and change what a string is without changing anything you can see.",
+  "lit":"five invisible code points - ZERO WIDTH SPACE, ZWNJ, ZWJ, WORD JOINER and ZWNBSP - inserted into the middle of a word give a string that is not equal to its visible twin in 5 of 5 cases, and all 5 belong to Unicode's format category; trimming removes only 1 of them and leaves 4, while the family emoji is 5 code points of which 2 are zero-width joiners, so stripping them turns the same picture into 3 separate people",
+  "fig":"Zero-width formatting characters are ordinary Unicode - ZWJ is how emoji sequences are built, ZWNJ is required to write Persian and Hindi correctly. They are not an exploit; they are typography. AVAN tested the format category rather than eyeballing invisibility, because 'invisible' is a rendering claim and the category is a checkable one. The uncomfortable number is the trim result: 4 of 5 are stripped and one is not, so a defence that sanitises by trimming leaves a hole, which is worse than removing none.",
+  "body":ZWJU_BODY,"script":ZWJU_SCRIPT},
+ {"slug":"the-utf8-overlong","title":"THE UTF-8 OVERLONG","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#5ad4ff","icon":"\u2261",
+  "kicker":"384 spare spellings of 128 characters",
+  "blurb":"There is exactly one correct way to encode a character in UTF-8, and several that also work. A decoder that accepts the extras will hand you a slash you did not see coming.",
+  "lit":"each of the 128 ASCII code points has 3 non-minimal encodings padded out to two, three and four bytes, giving 384 overlong forms, and a decoder that simply reassembles the bits accepts all 384 and returns the original character every time while the browser's standards-conforming decoder accepts 0 of them; the slash U+002F has the overlong forms C0 AF, E0 80 AF and F0 80 80 AF, none of which contains the byte 0x2F that a path filter is looking for",
+  "fig":"Overlong UTF-8 was the mechanism behind the IIS directory-traversal worms of 2001; the Unicode standard made non-minimal forms illegal precisely because filters and decoders disagreed about them. AVAN ran both decoders - a hand-written naive one and the browser's TextDecoder - so 384 against 0 is measured on the same inputs. The point is not that the naive decoder is badly written; it is that it is the obvious one, and that is what makes the check upstream meaningless.",
+  "body":UTF8_BODY,"script":UTF8_SCRIPT},
+ {"slug":"the-byte-order-mark","title":"THE BYTE ORDER MARK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"COLD BOOT","domain_slug":"cold-boot","accent":"#ffd76a","icon":"\u2691",
+  "kicker":"metadata living inside the data",
+  "blurb":"A mark at the front of a file saying which end of a number comes first. UTF-8 has no ends to order. The mark got used anyway, as a label, and it is invisible.",
+  "lit":"the byte order mark is U+FEFF, encoded in UTF-8 as the three bytes EF BB BF, and it belongs to Unicode's format category so it draws nothing; put it in front of a JSON document and JSON.parse throws while stripping it makes the identical document parse, and the string abc with a leading mark has length 4 rather than 3 and is not equal to abc - and a whitespace trim happens to remove it, so the bug appears and disappears depending on whether some earlier stage trimmed",
+  "fig":"The BOM is required for UTF-16, optional and discouraged for UTF-8, and emitted by default by several Windows editors - which is why it is usually met as an unexplained parse error in a file that looks fine. AVAN made the JSON failure the measurement rather than the anecdote: the same bytes, minus three at the front, parse. The trim result is the part worth carrying - a bug removed by an unrelated cleanup step gets reported as intermittent, and intermittent is what a defect looks like when the pipeline has more stages than the report mentions.",
+  "body":BOMK_BODY,"script":BOMK_SCRIPT},
+ {"slug":"the-case-folding","title":"THE CASE FOLDING","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE RESURRECT","domain_slug":"the-resurrect","accent":"#ff9f45","icon":"\u21c4",
+  "kicker":"out through two, back as one",
+  "blurb":"Uppercase is not a permutation. Some letters get longer, some have no partner, and lowercasing an uppercased string does not give back what you started with.",
+  "lit":"sweeping 8,417 code points, 90 grow when uppercased and 114 fail to survive a lower-upper-lower round trip; the German sharp s uppercases to SS - 1 character becoming 2 - and lowercasing that gives ss, which is not the sharp s, so a system that stores names uppercased has silently merged strasse spelled both ways into one and cannot tell them apart again",
+  "fig":"Case mapping is one-to-many in Unicode by design (the SpecialCasing table); case folding is a separate operation defined precisely because mapping does not round-trip. AVAN counted both quantities separately - the 90 that change length and the 114 that break the round trip - because they are different failures: growing breaks fixed-width columns and truncation, while not round-tripping destroys information. The second is worse and harder to see, since nothing is lost at the moment it happens.",
+  "body":CSFD_BODY,"script":CSFD_SCRIPT},
+ {"slug":"the-bidi-override","title":"THE BIDI OVERRIDE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a8a","icon":"\u21c6",
+  "kicker":"two readers, two orders, no error",
+  "blurb":"Text has a logical order - the order the bytes are in - and a display order. Nine invisible characters set the second without touching the first, so a line of code can be shown in an order it does not have.",
+  "lit":"there are 9 bidirectional control characters, U+202A to U+202E and U+2066 to U+2069, and all 9 belong to Unicode's format category, all 9 are a single code unit and all 9 draw nothing; a source line carrying 2 of them measures 35 code points of which 33 are visible, so the compiler reads all 35 in byte order while the reviewer reads 33 in display order, and the two orders are not the same",
+  "fig":"This is Trojan Source, Boucher and Anderson (2021, CVE-2021-42574); the bidirectional algorithm itself is UAX #9 and is required to display Arabic and Hebrew correctly. AVAN checked the format category rather than trusting the word 'invisible', and reports the visible-versus-total count because that gap IS the vulnerability: 35 against 33. Nothing is malformed, no parser is confused and no standard is violated - the compiler and the reviewer are both reading correctly, two different orderings of the same bytes.",
+  "body":BIDI_BODY,"script":BIDI_SCRIPT},
  {"slug":"the-strict-aliasing","title":"THE STRICT ALIASING","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff5a8a","icon":"\u2260",
   "kicker":"the standard forbids what the memory does",
