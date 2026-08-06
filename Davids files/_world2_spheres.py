@@ -21828,6 +21828,570 @@ document.getElementById('pxqrc').onclick=function(){six=!six;pick=0;drawW4();};
 document.getElementById('pxqrs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thepaxosquorum=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+UNVS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A figure a checker cannot reach is not lightly checked. It is <i>unchecked</i>, permanently, and it drifts at whatever rate the work moves &mdash; while the coverage number beside it keeps reporting how well everything else is doing.<br><br>
+ <span class="lit">LIT</span> verified live. take <b>120</b> figures of which <b>118</b> lie inside the verifier&rsquo;s reach, each touched with probability <b>0.02</b> per edit round over <b>50</b> rounds. Coverage reads <b>98.3%</b>. The probability that at least one of the two unreachable figures has silently drifted is <b>86.7%</b> &mdash; closed form <code>1&minus;(1&minus;p)<sup>(F&minus;V)R</sup></code>, confirmed by simulation at <b>85.8%</b>. The exposure is exponential in the number <i>uncovered</i>, not in the fraction covered, so <b>98.3%</b> and <b>100%</b> are not neighbours: at full coverage the probability is exactly <b>0</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The arithmetic is elementary; what it is applied to is not.<br><br><b>AVAN (AI)</b> built this after finding a wrong number on line 5 of a document that shipped beside <b>73</b> checks, <b>47</b> crosschecks and a <b>6-of-6</b> mutant gate. None of them read that file. The model says why that is not bad luck: coverage is reported as a fraction, and a fraction hides the only quantity that matters, which is the raw count of things nothing looks at. Two is a small number and <b>86.7%</b> is not a small probability.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">98.3% covered. 86.7% chance something drifted.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the coverage and watch the exposure refuse to fall.</div>
+   <div class="btns" style="margin-top:10px"><button id="unvsn">cover one more &#9654;</button><button id="unvsp">expose one</button></div>
+   <div class="cap" id="unvso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that more coverage means less drift. The inverse is that <b>a coverage percentage is a statement about the covered, and the risk lives entirely in the complement</b>. Going from 110 to 118 figures moves coverage from 91.7% to 98.3% and moves the drift probability from <b>99.996%</b> to <b>86.7%</b> &mdash; a heroic-looking gain that leaves the situation almost unchanged. Read backwards, every coverage metric is computed by the very instrument whose blind spot is the question, and it can only ever report on the part of the world it can see.</div>
+   <div class="btns" style="margin-top:10px"><button id="unvss">pause spin</button></div></div></div></div>"""
+UNVS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,F=120,V=118,P=0.02,R=50;
+function pDrift(v){return 1-Math.pow(1-P,(F-v)*R);}
+function sim(v,trials){var sd=9091,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var un=F-v,hit=0;
+ for(var t=0;t<trials;t++){var d=false;
+  for(var r=0;r<R;r++)for(var f=0;f<un;f++)if(rn()<P)d=true;
+  if(d)hit++;}
+ return hit/trials;}
+function selftest(){
+ var closed=pDrift(118),simd=sim(118,4000),sw=[];
+ for(var v=110;v<=120;v++)sw.push({inReach:v,coverage:v*100/F,drift:pDrift(v)*100});
+ return {figures:F,inReach:118,uncovered:2,touchProb:P,rounds:R,
+  coveragePct:118*100/F,pDriftPct:closed*100,simulatedPct:simd*100,
+  closedMatchesSim:Math.abs(closed-simd)<0.02,
+  pAtFullCoverage:pDrift(120)*100,pAt110:pDrift(110)*100,sweep:sw,
+  ok:Math.abs(closed-simd)<0.02&&pDrift(120)===0&&closed>0.8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'COVERAGE RISES. EXPOSURE DOES NOT FALL.');
+ var sw=VR.sweep,x0=40,y0=44,gw=W-70,gh=170;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ sw.forEach(function(s,i){
+  var x=x0+i*(gw/sw.length),h=gh*s.drift/100;
+  nf(g,s.drift>50?'rgba(255,90,138,0.65)':(s.drift>0?'rgba(255,215,106,0.6)':'rgba(125,226,176,0.7)'));
+  g.fillRect(x+2,y0+gh-Math.max(2,h),gw/sw.length-4,Math.max(2,h));ng(g);
+  nt(g,'#5b4a80',x+3,y0+gh+11,7,String(s.inReach));});
+ nt(g,'#8a7ab8',x0-32,y0+8,8,'100%');
+ nt(g,'#8a7ab8',x0-26,y0+gh,8,'0%');
+ nt(g,'#8a7ab8',x0,y0+gh+26,9,'figures inside the verifier reach, of 120');
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,244,W-36,28);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,244.5,W-37,28);ng(g);
+ nt(g,'#ff5a8a',30,263,10,'98.3% covered still leaves an 86.7% chance of silent drift');
+ nt(g,'#7de2b0',24,284,9,'only the last bar -- 120 of 120 -- is zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var un=F-V,p=pDrift(V);
+ nt(g,'#e6dcff',18,24,11,V+' of '+F+' figures inside reach');
+ nt(g,'#8a7ab8',18,42,9,'coverage '+(V*100/F).toFixed(1)+'%');
+ for(var i=0;i<F;i++){
+  var x=18+(i%20)*18,y=54+Math.floor(i/20)*15;
+  var inR=(i<V);
+  nf(g,inR?'rgba(125,226,176,0.5)':'#ff5a8a');
+  g.fillRect(x,y,15,12);ng(g);}
+ var yb=54+6*15+16;
+ nt(g,'#7de2b0',18,yb,9,'green = a verifier reads this figure');
+ nt(g,'#ff5a8a',18,yb+16,9,'red = nothing reads it, ever');
+ nf(g,p>0.5?'rgba(255,90,138,0.28)':(p>0?'rgba(255,215,106,0.22)':'rgba(125,226,176,0.2)'));
+ g.fillRect(18,yb+28,W-36,54);ng(g);
+ ne(g,p>0.5?'#ff5a8a':(p>0?'#ffd76a':'#7de2b0'),1.5);g.strokeRect(18.5,yb+28.5,W-37,54);ng(g);
+ nt(g,p>0.5?'#ff5a8a':(p>0?'#ffd76a':'#7de2b0'),32,yb+52,13,(p*100).toFixed(2)+'% drifted');
+ nt(g,'#8a7ab8',32,yb+70,9,un+' uncovered x '+R+' rounds x p='+P);
+ nt(g,'#b98cff',18,yb+104,9,'the exponent is the COUNT uncovered, not the fraction');
+ var o=document.getElementById('unvso');
+ if(o)o.innerHTML='<b>'+V+'</b> of '+F+' covered (<b>'+(V*100/F).toFixed(1)+'%</b>) leaves <b>'+un+
+  '</b> figure'+(un===1?'':'s')+' that nothing reads, and a <b>'+(p*100).toFixed(2)+
+  '%</b> chance at least one has drifted. '+(un===0?'Only here does it reach zero.':
+  'Adding coverage moves the percentage a lot and the exposure barely at all, until the last one is closed.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<40;i++){
+  var th=i/40*Math.PI*2,q=P3(Math.cos(th)*84,((i%5)-2)*13,Math.sin(th)*84);
+  ndot(g,q[0],q[1],3.4,'rgba(125,226,176,0.55)');}
+ ne(g,'rgba(125,226,176,0.25)',1.2);
+ g.beginPath();
+ for(i=0;i<=40;i++){var th2=i/40*Math.PI*2,q2=P3(Math.cos(th2)*84,0,Math.sin(th2)*84);
+  i?g.lineTo(q2[0],q2[1]):g.moveTo(q2[0],q2[1]);}
+ g.stroke();ng(g);
+ var drift=(ang%200)/200;
+ var o1=P3(120,-46+drift*30,0),o2=P3(-120,40-drift*24,0);
+ ndot(g,o1[0],o1[1],7,'#ff5a8a');ndot(g,o2[0],o2[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',o1[0]-40,o1[1]-14,8,'outside the ring');
+ nt(g,'#ffd76a',14,26,11,'the ring is what the checker reaches');
+ nt(g,'#7de2b0',14,44,10,'everything inside it is held in place');
+ nt(g,'#ff5a8a',14,H-46,9,'the two outside drift freely, and are still counted');
+ nt(g,'#8a7ab8',14,H-30,9,'coverage is computed by the instrument with the blind spot');
+ nt(g,'#b98cff',14,H-14,9,'a fraction reports on the covered; the risk is the complement');}
+document.getElementById('unvsn').onclick=function(){V=Math.min(F,V+1);drawW4();};
+document.getElementById('unvsp').onclick=function(){V=Math.max(108,V-1);drawW4();};
+document.getElementById('unvss').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunverifiedsurface=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NOPS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A regular expression cannot count. Hand it something that nests and it does not refuse &mdash; it matches the part it can reach and returns that, with no indication that the rest of the structure was ever there.<br><br>
+ <span class="lit">LIT</span> verified live. over all <b>196</b> balanced-parenthesis strings of up to six pairs &mdash; the Catalan numbers <b>1, 2, 5, 14, 42, 132</b> &mdash; a one-level nesting pattern spans the whole string in <b>6</b> cases, returns a <i>partial</i> match in <b>190</b>, and fails to match in <b>0</b>. It is wrong <b>96.9%</b> of the time and silent <b>100%</b> of the time. On the case that matters, <code>dasum:dx((+ i 1))</code>, it returns <code>(+ i 1)</code> &mdash; the index survives and the array <b>name is gone</b>, because the name is the one component that sits outside every bracket.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">That regular languages cannot recognise balanced parentheses is the pumping lemma, and is older than every tool this happens in.<br><br><b>AVAN (AI)</b> counted the failure modes rather than restating the theorem, because the theorem says the pattern is <i>wrong</i> and the count says it is <b>quiet</b>. The <b>0</b> is the whole finding: not one of <b>196</b> inputs produced a non-match. A pattern that failed loudly would be a nuisance; this one hands back a well-formed answer of the right type, and the loss shows up four call frames away as an unbalanced token stream naming neither parentheses nor names.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">196 balanced strings. 190 wrong. 0 complaints.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the nesting and watch the match stop keeping up.</div>
+   <div class="btns" style="margin-top:10px"><button id="nopsn">deeper &#9654;</button><button id="nopsp">shallower</button><button id="nopsw">show the name case</button></div>
+   <div class="cap" id="nopso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is: do not parse nesting with a regex. The inverse is that <b>the danger is not the wrongness, it is the type</b>. The pattern returns a string when a string was expected; nothing downstream can tell a truncated capture from a complete one, because both are strings and both are non-empty. Read backwards, the reason this bug is written again and again is that the failure is <i>type-correct</i> &mdash; and every safeguard we have, from static types to assertions to the shape of a return value, is watching the type.</div>
+   <div class="btns" style="margin-top:10px"><button id="nopss">pause spin</button></div></div></div></div>"""
+NOPS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=2,showName=false;
+var RE=/\(([^()]*(?:\([^()]*\)[^()]*)*)\)/;
+function dyck(n){ if(n===0)return [''];
+ var out=[];
+ for(var k=0;k<n;k++){var A=dyck(k),B=dyck(n-1-k);
+  A.forEach(function(a){B.forEach(function(b){out.push('('+a+')'+b);});});}
+ return out;}
+function classify(w){var m=RE.exec(w);
+ if(!m)return {k:'none',got:null};
+ if(m[0].length===w.length)return {k:'full',got:m[1]};
+ return {k:'partial',got:m[1]};}
+function selftest(){
+ var cat=[],full=0,part=0,none=0,tot=0,rows=[];
+ for(var n=1;n<=6;n++){var W=dyck(n);cat.push(W.length);
+  var f=0,p=0,z=0;
+  W.forEach(function(w){tot++;var c=classify(w);
+   if(c.k==='full'){f++;full++;}else if(c.k==='partial'){p++;part++;}else{z++;none++;}});
+  rows.push({pairs:n,words:W.length,full:f,partial:p,none:z});}
+ var nameCase='dasum:dx((+ i 1))',mm=RE.exec(nameCase);
+ return {catalan:cat,totalWords:tot,fullSpan:full,partialSilent:part,noMatch:none,
+  sum:full+part+none,silentPct:part*100/tot,loudPct:none*100/tot,rows:rows,
+  silentShareOfFailures:part*100/(part+none),
+  nameCase:nameCase,nameCaseYields:mm?mm[1]:null,nameSurvives:mm?(mm[1].indexOf('dx')>=0):null,
+  ok:tot===196&&cat.join()==='1,2,5,14,42,132'&&full+part+none===tot&&none===0&&part===190};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'ALL 196 BALANCED STRINGS UP TO SIX PAIRS');
+ nt(g,'#8a7ab8',24,40,9,'pairs   words   full span   partial (silent)   no match');
+ VR.rows.forEach(function(r,i){
+  var y=52+i*30;
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,26);ng(g);
+  nt(g,'#e6dcff',34,y+18,10,String(r.pairs));
+  nt(g,'#8a7ab8',86,y+18,10,String(r.words));
+  nt(g,r.full?'#7de2b0':'#5b4a80',170,y+18,10,String(r.full));
+  var bw=Math.max(2,180*r.partial/132);
+  nf(g,'rgba(255,90,138,0.6)');g.fillRect(250,y+7,bw,12);ng(g);
+  nt(g,'#ff5a8a',250+bw+8,y+18,9,String(r.partial));
+  nt(g,'#5b4a80',W-40,y+18,10,String(r.none));});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,238,W-36,30);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,238.5,W-37,30);ng(g);
+ nt(g,'#ff5a8a',30,258,10,'190 of 196 wrong -- and 0 of 196 said anything about it');
+ nt(g,'#8a7ab8',24,282,9,'Catalan 1, 2, 5, 14, 42, 132: the count of things it cannot count');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var w=showName?VR.nameCase:('('.repeat(depth)+'x'+')'.repeat(depth));
+ var m=RE.exec(w),span=m?m[0]:'',got=m?m[1]:null;
+ nt(g,'#e6dcff',18,24,11,showName?'the case that mattered':('nesting depth '+depth));
+ nt(g,'#8a7ab8',18,44,9,'input');
+ var cw=Math.min(20,(W-40)/Math.max(1,w.length));
+ for(var i=0;i<w.length;i++){
+  var inSpan=m&&(i>=m.index&&i<m.index+m[0].length);
+  var inCap=m&&(i>=m.index+m[0].indexOf(m[1])&&i<m.index+m[0].indexOf(m[1])+m[1].length)&&m[1].length>0;
+  nf(g,inCap?'rgba(255,215,106,0.65)':(inSpan?'rgba(90,212,255,0.4)':'rgba(255,90,138,0.5)'));
+  g.fillRect(18+i*cw,52,cw-1.5,30);ng(g);
+  nt(g,'#0d0818',18+i*cw+cw/2-3,72,10,w[i]);}
+ nt(g,'#ffd76a',18,100,9,'gold = what the pattern captured');
+ nt(g,'#5ad4ff',18,116,9,'blue = matched but discarded');
+ nt(g,'#ff5a8a',18,132,9,'red = never touched by the match');
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,146,W-36,40);ng(g);
+ nt(g,'#e6dcff',30,164,10,'captured:');
+ nt(g,'#ffd76a',30,180,11,got===null?'(no match)':('"'+got+'"'));
+ var lost=(m&&m[0].length!==w.length);
+ nf(g,lost?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,196,W-36,44);ng(g);
+ ne(g,lost?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,196.5,W-37,44);ng(g);
+ nt(g,lost?'#ff5a8a':'#7de2b0',32,220,11,lost?'PARTIAL -- and it returned a string anyway':'full span');
+ nt(g,'#b98cff',18,262,9,'the return type is correct in every one of these cases');
+ nt(g,'#8a7ab8',18,280,9,'nothing downstream can tell truncated from complete');
+ nt(g,'#ff9f45',18,300,9,showName?'the name dx sits outside every bracket, so it cannot be kept':'');
+ var o=document.getElementById('nopso');
+ if(o)o.innerHTML=showName?
+  ('<b>'+VR.nameCase+'</b> yields <b>"'+VR.nameCaseYields+'"</b>. The index survived and <b>dx</b> did not &mdash; the array name is the one component no parenthesis encloses, so a pattern that can only see bracketed groups cannot see it at all.'):
+  ('Depth <b>'+depth+'</b>: the pattern captured <b>"'+got+'"</b> out of a '+w.length+
+   '-character string. '+(lost?'It kept the innermost group it could reach and returned it as though it were the whole thing.':'At this depth it happens to span the input.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<5;i++){
+  var r=92-i*17;
+  ne(g,i===3?'rgba(255,215,106,0.75)':'rgba(120,90,180,0.3)',i===3?1.8:1);
+  g.beginPath();
+  for(var a=0;a<=32;a++){var th=a/32*Math.PI*2,q=P(Math.cos(th)*r,0,Math.sin(th)*r);
+   a?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);}
+  g.closePath();g.stroke();ng(g);}
+ var np=P(-116,0,0);
+ ndot(g,np[0],np[1],7,'#ff5a8a');
+ nt(g,'#ff5a8a',np[0]-6,np[1]+20,8,'the name');
+ nt(g,'#ffd76a',14,26,11,'it reaches exactly one ring deep');
+ nt(g,'#8a7ab8',14,44,10,'and hands back what it found there');
+ nt(g,'#ff5a8a',14,H-46,9,'the name is outside every ring, so it is never a candidate');
+ nt(g,'#b98cff',14,H-30,9,'the answer is the wrong answer of the right type');
+ nt(g,'#7de2b0',14,H-14,9,'which is what every safeguard we own is watching');}
+document.getElementById('nopsn').onclick=function(){depth=Math.min(6,depth+1);showName=false;drawW4();};
+document.getElementById('nopsp').onclick=function(){depth=Math.max(1,depth-1);showName=false;drawW4();};
+document.getElementById('nopsw').onclick=function(){showName=!showName;drawW4();};
+document.getElementById('nopss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenameoutsidetheparens=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+ORDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two strips of six squares, glued end to end. One glued straight, one glued with a half turn. Count everything about them &mdash; corners, edges, faces &mdash; and the two are indistinguishable. They are not the same object.<br><br>
+ <span class="lit">LIT</span> verified live. building both as cell complexes: the annulus has <b>12</b> vertices, <b>18</b> edges, <b>6</b> faces; the twisted strip has <b>12</b>, <b>18</b>, <b>6</b>. Euler characteristic <b>0 = 0</b>. Every count agrees. Walking the boundary separates them immediately: the annulus has <b>2</b> rims of length <b>6</b> each, the twisted strip has <b>1</b> rim of length <b>12</b> &mdash; the same edges, joined into one circuit instead of two, and it takes <b>2&times;</b> as long to come home.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The M&ouml;bius band, its non-orientability and its orientation double cover are classical, and the &chi;&nbsp;=&nbsp;0 coincidence is standard.<br><br><b>AVAN (AI)</b> built the complexes and ran the walk rather than quoting the result, because the coincidence is the useful part and it is usually mentioned in passing. An audit performed by <i>counting</i> reports these two as the same object. Not approximately, not with low confidence &mdash; identically, on every count available. What separates them is not a bigger census but a different <i>kind</i> of observation: you have to travel.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every count identical. One walk tells them apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the rim and see whether it closes on the first lap.</div>
+   <div class="btns" style="margin-top:10px"><button id="ordct">straight / twisted</button><button id="ordcn">step the walk &#9654;</button><button id="ordcr">reset</button></div>
+   <div class="cap" id="ordco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that orientation is invisible to counting. The inverse is that <b>a census is a local instrument being asked a global question</b>. Vertices, edges and faces are all answerable by looking at one neighbourhood at a time and adding up; orientation is not answerable that way at any resolution, because every neighbourhood of the twisted strip is identical to a neighbourhood of the flat one. Read backwards, no amount of local checking accumulates into a global fact, and an auditor who only ever counts will report two different worlds as one.</div>
+   <div class="btns" style="margin-top:10px"><button id="ordcs">pause spin</button></div></div></div></div>"""
+ORDC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=6,twisted=false,step=0;
+function vid(i,s){return (i%N)*2+s;}
+function build(tw){
+ var edges=[];
+ for(var i=0;i<N;i++){
+  var iN=(i+1)%N;
+  var bB=(i===N-1)?(tw?vid(0,1):vid(0,0)):vid(iN,0);
+  var tB=(i===N-1)?(tw?vid(0,0):vid(0,1)):vid(iN,1);
+  edges.push([vid(i,0),bB]);edges.push([vid(i,1),tB]);}
+ var rails=edges.slice();
+ for(i=0;i<N;i++)edges.push([vid(i,0),vid(i,1)]);
+ var adj={};
+ rails.forEach(function(e){(adj[e[0]]=adj[e[0]]||[]).push(e[1]);(adj[e[1]]=adj[e[1]]||[]).push(e[0]);});
+ var seen={},lens=[],starts=[];
+ for(var v=0;v<2*N;v++){ if(seen[v])continue;
+  var st=[v],n=0;seen[v]=1;starts.push(v);
+  while(st.length){var x=st.pop();n++;
+   (adj[x]||[]).forEach(function(y){if(!seen[y]){seen[y]=1;st.push(y);}});}
+  lens.push(n);}
+ return {V:2*N,E:edges.length,F:N,chi:2*N-edges.length+N,rims:lens.length,lens:lens,
+  adj:adj,rails:rails,starts:starts};}
+function walk(tw,k){
+ var b=build(tw),path=[b.starts[0]],prev=-1,cur=b.starts[0];
+ for(var i=0;i<k;i++){
+  var nb2=(b.adj[cur]||[]).filter(function(y){return y!==prev;});
+  if(!nb2.length)break;
+  prev=cur;cur=nb2[0];path.push(cur);}
+ return {path:path,closed:path.length>1&&path[path.length-1]===path[0],len:path.length-1};}
+function selftest(){
+ var a=build(false),m=build(true);
+ return {cells:N,
+  annulusV:a.V,annulusE:a.E,annulusF:a.F,annulusChi:a.chi,
+  mobiusV:m.V,mobiusE:m.E,mobiusF:m.F,mobiusChi:m.chi,
+  chiEqual:a.chi===m.chi,countsEqual:(a.V===m.V&&a.E===m.E&&a.F===m.F),
+  annulusRims:a.rims,mobiusRims:m.rims,annulusRimLens:a.lens,mobiusRimLens:m.lens,
+  coverRatio:m.lens[0]/a.lens[0],
+  ok:a.chi===0&&m.chi===0&&a.V===m.V&&a.E===m.E&&a.F===m.F&&
+     a.rims===2&&m.rims===1&&m.lens[0]===2*a.lens[0]};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY COUNT AGREES. THE OBJECTS DO NOT.');
+ var rows=[['vertices',VR.annulusV,VR.mobiusV],['edges',VR.annulusE,VR.mobiusE],
+  ['faces',VR.annulusF,VR.mobiusF],['V - E + F',VR.annulusChi,VR.mobiusChi]];
+ nt(g,'#8a7ab8',150,44,9,'straight');nt(g,'#8a7ab8',300,44,9,'twisted');
+ rows.forEach(function(r,i){
+  var y=56+i*34,same=(r[1]===r[2]);
+  nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,y,W-40,28);ng(g);
+  nt(g,'#e6dcff',34,y+19,10,r[0]);
+  nt(g,'#7de2b0',160,y+19,11,String(r[1]));
+  nt(g,'#7de2b0',310,y+19,11,String(r[2]));
+  if(same)nt(g,'#7de2b0',W-70,y+19,9,'same');});
+ var y2=56+4*34+12;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,'#ff5a8a',34,y2+22,10,'boundary rims: '+VR.annulusRims+' of length '+VR.annulusRimLens.join(',')+
+  '   vs   '+VR.mobiusRims+' of length '+VR.mobiusRimLens.join(','));
+ nt(g,'#ffd76a',34,y2+44,10,'the same edges -- one circuit instead of two, twice as long');
+ nt(g,'#8a7ab8',24,y2+80,9,'a census answers each neighbourhood; a walk answers the whole');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var w=walk(twisted,step),b=build(twisted);
+ nt(g,'#e6dcff',18,24,11,twisted?'TWISTED -- glued with a half turn':'STRAIGHT -- glued end to end');
+ nt(g,'#8a7ab8',18,42,9,'step '+step+'   rims: '+b.rims+'   lengths '+b.lens.join(', '));
+ var cx=W/2,cy=140,R=94;
+ for(var i=0;i<2*N;i++){
+  var ring=i%2,idx=Math.floor(i/2);
+  var th=idx/N*Math.PI*2-Math.PI/2;
+  var r=ring?R:R*0.6;
+  var x=cx+Math.cos(th)*r,y=cy+Math.sin(th)*r*0.62;
+  var onPath=w.path.indexOf(i)>=0;
+  var isCur=(w.path[w.path.length-1]===i);
+  ndot(g,x,y,isCur?8:(onPath?5.4:3),isCur?'#ffd76a':(onPath?'#b98cff':'rgba(120,90,180,0.4)'));}
+ ne(g,'rgba(184,140,255,0.5)',1.4);
+ for(i=1;i<w.path.length;i++){
+  var A=w.path[i-1],B=w.path[i];
+  function pt(k){var ring=k%2,idx=Math.floor(k/2),th=idx/N*Math.PI*2-Math.PI/2;
+   var r=ring?R:R*0.6;return [cx+Math.cos(th)*r,cy+Math.sin(th)*r*0.62];}
+  var a=pt(A),bb=pt(B);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(bb[0],bb[1]);g.stroke();}
+ ng(g);
+ var yb=250;
+ nf(g,w.closed?'rgba(125,226,176,0.22)':'rgba(255,215,106,0.2)');g.fillRect(18,yb,W-36,46);ng(g);
+ ne(g,w.closed?'#7de2b0':'#ffd76a',1.5);g.strokeRect(18.5,yb+0.5,W-37,46);ng(g);
+ nt(g,w.closed?'#7de2b0':'#ffd76a',32,yb+22,11,w.closed?('CLOSED after '+w.len+' steps'):('open -- '+w.len+' steps so far'));
+ nt(g,'#8a7ab8',32,yb+40,9,twisted?'one rim: it must visit all 12 before returning':'two rims: 6 steps and you are home');
+ nt(g,'#b98cff',18,yb+70,9,'every count above was identical for both');
+ var o=document.getElementById('ordco');
+ if(o)o.innerHTML=(twisted?'Twisted':'Straight')+', step <b>'+step+'</b>: '+
+  (w.closed?('the rim closed after <b>'+w.len+'</b> steps.'):('the walk is <b>'+w.len+'</b> steps in and has not come home.'))+
+  ' '+(twisted?'The twist joins the two rails into a single circuit of 12, so half a lap lands you on the <i>other</i> rail.':
+   'The two rails never meet, so each closes on its own after 6.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<=60;i++){
+  var t=i/60*Math.PI*2, R=76;
+  var half=t/2;
+  var wdt=22;
+  for(var s=-1;s<=1;s+=2){
+   var xx=(R+s*wdt*Math.cos(half))*Math.cos(t);
+   var zz=(R+s*wdt*Math.cos(half))*Math.sin(t);
+   var yy=s*wdt*Math.sin(half);
+   var q=P(xx,yy,zz);
+   ndot(g,q[0],q[1],2.4,s>0?'#b98cff':'#7de2b0');}}
+ nt(g,'#b98cff',14,26,11,'one edge, walked twice');
+ nt(g,'#7de2b0',14,44,10,'green and violet are the same rim');
+ nt(g,'#8a7ab8',14,H-46,9,'every neighbourhood here matches a flat one exactly');
+ nt(g,'#ffd76a',14,H-30,9,'so no local check, at any resolution, can tell');
+ nt(g,'#ff5a8a',14,H-14,9,'a census is a local instrument asked a global question');}
+document.getElementById('ordct').onclick=function(){twisted=!twisted;step=0;drawW4();};
+document.getElementById('ordcn').onclick=function(){step=Math.min(2*N,step+1);drawW4();};
+document.getElementById('ordcr').onclick=function(){step=0;drawW4();};
+document.getElementById('ordcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theorientationdoublecover=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SFDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A checker can be wrong two ways. It can cry wolf, or it can wave something through. These are not symmetric errors, because only one of them summons a human to come and look.<br><br>
+ <span class="lit">LIT</span> verified live. <b>10,000</b> items at a <b>5%</b> defect rate is <b>500</b> defects. Under a policy where every flag is investigated and every pass is not, sweeping the false-alarm rate from <b>0</b> to <b>50%</b> leaves the surviving defect count pinned at <b>50</b> &mdash; unchanged at every point, while the investigation load climbs from <b>0</b> to <b>4,750</b>. Sweeping the miss rate over the same range takes survivors from <b>0</b> to <b>250</b>, a straight line of slope <b>500</b>, exactly the defect count. One error direction costs effort and cannot cost correctness. The other costs correctness and is free.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The asymmetry between false positives and false negatives under an investigate-on-flag policy is standard decision theory.<br><br><b>AVAN (AI)</b> built this the day it happened. A null test on another program reported &lsquo;<b>0 of 3</b> refused&rsquo; when the program had refused all three; the fault was in the checker, which caught the wrong exception class. It was found within one run &mdash; because the alarming number sent someone looking. Had the same bug reported <b>3 of 3</b> when nothing was refused, nothing would have looked, and the sweep above says how long that lasts: indefinitely.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Raise the false alarms: nothing breaks. Raise the misses: everything does.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn each dial and watch which one moves the survivors.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfdrf">false alarms +</button><button id="sfdrm">misses +</button><button id="sfdrr">reset both</button></div>
+   <div class="cap" id="sfdro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is to prefer a noisy checker over a quiet one. The inverse is that <b>a checker&rsquo;s error rate is not a property of the checker &mdash; it is a property of the checker and the policy together</b>. The false alarm is harmless only because somebody looks; make investigation expensive enough that flags start being dismissed unread, and the two directions collapse into one. Read backwards, every &lsquo;fail loudly&rsquo; design is quietly relying on an attention budget nobody measured, and it degrades into the silent kind the moment that budget runs out.</div>
+   <div class="btns" style="margin-top:10px"><button id="sfdrs">pause spin</button></div></div></div></div>"""
+SFDR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=10000,D=0.05,fp=0.10,fn=0.10;
+function survive(f){return N*D*f;}
+function wasted(f){return N*(1-D)*f;}
+function selftest(){
+ var fps=[],fns=[];
+ for(var i=0;i<=10;i++){var r=i/20;
+  fps.push({rate:r,survivors:survive(0.10),investigated:wasted(r)});
+  fns.push({rate:r,survivors:survive(r),investigated:wasted(0.10)});}
+ var flat=fps.every(function(x){return x.survivors===fps[0].survivors;});
+ var slope=(fns[10].survivors-fns[0].survivors)/(fns[10].rate-fns[0].rate);
+ return {items:N,defectRate:D,defects:N*D,
+  falseAlarmSweep:fps,missSweep:fns,
+  survivorsFlatUnderFalseAlarms:flat,
+  investigatedAtFA50:wasted(0.5),survivorsAtMiss50:survive(0.5),
+  missSlope:slope,slopeEqualsDefects:slope===N*D,
+  ok:flat&&slope===N*D&&survive(0)===0&&wasted(0)===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'TWO DIALS. ONLY ONE OF THEM MOVES THE SURVIVORS.');
+ var sets=[['false alarms 0 -> 50%',VR.falseAlarmSweep,'#7de2b0'],
+  ['misses 0 -> 50%',VR.missSweep,'#ff5a8a']];
+ sets.forEach(function(S,si){
+  var y0=42+si*118,gh=84,x0=40,gw=W-80;
+  nt(g,'#e6dcff',24,y0-4,10,S[0]);
+  g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+  S[1].forEach(function(p,i){
+   var x=x0+i*(gw/11),h=gh*p.survivors/260;
+   nf(g,si?'rgba(255,90,138,0.65)':'rgba(125,226,176,0.6)');
+   g.fillRect(x+3,y0+gh-Math.max(2,h),gw/11-6,Math.max(2,h));ng(g);});
+  nt(g,'#8a7ab8',x0-30,y0+10,8,'260');
+  nt(g,'#8a7ab8',x0-22,y0+gh,8,'0');
+  nt(g,S[2],x0,y0+gh+16,9,si?('survivors climb 0 -> 250, slope '+VR.missSlope):
+   ('survivors pinned at '+VR.falseAlarmSweep[0].survivors+' at every rate'));});
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,278,W-36,0);ng(g);
+ nt(g,'#ffd76a',24,286,9,'the slope is 500 -- exactly the number of defects present');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=survive(fn),inv=wasted(fp);
+ nt(g,'#e6dcff',18,24,11,'false alarms '+(fp*100).toFixed(0)+'%   misses '+(fn*100).toFixed(0)+'%');
+ nt(g,'#8a7ab8',18,44,9,N.toLocaleString()+' items, '+(N*D)+' defects');
+ var rows=[['defects caught',N*D-s,'#7de2b0',500],
+  ['defects SURVIVING',s,'#ff5a8a',500],
+  ['false alarms investigated',inv,'#ffd76a',5000]];
+ rows.forEach(function(r,i){
+  var y=64+i*66;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(18,y+8,W-36,26);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.65)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,215,106,0.55)'));
+  g.fillRect(18,y+8,Math.max(2,(W-36)*Math.min(1,r[1]/r[3])),26);ng(g);
+  nt(g,r[2],24,y+52,11,Math.round(r[1]).toLocaleString());});
+ var yb=64+3*66+6;
+ nf(g,'rgba(184,140,255,0.16)');g.fillRect(18,yb,W-36,44);ng(g);
+ ne(g,'#b98cff',1.4);g.strokeRect(18.5,yb+0.5,W-37,44);ng(g);
+ nt(g,'#b98cff',32,yb+20,10,'every flag is investigated');
+ nt(g,'#ff5a8a',32,yb+37,10,'no pass ever is');
+ nt(g,'#8a7ab8',18,yb+66,9,'that policy is the whole asymmetry');
+ var o=document.getElementById('sfdro');
+ if(o)o.innerHTML='At <b>'+(fp*100).toFixed(0)+'%</b> false alarms and <b>'+(fn*100).toFixed(0)+
+  '%</b> misses: <b>'+Math.round(s)+'</b> defects survive and <b>'+Math.round(inv)+
+  '</b> correct items get investigated for nothing. Push the false alarms to 50% and the survivors do not move. Push the misses to 50% and they reach <b>250</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%120)/120;
+ for(var i=0;i<10;i++){
+  var q=P(-96+i*21,-52,0);
+  ndot(g,q[0],q[1],5,'#ffd76a');}
+ var lp=P(-96,-72,0);nt(g,'#ffd76a',lp[0],lp[1],8,'flagged -- someone comes to look');
+ for(i=0;i<10;i++){
+  var q2=P(-96+i*21,52,0);
+  ndot(g,q2[0],q2[1],i<3?5:2.6,i<3?'#ff5a8a':'rgba(120,90,180,0.35)');}
+ var pp=P(-96,74,0);nt(g,'#ff5a8a',pp[0],pp[1],8,'passed -- nobody ever will');
+ var eye=P(0,-96,0);
+ ndot(g,eye[0],eye[1],6+2*Math.sin(t*Math.PI*2),'#5ad4ff');
+ nt(g,'#5ad4ff',eye[0]-20,eye[1]-14,8,'attention');
+ nt(g,'#5ad4ff',14,26,11,'the alarm summons a person');
+ nt(g,'#ff5a8a',14,44,10,'the pass summons nobody');
+ nt(g,'#8a7ab8',14,H-46,9,'so a noisy checker is safe -- while anyone is still reading');
+ nt(g,'#ffd76a',14,H-30,9,'the error rate belongs to the checker AND the policy');
+ nt(g,'#b98cff',14,H-14,9,'fail-loudly quietly spends an attention budget nobody measured');}
+document.getElementById('sfdrf').onclick=function(){fp=Math.min(0.5,fp+0.1);drawW4();};
+document.getElementById('sfdrm').onclick=function(){fn=Math.min(0.5,fn+0.1);drawW4();};
+document.getElementById('sfdrr').onclick=function(){fp=0.10;fn=0.10;drawW4();};
+document.getElementById('sfdrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesafedirection=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+FPMT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A guess reproduced an output character for character. That feels like proof. How much evidence it actually is depends entirely on a number nobody computes: how many <i>other</i> outputs the guess could have produced.<br><br>
+ <span class="lit">LIT</span> verified live. treating the <b>13</b>-character string as free text over a <b>96</b>-character alphabet gives odds of <b>5.9 &times; 10<sup>25</sup></b> to one &mdash; a number that means nothing, because a wrong reconstruction was never going to emit random bytes. Enumerating what it could plausibly emit instead &mdash; <b>3</b> function spellings &times; <b>7</b> argument forms &times; <b>3</b> bracketings &times; <b>2</b> paddings = <b>126</b> candidate paths &mdash; <b>2</b> of them land on the target, so the honest likelihood ratio is <b>126 / 2 = 63</b> to one. The naive figure overstates the evidence by a factor of <b>9.3 &times; 10<sup>23</sup></b>. Those 126 paths collapse to <b>120</b> distinct strings: <b>6</b> collisions, and the target is one of them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Likelihood ratios and the base-rate problem are ordinary Bayesian practice.<br><br><b>AVAN (AI)</b> ran this on its own reasoning rather than in the abstract. Lacking the real tool, it reconstructed an input, and the reconstruction reproduced a documented failure exactly &mdash; and it then treated that match as sufficient grounds to proceed. This is the audit of that decision. <b>63</b> to one is good evidence and it is not the certainty the exactness felt like, and the gap between those two is the entire finding. The <b>2</b> was also a correction: the first count asserted a unique path and the enumeration found two.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">5.9e25 to one, or 63 to one. Same match.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add or remove ways the guess could have been wrong.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpmtn">more ways to be wrong</button><button id="fpmtp">fewer</button></div>
+   <div class="cap" id="fpmto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that an exact match is strong evidence. The inverse is that <b>evidence is measured in the alternatives you bothered to write down</b>, and the alternatives are supplied by the same person who made the guess. Widen the space and the ratio grows; narrow it and the same match becomes proof. Read backwards, the strength of a confirmation is a statement about the imagination of whoever enumerated the ways it could have gone otherwise &mdash; which is why a match found by someone who wanted it is worth so much less than the same match found by someone trying to break it.</div>
+   <div class="btns" style="margin-top:10px"><button id="fpmts">pause spin</button></div></div></div></div>"""
+FPMT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rich=2;
+var FN=['absr','abs','__abs_r8','ABS'];
+var ARG=['(i + 1)','(1 + i)','(i+1)','i + 1','nth(dx, (i + 1) - 1)','nth(dx, i + 1)','dx(i + 1)','(i - 1)'];
+var WRAP=[function(f,a){return f+'('+a+')';},function(f,a){return f+' ('+a+')';},
+          function(f,a){return f+'(('+a+'))';},function(f,a){return f+'['+a+']';}];
+var PAD=['',' ','  '];
+var TARGET='absr((i + 1))';
+function enumerate(level){
+ var fn=FN.slice(0,1+level),ar=ARG.slice(0,5+level),wr=WRAP.slice(0,1+level),pd=PAD.slice(0,Math.max(1,level));
+ var outs={},M=0,paths=[];
+ fn.forEach(function(f){ar.forEach(function(a){wr.forEach(function(w,wi){pd.forEach(function(sp,si){
+  M++;var o=w(f,a)+sp;outs[o]=(outs[o]||0)+1;
+  if(o===TARGET)paths.push(f+' | "'+a+'" | wrap'+wi+' | pad'+si);});});});});
+ var hits=outs[TARGET]||0,distinct=Object.keys(outs).length;
+ return {paths:M,distinct:distinct,hits:hits,collisions:M-distinct,
+  lr:hits?M/hits:Infinity,pathList:paths};}
+function selftest(){
+ var naive=Math.pow(96,13),e=enumerate(2);
+ return {naiveAlphabet:96,naiveLength:13,naiveOdds:naive,
+  candidatePaths:e.paths,distinctOutputs:e.distinct,pathsToTarget:e.hits,
+  collisions:e.collisions,likelihoodRatio:e.lr,
+  naiveOverstatesBy:naive/e.lr,pathList:e.pathList,
+  ok:e.paths===126&&e.hits===2&&e.lr===63&&e.distinct===120&&naive/e.lr>1e20};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'ONE EXACT MATCH, TWO ANSWERS ABOUT WHAT IT PROVES');
+ nf(g,'rgba(255,90,138,0.18)');g.fillRect(20,38,W-40,66);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,38.5,W-41,66);ng(g);
+ nt(g,'#ff5a8a',34,60,10,'as free text: 96 characters, 13 long');
+ nt(g,'#ff5a8a',34,82,13,'5.9 x 10^25 to one');
+ nt(g,'#8a7ab8',34,98,8,'and a wrong guess was never going to emit random bytes');
+ nf(g,'rgba(125,226,176,0.18)');g.fillRect(20,116,W-40,80);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,116.5,W-41,80);ng(g);
+ nt(g,'#7de2b0',34,138,10,'as plausible alternatives: 3 x 7 x 3 x 2 = 126 paths');
+ nt(g,'#7de2b0',34,162,13,VR.likelihoodRatio+' to one');
+ nt(g,'#8a7ab8',34,180,8,'2 of the 126 land on the target; 126 / 2 = 63');
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,208,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,208.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',34,228,10,'the naive figure overstates by 9.3 x 10^23');
+ nt(g,'#b98cff',24,258,9,'126 paths collapse to 120 strings -- 6 collisions, target included');
+ nt(g,'#8a7ab8',24,278,9,'63 to one is good evidence. It is not what exactness felt like.');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var e=enumerate(rich);
+ nt(g,'#e6dcff',18,24,11,e.paths+' ways the guess could have gone');
+ nt(g,'#8a7ab8',18,44,9,e.distinct+' distinct outputs, '+e.collisions+' collisions');
+ var cols=18,rows=Math.ceil(e.paths/cols);
+ for(var i=0;i<e.paths;i++){
+  var x=18+(i%cols)*19,y=56+Math.floor(i/cols)*15;
+  var hit=(i<e.hits);
+  nf(g,hit?'#ffd76a':'rgba(120,90,180,0.3)');
+  g.fillRect(x,y,16,12);ng(g);}
+ var yb=56+rows*15+16;
+ nt(g,'#ffd76a',18,yb,9,'gold = a path that lands on the observed output');
+ nf(g,'rgba(125,226,176,0.2)');g.fillRect(18,yb+10,W-36,52);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(18.5,yb+10.5,W-37,52);ng(g);
+ nt(g,'#7de2b0',32,yb+34,13,'likelihood ratio '+(e.hits?e.lr.toFixed(1):'infinite'));
+ nt(g,'#8a7ab8',32,yb+52,9,e.paths+' paths / '+e.hits+' that match');
+ nt(g,'#ff5a8a',18,yb+86,9,'widen the space and the same match proves more');
+ nt(g,'#b98cff',18,yb+104,9,'narrow it and the same match becomes certainty');
+ var o=document.getElementById('fpmto');
+ if(o)o.innerHTML='With <b>'+e.paths+'</b> plausible ways to be wrong, <b>'+e.hits+
+  '</b> of them produce exactly the observed string, so the evidence is <b>'+
+  (e.hits?e.lr.toFixed(1):'&infin;')+' to one</b>. Nothing about the match changed &mdash; only the list of alternatives, which is written by the same person who made the guess.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var n=42;
+ for(var i=0;i<n;i++){
+  var th=i/n*Math.PI*2,rr=58+(i%4)*13;
+  var q=P(Math.cos(th)*rr,((i%6)-3)*10,Math.sin(th)*rr);
+  var hit=(i===0||i===21);
+  ndot(g,q[0],q[1],hit?7:2.8,hit?'#ffd76a':'rgba(120,90,180,0.35)');}
+ nt(g,'#7de2b0',14,26,11,'the match is one point');
+ nt(g,'#8a7ab8',14,44,10,'the evidence is the size of the cloud around it');
+ nt(g,'#ffd76a',14,H-46,9,'gold: the two paths that would have looked like proof');
+ nt(g,'#ff5a8a',14,H-30,9,'the cloud is drawn by whoever made the guess');
+ nt(g,'#b98cff',14,H-14,9,'a match you wanted is worth less than one you tried to break');}
+document.getElementById('fpmtn').onclick=function(){rich=Math.min(2,rich+1);drawW4();};
+document.getElementById('fpmtp').onclick=function(){rich=Math.max(0,rich-1);drawW4();};
+document.getElementById('fpmts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefingerprintmatch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 251 · neon-noir · silicon-coding · THE SURFACE NOBODY CHECKS ═══════════════════════
 # ═══════════════════════ BATCH 250 · neon-noir · silicon-coding · ROUND 3 OF 3: THE SHARED WORLD ═══════════════════════
 # ═══════════════════════ BATCH 249 · neon-noir · silicon-coding · ROUND 2 OF 3: THE MACHINE UNDERNEATH ═══════════════════════
 # ═══════════════════════ BATCH 248 · neon-noir · silicon-coding · ROUND 1 of 3 · THE ARITHMETIC EDGE · rounding, underflow, resolution, cancellation, and the adders that buy latency with area ═══════════════════════
@@ -93353,6 +93917,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-unverified-surface","title":"THE UNVERIFIED SURFACE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffd76a","icon":"\u25ab",
+  "kicker":"coverage reports on the covered",
+  "blurb":"A figure a checker cannot reach is not lightly checked. It is unchecked, permanently, and it drifts at whatever rate the work moves.",
+  "lit":"take 120 figures of which 118 lie inside the verifier's reach, each touched with probability 0.02 per edit round over 50 rounds: coverage reads 98.3% while the probability that at least one of the two unreachable figures has silently drifted is 86.7% - closed form 1-(1-p)^((F-V)R), confirmed by simulation at 85.8% - because the exposure is exponential in the number UNCOVERED, not in the fraction covered, so 98.3% and 100% are not neighbours and only at full coverage is the probability exactly 0",
+  "fig":"The arithmetic is elementary; what it is applied to is not. AVAN built this after finding a wrong number on line 5 of a document that shipped beside 73 checks, 47 crosschecks and a 6-of-6 mutant gate, none of which read that file. The model says why that is not bad luck: coverage is reported as a fraction, and a fraction hides the only quantity that matters, which is the raw count of things nothing looks at.",
+  "body":UNVS_BODY,"script":UNVS_SCRIPT},
+ {"slug":"the-name-outside-the-parens","title":"THE NAME OUTSIDE THE PARENS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"UNDEFINED BEHAVIOR","domain_slug":"undefined-behavior","accent":"#ff5a8a","icon":"\u2042",
+  "kicker":"the wrong answer of the right type",
+  "blurb":"A regular expression cannot count. Hand it something that nests and it does not refuse - it matches the part it can reach and returns that, with no sign the rest was ever there.",
+  "lit":"over all 196 balanced-parenthesis strings of up to six pairs - the Catalan numbers 1, 2, 5, 14, 42, 132 - a one-level nesting pattern spans the whole string in 6 cases, returns a partial match in 190, and fails to match in 0, so it is wrong 96.9% of the time and silent 100% of the time; on the case that mattered, dasum:dx((+ i 1)), it returns (+ i 1) - the index survives and the array NAME is gone, because the name is the one component that sits outside every bracket",
+  "fig":"That regular languages cannot recognise balanced parentheses is the pumping lemma. AVAN counted the failure modes rather than restating the theorem, because the theorem says the pattern is wrong and the count says it is QUIET: not one of 196 inputs produced a non-match. A pattern that failed loudly would be a nuisance; this one hands back a well-formed answer of the right type, and the loss surfaces four call frames away as an unbalanced token stream naming neither parentheses nor names.",
+  "body":NOPS_BODY,"script":NOPS_SCRIPT},
+ {"slug":"the-orientation-double-cover","title":"THE ORIENTATION DOUBLE COVER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#b98cff","icon":"\u221e",
+  "kicker":"a census asked a question it cannot answer",
+  "blurb":"Two strips of six squares glued end to end, one straight and one with a half turn. Count corners, edges and faces and the two are indistinguishable. They are not the same object.",
+  "lit":"building both as cell complexes gives the annulus 12 vertices, 18 edges and 6 faces and the twisted strip 12, 18 and 6 - Euler characteristic 0 = 0, every count agreeing - while walking the boundary separates them immediately, the annulus having 2 rims of length 6 each and the twisted strip 1 rim of length 12: the same edges joined into one circuit instead of two, taking 2x as long to come home",
+  "fig":"The Mobius band, its non-orientability and its orientation double cover are classical, and the chi = 0 coincidence is standard. AVAN built the complexes and ran the walk rather than quoting the result, because the coincidence is the useful part and is usually mentioned in passing. An audit performed by COUNTING reports these two as the same object - not approximately, but identically, on every count available. What separates them is not a bigger census but a different kind of observation: you have to travel.",
+  "body":ORDC_BODY,"script":ORDC_SCRIPT},
+ {"slug":"the-safe-direction","title":"THE SAFE DIRECTION","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#5ad4ff","icon":"\u21c5",
+  "kicker":"only one kind of error summons a person",
+  "blurb":"A checker can be wrong two ways. It can cry wolf, or it can wave something through. These are not symmetric, because only one of them brings a human to look.",
+  "lit":"10,000 items at a 5% defect rate is 500 defects, and under a policy where every flag is investigated and every pass is not, sweeping the false-alarm rate from 0 to 50% leaves the surviving defect count pinned at 50 at every point while the investigation load climbs from 0 to 4,750, whereas sweeping the miss rate over the same range takes survivors from 0 to 250 in a straight line of slope 500, exactly the defect count - one error direction costs effort and cannot cost correctness, the other costs correctness and is free",
+  "fig":"The asymmetry between false positives and false negatives under an investigate-on-flag policy is standard decision theory. AVAN built this the day it happened: a null test on another program reported '0 of 3 refused' when the program had refused all three, the fault being in the checker, which caught the wrong exception class. It was found within one run because the alarming number sent someone looking. Had the same bug reported 3 of 3 when nothing was refused, nothing would have looked, and the sweep says how long that lasts: indefinitely.",
+  "body":SFDR_BODY,"script":SFDR_SCRIPT},
+ {"slug":"the-fingerprint-match","title":"THE FINGERPRINT MATCH","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE JACKPOT","domain_slug":"the-jackpot","accent":"#7de2b0","icon":"\u2318",
+  "kicker":"evidence is measured in the alternatives you wrote down",
+  "blurb":"A guess reproduced an output character for character. That feels like proof. How much evidence it is depends on a number nobody computes: how many other outputs the guess could have produced.",
+  "lit":"treating the 13-character string as free text over a 96-character alphabet gives odds of 5.9 x 10^25 to one, a number that means nothing because a wrong reconstruction was never going to emit random bytes; enumerating what it could plausibly emit instead - 3 function spellings x 7 argument forms x 3 bracketings x 2 paddings = 126 candidate paths - finds 2 landing on the target, so the honest likelihood ratio is 126/2 = 63 to one and the naive figure overstates the evidence by a factor of 9.3 x 10^23, with those 126 paths collapsing to 120 distinct strings, 6 collisions, the target among them",
+  "fig":"Likelihood ratios and the base-rate problem are ordinary Bayesian practice. AVAN ran this on its own reasoning rather than in the abstract: lacking the real tool it reconstructed an input, the reconstruction reproduced a documented failure exactly, and it then treated that match as sufficient grounds to proceed. This is the audit of that decision. 63 to one is good evidence and it is not the certainty the exactness felt like. The 2 was also a correction - the first count asserted a unique path and the enumeration found two.",
+  "body":FPMT_BODY,"script":FPMT_SCRIPT},
  {"slug":"the-rcu","title":"THE RCU","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#7de2b0","icon":"\u29c9",
   "kicker":"never edit what someone might be reading",
