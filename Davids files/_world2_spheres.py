@@ -20653,6 +20653,1182 @@ document.getElementById('sqlkb').onclick=function(){
 document.getElementById('sqlks').onclick=function(){spin=!spin;};
 VR=selftest();window.__theseqlock=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+RCUX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Never modify what someone might be reading. Copy it, change the copy, swing the pointer &mdash; and then <i>wait</i>, not for a lock, but for every reader who could still be holding the old version to simply finish.<br><br>
+ <span class="lit">LIT</span> verified live. enumerating all <b>56</b> interleavings of a five-step writer against a three-step reader: <b>0</b> readers see a torn structure and <b>0</b> touch freed memory, because each reader captures the pointer once and then holds an entire consistent version &mdash; <b>46</b> of them see the old one and <b>10</b> the new. Remove the grace period and free immediately after publishing, and <b>12</b> of the <b>35</b> remaining interleavings dereference memory that has already been reclaimed. In every case the reader performs <b>0</b> writes to shared state.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Read-copy-update</b> is Paul McKenney&rsquo;s, in the Linux kernel since 2002; the copy-publish-wait structure and the grace period are his.<br><br><b>AVAN (AI)</b> enumerated the schedule space instead of arguing about it, and split the claim in two. The <b>0 torn reads</b> is <i>structural</i> &mdash; a reader that captures the pointer once cannot straddle two versions, and it is worth saying that plainly rather than dressing it up as a surprising measurement. The number that is not structural is <b>12 of 35</b>: that is what the grace period is actually buying, and without it the failure is not rare.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">56 interleavings. Nobody reads a half-built object.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk a schedule and see which version the reader got.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcuxn">next schedule &#9654;</button><button id="rcuxg">toggle grace period</button></div>
+   <div class="cap" id="rcuxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that RCU makes readers free. The inverse is that <b>the cost did not disappear, it was converted into memory and deferred</b>. The writer cannot reclaim until the last pre-existing reader finishes, so a single slow reader holds the whole reclamation queue open; the garbage is unbounded by construction, because the bound is &lsquo;whenever everyone happens to be done.&rsquo; Read backwards, RCU trades a latency you can see &mdash; a lock &mdash; for a memory footprint you cannot, and the price of never blocking a reader is never being able to promise when the memory comes back.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcuxs">pause spin</button></div></div></div></div>"""
+RCUX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,grace=true,CASES=[],CASESN=[];
+function merge(n,m,out){out.length=0;
+ (function rec(i,j,cur){ if(i===n&&j===m){out.push(cur.slice());return;}
+  if(i<n){cur.push(['w',i]);rec(i+1,j,cur);cur.pop();}
+  if(j<m){cur.push(['r',j]);rec(i,j+1,cur);cur.pop();}})(0,0,[]);}
+function runG(o){
+ var OLD={a:1,b:2},NEW={a:3,b:6},ptr=OLD,freed=null,cap=null,ra=null,rb=null,done=false,uaf=0;
+ o.forEach(function(e){ if(e[0]==='w'){
+   if(e[1]===2)ptr=NEW;
+   else if(e[1]===4){ if(!(cap===OLD&&!done))freed=OLD; }
+  } else {
+   if(e[1]===0)cap=ptr;
+   else if(e[1]===1){ if(freed===cap)uaf++; ra=cap.a; }
+   else { if(freed===cap)uaf++; rb=cap.b; done=true; }}});
+ return {ra:ra,rb:rb,torn:rb!==ra*2,uaf:uaf,ver:(cap===OLD?'old':'new')};}
+function runN(o){
+ var OLD={a:1,b:2},NEW={a:3,b:6},ptr=OLD,freed=null,cap=null,uaf=0,ra=null,rb=null;
+ o.forEach(function(e){ if(e[0]==='w'){
+   if(e[1]===2)ptr=NEW; else if(e[1]===3)freed=OLD;
+  } else {
+   if(e[1]===0)cap=ptr;
+   else if(e[1]===1){ if(freed===cap)uaf++; ra=cap.a; }
+   else { if(freed===cap)uaf++; rb=cap.b; }}});
+ return {ra:ra,rb:rb,torn:false,uaf:uaf,ver:(cap===OLD?'old':'new')};}
+function selftest(){
+ merge(5,3,CASES); merge(4,3,CASESN);
+ var torn=0,uaf=0,old=0,nw=0;
+ CASES.forEach(function(o){var r=runG(o);
+  if(r.torn)torn++; if(r.uaf)uaf++; if(r.ver==='old')old++;else nw++;});
+ var uaf2=0;
+ CASESN.forEach(function(o){ if(runN(o).uaf)uaf2++; });
+ return {graceCases:CASES.length,torn:torn,uafWithGrace:uaf,sawOld:old,sawNew:nw,
+  noGraceCases:CASESN.length,uafNoGrace:uaf2,readerWrites:0,
+  uafNoGracePct:uaf2*100/CASESN.length,
+  ok:CASES.length===56&&torn===0&&uaf===0&&CASESN.length===35&&uaf2===12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'EVERY SCHEDULE OF ONE WRITER AND ONE READER');
+ var rows=[['with grace period: torn reads',VR.torn,VR.graceCases,'#7de2b0'],
+  ['with grace period: use-after-free',VR.uafWithGrace,VR.graceCases,'#7de2b0'],
+  ['no grace period: use-after-free',VR.uafNoGrace,VR.noGraceCases,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=48+i*60;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,24);
+  if(r[1]>0){nf(g,'rgba(255,90,138,0.65)');g.fillRect(24,y+10,400*r[1]/r[2],24);ng(g);}
+  nt(g,r[3],24+(r[1]>0?400*r[1]/r[2]:0)+10,y+27,10,r[1]+' of '+r[2]);});
+ nt(g,'#8a7ab8',24,244,9,VR.sawOld+' readers saw the old version, '+VR.sawNew+' the new -- never a mix');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,252,W-36,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,252.5,W-37,30);ng(g);
+ nt(g,'#7de2b0',30,272,10,'the reader wrote nothing shared in any of the 56');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var L=grace?CASES:CASESN,o=L[pick%L.length],r=grace?runG(o):runN(o);
+ var WN=grace?['copy','mutate the copy','publish pointer','wait grace period','free old']
+  :['copy','mutate the copy','publish pointer','free old (no wait)'];
+ var RN=['load pointer','read .a','read .b'];
+ nt(g,'#e6dcff',18,24,11,(grace?'WITH GRACE PERIOD':'NO GRACE PERIOD'));
+ nt(g,'#8a7ab8',18,42,9,'schedule '+((pick%L.length)+1)+' of '+L.length);
+ o.forEach(function(e,i){var y=54+i*30,isw=(e[0]==='w');
+  nf(g,isw?'rgba(255,159,69,0.4)':'rgba(90,212,255,0.4)');
+  g.fillRect(isw?18:W/2-4,y,W/2-14,25);ng(g);
+  nt(g,'#e6dcff',(isw?28:W/2+6),y+17,9,(isw?WN:RN)[e[1]]);});
+ var yb=54+o.length*30+10;
+ var bad=r.uaf>0;
+ nf(g,bad?'rgba(255,90,138,0.26)':'rgba(125,226,176,0.2)');g.fillRect(18,yb,W-36,50);ng(g);
+ ne(g,bad?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+0.5,W-37,50);ng(g);
+ nt(g,'#e6dcff',32,yb+21,10,'read a='+r.ra+'  b='+r.rb+'   version: '+r.ver);
+ nt(g,bad?'#ff5a8a':'#7de2b0',32,yb+40,10,bad?'USE AFTER FREE':'consistent -- b = 2a');
+ nt(g,'#ff9f45',18,yb+76,9,'orange = writer     blue = reader');
+ nt(g,'#8a7ab8',18,yb+94,9,'the reader captured the pointer once and never let go');
+ var out=document.getElementById('rcuxo');
+ if(out)out.innerHTML='Schedule <b>'+((pick%L.length)+1)+'</b> of <b>'+L.length+'</b>: the reader saw the <b>'+
+  r.ver+'</b> version. '+(grace?'The writer cannot free until this reader finishes, so across all <b>56</b> orderings there are <b>0</b> use-after-free and <b>0</b> torn reads.':
+  'Without the wait, <b>12</b> of these <b>35</b> orderings dereference memory the writer has already handed back.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var ph=(ang%360)/360;
+ for(var i=0;i<6;i++){
+  var th=i/6*Math.PI*2,q=P(Math.cos(th)*70,-34,Math.sin(th)*70);
+  ndot(g,q[0],q[1],5,'#7de2b0');}
+ var lo=P(-86,-56,0);nt(g,'#7de2b0',lo[0],lo[1],8,'the old version, still being read');
+ for(i=0;i<6;i++){
+  var th2=i/6*Math.PI*2,q2=P(Math.cos(th2)*70,44,Math.sin(th2)*70);
+  ndot(g,q2[0],q2[1],5,'#5ad4ff');}
+ var ln=P(-86,78,0);nt(g,'#5ad4ff',ln[0],ln[1],8,'the new one, already published');
+ var qq=P(0,4,0);
+ ndot(g,qq[0],qq[1],4+3*Math.sin(ph*Math.PI*2),'#ffd76a');
+ nt(g,'#ffd76a',qq[0]+12,qq[1]+4,8,'the grace period: waiting on nobody in particular');
+ nt(g,'#7de2b0',14,26,11,'never edit what is being read');
+ nt(g,'#8a7ab8',14,44,10,'copy, publish, and then wait');
+ nt(g,'#ffd76a',14,H-46,9,'the wait has no deadline -- it ends when readers happen to finish');
+ nt(g,'#ff5a8a',14,H-30,9,'so the garbage is unbounded by construction');
+ nt(g,'#b98cff',14,H-14,9,'a latency you can see, traded for a footprint you cannot');}
+document.getElementById('rcuxn').onclick=function(){pick++;drawW4();};
+document.getElementById('rcuxg').onclick=function(){grace=!grace;pick=0;drawW4();};
+document.getElementById('rcuxs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thercu=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+HZPT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">RCU waits for everyone. Magged Michael&rsquo;s alternative asks each reader to say, out loud, <i>which</i> pointer it is using &mdash; and then the writer frees everything nobody named.<br><br>
+ <span class="lit">LIT</span> verified live. enumerating all <b>20</b> interleavings of a three-step reader against a three-step writer, the protocol with the re-verification step suffers <b>0</b> use-after-free, aborting and retrying in <b>16</b> of them and deferring <b>16</b> frees. Delete the re-verification &mdash; publish the hazard pointer and dereference &mdash; and <b>3</b> of the same <b>20</b> touch reclaimed memory. The reclamation bound is the other half: <b>64</b> threads holding <b>2</b> hazard pointers each can strand at most <b>128</b> nodes, where a single RCU reader stalled across <b>50</b> grace periods at 100 nodes each strands <b>5,000</b> &mdash; <b>39</b> times more.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Hazard pointers</b> are Maged Michael&rsquo;s (2004); the publish-verify-use protocol and the per-thread bound are his.<br><br><b>AVAN (AI)</b> ran the enumeration to isolate <i>which</i> step does the work, because the interesting part of this algorithm is the one that looks redundant. Publishing the hazard pointer is not enough: the node can be unlinked and freed between the load and the publish, so the reader must re-read the shared pointer and confirm it is still the same. Removing only that step gives <b>3 of 20</b>. It is a step whose entire justification is a window it is hard to believe exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">20 interleavings. The redundant-looking step is the whole protocol.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Delete the re-verification and watch the window open.</div>
+   <div class="btns" style="margin-top:10px"><button id="hzptn">next schedule &#9654;</button><button id="hzptv">toggle re-verify</button></div>
+   <div class="cap" id="hzpto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that hazard pointers bound the garbage. The inverse is that <b>they bound it by making every reader pay, forever, for a danger almost none of them are in</b>. RCU costs readers nothing and reclaims late; hazard pointers reclaim promptly and charge every single read a store and a fence, whether or not any writer exists. Read backwards, the two are the same trade seen from opposite ends &mdash; and neither removes the cost of not knowing who is looking. One defers it into memory, the other collects it up front from everyone.</div>
+   <div class="btns" style="margin-top:10px"><button id="hzpts">pause spin</button></div></div></div></div>"""
+HZPT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,verify=true,CASES=[];
+function merge(n,m,out){out.length=0;
+ (function rec(i,j,cur){ if(i===n&&j===m){out.push(cur.slice());return;}
+  if(i<n){cur.push(['w',i]);rec(i+1,j,cur);cur.pop();}
+  if(j<m){cur.push(['r',j]);rec(i,j+1,cur);cur.pop();}})(0,0,[]);}
+function run(o,rev){
+ var NODE={v:1},shared=NODE,hazard=null,freed=false,cap=NODE,alive=true,scanned=null,uaf=0,ab=0,def=0;
+ o.forEach(function(e){ if(e[0]==='w'){
+   if(e[1]===0)shared=null;
+   else if(e[1]===1)scanned=hazard;
+   else { if(scanned!==NODE){freed=true;} else def++; }
+  } else {
+   if(e[1]===0)hazard=cap;
+   else if(e[1]===1){ if(rev&&shared!==cap){alive=false;ab++;} }
+   else { if(alive&&freed)uaf++; }}});
+ return {uaf:uaf,abort:ab,deferred:def,freed:freed,alive:alive};}
+function selftest(){
+ merge(3,3,CASES);
+ var u1=0,a1=0,d1=0,u0=0;
+ CASES.forEach(function(o){var r=run(o,true);u1+=r.uaf;a1+=r.abort;d1+=r.deferred;
+  u0+=run(o,false).uaf;});
+ var TH=64,HP=2,RCU=100*50;
+ return {cases:CASES.length,uafWithReverify:u1,abortsWithReverify:a1,deferredFrees:d1,
+  uafNoReverify:u0,threads:TH,hpPerThread:HP,maxUnreclaimed:TH*HP,
+  rcuStalledGarbage:RCU,boundRatio:RCU/(TH*HP),
+  ok:CASES.length===20&&u1===0&&u0===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'ALL 20 INTERLEAVINGS -- WHAT THE RE-VERIFY BUYS');
+ var rows=[['use-after-free, with re-verify',VR.uafWithReverify,'#7de2b0'],
+  ['use-after-free, without it',VR.uafNoReverify,'#ff5a8a'],
+  ['reads aborted and retried',VR.abortsWithReverify,'#ffd76a'],
+  ['frees deferred (node was named)',VR.deferredFrees,'#5ad4ff']];
+ rows.forEach(function(r,i){
+  var y=44+i*44;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,380,20);
+  if(r[1]>0){nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.65)':(r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':'rgba(90,212,255,0.55)'));
+   g.fillRect(24,y+8,380*r[1]/20,20);ng(g);}
+  nt(g,r[2],412,y+23,10,String(r[1]));});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,222,W-36,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,222.5,W-37,32);ng(g);
+ nt(g,'#7de2b0',30,243,10,'64 threads x 2 pointers strands at most 128 nodes');
+ nt(g,'#ff5a8a',24,272,9,'one stalled RCU reader across 50 grace periods strands 5,000 -- 39x more');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=CASES[pick%CASES.length],r=run(o,verify);
+ var WN=['unlink node','scan hazard pointers','free if unnamed'];
+ var RN=['publish hazard pointer',verify?'re-verify shared pointer':'(no re-verify)','dereference'];
+ nt(g,'#e6dcff',18,24,11,verify?'WITH RE-VERIFY':'RE-VERIFY DELETED');
+ nt(g,'#8a7ab8',18,42,9,'schedule '+((pick%CASES.length)+1)+' of '+CASES.length);
+ o.forEach(function(e,i){var y=54+i*32,isw=(e[0]==='w');
+  nf(g,isw?'rgba(255,90,138,0.36)':'rgba(90,212,255,0.4)');
+  g.fillRect(isw?18:W/2-4,y,W/2-14,27);ng(g);
+  nt(g,'#e6dcff',(isw?26:W/2+4),y+18,8,(isw?WN:RN)[e[1]]);});
+ var yb=54+6*32+12;
+ var bad=r.uaf>0;
+ nf(g,bad?'rgba(255,90,138,0.28)':(r.alive?'rgba(125,226,176,0.2)':'rgba(255,215,106,0.2)'));
+ g.fillRect(18,yb,W-36,48);ng(g);
+ ne(g,bad?'#ff5a8a':(r.alive?'#7de2b0':'#ffd76a'),1.5);g.strokeRect(18.5,yb+0.5,W-37,48);ng(g);
+ nt(g,bad?'#ff5a8a':(r.alive?'#7de2b0':'#ffd76a'),32,yb+22,11,
+  bad?'USE AFTER FREE':(r.alive?'safe dereference':'aborted -- pointer moved, retry'));
+ nt(g,'#8a7ab8',32,yb+40,9,r.freed?'the writer freed the node':'the writer deferred the free');
+ nt(g,'#ff5a8a',18,yb+72,9,'red = writer     blue = reader');
+ nt(g,'#b98cff',18,yb+90,9,'the window is between the load and the publish');
+ var out=document.getElementById('hzpto');
+ if(out)out.innerHTML='Schedule <b>'+((pick%CASES.length)+1)+'</b>: '+
+  (bad?'the node was unlinked and freed after the reader named it but before the writer scanned &mdash; the dereference touches reclaimed memory.':
+   (r.alive?'the reader named the node before the scan, so the writer deferred the free.':
+    'the pointer changed between the load and the re-verify, so the reader threw the read away and will start again.'))+
+  (verify?'':' <b>Re-verification is off</b> &mdash; 3 of these 20 now fail.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<8;i++){
+  var th=i/8*Math.PI*2,q=P(Math.cos(th)*92,10,Math.sin(th)*92);
+  var named=(i%4===0);
+  ndot(g,q[0],q[1],named?6.5:3.4,named?'#5ad4ff':'rgba(120,90,180,0.4)');
+  if(named){ne(g,'rgba(90,212,255,0.35)',1.2);
+   g.beginPath();g.arc(q[0],q[1],11,0,7);g.stroke();ng(g);}}
+ var cp=P(0,-74,0);
+ ndot(g,cp[0],cp[1],6,'#ff5a8a');
+ nt(g,'#ff5a8a',cp[0]-24,cp[1]-14,8,'the writer, scanning');
+ nt(g,'#5ad4ff',14,26,11,'every reader says what it is holding');
+ nt(g,'#8a7ab8',14,44,10,'and the writer frees the rest at once');
+ nt(g,'#ffd76a',14,H-46,9,'bounded: 128 nodes, never more');
+ nt(g,'#ff5a8a',14,H-30,9,'paid for by a store on every read, forever');
+ nt(g,'#b98cff',14,H-14,9,'defer the cost into memory, or collect it up front');}
+document.getElementById('hzptn').onclick=function(){pick++;drawW4();};
+document.getElementById('hzptv').onclick=function(){verify=!verify;drawW4();};
+document.getElementById('hzpts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehazardpointer=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+ELBK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A push and a pop that collide want opposite things. Rather than queue them both at the contended top of the stack, let them meet in a side room and hand the value directly across &mdash; the stack never hears about it.<br><br>
+ <span class="lit">LIT</span> verified live. over <b>250</b> rounds of <b>8</b> threads on a balanced push/pop mix, the plain lock-free stack is touched <b>2,000</b> times &mdash; once per operation. With a <b>4</b>-slot elimination array, <b>1,450</b> operations pair off and never reach the stack at all: <b>550</b> touches, a <b>72.5%</b> reduction. Conservation holds in both: pushes minus pops equals the final depth exactly. And the control that matters &mdash; the same array on an <b>all-push</b> workload eliminates <b>0</b>, because there is nothing for a push to cancel against.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Elimination backoff</b> is Hendler, Shavit and Yerushalmi (2004), building on Shavit and Touitou&rsquo;s elimination trees.<br><br><b>AVAN (AI)</b> counted the thing that is actually exact &mdash; <b>stack touches</b> &mdash; rather than inventing CAS-retry figures, which would depend entirely on a contention model chosen to flatter the result. Touches are model-free: an eliminated pair provably never reaches the stack. The conservation check (pushes &minus; pops = depth) is there because a scheme that hands values around outside the data structure is exactly the kind that quietly loses or duplicates one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">1,450 operations that never touched the stack.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the workload mix and watch elimination die.</div>
+   <div class="btns" style="margin-top:10px"><button id="elbkm">mix: balanced / all push</button><button id="elbkn">step round &#9654;</button></div>
+   <div class="cap" id="elbko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that contention becomes throughput. The inverse is that <b>the mechanism only works on the workload that did not need a stack in the first place</b>. A push meeting a pop is two threads whose net effect on the structure is nothing; elimination is fast because it recognises the operations that cancel &mdash; and at <b>100%</b> pushes it delivers <b>0</b>. Read backwards, this is not a faster stack, it is a detector for work that was self-cancelling, and the more your program genuinely accumulates, the less it can help.</div>
+   <div class="btns" style="margin-top:10px"><button id="elbks">pause spin</button></div></div></div></div>"""
+ELBK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mix=0.5,round=0;
+function run(m,elim,rounds){
+ var sd=31337,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var stack=[],touch=0,el=0,pu=0,po=0,fail=0,P=8,log=[];
+ for(var r=0;r<rounds;r++){
+  var ops=[];for(var t=0;t<P;t++)ops.push(rn()<m?'push':'pop');
+  var ePairs=0;
+  if(elim>0){
+   var A=[],B=[];
+   ops.forEach(function(o,i){(o==='push'?A:B).push(i);});
+   ePairs=Math.min(elim,A.length,B.length);
+   for(var k=0;k<ePairs;k++){el+=2;pu++;po++;}
+   ops=[];
+   for(k=ePairs;k<A.length;k++)ops.push('push');
+   for(k=ePairs;k<B.length;k++)ops.push('pop');}
+  var rt=0;
+  ops.forEach(function(o){touch++;rt++;
+   if(o==='push'){stack.push(1);pu++;}
+   else{ if(stack.length){stack.pop();po++;} else fail++; }});
+  log.push({elim:ePairs*2,touched:rt,depth:stack.length});}
+ return {touch:touch,el:el,depth:stack.length,pu:pu,po:po,fail:fail,log:log};}
+function selftest(){
+ var plain=run(0.5,0,250),el=run(0.5,4,250),ap=run(1.0,4,250);
+ return {rounds:250,threads:8,ops:2000,
+  plainTouches:plain.touch,elimTouches:el.touch,eliminated:el.el,
+  saved:plain.touch-el.touch,savedPct:(plain.touch-el.touch)*100/plain.touch,
+  plainConserved:plain.pu-plain.po===plain.depth,
+  elimConserved:el.pu-el.po===el.depth,
+  allPushEliminated:ap.el,allPushTouches:ap.touch,
+  ok:plain.touch===2000&&el.touch===550&&el.el===1450&&ap.el===0&&
+     (plain.pu-plain.po===plain.depth)&&(el.pu-el.po===el.depth)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'2,000 OPERATIONS -- HOW MANY REACH THE STACK?');
+ var rows=[['plain lock-free stack',VR.plainTouches,'#ff5a8a'],
+  ['with a 4-slot elimination array',VR.elimTouches,'#7de2b0'],
+  ['same array, 100% pushes',VR.allPushTouches,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=46+i*56;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,24);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(24,y+10,Math.max(3,400*r[1]/2000),24);ng(g);
+  nt(g,r[2],434,y+27,10,String(r[1]));});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,222,W-36,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(18.5,222.5,W-37,30);ng(g);
+ nt(g,'#ffd76a',30,242,10,'1,450 operations paired off and cancelled -- 72.5% never arrived');
+ nt(g,'#7de2b0',24,270,9,'conservation: pushes - pops = final depth, in both runs');
+ nt(g,'#8a7ab8',24,286,9,'and on an all-push workload the array delivers exactly 0');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=run(mix,4,Math.max(1,round));
+ var last=R.log[R.log.length-1];
+ nt(g,'#e6dcff',18,24,11,'round '+Math.max(1,round)+' of 250   '+(mix>0.9?'[ALL PUSH]':'[BALANCED]'));
+ nt(g,'#ffd76a',18,50,9,'this round: '+last.elim+' eliminated, '+last.touched+' reached the stack');
+ for(var i=0;i<8;i++){
+  var x=20+i*44,el=(i<last.elim);
+  nf(g,el?'rgba(255,215,106,0.6)':'rgba(90,212,255,0.45)');
+  g.fillRect(x,60,38,30);ng(g);
+  nt(g,'#0d0818',x+8,80,8,el?'elim':'stack');}
+ nt(g,'#8a7ab8',18,112,9,'elimination array, 4 slots');
+ for(i=0;i<4;i++){
+  var x2=20+i*88,used=(i<last.elim/2);
+  nf(g,used?'rgba(255,215,106,0.5)':'rgba(120,90,180,0.14)');
+  g.fillRect(x2,120,80,28);ng(g);
+  nt(g,used?'#0d0818':'#5b4a80',x2+14,139,9,used?'push<->pop':'empty');}
+ nt(g,'#5ad4ff',18,176,9,'the stack, depth '+last.depth);
+ for(i=0;i<Math.min(12,last.depth);i++){
+  nf(g,'rgba(90,212,255,0.5)');g.fillRect(20+i*28,184,24,22);ng(g);}
+ var yb=222;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(18,yb,W-36,46);ng(g);
+ nt(g,'#7de2b0',30,yb+20,10,'touches so far: '+R.touch+'   eliminated: '+R.el);
+ nt(g,'#8a7ab8',30,yb+38,9,'conserved: '+((R.pu-R.po===R.depth)?'yes -- nothing lost or duplicated':'NO'));
+ nt(g,'#b98cff',18,yb+70,9,mix>0.9?'nothing to cancel against: 0 eliminated, all 2,000 arrive':'roughly half of every round cancels before it arrives');
+ var out=document.getElementById('elbko');
+ if(out)out.innerHTML='Round <b>'+Math.max(1,round)+'</b>: <b>'+last.elim+'</b> of 8 operations paired off in the side room. '+
+  (mix>0.9?'On an all-push workload nothing ever pairs &mdash; the array is inert and every operation contends exactly as before.':
+   'Cumulatively <b>'+R.el+'</b> operations have completed without the stack ever learning they happened.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%60)/60;
+ for(var i=0;i<4;i++){
+  var yy=-52+i*34;
+  var pA=P(-90+t*74,yy,0),pB=P(90-t*74,yy,0);
+  ndot(g,pA[0],pA[1],5,'#7de2b0');
+  ndot(g,pB[0],pB[1],5,'#ff9f45');
+  if(t>0.92){var mid=P(0,yy,0);ndot(g,mid[0],mid[1],8,'#ffd76a');}}
+ var sp=P(0,80,0);
+ for(i=0;i<5;i++){var q=P(-26+i*13,80,0);ndot(g,q[0],q[1],3.4,'rgba(90,212,255,0.5)');}
+ nt(g,'#5ad4ff',sp[0]-40,sp[1]+20,8,'the stack, undisturbed');
+ nt(g,'#ffd76a',14,26,11,'they cancel before they arrive');
+ nt(g,'#8a7ab8',14,44,10,'green pushes, orange pops, meeting in the middle');
+ nt(g,'#ff5a8a',14,H-46,9,'but only work that was self-cancelling can cancel');
+ nt(g,'#b98cff',14,H-30,9,'all-push: 0 eliminated, every operation contends');
+ nt(g,'#7de2b0',14,H-14,9,'not a faster stack -- a detector for work that undoes itself');}
+document.getElementById('elbkm').onclick=function(){mix=(mix>0.9)?0.5:1.0;drawW4();};
+document.getElementById('elbkn').onclick=function(){round=Math.min(250,round+1);drawW4();};
+document.getElementById('elbks').onclick=function(){spin=!spin;};
+VR=selftest();window.__theeliminationbackoff=VR;drawW3();round=40;drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+FLCM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sixty-four threads fighting for one lock is sixty-four cache-line transfers to do sixty-four small things. Let each publish its request and let <i>one</i> thread take the lock and do all sixty-four &mdash; the structure moves once.<br><br>
+ <span class="lit">LIT</span> verified live. <b>64</b> threads, <b>128</b> rounds, <b>8,192</b> operations. The lock-based version takes <b>8,192</b> lock acquisitions and moves the shared structure <b>8,192</b> times. Flat combining takes <b>128</b> &mdash; one per round, a factor of <b>64</b> &mdash; and reaches an identical final state. The fairness result is the one worth having: with the combiner rotating, every thread ends up executing exactly <b>128</b> operations under <i>both</i> schemes. Nobody does more total work. What changes is the burst: the combiner executes <b>64</b> operations back to back where a lock-holder executes <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Flat combining</b> is Hendler, Incze, Shavit and Tzafrir (2010).<br><br><b>AVAN (AI)</b> checked the final state against the sequential application before reporting any speed number, because a scheme where one thread executes another thread&rsquo;s operation is exactly where a silent reordering would hide. The per-thread work count was the surprise worth keeping: the intuition is that the combiner is exploited, and over a rotation it is not &mdash; <b>128</b> and <b>128</b>. The cost is not unfairness in total, it is <b>64</b>&times; latency variance, which is a different complaint and a real one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">8,192 lock acquisitions become 128.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch one thread do everyone else's work.</div>
+   <div class="btns" style="margin-top:10px"><button id="flcmn">next round &#9654;</button><button id="flcma">run 20 rounds</button></div>
+   <div class="cap" id="flcmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that combining removes contention. The inverse is that <b>it removes contention by removing concurrency &mdash; on purpose</b>. The critical section is not made shorter or safer; it is made <i>singular</i>, and every other thread is now waiting on a stranger&rsquo;s scheduling decisions rather than on a lock it could at least see. Read backwards, this is the deliberate construction of a bottleneck, justified by the discovery that the bottleneck already existed and was merely being paid for in cache traffic instead of in queueing.</div>
+   <div class="btns" style="margin-top:10px"><button id="flcms">pause spin</button></div></div></div></div>"""
+FLCM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,round=0,SEQ=[];
+var P=64,ROUNDS=128;
+function build(){var sd=777,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ SEQ=[];for(var r=0;r<ROUNDS;r++){var row=[];
+  for(var t=0;t<P;t++)row.push(Math.floor(rn()*9)-4);SEQ.push(row);}}
+function selftest(){
+ build();
+ var ls=0,la=0,lx=0,lw=[],fs=0,fa=0,fx=0,fw=[];
+ for(var t=0;t<P;t++){lw.push(0);fw.push(0);}
+ SEQ.forEach(function(row){row.forEach(function(v,t2){la++;lx++;ls+=v;lw[t2]++;});});
+ var burst=0;
+ SEQ.forEach(function(row,r){var comb=r%P;fa++;fx++;var n=0;
+  row.forEach(function(v){fs+=v;fw[comb]++;n++;});if(n>burst)burst=n;});
+ var fmx=Math.max.apply(null,fw),fmn=Math.min.apply(null,fw);
+ var lmx=Math.max.apply(null,lw),lmn=Math.min.apply(null,lw);
+ return {threads:P,rounds:ROUNDS,totalOps:P*ROUNDS,
+  lockAcquisitions:la,fcAcquisitions:fa,acqRatio:la/fa,
+  lockTransfers:lx,fcTransfers:fx,
+  stateMatches:ls===fs,finalState:fs,
+  fcPerThread:fmx,lockPerThread:lmx,workIdentical:fmx===lmx&&fmn===lmn,
+  fcBurst:burst,lockBurst:1,burstRatio:burst,
+  ok:ls===fs&&fa===ROUNDS&&la===P*ROUNDS&&fmx===fmn&&fmx===ROUNDS&&burst===P};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'8,192 OPERATIONS BY 64 THREADS');
+ var rows=[['lock acquisitions, one lock per op',VR.lockAcquisitions,'#ff5a8a'],
+  ['lock acquisitions, flat combining',VR.fcAcquisitions,'#7de2b0'],
+  ['shared-structure transfers, lock',VR.lockTransfers,'#ff5a8a'],
+  ['shared-structure transfers, combining',VR.fcTransfers,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=44+i*44;
+  nt(g,'#e6dcff',24,y+2,9,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,380,20);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+  g.fillRect(24,y+8,Math.max(3,380*r[1]/8192),20);ng(g);
+  nt(g,r[2],412,y+23,10,String(r[1]));});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,222,W-36,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,222.5,W-37,30);ng(g);
+ nt(g,'#7de2b0',30,242,10,'identical final state -- checked before any speed number');
+ nt(g,'#ffd76a',24,270,9,'per-thread work: 128 under BOTH schemes -- nobody does more in total');
+ nt(g,'#ff9f45',24,286,9,'what changes is the burst: 64 operations back to back, versus 1');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=Math.max(1,round)-1,comb=r%P;
+ nt(g,'#e6dcff',18,24,11,'round '+(r+1)+' of '+ROUNDS+'   combiner: thread '+comb);
+ nt(g,'#8a7ab8',18,46,9,'64 threads publish their request; one of them executes all of it');
+ for(var i=0;i<64;i++){
+  var x=20+(i%16)*22,y=56+Math.floor(i/16)*22;
+  var isC=(i===comb);
+  nf(g,isC?'#b98cff':'rgba(90,212,255,0.35)');
+  g.fillRect(x,y,19,19);ng(g);
+  if(isC){ne(g,'#ffd76a',1.6);g.strokeRect(x-0.5,y-0.5,20,20);ng(g);}}
+ nt(g,'#b98cff',18,164,9,'violet = the combiner this round');
+ nt(g,'#5ad4ff',18,180,9,'blue = waiting, having published and done nothing');
+ nf(g,'rgba(184,140,255,0.18)');g.fillRect(18,196,W-36,44);ng(g);
+ ne(g,'#b98cff',1.4);g.strokeRect(18.5,196.5,W-37,44);ng(g);
+ nt(g,'#b98cff',32,218,10,'thread '+comb+' executes 64 operations under one lock');
+ nt(g,'#8a7ab8',32,235,9,'the other 63 take no lock and touch nothing shared');
+ nt(g,'#ffd76a',18,262,9,'lock acquisitions so far: '+(r+1)+'   (lock-per-op would be '+((r+1)*64)+')');
+ nt(g,'#ff5a8a',18,282,9,'and thread '+comb+' just waited 64 operations for its own answer');
+ nt(g,'#7de2b0',18,302,9,'over a full rotation every thread combines equally often');
+ var out=document.getElementById('flcmo');
+ if(out)out.innerHTML='Round <b>'+(r+1)+'</b>: thread <b>'+comb+'</b> is the combiner. It takes the lock once and applies all <b>64</b> published requests. '+
+  'Cumulatively that is <b>'+(r+1)+'</b> acquisitions where the lock-per-operation scheme would have taken <b>'+((r+1)*64)+'</b> &mdash; for the same operations, in the same order, reaching the same state.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P3(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var comb=Math.floor(ang/24)%12;
+ var mid=P3(0,-4,0);
+ for(var i=0;i<12;i++){
+  var th=i/12*Math.PI*2,q=P3(Math.cos(th)*94,30,Math.sin(th)*94);
+  var isC=(i===comb);
+  ndot(g,q[0],q[1],isC?7:3.4,isC?'#b98cff':'rgba(90,212,255,0.4)');
+  ne(g,isC?'rgba(184,140,255,0.5)':'rgba(120,90,180,0.12)',isC?1.6:1);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(mid[0],mid[1]);g.stroke();ng(g);}
+ ndot(g,mid[0],mid[1],9,'#ffd76a');
+ nt(g,'#ffd76a',mid[0]+14,mid[1]+4,8,'one lock, taken once');
+ nt(g,'#b98cff',14,26,11,'one thread does everyone work');
+ nt(g,'#8a7ab8',14,44,10,'and the structure moves once instead of 64 times');
+ nt(g,'#ff5a8a',14,H-46,9,'contention removed by removing concurrency, on purpose');
+ nt(g,'#ffd76a',14,H-30,9,'now you wait on a stranger schedule, not on a lock');
+ nt(g,'#7de2b0',14,H-14,9,'the bottleneck was always there -- it was billed as cache traffic');}
+document.getElementById('flcmn').onclick=function(){round=Math.min(ROUNDS,round+1);drawW4();};
+document.getElementById('flcma').onclick=function(){round=Math.min(ROUNDS,round+20);drawW4();};
+document.getElementById('flcms').onclick=function(){spin=!spin;};
+VR=selftest();window.__theflatcombining=VR;drawW3();round=1;drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BKRY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Lamport, 1974. Take a number at the door; lowest number goes first; ties broken by who you are. No atomic instruction anywhere &mdash; it is correct even if a read that overlaps a write returns garbage.<br><br>
+ <span class="lit">LIT</span> verified live. breadth-first search over the entire reachable state space of two threads gives <b>77</b> states, of which <b>14</b> have a thread in the critical section and <b>0</b> have both &mdash; mutual exclusion, exhausted rather than argued. The fairness half is measured on one arrival stream served two ways: under the bakery discipline <b>0</b> of <b>10,000</b> entrants are overtaken by someone who arrived later, while a test-and-set lock choosing among the <b>8</b> waiting threads overtakes <b>8,715</b> of them. The price is on the counter: after 10,000 entries the ticket number is <b>10,000</b>, and it never resets.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Leslie Lamport&rsquo;s</b> bakery algorithm (1974) is the classic result that mutual exclusion needs no atomic hardware.<br><br><b>AVAN (AI)</b> checked mutual exclusion by model checking rather than by reading the proof, and measured fairness rather than repeating the word. The fairness figure was nearly a fabrication: the first version simply <i>set</i> the bakery&rsquo;s overtake count to zero on the grounds that FIFO is FIFO. It was rebuilt to run both disciplines over the same arrival stream through the same counter, so the <b>0</b> is a measurement and not an assumption. The state space is bounded by letting each thread enter once, which is stated rather than hidden.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">77 states. Fourteen have someone inside. None have two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the two threads and try to get both into the room.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkry0">step thread 0 &#9654;</button><button id="bkry1">step thread 1 &#9654;</button><button id="bkryr">reset</button></div>
+   <div class="cap" id="bkryo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the bakery needs no special hardware. The inverse is that <b>it replaces one atomic instruction with an unbounded counter and 2N shared variables that every thread must read on every entry</b>. Lamport did not remove the cost of agreement; he moved it from a bus lock into <b>16</b> shared words and a number that grows forever. Read backwards, &lsquo;no atomic operation required&rsquo; is a claim about the instruction set, not about the work &mdash; and the work turns out to scale with how many of you there are, which is exactly what the lock instruction was hiding.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkrys">pause spin</button></div></div></div></div>"""
+BKRY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,S=[0,0,0,0,0,0],hist=[];
+var PCN=['idle','choosing=1','take a number','choosing=0','wait: other choosing','wait: other number','IN THE ROOM','leaving'];
+function steps(s,i){
+ var pc=s[i],chj=s[2+(1-i)],num=s[4+i],oj=1-i,numj=s[4+oj],out=[],t=s.slice();
+ if(pc===0){t[2+i]=1;t[i]=1;out.push(t);}
+ else if(pc===1){t[4+i]=1+Math.max(s[4],s[5]);t[i]=2;out.push(t);}
+ else if(pc===2){t[2+i]=0;t[i]=3;out.push(t);}
+ else if(pc===3){ if(chj===0){t[i]=4;out.push(t);} }
+ else if(pc===4){ var bl=(numj!==0)&&((numj<num)||(numj===num&&oj<i));
+  if(!bl){t[i]=5;out.push(t);} }
+ else if(pc===5){t[i]=6;out.push(t);}
+ else if(pc===6){t[4+i]=0;t[i]=7;out.push(t);}
+ return out;}
+function bfs(){var seen={},q=[[0,0,0,0,0,0]],viol=0,n=0,cs=0;
+ seen[q[0].join(',')]=1;
+ while(q.length){var s=q.shift();n++;
+  if(s[0]===5&&s[1]===5)viol++;
+  if(s[0]===5||s[1]===5)cs++;
+  for(var i=0;i<2;i++)steps(s,i).forEach(function(t){
+   var k=t.join(',');if(!seen[k]){seen[k]=1;q.push(t);}});}
+ return {states:n,viol:viol,cs:cs};}
+function serve(disc){
+ var sd=4242,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var N=8,E=10000,w=[],idx=0,order=[],tk=0,mx=0;
+ while(order.length<E){
+  while(w.length<N&&idx<E){tk++;mx=tk;w.push({arr:idx,tk:tk,id:idx%N});idx++;}
+  var p;
+  if(disc==='bakery'){p=0;
+   for(var k=1;k<w.length;k++){var A=w[k],B=w[p];
+    if(A.tk<B.tk||(A.tk===B.tk&&A.id<B.id))p=k;}}
+  else p=Math.floor(rn()*w.length);
+  order.push(w.splice(p,1)[0].arr);}
+ return {order:order,maxTicket:mx};}
+function overtakes(o){var n=0;
+ for(var i=0;i<o.length;i++)for(var j=i+1;j<o.length;j++)if(o[j]<o[i]){n++;break;}
+ return n;}
+function selftest(){
+ var B=bfs(),bk=serve('bakery'),ts=serve('tas');
+ return {reachableStates:B.states,mutexViolations:B.viol,statesWithSomeoneInside:B.cs,
+  threads:8,entries:10000,maxTicket:bk.maxTicket,
+  bakeryOvertaken:overtakes(bk.order),tasOvertaken:overtakes(ts.order),
+  sharedVars:16,atomicOps:0,
+  ok:B.states===77&&B.viol===0&&B.cs===14&&overtakes(bk.order)===0&&
+     overtakes(ts.order)>0&&bk.maxTicket===10000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'THE WHOLE REACHABLE STATE SPACE, TWO THREADS');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,34,W-36,52);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,34.5,W-37,52);ng(g);
+ nt(g,'#7de2b0',32,58,11,VR.reachableStates+' states reachable');
+ nt(g,'#e6dcff',32,76,10,VR.statesWithSomeoneInside+' have a thread inside   --   '+VR.mutexViolations+' have two');
+ nt(g,'#ff9f45',14,112,10,'FAIRNESS, ONE ARRIVAL STREAM, TWO DISCIPLINES');
+ var rows=[['bakery: entrants overtaken',VR.bakeryOvertaken,'#7de2b0'],
+  ['test-and-set: entrants overtaken',VR.tasOvertaken,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=126+i*50;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,400,22);
+  if(r[1]>0){nf(g,'rgba(255,90,138,0.6)');g.fillRect(24,y+8,400*r[1]/10000,22);ng(g);}
+  nt(g,r[2],24+(r[1]>0?400*r[1]/10000:0)+10,y+24,10,r[1]+' of 10,000');});
+ nt(g,'#ffd76a',24,248,9,'and the ticket counter reaches '+VR.maxTicket+' -- it never resets');
+ nt(g,'#8a7ab8',24,268,9,'16 shared words, 0 atomic instructions');
+ nt(g,'#b98cff',24,286,9,'each thread enters once -- the bound that makes the search finite');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#e6dcff',18,24,11,'two threads, stepped by hand');
+ for(var i=0;i<2;i++){
+  var y=46+i*112,pc=S[i];
+  nt(g,i?'#ff9f45':'#5ad4ff',18,y,10,'thread '+i);
+  var en=steps(S,i).length>0;
+  nf(g,pc===5?'rgba(125,226,176,0.5)':(en?'rgba(90,212,255,0.28)':'rgba(255,90,138,0.28)'));
+  g.fillRect(18,y+8,W-36,30);ng(g);
+  nt(g,'#e6dcff',30,y+28,10,PCN[pc]);
+  nt(g,'#8a7ab8',18,y+56,9,'number = '+S[4+i]+'    choosing = '+S[2+i]);
+  nt(g,en?'#7de2b0':'#ff5a8a',18,y+74,9,en?'can step':'BLOCKED -- waiting on the other');}
+ var both=(S[0]===5&&S[1]===5);
+ nf(g,both?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.18)');g.fillRect(18,278,W-36,36);ng(g);
+ ne(g,both?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,278.5,W-37,36);ng(g);
+ nt(g,both?'#ff5a8a':'#7de2b0',32,301,11,both?'BOTH INSIDE -- unreachable in all 77 states':
+  ((S[0]===5||S[1]===5)?'one thread inside the room':'the room is empty'));
+ var out=document.getElementById('bkryo');
+ if(out)out.innerHTML='Thread 0 at <b>'+PCN[S[0]]+'</b> (number '+S[4]+'), thread 1 at <b>'+PCN[S[1]]+
+  '</b> (number '+S[5]+'). '+(both?'':'Try to get both into the room &mdash; the search says you cannot, in any of the <b>77</b> reachable states, using nothing but plain loads and stores.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var served=Math.floor(ang/26)%8;
+ for(var i=0;i<8;i++){
+  var q=P(-96+i*27,26,0),on=(i===served);
+  ndot(g,q[0],q[1],on?7:3.6,on?'#7de2b0':'rgba(255,215,106,0.45)');
+  nt(g,on?'#7de2b0':'#5b4a80',q[0]-4,q[1]+18,8,String(i+1));}
+ var lp=P(-96,4,0);nt(g,'#ffd76a',lp[0],lp[1],8,'take a number; lowest goes first');
+ var dp=P(0,-64,0);
+ ndot(g,dp[0],dp[1],8,'#b98cff');
+ nt(g,'#b98cff',dp[0]-20,dp[1]-16,8,'the door');
+ nt(g,'#ffd76a',14,26,11,'no atomic instruction anywhere');
+ nt(g,'#7de2b0',14,44,10,'and nobody is ever overtaken');
+ nt(g,'#ff5a8a',14,H-46,9,'paid for with 16 shared words every thread must read');
+ nt(g,'#ff9f45',14,H-30,9,'and a counter that only ever goes up');
+ nt(g,'#b98cff',14,H-14,9,'the lock instruction was hiding work that scales with N');}
+document.getElementById('bkry0').onclick=function(){var s=steps(S,0);if(s.length)S=s[0];drawW4();};
+document.getElementById('bkry1').onclick=function(){var s=steps(S,1);if(s.length)S=s[0];drawW4();};
+document.getElementById('bkryr').onclick=function(){S=[0,0,0,0,0,0];drawW4();};
+document.getElementById('bkrys').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebakeryalgorithm=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SLBR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Dijkstra&rsquo;s shop. One barber, a few chairs, customers who leave if the chairs are full. The barber sleeps when there is nobody. The whole problem lives in the gap between looking and lying down.<br><br>
+ <span class="lit">LIT</span> verified live. the naive protocol is four steps &mdash; the barber reads &lsquo;is the queue empty?&rsquo; then sleeps; the customer joins the queue then wakes the barber if it is sleeping. Enumerating all <b>6</b> interleavings, exactly <b>1</b> ends with the barber asleep and a customer waiting: the customer arrives and sends its wake-up <i>after</i> the barber has looked and <i>before</i> it has fallen asleep, so the signal is delivered to someone who is still awake and is simply lost. Replace the flag with a counting semaphore and the same <b>6</b> interleavings give <b>0</b>. Over <b>5,000</b> steps with <b>5</b> chairs, arrivals reconcile exactly: <b>2,719 = 2,363</b> served <b>+ 353</b> turned away <b>+ 3</b> still waiting.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Dijkstra&rsquo;s</b> sleeping barber (1965) is one of the founding synchronisation problems, alongside the dining philosophers.<br><br><b>AVAN (AI)</b> reduced it to the smallest space in which the bug is visible &mdash; two operations each &mdash; because the lost wake-up is usually described in prose and prose lets it sound rare. It is <b>1 in 6</b>. The conservation check is a separate matter of hygiene: any simulation of a queue with balking should be made to account for every arrival before its other numbers are believed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six interleavings. One loses the wake-up.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the six and find the one that sleeps forever.</div>
+   <div class="btns" style="margin-top:10px"><button id="slbrn">next interleaving &#9654;</button><button id="slbrp">toggle semaphore</button></div>
+   <div class="cap" id="slbro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a semaphore fixes the lost wake-up. The inverse is that <b>the bug was never about sleeping &mdash; it was about a signal with no memory</b>. A flag says &lsquo;wake up&rsquo; to whoever is listening now; a semaphore says &lsquo;one customer happened&rsquo; to whoever asks later. Read backwards, every lost-wake-up bug ever written is the same substitution: an event was represented as a <i>state to be observed</i> rather than a <i>count to be consumed</i>, and observation has a moment while counting does not.</div>
+   <div class="btns" style="margin-top:10px"><button id="slbrs">pause spin</button></div></div></div></div>"""
+SLBR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,sem=false,CASES=[];
+function merge(n,m,out){out.length=0;
+ (function rec(i,j,cur){ if(i===n&&j===m){out.push(cur.slice());return;}
+  if(i<n){cur.push(['b',i]);rec(i+1,j,cur);cur.pop();}
+  if(j<m){cur.push(['c',j]);rec(i,j+1,cur);cur.pop();}})(0,0,[]);}
+function runN(o){var q=0,sleeping=false,sawEmpty=null;
+ o.forEach(function(e){ if(e[0]==='b'){
+   if(e[1]===0)sawEmpty=(q===0); else { if(sawEmpty)sleeping=true; }
+  } else { if(e[1]===0)q++; else { if(sleeping)sleeping=false; } }});
+ return {q:q,sleeping:sleeping,lost:(sleeping&&q>0)};}
+function runS(o){var q=0,s=0,acq=false;
+ o.forEach(function(e){ if(e[0]==='b'){
+   if(e[1]===0)acq=(s>0); else { if(acq)s--; }
+  } else { if(e[1]===0)q++; else s++; }});
+ return {q:q,sem:s,acq:acq,lost:(q>0&&!acq&&s===0)};}
+function selftest(){
+ merge(2,2,CASES);
+ var nl=0,sl=0;
+ CASES.forEach(function(o){ if(runN(o).lost)nl++; if(runS(o).lost)sl++; });
+ var sd=909,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var CH=5,arr=0,srv=0,turn=0,wait=0;
+ for(var t=0;t<5000;t++){
+  if(rn()<0.55){arr++; if(wait<CH)wait++; else turn++;}
+  if(wait>0&&rn()<0.5){wait--;srv++;}}
+ return {naiveCases:CASES.length,lostWakeups:nl,semCases:CASES.length,semLost:sl,
+  chairs:CH,steps:5000,arrivals:arr,served:srv,turnedAway:turn,stillWaiting:wait,
+  conserved:arr===srv+turn+wait,lostPct:nl*100/CASES.length,
+  ok:CASES.length===6&&nl===1&&sl===0&&arr===srv+turn+wait};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'ALL SIX INTERLEAVINGS OF TWO STEPS EACH');
+ CASES.forEach(function(o,i){
+  var y=38+i*32,r=runN(o);
+  nf(g,r.lost?'rgba(255,90,138,0.4)':'rgba(125,226,176,0.28)');
+  g.fillRect(20,y,W-40,27);ng(g);
+  nt(g,'#e6dcff',32,y+18,10,o.map(function(e){
+   return (e[0]==='b'?'barber ':'customer ')+(e[1]===0?(e[0]==='b'?'looks':'arrives'):(e[0]==='b'?'sleeps':'wakes'));}).join('  ->  '));
+  if(r.lost)nt(g,'#ff5a8a',W-92,y+18,9,'LOST');});
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,234,W-36,28);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,234.5,W-37,28);ng(g);
+ nt(g,'#ff5a8a',30,253,10,'1 of 6 -- the wake-up arrives before the barber is asleep');
+ nt(g,'#7de2b0',24,278,9,'with a counting semaphore the same 6 give 0, because a count cannot be missed');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=CASES[pick%CASES.length],r=sem?runS(o):runN(o);
+ var BN=sem?['wait for a permit','take the permit']:['look: is the queue empty?','if empty, sleep'];
+ var CN=sem?['join the queue','release a permit']:['join the queue','wake the barber if asleep'];
+ nt(g,'#e6dcff',18,24,11,sem?'COUNTING SEMAPHORE':'NAIVE FLAG');
+ nt(g,'#8a7ab8',18,42,9,'interleaving '+((pick%CASES.length)+1)+' of '+CASES.length);
+ o.forEach(function(e,i){var y=56+i*38,isb=(e[0]==='b');
+  nf(g,isb?'rgba(57,252,107,0.32)':'rgba(90,212,255,0.36)');
+  g.fillRect(isb?18:W/2-4,y,W/2-14,32);ng(g);
+  nt(g,'#e6dcff',(isb?26:W/2+4),y+20,8,(isb?BN:CN)[e[1]]);});
+ var yb=56+4*38+16;
+ nf(g,r.lost?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.2)');g.fillRect(18,yb,W-36,52);ng(g);
+ ne(g,r.lost?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+0.5,W-37,52);ng(g);
+ nt(g,r.lost?'#ff5a8a':'#7de2b0',32,yb+24,11,r.lost?'LOST WAKE-UP -- asleep with a customer waiting':'the customer will be served');
+ nt(g,'#8a7ab8',32,yb+43,9,'queue = '+r.q+(sem?('   permits = '+r.sem):('   sleeping = '+r.sleeping)));
+ nt(g,'#39fc6b',18,yb+76,9,'green = barber     blue = customer');
+ nt(g,'#b98cff',18,yb+94,9,'a flag is observed; a count is consumed');
+ var out=document.getElementById('slbro');
+ if(out)out.innerHTML='Interleaving <b>'+((pick%CASES.length)+1)+'</b>: '+
+  (r.lost?'the customer arrived and signalled between the barber&rsquo;s look and its sleep. The barber was awake, so the signal did nothing &mdash; and then it lay down.':
+   (sem?'the permit is a count, so it survives whenever it was released. There is no moment for it to miss.':
+    'the ordering happens to work out and the customer gets served.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var asleep=(Math.floor(ang/70)%2===0);
+ var bp=P(0,-58,0);
+ ndot(g,bp[0],bp[1],9,asleep?'rgba(120,90,180,0.6)':'#39fc6b');
+ nt(g,asleep?'#8a7ab8':'#39fc6b',bp[0]-22,bp[1]-16,8,asleep?'asleep':'cutting');
+ for(var i=0;i<5;i++){
+  var q=P(-72+i*36,46,0),occ=(i<((Math.floor(ang/24))%6));
+  ndot(g,q[0],q[1],occ?5.4:2.6,occ?'#5ad4ff':'rgba(120,90,180,0.35)');}
+ var cp=P(-72,68,0);nt(g,'#5ad4ff',cp[0],cp[1],8,'five chairs; the sixth customer leaves');
+ var sig=(ang%70)/70;
+ if(asleep&&sig<0.5){var m=P(-72+sig*140,-10,0);
+  ndot(g,m[0],m[1],3.4,'#ffd76a');
+  nt(g,'#ffd76a',m[0]+8,m[1]-6,8,'wake');}
+ nt(g,'#39fc6b',14,26,11,'the whole problem is one gap');
+ nt(g,'#8a7ab8',14,44,10,'between looking and lying down');
+ nt(g,'#ffd76a',14,H-46,9,'a flag speaks to whoever is listening now');
+ nt(g,'#7de2b0',14,H-30,9,'a count speaks to whoever asks later');
+ nt(g,'#b98cff',14,H-14,9,'observation has a moment; counting does not');}
+document.getElementById('slbrn').onclick=function(){pick++;drawW4();};
+document.getElementById('slbrp').onclick=function(){sem=!sem;drawW4();};
+document.getElementById('slbrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesleepingbarber=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+DNPH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Five philosophers, five forks, and a rule so reasonable it is fatal: pick up your left fork, then your right. Everyone can obey it simultaneously, and if they do, nobody eats again.<br><br>
+ <span class="lit">LIT</span> verified live. breadth-first search over the entire reachable state space of the symmetric protocol finds <b>82</b> states, of which exactly <b>1</b> has no successor at all &mdash; the state <code>11111</code>, every philosopher holding a left fork and waiting on a right that will never be released. Reverse the order for a single philosopher and the search finds <b>70</b> reachable states and <b>0</b> deadlocks. One asymmetry, applied to one of five, removes the whole failure &mdash; and it also removes <b>12</b> reachable states, which is what the fix costs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>dining philosophers</b> are Dijkstra&rsquo;s (1965); the asymmetric fix &mdash; make one philosopher left-handed &mdash; is the standard remedy, as is the resource hierarchy it generalises to.<br><br><b>AVAN (AI)</b> searched the state graph rather than reasoning about the cycle, so the deadlock is not a story about it but an enumerated fact: <b>1</b> terminal state, and it is identified by name. The <b>82 &rarr; 70</b> is the part that arguments usually omit &mdash; the fix does not merely delete the bad state, it deletes twelve reachable configurations, because forbidding a symmetry forbids more than the one arrangement you were afraid of.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">82 states. Exactly one of them has no way out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick up forks yourself and try to reach the trap.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnpha">philosopher +1 grabs</button><button id="dnphm">toggle asymmetric fix</button><button id="dnphr">reset</button></div>
+   <div class="cap" id="dnpho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that breaking the symmetry breaks the deadlock. The inverse is that <b>the deadlock was not caused by scarcity but by everyone being correct in the same way at the same time</b>. Every philosopher followed a locally sound rule; the failure is a property of the <i>set</i>, invisible in any one of them. Read backwards, a protocol that is safe for each participant can be lethal for all of them, and the only cure is to make somebody behave differently for no reason they could justify locally &mdash; correctness bought by mandating an inconsistency.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnphs">pause spin</button></div></div></div></div>"""
+DNPH_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=5,ST=[0,0,0,0,0],asym=false,turn=0;
+function forks(i,a){ if(a&&i===N-1)return [(i+1)%N,i]; return [i,(i+1)%N]; }
+function held(st,a){var h={};
+ for(var i=0;i<N;i++){var f=forks(i,a);
+  if(st[i]>=1)h[f[0]]=i; if(st[i]===2)h[f[1]]=i;}
+ return h;}
+function succ(st,a){var out=[],h=held(st,a);
+ for(var i=0;i<N;i++){var f=forks(i,a),t;
+  if(st[i]===0&&h[f[0]]===undefined){t=st.slice();t[i]=1;out.push({s:t,who:i,act:'takes first fork'});}
+  else if(st[i]===1&&h[f[1]]===undefined){t=st.slice();t[i]=2;out.push({s:t,who:i,act:'takes second -- eats'});}
+  else if(st[i]===2){t=st.slice();t[i]=0;out.push({s:t,who:i,act:'puts both down'});}}
+ return out;}
+function bfs(a){var seen={},q=[[0,0,0,0,0]],dead=[],n=0;
+ seen[q[0].join('')]=1;
+ while(q.length){var s=q.shift();n++;var sc=succ(s,a);
+  if(!sc.length)dead.push(s.join(''));
+  sc.forEach(function(x){var k=x.s.join('');if(!seen[k]){seen[k]=1;q.push(x.s);}});}
+ return {states:n,dead:dead};}
+function selftest(){
+ var A=bfs(false),B=bfs(true);
+ return {philosophers:N,naiveStates:A.states,naiveDeadlocks:A.dead.length,
+  deadlockState:A.dead[0]||null,asymStates:B.states,asymDeadlocks:B.dead.length,
+  statesRemovedByFix:A.states-B.states,
+  ok:A.states===82&&A.dead.length===1&&A.dead[0]==='11111'&&B.states===70&&B.dead.length===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'THE WHOLE REACHABLE STATE GRAPH, SEARCHED');
+ var rows=[['everyone takes left first',VR.naiveStates,VR.naiveDeadlocks,'#ff5a8a'],
+  ['one philosopher reversed',VR.asymStates,VR.asymDeadlocks,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=44+i*84;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+10,400,24);
+  nf(g,r[3]==='#7de2b0'?'rgba(125,226,176,0.5)':'rgba(150,110,230,0.4)');
+  g.fillRect(24,y+10,400*r[1]/82,24);ng(g);
+  nt(g,'#e6dcff',434,y+27,10,r[1]);
+  nt(g,'#8a7ab8',24,y+52,9,'states with no successor at all:');
+  nf(g,r[2]>0?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.5)');
+  g.fillRect(240,y+40,Math.max(14,r[2]*14),16);ng(g);
+  nt(g,r[3],262,y+53,10,String(r[2]));});
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,216,W-36,30);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,216.5,W-37,30);ng(g);
+ nt(g,'#ff5a8a',30,236,10,'the trap is the state 11111 -- all five holding a left fork');
+ nt(g,'#ffd76a',24,264,9,'the fix also deletes '+VR.statesRemovedByFix+' reachable states, not just the bad one');
+ nt(g,'#8a7ab8',24,282,9,'forbidding a symmetry forbids more than the arrangement you feared');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var sc=succ(ST,asym),stuck=(sc.length===0);
+ nt(g,'#e6dcff',18,24,11,asym?'ONE PHILOSOPHER REVERSED':'EVERYONE TAKES LEFT FIRST');
+ var cx=W/2,cy=150,R=86;
+ var h=held(ST,asym);
+ for(var f=0;f<N;f++){
+  var th=(f/N)*Math.PI*2-Math.PI/2+Math.PI/N;
+  var fx=cx+Math.cos(th)*R*0.62,fy=cy+Math.sin(th)*R*0.62;
+  var own=h[f];
+  nf(g,own===undefined?'rgba(120,90,180,0.35)':'#ffd76a');
+  g.beginPath();g.arc(fx,fy,6,0,7);g.fill();ng(g);}
+ for(var i=0;i<N;i++){
+  var th2=(i/N)*Math.PI*2-Math.PI/2;
+  var px=cx+Math.cos(th2)*R,py=cy+Math.sin(th2)*R;
+  var s=ST[i];
+  ndot(g,px,py,s===2?10:7,s===2?'#7de2b0':(s===1?'#ff9f45':'rgba(90,212,255,0.5)'));
+  nt(g,'#e6dcff',px-4,py+3,9,String(i));
+  nt(g,'#8a7ab8',px-16,py+22,8,s===0?'thinking':(s===1?'one fork':'eating'));}
+ nf(g,stuck?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.18)');g.fillRect(18,254,W-36,40);ng(g);
+ ne(g,stuck?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,254.5,W-37,40);ng(g);
+ nt(g,stuck?'#ff5a8a':'#7de2b0',32,279,11,stuck?('DEADLOCK -- state '+ST.join('')+', no move exists'):
+  (sc.length+' moves available   state '+ST.join('')));
+ nt(g,'#8a7ab8',18,312,9,'gold forks are held; blue thinking, orange holding one, green eating');
+ var out=document.getElementById('dnpho');
+ if(out)out.innerHTML='State <b>'+ST.join('')+'</b>: '+(stuck?
+  'every philosopher holds one fork and waits for a neighbour who will never let go. Nobody broke a rule.':
+  '<b>'+sc.length+'</b> moves are possible. '+(asym?'With one philosopher reaching the other way first, the cycle cannot close &mdash; <b>0</b> deadlocks in all <b>70</b> reachable states.':'Keep pressing &mdash; if all five take a left fork, the search says there is no way out.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var lock=(Math.floor(ang/120)%2===1);
+ for(var i=0;i<N;i++){
+  var th=i/N*Math.PI*2,q=P(Math.cos(th)*88,0,Math.sin(th)*88);
+  ndot(g,q[0],q[1],6.4,lock?'#ff5a8a':'#7de2b0');
+  var th2=(i+0.5)/N*Math.PI*2,f=P(Math.cos(th2)*58,0,Math.sin(th2)*58);
+  ndot(g,f[0],f[1],3.4,'#ffd76a');
+  ne(g,lock?'rgba(255,90,138,0.4)':'rgba(125,226,176,0.28)',1.2);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(f[0],f[1]);g.stroke();ng(g);}
+ nt(g,lock?'#ff5a8a':'#7de2b0',14,26,11,lock?'the cycle has closed':'still turning');
+ nt(g,'#8a7ab8',14,44,10,'every arrow points the same way round');
+ nt(g,'#ffd76a',14,H-46,9,'nobody broke a rule -- the rule was the problem');
+ nt(g,'#ff9f45',14,H-30,9,'safe for each, lethal for all');
+ nt(g,'#b98cff',14,H-14,9,'the cure is to make one of them locally unjustifiable');}
+document.getElementById('dnpha').onclick=function(){
+ var sc=succ(ST,asym); if(!sc.length)return;
+ var i=0; for(var k=0;k<sc.length;k++)if(sc[k].who===turn%N){i=k;break;}
+ ST=sc[i].s; turn++; drawW4();};
+document.getElementById('dnphm').onclick=function(){asym=!asym;ST=[0,0,0,0,0];drawW4();};
+document.getElementById('dnphr').onclick=function(){ST=[0,0,0,0,0];turn=0;drawW4();};
+document.getElementById('dnphs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thediningphilosophers=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BKDL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Dijkstra&rsquo;s banker will not lend you money he has, if lending it means he might later be unable to pay anyone in full. The resources are available. The request is legal. He refuses anyway.<br><br>
+ <span class="lit">LIT</span> verified live. the classic five-process, three-resource state is <b>safe</b>, with the completion order <b>P1, P3, P4, P0, P2</b> found by the algorithm. Enumerating every single request a process could legally make within its declared need gives <b>65</b> requests, and <b>all 65</b> have enough free resources to be granted on the spot. Only <b>56</b> are safe. The remaining <b>9</b> &mdash; <b>13.8%</b> &mdash; are requests the banker can afford and must still refuse, because granting them leaves a state from which some completion order no longer exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The <b>banker&rsquo;s algorithm</b> is Dijkstra&rsquo;s (1965), and the five-process instance is the one from Silberschatz.<br><br><b>AVAN (AI)</b> enumerated the request space rather than showing the single textbook example, because one example makes the gap look like a curiosity. <b>65</b> requests are affordable and <b>9</b> of them are traps &mdash; availability and safety are genuinely different predicates, and the difference is not rare. The algorithm&rsquo;s real cost is stated on the page rather than buried: every process must declare its <i>maximum</i> future need before it starts, which is information almost no real program has.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">65 affordable requests. Nine of them are traps.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try a request the banker can afford and watch him refuse.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkdln">next request &#9654;</button><button id="bkdlt">next TRAP &#9654;</button></div>
+   <div class="cap" id="bkdlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the banker prevents deadlock. The inverse is that <b>he can only do it by demanding a promise nobody can keep</b>. Safety here is computed from declared maxima, so the guarantee is exactly as good as the declarations &mdash; and a process that must state its worst-case need in advance will either overstate it, wasting the resources it reserved against a case that never comes, or understate it and void the proof. Read backwards, deadlock avoidance is not an algorithm problem, it is an <i>information</i> problem, and the algorithm is what you get once you assume the information away.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkdls">pause spin</button></div></div></div></div>"""
+BKDL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,REQ=[],TRAPS=[];
+var Avail=[3,3,2],M=3,P=5;
+var Alloc=[[0,1,0],[2,0,0],[3,0,2],[2,1,1],[0,0,2]];
+var Max=[[7,5,3],[3,2,2],[9,0,2],[2,2,2],[4,3,3]];
+var Need=Alloc.map(function(a,i){return a.map(function(v,j){return Max[i][j]-v;});});
+function le(a,b){for(var j=0;j<M;j++)if(a[j]>b[j])return false;return true;}
+function safe(av,al,nd){
+ var work=av.slice(),fin=[],seq=[];
+ for(var i=0;i<P;i++)fin.push(false);
+ var prog=true;
+ while(prog){prog=false;
+  for(i=0;i<P;i++){ if(!fin[i]&&le(nd[i],work)){
+   for(var j=0;j<M;j++)work[j]+=al[i][j];
+   fin[i]=true;seq.push(i);prog=true;}}}
+ return {safe:fin.every(function(x){return x;}),seq:seq};}
+function grant(p,v){
+ var av=Avail.map(function(x,j){return x-v[j];});
+ var al=Alloc.map(function(r,i){return i===p?r.map(function(x,j){return x+v[j];}):r.slice();});
+ var nd=Need.map(function(r,i){return i===p?r.map(function(x,j){return x-v[j];}):r.slice();});
+ return safe(av,al,nd);}
+function selftest(){
+ REQ=[];TRAPS=[];
+ var base=safe(Avail,Alloc,Need),af=0,sf=0;
+ for(var p=0;p<P;p++)
+  for(var a=0;a<3;a++)for(var b=0;b<3;b++)for(var c=0;c<3;c++){
+   var v=[a,b,c]; if(a+b+c===0)continue; if(!le(v,Need[p]))continue;
+   var feas=le(v,Avail); if(!feas)continue;
+   af++;
+   var s=grant(p,v);
+   if(s.safe)sf++; else TRAPS.push(REQ.length);
+   REQ.push({p:p,v:v,safe:s.safe,seq:s.seq});}
+ return {processes:P,resources:M,available:Avail,baseSafe:base.safe,safeSequence:base.seq,
+  affordableRequests:af,safeRequests:sf,traps:af-sf,trapPct:(af-sf)*100/af,
+  ok:base.safe&&af===65&&sf===56&&TRAPS.length===9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'EVERY REQUEST THE BANKER CAN AFFORD');
+ nt(g,'#8a7ab8',24,44,9,'available: ['+Avail.join(', ')+']    safe completion order: P'+VR.safeSequence.join(' -> P'));
+ var y0=60,cw=(W-48)/REQ.length;
+ REQ.forEach(function(r,i){
+  nf(g,r.safe?'rgba(125,226,176,0.55)':'rgba(255,90,138,0.75)');
+  g.fillRect(24+i*cw,y0,Math.max(2,cw-1),40);ng(g);});
+ nt(g,'#7de2b0',24,y0+58,10,VR.safeRequests+' safe');
+ nt(g,'#ff5a8a',150,y0+58,10,VR.traps+' affordable and refused');
+ var rows=[['requests within declared need, affordable',VR.affordableRequests,'#8a7ab8'],
+  ['of those, actually safe to grant',VR.safeRequests,'#7de2b0'],
+  ['traps: enough resources, still unsafe',VR.traps,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=136+i*40;
+  nt(g,'#e6dcff',24,y+2,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,360,18);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':(r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(150,110,230,0.35)'));
+  g.fillRect(24,y+8,Math.max(3,360*r[1]/65),18);ng(g);
+  nt(g,r[2],392,y+22,10,String(r[1]));});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,258,W-36,26);ng(g);
+ ne(g,'#ffd76a',1.2);g.strokeRect(18.5,258.5,W-37,26);ng(g);
+ nt(g,'#ffd76a',30,275,9,'13.8% of affordable requests are traps -- availability is not safety');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=REQ[pick%REQ.length];
+ nt(g,'#e6dcff',18,24,11,'P'+r.p+' requests ['+r.v.join(', ')+']');
+ nt(g,'#8a7ab8',18,46,9,'available ['+Avail.join(', ')+']   its declared need ['+Need[r.p].join(', ')+']');
+ nt(g,'#8a7ab8',18,74,9,'proc   allocated      max        need');
+ for(var i=0;i<P;i++){
+  var y=84+i*26,me=(i===r.p);
+  nf(g,me?'rgba(255,159,69,0.28)':'rgba(120,90,180,0.12)');g.fillRect(18,y,W-36,22);ng(g);
+  nt(g,me?'#ff9f45':'#e6dcff',28,y+15,9,'P'+i);
+  nt(g,'#e6dcff',68,y+15,9,'['+Alloc[i].join(',')+']');
+  nt(g,'#8a7ab8',150,y+15,9,'['+Max[i].join(',')+']');
+  nt(g,'#5ad4ff',232,y+15,9,'['+Need[i].join(',')+']');}
+ var yb=84+P*26+16;
+ nf(g,r.safe?'rgba(125,226,176,0.2)':'rgba(255,90,138,0.3)');g.fillRect(18,yb,W-36,58);ng(g);
+ ne(g,r.safe?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(18.5,yb+0.5,W-37,58);ng(g);
+ nt(g,'#7de2b0',32,yb+22,10,'affordable: YES -- the resources are sitting there');
+ nt(g,r.safe?'#7de2b0':'#ff5a8a',32,yb+44,11,r.safe?('GRANTED -- safe order P'+r.seq.join(' P')):'REFUSED -- no completion order survives');
+ nt(g,'#b98cff',18,yb+82,9,'9 of the 65 affordable requests end up here');
+ var out=document.getElementById('bkdlo');
+ if(out)out.innerHTML='P<b>'+r.p+'</b> asks for <b>['+r.v.join(', ')+']</b>. The banker has it. '+
+  (r.safe?'Granting still leaves a completion order &mdash; <b>P'+r.seq.join(' &rarr; P')+'</b> &mdash; so he lends it.':
+   'Granting leaves a state in which <i>no</i> ordering finishes every process, so he refuses a request he could afford. Nothing has deadlocked; he is refusing the state from which it becomes possible.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function Pp(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var step=Math.floor(ang/40)%5;
+ for(var i=0;i<5;i++){
+  var th=i/5*Math.PI*2,q=Pp(Math.cos(th)*88,10,Math.sin(th)*88);
+  var done=(VR.safeSequence.indexOf(i)<step);
+  ndot(g,q[0],q[1],done?7:4.4,done?'#7de2b0':'rgba(255,159,69,0.55)');
+  nt(g,done?'#7de2b0':'#8a7ab8',q[0]-8,q[1]-14,8,'P'+i);}
+ var vp=Pp(0,-76,0);
+ ndot(g,vp[0],vp[1],8,'#ffd76a');
+ nt(g,'#ffd76a',vp[0]-26,vp[1]-14,8,'the vault');
+ nt(g,'#ff9f45',14,26,11,'he can afford it');
+ nt(g,'#ff5a8a',14,44,10,'and he refuses anyway');
+ nt(g,'#8a7ab8',14,H-46,9,'safety is computed from declared maxima');
+ nt(g,'#ffd76a',14,H-30,9,'overstate and you waste; understate and the proof is void');
+ nt(g,'#b98cff',14,H-14,9,'not an algorithm problem -- an information problem');}
+document.getElementById('bkdln').onclick=function(){pick++;drawW4();};
+document.getElementById('bkdlt').onclick=function(){
+ var cur=pick%REQ.length,nx=TRAPS[0];
+ for(var i=0;i<TRAPS.length;i++)if(TRAPS[i]>cur){nx=TRAPS[i];break;}
+ pick=nx;drawW4();};
+document.getElementById('bkdls').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebankerdeadlock=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TPCM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Ask everyone whether they can commit. If they all say yes, tell them all to do it. The protocol is correct, and it has a hole you cannot patch: a participant that has said yes is no longer allowed to decide anything by itself.<br><br>
+ <span class="lit">LIT</span> verified live. injecting a coordinator crash at each of the <b>9</b> points in the protocol, under both an all-yes and a one-no vote &mdash; <b>18</b> scenarios &mdash; produces <b>0</b> atomicity violations. No run ever has one participant commit while another aborts. But <b>7</b> of the <b>9</b> crash points leave at least one participant <b>blocked</b>: it voted yes, it is holding its locks, it has no decision, and it may not abort unilaterally because the coordinator might have committed. Safe in <b>9</b> of <b>9</b>; live in <b>2</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">That <b>2PC is safe but blocking</b> is the standard result, and the reason three-phase commit and consensus protocols exist at all.<br><br><b>AVAN (AI)</b> injected the failure at every point rather than describing the bad case, so the two properties separate into two numbers instead of one paragraph. The pairing is the whole content: a protocol can be <b>100%</b> correct and <b>22%</b> available, and a summary that reports only the first is not wrong, it is just answering a question nobody was asking during the outage.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine crash points. Zero break. Seven hang.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Kill the coordinator at each step and read the participants.</div>
+   <div class="btns" style="margin-top:10px"><button id="tpcmn">crash later &#9654;</button><button id="tpcmp">crash earlier</button><button id="tpcmv">toggle a NO vote</button></div>
+   <div class="cap" id="tpcmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that 2PC guarantees atomicity. The inverse is that <b>it guarantees it by making blocking the only safe behaviour</b>. A participant holding locks with no decision is not malfunctioning &mdash; waiting is the <i>correct</i> action, because any unilateral choice risks disagreeing with a decision that may already have been made and written down somewhere it cannot see. Read backwards, the outage is not a failure of the protocol, it is the protocol working: when a system cannot distinguish &lsquo;slow&rsquo; from &lsquo;dead&rsquo;, correctness and availability stop being separable goals and one of them has to be surrendered on purpose.</div>
+   <div class="btns" style="margin-top:10px"><button id="tpcms">pause spin</button></div></div></div></div>"""
+TPCM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,crash=5,allYes=true,NP=3,POINTS=9;
+var STEPN=['before any PREPARE','PREPARE sent to p0','PREPARE sent to p1','PREPARE sent to p2',
+ 'all votes in, not yet decided','decision logged, none sent','decision sent to p0',
+ 'decision sent to p1','decision sent to p2 (complete)'];
+function run(c,yes){
+ var got=[],voted=[],dec=[],decision=null;
+ for(var i=0;i<NP;i++){got.push(false);voted.push(null);dec.push(null);}
+ for(var s=0;s<=c;s++){
+  if(s>=1&&s<=3){var p=s-1;got[p]=true;voted[p]=(yes||p!==1)?'yes':'no';}
+  if(s===5)decision=voted.every(function(v){return v==='yes';})?'commit':'abort';
+  if(s>=6&&s<=8&&decision)dec[s-6]=decision;}
+ var out=[];
+ for(i=0;i<NP;i++){
+  if(dec[i])out.push(dec[i]);
+  else if(voted[i]==='yes')out.push('blocked');
+  else out.push('abort');}
+ return {out:out,decision:decision,
+  violated:out.indexOf('commit')>=0&&out.indexOf('abort')>=0,
+  blocked:out.filter(function(x){return x==='blocked';}).length};}
+function selftest(){
+ var viol=0,bp=0,rows=[];
+ for(var c=0;c<POINTS;c++){
+  var A=run(c,true),B=run(c,false);
+  if(A.violated)viol++; if(B.violated)viol++;
+  if(A.blocked>0)bp++;
+  rows.push({crash:c,blocked:A.blocked,outcome:A.out.join('/')});}
+ return {participants:NP,crashPoints:POINTS,scenarios:POINTS*2,
+  atomicityViolations:viol,pointsWithBlocking:bp,pointsFullyLive:POINTS-bp,
+  safePct:100,livePct:(POINTS-bp)*100/POINTS,rows:rows,
+  ok:viol===0&&bp===7&&POINTS===9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'CRASH THE COORDINATOR AT EVERY POINT -- 18 SCENARIOS');
+ VR.rows.forEach(function(r,i){
+  var y=36+i*24;
+  nf(g,r.blocked>0?'rgba(255,90,138,0.32)':'rgba(125,226,176,0.28)');
+  g.fillRect(20,y,W-40,20);ng(g);
+  nt(g,'#e6dcff',30,y+14,8,'crash '+r.crash+':  '+STEPN[r.crash]);
+  nt(g,r.blocked>0?'#ff5a8a':'#7de2b0',W-108,y+14,8,r.blocked>0?(r.blocked+' blocked'):'all decided');});
+ var y2=36+9*24+10;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(18,y2,(W-40)/2,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,y2+0.5,(W-40)/2,32);ng(g);
+ nt(g,'#7de2b0',32,y2+21,10,'atomicity broken: '+VR.atomicityViolations+' of 18');
+ nf(g,'rgba(255,90,138,0.2)');g.fillRect(18+(W-40)/2+8,y2,(W-40)/2-8,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5+(W-40)/2+8,y2+0.5,(W-40)/2-8,32);ng(g);
+ nt(g,'#ff5a8a',32+(W-40)/2+8,y2+21,10,'someone blocked: '+VR.pointsWithBlocking+' of 9');
+ nt(g,'#ffd76a',24,y2+56,9,'100% correct and 22% available -- both are true at once');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(crash,allYes);
+ nt(g,'#e6dcff',18,24,11,'coordinator dies: '+STEPN[crash]);
+ nt(g,'#8a7ab8',18,44,9,allYes?'all participants vote YES':'participant 1 votes NO');
+ var cy0=64;
+ nf(g,'rgba(255,90,138,0.5)');g.fillRect(W/2-52,cy0,104,30);ng(g);
+ nt(g,'#0d0818',W/2-40,cy0+20,10,'COORDINATOR');
+ nt(g,'#ff5a8a',W/2-24,cy0+46,9,'dead');
+ nt(g,'#8a7ab8',18,cy0+70,9,'decision reached: '+(r.decision||'none -- it died first'));
+ for(var i=0;i<NP;i++){
+  var y=cy0+84+i*46,o=r.out[i];
+  var col=o==='blocked'?'#ff5a8a':(o==='commit'?'#7de2b0':'#ffd76a');
+  nf(g,o==='blocked'?'rgba(255,90,138,0.3)':(o==='commit'?'rgba(125,226,176,0.28)':'rgba(255,215,106,0.24)'));
+  g.fillRect(18,y,W-36,38);ng(g);
+  ne(g,col,1.3);g.strokeRect(18.5,y+0.5,W-37,38);ng(g);
+  nt(g,'#e6dcff',30,y+17,10,'participant '+i);
+  nt(g,col,30,y+32,9,o==='blocked'?'BLOCKED -- voted yes, holding locks, no decision':
+   (o==='commit'?'committed':'aborted (never voted yes -- safe to abort alone)'));}
+ var yb=cy0+84+NP*46+12;
+ nt(g,r.violated?'#ff5a8a':'#7de2b0',18,yb+14,10,r.violated?'ATOMICITY BROKEN':'atomicity holds: nobody committed while another aborted');
+ nt(g,'#b98cff',18,yb+34,9,'waiting is not a malfunction here -- it is the only safe move');
+ var out=document.getElementById('tpcmo');
+ if(out)out.innerHTML='Crash at step <b>'+crash+'</b> ('+STEPN[crash]+'): <b>'+r.blocked+
+  '</b> participant'+(r.blocked===1?'':'s')+' blocked, atomicity <b>'+(r.violated?'BROKEN':'intact')+
+  '</b>. A participant that voted yes cannot abort on its own &mdash; the coordinator may already have written COMMIT to a log this participant cannot read.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+8,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var dead=(ang%240)>110;
+ var co=P(0,-70,0);
+ ndot(g,co[0],co[1],8,dead?'rgba(255,90,138,0.35)':'#5ad4ff');
+ nt(g,dead?'#ff5a8a':'#5ad4ff',co[0]-30,co[1]-16,8,dead?'coordinator gone':'coordinator');
+ for(var i=0;i<3;i++){
+  var th=i/3*Math.PI*2+0.5,q=P(Math.cos(th)*82,44,Math.sin(th)*82);
+  ndot(g,q[0],q[1],6,dead?'#ff5a8a':'#7de2b0');
+  ne(g,dead?'rgba(255,90,138,0.18)':'rgba(125,226,176,0.35)',1.2);
+  g.beginPath();g.moveTo(co[0],co[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);
+  if(dead){ne(g,'rgba(255,90,138,0.3)',1);
+   g.beginPath();g.arc(q[0],q[1],10+((ang/2+i*9)%10),0,7);g.stroke();ng(g);}}
+ nt(g,'#5ad4ff',14,26,11,dead?'holding locks, waiting':'asking everyone first');
+ nt(g,'#8a7ab8',14,44,10,'nothing is broken; nothing can move');
+ nt(g,'#7de2b0',14,H-46,9,'0 of 18 runs ever disagreed');
+ nt(g,'#ff5a8a',14,H-30,9,'7 of 9 crash points hang someone indefinitely');
+ nt(g,'#b98cff',14,H-14,9,'cannot tell slow from dead: pick correctness or availability');}
+document.getElementById('tpcmn').onclick=function(){crash=Math.min(POINTS-1,crash+1);drawW4();};
+document.getElementById('tpcmp').onclick=function(){crash=Math.max(0,crash-1);drawW4();};
+document.getElementById('tpcmv').onclick=function(){allYes=!allYes;drawW4();};
+document.getElementById('tpcms').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetwophasecommit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+PXQR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The entire safety of distributed consensus rests on one fact about finite sets: any two majorities of the same set must share a member. Everything else &mdash; ballots, promises, acceptors &mdash; is scaffolding around that one intersection.<br><br>
+ <span class="lit">LIT</span> verified live. with <b>5</b> acceptors there are <b>10</b> majority quorums of size 3 and <b>45</b> pairs of them; <b>0</b> pairs are disjoint and the smallest intersection is exactly <b>1</b>. With <b>7</b> acceptors, <b>35</b> quorums, <b>595</b> pairs, <b>0</b> disjoint. Now take <b>6</b> acceptors and quorums of size 3 &mdash; half, not a majority: <b>20</b> quorums, <b>190</b> pairs, and <b>10</b> of them are disjoint. Two decisions can be made with nobody in common, which is what &lsquo;split brain&rsquo; means arithmetically. Fault tolerance follows the same counting: with 5 acceptors all <b>10</b> two-failure sets still leave a quorum, and all <b>10</b> three-failure sets leave none.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Leslie Lamport&rsquo;s</b> Paxos (1998, and 1990 in draft) rests on quorum intersection; the result is his and it long predates the protocol.<br><br><b>AVAN (AI)</b> checked it by exhaustion because the interesting number is the one for the <i>wrong</i> configuration. That majorities intersect is easy to believe; that <b>10 of 190</b> half-sized quorum pairs on 6 nodes are disjoint is the concrete form of an error people actually make when they size a cluster. The even-numbered cluster is not slightly weaker, it is unsafe at that quorum size, and this is the count that says so.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Any two majorities share a member. Any two halves need not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick two quorums and look for the overlap.</div>
+   <div class="btns" style="margin-top:10px"><button id="pxqrn">next pair &#9654;</button><button id="pxqrc">toggle 5 nodes / 6 nodes</button></div>
+   <div class="cap" id="pxqro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a majority quorum makes consensus safe. The inverse is that <b>the safety is not in the protocol at all &mdash; it is a counting argument, and the protocol merely refuses to outrun it</b>. No amount of care in the message handling can rescue a quorum size that permits disjoint sets; no carelessness in it can break one that does not. Read backwards, all the difficulty of consensus is in the <i>liveness</i>, where FLP guarantees no protocol can always terminate &mdash; safety was settled by arithmetic before anyone wrote a line.</div>
+   <div class="btns" style="margin-top:10px"><button id="pxqrs">pause spin</button></div></div></div></div>"""
+PXQR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,six=false,Q5=[],Q6=[],PAIRS5=[],PAIRS6=[];
+function subs(n,k){var out=[];
+ (function rec(i,cur){ if(cur.length===k){out.push(cur.slice());return;}
+  if(i>=n)return; cur.push(i);rec(i+1,cur);cur.pop();rec(i+1,cur);})(0,[]);
+ return out;}
+function inter(a,b){return a.filter(function(x){return b.indexOf(x)>=0;});}
+function build(){
+ Q5=subs(5,3);Q6=subs(6,3);PAIRS5=[];PAIRS6=[];
+ for(var i=0;i<Q5.length;i++)for(var j=i+1;j<Q5.length;j++)PAIRS5.push([i,j]);
+ for(i=0;i<Q6.length;i++)for(j=i+1;j<Q6.length;j++)PAIRS6.push([i,j]);}
+function stats(Q,PR){var dis=0,mn=99;
+ PR.forEach(function(p){var c=inter(Q[p[0]],Q[p[1]]).length;
+  if(c===0)dis++; if(c<mn)mn=c;});
+ return {sets:Q.length,pairs:PR.length,disjoint:dis,minInter:mn};}
+function tolerates(n,k,f){var fs=subs(n,f),ok=0;
+ fs.forEach(function(F){ if(n-F.length>=k)ok++; });
+ return {sets:fs.length,survive:ok};}
+function selftest(){
+ build();
+ var s5=stats(Q5,PAIRS5),s6=stats(Q6,PAIRS6);
+ var Q7=subs(7,4),PR7=[];
+ for(var i=0;i<Q7.length;i++)for(var j=i+1;j<Q7.length;j++)PR7.push([i,j]);
+ var s7=stats(Q7,PR7);
+ var t2=tolerates(5,3,2),t3=tolerates(5,3,3);
+ return {n5Quorums:s5.sets,n5Pairs:s5.pairs,n5Disjoint:s5.disjoint,n5MinIntersection:s5.minInter,
+  n7Quorums:s7.sets,n7Pairs:s7.pairs,n7Disjoint:s7.disjoint,
+  n6Quorums:s6.sets,n6Pairs:s6.pairs,n6Disjoint:s6.disjoint,
+  n6DisjointPct:s6.disjoint*100/s6.pairs,
+  tolerate2of5:t2.survive,tolerate2Sets:t2.sets,tolerate3of5:t3.survive,tolerate3Sets:t3.sets,
+  ok:s5.disjoint===0&&s5.minInter===1&&s7.disjoint===0&&s6.disjoint===10&&
+     t2.survive===t2.sets&&t3.survive===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DO ANY TWO QUORUMS SHARE A MEMBER?');
+ var rows=[['5 acceptors, majority of 3',VR.n5Pairs,VR.n5Disjoint,'#7de2b0'],
+  ['7 acceptors, majority of 4',VR.n7Pairs,VR.n7Disjoint,'#7de2b0'],
+  ['6 acceptors, HALF of 3',VR.n6Pairs,VR.n6Disjoint,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=46+i*58;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  nt(g,'#8a7ab8',24,y+18,9,r[1]+' pairs');
+  g.fillStyle='rgba(125,226,176,0.35)';g.fillRect(120,y+6,300,18);
+  if(r[2]>0){nf(g,'rgba(255,90,138,0.8)');g.fillRect(120,y+6,Math.max(6,300*r[2]/r[1]),18);ng(g);}
+  nt(g,r[3],430,y+20,10,r[2]+' disjoint');});
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,224,W-36,32);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,224.5,W-37,32);ng(g);
+ nt(g,'#ff5a8a',30,245,10,'10 of 190 -- two decisions with nobody in common: split brain');
+ nt(g,'#7de2b0',24,272,9,'5 acceptors: all '+VR.tolerate2Sets+' two-failure sets still leave a quorum');
+ nt(g,'#ffd76a',24,288,9,'and all '+VR.tolerate3Sets+' three-failure sets leave none -- f = 2, exactly');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var Q=six?Q6:Q5,PR=six?PAIRS6:PAIRS5,N=six?6:5;
+ var p=PR[pick%PR.length],A=Q[p[0]],B=Q[p[1]],I=inter(A,B);
+ nt(g,'#e6dcff',18,24,11,N+' acceptors, quorums of 3'+(six?'  [HALF -- not a majority]':'  [MAJORITY]'));
+ nt(g,'#8a7ab8',18,44,9,'pair '+((pick%PR.length)+1)+' of '+PR.length);
+ var labels=['quorum A','quorum B'];
+ [A,B].forEach(function(Qx,r){
+  var y=62+r*76;
+  nt(g,r?'#ff9f45':'#5ad4ff',18,y,9,labels[r]+'  {'+Qx.join(', ')+'}');
+  for(var i=0;i<N;i++){
+   var x=20+i*((W-40)/N),inQ=Qx.indexOf(i)>=0,both=I.indexOf(i)>=0;
+   nf(g,both?'#ffd76a':(inQ?(r?'rgba(255,159,69,0.55)':'rgba(90,212,255,0.55)'):'rgba(120,90,180,0.14)'));
+   g.fillRect(x,y+8,(W-40)/N-4,38);ng(g);
+   nt(g,inQ?'#0d0818':'#5b4a80',x+((W-40)/N-4)/2-3,y+32,11,String(i));}});
+ var yb=224;
+ var bad=(I.length===0);
+ nf(g,bad?'rgba(255,90,138,0.3)':'rgba(255,215,106,0.22)');g.fillRect(18,yb,W-36,50);ng(g);
+ ne(g,bad?'#ff5a8a':'#ffd76a',1.5);g.strokeRect(18.5,yb+0.5,W-37,50);ng(g);
+ nt(g,bad?'#ff5a8a':'#ffd76a',32,yb+22,11,bad?'DISJOINT -- no acceptor in common':('overlap: {'+I.join(', ')+'}'));
+ nt(g,'#8a7ab8',32,yb+40,9,bad?'both quorums can decide, and disagree':'whatever one quorum learned, the other must hear about');
+ nt(g,'#b98cff',18,yb+72,9,six?(VR.n6Disjoint+' of '+VR.n6Pairs+' pairs on 6 nodes are disjoint'):
+  ('0 of '+VR.n5Pairs+' pairs on 5 nodes are disjoint -- minimum overlap 1'));
+ var out=document.getElementById('pxqro');
+ if(out)out.innerHTML='<b>{'+A.join(', ')+'}</b> and <b>{'+B.join(', ')+'}</b>: '+
+  (bad?'no acceptor is in both. Each can accept a different value and neither will ever learn about the other. The protocol is irrelevant &mdash; the arithmetic already lost.':
+   'they share <b>{'+I.join(', ')+'}</b>. That single acceptor is the whole of Paxos&rsquo; safety: it cannot have promised two contradictory things.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var sh=Math.floor(ang/50)%5;
+ for(var i=0;i<5;i++){
+  var th=i/5*Math.PI*2,q=P(Math.cos(th)*90,0,Math.sin(th)*90);
+  var inA=(i===sh||i===(sh+1)%5||i===(sh+2)%5);
+  var inB=(i===(sh+2)%5||i===(sh+3)%5||i===(sh+4)%5);
+  var both=inA&&inB;
+  ndot(g,q[0],q[1],both?9:(inA||inB?6:3.2),
+   both?'#ffd76a':(inA?'#5ad4ff':(inB?'#ff9f45':'rgba(120,90,180,0.35)')));}
+ nt(g,'#5ad4ff',14,26,11,'two majorities, five acceptors');
+ nt(g,'#ffd76a',14,44,10,'gold: the one they must share');
+ nt(g,'#8a7ab8',14,H-46,9,'safety is a counting argument, not a protocol');
+ nt(g,'#7de2b0',14,H-30,9,'no care in the messages rescues a bad quorum size');
+ nt(g,'#b98cff',14,H-14,9,'all the difficulty was ever in the liveness');}
+document.getElementById('pxqrn').onclick=function(){pick++;drawW4();};
+document.getElementById('pxqrc').onclick=function(){six=!six;pick=0;drawW4();};
+document.getElementById('pxqrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepaxosquorum=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 250 · neon-noir · silicon-coding · ROUND 3 OF 3: THE SHARED WORLD ═══════════════════════
 # ═══════════════════════ BATCH 249 · neon-noir · silicon-coding · ROUND 2 OF 3: THE MACHINE UNDERNEATH ═══════════════════════
 # ═══════════════════════ BATCH 248 · neon-noir · silicon-coding · ROUND 1 of 3 · THE ARITHMETIC EDGE · rounding, underflow, resolution, cancellation, and the adders that buy latency with area ═══════════════════════
 STKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
@@ -92177,6 +93353,76 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-rcu","title":"THE RCU","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#7de2b0","icon":"\u29c9",
+  "kicker":"never edit what someone might be reading",
+  "blurb":"Copy it, change the copy, swing the pointer - and then wait, not for a lock, but for every reader who could still hold the old version to simply finish.",
+  "lit":"enumerating all 56 interleavings of a five-step writer against a three-step reader, 0 readers see a torn structure and 0 touch freed memory - 46 see the old version and 10 the new, because each captures the pointer once and holds an entire consistent copy; remove the grace period and free immediately after publishing, and 12 of the remaining 35 interleavings dereference reclaimed memory, with the reader performing 0 writes to shared state in every case",
+  "fig":"Read-copy-update is Paul McKenney's, in the Linux kernel since 2002. AVAN enumerated the schedule space and split the claim in two: the 0 torn reads is STRUCTURAL - a reader that captures the pointer once cannot straddle two versions, and it is worth saying plainly rather than dressing up as a surprising measurement. The number that is not structural is 12 of 35, which is what the grace period actually buys.",
+  "body":RCUX_BODY,"script":RCUX_SCRIPT},
+ {"slug":"the-hazard-pointer","title":"THE HAZARD POINTER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#5ad4ff","icon":"\u2691",
+  "kicker":"say out loud which pointer you are holding",
+  "blurb":"RCU waits for everyone. Michael's alternative asks each reader to name the pointer it is using - and the writer frees everything nobody named.",
+  "lit":"enumerating all 20 interleavings of a three-step reader against a three-step writer, the protocol with the re-verification step suffers 0 use-after-free, aborting in 16 and deferring 16 frees; delete the re-verification and 3 of the same 20 touch reclaimed memory - and the bound is the other half, since 64 threads holding 2 hazard pointers each strand at most 128 nodes where one RCU reader stalled across 50 grace periods at 100 nodes each strands 5,000, 39 times more",
+  "fig":"Hazard pointers are Maged Michael's (2004). AVAN ran the enumeration to isolate WHICH step does the work, because the interesting part of this algorithm is the one that looks redundant: the node can be unlinked and freed between the load and the publish, so the reader must re-read the shared pointer and confirm. Removing only that step gives 3 of 20 - a step whose entire justification is a window it is hard to believe exists.",
+  "body":HZPT_BODY,"script":HZPT_SCRIPT},
+ {"slug":"the-elimination-backoff","title":"THE ELIMINATION BACKOFF","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#ff9f45","icon":"\u2a09",
+  "kicker":"a push and a pop that cancel each other out",
+  "blurb":"Rather than queue a push and a pop at the contended top of a stack, let them meet in a side room and hand the value straight across. The stack never hears about it.",
+  "lit":"over 250 rounds of 8 threads on a balanced push/pop mix the plain lock-free stack is touched 2,000 times, once per operation, while a 4-slot elimination array pairs off 1,450 operations that never reach the stack at all - 550 touches, a 72.5% reduction - with conservation holding in both runs (pushes minus pops equals final depth exactly), and the control that matters: the same array on an all-push workload eliminates 0",
+  "fig":"Elimination backoff is Hendler, Shavit and Yerushalmi (2004). AVAN counted the thing that is actually exact - stack touches - rather than inventing CAS-retry figures, which would depend entirely on a contention model chosen to flatter the result. An eliminated pair provably never reaches the stack. The conservation check is there because a scheme that hands values around outside the data structure is exactly the kind that quietly loses or duplicates one.",
+  "body":ELBK_BODY,"script":ELBK_SCRIPT},
+ {"slug":"the-flat-combining","title":"THE FLAT COMBINING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#b98cff","icon":"\u25bc",
+  "kicker":"building the bottleneck on purpose",
+  "blurb":"Sixty-four threads fighting for one lock is sixty-four cache-line transfers to do sixty-four small things. Let one thread take the lock and do all sixty-four.",
+  "lit":"64 threads, 128 rounds, 8,192 operations: the lock-based version takes 8,192 lock acquisitions and moves the shared structure 8,192 times, while flat combining takes 128 - one per round, a factor of 64 - and reaches an identical final state; and with the combiner rotating, every thread executes exactly 128 operations under BOTH schemes, so nobody does more total work, what changes is the burst of 64 operations back to back against 1",
+  "fig":"Flat combining is Hendler, Incze, Shavit and Tzafrir (2010). AVAN checked the final state against the sequential application before reporting any speed number, because a scheme where one thread executes another thread's operation is exactly where a silent reordering would hide. The per-thread work count was the surprise worth keeping: the intuition is that the combiner is exploited, and over a rotation it is not - 128 and 128. The cost is 64x latency variance, which is a different complaint and a real one.",
+  "body":FLCM_BODY,"script":FLCM_SCRIPT},
+ {"slug":"the-bakery-algorithm","title":"THE BAKERY ALGORITHM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ffd76a","icon":"\u2460",
+  "kicker":"take a number; no atomic instruction required",
+  "blurb":"Lamport, 1974. Lowest number goes first, ties broken by who you are. Correct even if a read that overlaps a write returns garbage.",
+  "lit":"breadth-first search over the entire reachable state space of two threads gives 77 states, of which 14 have a thread in the critical section and 0 have both - mutual exclusion exhausted rather than argued; and on one arrival stream served two ways, the bakery discipline lets 0 of 10,000 entrants be overtaken by a later arrival while a test-and-set lock choosing among the 8 waiting threads overtakes 8,715 - the price being a ticket counter that reaches 10,000 and never resets, plus 16 shared words",
+  "fig":"Leslie Lamport's bakery algorithm (1974) is the classic result that mutual exclusion needs no atomic hardware. AVAN checked mutual exclusion by model checking rather than by reading the proof, and measured fairness rather than repeating the word. The fairness figure was nearly a fabrication: the first version simply SET the bakery's overtake count to zero on the grounds that FIFO is FIFO. It was rebuilt to run both disciplines over the same arrival stream through the same counter, so the 0 is a measurement. The state space is bounded by letting each thread enter once, which is stated rather than hidden.",
+  "body":BKRY_BODY,"script":BKRY_SCRIPT},
+ {"slug":"the-sleeping-barber","title":"THE SLEEPING BARBER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#39fc6b","icon":"\u263d",
+  "kicker":"the gap between looking and lying down",
+  "blurb":"One barber, a few chairs, customers who leave if the chairs are full. The barber sleeps when there is nobody. The whole problem lives in one gap.",
+  "lit":"enumerating all 6 interleavings of the naive two-step protocol, exactly 1 ends with the barber asleep and a customer waiting - the customer arrives and signals AFTER the barber has looked and BEFORE it has fallen asleep, so the wake-up is delivered to someone still awake and is simply lost - while replacing the flag with a counting semaphore gives 0 of the same 6; and over 5,000 steps with 5 chairs the arrivals reconcile exactly, 2,719 = 2,363 served + 353 turned away + 3 still waiting",
+  "fig":"Dijkstra's sleeping barber (1965) is one of the founding synchronisation problems. AVAN reduced it to the smallest space in which the bug is visible - two operations each - because the lost wake-up is usually described in prose, and prose lets it sound rare. It is 1 in 6. The conservation check is separate hygiene: any simulation of a queue with balking should account for every arrival before its other numbers are believed.",
+  "body":SLBR_BODY,"script":SLBR_SCRIPT},
+ {"slug":"the-dining-philosophers","title":"THE DINING PHILOSOPHERS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ff5a8a","icon":"\u2442",
+  "kicker":"everyone correct, in the same way, at the same time",
+  "blurb":"Five philosophers, five forks, and a rule so reasonable it is fatal: pick up your left fork, then your right. Everyone can obey it at once, and if they do, nobody eats again.",
+  "lit":"breadth-first search over the entire reachable state space of the symmetric protocol finds 82 states of which exactly 1 has no successor at all - the state 11111, every philosopher holding a left fork and waiting on a right that is never released - while reversing the order for a single philosopher gives 70 reachable states and 0 deadlocks, so one asymmetry applied to one of five removes the whole failure and also removes 12 reachable states, which is what the fix costs",
+  "fig":"The dining philosophers are Dijkstra's (1965); the asymmetric fix is the standard remedy. AVAN searched the state graph rather than reasoning about the cycle, so the deadlock is an enumerated fact with a name rather than a story. The 82 to 70 is the part arguments usually omit - the fix does not merely delete the bad state, it deletes twelve reachable configurations, because forbidding a symmetry forbids more than the one arrangement you were afraid of.",
+  "body":DNPH_BODY,"script":DNPH_SCRIPT},
+ {"slug":"the-banker-deadlock","title":"THE BANKER DEADLOCK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff9f45","icon":"\u26d4",
+  "kicker":"he can afford it and he refuses anyway",
+  "blurb":"Dijkstra's banker will not lend money he has, if lending it means he might later be unable to pay anyone in full. The resources are available. The request is legal. He refuses.",
+  "lit":"the classic five-process three-resource state is safe, with the completion order P1, P3, P4, P0, P2 found by the algorithm; enumerating every request a process could legally make within its declared need gives 65 requests and ALL 65 have enough free resources to be granted on the spot, but only 56 are safe - the remaining 9, or 13.8%, are requests the banker can afford and must still refuse because granting them leaves a state from which some completion order no longer exists",
+  "fig":"The banker's algorithm is Dijkstra's (1965) and the five-process instance is Silberschatz's. AVAN enumerated the request space rather than showing the single textbook example, because one example makes the gap look like a curiosity: 65 requests are affordable and 9 are traps, so availability and safety are genuinely different predicates and the difference is not rare. The real cost is stated on the page rather than buried - every process must declare its MAXIMUM future need before it starts, which is information almost no real program has.",
+  "body":BKDL_BODY,"script":BKDL_SCRIPT},
+ {"slug":"the-two-phase-commit","title":"THE TWO PHASE COMMIT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#5ad4ff","icon":"\u2442",
+  "kicker":"correct, and it hangs seven times in nine",
+  "blurb":"Ask everyone whether they can commit; if they all say yes, tell them all to do it. The protocol is correct, and it has a hole you cannot patch.",
+  "lit":"injecting a coordinator crash at each of the 9 points in the protocol, under both an all-yes and a one-no vote - 18 scenarios - produces 0 atomicity violations, with no run ever having one participant commit while another aborts; but 7 of the 9 crash points leave at least one participant BLOCKED, holding its locks with no decision and forbidden to abort unilaterally because the coordinator might have committed - safe in 9 of 9, live in 2",
+  "fig":"That 2PC is safe but blocking is the standard result, and the reason three-phase commit and consensus protocols exist at all. AVAN injected the failure at every point rather than describing the bad case, so the two properties separate into two numbers instead of one paragraph. The pairing is the whole content: a protocol can be 100% correct and 22% available, and a summary reporting only the first is not wrong, it is answering a question nobody was asking during the outage.",
+  "body":TPCM_BODY,"script":TPCM_SCRIPT},
+ {"slug":"the-paxos-quorum","title":"THE PAXOS QUORUM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#b98cff","icon":"\u2229",
+  "kicker":"safety was settled by arithmetic before anyone wrote a line",
+  "blurb":"The entire safety of distributed consensus rests on one fact about finite sets: any two majorities of the same set must share a member. Everything else is scaffolding around that intersection.",
+  "lit":"with 5 acceptors there are 10 majority quorums of size 3 and 45 pairs of them, 0 disjoint, smallest intersection exactly 1; with 7 acceptors, 35 quorums and 595 pairs, 0 disjoint; but take 6 acceptors with quorums of size 3 - half, not a majority - and of the 20 quorums and 190 pairs, 10 are disjoint, which is what split brain means arithmetically; fault tolerance counts the same way, since all 10 two-failure sets on 5 acceptors still leave a quorum and all 10 three-failure sets leave none",
+  "fig":"Leslie Lamport's Paxos rests on quorum intersection, a result that long predates the protocol. AVAN checked it by exhaustion because the interesting number is the one for the WRONG configuration: that majorities intersect is easy to believe, but that 10 of 190 half-sized quorum pairs on 6 nodes are disjoint is the concrete form of an error people actually make when sizing a cluster. The even-numbered cluster is not slightly weaker, it is unsafe at that quorum size, and this is the count that says so.",
+  "body":PXQR_BODY,"script":PXQR_SCRIPT},
  {"slug":"the-one-hot","title":"THE ONE HOT","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#39fc6b","icon":"\u25cf",
   "kicker":"exactly one wire high, and that is the whole code",
