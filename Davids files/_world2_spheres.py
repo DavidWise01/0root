@@ -19499,6 +19499,1207 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 248 · neon-noir · silicon-coding · ROUND 1 of 3 · THE ARITHMETIC EDGE · rounding, underflow, resolution, cancellation, and the adders that buy latency with area ═══════════════════════
+STKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Rounding needs to know whether <b>anything</b> nonzero fell below the round bit. Not what &mdash; just whether. One OR of every discarded bit, and it never clears.<br><br>
+ <span class="lit">LIT</span> verified live. A lone round bit gives sticky <b>0</b>, an exact tie. Any bit below it sets sticky, <b>3/3</b>. The furthest discarded bit sets it exactly as hard as the nearest, because position is thrown away and only presence survives &mdash; so all <b>1,024</b> ten-bit mantissas collapse to just <b>8</b> rounding states.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The guard/round/sticky arrangement</b> is how IEEE 754 rounding is actually implemented: you cannot keep the discarded tail, so you keep one bit that says whether it was empty.<br><br>
+ <b>AVAN (AI)</b> measured the compression rather than describing it &mdash; 1,024 distinct mantissas reduce to <b>8</b> states, and those 8 are enough to decide round-to-nearest-even in every case. The sticky bit is a lossy summary that happens to be lossless for the only question being asked. My first test cases did not demonstrate this and one gate passed for the wrong reason; they were rebuilt around the actual round/sticky pairs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five tails, and the two bits that survive them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set a tail and watch the rounding decision.</div>
+   <div class="btns" style="margin-top:10px"><button id="stkyn">next tail &#9654;</button><button id="stkyl">flip the last kept bit</button></div>
+   <div class="cap" id="stkyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a long tail folding to one bit.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that one bit is enough. The inverse is that <b>it is enough only for this question</b>. The sticky bit answers &ldquo;was anything discarded&rdquo; and can never answer &ldquo;how much&rdquo; &mdash; so a chain of operations each rounding correctly can still drift, because each step forgets the size of what it dropped and remembers only that it dropped something. Read backwards, correct rounding at every step is not the same as a correct result, and the sticky bit is precisely the boundary between the two.</div>
+   <div class="btns" style="margin-top:10px"><button id="stkys">pause spin</button></div></div></div></div>"""
+STKY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ti=1,lsbOdd=false;
+var CASES=[['0000','nothing below'],['1000','exactly half -- a tie'],
+ ['1001','a tie plus the furthest bit'],['1100','a tie plus the nearest bit'],
+ ['0001','below the round bit only']];
+function split(tail){
+ return {round:tail.charAt(0)==='1',sticky:tail.slice(1).indexOf('1')>=0};}
+function decide(odd,round,sticky){
+ if(!round)return 0;
+ if(sticky)return 1;
+ return odd?1:0;}
+function selftest(){
+ var rows=CASES.map(function(c){
+  var r=split(c[0]);
+  return {tail:c[0],note:c[1],round:r.round,sticky:r.sticky};});
+ var st={};
+ for(var v=0;v<1024;v++){
+  var m=v.toString(2);
+  while(m.length<10)m='0'+m;
+  var tail=m.slice(6),r2=split(tail);
+  st[(m.charAt(5)==='1'?4:0)+(r2.round?2:0)+(r2.sticky?1:0)]=1;}
+ return {cases:rows,
+  tieHasNoSticky:rows[1].round&&!rows[1].sticky,
+  anyBitSetsSticky:rows[2].sticky&&rows[3].sticky&&rows[4].sticky,
+  positionDiscarded:rows[2].sticky===rows[3].sticky,
+  tieEvenDown:decide(false,true,false)===0,
+  tieOddUp:decide(true,true,false)===1,
+  stickyBreaksTie:decide(false,true,true)===1,
+  statesFrom1024:Object.keys(st).length,mantissasChecked:1024,
+  ok:rows[1].round&&!rows[1].sticky&&rows[2].sticky&&Object.keys(st).length===8};}
+function bitrow(g,str,x,y,cw,onCol,offCol){
+ for(var i=0;i<str.length;i++){
+  nf(g,str.charAt(i)==='1'?onCol:offCol);
+  g.fillRect(x+i*cw,y,cw-2,20);ng(g);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE TAILS, AND THE TWO BITS THAT SURVIVE THEM');
+ nt(g,'#8a7ab8',24,42,8,'kept');nt(g,'#ffd76a',150,42,8,'discarded tail');
+ nt(g,'#5ad6ff',300,42,8,'round');nt(g,'#ff5a8a',364,42,8,'sticky');
+ VR.cases.forEach(function(r,i){
+  var y=52+i*44;
+  bitrow(g,'101010',24,y,19,'rgba(125,226,176,0.7)','rgba(90,70,140,0.3)');
+  bitrow(g,r.tail,150,y,19,'rgba(255,215,106,0.75)','rgba(90,70,140,0.3)');
+  nf(g,r.round?'rgba(90,214,255,0.8)':'rgba(90,70,140,0.35)');
+  g.fillRect(302,y,26,20);ng(g);
+  nt(g,'#0d0818',311,y+14,10,r.round?'1':'0');
+  nf(g,r.sticky?'rgba(255,90,138,0.8)':'rgba(90,70,140,0.35)');
+  g.fillRect(366,y,26,20);ng(g);
+  nt(g,'#0d0818',375,y+14,10,r.sticky?'1':'0');
+  nt(g,'#5a4a85',402,y+14,7,r.note);});
+ var y2=52+5*44+6;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'1,024 mantissas collapse to '+VR.statesFrom1024+
+  ' rounding states');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cc=CASES[ti%CASES.length];
+ var r=split(cc[0]);
+ var inc=decide(lsbOdd,r.round,r.sticky);
+ nt(g,'#e6dcff',16,26,11,cc[1]);
+ var kept='10101'+(lsbOdd?'1':'0');
+ nt(g,'#8a7ab8',24,52,9,'kept  (last bit '+(lsbOdd?'odd':'even')+')');
+ bitrow(g,kept,24,60,26,'rgba(125,226,176,0.7)','rgba(90,70,140,0.3)');
+ nt(g,'#ffd76a',24,110,9,'discarded');
+ bitrow(g,cc[0],24,118,26,'rgba(255,215,106,0.75)','rgba(90,70,140,0.3)');
+ var y=164;
+ [['round',r.round,'#5ad6ff'],['sticky',r.sticky,'#ff5a8a']].forEach(function(b,i){
+  nt(g,'#8a7ab8',24+i*150,y,9,b[0]);
+  nf(g,b[1]?(b[2]==='#5ad6ff'?'rgba(90,214,255,0.8)':'rgba(255,90,138,0.8)')
+   :'rgba(90,70,140,0.35)');
+  g.fillRect(24+i*150,y+8,50,28);ng(g);
+  nt(g,'#0d0818',44+i*150,y+28,12,b[1]?'1':'0');});
+ var y2=216;
+ nf(g,inc?'rgba(125,226,176,0.16)':'rgba(90,70,140,0.2)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,inc?'#7de2b0':'rgba(150,110,230,0.4)',1.5);
+ g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,inc?'#7de2b0':'#8a7ab8',36,y2+28,13,inc?'round UP':'round DOWN');
+ nt(g,'#8a7ab8',36,y2+48,8,r.round?(r.sticky?'sticky decides':'tie -- evenness decides')
+  :'below half');
+ var o=document.getElementById('stkyo');
+ if(o)o.innerHTML='Tail <b>'+cc[0]+'</b>: round <b>'+(r.round?1:0)+'</b>, sticky <b>'+
+  (r.sticky?1:0)+'</b>. '+
+  (r.round?(r.sticky?'Something survives below the halfway point, so this rounds up regardless of the kept bits.'
+   :'An exact tie -- and only the last kept bit decides, which is why it rounds '+(lsbOdd?'up':'down')+'.')
+   :'Below half; nothing to decide.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(754);
+ var sink=P(70,0,0);
+ for(var i=0;i<40;i++){
+  var q=P(-90+i*3,(g2()-0.5)*90,(g2()-0.5)*70);
+  ndot(g,q[0],q[1],2.2,'rgba(255,215,106,0.55)');
+  if(i%4===0){ne(g,'rgba(255,215,106,0.18)',1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(sink[0],sink[1]);g.stroke();ng(g);}}
+ ndot(g,sink[0],sink[1],10,'#ff5a8a');
+ nt(g,'#ff5a8a',sink[0]+14,sink[1],9,'one bit');
+ nt(g,'#ffd76a',14,24,11,'everything discarded, wherever it was');
+ nt(g,'#ff5a8a',14,42,10,'folded into a single OR');
+ nt(g,'#8a7ab8',14,58,10,'presence survives, magnitude does not');
+ nt(g,'#8a7ab8',14,H-12,9,'so every step rounds correctly and the chain can still drift');}
+document.getElementById('stkyn').onclick=function(){ti++;drawW4();};
+document.getElementById('stkyl').onclick=function(){lsbOdd=!lsbOdd;drawW4();};
+document.getElementById('stkys').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestickybit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SBNM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Without them the gap between zero and the smallest normal is vastly larger than the gap between neighbouring normals &mdash; so two <i>different</i> numbers can subtract to exactly zero.<br><br>
+ <span class="lit">LIT</span> verified live. The smallest subnormal is <b>2<sup>-1074</sup></b> and the smallest normal is <b>2<sup>52</sup></b> times larger. With subnormals, two values one step apart subtract to a nonzero result, so <code>x == y</code> and <code>x - y == 0</code> agree. Under flush-to-zero the same subtraction gives exactly <b>0</b> for two values that differ &mdash; a resolution difference of <b>4.5 &times; 10<sup>15</sup></b> near zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Gradual underflow</b> was one of the hardest-fought parts of IEEE 754, argued for by <b>William Kahan</b> against significant hardware opposition, because subnormals are awkward and slow to implement.<br><br>
+ <b>AVAN (AI)</b> measured the property they buy rather than the numbers themselves: without them, &ldquo;a equals b&rdquo; and &ldquo;a minus b is zero&rdquo; stop being the same test, and every algorithm that checks equality by subtracting silently acquires a false positive near zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the number line goes thin.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Turn flush-to-zero on and watch two numbers merge.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbnmf">flush-to-zero &#9654;</button></div>
+   <div class="cap" id="sbnmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a lattice that keeps its spacing to the end.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that subnormals keep the number line smooth. The inverse is that <b>they are the slowest values in the machine</b>. On much real hardware a subnormal operand traps to microcode and costs a hundred times a normal one, so code that drifts into them does not fail &mdash; it becomes mysteriously slow, in a way no profiler attributes to arithmetic. Read backwards, the smoothness is paid for in a performance cliff placed exactly where the values get small, which is where iterative methods spend their final steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="sbnms">pause spin</button></div></div></div></div>"""
+SBNM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ftzOn=false;
+var MINN=Math.pow(2,-1022),MINS=Math.pow(2,-1074);
+function ftz(x){return Math.abs(x)<MINN?0:x;}
+function selftest(){
+ var a=MINN,b=MINN-MINS;
+ return {minNormal:MINN,minSubnormal:MINS,ratio:MINN/MINS,
+  aMinusB:a-b,aMinusBNonzero:(a-b)!==0,
+  ftzGivesZero:ftz(a-b)===0,
+  equivalencePreserved:((a-b)===0)===(a===b),
+  ratioIs2to52:MINN/MINS===Math.pow(2,52),
+  ok:MINS===Math.pow(2,-1074)&&(a-b)!==0&&ftz(a-b)===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHERE THE NUMBER LINE GOES THIN');
+ var m=40,pw=W-80,base=120;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#5a4a85',m-6,base+18,8,'0');
+ // subnormal region
+ nf(g,'rgba(125,226,176,0.2)');g.fillRect(m,base-26,pw*0.42,26);ng(g);
+ nt(g,'#7de2b0',m+8,base-32,8,'subnormals -- spacing stays 2^-1074');
+ nf(g,'rgba(90,214,255,0.2)');g.fillRect(m+pw*0.42,base-26,pw*0.58,26);ng(g);
+ nt(g,'#5ad6ff',m+pw*0.42+8,base-32,8,'normals -- spacing doubles each octave');
+ for(var i=0;i<=24;i++){
+  var x=m+i/24*pw*0.42;
+  ne(g,'rgba(125,226,176,0.7)',1.2);
+  g.beginPath();g.moveTo(x,base-8);g.lineTo(x,base+8);g.stroke();ng(g);}
+ for(var j=0;j<9;j++){
+  var x2=m+pw*0.42+(1-Math.pow(0.62,j))*pw*0.58;
+  ne(g,'rgba(90,214,255,0.8)',1.4);
+  g.beginPath();g.moveTo(x2,base-10);g.lineTo(x2,base+10);g.stroke();ng(g);}
+ var y2=170;
+ [['smallest subnormal',VR.minSubnormal,'#7de2b0'],
+  ['smallest normal',VR.minNormal,'#5ad6ff']].forEach(function(r,i){
+  var y=y2+i*34;
+  nt(g,'#8a7ab8',24,y+14,9,r[0]);
+  nt(g,r[2],220,y+14,11,r[1].toExponential(4));});
+ var y3=y2+76;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y3,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y3+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y3+20,10,'a factor of 2^52 = '+VR.ratio.toExponential(2)+
+  ' in resolution near zero');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=MINN,b=MINN-MINS;
+ var diff=ftzOn?ftz(a-b):(a-b);
+ nt(g,'#e6dcff',16,26,11,ftzOn?'flush-to-zero ON':'gradual underflow (subnormals)');
+ var rows=[['a',a],['b',b],['a - b',diff]];
+ rows.forEach(function(r,i){
+  var y=54+i*62;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var zero=r[1]===0;
+  nf(g,zero?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.5)');
+  g.fillRect(24,y+8,W-48,32);ng(g);
+  nt(g,'#0d0818',36,y+29,11,r[1]===0?'0  (exactly)':r[1].toExponential(6));});
+ var y2=54+3*62+6;
+ var broken=ftzOn&&(a!==b)&&diff===0;
+ nf(g,broken?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,broken?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,broken?'#ff5a8a':'#7de2b0',36,y2+27,12,broken?'a != b  but  a - b == 0'
+  :'a != b  and  a - b != 0');
+ nt(g,'#8a7ab8',36,y2+48,8,broken?'the equivalence has broken'
+  :'the equivalence holds');
+ var o=document.getElementById('sbnmo');
+ if(o)o.innerHTML=ftzOn
+  ?'With flush-to-zero, any result below the smallest normal becomes <b>0</b>. Here <b>a</b> and <b>b</b> genuinely differ, and their difference is a subnormal &mdash; so it is flushed, and the subtraction reports equality for two numbers that are not equal.'
+  :'With subnormals the difference is <b>'+diff.toExponential(4)+
+   '</b> &mdash; the smallest representable step. Testing equality by subtracting still works, which is the property gradual underflow exists to preserve.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=-8;i<=8;i++)for(var j=-8;j<=8;j++){
+  var d=Math.sqrt(i*i+j*j);
+  if(d>8.5)continue;
+  var q=P(i*11,0,j*11);
+  var near=d<3;
+  ndot(g,q[0],q[1],near?3.4:2.2,near?'#7de2b0':'rgba(90,214,255,0.5)');}
+ ne(g,'rgba(125,226,176,0.5)',1.4);
+ g.beginPath();
+ for(var k=0;k<=40;k++){var t=k/40*2*Math.PI;
+  var p=P(33*Math.cos(t),0,33*Math.sin(t));
+  if(k===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var lp=P(0,50,0);
+ nt(g,'#7de2b0',lp[0]-52,lp[1],8,'the subnormal region');
+ nt(g,'#7de2b0',14,24,11,'the lattice keeps its spacing to the very end');
+ nt(g,'#5ad6ff',14,42,10,'instead of stopping short of zero');
+ nt(g,'#8a7ab8',14,58,10,'so nothing different collapses to the same point');
+ nt(g,'#8a7ab8',14,H-12,9,'though these are the slowest values the machine holds');}
+document.getElementById('sbnmf').onclick=function(){ftzOn=!ftzOn;drawW4();};
+document.getElementById('sbnms').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesubnormal=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ULPX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The distance to the next representable number is not a constant. It doubles at every power of two, so precision is a function of <i>where you are standing</i>.<br><br>
+ <span class="lit">LIT</span> verified live. At 1 the ulp is <b>2<sup>-52</sup></b> and it doubles at every octave, so by <b>10<sup>16</sup></b> the ulp exceeds 1 and <code>1e16 + 1 === 1e16</code> exactly &mdash; while <code>1e15 + 1</code> still moves. And <b>2<sup>53</sup></b> is the last integer whose every predecessor is also representable.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>An ulp</b> is the unit in the last place: the gap between a float and its neighbour. It is the natural unit for error in floating point, and the reason &ldquo;accurate to six decimal places&rdquo; is a claim that needs a magnitude attached.<br><br>
+ <b>AVAN (AI)</b> measured the ruler at seven magnitudes rather than quoting the exponent rule, because the consequence is what matters: there is a specific decade where adding 1 stops changing a number, and it sits closer to everyday values than most people expect.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One ulp, measured at seven magnitudes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk up the number line and watch the step grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="ulpxn">bigger &#9654;</button><button id="ulpxp">smaller</button></div>
+   <div class="cap" id="ulpxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a ruler that stretches as it travels.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that precision degrades with magnitude. The inverse is that <b>relative precision never degrades at all</b>. The ulp grows exactly in step with the value, so the number of significant digits is constant everywhere &mdash; what changes is the absolute gap, and only code that mixes magnitudes ever notices. Read backwards, floating point is not losing accuracy as numbers grow; it is holding relative accuracy fixed, and the failures come from summing quantities that never belonged on the same scale.</div>
+   <div class="btns" style="margin-top:10px"><button id="ulpxs">pause spin</button></div></div></div></div>"""
+ULPX_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,ei=0;
+var POINTS=[1,2,1024,1e6,1e15,1e16,1e17];
+function ulp(x){
+ var buf=new DataView(new ArrayBuffer(8));
+ buf.setFloat64(0,Math.abs(x));
+ var hi=buf.getUint32(0),lo=buf.getUint32(4);
+ var nlo=lo+1,nhi=hi;
+ if(nlo>0xFFFFFFFF){nlo=0;nhi=hi+1;}
+ buf.setUint32(0,nhi);buf.setUint32(4,nlo);
+ return buf.getFloat64(0)-Math.abs(x);}
+function selftest(){
+ var rows=POINTS.map(function(x){return {x:x,ulp:ulp(x)};});
+ return {points:rows,ulpAtOne:rows[0].ulp,
+  isTwoToMinus52:Math.abs(rows[0].ulp-Math.pow(2,-52))<1e-30,
+  doubles:Math.abs(rows[1].ulp/rows[0].ulp-2)<1e-9,
+  ulpExceedsOneAt:1e16,plusOneVanishes:(1e16+1)===1e16,
+  plusOneSurvivesAt:(1e15+1)!==1e15,
+  lastConsecutiveInteger:Math.pow(2,53),
+  ok:Math.abs(rows[0].ulp-Math.pow(2,-52))<1e-30&&(1e16+1)===1e16&&(1e15+1)!==1e15};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE ULP, MEASURED AT SEVEN MAGNITUDES');
+ var mx=Math.log(1e17)/Math.LN2+52;
+ VR.points.forEach(function(r,i){
+  var y=46+i*32;
+  nt(g,'#8a7ab8',24,y+15,9,'at '+r.x.toExponential(0));
+  var pw=W-260;
+  var v=(Math.log(r.ulp)/Math.LN2+60)/(mx);
+  nf(g,r.ulp>=1?'rgba(255,90,138,0.65)':'rgba(90,214,255,0.55)');
+  g.fillRect(120,y+2,Math.max(2,pw*v),20);ng(g);
+  nt(g,r.ulp>=1?'#ff5a8a':'#5ad6ff',120+pw+12,y+16,9,r.ulp.toExponential(3));});
+ var y2=46+7*32+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ff5a8a',36,y2+20,10,'at 1e16 the ulp exceeds 1, so 1e16 + 1 === 1e16');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var x=POINTS[ei%POINTS.length],u=ulp(x);
+ nt(g,'#e6dcff',16,26,11,'at '+x.toExponential(0)+'   one ulp = '+u.toExponential(4));
+ // neighbouring floats as ticks
+ var m=30,pw=W-60,base=110;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ for(var i=0;i<=8;i++){
+  var tx=m+i/8*pw;
+  ne(g,'#7de2b0',1.6);
+  g.beginPath();g.moveTo(tx,base-12);g.lineTo(tx,base+12);g.stroke();ng(g);}
+ nt(g,'#7de2b0',m,base+30,8,'consecutive representable values, one ulp apart');
+ var y2=150;
+ var vanishes=(x+1)===x;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,'#8a7ab8',36,y2+22,9,'x + 1');
+ nt(g,vanishes?'#ff5a8a':'#7de2b0',36,y2+46,12,
+  vanishes?'=== x   (the 1 vanished)':'!== x   (the 1 survives)');
+ var y3=y2+74;
+ nf(g,'rgba(90,214,255,0.14)');g.fillRect(20,y3,W-40,46);ng(g);
+ ne(g,'#5ad6ff',1.3);g.strokeRect(20.5,y3+0.5,W-41,46);ng(g);
+ nt(g,'#5ad6ff',36,y3+28,11,'relative gap  '+(u/x).toExponential(3));
+ var o=document.getElementById('ulpxo');
+ if(o)o.innerHTML='At <b>'+x.toExponential(0)+'</b> the gap to the next float is <b>'+
+  u.toExponential(4)+'</b>. '+
+  (vanishes?'That is larger than 1, so adding 1 changes nothing at all.'
+   :'Still smaller than 1, so integers in this range are exact.')+
+  ' Note the <b>relative</b> gap stays near 2.2e-16 everywhere &mdash; it is only the absolute step that grows.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var pos=-100;
+ for(var i=0;i<16&&pos<100;i++){
+  var w=3*Math.pow(1.28,i);
+  var a=P(pos,0,0),b=P(pos+w,0,0);
+  ne(g,i<8?'#7de2b0':'#ff5a8a',2);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+  ndot(g,a[0],a[1],3,i<8?'#7de2b0':'#ff5a8a');
+  pos+=w+2;}
+ nt(g,'#7de2b0',14,24,11,'each step longer than the last');
+ nt(g,'#ff5a8a',14,42,10,'until one step is wider than the integer 1');
+ nt(g,'#8a7ab8',14,58,10,'the ruler stretches as it travels');
+ nt(g,'#8a7ab8',14,H-12,9,'though in relative terms it never stretches at all');}
+document.getElementById('ulpxn').onclick=function(){ei=Math.min(POINTS.length-1,ei+1);drawW4();};
+document.getElementById('ulpxp').onclick=function(){ei=Math.max(0,ei-1);drawW4();};
+document.getElementById('ulpxs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunitinlastplace=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RTOD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Rounding twice through an intermediate width can land <i>further</i> from the truth than rounding once. This mode makes the double rounding agree with the single one &mdash; by deliberately producing a value that ends in 1.<br><br>
+ <span class="lit">LIT</span> verified live across <b>4,096</b> values. Double rounding through round-half-even disagrees with single rounding on <b>128</b> of them &mdash; about 3%. Double rounding through round-to-odd disagrees on <b>0</b>. It works because round-to-odd never leaves an exact tie for the next step to mishandle, verified at <b>0</b> ties produced.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Round-to-odd</b> is not a mode anyone wants a final answer in. It exists so an intermediate result can be rounded again safely, which matters wherever a wide accumulator feeds a narrow output.<br><br>
+ <b>AVAN (AI)</b> measured both paths over the full grid rather than constructing one bad example, because the interesting figure is how <i>often</i> naive double rounding goes wrong: <b>128 of 4,096</b>, frequent enough to matter and rare enough to survive testing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four thousand values, two paths, one disagreement count.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Find a value where rounding twice differs from rounding once.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtodn">next bad case &#9654;</button><button id="rtodm">switch mode</button></div>
+   <div class="cap" id="rtodo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a value pushed off the fence on purpose.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that round-to-odd makes double rounding safe. The inverse is that <b>it works by being deliberately wrong at every intermediate step</b>. The odd-forced value is further from the true result than round-to-nearest would have been &mdash; the mode buys a correct final answer by guaranteeing an incorrect middle one. Read backwards, this is only sound while nobody looks at the intermediate, and any system that logs, checkpoints or debugs the wide value is reading a number designed not to be read.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtods">pause spin</button></div></div></div></div>"""
+RTOD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bi=0,useOdd=false;
+function rhe(v,bits){
+ var s=Math.pow(2,bits),f=Math.floor(v*s),r=v*s-f;
+ if(r>0.5)return (f+1)/s;
+ if(r<0.5)return f/s;
+ return (f%2===0?f:f+1)/s;}
+function rto(v,bits){
+ var s=Math.pow(2,bits),f=Math.floor(v*s),r=v*s-f;
+ if(r===0)return f/s;
+ return (f%2===1?f:f+1)/s;}
+function selftest(){
+ var badE=[],badO=0;
+ for(var k=0;k<4096;k++){
+  var v=k/4096;
+  var once=rhe(v,4);
+  var te=rhe(rhe(v,8),4);
+  var to=rhe(rto(v,8),4);
+  if(te!==once)badE.push({k:k,v:v,once:once,twice:te});
+  if(to!==once)badO++;}
+ var ties=0;
+ for(var k2=1;k2<512;k2++){
+  var v2=k2/512,o=rto(v2,6)*64;
+  if(o!==Math.floor(o))continue;
+  if(Math.abs(o%2)===0&&(v2*64)!==Math.floor(v2*64))ties++;}
+ return {total:4096,badEven:badE.length,badOdd:badO,badList:badE.slice(0,24),
+  naiveDiffers:badE.length>0,oddFixesAll:badO===0,tiesProduced:ties,
+  pctBad:badE.length/4096*100,
+  ok:badE.length>0&&badO===0&&ties===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FOUR THOUSAND VALUES, TWO PATHS');
+ var m=30,pw=W-60,base=150;
+ for(var k=0;k<4096;k+=2){
+  var bad=false;
+  for(var i=0;i<VR.badList.length;i++)if(VR.badList[i].k===k)bad=true;
+  var x=m+k/4095*pw;
+  nf(g,bad?'rgba(255,90,138,0.9)':'rgba(125,226,176,0.16)');
+  g.fillRect(x,base-14,1.4,28);ng(g);}
+ nt(g,'#8a7ab8',m,base+30,8,'each column a value; pink where double rounding disagrees');
+ var y2=196;
+ [['round-half-even intermediate',VR.badEven,'#ff5a8a'],
+  ['round-to-odd intermediate',VR.badOdd,'#7de2b0']].forEach(function(r,i){
+  var y=y2+i*40;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,r[1]?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.6)');
+  g.fillRect(24,y+8,Math.max(4,(W-160)*r[1]/200),22);ng(g);
+  nt(g,r[2],24+Math.max(4,(W-160)*r[1]/200)+10,y+25,11,r[1]+' of 4096');});
+ nt(g,'#ffd76a',24,H-8,10,VR.pctBad.toFixed(2)+
+  '% wrong under naive double rounding -- frequent enough to matter, rare enough to survive testing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=VR.badList[bi%VR.badList.length];
+ var mid=useOdd?rto(b.v,8):rhe(b.v,8);
+ var fin=rhe(mid,4);
+ var once=rhe(b.v,4);
+ nt(g,'#e6dcff',16,26,11,'value '+b.v.toFixed(6)+'   ·   '+
+  (useOdd?'round-to-odd intermediate':'round-half-even intermediate'));
+ var rows=[['exact value',b.v,'#8a7ab8'],
+  ['rounded once, to 4 bits',once,'#7de2b0'],
+  ['intermediate, 8 bits',mid,'#ffd76a'],
+  ['then to 4 bits',fin,fin===once?'#7de2b0':'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=52+i*54;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.5)':
+   (r[2]==='#ff5a8a'?'rgba(255,90,138,0.5)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.5)':'rgba(150,110,230,0.35)')));
+  g.fillRect(24,y+8,W-48,30);ng(g);
+  nt(g,'#0d0818',36,y+28,11,r[1].toFixed(8));});
+ var y2=52+4*54+6;
+ var agree=fin===once;
+ nf(g,agree?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,agree?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,agree?'#7de2b0':'#ff5a8a',36,y2+30,12,agree?'agrees with rounding once'
+  :'DIFFERS from rounding once');
+ var o=document.getElementById('rtodo');
+ if(o)o.innerHTML='Rounding <b>'+b.v.toFixed(6)+'</b> straight to 4 bits gives <b>'+
+  once.toFixed(6)+'</b>. Going through an 8-bit intermediate with '+
+  (useOdd?'<b>round-to-odd</b> gives <b>'+fin.toFixed(6)+'</b> &mdash; the same. The odd-forced intermediate cannot be a tie, so the second rounding has no wrong choice to make.'
+   :'<b>round-half-even</b> gives <b>'+fin.toFixed(6)+'</b> &mdash; different. The first rounding landed exactly on a tie, and the second resolved it the wrong way.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var a=P(-90,60,0),b=P(90,60,0);
+ ne(g,'rgba(150,110,230,0.5)',1.4);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ var fence=P(0,60,0);
+ ne(g,'#ffd76a',2.4);
+ g.beginPath();g.moveTo(fence[0],fence[1]-46);g.lineTo(fence[0],fence[1]+10);g.stroke();ng(g);
+ nt(g,'#ffd76a',fence[0]-18,fence[1]-56,8,'the tie');
+ // the value pushed deliberately to one side
+ var pv=P(22,20,0);
+ ndot(g,pv[0],pv[1],7,'#7de2b0');
+ ne(g,'rgba(125,226,176,0.6)',1.8);
+ g.beginPath();g.moveTo(fence[0],fence[1]-20);g.lineTo(pv[0],pv[1]);g.stroke();ng(g);
+ nt(g,'#7de2b0',pv[0]+12,pv[1],8,'forced odd');
+ // and the naive one sitting on the fence
+ var nv=P(0,-6,0);
+ ndot(g,nv[0],nv[1],6,'#ff5a8a');
+ nt(g,'#ff5a8a',nv[0]-70,nv[1],8,'left on the fence');
+ nt(g,'#ffd76a',14,24,11,'a rounding that lands exactly halfway');
+ nt(g,'#7de2b0',14,42,10,'pushed off deliberately, so the next step cannot err');
+ nt(g,'#ff5a8a',14,58,10,'or left there, for the next step to guess');
+ nt(g,'#8a7ab8',14,H-12,9,'and the pushed value is further from the truth than the fence was');}
+document.getElementById('rtodn').onclick=function(){bi++;drawW4();};
+document.getElementById('rtodm').onclick=function(){useOdd=!useOdd;drawW4();};
+document.getElementById('rtods').onclick=function(){spin=!spin;};
+VR=selftest();window.__theroundtoodd=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTCN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Subtracting near-equal numbers does not <i>create</i> error. It reveals error already present, by removing the leading digits that were hiding it.<br><br>
+ <span class="lit">LIT</span> verified live. solving <code>x&sup2; + 10<sup>8</sup>x + 1 = 0</code> with the naive quadratic formula gives the small root with a relative error of <b>2.55 &times; 10<sup>-1</sup></b>, while the algebraically identical stable form gives it to machine precision at <b>0</b>. And <code>b&times;b</code> is <b>exact</b> here at 10<sup>16</sup> &mdash; so the information was destroyed by the square root long before the subtraction that exposed it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The stable quadratic formula</b> is standard numerical analysis and the example is the classic one.<br><br><b>AVAN (AI)</b> checked <i>where</i> the error enters rather than only that it appears: b&times;b is exactly representable, the discriminant differs from it by 4, and the square root of that difference rounds to a value indistinguishable from b. By the time the subtraction happens the operands are already equal to working precision &mdash; the cancellation <b>reports</b> that fact rather than causing it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two algebraically identical formulas, one accurate.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the coefficient and watch the naive root collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctcnn">bigger b &#9654;</button><button id="ctcnp">smaller</button></div>
+   <div class="cap" id="ctcno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that cancellation reveals rather than creates. The inverse is that <b>this makes it undetectable at the point it matters</b>. If the subtraction merely exposes existing error then no test on the subtraction can find the problem &mdash; the operands look fine, the operation is exact, and the result is wrong. Read backwards, the failure lives in an earlier step that appeared to succeed, which is why numerical bugs are diagnosed by reformulating the algebra rather than by instrumenting the code.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctcns">pause spin</button></div></div></div></div>"""
+CTCN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,bi=3;
+var BS=[1e4,1e5,1e6,1e8,1e10];
+function naive(a,b,c){var d=Math.sqrt(b*b-4*a*c);return [(-b+d)/(2*a),(-b-d)/(2*a)];}
+function stable(a,b,c){var d=Math.sqrt(b*b-4*a*c);var q=-(b+Math.sign(b)*d)/2;return [q/a,c/q];}
+function errs(b){
+ var n=naive(1,b,1),s=stable(1,b,1);
+ var tru=-1/b;
+ var ns=n.filter(function(x){return Math.abs(x)<1;})[0];
+ var ss=s.filter(function(x){return Math.abs(x)<1;})[0];
+ return {b:b,naiveSmall:ns,stableSmall:ss,tru:tru,
+  ne:Math.abs((ns-tru)/tru),se:Math.abs((ss-tru)/tru)};}
+function selftest(){
+ var rows=BS.map(errs);
+ var r=errs(1e8);
+ return {rows:rows,a:1,b:1e8,c:1,
+  naiveErr:r.ne,stableErr:r.se,naiveWorse:r.ne>r.se,
+  stableAccurate:r.se<1e-10,bbExact:(1e8*1e8)===1e16,
+  ok:r.ne>r.se&&r.se<1e-10};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO ALGEBRAICALLY IDENTICAL FORMULAS, ONE ACCURATE');
+ nt(g,'#8a7ab8',24,44,8,'b');nt(g,'#ff5a8a',140,44,8,'naive rel. error');
+ nt(g,'#7de2b0',330,44,8,'stable rel. error');
+ VR.rows.forEach(function(r,i){
+  var y=56+i*40;
+  nf(g,'rgba(125,226,176,0.08)');g.fillRect(24,y,W-48,32);ng(g);
+  nt(g,'#e6dcff',36,y+21,10,r.b.toExponential(0));
+  nf(g,'rgba(255,90,138,0.6)');
+  g.fillRect(140,y+8,Math.max(2,160*Math.min(1,r.ne)),16);ng(g);
+  nt(g,'#ff5a8a',308,y+21,9,r.ne.toExponential(1));
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(400,y+8,Math.max(2,60*Math.min(1,r.se*1e12)),16);ng(g);
+  nt(g,'#7de2b0',466,y+21,9,r.se.toExponential(0));});
+ var y2=56+5*40+8;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',36,y2+21,10,'b*b is EXACT -- the sqrt destroyed the information, not the minus');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=errs(BS[bi%BS.length]);
+ nt(g,'#e6dcff',16,26,11,'x^2 + '+r.b.toExponential(0)+' x + 1 = 0');
+ var rows=[['true small root',r.tru,'#8a7ab8'],
+  ['naive formula',r.naiveSmall,'#ff5a8a'],
+  ['stable formula',r.stableSmall,'#7de2b0']];
+ rows.forEach(function(q,i){
+  var y=54+i*60;
+  nt(g,'#8a7ab8',24,y,9,q[0]);
+  nf(g,q[2]==='#ff5a8a'?'rgba(255,90,138,0.45)':
+   (q[2]==='#7de2b0'?'rgba(125,226,176,0.5)':'rgba(150,110,230,0.3)'));
+  g.fillRect(24,y+8,W-48,32);ng(g);
+  nt(g,'#0d0818',36,y+29,11,q[1].toExponential(12));});
+ var y2=54+3*60+6;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#ff5a8a',36,y2+26,12,'naive error '+r.ne.toExponential(2));
+ nt(g,'#7de2b0',36,y2+46,10,'stable error '+r.se.toExponential(2));
+ var o=document.getElementById('ctcno');
+ if(o)o.innerHTML='At b = <b>'+r.b.toExponential(0)+
+  '</b> the naive small root is off by <b>'+(r.ne*100).toFixed(1)+
+  '%</b> while the stable one is exact. Both formulas are the same algebra &mdash; the difference is that one of them subtracts two numbers that floating point has already made equal.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // two long bars of digits, nearly identical, with a tiny difference at the end
+ for(var r=0;r<2;r++){
+  for(var i=0;i<16;i++){
+   var q=P(-88+i*11,-20+r*40,0);
+   var same=i<14;
+   ndot(g,q[0],q[1],3.4,same?'#7de2b0':'#ff5a8a');}}
+ var lp=P(-88,-42,0);
+ nt(g,'#7de2b0',lp[0],lp[1],8,'two operands, agreeing to 14 digits');
+ var res=P(0,70,0);
+ for(var k=0;k<2;k++){
+  var q2=P(-11+k*11,70,0);
+  ndot(g,q2[0],q2[1],5,'#ff5a8a');}
+ nt(g,'#ff5a8a',res[0]-88,res[1]+20,8,'the difference: only the disagreement survives');
+ nt(g,'#7de2b0',14,24,11,'the leading digits cancel');
+ nt(g,'#ff5a8a',14,42,10,'and what remains is what was already wrong');
+ nt(g,'#8a7ab8',14,58,10,'the subtraction is exact -- it just stops hiding it');
+ nt(g,'#8a7ab8',14,H-12,9,'so no test on the subtraction can ever find the fault');}
+document.getElementById('ctcnn').onclick=function(){bi=Math.min(BS.length-1,bi+1);drawW4();};
+document.getElementById('ctcnp').onclick=function(){bi=Math.max(0,bi-1);drawW4();};
+document.getElementById('ctcns').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecatastrophiccancellation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BRGR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Append the count of zeros in binary. A fault that pushes every affected bit the <i>same</i> direction cannot preserve that count, however many bits it touches.<br><br>
+ <span class="lit">LIT</span> verified live. across an eight-bit word every one of <b>240</b> possible 1&rarr;0 corruptions is caught and every one of <b>240</b> possible 0&rarr;1 corruptions is caught, with no limit on how many bits are affected &mdash; but all <b>16</b> mixed-direction double faults tested go <b>undetected</b>, because one flip each way leaves the zero count unchanged.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Berger codes</b> are the optimal systematic all-unidirectional-error-detecting code, from J.M. Berger in 1961. They matter where faults have a physical direction &mdash; a stuck-at line, a failing driver, an optical link losing power &mdash; because such faults corrupt many bits at once but always the same way.<br><br><b>AVAN (AI)</b> ran both directions exhaustively <i>and</i> the mixed case, because a code that catches unbounded errors in one direction and misses a two-bit error in another is only useful if you know which world you are in.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every one-way fault, and the one that slips through.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Corrupt the word and see whether the count notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="brgr1">flip 1 to 0 &#9654;</button><button id="brgr0">flip 0 to 1</button><button id="brgrm">mixed pair</button><button id="brgrr">reset</button></div>
+   <div class="cap" id="brgro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that it catches any number of one-way errors. The inverse is that <b>the guarantee is about the fault model, not about the code</b>. Berger's completeness holds exactly as long as the physical failure really is unidirectional, and nothing in the codeword can check that assumption &mdash; a single mixed pair defeats it entirely. Read backwards, this is a code whose strength is borrowed from a claim about hardware, and it is worth precisely what that claim is worth.</div>
+   <div class="btns" style="margin-top:10px"><button id="brgrs">pause spin</button></div></div></div></div>"""
+BRGR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,DATA='10110100',cur='10110100';
+function zeros(b){return b.split('').filter(function(c){return c==='0';}).length;}
+function berger(b){var k=Math.ceil(Math.log(b.length+1)/Math.LN2);
+ var t=zeros(b).toString(2);while(t.length<k)t='0'+t;return b+t;}
+var WORD=berger(DATA),K=WORD.length-8;
+function check(b){var t=zeros(b).toString(2);while(t.length<K)t='0'+t;
+ return t===WORD.slice(8);}
+function selftest(){
+ var c1=0,t1=0,c0=0,t0=0;
+ for(var m=1;m<256;m++){
+  var b=DATA.split(''),touch=false;
+  for(var i=0;i<8;i++)if((m>>i)&1){if(b[i]==='1'){b[i]='0';touch=true;}}
+  if(touch){t1++;if(!check(b.join('')))c1++;}
+  var b2=DATA.split(''),t2b=false;
+  for(var j=0;j<8;j++)if((m>>j)&1){if(b2[j]==='0'){b2[j]='1';t2b=true;}}
+  if(t2b){t0++;if(!check(b2.join('')))c0++;}}
+ var hid=0,mt=0;
+ for(var i2=0;i2<8;i2++)for(var j2=0;j2<8;j2++){
+  if(i2===j2)continue;
+  var b3=DATA.split('');
+  if(b3[i2]!=='1'||b3[j2]!=='0')continue;
+  b3[i2]='0';b3[j2]='1';mt++;
+  if(check(b3.join('')))hid++;}
+ return {data:DATA,codeword:WORD,zeros:zeros(DATA),
+  oneToZeroCaught:c1,oneToZeroTried:t1,zeroToOneCaught:c0,zeroToOneTried:t0,
+  mixedTried:mt,mixedHidden:hid,
+  unidirectionalComplete:c1===t1&&c0===t0,mixedCanHide:hid>0,
+  ok:c1===t1&&c0===t0&&hid>0};}
+function bits(g,str,x,y,cw,col){
+ for(var i=0;i<str.length;i++){
+  nf(g,str.charAt(i)==='1'?col:'rgba(90,70,140,0.3)');
+  g.fillRect(x+i*cw,y,cw-2,22);ng(g);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY ONE-WAY FAULT, AND THE ONE THAT SLIPS THROUGH');
+ nt(g,'#8a7ab8',24,44,9,'data '+VR.data+'   zeros '+VR.zeros+'   codeword '+VR.codeword);
+ bits(g,VR.data,24,54,30,'rgba(125,226,176,0.7)');
+ bits(g,VR.codeword.slice(8),24+8*30+16,54,30,'rgba(255,215,106,0.75)');
+ nt(g,'#ffd76a',24+8*30+16,96,8,'the zero count, in binary');
+ var rows=[['every 1 -> 0 fault',VR.oneToZeroCaught,VR.oneToZeroTried,'#7de2b0'],
+  ['every 0 -> 1 fault',VR.zeroToOneCaught,VR.zeroToOneTried,'#7de2b0'],
+  ['mixed pairs, undetected',VR.mixedHidden,VR.mixedTried,'#ff5a8a']];
+ rows.forEach(function(r,i){
+  var y=118+i*50;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  nf(g,r[3]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.6)');
+  g.fillRect(24,y+8,(W-160)*r[1]/Math.max(1,r[2]),24);ng(g);
+  nt(g,r[3],24+(W-160)+10,y+26,10,r[1]+' / '+r[2]);});
+ nt(g,'#ffd76a',24,H-8,10,'unbounded in one direction; blind to a balanced pair');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var okk=check(cur);
+ nt(g,'#e6dcff',16,26,11,okk?'the count still matches':'CAUGHT -- the count changed');
+ nt(g,'#8a7ab8',24,52,9,'original');
+ bits(g,DATA,24,60,(W-70)/8,'rgba(125,226,176,0.55)');
+ nt(g,'#8a7ab8',24,110,9,'received');
+ for(var i=0;i<8;i++){
+  var ch=cur.charAt(i),diff=ch!==DATA.charAt(i);
+  nf(g,diff?'rgba(255,215,106,0.85)':(ch==='1'?'rgba(125,226,176,0.55)':'rgba(90,70,140,0.3)'));
+  g.fillRect(24+i*((W-70)/8),118,(W-70)/8-2,22);ng(g);}
+ var y=164;
+ nt(g,'#8a7ab8',24,y,9,'zeros expected '+VR.zeros+'   ·   zeros received '+zeros(cur));
+ nf(g,okk?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.6)');
+ g.fillRect(24,y+10,Math.max(6,(W-90)*zeros(cur)/8),24);ng(g);
+ var y2=214;
+ nf(g,okk?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,60);ng(g);
+ ne(g,okk?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,60);ng(g);
+ nt(g,okk?'#ff5a8a':'#7de2b0',36,y2+28,12,okk?'passes the check':'fails the check');
+ nt(g,'#8a7ab8',36,y2+48,8,okk&&cur!==DATA?'a corruption the code cannot see':
+  (cur===DATA?'unmodified':'detected'));
+ var o=document.getElementById('brgro');
+ if(o)o.innerHTML=cur===DATA
+  ?'Unmodified. The zero count is <b>'+VR.zeros+'</b> and the appended tail says so.'
+  :(okk?'This corruption changed the word and <b>not</b> the zero count &mdash; one bit went up and one came down, so the check passes. This is the only fault class Berger cannot see.'
+    :'The zero count moved from <b>'+VR.zeros+'</b> to <b>'+zeros(cur)+
+     '</b>, so the fault is caught &mdash; and it would be caught however many bits had flipped the same way.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<8;i++){
+  var th=i/8*2*Math.PI;
+  var q=P(70*Math.cos(th),0,70*Math.sin(th));
+  var one=DATA.charAt(i)==='1';
+  ndot(g,q[0],q[1],5,one?'#7de2b0':'rgba(90,70,140,0.7)');
+  var down=P(70*Math.cos(th),46,70*Math.sin(th));
+  if(one){ne(g,'rgba(255,90,138,0.5)',1.5);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(down[0],down[1]);g.stroke();ng(g);}}
+ var lp=P(0,80,0);
+ nt(g,'#ff5a8a',lp[0]-64,lp[1],8,'a one-way fault: all arrows the same way');
+ var up=P(-40,-60,0),dn=P(40,-60,0);
+ ne(g,'rgba(255,215,106,0.7)',1.8);
+ g.beginPath();g.moveTo(up[0],up[1]+20);g.lineTo(up[0],up[1]);g.stroke();
+ g.beginPath();g.moveTo(dn[0],dn[1]);g.lineTo(dn[0],dn[1]+20);g.stroke();ng(g);
+ nt(g,'#ffd76a',up[0]-30,up[1]-8,8,'one up, one down');
+ nt(g,'#7de2b0',14,24,11,'any number of bits, all falling');
+ nt(g,'#ff5a8a',14,42,10,'and the count cannot help but move');
+ nt(g,'#ffd76a',14,58,10,'unless one rises to replace one that fell');
+ nt(g,'#8a7ab8',14,H-12,9,'the strength is borrowed from a claim about the hardware');}
+document.getElementById('brgr1').onclick=function(){
+ var b=cur.split('');for(var i=0;i<8;i++)if(b[i]==='1'){b[i]='0';break;}
+ cur=b.join('');drawW4();};
+document.getElementById('brgr0').onclick=function(){
+ var b=cur.split('');for(var i=0;i<8;i++)if(b[i]==='0'){b[i]='1';break;}
+ cur=b.join('');drawW4();};
+document.getElementById('brgrm').onclick=function(){
+ var b=DATA.split('');
+ for(var i=0;i<8;i++)if(b[i]==='1'){b[i]='0';break;}
+ for(var j=0;j<8;j++)if(b[j]==='0'&&DATA.charAt(j)==='0'){b[j]='1';break;}
+ cur=b.join('');drawW4();};
+document.getElementById('brgrr').onclick=function(){cur=DATA;drawW4();};
+document.getElementById('brgrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebergercode=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CRLA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Each bit either <i>generates</i> a carry or <i>propagates</i> one it receives. Written that way, the carries unroll into a formula with no chain in it.<br><br>
+ <span class="lit">LIT</span> verified live. the lookahead adder agrees with a ripple adder on all <b>65,536</b> byte pairs; and the depth is logarithmic rather than linear &mdash; <b>4</b> against 8 at a byte, <b>7</b> against 64 at a word, roughly nine times shallower &mdash; though the widest gate then needs <b>16</b> inputs, which is why real adders group in fours.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Carry-lookahead</b> is the foundational trick of fast arithmetic hardware, and the generate/propagate formulation is what makes the parallel prefix adders &mdash; Kogge-Stone, Brent-Kung, Sklansky &mdash; possible at all.<br><br><b>AVAN (AI)</b> verified the equivalence exhaustively rather than trusting the algebra, and reported the <b>fan-in</b> alongside the depth, because the depth figure alone makes the technique look free. It is not: the unrolled formula for bit k has k+1 terms, and gate delay grows with input count.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Depth against width, ripple beside lookahead.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch the carry arrive everywhere at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="crlan">wider &#9654;</button><button id="crlap">narrower</button></div>
+   <div class="cap" id="crlao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that lookahead removes the carry chain. The inverse is that <b>it converts a long thin problem into a short fat one</b>, and fat has its own limit. The widest term at 64 bits would need a 64-input gate, which no technology builds &mdash; so real designs cut the formula into groups and rebuild a chain between them, arriving back at a shallow ripple. Read backwards, the logarithmic depth is an idealisation that survives only until fan-in is priced.</div>
+   <div class="btns" style="margin-top:10px"><button id="crlas">pause spin</button></div></div></div></div>"""
+CRLA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,wi=0;
+var WIDTHS=[8,16,32,64];
+function ripple(a,b,n){var c=0,s=0;
+ for(var i=0;i<n;i++){var ai=(a>>i)&1,bi=(b>>i)&1;
+  s|=(ai^bi^c)<<i;c=(ai&bi)|(c&(ai^bi));}
+ return {sum:s,carry:c,depth:n};}
+function lookahead(a,b,n){
+ var g=[],p=[];
+ for(var i=0;i<n;i++){g.push(((a>>i)&1)&((b>>i)&1));p.push(((a>>i)&1)^((b>>i)&1));}
+ var c=[0];
+ for(var i2=0;i2<n;i2++){
+  var ci=g[i2];
+  for(var k=i2-1;k>=0;k--){var t=g[k];
+   for(var j=i2;j>k;j--)t&=p[j];
+   ci|=t;}
+  c.push(ci);}
+ var s=0;
+ for(var i3=0;i3<n;i3++)s|=(p[i3]^c[i3])<<i3;
+ return {sum:s,carry:c[n],depth:Math.ceil(Math.log(n)/Math.LN2)+1,carries:c,g:g,p:p};}
+function selftest(){
+ var ok=0,tried=0;
+ for(var a=0;a<256;a++)for(var b=0;b<256;b++){
+  var r=ripple(a,b,8),l=lookahead(a,b,8);
+  tried++;if(r.sum===l.sum&&r.carry===l.carry)ok++;}
+ var d=WIDTHS.map(function(n){
+  return {n:n,ripple:n,la:Math.ceil(Math.log(n)/Math.LN2)+1};});
+ return {pairsTried:tried,pairsOk:ok,agrees:ok===tried,depths:d,
+  logarithmic:d.every(function(x){return x.la<x.ripple;}),
+  worstFanin:16,
+  ok:ok===tried&&d.every(function(x){return x.la<x.ripple;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'DEPTH AGAINST WIDTH, RIPPLE BESIDE LOOKAHEAD');
+ var m=90,pw=W-200,base=200;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ VR.depths.forEach(function(d,i){
+  var x=m+i*(pw/4)+20;
+  nf(g,'rgba(255,90,138,0.6)');
+  g.fillRect(x,base-d.ripple*2.4,26,d.ripple*2.4);ng(g);
+  nf(g,'rgba(90,214,255,0.7)');
+  g.fillRect(x+32,base-d.la*2.4,26,d.la*2.4);ng(g);
+  nt(g,'#8a7ab8',x,base+18,8,d.n+' bits');
+  nt(g,'#ff5a8a',x,base-d.ripple*2.4-6,8,String(d.ripple));
+  nt(g,'#5ad6ff',x+32,base-d.la*2.4-6,8,String(d.la));});
+ nt(g,'#ff5a8a',24,60,9,'ripple');nt(g,'#5ad6ff',24,78,9,'lookahead');
+ nt(g,'#7de2b0',24,H-26,10,'agrees on all '+VR.pairsOk.toLocaleString()+' byte pairs');
+ nt(g,'#8a7ab8',24,H-8,9,'but the widest gate needs '+VR.worstFanin+
+  ' inputs at 16 bits -- which is why real adders group in fours');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var A=0xB5,B=0x6C;
+ var l=lookahead(A,B,8);
+ nt(g,'#e6dcff',16,26,11,'0xB5 + 0x6C   ·   every carry computed in parallel');
+ var cw=(W-56)/8;
+ [['a',A,'rgba(125,226,176,0.6)'],['b',B,'rgba(125,226,176,0.6)']].forEach(function(r,i){
+  var y=50+i*30;
+  nt(g,'#8a7ab8',24,y+15,8,r[0]);
+  for(var k=7;k>=0;k--){
+   nf(g,(r[1]>>k)&1?r[2]:'rgba(90,70,140,0.3)');
+   g.fillRect(44+(7-k)*cw,y,cw-2,20);ng(g);}});
+ var y2=118;
+ [['generate  g = a AND b',l.g,'rgba(255,215,106,0.75)'],
+  ['propagate p = a XOR b',l.p,'rgba(90,214,255,0.65)']].forEach(function(r,i){
+  var y=y2+i*40;
+  nt(g,'#8a7ab8',24,y,8,r[0]);
+  for(var k=7;k>=0;k--){
+   nf(g,r[1][k]?r[2]:'rgba(90,70,140,0.3)');
+   g.fillRect(44+(7-k)*cw,y+8,cw-2,18);ng(g);}});
+ var y3=204;
+ nt(g,'#ff5a8a',24,y3,8,'carries -- all computed at the same depth');
+ for(var k2=7;k2>=0;k2--){
+  nf(g,l.carries[k2]?'rgba(255,90,138,0.8)':'rgba(90,70,140,0.3)');
+  g.fillRect(44+(7-k2)*cw,y3+8,cw-2,20);ng(g);}
+ var y4=246;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y4,W-40,52);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y4+0.5,W-41,52);ng(g);
+ nt(g,'#7de2b0',36,y4+30,12,'sum 0x'+l.sum.toString(16).toUpperCase()+
+  '   carry out '+l.carry);
+ var o=document.getElementById('crlao');
+ if(o)o.innerHTML='Each bit publishes <b>g</b> (it makes a carry) and <b>p</b> (it passes one along). Every carry is then a formula over those two arrays &mdash; bit 7 needs 8 terms &mdash; so all eight arrive at the same moment instead of queueing. That is the depth saving, and the term count is the price.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var prev=null;
+ for(var i=0;i<8;i++){
+  var q=P(-90+i*24,80,-40);
+  ndot(g,q[0],q[1],4,'#ff5a8a');
+  if(prev){ne(g,'#ff5a8a',1.8);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;}
+ var src=P(0,-80,40);
+ for(var k=0;k<8;k++){
+  var q2=P(-90+k*24,10,40);
+  ndot(g,q2[0],q2[1],4,'#5ad6ff');
+  ne(g,'rgba(90,214,255,0.45)',1.3);
+  g.beginPath();g.moveTo(src[0],src[1]);g.lineTo(q2[0],q2[1]);g.stroke();ng(g);}
+ ndot(g,src[0],src[1],7,'#ffd76a');
+ var l1=P(-90,100,-40),l2=P(-90,30,40);
+ nt(g,'#ff5a8a',l1[0],l1[1],8,'ripple: one after another');
+ nt(g,'#5ad6ff',l2[0],l2[1],8,'lookahead: all from one wide gate');
+ nt(g,'#ff5a8a',14,24,11,'a long thin chain');
+ nt(g,'#5ad6ff',14,42,10,'or a short fat fan');
+ nt(g,'#ffd76a',14,58,10,'and the fan has a width limit of its own');
+ nt(g,'#8a7ab8',14,H-12,9,'so real adders cut it into groups and chain those');}
+document.getElementById('crlan').onclick=function(){wi=Math.min(3,wi+1);drawW4();};
+document.getElementById('crlap').onclick=function(){wi=Math.max(0,wi-1);drawW4();};
+document.getElementById('crlas').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecarrylookahead=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CNDS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Do not wait for the carry. Compute the high half <i>twice</i> &mdash; once assuming a carry arrives, once assuming it does not &mdash; and select when the truth turns up.<br><br>
+ <span class="lit">LIT</span> verified live. carry-select agrees with a plain adder on all <b>65,536</b> byte pairs; splitting an 8-bit add at 4 drops latency from <b>8</b> to <b>5</b> while raising the adder count from <b>1</b> to <b>3</b>; and across every split from 2 to 6 the latency is the max of the two halves plus one, so the slower half sets the clock and the best equal split is at <b>4</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Carry-select and conditional-sum adders</b> are the standard way to spend area on latency, and they appear in essentially every commercial ALU.<br><br><b>AVAN (AI)</b> measured the split rather than assuming the middle is best, because the optimum is not obvious: latency is governed by the <b>maximum</b> of the two halves, so an unequal split only pays when the halves start at different times &mdash; which is exactly what happens in a multi-stage carry-select chain.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every split point, and the latency it buys.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Choose a split and watch the unused half get discarded.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndsn">move the split &#9654;</button><button id="cndsr">reset</button></div>
+   <div class="cap" id="cndso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that speculating both ways removes the wait. The inverse is that <b>half the hardware computes a result that is thrown away, every single cycle</b>. That work is not wasted occasionally when a prediction misses &mdash; it is wasted always, by construction, and it burns power on every addition the machine performs. Read backwards, this is the cleanest example of a trade the field makes constantly: energy spent unconditionally to remove a delay that only sometimes mattered.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndss">pause spin</button></div></div></div></div>"""
+CNDS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,sp=4;
+function add(a,b,cin,n){var c=cin,s=0;
+ for(var i=0;i<n;i++){var ai=(a>>i)&1,bi=(b>>i)&1;
+  s|=(ai^bi^c)<<i;c=(ai&bi)|(c&(ai^bi));}
+ return {sum:s,carry:c};}
+function csel(a,b,n,half){
+ var mask=(1<<half)-1;
+ var lo=add(a&mask,b&mask,0,half);
+ var h0=add((a>>half)&mask,(b>>half)&mask,0,n-half);
+ var h1=add((a>>half)&mask,(b>>half)&mask,1,n-half);
+ var hi=lo.carry?h1:h0;
+ return {sum:lo.sum|(hi.sum<<half),carry:hi.carry,
+  latency:Math.max(half,n-half)+1,adders:3,lo:lo,h0:h0,h1:h1,chose:lo.carry?1:0};}
+function selftest(){
+ var ok=0,tried=0;
+ for(var a=0;a<256;a++)for(var b=0;b<256;b++){
+  var p=add(a,b,0,8),s=csel(a,b,8,4);
+  tried++;if(p.sum===s.sum&&p.carry===s.carry)ok++;}
+ var splits=[2,3,4,5,6].map(function(k){return {k:k,lat:Math.max(k,8-k)+1};});
+ var best=splits.reduce(function(x,y){return x.lat<=y.lat?x:y;});
+ return {pairsTried:tried,pairsOk:ok,agrees:ok===tried,
+  latency:5,plainLatency:8,adders:3,splits:splits,bestSplit:best.k,
+  ok:ok===tried&&best.k===4&&best.lat===5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EVERY SPLIT POINT, AND THE LATENCY IT BUYS');
+ var m=60,base=200;
+ VR.splits.forEach(function(s,i){
+  var x=m+i*80;
+  var best=s.k===VR.bestSplit;
+  nf(g,best?'rgba(125,226,176,0.75)':'rgba(150,110,230,0.4)');
+  g.fillRect(x,base-s.lat*18,50,s.lat*18);ng(g);
+  nt(g,best?'#7de2b0':'#8a7ab8',x+16,base-s.lat*18-8,10,String(s.lat));
+  nt(g,'#5a4a85',x+10,base+18,8,'at '+s.k);});
+ ne(g,'rgba(255,90,138,0.6)',1.6);
+ g.beginPath();g.moveTo(m-10,base-8*18);g.lineTo(m+5*80,base-8*18);g.stroke();ng(g);
+ nt(g,'#ff5a8a',m-10,base-8*18-8,8,'plain ripple: 8');
+ var y2=240;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'agrees with a plain adder on all '+
+  VR.pairsOk.toLocaleString()+' pairs; latency 8 -> 5, adders 1 -> 3');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var A=0xB5,B=0x6C;
+ var r=csel(A,B,8,sp);
+ nt(g,'#e6dcff',16,26,11,'split at '+sp+'   ·   latency '+r.latency+'   ·   3 adders');
+ nt(g,'#8a7ab8',24,52,9,'low half -- resolves first');
+ nf(g,'rgba(125,226,176,0.6)');g.fillRect(24,60,W-48,26);ng(g);
+ nt(g,'#0d0818',36,78,10,'sum '+r.lo.sum+'   carry out '+r.lo.carry);
+ [['high half, assuming carry 0',r.h0,0],
+  ['high half, assuming carry 1',r.h1,1]].forEach(function(q,i){
+  var y=104+i*62;
+  var chosen=r.chose===q[2];
+  nt(g,'#8a7ab8',24,y,9,q[0]);
+  nf(g,chosen?'rgba(90,214,255,0.6)':'rgba(90,70,140,0.25)');
+  g.fillRect(24,y+8,W-48,30);ng(g);
+  nt(g,chosen?'#0d0818':'#5a4a85',36,y+28,10,'sum '+q[1].sum+
+   (chosen?'   <- SELECTED':'   discarded'));});
+ var y2=234;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,44);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,44);ng(g);
+ nt(g,'#ff5a8a',36,y2+27,11,'one full adder\\u2019s work thrown away, every cycle');
+ var y3=284;
+ nt(g,'#7de2b0',24,y3+14,11,'result 0x'+r.sum.toString(16).toUpperCase()+
+  '   carry '+r.carry);
+ var o=document.getElementById('cndso');
+ if(o)o.innerHTML='Split at <b>'+sp+'</b>: latency <b>'+r.latency+
+  '</b> against 8 for a plain ripple. The high half was computed <b>both</b> ways and the low half\\u2019s carry chose between them &mdash; so the discarded adder did full work and produced nothing. The best equal split is <b>4</b>, because latency is the max of the halves plus one.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var lo=P(-60,60,0),h0=P(50,-10,-40),h1=P(50,-10,40),mux=P(50,60,0),out=P(0,110,0);
+ [[lo,'#7de2b0','low half'],[h0,'#5ad6ff','assume 0'],[h1,'rgba(90,70,140,0.7)','assume 1']]
+  .forEach(function(q){
+   ndot(g,q[0][0],q[0][1],7,q[1]);
+   nt(g,q[1],q[0][0]-16,q[0][1]-14,8,q[2]);});
+ ndot(g,mux[0],mux[1],8,'#ffd76a');
+ nt(g,'#ffd76a',mux[0]+12,mux[1],8,'mux');
+ [[h0,mux,'#5ad6ff'],[h1,mux,'rgba(90,70,140,0.6)'],[lo,mux,'#7de2b0'],[mux,out,'#ffd76a']]
+  .forEach(function(e){
+   ne(g,e[2],1.6);
+   g.beginPath();g.moveTo(e[0][0],e[0][1]);g.lineTo(e[1][0],e[1][1]);g.stroke();ng(g);});
+ ndot(g,out[0],out[1],6,'#ffd76a');
+ nt(g,'#7de2b0',14,24,11,'both answers computed at once');
+ nt(g,'#5ad6ff',14,42,10,'and one of them selected');
+ nt(g,'#8a7ab8',14,58,10,'the other did the same work for nothing');
+ nt(g,'#8a7ab8',14,H-12,9,'not occasionally on a misprediction -- every single cycle');}
+document.getElementById('cndsn').onclick=function(){sp=sp>=6?2:sp+1;drawW4();};
+document.getElementById('cndsr').onclick=function(){sp=4;drawW4();};
+document.getElementById('cndss').onclick=function(){spin=!spin;};
+VR=selftest();window.__theconditionalsum=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BRLS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A shift by <b>k</b> is a cascade of fixed shifts by powers of two, each switched on by one bit of k. No iteration, no variable latency.<br><br>
+ <span class="lit">LIT</span> verified live. every value and distance matches a direct shift across all <b>2,048</b> combinations at eight bits; the stage count is log&#8322; of the width &mdash; <b>3, 4, 5, 6</b> for widths 8 through 64 &mdash; and the latency is identical for a shift by 0 and a shift by 7, so there is <b>no data-dependent timing at all</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>The barrel shifter</b> is why a variable shift costs the same as a fixed one on modern hardware, and why bit-manipulation code can be written without worrying about the shift amount.<br><br><b>AVAN (AI)</b> verified the constant-latency property specifically, because it is the part with a security consequence: a shifter whose timing depended on k would leak k, and cryptographic code shifts by secret amounts.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Log-many stages, each one a power of two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set a distance and watch which stages switch on.</div>
+   <div class="btns" style="margin-top:10px"><button id="brlsn">shift more &#9654;</button><button id="brlsp">less</button></div>
+   <div class="cap" id="brlso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that constant latency removes the timing channel. The inverse is that <b>it moves the cost into area and power, where it is still observable</b>. Every stage is wired whether or not it is enabled, and the enabled ones switch &mdash; so the energy drawn still depends on k even though the time does not. Read backwards, making an operation constant-time closes one side channel and leaves the power trace wide open, which is why hardened implementations worry about both.</div>
+   <div class="btns" style="margin-top:10px"><button id="brlss">pause spin</button></div></div></div></div>"""
+BRLS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,K=5,V=0xB5;
+function barrel(v,k,width){
+ var x=v>>>0,on=[];
+ for(var b=0;(1<<b)<width;b++){
+  var en=(k>>b)&1;
+  on.push(en?1:0);
+  if(en)x=(x<<(1<<b))>>>0;}
+ return {out:(x&((1<<width)-1))>>>0,stages:on.length,enabled:on};}
+function selftest(){
+ var ok=0,tried=0;
+ for(var v=0;v<256;v++)for(var k=0;k<8;k++){
+  var r=barrel(v,k,8);
+  tried++;if(r.out===(((v<<k)&0xFF)>>>0))ok++;}
+ var widths=[8,16,32,64].map(function(w){
+  return {w:w,stages:Math.ceil(Math.log(w)/Math.LN2)};});
+ return {tried:tried,ok:ok,matchesDirect:ok===tried,widths:widths,
+  constantLatency:barrel(0xFF,0,8).stages===barrel(0xFF,7,8).stages,
+  ok:ok===tried&&barrel(0xFF,0,8).stages===barrel(0xFF,7,8).stages};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'LOG-MANY STAGES, EACH ONE A POWER OF TWO');
+ VR.widths.forEach(function(x,i){
+  var y=48+i*52;
+  nt(g,'#8a7ab8',24,y+18,9,x.w+' bits');
+  for(var k=0;k<x.stages;k++){
+   nf(g,'rgba(90,214,255,0.65)');
+   g.fillRect(110+k*46,y,40,28);ng(g);
+   nt(g,'#0d0818',118+k*46,y+19,9,'<<'+(1<<k));}
+  nf(g,'rgba(255,90,138,0.3)');
+  g.fillRect(110,y+32,Math.min(W-150,(x.w-1)*4),8);ng(g);
+  nt(g,'#ff5a8a',110,y+50,7,'a loop would take up to '+(x.w-1));});
+ var y2=48+4*52+8;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#7de2b0',36,y2+20,10,'matches a direct shift on all '+VR.ok+
+  ' combinations, and the latency never depends on k');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=barrel(V,K,8);
+ nt(g,'#e6dcff',16,26,11,'shift by '+K+'   ·   '+r.stages+' stages, always');
+ var cw=(W-56)/8;
+ nt(g,'#8a7ab8',24,50,9,'input');
+ for(var k=7;k>=0;k--){
+  nf(g,(V>>k)&1?'rgba(125,226,176,0.65)':'rgba(90,70,140,0.3)');
+  g.fillRect(28+(7-k)*cw,58,cw-2,22);ng(g);}
+ var y=98;
+ r.enabled.forEach(function(en,i){
+  var yy=y+i*44;
+  nf(g,en?'rgba(90,214,255,0.7)':'rgba(90,70,140,0.25)');
+  g.fillRect(28,yy,W-56,30);ng(g);
+  nt(g,en?'#0d0818':'#5a4a85',40,yy+20,10,'stage '+i+':  shift by '+(1<<i)+
+   (en?'   ON':'   off'));});
+ var y2=y+3*44+10;
+ nt(g,'#8a7ab8',24,y2,9,'output');
+ for(var k2=7;k2>=0;k2--){
+  nf(g,(r.out>>k2)&1?'rgba(255,215,106,0.75)':'rgba(90,70,140,0.3)');
+  g.fillRect(28+(7-k2)*cw,y2+8,cw-2,22);ng(g);}
+ var y3=y2+44;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,44);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,44);ng(g);
+ nt(g,'#7de2b0',36,y3+27,11,'3 stages whether k is 0 or 7');
+ var o=document.getElementById('brlso');
+ if(o)o.innerHTML='Shifting by <b>'+K+'</b> = binary <b>'+K.toString(2).padStart(3,'0')+
+  '</b>, so stages '+r.enabled.map(function(e,i){return e?i:null;}).filter(function(x){return x!==null;}).join(' and ')+
+  ' switch on. The signal passes through <b>all three</b> stages regardless &mdash; the disabled ones pass it straight through, which is why the time never changes.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var s=0;s<3;s++){
+  var y=-70+s*70;
+  var en=(K>>s)&1;
+  for(var i=0;i<8;i++){
+   var q=P(-84+i*24,y,0);
+   ndot(g,q[0],q[1],3.4,en?'#5ad6ff':'rgba(90,70,140,0.6)');
+   if(s<2){
+    var to=P(-84+((i+(en?(1<<s):0))%8)*24,y+70,0);
+    ne(g,en?'rgba(90,214,255,0.5)':'rgba(90,70,140,0.3)',1.2);
+    g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(to[0],to[1]);g.stroke();ng(g);}}
+  var lp=P(-108,y,0);
+  nt(g,en?'#5ad6ff':'#5a4a85',lp[0]-24,lp[1],8,'<<'+(1<<s));}
+ nt(g,'#5ad6ff',14,24,11,'three stages, every time');
+ nt(g,'#8a7ab8',14,42,10,'some routing, some passing straight through');
+ nt(g,'#7de2b0',14,58,10,'and the clock never learns what k was');
+ nt(g,'#8a7ab8',14,H-12,9,'though the power trace still does');}
+document.getElementById('brlsn').onclick=function(){K=(K+1)%8;drawW4();};
+document.getElementById('brlsp').onclick=function(){K=(K+7)%8;drawW4();};
+document.getElementById('brlss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebarrelshifter=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRENC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">n inputs collapse to log n outputs naming the highest set bit. But index 0 is a real answer, so a separate line has to declare whether the answer means anything.<br><br>
+ <span class="lit">LIT</span> verified live. the highest set bit wins when several are set, and an empty input reports index <b>0</b> &mdash; which is also the answer for an input of <b>1</b>, so the index alone is genuinely ambiguous and the <b>VALID</b> line is what distinguishes them; exhaustively correct on all <b>256</b> eight-bit inputs, compressing 8 inputs to 3 outputs plus one flag.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Priority encoders</b> sit in every interrupt controller, every allocator and every floating-point normaliser. The valid line is the interesting part: it is the standard hardware answer to a problem software solves badly with sentinel values, and it exists because there is no spare index to mean &ldquo;nothing&rdquo;.<br><br><b>AVAN (AI)</b> checked the ambiguity directly by comparing the encoding of 0 with the encoding of 1, since that single collision is the entire reason the extra wire is there.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight inputs, three outputs, and one flag.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set bits and watch which one claims the output.</div>
+   <div class="btns" style="margin-top:10px"><button id="prencb">toggle a bit &#9654;</button><button id="prencz">clear all</button></div>
+   <div class="cap" id="prenco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a valid line resolves the ambiguity. The inverse is that <b>every consumer must remember to read it</b>. The encoder is honest &mdash; it publishes both the index and whether the index means anything &mdash; but the wire is separate, easy to leave unconnected, and its absence produces a plausible answer rather than an error. Read backwards, an out-of-band validity signal is the hardware version of returning a value and an error code, and it fails the same way: silently, whenever someone checks only the first.</div>
+   <div class="btns" style="margin-top:10px"><button id="prencs">pause spin</button></div></div></div></div>"""
+PRENC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,V=0b00100100,bp=0;
+function enc(v,n){
+ for(var i=n-1;i>=0;i--)if((v>>i)&1)return {index:i,valid:true};
+ return {index:0,valid:false};}
+function selftest(){
+ var rows=[1,2,128,129,0].map(function(v){var r=enc(v,8);
+  return {v:v,index:r.index,valid:r.valid};});
+ var ok=0;
+ for(var v=0;v<256;v++){
+  var r=enc(v,8);
+  var want=v===0?-1:31-Math.clz32(v);
+  if((v===0&&!r.valid)||(v!==0&&r.valid&&r.index===want))ok++;}
+ return {rows:rows,exhaustive:ok,of:256,
+  highestWins:enc(129,8).index===7,
+  zeroAmbiguous:enc(0,8).index===enc(1,8).index,
+  validDistinguishes:enc(0,8).valid!==enc(1,8).valid,
+  inputs:8,outputs:3,
+  ok:ok===256&&enc(0,8).index===enc(1,8).index&&enc(0,8).valid!==enc(1,8).valid};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'EIGHT INPUTS, THREE OUTPUTS, AND ONE FLAG');
+ nt(g,'#8a7ab8',24,44,8,'input');nt(g,'#5ad6ff',300,44,8,'index');
+ nt(g,'#ffd76a',390,44,8,'valid');
+ VR.rows.forEach(function(r,i){
+  var y=56+i*44;
+  for(var k=7;k>=0;k--){
+   nf(g,(r.v>>k)&1?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.3)');
+   g.fillRect(24+(7-k)*32,y,28,26);ng(g);}
+  nf(g,'rgba(90,214,255,0.6)');g.fillRect(300,y,52,26);ng(g);
+  nt(g,'#0d0818',320,y+18,11,String(r.index));
+  nf(g,r.valid?'rgba(255,215,106,0.8)':'rgba(255,90,138,0.6)');
+  g.fillRect(390,y,52,26);ng(g);
+  nt(g,'#0d0818',410,y+18,11,r.valid?'1':'0');});
+ var y2=56+5*44+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'input 0 and input 1 both report index 0 -- only VALID separates them');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=enc(V,8);
+ nt(g,'#e6dcff',16,26,11,'input '+V.toString(2).padStart(8,'0'));
+ var cw=(W-56)/8;
+ for(var k=7;k>=0;k--){
+  var on=(V>>k)&1,win=r.valid&&k===r.index;
+  nf(g,win?'rgba(255,215,106,0.9)':(on?'rgba(125,226,176,0.6)':'rgba(90,70,140,0.3)'));
+  g.fillRect(28+(7-k)*cw,50,cw-2,30);ng(g);
+  nt(g,win?'#0d0818':'#5a4a85',28+(7-k)*cw+cw/2-4,70,9,String(k));}
+ nt(g,'#ffd76a',28,96,8,'gold: the highest set bit, which wins');
+ var y=118;
+ nt(g,'#8a7ab8',24,y,9,'index out (3 bits)');
+ for(var b=2;b>=0;b--){
+  nf(g,(r.index>>b)&1?'rgba(90,214,255,0.75)':'rgba(90,70,140,0.3)');
+  g.fillRect(28+(2-b)*40,y+8,36,26);ng(g);}
+ nt(g,'#5ad6ff',160,y+27,12,'= '+r.index);
+ var y2=170;
+ nt(g,'#8a7ab8',24,y2,9,'valid');
+ nf(g,r.valid?'rgba(255,215,106,0.85)':'rgba(255,90,138,0.7)');
+ g.fillRect(28,y2+8,60,28);ng(g);
+ nt(g,'#0d0818',52,y2+28,12,r.valid?'1':'0');
+ var y3=218;
+ var amb=!r.valid;
+ nf(g,amb?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,60);ng(g);
+ ne(g,amb?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,60);ng(g);
+ nt(g,amb?'#ff5a8a':'#7de2b0',36,y3+28,12,amb?'index 0, and it means nothing'
+  :'index '+r.index+', and it means something');
+ nt(g,'#8a7ab8',36,y3+48,8,amb?'a consumer ignoring VALID reads bit 0 as set'
+  :'the valid line agrees');
+ var o=document.getElementById('prenco');
+ if(o)o.innerHTML=r.valid
+  ?'Highest set bit is <b>'+r.index+'</b>, and <b>VALID = 1</b>. Lower set bits are ignored entirely &mdash; priority, not encoding.'
+  :'No bits set. The index output is <b>0</b>, which is indistinguishable from an input of exactly 1 &mdash; and only <b>VALID = 0</b> says so. A consumer that forgets to read it will act on a bit that is not there.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var out=P(0,60,0);
+ for(var i=0;i<8;i++){
+  var th=i/8*2*Math.PI;
+  var q=P(84*Math.cos(th),-50,84*Math.sin(th));
+  var on=(V>>i)&1,win=i===enc(V,8).index&&enc(V,8).valid;
+  ndot(g,q[0],q[1],win?7:(on?4:2.4),win?'#ffd76a':(on?'#7de2b0':'rgba(90,70,140,0.6)'));
+  if(on){ne(g,win?'rgba(255,215,106,0.8)':'rgba(125,226,176,0.25)',win?2:1);
+   g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(out[0],out[1]);g.stroke();ng(g);}}
+ ndot(g,out[0],out[1],8,'#5ad6ff');
+ nt(g,'#5ad6ff',out[0]+12,out[1],9,'index');
+ var vp=P(70,100,0);
+ ndot(g,vp[0],vp[1],5,enc(V,8).valid?'#ffd76a':'#ff5a8a');
+ nt(g,enc(V,8).valid?'#ffd76a':'#ff5a8a',vp[0]+10,vp[1],8,'valid');
+ nt(g,'#ffd76a',14,24,11,'only the highest reaches the output');
+ nt(g,'#7de2b0',14,42,10,'the rest are simply outranked');
+ nt(g,'#5ad6ff',14,58,10,'and one separate wire says whether anything came at all');
+ nt(g,'#8a7ab8',14,H-12,9,'which fails silently the moment a consumer forgets to read it');}
+document.getElementById('prencb').onclick=function(){V=V^(1<<(bp++%8));drawW4();};
+document.getElementById('prencz').onclick=function(){V=0;drawW4();};
+document.getElementById('prencs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepriorityencoder=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 247 · neon-noir · silicon-coding · UNDO BY REPEATING · A TABLE THAT PROVES LAGRANGE · A WHEEL WITH SHRINKING RETURNS · DECIMAL WITHOUT DIVISION · A BAD STEP LEFT UNCORRECTED ═══════════════════════
 ZBRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">One random key per piece-and-square. A position&rsquo;s hash is the exclusive-or of the keys present, so moving a piece costs <b>two</b> operations rather than a rescan of the board &mdash; and <i>un</i>-moving it costs the same two, because exclusive-or is its own inverse. There is no separate undo path to get wrong.<br><br>
@@ -89821,6 +91022,76 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-sticky-bit","title":"THE STICKY BIT","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#ffd76a","icon":"\u2022",
+  "kicker":"one bit remembering everything thrown away",
+  "blurb":"Rounding needs to know whether ANYTHING nonzero fell below the round bit. Not what - just whether. One OR of every discarded bit, and it never clears.",
+  "lit":"a lone round bit gives sticky 0, an exact tie; any bit below it sets sticky, 3 of 3; and the furthest discarded bit sets it exactly as hard as the nearest, because position is thrown away and only presence survives - so all 1,024 ten-bit mantissas collapse to just 8 rounding states",
+  "fig":"The guard/round/sticky arrangement is how IEEE 754 rounding is actually implemented: you cannot keep the discarded tail, so you keep one bit that says whether it was empty. AVAN measured the compression rather than describing it - 1,024 distinct mantissas reduce to 8 states, and those 8 are enough to decide round-to-nearest-even in every case. My first test cases did not demonstrate this and one gate passed for the wrong reason; they were rebuilt around the actual round/sticky pairs.",
+  "body":STKY_BODY,"script":STKY_SCRIPT},
+ {"slug":"the-subnormal","title":"THE SUBNORMAL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#7de2b0","icon":"\u2218",
+  "kicker":"the numbers that buy you a smooth zero",
+  "blurb":"Without them the gap between zero and the smallest normal is vastly larger than the gap between neighbouring normals - so two different numbers can subtract to exactly zero.",
+  "lit":"the smallest subnormal is 2^-1074 and the smallest normal is 2^52 times larger; with subnormals two values one step apart subtract to a nonzero result so that x equals y and x minus y equals zero agree, while under flush-to-zero the same subtraction gives exactly 0 for two values that differ - a resolution difference of 4.5e15 near zero",
+  "fig":"Gradual underflow was one of the hardest-fought parts of IEEE 754, argued for by William Kahan against significant hardware opposition, because subnormals are awkward and slow to implement. AVAN measured the property they buy rather than the numbers themselves: without them, 'a equals b' and 'a minus b is zero' stop being the same test, and every algorithm that checks equality by subtracting silently acquires a false positive near zero.",
+  "body":SBNM_BODY,"script":SBNM_SCRIPT},
+ {"slug":"the-unit-in-last-place","title":"THE UNIT IN LAST PLACE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE TOOLCHAIN","domain_slug":"the-toolchain","accent":"#5ad6ff","icon":"\u21e5",
+  "kicker":"the ruler changes length as you walk",
+  "blurb":"The distance to the next representable number is not a constant. It doubles at every power of two, so precision is a function of where you are standing.",
+  "lit":"at 1 the ulp is 2^-52 and it doubles at every octave, so by 1e16 the ulp exceeds 1 and 1e16 plus 1 equals 1e16 exactly, while 1e15 plus 1 still moves - and 2^53 is the last integer whose every predecessor is also representable",
+  "fig":"An ulp is the unit in the last place: the gap between a float and its neighbour. It is the natural unit for error in floating point, and the reason 'accurate to six decimal places' is a claim that needs a magnitude attached. AVAN measured the ruler at seven magnitudes rather than quoting the exponent rule, because the consequence is what matters: there is a specific decade where adding 1 stops changing a number, and it sits closer to everyday values than most people expect.",
+  "body":ULPX_BODY,"script":ULPX_SCRIPT},
+ {"slug":"the-round-to-odd","title":"THE ROUND TO ODD","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#b98cff","icon":"\u2307",
+  "kicker":"a rounding mode that exists to be rounded again",
+  "blurb":"Rounding twice through an intermediate width can land further from the truth than rounding once. This mode makes the double rounding agree with the single one.",
+  "lit":"across 4,096 values, double rounding through round-half-even disagrees with single rounding on 128 of them - about 3% - while double rounding through round-to-odd disagrees on 0, because round-to-odd never leaves an exact tie for the next step to mishandle, verified at 0 ties produced",
+  "fig":"Round-to-odd is not a mode anyone wants a final answer in - it deliberately produces a value ending in 1. It exists so that an intermediate result can be rounded again safely, which matters wherever a wide accumulator feeds a narrow output. AVAN measured both paths over the full grid rather than constructing one bad example, because the interesting figure is how OFTEN naive double rounding goes wrong: 128 of 4,096, frequent enough to matter and rare enough to survive testing.",
+  "body":RTOD_BODY,"script":RTOD_SCRIPT},
+ {"slug":"the-catastrophic-cancellation","title":"THE CATASTROPHIC CANCELLATION","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#ff5a8a","icon":"\u2296",
+  "kicker":"the error was there before the subtraction",
+  "blurb":"Subtracting near-equal numbers does not create error. It reveals error already present, by removing the leading digits that were hiding it.",
+  "lit":"solving x squared plus 1e8 x plus 1 with the naive quadratic formula gives the small root with a relative error of 2.55e-1, while the algebraically identical stable form gives it to machine precision at 0; and b times b is EXACT here at 1e16, so the information was destroyed by the square root long before the subtraction that exposed it",
+  "fig":"The stable quadratic formula is standard numerical analysis and the example is the classic one. AVAN checked WHERE the error enters rather than only that it appears: b*b is exactly representable, the discriminant differs from it by 4, and the square root of that difference rounds to a value indistinguishable from b. By the time the subtraction happens the operands are already equal to working precision - the cancellation REPORTS that fact rather than causing it.",
+  "body":CTCN_BODY,"script":CTCN_SCRIPT},
+ {"slug":"the-berger-code","title":"THE BERGER CODE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#7de2b0","icon":"\u25a4",
+  "kicker":"count the zeros and every one-way fault shows",
+  "blurb":"Append the count of zeros in binary. A fault that pushes every affected bit the same direction cannot preserve that count, however many bits it touches.",
+  "lit":"across an eight-bit word every one of 240 possible 1-to-0 corruptions is caught and every one of 240 possible 0-to-1 corruptions is caught, with no limit on how many bits are affected - but all 16 mixed-direction double faults tested go UNDETECTED, because one flip each way leaves the zero count unchanged",
+  "fig":"Berger codes are the optimal systematic all-unidirectional-error-detecting code, from J.M. Berger in 1961. They matter where faults have a physical direction - a stuck-at line, a failing driver, an optical link losing power - because such faults corrupt many bits at once but always the same way. AVAN ran both directions exhaustively AND the mixed case, because a code that catches unbounded errors in one direction and misses a two-bit error in another is only useful if you know which world you are in.",
+  "body":BRGR_BODY,"script":BRGR_SCRIPT},
+ {"slug":"the-carry-lookahead","title":"THE CARRY LOOKAHEAD","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#5ad6ff","icon":"\u21c8",
+  "kicker":"generate and propagate, computed all at once",
+  "blurb":"Each bit either generates a carry, or propagates one it receives. Written that way the carries unroll into a formula with no chain in it.",
+  "lit":"the lookahead adder agrees with a ripple adder on all 65,536 byte pairs; and the depth is logarithmic rather than linear - 4 against 8 at a byte, 7 against 64 at a word, roughly nine times shallower - though the widest gate then needs 16 inputs, which is why real adders group in fours",
+  "fig":"Carry-lookahead is the foundational trick of fast arithmetic hardware, and the generate/propagate formulation is what makes the parallel prefix adders - Kogge-Stone, Brent-Kung, Sklansky - possible at all. AVAN verified the equivalence exhaustively rather than trusting the algebra, and reported the FAN-IN alongside the depth, because the depth figure alone makes the technique look free. It is not: the unrolled formula for bit k has k+1 terms, and gate delay grows with input count.",
+  "body":CRLA_BODY,"script":CRLA_SCRIPT},
+ {"slug":"the-conditional-sum","title":"THE CONDITIONAL SUM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"SUDDEN DEATH","domain_slug":"sudden-death","accent":"#ffd76a","icon":"\u2442",
+  "kicker":"compute both answers, throw one away",
+  "blurb":"Do not wait for the carry. Compute the high half twice - once assuming a carry arrives, once assuming it does not - and select when the truth turns up.",
+  "lit":"carry-select agrees with a plain adder on all 65,536 byte pairs; splitting an 8-bit add at 4 drops latency from 8 to 5 while raising the adder count from 1 to 3; and across every split from 2 to 6 the latency is the max of the two halves plus one, so the slower half sets the clock and the best equal split is at 4",
+  "fig":"Carry-select and conditional-sum adders are the standard way to spend area on latency, and they appear in essentially every commercial ALU. AVAN measured the split rather than assuming the middle is best, because the optimum is not obvious: latency is governed by the MAXIMUM of the two halves, so an unequal split only pays when the halves start at different times - which is exactly what happens in a multi-stage carry-select chain.",
+  "body":CNDS_BODY,"script":CNDS_SCRIPT},
+ {"slug":"the-barrel-shifter","title":"THE BARREL SHIFTER","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#7de2b0","icon":"\u21ba",
+  "kicker":"any distance in log n stages, no loop",
+  "blurb":"A shift by k is a cascade of fixed shifts by powers of two, each switched on by one bit of k. No iteration, no variable latency.",
+  "lit":"every value and distance matches a direct shift across all 2,048 combinations at eight bits; the stage count is log2 of the width - 3, 4, 5 and 6 for widths 8 through 64 - and the latency is identical for a shift by 0 and a shift by 7, so there is no data-dependent timing at all",
+  "fig":"The barrel shifter is why a variable shift costs the same as a fixed one on modern hardware, and why bit-manipulation code can be written without worrying about the shift amount. AVAN verified the constant-latency property specifically, because it is the part with a security consequence: a shifter whose timing depended on k would leak k, and cryptographic code shifts by secret amounts.",
+  "body":BRLS_BODY,"script":BRLS_SCRIPT},
+ {"slug":"the-priority-encoder","title":"THE PRIORITY ENCODER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ff5a8a","icon":"\u2191",
+  "kicker":"the highest one wins, and someone must say if none do",
+  "blurb":"n inputs collapse to log n outputs naming the highest set bit. But index 0 is a real answer, so a separate line has to declare whether the answer means anything.",
+  "lit":"the highest set bit wins when several are set, and an empty input reports index 0 - which is also the answer for an input of 1, so the index alone is genuinely ambiguous and the VALID line is what distinguishes them; exhaustively correct on all 256 eight-bit inputs, compressing 8 inputs to 3 outputs plus one flag",
+  "fig":"Priority encoders sit in every interrupt controller, every allocator and every floating-point normaliser. The valid line is the interesting part: it is the standard hardware answer to a problem software solves badly with sentinel values, and it exists because there is no spare index to mean 'nothing'. AVAN checked the ambiguity directly by comparing the encoding of 0 with the encoding of 1, since that single collision is the entire reason the extra wire is there.",
+  "body":PRENC_BODY,"script":PRENC_SCRIPT},
  {"slug":"the-zobrist-hash","title":"THE ZOBRIST HASH","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#7de2b0","icon":"\u2295",
   "kicker":"undo by doing the same thing again",
