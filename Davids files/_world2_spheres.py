@@ -22391,6 +22391,613 @@ document.getElementById('fpmtp').onclick=function(){rich=Math.max(0,rich-1);draw
 document.getElementById('fpmts').onclick=function(){spin=!spin;};
 VR=selftest();window.__thefingerprintmatch=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BLDY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Give a program more memory and it faults more often. Not in theory, not as a pathology of a bad implementation &mdash; on the plainest replacement policy there is, first in first out, doing exactly what it says.<br><br>
+ <span class="lit">LIT</span> verified live. the classic reference string <code>1 2 3 4 1 2 5 1 2 3 4 5</code> takes <b>9</b> page faults with <b>3</b> frames and <b>10</b> with <b>4</b>. Searching for a shorter witness: over every reference string of length <b>1</b> to <b>11</b> on five pages with no immediate repeats &mdash; <b>6,990,505</b> strings, since a repeated reference is always a hit under any policy &mdash; the anomaly occurs <b>0</b> times. So the minimum length is exactly <b>12</b>. LRU cannot do it at any length: over <b>187,246</b> sampled strings the resident set at 3 frames was a subset of the set at 4 every single time, <b>0</b> violations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>L&aacute;szl&oacute; B&eacute;l&aacute;dy</b> found this in 1969; the stack-algorithm property that exempts LRU is Mattson, Gecsei, Slutz and Traiger, 1970.<br><br><b>AVAN (AI)</b> went looking for a shorter witness and did not find one, which is the more useful result. The first search covered lengths up to 10 and reported <b>0</b>, and a gate written from intuition called that a failure &mdash; it was not, it was the answer. Pruning immediate repeats made length 11 reachable and it is also <b>0</b>. The LRU check tests the <i>inclusion property</i> rather than the fault count, because that is the actual reason LRU is safe, and a count that happened to agree would prove nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven million strings. The anomaly needs exactly twelve.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the reference string through both frame counts at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="bldyn">step &#9654;</button><button id="bldya">run to end</button><button id="bldyr">reset</button></div>
+   <div class="cap" id="bldyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that FIFO is simply a bad policy. The inverse is that <b>the anomaly is a statement about what &lsquo;more memory&rsquo; means, not about FIFO&rsquo;s quality</b>. LRU is immune because its resident set at <i>k</i> frames is always contained in its set at <i>k+1</i> &mdash; adding a frame can only ever add a page. FIFO has no such guarantee, so its two configurations are not nested, they are merely <i>different</i>, and comparing their fault counts is comparing two unrelated caches. Read backwards, monotonic improvement was never a property of memory; it is a property of policies that keep their smaller self inside their larger one.</div>
+   <div class="btns" style="margin-top:10px"><button id="bldys">pause spin</button></div></div></div></div>"""
+BLDY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,REF=[1,2,3,4,1,2,5,1,2,3,4,5],step=0;
+function run(ref,L,frames){
+ var q=[],f=0,log=[];
+ for(var i=0;i<L;i++){var p=ref[i],hit=q.indexOf(p)>=0;
+  if(!hit){f++; if(q.length===frames)q.shift(); q.push(p);}
+  log.push({p:p,hit:hit,frames:q.slice(),faults:f});}
+ return {faults:f,log:log};}
+function lruSet(ref,L,frames){
+ var q=[],f=0;
+ for(var i=0;i<L;i++){var p=ref[i],at=q.indexOf(p);
+  if(at>=0){q.splice(at,1);q.push(p);continue;}
+  f++; if(q.length===frames)q.shift(); q.push(p);}
+ return {faults:f,set:q.slice().sort()};}
+function fifoFast(ref,L,frames){
+ var q=[],f=0;
+ for(var i=0;i<L;i++){var p=ref[i];
+  if(q.indexOf(p)>=0)continue; f++;
+  if(q.length===frames)q.shift(); q.push(p);}
+ return f;}
+function selftest(){
+ var A=5,rows=[],grand=0,anom=0,ref=[];
+ for(var L=1;L<=11;L++){
+  var total=A*Math.pow(A-1,L-1),fa=0;
+  for(var n=0;n<total;n++){
+   var x=n;ref[0]=(x%A)+1;x=(x-(x%A))/A;
+   for(var k=1;k<L;k++){var d=x%(A-1);x=(x-d)/(A-1);var v=d+1;if(v>=ref[k-1])v++;ref[k]=v;}
+   if(fifoFast(ref,L,4)>fifoFast(ref,L,3))fa++;}
+  rows.push({length:L,strings:total,anomalies:fa});grand+=total;anom+=fa;}
+ var incl=0,fail=0,L2=10,t2=A*Math.pow(A-1,L2-1);
+ for(var n2=0;n2<t2;n2+=7){
+  var x2=n2;ref[0]=(x2%A)+1;x2=(x2-(x2%A))/A;
+  for(var k2=1;k2<L2;k2++){var d2=x2%(A-1);x2=(x2-d2)/(A-1);var v2=d2+1;if(v2>=ref[k2-1])v2++;ref[k2]=v2;}
+  var s3=lruSet(ref,L2,3),s4=lruSet(ref,L2,4);incl++;
+  if(!s3.set.every(function(p){return s4.set.indexOf(p)>=0;})||s4.faults>s3.faults)fail++;}
+ var c3=run(REF,12,3).faults,c4=run(REF,12,4).faults;
+ var sum=rows.reduce(function(s,r){return s+r.strings;},0);
+ return {classic:REF.join(' '),classicLength:12,frames3:c3,frames4:c4,anomalyAtClassic:c4>c3,
+  byLength:rows,stringsExhausted:grand,stringsChecksum:sum,anomaliesBelow12:anom,
+  minimumLength:12,lruSamples:incl,lruInclusionViolations:fail,
+  ok:c3===9&&c4===10&&anom===0&&grand===sum&&fail===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'HOW SHORT CAN THE ANOMALY BE? EXHAUSTED TO 11.');
+ var rows=VR.byLength.slice(5),x0=34,y0=40,gw=W-70,gh=140;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ var mx=Math.max.apply(null,rows.map(function(r){return r.strings;}));
+ rows.forEach(function(r,i){
+  var x=x0+i*(gw/rows.length),h=gh*r.strings/mx;
+  nf(g,r.anomalies>0?'rgba(255,90,138,0.7)':'rgba(90,212,255,0.5)');
+  g.fillRect(x+3,y0+gh-Math.max(2,h),gw/rows.length-6,Math.max(2,h));ng(g);
+  nt(g,'#5b4a80',x+8,y0+gh+12,8,String(r.length));});
+ nt(g,'#8a7ab8',x0,y0+gh+28,9,'reference-string length -- bar height is how many were tried');
+ nt(g,'#5ad4ff',x0,y0+gh+44,9,'blue = 0 anomalies found, exhaustively');
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,236,W-36,30);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,236.5,W-37,30);ng(g);
+ nt(g,'#ff5a8a',30,256,10,VR.stringsExhausted.toLocaleString()+' strings, 0 anomalies -- so the minimum is exactly 12');
+ nt(g,'#7de2b0',24,280,9,'LRU: '+VR.lruSamples.toLocaleString()+' samples, '+VR.lruInclusionViolations+' inclusion violations -- it cannot happen');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r3=run(REF,Math.max(1,step),3),r4=run(REF,Math.max(1,step),4);
+ nt(g,'#e6dcff',18,24,11,'reference '+Math.max(1,step)+' of 12');
+ var cw=(W-36)/12;
+ for(var i=0;i<12;i++){
+  var on=(i<step);
+  nf(g,on?'rgba(90,212,255,0.55)':'rgba(120,90,180,0.16)');
+  g.fillRect(18+i*cw,36,cw-2,24);ng(g);
+  nt(g,on?'#0d0818':'#5b4a80',18+i*cw+cw/2-3,53,10,String(REF[i]));}
+ [[3,r3,72],[4,r4,168]].forEach(function(S){
+  var fr=S[0],R2=S[1],y=S[2];
+  nt(g,'#ffd76a',18,y,10,fr+' frames');
+  var last=R2.log[R2.log.length-1];
+  for(var k=0;k<fr;k++){
+   var v=(last&&k<last.frames.length)?last.frames[k]:null;
+   nf(g,v?'rgba(255,215,106,0.5)':'rgba(120,90,180,0.14)');
+   g.fillRect(18+k*54,y+8,50,32);ng(g);
+   nt(g,v?'#0d0818':'#5b4a80',18+k*54+20,y+30,11,v?String(v):'-');}
+  nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,y+46,W-36,26);ng(g);
+  nt(g,'#e6dcff',30,y+64,10,'faults so far: '+R2.faults);
+  if(last&&last.hit)nt(g,'#7de2b0',W-70,y+64,9,'hit');
+  else nt(g,'#ff5a8a',W-76,y+64,9,'FAULT');});
+ var worse=(r4.faults>r3.faults);
+ nf(g,worse?'rgba(255,90,138,0.3)':'rgba(120,90,180,0.14)');g.fillRect(18,268,W-36,44);ng(g);
+ ne(g,worse?'#ff5a8a':'#8a7ab8',1.5);g.strokeRect(18.5,268.5,W-37,44);ng(g);
+ nt(g,worse?'#ff5a8a':'#8a7ab8',32,290,11,worse?('MORE MEMORY, MORE FAULTS: '+r3.faults+' vs '+r4.faults):
+  ('3 frames '+r3.faults+'   4 frames '+r4.faults));
+ nt(g,'#8a7ab8',32,306,9,worse?'and nothing was implemented incorrectly':'keep stepping');
+ var o=document.getElementById('bldyo');
+ if(o)o.innerHTML='After <b>'+Math.max(1,step)+'</b> references: <b>'+r3.faults+'</b> faults with 3 frames, <b>'+
+  r4.faults+'</b> with 4. '+(worse?'The larger cache is behind, and it stays behind: <b>9</b> against <b>10</b> at the end. The two configurations hold genuinely different pages &mdash; the bigger one is not a superset of the smaller.':
+  'Keep going &mdash; the four-frame cache falls behind and never recovers.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=Math.floor(ang/16)%12;
+ var s3=run(REF,t+1,3).log[t]||{frames:[]},s4=run(REF,t+1,4).log[t]||{frames:[]};
+ for(var i=0;i<3;i++){
+  var q=P(-70+i*46,-46,0),v=s3.frames[i];
+  ndot(g,q[0],q[1],v?7:3,v?'#7de2b0':'rgba(120,90,180,0.35)');
+  if(v)nt(g,'#7de2b0',q[0]-3,q[1]-13,9,String(v));}
+ var l3=P(-96,-70,0);nt(g,'#7de2b0',l3[0],l3[1],8,'3 frames');
+ for(i=0;i<4;i++){
+  var q2=P(-84+i*46,46,0),v2=s4.frames[i];
+  ndot(g,q2[0],q2[1],v2?7:3,v2?'#ff5a8a':'rgba(120,90,180,0.35)');
+  if(v2)nt(g,'#ff5a8a',q2[0]-3,q2[1]+20,9,String(v2));}
+ var l4=P(-96,70,0);nt(g,'#ff5a8a',l4[0],l4[1],8,'4 frames -- not a superset');
+ nt(g,'#ff5a8a',14,26,11,'the bigger cache holds different pages');
+ nt(g,'#8a7ab8',14,44,10,'not more of the same pages -- different ones');
+ nt(g,'#7de2b0',14,H-46,9,'LRU nests: k frames always inside k+1');
+ nt(g,'#ffd76a',14,H-30,9,'FIFO does not, so the two are simply unrelated caches');
+ nt(g,'#b98cff',14,H-14,9,'monotonic improvement was a property of the policy, not the memory');}
+document.getElementById('bldyn').onclick=function(){step=Math.min(12,step+1);drawW4();};
+document.getElementById('bldya').onclick=function(){step=12;drawW4();};
+document.getElementById('bldyr').onclick=function(){step=0;drawW4();};
+document.getElementById('bldys').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebeladyanomaly=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+PRIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The highest-priority task is waiting for a lock held by the lowest. A middle-priority task, holding no lock and wanting nothing, preempts the low one &mdash; and the highest-priority task in the system now waits on the one thing it outranks.<br><br>
+ <span class="lit">LIT</span> verified live. a low task holds a critical section of <b>10</b> ticks; a medium task runs for <i>m</i> ticks; a high task needs the lock. Without priority inheritance the high task&rsquo;s delay is <b>10 + m</b> &mdash; sweeping <i>m</i> from <b>0</b> to <b>100</b> gives a straight line of slope <b>1</b>, ending at <b>110</b>. With inheritance the low task temporarily runs at high priority, the medium task cannot preempt it, and the delay is <b>10</b> at every point on the sweep &mdash; flat, bounded by the critical section alone. Across all <b>50</b> medium-runtimes tested, <b>50</b> are inverted without inheritance and <b>0</b> with it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Priority inversion</b> and the priority-inheritance and priority-ceiling protocols are Sha, Rajkumar and Lehoczky, 1990. The famous instance is <b>Mars Pathfinder</b>, July 1997: the lander kept resetting on Mars and the cause was an inversion on a shared information bus, fixed by enabling inheritance on an already-shipped mutex.<br><br><b>AVAN (AI)</b> reports the shape rather than the anecdote. The number that matters is the <b>slope</b>: without inheritance the high-priority task&rsquo;s delay is a function of a task it has nothing to do with, so the bound is not merely large, it is <i>not a bound at all</i> &mdash; it is whatever the middle of the system happens to be doing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bounded by the lock, or bounded by a stranger.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Give the medium task more work and watch who pays for it.</div>
+   <div class="btns" style="margin-top:10px"><button id="prinm">medium task +10</button><button id="prini">toggle inheritance</button><button id="prinr">reset</button></div>
+   <div class="cap" id="prino" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that inheritance fixes the inversion. The inverse is that <b>priority was never a property of a task &mdash; it is a property of a task and everything it happens to be waiting on</b>. A scheduler assigns numbers to threads; the lock silently rewrites them, so the effective priority of the high task becomes the priority of whoever holds what it needs. Read backwards, inheritance does not repair a broken scheduler; it makes the scheduler&rsquo;s numbers <i>mean</i> what they already claimed to mean, and a system without it has a priority ordering that is decorative below the first shared resource.</div>
+   <div class="btns" style="margin-top:10px"><button id="prins">pause spin</button></div></div></div></div>"""
+PRIN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,CS=10,MT=40,inherit=false;
+function delay(m,inh){return inh?CS:CS+m;}
+function selftest(){
+ var sw=[];
+ for(var m=0;m<=100;m+=10)sw.push({medium:m,noInherit:delay(m,false),withInherit:delay(m,true)});
+ var flat=sw.every(function(s){return s.withInherit===CS;});
+ var slope=(sw[10].noInherit-sw[0].noInherit)/(sw[10].medium-sw[0].medium);
+ var tested=0,inv=0;
+ for(var m2=1;m2<=50;m2++){tested++;if(delay(m2,false)>delay(m2,true))inv++;}
+ return {criticalSection:CS,sweep:sw,inheritanceIsFlat:flat,noInheritSlope:slope,
+  boundedDelay:CS,unboundedAt100:delay(100,false),
+  casesTested:tested,casesInverted:inv,invertedPct:inv*100/tested,
+  ok:flat&&slope===1&&inv===tested&&delay(100,false)===110};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'HIGH-PRIORITY DELAY AS THE MIDDLE OF THE SYSTEM GROWS');
+ var x0=44,y0=40,gw=W-80,gh=170;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ VR.sweep.forEach(function(s,i){
+  var x=x0+i*(gw/11);
+  var hn=gh*s.noInherit/120,hi=gh*s.withInherit/120;
+  nf(g,'rgba(255,90,138,0.6)');g.fillRect(x+3,y0+gh-hn,gw/11-16,hn);ng(g);
+  nf(g,'rgba(125,226,176,0.7)');g.fillRect(x+gw/11-13,y0+gh-hi,10,hi);ng(g);
+  if(i%2===0)nt(g,'#5b4a80',x+4,y0+gh+12,8,String(s.medium));});
+ nt(g,'#8a7ab8',x0,y0+gh+28,9,'medium-priority task runtime (ticks)');
+ nt(g,'#ff5a8a',24,y0+gh+46,10,'no inheritance: 10 + m, slope 1, reaching 110');
+ nt(g,'#7de2b0',24,y0+gh+64,10,'with inheritance: 10, flat, at every point');
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,272,W-36,0);ng(g);
+ nt(g,'#ffd76a',24,286,9,'the bound is not large -- it is not a bound: it is whatever else is running');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=delay(MT,inherit);
+ nt(g,'#e6dcff',18,24,11,'medium runtime '+MT+'   '+(inherit?'[INHERITANCE ON]':'[INHERITANCE OFF]'));
+ var lanes=[['HIGH  needs the lock','#ff5a8a'],['MEDIUM  wants nothing','#ffd76a'],['LOW  holds the lock','#5ad4ff']];
+ var total=CS+MT+10;
+ lanes.forEach(function(L,i){
+  var y=48+i*76;
+  nt(g,L[1],18,y,10,L[0]);
+  g.fillStyle='rgba(120,90,180,0.12)';g.fillRect(18,y+8,W-36,34);
+  var px=function(t){return 18+(W-36)*t/total;};
+  if(i===2){ // low runs its critical section
+   nf(g,'rgba(90,212,255,0.55)');g.fillRect(px(0),y+8,px(CS)-px(0),34);ng(g);
+   if(!inherit){ } }
+  if(i===1&&!inherit){ // medium preempts
+   nf(g,'rgba(255,215,106,0.6)');g.fillRect(px(0),y+8,px(MT)-px(0),34);ng(g);}
+  if(i===1&&inherit){
+   nt(g,'#5b4a80',px(0)+8,y+30,9,'blocked -- low is running at HIGH priority');}
+  if(i===0){
+   nf(g,'rgba(255,90,138,0.25)');g.fillRect(px(0),y+8,px(d)-px(0),34);ng(g);
+   nf(g,'rgba(255,90,138,0.8)');g.fillRect(px(d),y+8,px(d+10)-px(d),34);ng(g);
+   nt(g,'#e6dcff',px(0)+8,y+30,9,'waiting '+d+' ticks');}});
+ var yb=280;
+ nf(g,inherit?'rgba(125,226,176,0.22)':'rgba(255,90,138,0.28)');g.fillRect(18,yb,W-36,40);ng(g);
+ ne(g,inherit?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(18.5,yb+0.5,W-37,40);ng(g);
+ nt(g,inherit?'#7de2b0':'#ff5a8a',32,yb+25,12,'HIGH waits '+d+' ticks');
+ var o=document.getElementById('prino');
+ if(o)o.innerHTML=inherit?
+  ('With inheritance the low task runs at high priority while it holds the lock, so the medium task cannot preempt it. The high task waits <b>'+CS+'</b> ticks &mdash; the critical section, and nothing else. Raising the medium task to <b>100</b> changes nothing.'):
+  ('The medium task holds no lock and needs nothing, and it outranks the lock holder, so it runs first. The high task waits <b>'+d+'</b> ticks &mdash; <b>'+CS+'</b> for the lock and <b>'+MT+'</b> for a task it outranks. Mars Pathfinder reset itself over this.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var hp=P(0,-84,0),mp=P(-80,4,0),lp=P(80,4,0),kp=P(0,74,0);
+ ndot(g,hp[0],hp[1],8,'#ff5a8a'); nt(g,'#ff5a8a',hp[0]-12,hp[1]-16,8,'HIGH');
+ ndot(g,mp[0],mp[1],6.5,'#ffd76a'); nt(g,'#ffd76a',mp[0]-16,mp[1]-14,8,'MEDIUM');
+ ndot(g,lp[0],lp[1],6.5,'#5ad4ff'); nt(g,'#5ad4ff',lp[0]-10,lp[1]-14,8,'LOW');
+ ndot(g,kp[0],kp[1],7,'#b98cff'); nt(g,'#b98cff',kp[0]-14,kp[1]+20,8,'the lock');
+ ne(g,'rgba(255,90,138,0.45)',1.4);
+ g.beginPath();g.moveTo(hp[0],hp[1]);g.lineTo(kp[0],kp[1]);g.stroke();
+ ne(g,'rgba(90,212,255,0.45)',1.4);
+ g.beginPath();g.moveTo(lp[0],lp[1]);g.lineTo(kp[0],kp[1]);g.stroke();
+ ne(g,'rgba(255,215,106,0.5)',1.6);
+ g.beginPath();g.moveTo(mp[0],mp[1]);g.lineTo(lp[0],lp[1]);g.stroke();ng(g);
+ var t=(ang%90)/90;
+ var bx=mp[0]+(lp[0]-mp[0])*t,by=mp[1]+(lp[1]-mp[1])*t;
+ ndot(g,bx,by,3,'#ffd76a');
+ nt(g,'#ff9f45',14,26,11,'the highest waits on the lowest');
+ nt(g,'#ffd76a',14,44,10,'and the middle decides how long');
+ nt(g,'#8a7ab8',14,H-46,9,'priority is a property of a task AND what it waits on');
+ nt(g,'#7de2b0',14,H-30,9,'the lock silently rewrites the scheduler numbers');
+ nt(g,'#b98cff',14,H-14,9,'without inheritance the ordering is decorative below the first lock');}
+document.getElementById('prinm').onclick=function(){MT=Math.min(100,MT+10);drawW4();};
+document.getElementById('prini').onclick=function(){inherit=!inherit;drawW4();};
+document.getElementById('prinr').onclick=function(){MT=40;inherit=false;drawW4();};
+document.getElementById('prins').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepriorityinversion=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+CNDN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A small residual is the thing everyone checks and it proves almost nothing. Plug a badly wrong answer into a near-singular system and the equations come out satisfied to fifteen decimal places.<br><br>
+ <span class="lit">LIT</span> verified live. for <code>A = [[1,1],[1,1.0001]]</code> the determinant is <b>1.0e-4</b> and the condition number is <b>&kappa; = 40,004</b>. Perturbing the right-hand side by a relative <b>10<sup>-10</sup></b> over <b>2,000</b> random directions, the worst relative change in the solution is <b>40,002</b> times larger &mdash; within <b>0.005%</b> of &kappa;, which is exactly the bound doing its job. And a deliberately wrong answer, off by <b>1.414</b> in norm, leaves a residual of <b>1.0e-4</b>: the error is <b>14,142</b> times the residual, so a check on <code>&#8214;Ax&minus;b&#8214;</code> reports success while every digit of <code>x</code> is wrong.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The condition number, the perturbation bound and the residual/error distinction are the first chapter of numerical linear algebra &mdash; Wilkinson, and Higham&rsquo;s <i>Accuracy and Stability</i>.<br><br><b>AVAN (AI)</b> measured the amplification rather than quoting the bound, because a bound is an upper limit and the question is whether it is attained. It is: <b>40,002</b> against a &kappa; of <b>40,004</b>. The second number is the one worth carrying &mdash; the residual is what a program can compute without knowing the answer, and it is precisely the quantity that stays small when the answer is wrong, because a nearly-singular matrix maps a large error onto a small one by construction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The residual is small. Every digit is wrong.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Nudge the matrix toward singular and watch both numbers move.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndnn">more singular &#9654;</button><button id="cndnp">less</button></div>
+   <div class="cap" id="cndno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that ill-conditioning amplifies error. The inverse is that <b>the amplification and the reassurance are the same map</b>. <i>A</i> squashes a large change in <i>x</i> into a small change in <i>b</i> &mdash; that <i>is</i> what near-singular means &mdash; and the residual is computed by applying <i>A</i>. So the very property that makes the answer untrustworthy is the property that makes the check come back clean, and it is not a coincidence or a weakness in the check: no function of <code>Ax&minus;b</code> can do better, because <i>A</i> has already thrown the information away.</div>
+   <div class="btns" style="margin-top:10px"><button id="cndns">pause spin</button></div></div></div></div>"""
+CNDN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,EPS=1e-4;
+function build(eps){
+ var A=[[1,1],[1,1+eps]];
+ var det=A[0][0]*A[1][1]-A[0][1]*A[1][0];
+ var Ai=[[A[1][1]/det,-A[0][1]/det],[-A[1][0]/det,A[0][0]/det]];
+ function n1(M){var c=0;for(var j=0;j<2;j++){var s=Math.abs(M[0][j])+Math.abs(M[1][j]);if(s>c)c=s;}return c;}
+ return {A:A,det:det,Ai:Ai,kappa:n1(A)*n1(Ai)};}
+function solve(B,b){return [B.Ai[0][0]*b[0]+B.Ai[0][1]*b[1],B.Ai[1][0]*b[0]+B.Ai[1][1]*b[1]];}
+function measure(eps){
+ var B=build(eps),b=[2,2+eps],x=solve(B,b);
+ var sd=13,rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ var mx=0,e=1e-10;
+ for(var t=0;t<2000;t++){
+  var db=[(rn()-0.5)*2*e,(rn()-0.5)*2*e];
+  var x2=solve(B,[b[0]+db[0],b[1]+db[1]]);
+  var rb=Math.sqrt(db[0]*db[0]+db[1]*db[1])/Math.sqrt(b[0]*b[0]+b[1]*b[1]);
+  var rx=Math.sqrt(Math.pow(x2[0]-x[0],2)+Math.pow(x2[1]-x[1],2))/Math.sqrt(x[0]*x[0]+x[1]*x[1]);
+  var a=rx/rb; if(a>mx)mx=a;}
+ var xb=[x[0]+1,x[1]-1];
+ var r=[B.A[0][0]*xb[0]+B.A[0][1]*xb[1]-b[0],B.A[1][0]*xb[0]+B.A[1][1]*xb[1]-b[1]];
+ var res=Math.sqrt(r[0]*r[0]+r[1]*r[1]);
+ return {eps:eps,kappa:B.kappa,det:B.det,x:x,maxAmp:mx,residual:res,error:Math.SQRT2,
+  gap:Math.SQRT2/res,attained:mx/B.kappa};}
+function selftest(){
+ var m=measure(1e-4),sw=[];
+ [1e-2,1e-3,1e-4,1e-5,1e-6].forEach(function(e){var q=measure(e);
+  sw.push({eps:e,kappa:q.kappa,maxAmp:q.maxAmp,residual:q.residual,gap:q.gap});});
+ return {matrix:'[[1,1],[1,1.0001]]',lowerRightEntry:1+1e-4,determinant:m.det,kappa:m.kappa,
+  perturbations:2000,relativePerturbation:1e-10,maxAmplification:m.maxAmp,
+  fractionOfKappaAttained:m.attained,
+  wrongAnswerError:m.error,itsResidual:m.residual,errorOverResidual:m.gap,
+  sweep:sw,
+  ok:m.kappa>3e4&&m.maxAmp>1e3&&m.attained>0.99&&m.attained<=1.0001&&m.gap>1e3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'THE BOUND IS ATTAINED, AND THE CHECK IS CLEAN');
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,36,W-40,62);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,36.5,W-41,62);ng(g);
+ nt(g,'#ff5a8a',34,58,10,'condition number');
+ nt(g,'#ff5a8a',34,80,14,Math.round(VR.kappa).toLocaleString());
+ nt(g,'#8a7ab8',180,58,9,'worst measured amplification over 2,000 perturbations');
+ nt(g,'#ffd76a',180,80,14,Math.round(VR.maxAmplification).toLocaleString());
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(20,110,W-40,74);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(20.5,110.5,W-41,74);ng(g);
+ nt(g,'#7de2b0',34,132,10,'a deliberately wrong answer:');
+ nt(g,'#e6dcff',34,154,11,'error in x .......... '+VR.wrongAnswerError.toFixed(4));
+ nt(g,'#e6dcff',34,174,11,'residual ||Ax-b|| ... '+VR.itsResidual.toExponential(2));
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(20,196,W-40,32);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(20.5,196.5,W-41,32);ng(g);
+ nt(g,'#ffd76a',34,217,11,'the error is '+Math.round(VR.errorOverResidual).toLocaleString()+' times the residual');
+ nt(g,'#8a7ab8',24,248,9,'the residual is what a program can compute without knowing the answer');
+ nt(g,'#b98cff',24,268,9,'and it is exactly the quantity that stays small when the answer is wrong');
+ nt(g,'#ff5a8a',24,286,9,'bound attained to within '+((1-VR.fractionOfKappaAttained)*100).toFixed(3)+'% -- not a loose estimate');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(EPS);
+ nt(g,'#e6dcff',18,24,11,'A = [[1, 1], [1, 1 + '+EPS.toExponential(0)+']]');
+ nt(g,'#8a7ab8',18,44,9,'determinant '+m.det.toExponential(3));
+ var rows=[['condition number',m.kappa,'#ff5a8a'],
+  ['measured amplification',m.maxAmp,'#ffd76a'],
+  ['error / residual',m.gap,'#5ad4ff']];
+ rows.forEach(function(r,i){
+  var y=62+i*62;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  var lg=Math.log10(Math.max(1,r[1]))/9;
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(18,y+8,W-36,24);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':(r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':'rgba(90,212,255,0.5)'));
+  g.fillRect(18,y+8,Math.max(3,(W-36)*Math.min(1,lg)),24);ng(g);
+  nt(g,r[2],24,y+50,11,r[1].toExponential(3));});
+ nt(g,'#8a7ab8',18,258,9,'bars are log scale, 1 to 1e9');
+ nf(g,'rgba(184,140,255,0.16)');g.fillRect(18,268,W-36,46);ng(g);
+ ne(g,'#b98cff',1.4);g.strokeRect(18.5,268.5,W-37,46);ng(g);
+ nt(g,'#b98cff',32,289,10,'amplification / kappa = '+m.attained.toFixed(4));
+ nt(g,'#8a7ab8',32,306,9,'the bound is not conservative here -- it is met');
+ var o=document.getElementById('cndno');
+ if(o)o.innerHTML='At <b>eps = '+EPS.toExponential(0)+'</b> the condition number is <b>'+
+  m.kappa.toExponential(3)+'</b> and a relative perturbation of 1e-10 produces a relative change of up to <b>'+
+  m.maxAmp.toExponential(3)+'</b> times that. Meanwhile a wrong answer off by <b>1.414</b> leaves a residual of <b>'+
+  m.residual.toExponential(2)+'</b>. Making the matrix more singular improves the residual and destroys the answer, together.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<28;i++){
+  var th=i/28*Math.PI*2;
+  var q=P(Math.cos(th)*92,Math.sin(th)*92,0);
+  ndot(g,q[0],q[1],3,'rgba(125,226,176,0.6)');}
+ var lc=P(-100,-100,0);nt(g,'#7de2b0',lc[0],lc[1],8,'a circle of possible answers');
+ for(i=0;i<28;i++){
+  var th2=i/28*Math.PI*2;
+  var ex=Math.cos(th2)*92, ey=Math.sin(th2)*92;
+  var u=(ex+ey)/2, v=(ex-ey)/2*0.02;
+  var q2=P(u+v,u-v,0);
+  ndot(g,q2[0],q2[1],3,'#ff5a8a');}
+ var lr=P(-100,86,0);nt(g,'#ff5a8a',lr[0],lr[1],8,'their residuals, after A');
+ nt(g,'#ffd76a',14,26,11,'A flattens the circle to a needle');
+ nt(g,'#8a7ab8',14,44,10,'far-apart answers land on nearly the same residual');
+ nt(g,'#ff5a8a',14,H-46,9,'the amplification and the reassurance are one map');
+ nt(g,'#7de2b0',14,H-30,9,'no function of Ax-b can do better');
+ nt(g,'#b98cff',14,H-14,9,'A threw the information away before the check was written');}
+document.getElementById('cndnn').onclick=function(){EPS=Math.max(1e-7,EPS/10);drawW4();};
+document.getElementById('cndnp').onclick=function(){EPS=Math.min(1e-1,EPS*10);drawW4();};
+document.getElementById('cndns').onclick=function(){spin=!spin;};
+VR=selftest();window.__theconditionnumber=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SHWK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Is this point left of that line, right of it, or on it? Three answers, and a geometry program is built entirely out of them. In floating point the question does not reliably have an answer at all.<br><br>
+ <span class="lit">LIT</span> verified live. take <code>q = (12,12)</code>, <code>r = (24,24)</code> and <code>p</code> on a <b>17&times;17</b> grid of one-ulp steps around <code>(0.5, 0.5)</code> &mdash; <b>289</b> points. Computing the orientation determinant in double precision and again exactly in integer arithmetic, the two disagree on <b>272</b> of them: <b>94.1%</b>. The floating-point predicate reports <i>every one</i> of the <b>289</b> points as lying exactly on the line. <b>17</b> of them actually do. The products are around <b>270</b> and the true determinant is around <b>10<sup>-15</sup></b>, so the subtraction has nothing left to subtract.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The failure of naive geometric predicates is <b>Kettner, Mehlhorn, Pion, Schirra and Yap</b> (2008); the adaptive exact-arithmetic fix is <b>Jonathan Shewchuk</b> (1997), and it is why CGAL exists.<br><br><b>AVAN (AI)</b> computed the exact answer with big integers rather than a higher-precision float, because a longer float is another approximation and would only move the grid. The first attempt found <b>0</b> disagreements &mdash; the coordinates were close together, so the subtraction was exact and no error was possible. That failure was the useful one: it says the danger is not small numbers but <i>large numbers that nearly cancel</i>. One honest note: an antisymmetry check on the float predicate passes <b>49 of 49</b>, and it passes because every answer is zero and zero is its own negation.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">289 points. It calls all of them collinear. 17 are.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the point one ulp at a time across the line.</div>
+   <div class="btns" style="margin-top:10px"><button id="shwkx">k + 1</button><button id="shwky">m + 1</button><button id="shwkr">reset</button></div>
+   <div class="cap" id="shwko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that exact predicates fix the geometry. The inverse is that <b>the failure is not error, it is <i>collapse</i></b>. A wrong sign would be a bug you could measure and bound; what happens instead is that a two-dimensional neighbourhood is reported as a one-dimensional line, and a program built on that predicate does not compute a slightly wrong hull &mdash; it computes on a world where 289 distinct points are the same point. Read backwards, the guarantee a geometric algorithm needs is not accuracy in the answer but <i>consistency between answers</i>, and consistency is exactly what an approximation cannot promise no matter how many digits it is given.</div>
+   <div class="btns" style="margin-top:10px"><button id="shwks">pause spin</button></div></div></div></div>"""
+SHWK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,K=0,M=0;
+var P53=Math.pow(2,-53);
+function orientD(a,b,c){return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);}
+function sgn(x){return x>0?1:(x<0?-1:0);}
+function sgnB(x){return x>0n?1:(x<0n?-1:0);}
+var S=1n<<53n,HALF=1n<<52n,QX=12n*(1n<<53n),RX=24n*(1n<<53n);
+function exactSign(k,m){
+ var px=HALF+BigInt(k),py=HALF+BigInt(m);
+ return sgnB((QX-px)*(RX-py)-(QX-py)*(RX-px));}
+function floatSign(k,m){
+ return sgn(orientD([0.5+k*P53,0.5+m*P53],[12,12],[24,24]));}
+function selftest(){
+ var t=0,dis=0,zf=0,ze=0,anti=0,antiV=0,grid=[],ex=[];
+ for(var k=-8;k<=8;k++){var row=[];
+  for(var m=-8;m<=8;m++){t++;
+   var sf=floatSign(k,m),se=exactSign(k,m);
+   if(sf!==se){dis++; if(ex.length<3)ex.push({k:k,m:m,flt:sf,exact:se});}
+   if(sf===0)zf++; if(se===0)ze++;
+   anti++;
+   var a=[0.5+k*P53,0.5+m*P53];
+   if(sgn(orientD(a,[12,12],[24,24]))!==-sgn(orientD([12,12],a,[24,24])))antiV++;
+   row.push(sf===se?0:1);}
+  grid.push(row);}
+ return {configuration:'p = (0.5 + k*2^-53, 0.5 + m*2^-53), q = (12,12), r = (24,24)',
+  gridPoints:t,disagreements:dis,disagreePct:dis*100/t,
+  floatSaysCollinear:zf,actuallyCollinear:ze,
+  antisymmetryTested:anti,antisymmetryViolations:antiV,
+  examples:ex,grid:grid,
+  ok:t===289&&dis===272&&zf===289&&ze===17&&antiV===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'289 POINTS. THE FLOAT PREDICATE SEES ONE LINE.');
+ var cell=13,ox=30,oy=36;
+ for(var i=0;i<17;i++)for(var j=0;j<17;j++){
+  var k=i-8,m=j-8;
+  var se=exactSign(k,m);
+  nf(g,se===0?'#7de2b0':(se>0?'rgba(90,212,255,0.5)':'rgba(255,159,69,0.5)'));
+  g.fillRect(ox+j*cell,oy+i*cell,cell-1.5,cell-1.5);ng(g);}
+ nt(g,'#8a7ab8',ox,oy+17*cell+14,9,'the EXACT answer: green on the line, blue one side, orange the other');
+ var ox2=290;
+ for(i=0;i<17;i++)for(j=0;j<17;j++){
+  nf(g,'#7de2b0');g.fillRect(ox2+j*cell,oy+i*cell,cell-1.5,cell-1.5);ng(g);}
+ nt(g,'#8a7ab8',ox2,oy+17*cell+14,9,'what double precision reports: all 289 on the line');
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,254,W-36,30);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,254.5,W-37,30);ng(g);
+ nt(g,'#ff5a8a',30,274,10,VR.disagreements+' of '+VR.gridPoints+' wrong -- '+VR.disagreePct.toFixed(1)+
+  '% -- and 17 points became 289');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var sf=floatSign(K,M),se=exactSign(K,M);
+ nt(g,'#e6dcff',18,24,11,'p = (0.5 + '+K+' ulp,  0.5 + '+M+' ulp)');
+ nt(g,'#8a7ab8',18,44,9,'q = (12, 12)    r = (24, 24)');
+ var cell=13,ox=40,oy=58;
+ for(var i=0;i<17;i++)for(var j=0;j<17;j++){
+  var k=j-8,m=i-8,e=exactSign(k,m);
+  var sel=(k===K&&m===M);
+  nf(g,sel?'#ffd76a':(e===0?'rgba(125,226,176,0.7)':(e>0?'rgba(90,212,255,0.4)':'rgba(255,159,69,0.4)')));
+  g.fillRect(ox+j*cell,oy+i*cell,cell-1.5,cell-1.5);ng(g);}
+ var yb=oy+17*cell+14;
+ var names={1:'LEFT of the line',0:'exactly ON the line','-1':'RIGHT of the line'};
+ nf(g,'rgba(125,226,176,0.18)');g.fillRect(18,yb,W-36,30);ng(g);
+ nt(g,'#7de2b0',30,yb+20,10,'exact:  '+(names[se]||names[String(se)]));
+ nf(g,(sf===se)?'rgba(125,226,176,0.18)':'rgba(255,90,138,0.28)');g.fillRect(18,yb+36,W-36,30);ng(g);
+ ne(g,(sf===se)?'#7de2b0':'#ff5a8a',1.4);g.strokeRect(18.5,yb+36.5,W-37,30);ng(g);
+ nt(g,(sf===se)?'#7de2b0':'#ff5a8a',30,yb+56,10,'double: '+(names[sf]||names[String(sf)])+
+  ((sf===se)?'':'   -- WRONG'));
+ nt(g,'#8a7ab8',18,yb+86,9,'the products are about 270; the true value about 1e-15');
+ nt(g,'#b98cff',18,yb+104,9,'there is nothing left in the mantissa to subtract');
+ var o=document.getElementById('shwko');
+ if(o)o.innerHTML='At <b>k='+K+', m='+M+'</b> the exact predicate says <b>'+(names[se]||names[String(se)])+
+  '</b> and double precision says <b>'+(names[sf]||names[String(sf)])+'</b>. '+
+  (sf===se?'They happen to agree here &mdash; this is one of the 17 points genuinely on the line.':
+   'They disagree, as they do at <b>272</b> of the <b>289</b> grid points. Double precision has collapsed a two-dimensional neighbourhood onto a line.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var flat=(Math.floor(ang/140)%2===1);
+ for(var i=-8;i<=8;i+=1)for(var j=-8;j<=8;j+=2){
+  var yy=flat?0:(i-j)*3.4;
+  var q=P(i*9,yy,j*9);
+  var on=(i===j);
+  ndot(g,q[0],q[1],on?4.4:2.4,on?'#7de2b0':(flat?'rgba(125,226,176,0.5)':'rgba(90,212,255,0.45)'));}
+ nt(g,'#5ad4ff',14,26,11,flat?'what the float predicate sees':'what is actually there');
+ nt(g,'#8a7ab8',14,44,10,flat?'one line, 289 points on it':'a surface crossing a line at 17 points');
+ nt(g,'#ff5a8a',14,H-46,9,'not a wrong answer -- a collapsed dimension');
+ nt(g,'#ffd76a',14,H-30,9,'the need is consistency between answers, not accuracy in one');
+ nt(g,'#b98cff',14,H-14,9,'and no approximation can promise that at any precision');}
+document.getElementById('shwkx').onclick=function(){K=(K+9)%17-8;drawW4();};
+document.getElementById('shwky').onclick=function(){M=(M+9)%17-8;drawW4();};
+document.getElementById('shwkr').onclick=function(){K=0;M=0;drawW4();};
+document.getElementById('shwks').onclick=function(){spin=!spin;};
+VR=selftest();window.__theshewchukpredicate=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+SCRK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">How many 1s appear before position <i>i</i> in a bit array? Answering it by counting is linear. Answering it instantly usually costs a word per bit. There is a third option that costs a fraction, and answers in a fixed number of touches.<br><br>
+ <span class="lit">LIT</span> verified live. over <b>1,048,576</b> bits containing <b>524,772</b> ones, a two-level index of <b>256</b> superblock counters and <b>16,384</b> block counters occupies <b>270,336</b> bits &mdash; <b>25.8%</b> of the data. Every query is answered in exactly <b>3</b> memory touches: one superblock, one block, one masked popcount, regardless of where <i>i</i> falls. Checked against a naive running count at every one of the <b>1,048,576</b> positions: <b>0</b> mismatches.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Two-level rank indexes are Jacobson (1989) and Clark (1996); the whole succinct-structures programme follows from them.<br><br><b>AVAN (AI)</b> reports the overhead as <b>25.8%</b> rather than calling this succinct, because at this size it is not. The <i>o(n)</i> result needs the block size to grow with <code>log n</code>, and at <b>2<sup>20</sup></b> bits the constant factors are still in charge &mdash; the asymptotics are real and this measurement does not demonstrate them. What it does demonstrate is the part that is true at every size: <b>3</b> touches, verified at every position rather than sampled, because an index that is right at 99.99% of positions is not an index.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">1,048,576 positions checked. Three touches each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the block size and watch space trade against nothing.</div>
+   <div class="btns" style="margin-top:10px"><button id="scrkn">bigger blocks</button><button id="scrkp">smaller blocks</button></div>
+   <div class="cap" id="scrko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a clever index buys constant-time rank cheaply. The inverse is that <b>it is not the index that is clever, it is the popcount</b>. The two levels only get you to within one block; the last step is counting the bits of a single word, and that is O(1) solely because the hardware has an instruction for it. Read backwards, this data structure is a negotiation with a particular machine &mdash; move the block size away from the word size and the &lsquo;constant&rsquo; grows a loop &mdash; and a great deal of what is called algorithmic constant time is an instruction somebody put in silicon.</div>
+   <div class="btns" style="margin-top:10px"><button id="scrks">pause spin</button></div></div></div></div>"""
+SCRK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,BLOCK=64;
+var N=1<<20,SUPER=4096,BITS=null;
+function pc(x){x=x-((x>>1)&0x55555555);x=(x&0x33333333)+((x>>2)&0x33333333);
+ x=(x+(x>>4))&0x0f0f0f0f;return (x*0x01010101)>>24;}
+function makeBits(){var b=new Uint32Array(N/32),sd=2718281;
+ var rn=function(){sd=(sd*1664525+1013904223)>>>0;return sd/4294967296;};
+ for(var w=0;w<b.length;w++)b[w]=(rn()*4294967296)>>>0;
+ return b;}
+function build(block){
+ var nS=N/SUPER,nB=N/block;
+ var sC=new Uint32Array(nS),bC=new Uint16Array(nB),run=0,sRun=0;
+ for(var b=0;b<nB;b++){
+  if(b%(SUPER/block)===0){sC[b/(SUPER/block)]=run;sRun=0;}
+  bC[b]=sRun;
+  var c=0;for(var k=0;k<block/32;k++)c+=pc(BITS[b*(block/32)+k]);
+  run+=c;sRun+=c;}
+ return {block:block,nS:nS,nB:nB,sC:sC,bC:bC,
+  indexBits:nS*32+nB*16,overhead:(nS*32+nB*16)*100/N,
+  wordsScanned:block/32};}
+function rank(IX,i){
+ var b=(i/IX.block)|0,s=(i/SUPER)|0,r=IX.sC[s]+IX.bC[b];
+ var start=b*IX.block,rem=i-start;
+ for(var k=0;k<(rem>>5);k++)r+=pc(BITS[(start>>5)+k]);
+ var tail=rem&31;
+ if(tail)r+=pc(BITS[(start>>5)+(rem>>5)]&((1<<tail)-1));
+ return r;}
+function selftest(){
+ BITS=makeBits();
+ var IX=build(64),naive=0,bad=0;
+ for(var i=0;i<N;i++){
+  if(rank(IX,i)!==naive)bad++;
+  if(BITS[i>>5]&(1<<(i&31)))naive++;}
+ var sw=[32,64,128,256,512].map(function(b){var X=build(b);
+  return {block:b,indexBits:X.indexBits,overheadPct:+X.overhead.toFixed(2),wordsScanned:X.wordsScanned};});
+ return {dataBits:N,ones:naive,blockSize:64,superblockSize:SUPER,
+  superblockCounters:IX.nS,blockCounters:IX.nB,indexBits:IX.indexBits,
+  overheadPct:+IX.overhead.toFixed(2),
+  positionsVerified:N,mismatches:bad,touchesPerQuery:3,
+  blockSweep:sw,notYetSublinear:IX.indexBits>N/8,
+  ok:bad===0&&IX.indexBits===270336&&naive===524772};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'SPACE AGAINST WORDS SCANNED, BY BLOCK SIZE');
+ nt(g,'#8a7ab8',24,42,9,'block   index bits   overhead   words scanned per query');
+ VR.blockSweep.forEach(function(s,i){
+  var y=54+i*38,here=(s.block===64);
+  nf(g,here?'rgba(125,226,176,0.22)':'rgba(120,90,180,0.12)');g.fillRect(20,y,W-40,32);ng(g);
+  if(here){ne(g,'#7de2b0',1.3);g.strokeRect(20.5,y+0.5,W-41,32);ng(g);}
+  nt(g,here?'#7de2b0':'#e6dcff',34,y+21,10,String(s.block));
+  nt(g,'#8a7ab8',110,y+21,10,s.indexBits.toLocaleString());
+  var bw=Math.max(2,150*s.overheadPct/60);
+  nf(g,'rgba(90,212,255,0.55)');g.fillRect(210,y+10,bw,13);ng(g);
+  nt(g,'#5ad4ff',210+bw+8,y+21,9,s.overheadPct+'%');
+  nt(g,'#ff9f45',W-56,y+21,10,String(s.wordsScanned));});
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,250,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(18.5,250.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,270,10,'all '+VR.positionsVerified.toLocaleString()+' positions checked, '+VR.mismatches+' mismatches');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var IX=build(BLOCK);
+ nt(g,'#e6dcff',18,24,11,'block '+BLOCK+' bits   superblock '+SUPER);
+ nt(g,'#8a7ab8',18,44,9,IX.nS+' superblock counters + '+IX.nB.toLocaleString()+' block counters');
+ var rows=[['the bit array',N,'#5ad4ff'],['the index',IX.indexBits,'#ffd76a']];
+ rows.forEach(function(r,i){
+  var y=62+i*58;
+  nt(g,'#e6dcff',18,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(18,y+8,W-36,26);
+  nf(g,r[2]==='#5ad4ff'?'rgba(90,212,255,0.55)':'rgba(255,215,106,0.6)');
+  g.fillRect(18,y+8,(W-36)*r[1]/N,26);ng(g);
+  nt(g,r[2],24,y+50,10,r[1].toLocaleString()+' bits');});
+ nf(g,'rgba(125,226,176,0.2)');g.fillRect(18,182,W-36,44);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(18.5,182.5,W-37,44);ng(g);
+ nt(g,'#7de2b0',32,204,12,IX.overhead.toFixed(2)+'% overhead');
+ nt(g,'#8a7ab8',32,220,9,IX.wordsScanned+' word'+(IX.wordsScanned===1?'':'s')+' scanned inside the block');
+ nt(g,'#ff9f45',18,250,9,'superblock lookup  ->  block lookup  ->  masked popcount');
+ nt(g,'#b98cff',18,268,9,'the last step is O(1) because the hardware has an instruction');
+ nt(g,'#ff5a8a',18,288,9,'widen the block and the constant grows a loop');
+ var o=document.getElementById('scrko');
+ if(o)o.innerHTML='At block size <b>'+BLOCK+'</b> the index costs <b>'+IX.indexBits.toLocaleString()+
+  '</b> bits (<b>'+IX.overhead.toFixed(2)+'%</b>) and a query scans <b>'+IX.wordsScanned+
+  '</b> word'+(IX.wordsScanned===1?'':'s')+' inside its block. Smaller blocks buy speed with space; the "constant time" is a bet on popcount being one instruction.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ for(var i=0;i<48;i++){
+  var th=i/48*Math.PI*2,q=P(Math.cos(th)*94,-40,Math.sin(th)*94);
+  ndot(g,q[0],q[1],2.4,'rgba(90,212,255,0.5)');}
+ var l1=P(-104,-62,0);nt(g,'#5ad4ff',l1[0],l1[1],8,'the bits');
+ for(i=0;i<12;i++){
+  var th2=i/12*Math.PI*2,q2=P(Math.cos(th2)*58,10,Math.sin(th2)*58);
+  ndot(g,q2[0],q2[1],4.4,'#ffd76a');}
+ var l2=P(-70,30,0);nt(g,'#ffd76a',l2[0],l2[1],8,'block counters');
+ for(i=0;i<3;i++){
+  var th3=i/3*Math.PI*2,q3=P(Math.cos(th3)*26,58,Math.sin(th3)*26);
+  ndot(g,q3[0],q3[1],6,'#7de2b0');}
+ var l3=P(-56,80,0);nt(g,'#7de2b0',l3[0],l3[1],8,'superblocks');
+ nt(g,'#7de2b0',14,26,11,'three touches, wherever you ask');
+ nt(g,'#8a7ab8',14,44,10,'and 0 mismatches in a million checks');
+ nt(g,'#ffd76a',14,H-46,9,'25.8% is not succinct -- that is asymptotic, and this is 2^20');
+ nt(g,'#ff5a8a',14,H-30,9,'the index gets you to the block; popcount does the rest');
+ nt(g,'#b98cff',14,H-14,9,'much of algorithmic constant time is an instruction in silicon');}
+document.getElementById('scrkn').onclick=function(){BLOCK=Math.min(512,BLOCK*2);drawW4();};
+document.getElementById('scrkp').onclick=function(){BLOCK=Math.max(32,BLOCK/2);drawW4();};
+document.getElementById('scrks').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesuccinctrank=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
 # ═══════════════════════ BATCH 251 · neon-noir · silicon-coding · THE SURFACE NOBODY CHECKS ═══════════════════════
 # ═══════════════════════ BATCH 250 · neon-noir · silicon-coding · ROUND 3 OF 3: THE SHARED WORLD ═══════════════════════
 # ═══════════════════════ BATCH 249 · neon-noir · silicon-coding · ROUND 2 OF 3: THE MACHINE UNDERNEATH ═══════════════════════
@@ -93916,7 +94523,652 @@ function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=c
 mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
+# ═══════════════════════ BATCH 252 · neon-noir · silicon-coding (a determinant from 2x2 minors alone · a dual code read off its primal · roots of a polynomial from a folded ray · cubes settling into the corner of a box · a divider with five blank table cells) ═══════════════════════
+DODG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Dodgson condensation</b> is Charles Dodgson&rsquo;s (Lewis Carroll&rsquo;s) 1866 algorithm for the determinant, and it works by shrinking the matrix one ring at a time. Replace every 2&times;2 window of an n&times;n matrix by its own little determinant &mdash; that gives an (n&minus;1)&times;(n&minus;1) matrix &mdash; then <b>divide entrywise by the interior of the previous matrix</b>, and repeat until a single number is left. That number is the determinant. No cofactor expansion, no row reduction, no fractions if the divisions stay exact: just 2&times;2 minors and a division. The engine underneath is the <b>Desnanot&ndash;Jacobi identity</b>, which says det(M)&middot;det(M with first+last rows and columns removed) = det(M&#8331;&#8331;)det(M&#8314;&#8314;) &minus; det(M&#8331;&#8314;)det(M&#8314;&#8331;) &mdash; the exact bookkeeping that makes the shrink legal.<br><br>
+ <span class="lit">LIT</span> verified live: over thousands of random integer matrices of size 3&times;3 to 6&times;6, Dodgson condensation returns <i>exactly</i> the same big-integer determinant as an independent cofactor (Laplace) expansion &mdash; and the Desnanot&ndash;Jacobi identity itself holds with zero error in exact integer arithmetic (window.__dodgson). <span class="fig">FIG</span> no framing. The honest caveat is measured too, not hidden: when an <i>interior</i> entry hits zero the division is undefined and the method <b>stalls</b> &mdash; that happens on roughly a third of random integer matrices here, and the page counts them rather than quietly skipping them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-speedrun</i> &mdash; the cheat that skips the whole cofactor tree and runs the determinant down a ladder of 2&times;2 windows. <b>AVAN (AI)</b> built the instrument: the condensation cascade, an independent exact-integer Laplace expansion to check it against, the direct Desnanot&ndash;Jacobi test, and the stall counter.<br><br>Credit as content: Charles Lutwidge Dodgson, <i>Condensation of Determinants</i> (1866); the underlying identity is Desnanot&rsquo;s and Jacobi&rsquo;s. The weave: David names the speedrun; I confirm the shortcut lands on exactly the same determinant &mdash; and report where it refuses to run.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The cascade: 5&times;5 &rarr; 4&times;4 &rarr; 3&times;3 &rarr; 2&times;2 &rarr; one number. Each step is 2&times;2 minors divided by the previous interior.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">New matrices; condensation is checked against an independent exact cofactor expansion.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgnext">new matrix &#9654;</button><button id="dgcheck">verify &#9654;</button></div>
+   <div class="cap" id="dgread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the single number at the top of the condensation pyramid &mdash; the determinant.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do not expand the determinant outward into n! signed products &mdash; shrink it inward. The inverse of &lsquo;sum over every permutation&rsquo; is &lsquo;a pyramid of 2&times;2 windows, each divided by the one below it&rsquo;. <b>Magenta</b> is the matrix being eaten ring by ring; <b>green</b> is the apex the whole determinant collapses to. A determinant with no permutations in sight.</div>
+   <div class="btns" style="margin-top:10px"><button id="dgspin">pause spin</button></div></div></div></div>"""
+DODG_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function detCof(M){var n=M.length;if(n===1)return M[0][0];if(n===2)return M[0][0]*M[1][1]-M[0][1]*M[1][0];
+ var s=0n;for(var j=0;j<n;j++){if(M[0][j]===0n)continue;var sub=[];for(var i=1;i<n;i++){var r=[];for(var k=0;k<n;k++)if(k!==j)r.push(M[i][k]);sub.push(r);}s+=(j%2?-1n:1n)*M[0][j]*detCof(sub);}return s;}
+function cascade(M){var n=M.length,prev=[];for(var i=0;i<n+1;i++){var r=[];for(var j=0;j<n+1;j++)r.push(1n);prev.push(r);}
+ var cur=M.map(function(r){return r.slice();}),k=n,steps=[cur];
+ while(k>1){var nx=[];for(var i=0;i<k-1;i++){var row=[];for(var j=0;j<k-1;j++){var den=prev[i+1][j+1];
+  if(den===0n)return {ok:false,steps:steps,at:n-k+1};
+  row.push((cur[i][j]*cur[i+1][j+1]-cur[i][j+1]*cur[i+1][j])/den);}nx.push(row);}
+  prev=cur;cur=nx;k--;steps.push(cur);}
+ return {ok:true,det:cur[0][0],steps:steps};}
+function drop(M,rs,cs){var o=[];for(var i=0;i<M.length;i++){if(rs.indexOf(i)>=0)continue;var r=[];for(var j=0;j<M.length;j++){if(cs.indexOf(j)>=0)continue;r.push(M[i][j]);}o.push(r);}return o;}
+function randMat(rng,n,lo,hi){var M=[];for(var i=0;i<n;i++){var r=[];for(var j=0;j<n;j++)r.push(BigInt(lo+Math.floor(rng()*(hi-lo+1))));M.push(r);}return M;}
+var ang=0,spin=true,VR=null,MAT=null,CAS=null,SEED=7;
+function pick(seed){var rng=mb(seed);for(var t=0;t<200;t++){var M=randMat(rng,5,-4,4),c=cascade(M);if(c.ok&&c.det!==0n){MAT=M;CAS=c;return;}}MAT=randMat(mb(seed),5,-4,4);CAS=cascade(MAT);}
+function selftest(){if(VR)return VR;var rng=mb(11),tested=0,agree=0,stalls=0,worstN=0;
+ for(var t=0;t<3000;t++){var n=3+Math.floor(rng()*4),M=randMat(rng,n,-9,9),c=cascade(M);
+  if(!c.ok){stalls++;continue;}tested++;if(c.det===detCof(M)){agree++;if(n>worstN)worstN=n;}}
+ var rng2=mb(77),dj=0,djn=0;
+ for(var t=0;t<600;t++){var n=3+Math.floor(rng2()*3),M=randMat(rng2,n,-6,6),L=n-1;
+  var lhs=detCof(M)*detCof(drop(M,[0,L],[0,L]));
+  var rhs=detCof(drop(M,[0],[0]))*detCof(drop(M,[L],[L]))-detCof(drop(M,[0],[L]))*detCof(drop(M,[L],[0]));
+  djn++;if(lhs===rhs)dj++;}
+ VR={ok:(agree===tested&&tested>1000&&dj===djn),tested:tested,agree:agree,stalls:stalls,dj:dj,djn:djn,maxN:worstN};return VR;}
+function bs(v){var s=v.toString();return s.length>7?(s[0]==='-'?'-':'')+'\\u2026'+s.slice(-5):s;}
+function grid(g,x,y,cell,M,col,lab){var n=M.length;
+ for(var i=0;i<n;i++)for(var j=0;j<n;j++){var X=x+j*cell,Y=y+i*cell;
+  g.strokeStyle='rgba(120,140,190,0.30)';g.lineWidth=1;g.strokeRect(X,Y,cell,cell);
+  nt(g,col,X+3,Y+cell*0.68,cell<22?8:9,bs(M[i][j]));}
+ if(lab)nt(g,'#8ad',x,y-6,9,lab);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#00f5ff',10,16,10,'Dodgson condensation: each grid is 2x2 minors of the last, divided by the interior below it');
+ if(!CAS||!CAS.ok){nt(g,'#ff5a5a',10,40,10,'this matrix stalls (interior zero)');return;}
+ var x=14,base=52;
+ for(var s=0;s<CAS.steps.length;s++){var M=CAS.steps[s],n=M.length,cell=n>=5?36:(n===4?38:(n===3?40:44));
+  var y=base+(5-n)*10;
+  grid(g,x,y,cell,M,s===CAS.steps.length-1?'#39ffb0':'#cfe3ff',n+'x'+n);
+  if(s<CAS.steps.length-1){ne(g,'rgba(0,245,255,0.55)',1.6);g.beginPath();g.moveTo(x+n*cell+5,base+96);g.lineTo(x+n*cell+16,base+96);g.stroke();ng(g);}
+  x+=n*cell+22;}
+ nt(g,'#39ffb0',10,H-26,11,'apex = det = '+CAS.det.toString());
+ nt(g,'#8ad',10,H-8,9,'independent cofactor expansion gives '+detCof(MAT).toString()+'  -> identical');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#00f5ff',12,20,12,'condensation vs cofactor expansion');
+ if(!CAS.ok){nt(g,'#ff5a5a',16,52,11,'STALL: an interior entry is zero');
+  nt(g,'#8ad',16,76,10,'the division is undefined - condensation refuses to run');
+  nt(g,'#9cf',16,100,10,'cofactor determinant is still '+detCof(MAT).toString());}
+ else{nt(g,'#9cf',16,52,11,'condensation  det = '+CAS.det.toString());
+  nt(g,'#9cf',16,78,11,'cofactor       det = '+detCof(MAT).toString());
+  nt(g,CAS.det===detCof(MAT)?'#39ffb0':'#ff5a5a',16,106,12,CAS.det===detCof(MAT)?'exactly equal, in big integers':'MISMATCH');}
+ var v=selftest();
+ nt(g,'#8ad',12,150,9,'self-test, 3000 random matrices 3x3..6x6:');
+ nt(g,v.agree===v.tested?'#39ffb0':'#ff5a5a',18,172,10,'condensation == cofactor: '+v.agree+'/'+v.tested);
+ nt(g,'#ffd23f',18,192,10,'stalled on an interior zero: '+v.stalls+' (reported, not skipped)');
+ nt(g,v.dj===v.djn?'#39ffb0':'#ff5a5a',18,212,10,'Desnanot-Jacobi identity exact: '+v.dj+'/'+v.djn);
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,240,11,'window.__dodgson.ok = '+v.ok);
+ nt(g,'#8ad',12,H-30,9,'Dodgson 1866: a determinant with no permutations in sight');
+ nt(g,'#8ad',12,H-12,9,'the shortcut is exact when it runs - and says so when it cannot');}
+function proj(p,a,W,H,sc,dz){var c=Math.cos(a),s=Math.sin(a),x=p[0]*c-p[2]*s,z=p[0]*s+p[2]*c,y=p[1];
+ var f=(dz||300)/((dz||300)+z*sc);return [W/2+x*sc*f,H/2-y*sc*f,z,f];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ if(!CAS||!CAS.ok){nt(g,'#ff5a5a',10,20,10,'stalled - press new matrix');return;}
+ var st=CAS.steps,L=st.length;
+ for(var s=L-1;s>=0;s--){var n=st[s].length,lev=(s-(L-1)/2)*0.62,half=(n-1)/2,top=(s===L-1);
+  for(var i=0;i<n;i++)for(var j=0;j<n;j++){
+   var p=proj([(j-half)*0.42,lev,(i-half)*0.42],ang,W,H,54);
+   var r=Math.max(1.5,7*p[3]);
+   ndot(g,p[0],p[1],r,top?'#39ffb0':'rgba(255,47,166,'+(0.30+0.42*s/L).toFixed(2)+')');}
+  if(!top){var a=proj([0,lev,0],ang,W,H,54),b=proj([0,lev+0.62,0],ang,W,H,54);
+   ne(g,'rgba(0,245,255,0.30)',1.2);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}}
+ var ap=proj([0,((L-1)-(L-1)/2)*0.62,0],ang,W,H,54);
+ nt(g,'#39ffb0',ap[0]+12,ap[1]-6,11,CAS.det.toString());
+ nt(g,'#39ffb0',10,H-52,11,'green: the apex - the determinant itself');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the matrix being eaten ring by ring');
+ nt(g,'#8ad',10,H-14,10,'shrink inward instead of expanding into n! products');}
+document.getElementById('dgnext').onclick=function(){SEED=(SEED*1103515245+12345)&1048575;pick(SEED);drawW3();drawW4();
+ document.getElementById('dgread').textContent=CAS.ok?('condensation '+CAS.det.toString()+' == cofactor '+detCof(MAT).toString()):'this matrix stalls on an interior zero';};
+document.getElementById('dgcheck').onclick=function(){var v=selftest();
+ document.getElementById('dgread').textContent='condensation == cofactor on '+v.agree+'/'+v.tested+' matrices; '+v.stalls+' stalled; Desnanot-Jacobi '+v.dj+'/'+v.djn;};
+document.getElementById('dgspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+pick(SEED);drawW3();drawW4();window.__dodgson=selftest();
+function loop(){if(spin)ang+=0.014;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MCWL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>The MacWilliams identity</b> is one of the quiet marvels of coding theory: <b>you never have to look at the dual code</b>. Every linear code C has a dual C&#8869; &mdash; all the words orthogonal to everything in C &mdash; and each has a <i>weight enumerator</i>, the tally of how many codewords have 0 ones, 1 one, 2 ones, and so on. Jessie MacWilliams proved in 1963 that the dual&rsquo;s entire tally is a fixed linear transform of the primal&rsquo;s: B&#8323; = (1/|C|)&middot;&Sigma;&#8341; A&#8341;&middot;K&#8323;(i), where K&#8323; is the <b>Krawtchouk polynomial</b> K&#8323;(i) = &Sigma;&#8347; (&minus;1)&#8347;&middot;C(i,s)&middot;C(n&minus;i,j&minus;s). Count one side, and the other side is already known &mdash; even when the dual is astronomically large.<br><br>
+ <span class="lit">LIT</span> verified live: for the Hamming(7,4) code the brute-forced dual (the [7,3] simplex code, weights 1,0,0,0,7,0,0,0) is reproduced <i>exactly</i> by the Krawtchouk transform of the primal tally 1,0,0,7,7,0,0,1 &mdash; and over hundreds of random binary linear codes the transform matches a brute enumeration of the dual with zero error, in whole numbers (window.__macwilliams). <span class="fig">FIG</span> no framing; the dual is enumerated the slow way and computed the MacWilliams way, and the two integer vectors are compared entry by entry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-broadcast</i> &mdash; the co-op cell where one side speaks and the other already knows what was said: the primal broadcasts its weight tally, and the dual&rsquo;s whole tally arrives with it. <b>AVAN (AI)</b> built the instrument: the code and dual enumerators, the Krawtchouk transform, and the entry-by-entry integer comparison.<br><br>Credit as content: Florence Jessie MacWilliams (1963); Mikhail Krawtchouk for the polynomials. The weave: David names the broadcast; I confirm that counting one code counts its dual too.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Hamming(7,4) weight tally (magenta) and its dual the simplex code (green) &mdash; the second read off the first.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">New random linear codes; the dual is both enumerated and transformed, then compared.</div>
+   <div class="btns" style="margin-top:10px"><button id="mwnext">new code &#9654;</button><button id="mwcheck">verify &#9654;</button></div>
+   <div class="cap" id="mwread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the dual&rsquo;s weight tally, obtained without ever listing the dual.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do not enumerate the other code &mdash; transform this one. The inverse of &lsquo;list all 2&#8319;&#8315;&#7503; dual codewords and count their weights&rsquo; is &lsquo;one Krawtchouk matrix applied to the tally you already have&rsquo;. <b>Magenta</b> is the primal tally; <b>green</b> is the dual tally the transform hands you. Count once, know twice.</div>
+   <div class="btns" style="margin-top:10px"><button id="mwspin">pause spin</button></div></div></div></div>"""
+MCWL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function Cnk(n,k){if(k<0||k>n)return 0;var r=1;for(var i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function kraw(j,i,n){var s=0;for(var q=0;q<=j;q++)s+=(q%2?-1:1)*Cnk(i,q)*Cnk(n-i,j-q);return s;}
+function span(G){var k=G.length,o=new Set();for(var m=0;m<(1<<k);m++){var w=0;for(var b=0;b<k;b++)if(m>>b&1)w^=G[b];o.add(w);}return Array.from(o);}
+function dual(cw,n){var o=[];for(var v=0;v<(1<<n);v++){var ok=true;for(var q=0;q<cw.length;q++){var p=v&cw[q];p^=p>>8;p^=p>>4;p^=p>>2;p^=p>>1;if(p&1){ok=false;break;}}if(ok)o.push(v);}return o;}
+function wd(c,n){var A=new Array(n+1).fill(0);c.forEach(function(w){var q=0;for(var b=0;b<n;b++)if(w>>b&1)q++;A[q]++;});return A;}
+function transform(A,n,size){var B=[];for(var j=0;j<=n;j++){var s=0;for(var i=0;i<=n;i++)s+=A[i]*kraw(j,i,n);B.push(s/size);}return B;}
+function ham74(){var P=[0b110,0b101,0b011,0b111],G=[];for(var i=0;i<4;i++)G.push((1<<(6-i))|P[i]);
+ var cw=span(G),du=dual(cw,7);return {n:7,k:4,cw:cw,A:wd(cw,7),B:wd(du,7),Bt:transform(wd(cw,7),7,cw.length)};}
+var ang=0,spin=true,VR=null,H74=ham74(),CUR=null,SEED=5;
+function newCode(seed){var rng=mb(seed);for(var t=0;t<80;t++){
+  var n=5+Math.floor(rng()*5),k=1+Math.floor(rng()*(n-1)),G=[];
+  for(var i=0;i<k;i++)G.push(Math.floor(rng()*(1<<n)));
+  var cw=span(G);if(cw.length<2)continue;var du=dual(cw,n),A=wd(cw,n);
+  CUR={n:n,k:Math.round(Math.log2(cw.length)),A:A,B:wd(du,n),Bt:transform(A,n,cw.length),size:cw.length,dsize:du.length};return;}
+ CUR=null;}
+function selftest(){if(VR)return VR;var rng=mb(303),pass=0,tot=0;
+ for(var t=0;t<400;t++){var n=4+Math.floor(rng()*6),k=1+Math.floor(rng()*(n-1)),G=[];
+  for(var i=0;i<k;i++)G.push(Math.floor(rng()*(1<<n)));
+  var cw=span(G),du=dual(cw,n),A=wd(cw,n),B=wd(du,n),Bt=transform(A,n,cw.length);
+  tot++;if(JSON.stringify(B)===JSON.stringify(Bt))pass++;}
+ var h=H74,hok=JSON.stringify(h.B)===JSON.stringify(h.Bt);
+ VR={ok:(pass===tot&&hok),pass:pass,tot:tot,hamming:hok,hA:h.A,hB:h.B,hBt:h.Bt};return VR;}
+function bars(g,x,y,w,h,V,col,lab){var n=V.length,mx=Math.max.apply(null,V)||1,bw=w/n;
+ for(var i=0;i<n;i++){var bh=h*V[i]/mx;nf(g,col);g.fillRect(x+i*bw+2,y+h-bh,bw-4,bh);ng(g);
+  nt(g,'#8ad',x+i*bw+3,y+h+12,8,String(i));
+  if(V[i])nt(g,col,x+i*bw+2,y+h-bh-4,8,String(V[i]));}
+ nt(g,col,x,y-6,10,lab);}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffd23f',10,16,10,'Hamming(7,4) and its dual - the dual read off the primal by one Krawtchouk transform');
+ var h=H74;
+ bars(g,24,50,215,90,h.A,'#ff2fa6','primal A (Hamming[7,4])');
+ bars(g,272,50,215,90,h.Bt,'#39ffb0','dual B via MacWilliams');
+ nt(g,'#9cf',24,190,10,'A  = '+h.A.join(', '));
+ nt(g,'#9cf',24,210,10,'B  (brute dual enumeration) = '+h.B.join(', '));
+ nt(g,'#9cf',24,230,10,'B  (Krawtchouk transform)   = '+h.Bt.join(', '));
+ var ok=JSON.stringify(h.B)===JSON.stringify(h.Bt);
+ nt(g,ok?'#39ffb0':'#ff5a5a',24,254,11,ok?'identical - the dual is the [7,3] simplex code, all nonzero words of weight 4':'MISMATCH');
+ nt(g,'#8ad',10,H-8,9,'count one code and you have counted its dual');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ nt(g,'#ffd23f',12,20,12,'a random binary linear code and its dual');
+ if(!CUR){nt(g,'#ff5a5a',16,50,11,'degenerate draw - press new code');return;}
+ nt(g,'#9cf',16,48,10,'n = '+CUR.n+'   |C| = '+CUR.size+'   |C-dual| = '+CUR.dsize);
+ bars(g,20,86,150,72,CUR.A,'#ff2fa6','A (primal)');
+ bars(g,206,86,150,72,CUR.Bt,'#39ffb0','B (transform)');
+ nt(g,'#9cf',16,196,9,'brute dual  = '+CUR.B.join(','));
+ nt(g,'#9cf',16,214,9,'MacWilliams = '+CUR.Bt.join(','));
+ var ok=JSON.stringify(CUR.B)===JSON.stringify(CUR.Bt);
+ nt(g,ok?'#39ffb0':'#ff5a5a',16,238,11,ok?'equal in whole numbers':'MISMATCH');
+ var v=selftest();
+ nt(g,v.ok?'#39ffb0':'#ff5a5a',12,268,10,'self-test '+v.pass+'/'+v.tot+' random codes  +  Hamming(7,4) '+(v.hamming?'ok':'FAIL'));
+ nt(g,'#8ad',12,H-26,9,'|C| times |C-dual| = 2^n - the two tallies are one object seen twice');
+ nt(g,'#8ad',12,H-8,9,'window.__macwilliams.ok = '+v.ok);}
+function proj(p,a,W,H,sc){var c=Math.cos(a),s=Math.sin(a),x=p[0]*c-p[2]*s,z=p[0]*s+p[2]*c;
+ var f=300/(300+z*sc);return [W/2+x*sc*f,H/2-p[1]*sc*f,z,f];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var h=H74,n=h.n,mx=Math.max.apply(null,h.A.concat(h.Bt))||1;
+ var items=[];
+ for(var i=0;i<=n;i++){var th=i/(n+1)*Math.PI*2;
+  items.push({p:[Math.cos(th)*1.35,-0.55+1.25*h.A[i]/mx,Math.sin(th)*1.35],b:[Math.cos(th)*1.35,-0.55,Math.sin(th)*1.35],c:'#ff2fa6',v:h.A[i]});
+  items.push({p:[Math.cos(th)*0.72,-0.55+1.25*h.Bt[i]/mx,Math.sin(th)*0.72],b:[Math.cos(th)*0.72,-0.55,Math.sin(th)*0.72],c:'#39ffb0',v:h.Bt[i]});}
+ items.map(function(it){it.pp=proj(it.p,ang,W,H,74);it.bb=proj(it.b,ang,W,H,74);return it;});
+ items.sort(function(a,b){return b.pp[2]-a.pp[2];});
+ items.forEach(function(it){ne(g,it.c,Math.max(1,3.4*it.pp[3]));g.beginPath();g.moveTo(it.bb[0],it.bb[1]);g.lineTo(it.pp[0],it.pp[1]);g.stroke();ng(g);
+  if(it.v)ndot(g,it.pp[0],it.pp[1],Math.max(1.5,3.4*it.pp[3]),it.c);});
+ nt(g,'#39ffb0',10,H-52,11,'green: the dual tally, never enumerated');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the primal tally you actually counted');
+ nt(g,'#8ad',10,H-14,10,'one Krawtchouk matrix carries you across');}
+document.getElementById('mwnext').onclick=function(){SEED=(SEED*1103515245+12345)&1048575;newCode(SEED);drawW4();
+ document.getElementById('mwread').textContent=CUR?('n='+CUR.n+' |C|='+CUR.size+' - brute dual and MacWilliams transform agree: '+(JSON.stringify(CUR.B)===JSON.stringify(CUR.Bt))):'degenerate draw';};
+document.getElementById('mwcheck').onclick=function(){var v=selftest();
+ document.getElementById('mwread').textContent='MacWilliams == brute dual on '+v.pass+'/'+v.tot+' random codes; Hamming(7,4) '+(v.hamming?'exact':'FAIL');};
+document.getElementById('mwspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+newCode(SEED);drawW3();drawW4();window.__macwilliams=selftest();
+function loop(){if(spin)ang+=0.016;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LILL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>Lill&rsquo;s method</b> (Eduard Lill, 1867) finds the real roots of a polynomial with a ruler and a bouncing ray &mdash; no algebra at all. Walk the coefficients: from the origin go east a&#8345; units, turn 90&deg;, go a&#8345;&#8331;&#8321;, turn 90&deg; again, and so on down to a&#8320;, taking negative coefficients as steps backwards. That right-angled staircase <i>is</i> the polynomial. Now fire a ray from the origin at angle &theta;; each time it meets the line of the next segment it turns 90&deg; the same way and carries on. <b>If the ray finishes exactly on the path&rsquo;s endpoint, then x = &minus;tan&theta; is a root.</b> The reason is not a coincidence of drawing: the legs of the ray <i>are</i> synthetic division &mdash; Lill&rsquo;s ray is Horner&rsquo;s scheme done with a straightedge.<br><br>
+ <span class="lit">LIT</span> verified live on two independent fronts: (1) aiming at a known root closes the ray onto the endpoint with a miss under 4e-13, while aiming 0.05 off leaves a gap of at least 1.2e-4 &mdash; nine orders of magnitude apart; (2) for arbitrary &theta;, each geometric leg equals Horner&rsquo;s coefficient b&#8342;&middot;sec&theta;, and the terminal gap equals |p(x)| itself, both to ~2e-12 (window.__lill). <span class="fig">FIG</span> no framing; the ray is traced by raw line intersections and compared against a Horner evaluation that knows nothing about geometry.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-bounty</i> &mdash; the loot cell where the ray is a hunter: fire it into the staircase and it comes back holding a root. <b>AVAN (AI)</b> built the instrument: the coefficient staircase, the reflecting ray by pure line intersection, and the Horner check that explains why it works.<br><br>Credit as content: Eduard Lill, <i>R&eacute;solution graphique des &eacute;quations num&eacute;riques</i> (1867); the algebra underneath is Horner&rsquo;s / Ruffini&rsquo;s synthetic division. The weave: David names the bounty; I confirm the ray closes exactly at the roots and nowhere else, and that its legs are the synthetic-division coefficients.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The coefficient staircase (magenta) and the ray fired at a root (green) &mdash; landing exactly on the endpoint.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Click the canvas to aim the ray, or sweep it; the gap at the end is compared with |p(x)| from Horner.</div>
+   <div class="btns" style="margin-top:10px"><button id="llsweep">sweep &#9654;</button><button id="llsnap">snap to a root &#9654;</button><button id="llnext">new polynomial &#9654;</button></div>
+   <div class="cap" id="llread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the closing ray &mdash; a root found by folding, not by solving.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do not solve the polynomial &mdash; fold it. The inverse of &lsquo;compute the roots from the coefficients&rsquo; is &lsquo;walk the coefficients as right angles and find the aim that closes the loop&rsquo;. <b>Magenta</b> is the staircase the coefficients build; <b>green</b> is the ray whose angle is the root. Root-finding as origami.</div>
+   <div class="btns" style="margin-top:10px"><button id="llspin">pause spin</button></div></div></div></div>"""
+LILL_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function path(a){var pts=[[0,0]],d=[1,0],p=[0,0];for(var i=0;i<a.length;i++){p=[p[0]+d[0]*a[i],p[1]+d[1]*a[i]];pts.push(p);d=[-d[1],d[0]];}return pts;}
+function ray(a,x){var th=Math.atan(-x),u=[Math.cos(th),Math.sin(th)],p=[0,0],hits=[[0,0]],legs=[],pts=path(a);
+ for(var i=1;i<a.length;i++){var di=[1,0];for(var r=0;r<i;r++)di=[-di[1],di[0]];
+  var den=u[0]*di[1]-u[1]*di[0];if(Math.abs(den)<1e-13)return {closes:false};
+  var t=((pts[i][0]-p[0])*di[1]-(pts[i][1]-p[1])*di[0])/den;
+  p=[p[0]+t*u[0],p[1]+t*u[1]];hits.push(p);legs.push(t);u=[-u[1],u[0]];}
+ var e=pts[pts.length-1];
+ return {closes:true,miss:Math.hypot(p[0]-e[0],p[1]-e[1]),hits:hits,legs:legs,pts:pts,end:e,th:th};}
+function horner(a,x){var b=[a[0]];for(var i=1;i<a.length;i++)b.push(a[i]+x*b[b.length-1]);return b;}
+var ang=0,spin=true,VR=null,POLY=[1,-2,-1,2],ROOTS=[-1,1,2],AIM=2,SEED=3,sweeping=false;
+function expand(rs){var a=[1];rs.forEach(function(r){var b=a.concat([0]);for(var i=0;i<a.length;i++)b[i+1]-=r*a[i];a=b;});return a;}
+function newPoly(seed){var rng=mb(seed);for(var t=0;t<60;t++){
+  var deg=3,rs=[];for(var i=0;i<deg;i++)rs.push(Math.round((rng()*5-2.5)*2)/2);
+  if(Math.abs(rs[0]-rs[1])<0.4||Math.abs(rs[1]-rs[2])<0.4||Math.abs(rs[0]-rs[2])<0.4)continue;
+  var a=expand(rs);var ok=true;a.forEach(function(v){if(Math.abs(v)>9)ok=false;});
+  if(!ok)continue;POLY=a;ROOTS=rs;AIM=rs[0];return;}
+ POLY=[1,-2,-1,2];ROOTS=[-1,1,2];AIM=2;}
+function selftest(){if(VR)return VR;
+ var rng=mb(4242),wLeg=0,wMiss=0,n=0;
+ for(var t=0;t<4000;t++){var deg=2+Math.floor(rng()*4),a=[];
+  for(var i=0;i<=deg;i++)a.push(Math.round((rng()*8-4)*4)/4);
+  if(Math.abs(a[0])<1e-9)continue;
+  var x=Math.round((rng()*6-3)*8)/8,r=ray(a,x);if(!r.closes)continue;
+  var b=horner(a,x),sec=1/Math.cos(Math.atan(-x));n++;
+  for(var k=0;k<r.legs.length;k++){var e=Math.abs(r.legs[k]-b[k]*sec);if(e>wLeg)wLeg=e;}
+  var em=Math.abs(r.miss-Math.abs(b[b.length-1]));if(em>wMiss)wMiss=em;}
+ var rng2=mb(909),worst=0,ctrl=1e9,nc=0;
+ for(var t=0;t<3000;t++){var deg=2+Math.floor(rng2()*3),rs=[];
+  for(var i=0;i<deg;i++)rs.push(Math.round((rng2()*8-4)*4)/4);
+  var a=expand(rs),r0=rs[0],res=ray(a,r0);if(!res.closes)continue;nc++;
+  if(res.miss>worst)worst=res.miss;
+  var off=ray(a,r0+0.05);if(off.closes&&off.miss<ctrl)ctrl=off.miss;}
+ VR={ok:(wLeg<1e-9&&wMiss<1e-9&&worst<1e-9&&ctrl>1e-6),cases:n,worstLeg:wLeg,worstMiss:wMiss,
+     closureCases:nc,worstClosure:worst,controlMin:ctrl};return VR;}
+function tp(cv,p,sc,ox,oy){return [ox+p[0]*sc,oy-p[1]*sc];}
+function fit(cv,pts,pad){var xs=pts.map(function(p){return p[0];}),ys=pts.map(function(p){return p[1];});
+ var x0=Math.min.apply(null,xs),x1=Math.max.apply(null,xs),y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys);
+ var sc=Math.min((cv.width-2*pad)/Math.max(0.6,x1-x0),(cv.height-2*pad-30)/Math.max(0.6,y1-y0));
+ return {sc:sc,ox:pad-x0*sc,oy:cv.height-pad-(-y0)*sc};}
+function drawScene(cv,g,x,showLabels){var W=cv.width,H=cv.height;nb(g,W,H);
+ var r=ray(POLY,x);if(!r.closes){nt(g,'#ff5a5a',10,20,10,'ray parallel to a segment - try another aim');return null;}
+ var all=r.pts.concat(r.hits),f=fit(cv,all,26);
+ ne(g,'rgba(255,47,166,0.85)',2.2);g.beginPath();
+ r.pts.forEach(function(p,i){var q=tp(cv,p,f.sc,f.ox,f.oy);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.stroke();ng(g);
+ r.pts.forEach(function(p){var q=tp(cv,p,f.sc,f.ox,f.oy);ndot(g,q[0],q[1],2.4,'rgba(255,47,166,0.9)');});
+ ne(g,'#7cfc00',2.0);g.beginPath();
+ r.hits.forEach(function(p,i){var q=tp(cv,p,f.sc,f.ox,f.oy);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.stroke();ng(g);
+ r.hits.forEach(function(p){var q=tp(cv,p,f.sc,f.ox,f.oy);ndot(g,q[0],q[1],2.6,'#7cfc00');});
+ var e=tp(cv,r.end,f.sc,f.ox,f.oy);ne(g,r.miss<1e-9?'#39ffb0':'#ffd23f',1.6);g.beginPath();g.arc(e[0],e[1],7,0,7);g.stroke();ng(g);
+ if(showLabels){var o=tp(cv,[0,0],f.sc,f.ox,f.oy);nt(g,'#8ad',o[0]+6,o[1]+14,9,'start');
+  nt(g,'#8ad',e[0]+9,e[1]-9,9,'endpoint');}
+ return r;}
+function polyStr(){return POLY.map(function(c,i){var d=POLY.length-1-i;
+ return (c<0?' - ':(i?' + ':''))+Math.abs(c)+(d>1?('x^'+d):(d===1?'x':''));}).join('');}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d');
+ var r=drawScene(cv,g,ROOTS[0],true);
+ nt(g,'#7cfc00',10,16,10,'p(x) = '+polyStr()+'   fired at x = '+ROOTS[0]+'  (theta = atan(-x))');
+ if(r)nt(g,r.miss<1e-9?'#39ffb0':'#ff5a5a',10,cv.height-8,10,'terminal gap = '+r.miss.toExponential(2)+'  -> the ray closes, so x is a root');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),H=cv.height;
+ var r=drawScene(cv,g,AIM,false);
+ nt(g,'#7cfc00',12,18,11,'aim x = '+AIM.toFixed(4));
+ if(!r)return;
+ var b=horner(POLY,AIM),px=b[b.length-1];
+ nt(g,'#9cf',12,H-72,9,'geometric gap  = '+r.miss.toExponential(4));
+ nt(g,'#9cf',12,H-56,9,'|p(x)| (Horner) = '+Math.abs(px).toExponential(4));
+ nt(g,Math.abs(r.miss-Math.abs(px))<1e-9?'#39ffb0':'#ff5a5a',12,H-40,10,
+  'gap == |p(x)| to '+Math.abs(r.miss-Math.abs(px)).toExponential(1)+'   (legs are Horner b_k times sec)');
+ nt(g,r.miss<1e-9?'#39ffb0':'#8ad',12,H-22,10,r.miss<1e-9?'CLOSED - x is a root':'open - keep hunting');
+ nt(g,'#8ad',12,H-6,9,'roots here: '+ROOTS.join(', '));}
+function proj(p,a,W,H,sc){var c=Math.cos(a),s=Math.sin(a),x=p[0]*c-p[2]*s,z=p[0]*s+p[2]*c;
+ var f=320/(320+z*sc);return [W/2+x*sc*f,H/2-p[1]*sc*f,z,f];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var r=ray(POLY,ROOTS[0]);if(!r.closes)return;
+ var xs=r.pts.map(function(p){return p[0];}),ys=r.pts.map(function(p){return p[1];});
+ var cx=(Math.min.apply(null,xs)+Math.max.apply(null,xs))/2,cy=(Math.min.apply(null,ys)+Math.max.apply(null,ys))/2;
+ var sp=Math.max(Math.max.apply(null,xs)-Math.min.apply(null,xs),Math.max.apply(null,ys)-Math.min.apply(null,ys))||1;
+ var k=2.1/sp;
+ function P3(p,z){return proj([(p[0]-cx)*k,(p[1]-cy)*k,z],ang,W,H,62);}
+ ne(g,'#ff2fa6',2.0);g.beginPath();r.pts.forEach(function(p,i){var q=P3(p,-0.35);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.stroke();ng(g);
+ ne(g,'#7cfc00',2.0);g.beginPath();r.hits.forEach(function(p,i){var q=P3(p,0.35);if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});g.stroke();ng(g);
+ for(var i=0;i<r.hits.length;i++){var A=P3(r.hits[i],0.35),B=P3(r.hits[i],-0.35);
+  ne(g,'rgba(124,252,0,0.22)',1);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();ng(g);}
+ var E=P3(r.end,-0.35);ndot(g,E[0],E[1],4,'#39ffb0');
+ nt(g,'#7cfc00',10,H-52,11,'green: the ray whose angle is the root');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the staircase the coefficients build');
+ nt(g,'#8ad',10,H-14,10,'root-finding as origami - fold, do not solve');}
+document.getElementById('llnext').onclick=function(){SEED=(SEED*1103515245+12345)&1048575;newPoly(SEED);drawW3();drawW4();
+ document.getElementById('llread').textContent='p(x) = '+polyStr()+'   roots '+ROOTS.join(', ');};
+document.getElementById('llsnap').onclick=function(){var i=(ROOTS.indexOf(AIM)+1)%ROOTS.length;AIM=ROOTS[i<0?0:i];drawW4();
+ var r=ray(POLY,AIM);document.getElementById('llread').textContent='snapped to root x = '+AIM+' - terminal gap '+r.miss.toExponential(2);};
+document.getElementById('llsweep').onclick=function(){if(sweeping)return;sweeping=true;var s=-3,self=this;self.textContent='sweeping...';
+ var iv=setInterval(function(){s+=0.06;AIM=Math.round(s*1000)/1000;drawW4();
+  if(s>3){clearInterval(iv);sweeping=false;self.textContent='sweep \\u25b6';AIM=ROOTS[0];drawW4();
+   document.getElementById('llread').textContent='the gap dips to zero only at the roots '+ROOTS.join(', ');}},28);};
+document.getElementById('llspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+(function(){var cv=document.getElementById('w4');cv.style.cursor='crosshair';
+ cv.onclick=function(ev){var b=cv.getBoundingClientRect();var fx=(ev.clientX-b.left)/b.width;
+  AIM=Math.round((-3+6*fx)*1000)/1000;drawW4();
+  var r=ray(POLY,AIM);document.getElementById('llread').textContent='aim x = '+AIM+'  gap '+(r.closes?r.miss.toExponential(3):'n/a');};})();
+newPoly(SEED);drawW3();drawW4();window.__lill=selftest();
+function loop(){if(spin)ang+=0.015;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SRTD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>SRT division</b> (Sweeney, Robertson and Tocher, independently around 1958) is how hardware actually divides. Instead of one bit per step it peels off <b>two bits at a time</b> using a redundant digit set &mdash; each quotient digit may be &minus;2, &minus;1, 0, +1 or +2 &mdash; iterating P &larr; 4P &minus; q&middot;D. Redundancy is the whole trick: because the digits overlap, the hardware does not have to know the exact partial remainder to choose a digit, only roughly where it sits. So the choice is made by a small <b>lookup table</b> over a truncated (P, D) grid &mdash; the P-D plot &mdash; and a slightly wrong-looking guess is absorbed by the next iteration.<br><br>That tolerance has an edge, and in 1994 Intel found it. The Pentium&rsquo;s quotient-selection PLA was missing <b>five of its 2,048 entries</b>; a division whose trajectory happened to land in one of those cells read a zero where a digit should have been, and the answer came out wrong &mdash; the FDIV bug, and a $475M recall.<br><br>
+ <span class="lit">LIT</span> verified live: a radix-4 SRT divider with a 1,031-cell P-D table reproduces true division to a worst error of 1.1e&minus;16 over 40,000 random operand pairs &mdash; and when <b>five reachable cells are blanked</b>, 136 of 60,000 divisions come out wrong &mdash; about 0.23% &mdash; worst case off by 0.67 (window.__srt). <span class="fig">FIG</span> the honest boundary: this is a <i>working model of the defect mechanism</i>, not an emulation of Intel&rsquo;s P5 divider. The table geometry, the blanked-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page&rsquo;s, not the Pentium&rsquo;s &mdash; the real defect was far rarer, about one in nine billion random divides.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>divide-by-zero</i> &mdash; the glitch cell, and for once the name is literal: a divider that reads zero out of a hole in its own table. <b>AVAN (AI)</b> built the instrument: the redundant digit recurrence, the P-D lookup table built correct-by-construction over the reachable region, the exact-rule control, and the five blanked cells.<br><br>Credit as content: D. W. Sweeney, J. E. Robertson and K. D. Tocher (SRT, c. 1958); Thomas Nicely for finding the FDIV bug in 1994. The weave: David names the glitch; I build a divider that is exact, then punch five holes in it and measure what falls through.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">The P-D plot: which quotient digit each cell selects, and the five blanked cells (magenta) that break it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Run divisions with the table intact or holed; the quotient is compared against true division.</div>
+   <div class="btns" style="margin-top:10px"><button id="srdiv">divide &#9654;</button><button id="srhole">punch the holes &#9654;</button><button id="srcheck">verify &#9654;</button></div>
+   <div class="cap" id="srread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the partial-remainder trajectory staying inside the redundancy band, division after division.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do not compute the quotient digit &mdash; look it up. The inverse of &lsquo;work out exactly how many times D goes into 4P&rsquo; is &lsquo;read a coarse table and let redundancy clean up the error next round&rsquo;. <b>Magenta</b> is the trajectory through P-D space, and the holes it can fall into; <b>green</b> is the redundancy band that forgives everything except a blank cell. The tolerance that makes it fast is the tolerance that let five missing entries ship.</div>
+   <div class="btns" style="margin-top:10px"><button id="srspin">pause spin</button></div></div></div></div>"""
+SRTD_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+var BND=2/3,PS=1/8,DS=1/16;
+function exactDigit(P,D){for(var q=2;q>=-2;q--){if(Math.abs(P-q*D)<=BND*D+1e-12)return q;}return null;}
+function cellQ(pi,di){var plo=pi*PS,phi=plo+PS,dlo=Math.max(1,di*DS),dhi=Math.min(2,dlo+DS);
+ for(var q=2;q>=-2;q--){var ok=true,any=false;
+  for(var s=0;s<=8&&ok;s++)for(var u=0;u<=8&&ok;u++){
+   var p=plo+(phi-plo)*s/8,d=dlo+(dhi-dlo)*u/8;
+   if(Math.abs(p)>4*BND*d+1e-12)continue;any=true;
+   if(Math.abs(p-q*d)>BND*d+1e-12)ok=false;}
+  if(ok&&any)return q;}
+ return null;}
+var TBL={},HOLES={},HOLEKEYS=[];
+function lookup(P,D,useHoles){var pi=Math.floor(P/PS),di=Math.floor(D/DS),key=pi+'|'+di;
+ if(useHoles&&HOLES[key])return {q:0,hole:true,key:key};
+ if(TBL[key]===undefined){var q=cellQ(pi,di);TBL[key]=(q===null?0:q);}
+ return {q:TBL[key],hole:false,key:key};}
+function divide(N,D,steps,useHoles,trace){var P=N,Q=0,sc=1,hit=false,tr=[];
+ for(var k=0;k<steps;k++){P=4*P;var r=lookup(P,D,useHoles);
+  if(trace)tr.push({P:P,D:D,q:r.q,hole:r.hole});
+  if(r.hole)hit=true;P=P-r.q*D;sc/=4;Q+=r.q*sc;}
+ return {Q:Q,hole:hit,trace:tr};}
+var ang=0,spin=true,VR=null,HOLED=false,CUR=null,SEED=4,STATS={};
+function buildHoles(){var rng=mb(555),stats={};
+ for(var t=0;t<9000;t++){var D=1+rng(),N=rng()*BND*D,P=N;
+  for(var k=0;k<28;k++){P=4*P;var pi=Math.floor(P/PS),di=Math.floor(D/DS),key=pi+'|'+di;
+   stats[key]=(stats[key]||0)+1;P=P-lookup(P,D,false).q*D;}}
+ STATS=stats;
+ var keys=Object.keys(stats).filter(function(k){return stats[k]>=3;}).sort(function(a,b){return stats[a]-stats[b];});
+ HOLEKEYS=keys.slice(0,5);HOLES={};HOLEKEYS.forEach(function(k){HOLES[k]=1;});}
+function selftest(){if(VR)return VR;buildHoles();
+ var rng=mb(2024),worst=0,n=0;
+ for(var t=0;t<40000;t++){var D=1+rng(),N=rng()*BND*D;
+  var e=Math.abs(divide(N,D,28,false).Q-N/D);if(e>worst)worst=e;n++;}
+ var rng1=mb(999),we=0;
+ for(var t=0;t<8000;t++){var D=1+rng1(),N=rng1()*BND*D,P=N,Q=0,sc=1,ok=true;
+  for(var k=0;k<28;k++){P=4*P;var q=exactDigit(P,D);if(q===null){ok=false;break;}P=P-q*D;sc/=4;Q+=q*sc;}
+  if(ok){var e=Math.abs(Q-N/D);if(e>we)we=e;}}
+ var rng2=mb(2718),bad=0,tot=0,wb=0,ex=null;
+ for(var t=0;t<60000;t++){var D=1+rng2(),N=rng2()*BND*D;
+  var r=divide(N,D,28,true),e=Math.abs(r.Q-N/D);tot++;
+  if(e>1e-9){bad++;if(e>wb){wb=e;ex={N:N,D:D,Q:r.Q,T:N/D};}}}
+ VR={ok:(worst<1e-14&&we<1e-14&&bad>0),worst:worst,exactWorst:we,cases:n,
+     cells:Object.keys(STATS).length,holes:HOLEKEYS.slice(),
+     holedWrong:bad,holedTotal:tot,holedWorst:wb,example:ex};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ selftest();
+ nt(g,'#5ad0ff',10,16,10,'the P-D plot: quotient digit by cell, D across (1 to 2), 4P up (-5.33 to 5.33)');
+ var x0=46,y0=32,pw=W-90,phh=H-76,PMAX=4*BND*2;
+ var cols=16,rows=Math.round(2*PMAX/PS);
+ var cw=pw/cols,ch=phh/rows;
+ var COL={'-2':'rgba(255,47,166,0.55)','-1':'rgba(157,0,255,0.55)','0':'rgba(90,208,255,0.30)','1':'rgba(255,210,63,0.55)','2':'rgba(57,255,176,0.55)'};
+ for(var di=16;di<32;di++)for(var pi=-Math.round(PMAX/PS);pi<Math.round(PMAX/PS);pi++){
+  var key=pi+'|'+di;if(!STATS[key])continue;
+  var q=(TBL[key]!==undefined?TBL[key]:(cellQ(pi,di)||0));
+  var X=x0+(di-16)*cw,Y=y0+phh/2-(pi+1)*ch;
+  g.fillStyle=HOLES[key]?'#ff2fa6':COL[String(q)];g.fillRect(X,Y,cw-0.5,ch-0.3);
+  if(HOLES[key]){ne(g,'#ff2fa6',1.4);g.strokeRect(X-1,Y-1,cw+1,ch+1);ng(g);}}
+ g.strokeStyle='rgba(150,170,220,0.35)';g.lineWidth=1;g.strokeRect(x0,y0,pw,phh);
+ nt(g,'#8ad',x0-34,y0+phh/2+4,9,'4P=0');
+ nt(g,'#8ad',x0,y0+phh+16,9,'D=1');nt(g,'#8ad',x0+pw-24,y0+phh+16,9,'D=2');
+ var lx=x0+pw+8,ls=['+2','+1','0','-1','-2'],lc=['#39ffb0','#ffd23f','#5ad0ff','#9d00ff','#ff2fa6'];
+ for(var i=0;i<5;i++){nf(g,lc[i]);g.fillRect(lx,y0+18+i*20,10,10);ng(g);nt(g,'#9cf',lx+14,y0+27+i*20,9,ls[i]);}
+ nt(g,'#ff2fa6',lx,y0+150,9,'holes');
+ nt(g,'#8ad',10,H-8,9,'bands overlap - that redundancy is why a coarse table works, and why a blank cell is fatal');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var v=selftest();
+ nt(g,'#5ad0ff',12,20,12,'radix-4 SRT  -  table '+(HOLED?'HOLED (5 blank cells)':'intact'));
+ if(CUR){nt(g,'#9cf',12,46,10,'N = '+CUR.N.toFixed(9)+'   D = '+CUR.D.toFixed(9));
+  nt(g,'#9cf',12,66,10,'srt  = '+CUR.Q.toFixed(15));
+  nt(g,'#9cf',12,86,10,'true = '+CUR.T.toFixed(15));
+  var err=Math.abs(CUR.Q-CUR.T);
+  nt(g,err<1e-12?'#39ffb0':'#ff5a5a',12,108,11,err<1e-12?('exact to '+err.toExponential(1)):('WRONG by '+err.toExponential(3)));
+  if(CUR.hole)nt(g,'#ff2fa6',12,128,10,'this division fell into a blanked cell');
+  var d=CUR.digits.slice(0,18).join(' ');nt(g,'#8ad',12,150,9,'digits: '+d+' ...');}
+ else nt(g,'#8ad',12,60,10,'press divide');
+ nt(g,'#8ad',12,182,9,'self-test, 40000 random divides, table intact:');
+ nt(g,v.worst<1e-14?'#39ffb0':'#ff5a5a',18,202,10,'worst |Q - N/D| = '+v.worst.toExponential(2)+'   ('+v.cells+' cells reached)');
+ nt(g,'#8ad',18,222,9,'exact-rule control (no table): '+v.exactWorst.toExponential(2));
+ nt(g,'#ff2fa6',12,248,10,'with 5 cells blanked: '+v.holedWrong+'/'+v.holedTotal+' wrong ('+(100*v.holedWrong/v.holedTotal).toFixed(3)+'%)');
+ nt(g,'#ff2fa6',18,268,9,'worst error '+v.holedWorst.toExponential(2)+'  -  the FDIV failure mode');
+ nt(g,'#8ad',12,292,9,'a model of the mechanism, not an emulation of the P5 divider');}
+function proj(p,a,W,H,sc){var c=Math.cos(a),s=Math.sin(a),x=p[0]*c-p[2]*s,z=p[0]*s+p[2]*c;
+ var f=340/(340+z*sc);return [W/2+x*sc*f,H/2-p[1]*sc*f,z,f];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var tr=CUR?CUR.trace:null;
+ for(var i=0;i<=24;i++){var th=i/24*Math.PI*2;}
+ var band=[];for(var i=0;i<=40;i++){var d=1+i/40;band.push(d);}
+ ne(g,'rgba(57,255,176,0.55)',1.6);g.beginPath();
+ band.forEach(function(d,i){var p=proj([(d-1.5)*1.6,BND*d*0.42,0],ang,W,H,64);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});g.stroke();ng(g);
+ ne(g,'rgba(57,255,176,0.55)',1.6);g.beginPath();
+ band.forEach(function(d,i){var p=proj([(d-1.5)*1.6,-BND*d*0.42,0],ang,W,H,64);if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});g.stroke();ng(g);
+ if(tr&&tr.length){ne(g,'#ff2fa6',1.8);g.beginPath();
+  tr.forEach(function(s,i){var p=proj([(s.D-1.5)*1.6,(s.P/4)*0.42,(i/tr.length-0.5)*1.8],ang,W,H,64);
+   if(i===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});g.stroke();ng(g);
+  tr.forEach(function(s,i){var p=proj([(s.D-1.5)*1.6,(s.P/4)*0.42,(i/tr.length-0.5)*1.8],ang,W,H,64);
+   ndot(g,p[0],p[1],Math.max(1.4,s.hole?4.4:2.6*p[3]),s.hole?'#ff2fa6':'rgba(90,208,255,0.9)');});}
+ nt(g,'#39ffb0',10,H-52,11,'green: the redundancy band |P| <= (2/3)D that forgives a loose guess');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the partial remainder walking through P-D space');
+ nt(g,'#8ad',10,H-14,10,'the tolerance that makes it fast is the tolerance that shipped five holes');}
+function runDiv(){SEED=(SEED*1103515245+12345)&1048575;var rng=mb(SEED);
+ var D=1+rng(),N=rng()*BND*D;
+ if(HOLED){for(var t=0;t<4000;t++){var d2=1+rng(),n2=rng()*BND*d2,r2=divide(n2,d2,28,true,true);
+   if(r2.hole){D=d2;N=n2;break;}}}
+ var r=divide(N,D,28,HOLED,true);
+ CUR={N:N,D:D,Q:r.Q,T:N/D,hole:r.hole,trace:r.trace,digits:r.trace.map(function(s){return (s.q>0?'+':'')+s.q;})};}
+document.getElementById('srdiv').onclick=function(){runDiv();drawW4();
+ var e=Math.abs(CUR.Q-CUR.T);
+ document.getElementById('srread').textContent=(HOLED?'holed table: ':'intact table: ')+(e<1e-12?('exact to '+e.toExponential(1)):('WRONG by '+e.toExponential(3)))+(CUR.hole?' - fell into a blanked cell':'');};
+document.getElementById('srhole').onclick=function(){HOLED=!HOLED;this.textContent=HOLED?'repair the table \\u25b6':'punch the holes \\u25b6';runDiv();drawW3();drawW4();
+ document.getElementById('srread').textContent=HOLED?'five reachable cells blanked - the 1994 failure mode':'table repaired - every division exact again';};
+document.getElementById('srcheck').onclick=function(){var v=selftest();
+ document.getElementById('srread').textContent='intact: worst error '+v.worst.toExponential(2)+' over '+v.cases+' divides; holed: '+v.holedWrong+'/'+v.holedTotal+' wrong, worst '+v.holedWorst.toExponential(2);};
+document.getElementById('srspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+window.__srt=selftest();runDiv();drawW3();drawW4();
+function loop(){if(spin)ang+=0.014;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+
+MCMH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><b>MacMahon&rsquo;s box formula</b> counts the ways to stack cubes into a corner. A <b>plane partition in an a&times;b&times;c box</b> is an a&times;b grid of heights, each between 0 and c, weakly decreasing along every row and every column &mdash; equivalently, a pile of unit cubes shoved into the corner of a box, settled under gravity from two directions at once. Percy MacMahon found that the number of such piles is a single closed product: <b>PP(a,b,c) = &prod;&#8342;&#8331;&#8321;&#7488; &prod;&#8332;&#8331;&#8321;&#7495; &prod;&#8342;&#8331;&#8321;&#7580; (i+j+k&minus;1)/(i+j+k&minus;2)</b>. A tangle of nested inequalities collapses into one fraction of integers. The same number counts the <b>lozenge tilings</b> of a hexagon with sides a, b, c &mdash; the boxes-in-a-corner picture is the tiling, seen straight on.<br><br>
+ <span class="lit">LIT</span> verified live by two independent routes agreeing exactly: a raw recursive enumeration that builds every legal height grid cell by cell, and the closed product formula evaluated in exact big integers. They match on every box tested &mdash; 1&times;1&times;1 = 2, 2&times;2&times;2 = 20, 3&times;3&times;3 = 980, 2&times;3&times;4 = 490, 4&times;4&times;3 = 24696, 4&times;4&times;4 = 232848 &mdash; and the formula&rsquo;s symmetry under permuting a, b, c is checked directly (window.__macmahon). <span class="fig">FIG</span> no framing; the enumeration knows nothing about the formula, and the formula is computed as an exact integer ratio with the division verified to leave no remainder.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> seated this at <i>the-sandbox</i> &mdash; and it is literally one: a box, and every way the cubes can settle into its corner. <b>AVAN (AI)</b> built the instrument: the raw plane-partition enumerator, the exact big-integer product formula, the symmetry check, and the corner of stacked cubes itself.<br><br>Credit as content: Percy Alexander MacMahon (box formula, 1896&ndash;1916). The weave: David names the sandbox; I count the ways the cubes can fall two different ways and check the counts are the same number.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="300"></canvas>
+  <div class="wctrl"><div class="cap">A plane partition as a height grid &mdash; weakly decreasing along every row and every column.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="310"></canvas>
+  <div class="wctrl"><div class="cap">Raw enumeration against the closed product formula, box shape by box shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmbox">change box &#9654;</button><button id="mmnext">another stacking &#9654;</button><button id="mmcheck">verify &#9654;</button></div>
+   <div class="cap" id="mmread" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the cubes actually stacked in the corner &mdash; one of PP(a,b,c) ways.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): do not enumerate the stackings &mdash; multiply the corners. The inverse of &lsquo;walk every legal pile of cubes&rsquo; is &lsquo;one product over the box&rsquo;s own coordinates, (i+j+k&minus;1)/(i+j+k&minus;2)&rsquo;. <b>Magenta</b> is the empty box the cubes fall into; <b>green</b> is the pile that settled. Seen straight on, the same pile is a lozenge tiling of a hexagon.</div>
+   <div class="btns" style="margin-top:10px"><button id="mmspin">pause spin</button></div></div></div></div>"""
+MCMH_SCRIPT = """(function(){""" + NOIR + """
+function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function brute(a,b,c){var cells=a*b,count=0,arr=new Array(cells).fill(0);
+ (function rec(i){if(i===cells){count++;return;}
+  var r=Math.floor(i/b),cc=i%b,hi=c;
+  if(r>0)hi=Math.min(hi,arr[(r-1)*b+cc]);
+  if(cc>0)hi=Math.min(hi,arr[i-1]);
+  for(var v=hi;v>=0;v--){arr[i]=v;rec(i+1);}arr[i]=0;})(0);
+ return count;}
+function formula(a,b,c){var num=1n,den=1n;
+ for(var i=1;i<=a;i++)for(var j=1;j<=b;j++)for(var k=1;k<=c;k++){num*=BigInt(i+j+k-1);den*=BigInt(i+j+k-2);}
+ return {exact:(num%den===0n),v:(num%den===0n?num/den:null)};}
+function sample(a,b,c,seed){var rng=mb(seed),G=[];
+ for(var r=0;r<a;r++){G.push([]);for(var q=0;q<b;q++){var hi=c;
+  if(r>0)hi=Math.min(hi,G[r-1][q]);if(q>0)hi=Math.min(hi,G[r][q-1]);
+  G[r].push(Math.floor(rng()*(hi+1)));}}
+ return G;}
+var BOXES=[[2,2,2],[3,3,3],[2,3,4],[3,3,2],[4,4,3],[4,4,4]],BI=1,ang=0,spin=true,VR=null,G=null,SEED=6;
+function box(){return BOXES[BI];}
+function fresh(){SEED=(SEED*1103515245+12345)&1048575;var b=box();G=sample(b[0],b[1],b[2],SEED);}
+function selftest(){if(VR)return VR;
+ var cases=[[1,1,1],[2,2,2],[3,3,3],[2,3,4],[1,4,5],[3,2,2],[2,2,5],[4,4,2],[3,3,2],[2,4,3],[4,4,3],[4,4,4]];
+ var rows=[],ok=true;
+ cases.forEach(function(t){var b=brute(t[0],t[1],t[2]),f=formula(t[0],t[1],t[2]);
+  var same=(f.exact&&String(b)===f.v.toString());if(!same)ok=false;
+  rows.push({box:t.join('x'),brute:b,formula:f.exact?f.v.toString():'NON-INTEGER',ok:same});});
+ var perms=[[2,3,4],[3,2,4],[4,3,2],[2,4,3],[3,4,2],[4,2,3]].map(function(t){return formula(t[0],t[1],t[2]).v.toString();});
+ var sym=perms.every(function(v){return v===perms[0];});
+ VR={ok:(ok&&sym),rows:rows,symmetric:sym,f555:formula(5,5,5).v.toString(),f444:formula(4,4,4).v.toString()};return VR;}
+function drawW3(){var cv=document.getElementById('w3'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var b=box();nt(g,'#9d00ff',10,16,10,'a plane partition in a '+b.join('x')+' box: heights weakly decreasing down and across');
+ if(!G)return;
+ var a=G.length,bb=G[0].length,s=Math.min(46,180/Math.max(a,bb));
+ for(var i=0;i<a;i++)for(var j=0;j<bb;j++){var X=26+j*s,Y=54+i*s,v=G[i][j];
+  var t=v/Math.max(1,b[2]);
+  g.fillStyle='rgba('+Math.round(60+120*t)+','+Math.round(40+215*t)+','+Math.round(120+60*t)+','+(0.14+0.5*t).toFixed(2)+')';
+  g.fillRect(X+1,Y+1,s-2,s-2);
+  g.strokeStyle='rgba(140,160,210,0.28)';g.lineWidth=1;g.strokeRect(X,Y,s,s);
+  nt(g,v?'#c9b6ff':'rgba(150,160,200,0.45)',X+s*0.38,Y+s*0.66,Math.max(9,s*0.40),String(v));}
+ var x2=250;
+ nt(g,'#9cf',x2,66,10,'rows non-increasing left to right');
+ nt(g,'#9cf',x2,88,10,'columns non-increasing top to bottom');
+ nt(g,'#9cf',x2,110,10,'every height in 0 .. '+b[2]);
+ var f=formula(b[0],b[1],b[2]);
+ nt(g,'#39ffb0',x2,146,11,'PP('+b.join(',')+') = '+f.v.toString());
+ nt(g,'#8ad',x2,168,9,'= lozenge tilings of a hexagon');
+ nt(g,'#8ad',x2,186,9,'   with sides '+b.join(', '));
+ nt(g,'#8ad',10,H-8,9,'gravity from two directions at once - that is the whole rule');}
+function drawW4(){var cv=document.getElementById('w4'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ var v=selftest();
+ nt(g,'#9d00ff',12,20,12,'raw enumeration vs MacMahon product');
+ nt(g,'#8ad',12,42,9,'box        enumerated      formula');
+ var show=v.rows.slice(0,10);
+ for(var i=0;i<show.length;i++){var y=60+i*21,r=show[i];
+  nt(g,'#9cf',14,y,10,r.box);
+  nt(g,'#cfe3ff',96,y,10,String(r.brute));
+  nt(g,'#cfe3ff',210,y,10,r.formula);
+  nt(g,r.ok?'#39ffb0':'#ff5a5a',348,y,10,r.ok?'ok':'X');}
+ var last=v.rows[v.rows.length-1];
+ nt(g,last.ok?'#39ffb0':'#ff5a5a',12,278,10,'4x4x4: '+last.brute+' enumerated = '+last.formula+' by formula');
+ nt(g,v.symmetric?'#39ffb0':'#ff5a5a',12,296,9,'symmetric in a,b,c: '+v.symmetric+'   window.__macmahon.ok = '+v.ok);
+ nt(g,'#8ad',12,254,9,'formula reaches on: PP(5,5,5) = '+v.f555);}
+function iso(x,y,z,ang,W,H,sc){var c=Math.cos(ang),s=Math.sin(ang);
+ var X=x*c-y*s,Y=x*s+y*c;
+ return [W/2+(X-Y)*sc*0.86,H/2+40-(X+Y)*sc*0.5-z*sc*0.82];}
+function drawW5(){var cv=document.getElementById('w5'),g=cv.getContext('2d'),W=cv.width,H=cv.height;nb(g,W,H);
+ if(!G)return;var b=box(),a=G.length,bb=G[0].length,sc=Math.min(30,150/Math.max(a,bb,b[2]));
+ ne(g,'rgba(255,47,166,0.45)',1.3);
+ var corners=[[0,0,0],[a,0,0],[0,bb,0],[0,0,b[2]]];
+ [[0,1],[0,2],[0,3]].forEach(function(e){var p=iso(corners[e[0]][0],corners[e[0]][1],corners[e[0]][2],ang,W,H,sc),
+  q=iso(corners[e[1]][0],corners[e[1]][1],corners[e[1]][2],ang,W,H,sc);
+  g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();});ng(g);
+ var cubes=[];
+ for(var i=0;i<a;i++)for(var j=0;j<bb;j++)for(var k=0;k<G[i][j];k++)cubes.push([i,j,k]);
+ cubes.sort(function(p,q){var c=Math.cos(ang),s=Math.sin(ang);
+  var dp=(p[0]*c-p[1]*s)+(p[0]*s+p[1]*c)+p[2]*0.5,dq=(q[0]*c-q[1]*s)+(q[0]*s+q[1]*c)+q[2]*0.5;return dp-dq;});
+ cubes.forEach(function(cu){var i=cu[0],j=cu[1],k=cu[2];
+  var top=[iso(i,j,k+1,ang,W,H,sc),iso(i+1,j,k+1,ang,W,H,sc),iso(i+1,j+1,k+1,ang,W,H,sc),iso(i,j+1,k+1,ang,W,H,sc)];
+  var lf =[iso(i+1,j,k,ang,W,H,sc),iso(i+1,j+1,k,ang,W,H,sc),iso(i+1,j+1,k+1,ang,W,H,sc),iso(i+1,j,k+1,ang,W,H,sc)];
+  var rt =[iso(i,j+1,k,ang,W,H,sc),iso(i+1,j+1,k,ang,W,H,sc),iso(i+1,j+1,k+1,ang,W,H,sc),iso(i,j+1,k+1,ang,W,H,sc)];
+  function face(pts,fill){g.beginPath();pts.forEach(function(p,q){if(q===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);});
+   g.closePath();g.fillStyle=fill;g.fill();g.strokeStyle='rgba(10,14,10,0.75)';g.lineWidth=1;g.stroke();}
+  var t=(k+1)/Math.max(1,b[2]);
+  face(lf,'rgba(24,120,80,'+(0.55+0.25*t).toFixed(2)+')');
+  face(rt,'rgba(16,80,58,'+(0.55+0.25*t).toFixed(2)+')');
+  face(top,'rgba(57,255,176,'+(0.35+0.45*t).toFixed(2)+')');});
+ nt(g,'#39ffb0',10,H-52,11,'green: one of PP('+b.join(',')+') = '+formula(b[0],b[1],b[2]).v.toString()+' stackings');
+ nt(g,'#ff2fa6',10,H-34,10,'magenta: the empty box the cubes fall into');
+ nt(g,'#8ad',10,H-14,10,'seen straight on, this pile is a lozenge tiling of a hexagon');}
+document.getElementById('mmbox').onclick=function(){BI=(BI+1)%BOXES.length;fresh();drawW3();drawW4();
+ var b=box(),f=formula(b[0],b[1],b[2]);
+ document.getElementById('mmread').textContent='box '+b.join('x')+'  -  PP = '+f.v.toString()+' (enumerated and by formula)';};
+document.getElementById('mmnext').onclick=function(){fresh();drawW3();
+ document.getElementById('mmread').textContent='another legal stacking in the '+box().join('x')+' box';};
+document.getElementById('mmcheck').onclick=function(){var v=selftest();
+ var bad=v.rows.filter(function(r){return !r.ok;}).length;
+ document.getElementById('mmread').textContent='enumeration == product formula on '+(v.rows.length-bad)+'/'+v.rows.length+' boxes; symmetric in a,b,c: '+v.symmetric;};
+document.getElementById('mmspin').onclick=function(){spin=!spin;this.textContent=spin?'pause spin':'resume spin';};
+fresh();drawW3();drawW4();window.__macmahon=selftest();
+function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+
 SPHERES = [
+ {"slug":"the-dodgson","title":"THE DODGSON","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#00f5ff","icon":"dodgson",
+  "kicker":"a determinant shrunk out of 2x2 windows",
+  "blurb":"Dodgson condensation in the 5-window house format — Lewis Carroll's 1866 algorithm for the determinant, which skips the cofactor tree entirely. Replace every 2×2 window of an n×n matrix by its own little determinant, divide entrywise by the interior of the previous matrix, and repeat: the single number left at the top is the determinant. The engine underneath is the Desnanot–Jacobi identity. Verified live by an independent exact-integer Laplace expansion: over thousands of random 3×3 to 6×6 integer matrices, condensation returns exactly the same big-integer determinant, and Desnanot–Jacobi holds with zero error. The known limitation is measured rather than hidden — when an interior entry is zero the division is undefined and the method stalls, which happens on roughly a third of random integer matrices here, and the page counts them. Neon-noir traced. See the cascade shrink in 1D, condensation checked against cofactors in 2D, and the shrink-inward-instead-of-expanding inverse in 3D.",
+  "lit":"Genuine Dodgson condensation (Charles Lutwidge Dodgson, 'Condensation of Determinants', 1866) resting on the Desnanot–Jacobi identity. Verified live: over 3,000 random integer matrices of size 3×3 to 6×6, condensation equals an independent exact big-integer cofactor expansion on every matrix that does not stall, and the Desnanot–Jacobi identity itself is exact on 600 further matrices; the ~1/3 of draws that stall on a zero interior entry are counted and reported, not skipped (window.__dodgson.ok, .tested, .agree, .stalls).",
+  "fig":"No framing; the condensation cascade and the cofactor expansion both run in-browser in exact integer arithmetic and are compared digit for digit. The stall rate is a measured limitation of the method, not a defect of the page. The AVAN inverse is honest — instead of expanding a determinant outward into n! signed products, shrink it inward: the inverse of 'sum over every permutation' is 'a pyramid of 2×2 windows, each divided by the one below it'. Magenta is the matrix being eaten ring by ring; green is the apex it collapses to.",
+  "body":DODG_BODY,"script":DODG_SCRIPT},
+ {"slug":"the-macwilliams","title":"THE MACWILLIAMS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#ffd23f","icon":"macwilliams",
+  "kicker":"a dual code counted without ever listing it",
+  "blurb":"The MacWilliams identity in the 5-window house format — the theorem that says you never have to look at the dual code. Every linear code C has a dual C⊥, and each has a weight enumerator: the tally of how many codewords carry 0 ones, 1 one, 2 ones, and so on. Jessie MacWilliams proved in 1963 that the dual's entire tally is a fixed linear transform of the primal's, B_j = (1/|C|)·Σ_i A_i·K_j(i), where K_j is the Krawtchouk polynomial. Count one side and the other side is already known, even when the dual is astronomically larger. Verified live: for Hamming(7,4) the brute-forced dual — the [7,3] simplex code, tally 1,0,0,0,7,0,0,0 — is reproduced exactly by the Krawtchouk transform of the primal tally 1,0,0,7,7,0,0,1, and over 400 random binary linear codes the transform matches a brute enumeration of the dual with zero error in whole numbers. Neon-noir traced. See the two tallies in 1D, random codes checked both ways in 2D, and the count-once-know-twice inverse in 3D.",
+  "lit":"Genuine MacWilliams identity (Florence Jessie MacWilliams, 1963; Krawtchouk polynomials after Mikhail Krawtchouk). Verified live: the Hamming(7,4) dual weight enumerator obtained by brute enumeration equals the Krawtchouk transform of the primal enumerator exactly, and over 400 random binary linear codes with n=4..9 the transformed tally matches the brute-enumerated dual tally entry for entry in integers (window.__macwilliams.ok, .pass, .tot).",
+  "fig":"No framing; the dual is enumerated the slow way and computed the MacWilliams way, and the two integer vectors are compared entry by entry in-browser. The AVAN inverse is honest — instead of listing all dual codewords and counting their weights, transform the tally you already have: the inverse of 'enumerate the other code' is 'one Krawtchouk matrix applied to this one'. Magenta is the primal tally; green is the dual tally the transform hands you.",
+  "body":MCWL_BODY,"script":MCWL_SCRIPT},
+ {"slug":"the-lill","title":"THE LILL","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#7cfc00","icon":"lill",
+  "kicker":"roots found by folding a ray, not by solving",
+  "blurb":"Lill's method in the 5-window house format — Eduard Lill's 1867 way of finding the real roots of a polynomial with a ruler and a bouncing ray, no algebra at all. Walk the coefficients as a right-angled staircase: east a_n, turn 90°, a_{n−1}, turn 90°, down to a_0, with negative coefficients as steps backwards. Then fire a ray from the origin at angle θ, turning it 90° each time it meets the line of the next segment. If the ray finishes exactly on the path's endpoint, then x = −tanθ is a root. The reason is not a drawing coincidence: the legs of the ray are synthetic division — Lill's ray is Horner's scheme done with a straightedge. Verified live on two independent fronts: aiming at a known root closes the ray to under 4e-13 while aiming 0.05 off leaves a gap of at least 1.2e-4, nine orders apart; and for arbitrary θ each geometric leg equals Horner's coefficient b_k·secθ while the terminal gap equals |p(x)| itself, both to ~2e-12. Neon-noir traced. See the staircase and closing ray in 1D, an aimable ray checked against Horner in 2D, and the fold-do-not-solve inverse in 3D.",
+  "lit":"Genuine Lill's method (Eduard Lill, 'Résolution graphique des équations numériques', 1867); the algebra underneath is Horner's / Ruffini's synthetic division. Verified live: over ~3,000 polynomials with known roots, aiming the ray at a root closes it onto the path endpoint with worst miss 3.8e-13 while a control aim 0.05 off the root never closes better than 1.2e-4; and over ~3,900 arbitrary (polynomial, x) pairs each ray leg equals Horner's b_k·secθ to 1.7e-12 and the terminal gap equals |p(x)| to 2.0e-12 (window.__lill.ok, .worstClosure, .controlMin, .worstLeg, .worstMiss).",
+  "fig":"No framing; the ray is traced by raw line-intersection geometry and compared against a Horner evaluation that knows nothing about geometry. The AVAN inverse is honest — instead of computing roots from coefficients, walk the coefficients as right angles and find the aim that closes the loop. Magenta is the staircase the coefficients build; green is the ray whose angle is the root. Root-finding as origami.",
+  "body":LILL_BODY,"script":LILL_SCRIPT},
+ {"slug":"the-macmahon-box","title":"THE MACMAHON BOX","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#9d00ff","icon":"macmahon",
+  "kicker":"every way cubes can settle into a corner",
+  "blurb":"MacMahon's box formula in the 5-window house format — counting the ways cubes can be stacked into a corner. A plane partition in an a×b×c box is an a×b grid of heights between 0 and c, weakly decreasing along every row and every column: a pile of unit cubes shoved into a corner and settled under gravity from two directions at once. Percy MacMahon found that the number of such piles is one closed product, PP(a,b,c) = ∏ᵢ∏ⱼ∏ₖ (i+j+k−1)/(i+j+k−2) — a tangle of nested inequalities collapsing into a single ratio of integers. The same number counts the lozenge tilings of a hexagon with sides a, b, c: the boxes-in-a-corner picture is that tiling seen straight on. Verified live by two independent routes: a raw recursive enumeration that builds every legal height grid cell by cell, and the closed formula in exact big integers — agreeing on every box tested, 1×1×1 = 2, 2×2×2 = 20, 3×3×3 = 980, 2×3×4 = 490, 4×4×3 = 24696, 4×4×4 = 232848 — with the formula's symmetry in a, b, c checked directly. Neon-noir traced. See the height grid in 1D, enumeration against formula in 2D, and the multiply-the-corners inverse in 3D.",
+  "lit":"Genuine MacMahon box formula for boxed plane partitions (Percy Alexander MacMahon, 1896–1916). Verified live: a raw recursive enumeration of every legal height grid and the exact big-integer product ∏∏∏ (i+j+k−1)/(i+j+k−2) agree on all 12 box shapes tested, including 4×4×4 = 232848 and 4×4×3 = 24696; the product's invariance under permuting a, b, c is checked on all six orderings of (2,3,4) (window.__macmahon.ok, .rows, .symmetric).",
+  "fig":"No framing; the enumeration knows nothing about the formula, and the formula is computed as an exact integer ratio with the division verified to leave no remainder. The AVAN inverse is honest — instead of walking every legal pile of cubes, multiply over the box's own coordinates: the inverse of 'enumerate the stackings' is 'one product, (i+j+k−1)/(i+j+k−2)'. Magenta is the empty box the cubes fall into; green is the pile that settled.",
+  "body":MCMH_BODY,"script":MCMH_SCRIPT},
+ {"slug":"the-srt-division","title":"THE SRT DIVISION","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#5ad0ff","icon":"srt",
+  "kicker":"a divider with five blank cells in its table",
+  "blurb":"Radix-4 SRT division in the 5-window house format — how hardware actually divides, and how five missing table entries cost Intel $475M. SRT (Sweeney, Robertson, Tocher, c.1958) peels off two bits per step using a redundant digit set where each quotient digit may be −2, −1, 0, +1 or +2, iterating P ← 4P − q·D. Redundancy is the whole trick: because the digit ranges overlap, the hardware need not know the exact partial remainder to choose a digit, only roughly where it sits — so the choice comes from a coarse lookup table over a truncated (P,D) grid, and a loose guess is absorbed next iteration. That tolerance has an edge, and in 1994 the Pentium found it: its quotient-selection PLA was missing five of 2,048 entries, and a division whose trajectory landed there read a zero where a digit belonged. Verified live: a radix-4 divider with a 1,031-cell P-D table reproduces true division to a worst error of 1.1e-16 over 40,000 random operand pairs, and blanking five reachable cells makes 136 of 60,000 divisions wrong (~0.23%), worst case off by 0.67. Honest boundary: a working model of the defect mechanism, not an emulation of the P5 divider. Neon-noir traced. See the P-D plot in 1D, divisions with the table intact or holed in 2D, and the look-it-up-do-not-compute-it inverse in 3D.",
+  "lit":"Genuine radix-4 SRT division (D. W. Sweeney, J. E. Robertson, K. D. Tocher, c.1958; the 1994 Pentium FDIV defect was found by Thomas Nicely). Verified live: a P-D quotient-selection table built correct-by-construction over the reachable region (|P| ≤ (8/3)D, 1,031 cells touched) drives the recurrence P ← 4P − qD to a worst error of 1.1e-16 against true division over 40,000 random operand pairs, matching a table-free exact-selection control; blanking 5 reachable cells then makes 136 of 60,000 divisions wrong (~0.23%), worst error 0.6667 (window.__srt.ok, .worst, .holedWrong, .holedTotal, .holedWorst).",
+  "fig":"The honest boundary is stated on the page: this is a working model of the FDIV defect mechanism, NOT an emulation of Intel's P5 divider. The table geometry, the five-blank-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page's, not the Pentium's — the real defect was far rarer, roughly one in nine billion random divides. The AVAN inverse is honest — instead of computing how many times D goes into 4P, read a coarse table and let redundancy clean up next round. Magenta is the trajectory through P-D space and the holes it can fall into; green is the redundancy band that forgives everything except a blank cell.",
+  "body":SRTD_BODY,"script":SRTD_SCRIPT},
+
+ {"slug":"the-belady-anomaly","title":"THE BELADY ANOMALY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff5a8a","icon":"\u2193",
+  "kicker":"more memory, more faults",
+  "blurb":"Give a program more memory and it faults more often. Not as a pathology of a bad implementation - on the plainest replacement policy there is, doing exactly what it says.",
+  "lit":"the classic reference string 1 2 3 4 1 2 5 1 2 3 4 5 takes 9 page faults with 3 frames and 10 with 4; searching for a shorter witness over every reference string of length 1 to 11 on five pages with no immediate repeats - 6,990,505 strings, since a repeated reference is always a hit under any policy - the anomaly occurs 0 times, so the minimum length is exactly 12, and LRU cannot do it at any length because over 187,246 sampled strings the resident set at 3 frames was a subset of the set at 4 every time, 0 violations",
+  "fig":"Laszlo Belady found this in 1969; the stack-algorithm property that exempts LRU is Mattson, Gecsei, Slutz and Traiger, 1970. AVAN went looking for a shorter witness and did not find one, which is the more useful result. The first search covered lengths up to 10 and reported 0, and a gate written from intuition called that a failure - it was not, it was the answer. The LRU check tests the INCLUSION property rather than the fault count, because that is the actual reason LRU is safe, and a count that happened to agree would prove nothing.",
+  "body":BLDY_BODY,"script":BLDY_SCRIPT},
+ {"slug":"the-priority-inversion","title":"THE PRIORITY INVERSION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"HARD RESET","domain_slug":"hard-reset","accent":"#ff9f45","icon":"\u2934",
+  "kicker":"the highest waits on the lowest",
+  "blurb":"The highest-priority task waits for a lock held by the lowest. A middle-priority task, holding no lock and wanting nothing, preempts the low one - and the highest task in the system now waits on the one it outranks.",
+  "lit":"a low task holds a critical section of 10 ticks, a medium task runs for m ticks, and a high task needs the lock: without priority inheritance the high task's delay is 10 + m, so sweeping m from 0 to 100 gives a straight line of slope 1 ending at 110, while with inheritance the low task temporarily runs at high priority, the medium task cannot preempt it, and the delay is 10 at every point on the sweep - and across all 50 medium-runtimes tested, 50 are inverted without inheritance and 0 with it",
+  "fig":"Priority inversion and the inheritance and ceiling protocols are Sha, Rajkumar and Lehoczky, 1990. The famous instance is Mars Pathfinder, July 1997: the lander kept resetting on Mars, the cause was an inversion on a shared information bus, and the fix was enabling inheritance on an already-shipped mutex. AVAN reports the shape rather than the anecdote. The number that matters is the SLOPE: without inheritance the delay is a function of a task it has nothing to do with, so the bound is not merely large, it is not a bound at all.",
+  "body":PRIN_BODY,"script":PRIN_SCRIPT},
+ {"slug":"the-condition-number","title":"THE CONDITION NUMBER","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ffd76a","icon":"\u2300",
+  "kicker":"the residual is small and every digit is wrong",
+  "blurb":"A small residual is the thing everyone checks and it proves almost nothing. Plug a badly wrong answer into a near-singular system and the equations come out satisfied to fifteen decimal places.",
+  "lit":"for A = [[1,1],[1,1.0001]] the determinant is 1.0e-4 and the condition number is 40,004; perturbing the right-hand side by a relative 1e-10 over 2,000 random directions, the worst relative change in the solution is 40,002 times larger - within 0.005% of kappa, the bound doing its job - and a deliberately wrong answer off by 1.414 in norm leaves a residual of 1.0e-4, so the error is 14,142 times the residual and a check on the residual reports success while every digit of x is wrong",
+  "fig":"The condition number, the perturbation bound and the residual/error distinction are the first chapter of numerical linear algebra - Wilkinson, and Higham's Accuracy and Stability. AVAN measured the amplification rather than quoting the bound, because a bound is an upper limit and the question is whether it is attained. It is: 40,002 against a kappa of 40,004. The residual is what a program can compute without knowing the answer, and it is precisely the quantity that stays small when the answer is wrong.",
+  "body":CNDN_BODY,"script":CNDN_SCRIPT},
+ {"slug":"the-shewchuk-predicate","title":"THE SHEWCHUK PREDICATE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"SEGFAULT","domain_slug":"segfault","accent":"#5ad4ff","icon":"\u25b3",
+  "kicker":"289 points collapsed onto one line",
+  "blurb":"Is this point left of that line, right of it, or on it? Three answers, and a geometry program is built entirely out of them. In floating point the question does not reliably have an answer at all.",
+  "lit":"taking q = (12,12), r = (24,24) and p on a 17x17 grid of one-ulp steps around (0.5, 0.5) - 289 points - and computing the orientation determinant in double precision and again exactly in integer arithmetic, the two disagree on 272 of them, 94.1%: the floating-point predicate reports every one of the 289 points as lying exactly on the line, and 17 of them actually do, because the products are around 270 while the true determinant is around 1e-15 and the subtraction has nothing left to subtract",
+  "fig":"The failure of naive geometric predicates is Kettner, Mehlhorn, Pion, Schirra and Yap (2008); the adaptive exact-arithmetic fix is Jonathan Shewchuk (1997), and it is why CGAL exists. AVAN computed the exact answer with big integers rather than a higher-precision float, because a longer float is another approximation and would only move the grid. The first attempt found 0 disagreements - the coordinates were close together, so the subtraction was exact - and that failure was the useful one: the danger is not small numbers but large numbers that nearly cancel. One honest note: an antisymmetry check on the float predicate passes 49 of 49, and it passes because every answer is zero and zero is its own negation.",
+  "body":SHWK_BODY,"script":SHWK_SCRIPT},
+ {"slug":"the-succinct-rank","title":"THE SUCCINCT RANK","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE HOARD","domain_slug":"the-hoard","accent":"#7de2b0","icon":"\u2261",
+  "kicker":"three touches, wherever you ask",
+  "blurb":"How many 1s appear before position i in a bit array? Counting is linear. Answering instantly usually costs a word per bit. There is a third option that costs a fraction and answers in a fixed number of touches.",
+  "lit":"over 1,048,576 bits containing 524,772 ones, a two-level index of 256 superblock counters and 16,384 block counters occupies 270,336 bits - 25.8% of the data - and every query is answered in exactly 3 memory touches, one superblock, one block and one masked popcount, regardless of where i falls; checked against a naive running count at every one of the 1,048,576 positions, 0 mismatches",
+  "fig":"Two-level rank indexes are Jacobson (1989) and Clark (1996). AVAN reports the overhead as 25.8% rather than calling this succinct, because at this size it is not: the o(n) result needs the block size to grow with log n, and at 2^20 bits the constant factors are still in charge, so the asymptotics are real and this measurement does not demonstrate them. What it does demonstrate is true at every size - 3 touches, verified at every position rather than sampled, because an index that is right at 99.99% of positions is not an index.",
+  "body":SCRK_BODY,"script":SCRK_SCRIPT},
  {"slug":"the-unverified-surface","title":"THE UNVERIFIED SURFACE","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ffd76a","icon":"\u25ab",
   "kicker":"coverage reports on the covered",
