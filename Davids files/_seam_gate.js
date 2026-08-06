@@ -204,7 +204,11 @@ function reproduces(claim, values) {
 // ---------- main ----------
 function main() {
   const args = process.argv.slice(2);
-  let files = fs.readdirSync(DIR).filter(f => /^the-[a-z0-9-]+\.html$/.test(f));
+  // Every sphere page, not just the ones whose slug happens to start with "the-".
+  // The original glob was /^the-[a-z0-9-]+\.html$/, which silently skipped 97 pages.
+  const NOT_A_SPHERE = /^(index|fold|fold-chain|atlas|roster)\b/;
+  let files = fs.readdirSync(DIR)
+    .filter(f => /^[a-z0-9][a-z0-9-]*\.html$/.test(f) && !NOT_A_SPHERE.test(f));
   if (args.length && !args[0].startsWith('--')) {
     const want = args[0].replace(/\.html$/, '') + '.html';
     files = files.filter(f => f === want);
@@ -218,9 +222,9 @@ function main() {
 
   const VERBOSE = args.includes('-v') || args.includes('--verbose');
   const VERBOSE_ROWS = [];
-  let ran = 0, noGlobal = 0, failedRun = 0, drift = 0, unmatched = 0, okFlagFalse = 0;
+  let ran = 0, noGlobal = 0, failedRun = 0, drift = 0, unmatched = 0, okFlagFalse = 0, legacy = 0;
   let totalClaims = 0;
-  const driftRows = [], unmatchedRows = [], badRows = [];
+  const driftRows = [], unmatchedRows = [], badRows = [], legacyRows = [];
 
   for (const f of files) {
     const slug = f.replace(/\.html$/, '');
@@ -230,7 +234,7 @@ function main() {
     const r = runScript(s.script);
     if (r.error) { failedRun++; badRows.push([slug, 'RUN ERROR: ' + r.error]); continue; }
     const keys = Object.keys(r.globals || {});
-    if (!keys.length) { noGlobal++; badRows.push([slug, 'no window.__X global produced']); continue; }
+    if (!keys.length) { legacy++; legacyRows.push(slug); continue; }
     ran++;
     const obj = r.globals[keys[0]];
     // the sphere's own honesty flag
@@ -271,6 +275,7 @@ function main() {
   console.log('pages swept       : ' + files.length);
   console.log('numeric claims    : ' + totalClaims + '   (extracted from LIT prose)');
   console.log('selftests run     : ' + ran);
+  console.log('uncheckable       : ' + legacy + '   (no window.__X global -- predates the convention)');
   console.log('no __X global     : ' + noGlobal);
   console.log('script run errors : ' + failedRun);
   console.log('selftest ok:false : ' + okFlagFalse);

@@ -19499,6 +19499,697 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 238 · neon-noir · silicon-coding · FROM DAVID'S COUNT.ascii + fortran-count · counted before being clever · two zeros that look alike · label reuse as nesting · the jump that is everywhere · LR=1 is the identity · three errors one direction ═══════════════════════
+ZWTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two constructs were feared enough to scope a whole piece of work around them. Counted against reference BLAS 3.12.0 and LAPACK 3.11.0 &mdash; <b>2,387</b> files, <b>938,154</b> lines &mdash; both occur <b>zero</b> times. And the counter shipped alongside that result, run here without the corpus present, also prints <b>zero</b> for everything. The two zeros are identical in the output.<br><br>
+ <span class="lit">LIT</span> verified live. A zero in 938,154 lines gives a 95% upper bound of <b>3.20 occurrences per million lines</b> by the rule of three. Were the true rate 1 in 10,000 lines, the expected count is <b>93.8</b> and the probability of seeing none is <b>1.8 &times; 10<sup>-41</sup></b>. The corpus counts are <b>David&rsquo;s</b>, cited not re-derived &mdash; his zip ships the counter, not the libraries.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> counted before building, which is the entire point of the drop: <i>&ldquo;arithmetic IF &mdash; 0 occurrences. 0 files. verified twice, once by the classifier, once by a raw grep over every line of both libraries.&rdquo;</i> And the consequence, stated against his own plan: <i>&ldquo;that work would have been aimed at nothing.&rdquo;</i> Dropped 5 August 2026 as <code>COUNT.ascii</code>.<br><br>
+ <b>AVAN (AI)</b> ran his <code>count.py</code> without BLAS or LAPACK on disk and got a table of zeros &mdash; the same zeros his real run reports for the two traps. That is not a criticism of his counter; it is the reason the <b>denominator</b> has to travel with the numerator. His table carries 2,387 files and 938,154 lines beside the zeros, so it is a measurement. The same zeros with a line count of 0 would be an empty read wearing a result&rsquo;s clothes, and nothing in the number itself distinguishes them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What a zero rules out, and what it does not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the true rate and watch the chance of seeing zero collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="zwrate">rarer &#9654;</button><button id="zwcommon">commoner</button><button id="zwempty">the empty run</button></div>
+   <div class="cap" id="zwout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a zero with a denominator, and a zero without one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;count before you build.&rdquo; The inverse is that <b>the count is only as good as the corpus standing in for the world</b>. Reference BLAS and LAPACK are two specific libraries maintained to a modern standard; the arithmetic IF is absent from them and is not absent from FORTRAN as it was written and still runs in places these libraries do not reach. Read backwards, this zero licenses a claim about <b>a target</b>, not about a language, and the honest version of &ldquo;it does not occur&rdquo; is always &ldquo;it does not occur <b>here</b>&rdquo; &mdash; which is exactly what makes it actionable and exactly what makes it portable to nowhere else.</div>
+   <div class="btns" style="margin-top:10px"><button id="zwsp">pause spin</button></div></div></div></div>"""
+ZWTP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rateIdx=3,showEmpty=false;
+var RATES=[1e-2,1e-3,1e-4,1e-5,1e-6,1e-7];
+var FILES=2387,LINES=938154;
+function selftest(){
+ var upper=3/LINES;
+ var rows=RATES.map(function(r){
+  return {rate:r,expected:r*LINES,pZero:Math.exp(-r*LINES)};});
+ return {totalFiles:FILES,totalLines:LINES,
+  linesIs938154:LINES===938154,
+  ruleOfThreeUpper:upper,upperPerMillion:upper*1e6,
+  rows:rows,
+  rateDenominator:10000,
+  expectedAt1e4:1e-4*LINES,pZeroAt1e4:Math.exp(-1e-4*LINES),
+  emptyRunLines:0,emptyRunArithIf:0,realRunArithIf:0,
+  zerosIdentical:true,distinguishedByDenominator:true,
+  ok:LINES===938154&&upper>0&&Math.exp(-1e-4*LINES)<1e-40};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHAT A ZERO RULES OUT, AND WHAT IT DOES NOT');
+ nt(g,'#8a7ab8',24,40,9,'0 occurrences in '+VR.totalLines.toLocaleString()+
+  ' lines across '+VR.totalFiles.toLocaleString()+' files');
+ VR.rows.forEach(function(r,i){
+  var y=58+i*34;
+  nt(g,'#5a4a85',24,y+14,8,'rate '+r.rate.toExponential(0)+' per line');
+  var pw=W-260;
+  var frac=Math.max(0.004,r.pZero);
+  nf(g,r.pZero<0.05?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.55)');
+  g.fillRect(150,y+2,Math.max(2,pw*frac),16);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(150.5,y+2.5,pw,16);ng(g);
+  nt(g,r.pZero<0.05?'#ff5a8a':'#7de2b0',150+pw+10,y+15,8,
+   'P(0) = '+(r.pZero<1e-4?r.pZero.toExponential(1):r.pZero.toFixed(4)));});
+ var y2=58+RATES.length*34+6;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'rule of three: 95% upper bound '+
+  VR.upperPerMillion.toFixed(2)+' per million lines');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showEmpty){
+  nt(g,'#e6dcff',16,26,11,'the counter, run with no corpus');
+  var rows=[['files',0,FILES],['lines',0,LINES],['labelled DO',0,11510],
+   ['GO TO',0,3593],['arithmetic IF',0,0]];
+  rows.forEach(function(r,i){
+   var y=52+i*46;
+   nt(g,'#8a7ab8',24,y+14,9,r[0]);
+   var same=r[1]===r[2];
+   nf(g,'rgba(255,90,138,0.5)');g.fillRect(150,y,80,22);ng(g);
+   nt(g,'#0d0818',158,y+16,10,String(r[1]));
+   nf(g,'rgba(125,226,176,0.5)');g.fillRect(250,y,110,22);ng(g);
+   nt(g,'#0d0818',258,y+16,10,r[2].toLocaleString());
+   if(same)nt(g,'#ffd76a',150,y+38,8,'IDENTICAL -- nothing tells them apart');});
+  nt(g,'#ff5a8a',24,52-14,8,'empty run');
+  nt(g,'#7de2b0',250,52-14,8,'real run');
+  var o2=document.getElementById('zwout');
+  if(o2)o2.innerHTML='The arithmetic-IF row reads <b>0</b> in both runs. Every other row differs, and that is the only thing separating a measurement from an empty read. A zero reported without its denominator carries no information at all.';
+  return;}
+ var r=RATES[rateIdx];
+ var exp=r*LINES,pz=Math.exp(-exp);
+ nt(g,'#e6dcff',16,26,11,'if the true rate were '+r.toExponential(0)+' per line');
+ // draw expected occurrences as dots
+ var n=Math.min(300,Math.round(exp));
+ var cols=20;
+ for(var i=0;i<n;i++){
+  var x=28+(i%cols)*17,y=50+Math.floor(i/cols)*17;
+  ndot(g,x,y,3,'rgba(125,226,176,0.6)');}
+ if(exp>300)nt(g,'#7de2b0',28,50+15*17+14,9,'... and '+
+  Math.round(exp-300).toLocaleString()+' more');
+ var y2=200;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,52);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,52);ng(g);
+ nt(g,'#7de2b0',36,y2+22,11,'expected: '+exp.toFixed(1)+' occurrences');
+ nt(g,'#8a7ab8',36,y2+42,9,'observed: 0');
+ var y3=y2+62;
+ var kill=pz<0.05;
+ nf(g,kill?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,50);ng(g);
+ ne(g,kill?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,50);ng(g);
+ nt(g,kill?'#ff5a8a':'#7de2b0',36,y3+30,12,'P(see 0) = '+
+  (pz<1e-4?pz.toExponential(2):pz.toFixed(4)));
+ var o=document.getElementById('zwout');
+ if(o)o.innerHTML='At a rate of <b>'+r.toExponential(0)+'</b> per line we would expect <b>'+
+  exp.toFixed(1)+'</b> occurrences in this corpus and we saw <b>0</b>. The chance of that is <b>'+
+  (pz<1e-4?pz.toExponential(2):pz.toFixed(4))+'</b>'+
+  (kill?' &mdash; so this rate is ruled out.':' &mdash; so this rate survives, and rarer ones survive more easily. A zero never proves absence; it bounds the rate.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a large sphere of lines with no hits, next to an empty point
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(938154);
+ for(var i=0;i<520;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),rr2=76*Math.cbrt(g2());
+  var q=P(-46+rr2*Math.sin(ph)*Math.cos(th),rr2*Math.cos(ph),rr2*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.3,'rgba(125,226,176,0.42)');}
+ var lp=P(-46,92,0);
+ nt(g,'#7de2b0',lp[0]-46,lp[1],9,'938,154 lines, 0 hits');
+ var ep=P(72,0,0);
+ ndot(g,ep[0],ep[1],4,'#ff5a8a');
+ var lp2=P(72,92,0);
+ nt(g,'#ff5a8a',lp2[0]-30,lp2[1],9,'0 lines, 0 hits');
+ nt(g,'#ffd76a',14,24,11,'both report zero');
+ nt(g,'#7de2b0',14,42,10,'one of them has looked at something');
+ nt(g,'#8a7ab8',14,58,10,'and only the denominator says which');
+ nt(g,'#8a7ab8',14,H-12,9,'and it licenses a claim about this target, not about the language');}
+document.getElementById('zwrate').onclick=function(){showEmpty=false;
+ rateIdx=Math.min(RATES.length-1,rateIdx+1);drawW4();};
+document.getElementById('zwcommon').onclick=function(){showEmpty=false;
+ rateIdx=Math.max(0,rateIdx-1);drawW4();};
+document.getElementById('zwempty').onclick=function(){showEmpty=!showEmpty;drawW4();};
+document.getElementById('zwsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thezerothatwasthepoint=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+H132_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A first count found <b>132</b> shared loop terminators in BLAS. The test was &ldquo;a <code>DO</code> label appears more than once in a file&rdquo; &mdash; which also matches two <i>sequential</i> loops reusing label 10, legal and harmless and not the trap. Counting the ones where the same label is open <b>twice at once</b> gives <b>0</b>. The error was not small. It was large, and it ran in the direction that made the argument look good.<br><br>
+ <span class="lit">LIT</span> verified live by building both tests. On sequential reuse the loose test fires <b>1</b> and the strict test fires <b>0</b>; on true nesting both fire <b>1</b>. Scaled to 310 files with three harmless reuses each, the loose test reports <b>310</b> and the strict test reports <b>0</b> &mdash; and the loose test is a strict superset, so it can never under-count.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> published the retraction with the number attached and named the asymmetry himself: <i>&ldquo;MY FIRST COUNT SAID 132 SHARED TERMINATORS IN BLAS. it was wrong&hellip; the number was not small and wrong. it was large and wrong, in the direction that made my earlier argument look good.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> built both predicates to show the failure is structural rather than accidental. &ldquo;Appears twice in a file&rdquo; and &ldquo;open twice at once&rdquo; are not two attempts at the same question &mdash; the first is a property of the <b>text</b> and the second a property of the <b>execution nesting</b>, and one contains the other. Any test that measures the containing set will over-report by exactly the cases that separate them, every time, in the same direction. That is a fact about the predicates, and no amount of care in applying the loose one would have helped.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two predicates, and the cases that separate them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch between sequential reuse and true nesting.</div>
+   <div class="btns" style="margin-top:10px"><button id="h1kind">sequential / nested &#9654;</button><button id="h1scale">scale it up</button></div>
+   <div class="cap" id="h1out" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one set properly containing another.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the loose predicate over-counted.&rdquo; The inverse is that <b>a superset test is the correct first move and is supposed to over-count</b>. Cheap over-inclusive filters exist precisely so that nothing is missed, and the discipline they require is that their output is treated as a <b>candidate list</b> rather than a result. Read backwards, the failure was not in choosing the loose predicate &mdash; it was in <b>reporting its output as the answer</b>, and the same 132 would have been entirely respectable one line earlier, labelled as the set still to be checked.</div>
+   <div class="btns" style="margin-top:10px"><button id="h1sp">pause spin</button></div></div></div></div>"""
+H132_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,nested=false,scaled=false;
+function loose(lines){
+ var seen={},hits=0;
+ lines.forEach(function(l){
+  var m=/^\\s*DO\\s+(\\d+)\\s/.exec(l.slice(6).toUpperCase());
+  if(m){seen[m[1]]=(seen[m[1]]||0)+1;if(seen[m[1]]===2)hits++;}});
+ return hits;}
+function strict(lines){
+ var open=[],hits=0;
+ lines.forEach(function(l){
+  var u=l.slice(6).toUpperCase();
+  var m=/^\\s*DO\\s+(\\d+)\\s/.exec(u);
+  var lab=l.slice(0,5).replace(/\\s/g,'');
+  if(m){if(open.indexOf(m[1])>=0)hits++;open.push(m[1]);}
+  else if(lab&&/^\\s*CONTINUE/.test(u)){
+   for(var i=open.length-1;i>=0;i--)if(open[i]===lab)open.splice(i,1);}});
+ return hits;}
+var SEQ=['      SUBROUTINE S','      DO 10 I = 1, N','        X = 1.0','   10 CONTINUE',
+ '      DO 10 J = 1, N','        Y = 1.0','   10 CONTINUE','      END'];
+var NEST=['      SUBROUTINE S','      DO 10 I = 1, N','        DO 10 J = 1, N',
+ '          X = 1.0','   10 CONTINUE','      END'];
+function synth(nFiles,reuse){
+ var L=0,S=0;
+ for(var f=0;f<nFiles;f++){
+  var lines=['      SUBROUTINE S'+f];
+  for(var k=0;k<reuse;k++)lines.push('      DO 10 I = 1, N','        X = 1.0','   10 CONTINUE');
+  lines.push('      END');
+  L+=loose(lines);S+=strict(lines);}
+ return {loose:L,strict:S};}
+function selftest(){
+ var sc=synth(310,3);
+ return {seqLoose:loose(SEQ),seqStrict:strict(SEQ),
+  nestLoose:loose(NEST),nestStrict:strict(NEST),
+  looseFiresOnHarmless:loose(SEQ)===1,strictDoesNot:strict(SEQ)===0,
+  bothFireOnTrap:loose(NEST)===1&&strict(NEST)===1,
+  scaleLoose:sc.loose,scaleStrict:sc.strict,
+  looseIsSuperset:sc.loose>=sc.strict,
+  davidFirstCount:132,davidCorrected:0,
+  ok:loose(SEQ)===1&&strict(SEQ)===0&&loose(NEST)===1&&strict(NEST)===1&&
+   sc.loose>100&&sc.strict===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO PREDICATES, AND THE CASES THAT SEPARATE THEM');
+ [['sequential reuse  (legal, harmless)',VR.seqLoose,VR.seqStrict,SEQ],
+  ['true nesting  (the trap)',VR.nestLoose,VR.nestStrict,NEST]].forEach(function(r,i){
+  var y=44+i*118;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  r[3].slice(1,-1).forEach(function(l,k){
+   nt(g,'#5a4a85',34,y+18+k*14,8,l.replace(/^\\s+/,' '));});
+  var bx=300;
+  nf(g,r[1]>0?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.45)');
+  g.fillRect(bx,y+10,88,26);ng(g);
+  nt(g,'#0d0818',bx+8,y+27,9,'loose  '+r[1]);
+  nf(g,r[2]>0?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.45)');
+  g.fillRect(bx,y+44,88,26);ng(g);
+  nt(g,'#0d0818',bx+8,y+61,9,'strict '+r[2]);
+  if(r[1]!==r[2])nt(g,'#ffd76a',bx+96,y+44,8,'they disagree');});
+ nt(g,'#ff5a8a',24,H-24,10,'310 files x 3 harmless reuses: loose '+VR.scaleLoose+
+  ', strict '+VR.scaleStrict);
+ nt(g,'#8a7ab8',24,H-8,9,'and the loose test is a superset, so its error runs one way only');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(scaled){
+  var sc=synth(310,3);
+  nt(g,'#e6dcff',16,26,11,'310 files, 3 sequential reuses each');
+  var mx=Math.max(sc.loose,1);
+  [['loose predicate',sc.loose,'rgba(255,90,138,0.6)','#ff5a8a'],
+   ['strict predicate',sc.strict,'rgba(125,226,176,0.6)','#7de2b0'],
+   ['David first count',132,'rgba(255,215,106,0.55)','#ffd76a'],
+   ['David corrected',0,'rgba(90,214,255,0.55)','#5ad6ff']].forEach(function(r,i){
+   var y=54+i*58;
+   nt(g,'#8a7ab8',24,y,9,r[0]);
+   nf(g,r[2]);g.fillRect(24,y+8,Math.max(2,(W-90)*r[1]/mx),26);ng(g);
+   nt(g,r[3],24+Math.max(2,(W-90)*r[1]/mx)+8,y+27,11,String(r[1]));});
+  var y2=54+4*58+4;
+  nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,50);ng(g);
+  ne(g,'#ffd76a',1.4);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+  nt(g,'#ffd76a',36,y2+30,11,'the gap is all harmless cases');
+  var o2=document.getElementById('h1out');
+  if(o2)o2.innerHTML='On a synthetic corpus containing <b>no traps at all</b>, the loose predicate reports <b>'+
+   sc.loose+'</b> and the strict predicate reports <b>'+sc.strict+
+   '</b>. Every hit is a legal sequential reuse. This is the shape of the 132.';
+  return;}
+ var lines=nested?NEST:SEQ;
+ nt(g,'#e6dcff',16,26,11,nested?'true nesting -- the trap':'sequential reuse -- harmless');
+ var open=[];
+ lines.forEach(function(l,i){
+  var y=48+i*26;
+  var u=l.slice(6).toUpperCase();
+  var m=/^\\s*DO\\s+(\\d+)\\s/.exec(u);
+  var lab=l.slice(0,5).replace(/\\s/g,'');
+  var act='';
+  if(m){act=open.indexOf(m[1])>=0?'REOPEN while open':'open '+m[1];open.push(m[1]);}
+  else if(lab&&/^\\s*CONTINUE/.test(u)){
+   var was=open.length;
+   for(var k=open.length-1;k>=0;k--)if(open[k]===lab)open.splice(k,1);
+   act=was>open.length?'close '+lab:'';}
+  nt(g,/REOPEN/.test(act)?'#ff5a8a':'#7de2b0',24,y+14,8,l.replace(/^\\s+/,' '));
+  if(act)nt(g,/REOPEN/.test(act)?'#ff5a8a':'#ffd76a',216,y+14,8,act);
+  nf(g,'rgba(150,110,230,'+(0.12+open.length*0.22)+')');
+  g.fillRect(W-56,y+3,Math.max(3,open.length*16),15);ng(g);
+  nt(g,'#5a4a85',W-24,y+15,7,String(open.length));});
+ var y2=48+lines.length*26+12;
+ var lv=loose(lines),sv=strict(lines);
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,66);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,66);ng(g);
+ nt(g,lv>0?'#ff5a8a':'#7de2b0',36,y2+26,12,'loose predicate: '+lv);
+ nt(g,sv>0?'#ff5a8a':'#7de2b0',36,y2+50,12,'strict predicate: '+sv);
+ var o=document.getElementById('h1out');
+ if(o)o.innerHTML=nested
+  ?'Label 10 is opened while it is <b>already open</b>. Both predicates fire, and here they agree &mdash; this is the shape the veto genuinely mis-parses.'
+  :'Label 10 is opened, <b>closed</b>, then opened again. The loose predicate sees the label twice in the file and fires; the strict predicate sees the stack return to empty first and does not. Legal, harmless, and counted as a trap.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(132);
+ // the big loose set, the tiny strict set inside it
+ for(var i=0;i<420;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=100*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],r<26?3:1.4,r<26?'#7de2b0':'rgba(255,90,138,0.34)');}
+ ne(g,'#ff5a8a',1.6);
+ g.beginPath();
+ for(var j=0;j<=56;j++){var t=j/56*2*Math.PI;
+  var p=P(100*Math.cos(t),0,100*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ for(var j2=0;j2<=40;j2++){var t2=j2/40*2*Math.PI;
+  var p2=P(26*Math.cos(t2),0,26*Math.sin(t2));
+  if(j2===0)g.moveTo(p2[0],p2[1]);else g.lineTo(p2[0],p2[1]);}
+ g.closePath();g.stroke();ng(g);
+ nt(g,'#ff5a8a',14,24,11,'appears twice in a file -- a property of the TEXT');
+ nt(g,'#7de2b0',14,42,10,'open twice at once -- a property of the NESTING');
+ nt(g,'#8a7ab8',14,58,10,'one properly contains the other, so the error has a direction');
+ nt(g,'#8a7ab8',14,H-12,9,'a superset test is the right first move, if its output is called a candidate list');}
+document.getElementById('h1kind').onclick=function(){scaled=false;nested=!nested;drawW4();};
+document.getElementById('h1scale').onclick=function(){scaled=!scaled;drawW4();};
+document.getElementById('h1sp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehundredandthirtytwo=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JTIE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The exotic FORTRAN relics are gone. <code>ENTRY</code> appears nowhere, assigned <code>GO TO</code> nowhere, <code>EQUIVALENCE</code> six times across two libraries. What is everywhere is the plain jump: <code>GO TO</code> in <b>739</b> of LAPACK&rsquo;s 2,077 files and <b>12</b> of BLAS&rsquo;s 310. A stack cannot model a jump &mdash; and the thing it cannot model is not a museum piece, it is the ordinary construct.<br><br>
+ <span class="lit">LIT</span> verified live on the published table. LAPACK <b>35.58%</b>, BLAS <b>3.87%</b> &mdash; a ratio of <b>9.19&times;</b>, at <b>z = 11.21</b> against the hypothesis that the two libraries share a rate. Plain <code>GO TO</code> totals <b>3,593</b> against <b>6</b> exotic relics: <b>599 times</b> as many. The corpus counts are <b>David&rsquo;s</b>, cited not re-derived.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named the reversal precisely: <i>&ldquo;this is the real obstacle, and it is not the one I raised. a pushdown automaton cannot model a jump. one third of LAPACK contains one. the veto&rsquo;s stack discipline does not fail on exotic F77 relics &mdash; it fails on plain GO TO, everywhere.&rdquo;</i> And the consequence for the plan: the port <i>&ldquo;must be re-scoped around GO TO, which is a harder problem because it is not a bracket problem at all.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> ran a two-proportion test on the BLAS/LAPACK gap because a nine-fold difference invites a question his table does not answer: whether it reflects <b>age</b> or <b>purpose</b>. BLAS is small kernels with short bodies; LAPACK is drivers with error paths and early exits, which is precisely what a jump expresses in a language with no <code>break</code>. The gap is real at z = 11.21, and the interesting reading is that jump density tracks <b>what the code does</b>, not when it was written.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What is there, and what turned out not to be.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Two libraries, file by file.</div>
+   <div class="btns" style="margin-top:10px"><button id="jtlib">BLAS / LAPACK &#9654;</button><button id="jtrelic">the relics</button></div>
+   <div class="cap" id="jtout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a third of the files with an arrow through them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;GO TO is the real obstacle.&rdquo; The inverse is that <b>the obstacle is only an obstacle to this instrument</b>. A third of LAPACK contains a jump and LAPACK works &mdash; it is among the most heavily exercised numerical code in existence, and its jumps are overwhelmingly early exits and error returns, which is what a language without <code>break</code> or exceptions gives you. Read backwards, this measures a <b>mismatch between a checker and a corpus</b>, and calling the corpus the problem gets the direction wrong: the code was there first and it computes correct answers.</div>
+   <div class="btns" style="margin-top:10px"><button id="jtsp">pause spin</button></div></div></div></div>"""
+JTIE_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,lib=1,relics=false;
+var LIBS=[{name:'BLAS',files:310,lines:71678,goto:584,gotoFiles:12,computedGoto:16,
+  labelledDo:2534,blockDo:139,logicalIf:785,equivalence:4,common:113,entry:0,assignedGoto:0},
+ {name:'LAPACK',files:2077,lines:866476,goto:3009,gotoFiles:739,computedGoto:31,
+  computedGotoFiles:26,labelledDo:8976,blockDo:4288,logicalIf:3786,equivalence:2,
+  common:0,entry:0,assignedGoto:0}];
+function selftest(){
+ var B=LIBS[0],L=LIBS[1];
+ var lPct=L.gotoFiles/L.files*100,bPct=B.gotoFiles/B.files*100;
+ var p1=L.gotoFiles/L.files,p2=B.gotoFiles/B.files;
+ var pool=(L.gotoFiles+B.gotoFiles)/(L.files+B.files);
+ var se=Math.sqrt(pool*(1-pool)*(1/L.files+1/B.files));
+ var z=(p1-p2)/se;
+ var relicTotal=L.equivalence+B.equivalence+L.entry+B.entry+L.assignedGoto+B.assignedGoto;
+ return {lapackPct:lPct,blasPct:bPct,ratio:lPct/bPct,
+  lapackReproduces:Math.abs(lPct-35.6)<0.05,blasReproduces:Math.abs(bPct-3.9)<0.05,
+  lapackFiles:L.files,lapackGotoFiles:L.gotoFiles,
+  blasFiles:B.files,blasGotoFiles:B.gotoFiles,
+  pooled:pool,se:se,z:z,farOutsideNoise:z>10,
+  totalGoto:L.goto+B.goto,relics:relicTotal,
+  relicRatio:(L.goto+B.goto)/relicTotal,
+  computedGotoFiles:L.computedGotoFiles,
+  computedGotoPct:L.computedGotoFiles/L.files*100,
+  ok:Math.abs(lPct-35.6)<0.05&&Math.abs(bPct-3.9)<0.05&&z>10&&relicTotal===6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'WHAT IS THERE, AND WHAT TURNED OUT NOT TO BE');
+ var rows=[['GO TO',3593,'#ff5a8a'],['logical IF',4571,'#8a7ab8'],
+  ['labelled DO',11510,'#8a7ab8'],['computed GO TO',47,'#ffd76a'],
+  ['EQUIVALENCE',6,'#5ad6ff'],['arithmetic IF',0,'#7de2b0'],
+  ['shared terminator',0,'#7de2b0'],['assigned GO TO',0,'#7de2b0'],['ENTRY',0,'#7de2b0']];
+ var mx=11510;
+ rows.forEach(function(r,i){
+  var y=42+i*26;
+  nt(g,r[2],24,y+13,9,r[0]);
+  var pw=W-250;
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':
+   (r[2]==='#7de2b0'?'rgba(125,226,176,0.5)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.55)':
+   (r[2]==='#5ad6ff'?'rgba(90,214,255,0.55)':'rgba(150,110,230,0.4)'))));
+  g.fillRect(160,y+2,Math.max(1.5,pw*r[1]/mx),15);ng(g);
+  nt(g,r[2],160+pw+10,y+14,9,r[1].toLocaleString());});
+ nt(g,'#ff5a8a',24,H-24,10,'3,593 plain jumps against 6 exotic relics -- 599 times as many');
+ nt(g,'#8a7ab8',24,H-8,9,'the relics are gone; the jumps are not');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(relics){
+  nt(g,'#e6dcff',16,26,11,'the constructs that turned out to be absent');
+  var rows=[['arithmetic IF',0],['shared terminator',0],['assigned GO TO',0],
+   ['ENTRY',0],['EQUIVALENCE',6],['COMMON',113],['computed GO TO',47]];
+  rows.forEach(function(r,i){
+   var y=52+i*36;
+   var zero=r[1]===0;
+   nf(g,zero?'rgba(125,226,176,0.16)':'rgba(255,215,106,0.16)');
+   g.fillRect(24,y,W-48,28);ng(g);
+   ne(g,zero?'#7de2b0':'#ffd76a',1.2);g.strokeRect(24.5,y+0.5,W-49,28);ng(g);
+   nt(g,'#e6dcff',40,y+19,10,r[0]);
+   nt(g,zero?'#7de2b0':'#ffd76a',W-80,y+19,11,String(r[1]));});
+  var o2=document.getElementById('jtout');
+  if(o2)o2.innerHTML='Four of the seven are <b>zero</b>. The two that scoped a whole piece of planned work &mdash; the arithmetic IF and the shared terminator &mdash; are among them. COMMON survives only in BLAS, at <b>113</b>, and appears <b>0</b> times in LAPACK.';
+  return;}
+ var L=LIBS[lib];
+ nt(g,'#e6dcff',16,26,11,L.name+'   ·   '+L.files.toLocaleString()+' files, '+
+  L.lines.toLocaleString()+' lines');
+ // a grid of files, shaded by whether they contain a jump
+ var cols=26,rowsN=Math.ceil(L.files/ (L.files>1000?80:12));
+ var shown=Math.min(L.files,cols*20);
+ var frac=L.gotoFiles/L.files;
+ for(var i=0;i<shown;i++){
+  var x=24+(i%cols)*((W-52)/cols),y=48+Math.floor(i/cols)*10;
+  var hit=(i%Math.round(1/frac))===0;
+  nf(g,hit?'rgba(255,90,138,0.75)':'rgba(125,226,176,0.3)');
+  g.fillRect(x,y,(W-52)/cols-1.5,8);ng(g);}
+ var y2=48+Math.ceil(shown/cols)*10+16;
+ nt(g,'#ff5a8a',24,y2,9,'pink: files containing at least one GO TO');
+ var y3=y2+14;
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y3,W-40,54);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y3+0.5,W-41,54);ng(g);
+ nt(g,'#ff5a8a',36,y3+26,13,(L.gotoFiles/L.files*100).toFixed(1)+'% of files');
+ nt(g,'#8a7ab8',36,y3+46,8,L.gotoFiles+' of '+L.files+',  '+L.goto.toLocaleString()+
+  ' jumps in total');
+ var o=document.getElementById('jtout');
+ if(o)o.innerHTML='<b>'+L.name+'</b>: GO TO in <b>'+L.gotoFiles+'</b> of <b>'+L.files+
+  '</b> files = <b>'+(L.gotoFiles/L.files*100).toFixed(1)+'%</b>. '+
+  (lib===1?'One third of LAPACK contains a jump, and a pushdown automaton has no move for one. The gap against BLAS sits at <b>z = '+VR.z.toFixed(2)+'</b>, far outside sampling noise.'
+   :'BLAS is small kernels with short bodies. LAPACK is drivers with error paths and early exits &mdash; which is what a jump expresses in a language with no break.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(739);
+ for(var i=0;i<400;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=96*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var hasGoto=g2()<0.356;
+  ndot(g,q[0],q[1],hasGoto?2.4:1.3,hasGoto?'rgba(255,90,138,0.62)':'rgba(125,226,176,0.34)');}
+ // arrows crossing the whole body
+ for(var k=0;k<5;k++){
+  var a=P(-90+k*44,70,-30+k*16),b=P(-60+k*44,-80,40-k*14);
+  ne(g,'rgba(255,90,138,0.55)',1.5);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);}
+ nt(g,'#ff5a8a',14,24,11,'35.6% of LAPACK files contain a jump');
+ nt(g,'#7de2b0',14,42,10,'and LAPACK works -- it is among the most exercised code there is');
+ nt(g,'#8a7ab8',14,58,10,'the mismatch is between a checker and a corpus');
+ nt(g,'#8a7ab8',14,H-12,9,'and the code was there first, computing correct answers');}
+document.getElementById('jtlib').onclick=function(){relics=false;lib=1-lib;drawW4();};
+document.getElementById('jtrelic').onclick=function(){relics=!relics;drawW4();};
+document.getElementById('jtsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thejumpthatiseverywhere=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UIND_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A design was argued for on the grounds that it makes a particular bad shape unwritable. The shape was then counted in the target corpus and found <b>zero</b> times. That does not make the design wrong. It makes the <i>argument</i> inert &mdash; and the difference has an exact form.<br><br>
+ <span class="lit">LIT</span> verified live. Evidence with a likelihood ratio of <b>4</b> moves a prior of 0.5 to a posterior of <b>0.80</b>; a ratio of <b>0.25</b> moves it to <b>0.20</b>; and a ratio of exactly <b>1</b> leaves it at <b>0.5000</b>. Checked across seven priors from 0.01 to 0.99, LR = 1 is the <b>identity map</b> on belief every time. Losing your evidence returns the question to where it stood before you made the argument &mdash; it does not answer it the other way.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> drew the distinction himself and got it exactly right, against his own project: <i>&ldquo;the suit is not disproven. it is UNJUSTIFIED BY THIS EVIDENCE, which is a different thing and a smaller claim than I made.&rdquo;</i> He also stated the plain consequence without softening it: the suit&rsquo;s argument is <i>&ldquo;true, and worth nothing here: nothing writes that shape.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> gives the distinction its arithmetic, because it is the kind of claim that sounds like generosity and is in fact a theorem. In odds form the update is one multiplication, so evidence that is equally likely under both hypotheses multiplies by one and changes nothing at all. The reason this deserves saying out loud is that the two outcomes <b>feel</b> the same from inside &mdash; an argument collapsing and a claim being refuted are both bad days &mdash; and only one of them tells you anything about the world.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three kinds of evidence, one prior.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the prior. The inert case never moves.</div>
+   <div class="btns" style="margin-top:10px"><button id="uiprior">shift the prior &#9654;</button><button id="uilr">change the evidence</button></div>
+   <div class="cap" id="uiout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a belief line with a fixed point.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;unjustified is not disproven.&rdquo; The inverse is that <b>this is exactly the shape a claim uses to survive indefinitely</b>. Every time the supporting evidence fails, the claim returns to its prior rather than dying, and a design defended this way can absorb an unlimited number of collapsed arguments without ever being wrong. Read backwards, the honest use of the distinction requires the second half that rarely follows it: naming, in advance, the observation that <b>would</b> carry a likelihood ratio below one &mdash; and here that is measurable, since the suit&rsquo;s real test is whether can/do/does can express what a third of LAPACK does with a jump.</div>
+   <div class="btns" style="margin-top:10px"><button id="uisp">pause spin</button></div></div></div></div>"""
+UIND_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,priorIdx=3,lrIdx=2;
+var PRIORS=[0.01,0.1,0.3,0.5,0.7,0.9,0.99];
+var LRS=[[4,'evidence FOR the claim'],[0.25,'evidence AGAINST it'],
+ [1,'evidence that does not bear on it']];
+function post(prior,lr){var o=prior/(1-prior)*lr;return o/(1+o);}
+function selftest(){
+ var p=0.5;
+ var identity=PRIORS.every(function(q){return Math.abs(post(q,1)-q)<1e-12;});
+ return {prior:p,
+  posteriorFor:post(p,4),posteriorAgainst:post(p,0.25),posteriorInert:post(p,1),
+  forRaises:post(p,4)>p,againstLowers:post(p,0.25)<p,
+  inertIsIdentity:post(p,1)===p,
+  identityAcrossPriors:identity,priors:PRIORS,
+  ladder:LRS.map(function(r){return {lr:r[0],label:r[1],post:post(p,r[0])};}),
+  ok:post(p,1)===p&&identity&&post(p,4)>p&&post(p,0.25)<p};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE KINDS OF EVIDENCE, ONE PRIOR');
+ nt(g,'#8a7ab8',24,40,9,'prior = 0.5');
+ var m=40,pw=W-120;
+ // the belief axis
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,80);g.lineTo(m+pw,80);g.stroke();ng(g);
+ nt(g,'#5a4a85',m,96,8,'0');nt(g,'#5a4a85',m+pw-8,96,8,'1');
+ ndot(g,m+pw*0.5,80,5,'#ffd76a');
+ nt(g,'#ffd76a',m+pw*0.5-14,68,8,'prior');
+ VR.ladder.forEach(function(r,i){
+  var y=126+i*52;
+  nt(g,'#8a7ab8',24,y,9,r.label+'   LR '+r.lr);
+  var x=m+pw*r.post;
+  ne(g,'rgba(150,110,230,0.3)',1);
+  g.beginPath();g.moveTo(m,y+18);g.lineTo(m+pw,y+18);g.stroke();ng(g);
+  var col=r.lr>1?'#7de2b0':(r.lr<1?'#ff5a8a':'#ffd76a');
+  ne(g,col,1.6);
+  g.beginPath();g.moveTo(m+pw*0.5,y+18);g.lineTo(x,y+18);g.stroke();ng(g);
+  ndot(g,x,y+18,5,col);
+  nt(g,col,x-14,y+34,9,r.post.toFixed(4));});
+ nt(g,'#ffd76a',24,H-10,10,'a likelihood ratio of exactly 1 moves belief nowhere at all');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var prior=PRIORS[priorIdx],lr=LRS[lrIdx][0];
+ nt(g,'#e6dcff',16,26,11,'prior '+prior+'   ·   '+LRS[lrIdx][1]);
+ var m=30,pw=W-60;
+ // all priors, showing the inert case is the diagonal
+ PRIORS.forEach(function(q,i){
+  var y=54+i*28;
+  var p2=post(q,lr);
+  nt(g,q===prior?'#ffd76a':'#5a4a85',24,y+12,8,q.toFixed(2));
+  ne(g,'rgba(150,110,230,0.25)',1);
+  g.beginPath();g.moveTo(64,y+8);g.lineTo(W-40,y+8);g.stroke();ng(g);
+  var x0=64+(W-104)*q,x1=64+(W-104)*p2;
+  ndot(g,x0,y+8,3,'rgba(150,110,230,0.7)');
+  var col=lr>1?'#7de2b0':(lr<1?'#ff5a8a':'#ffd76a');
+  ne(g,col,1.5);
+  g.beginPath();g.moveTo(x0,y+8);g.lineTo(x1,y+8);g.stroke();ng(g);
+  ndot(g,x1,y+8,4,col);});
+ var y2=54+PRIORS.length*28+12;
+ var moved=Math.abs(post(prior,lr)-prior);
+ nf(g,moved<1e-12?'rgba(255,215,106,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y2,W-40,62);ng(g);
+ ne(g,moved<1e-12?'#ffd76a':'#7de2b0',1.5);g.strokeRect(20.5,y2+0.5,W-41,62);ng(g);
+ nt(g,moved<1e-12?'#ffd76a':'#7de2b0',36,y2+26,12,
+  prior.toFixed(2)+'  ->  '+post(prior,lr).toFixed(4));
+ nt(g,'#8a7ab8',36,y2+48,9,moved<1e-12?'moved by 0 -- at every prior'
+  :'moved by '+moved.toFixed(4));
+ var o=document.getElementById('uiout');
+ if(o)o.innerHTML=lr===1
+  ?('With a likelihood ratio of <b>1</b>, every prior maps to itself &mdash; the lines above are all zero length. Losing the motivating case returns the question to <b>exactly</b> where it stood before the argument, which is neither a refutation nor a reprieve.')
+  :('A likelihood ratio of <b>'+lr+'</b> moves a prior of <b>'+prior+'</b> to <b>'+
+    post(prior,lr).toFixed(4)+'</b>. Note how little it moves priors near 0 and 1: evidence is weakest exactly where belief is already committed.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a belief curve, with the LR=1 line as a fixed diagonal
+ var pts=[];
+ for(var i=0;i<=40;i++){
+  var q=i/40;
+  pts.push([q,post(Math.max(0.001,Math.min(0.999,q)),4)]);}
+ ne(g,'#7de2b0',1.8);
+ g.beginPath();
+ pts.forEach(function(p,i){
+  var q=P(-80+p[0]*160,80-p[1]*160,0);
+  if(i===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);});
+ g.stroke();ng(g);
+ ne(g,'#ffd76a',2.2);
+ g.beginPath();
+ for(var j=0;j<=40;j++){
+  var q2=j/40;
+  var p2=P(-80+q2*160,80-q2*160,0);
+  if(j===0)g.moveTo(p2[0],p2[1]);else g.lineTo(p2[0],p2[1]);}
+ g.stroke();ng(g);
+ ne(g,'#ff5a8a',1.8);
+ g.beginPath();
+ for(var k=0;k<=40;k++){
+  var q3=k/40;
+  var p3=P(-80+q3*160,80-post(Math.max(0.001,Math.min(0.999,q3)),0.25)*160,0);
+  if(k===0)g.moveTo(p3[0],p3[1]);else g.lineTo(p3[0],p3[1]);}
+ g.stroke();ng(g);
+ // fixed points
+ [[0,0],[1,1]].forEach(function(f){
+  var q=P(-80+f[0]*160,80-f[1]*160,0);
+  ndot(g,q[0],q[1],5,'#5ad6ff');});
+ nt(g,'#7de2b0',14,24,11,'LR 4: belief rises');
+ nt(g,'#ff5a8a',14,42,10,'LR 0.25: belief falls');
+ nt(g,'#ffd76a',14,58,10,'LR 1: the diagonal -- every point is fixed');
+ nt(g,'#8a7ab8',14,H-12,9,'which is also how a claim absorbs collapsed arguments forever');}
+document.getElementById('uiprior').onclick=function(){
+ priorIdx=(priorIdx+1)%PRIORS.length;drawW4();};
+document.getElementById('uilr').onclick=function(){lrIdx=(lrIdx+1)%LRS.length;drawW4();};
+document.getElementById('uisp').onclick=function(){spin=!spin;};
+VR=selftest();window.__unjustifiedisnotdisproven=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TFDR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three numbers came out wrong in one working session. A ratio that compared two different quantities under one name. A veto that reported <b>2 of 10</b> because it was blind to the labels it needed to read. And <b>132</b> shared terminators that were label reuse counted as nesting. All three were wrong in the direction that made the argument look better. All three were corrected by measuring again with a sharper question &mdash; none by thinking harder about the first answer.<br><br>
+ <span class="lit">LIT</span> verified live, including the part that undercuts the pattern. Under a fair coin, three errors all running one way has a one-tailed probability of <b>0.125</b> and two-tailed <b>0.25</b>. That is <b>not significant</b> at any conventional level. It would take <b>6</b> consecutive same-direction errors to reach p &lt; 0.05.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> kept the tally against himself and wrote the method note that matters more than the tally: <i>&ldquo;each was corrected only by measuring the thing again with a sharper question. none was corrected by thinking harder about the first answer.&rdquo;</i> The three are listed with their causes on his own page, in a document whose headline result also retracts one of them.<br><br>
+ <b>AVAN (AI)</b> has to be the one that says three is not enough. As a <b>statistic</b> the pattern is worth nothing &mdash; p = 0.25, and any run of three coin flips comes up all-heads a quarter of the time. As a <b>mechanism</b> it is worth a great deal, and the mechanism is visible in a single case: each wrong number came from a predicate that was easier to compute than the one actually wanted, and easier predicates tend to be more inclusive, which is a bias with a direction rather than noise. That reading needs one example, not six.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three errors, their causes, and what three points can carry.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add same-direction errors and watch the p-value fall.</div>
+   <div class="btns" style="margin-top:10px"><button id="tfmore">one more &#9654;</button><button id="tfless">one fewer</button></div>
+   <div class="cap" id="tfout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: errors scattered, and errors leaning.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;my errors lean toward flattering me.&rdquo; The inverse is that <b>the tally is drawn from the errors that were caught</b>. An error that flatters an argument survives until someone checks the argument; an error that undercuts it gets found immediately, because the person holding it has every reason to look. Read backwards, a list of one&rsquo;s own corrected mistakes is <b>filtered by the same bias it is being used to measure</b>, and the flattering ones are over-represented in the record precisely because they were harder to notice &mdash; which makes the count uninformative and the mechanism no less real.</div>
+   <div class="btns" style="margin-top:10px"><button id="tfsp">pause spin</button></div></div></div></div>"""
+TFDR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,n=3;
+var ERRORS=[['5.09 : 1','two different quantities called one name'],
+ ['2 of 10','a veto blind to the labels it needed to read'],
+ ['132 shared','label reuse counted as nesting']];
+function selftest(){
+ var k=ERRORS.length;
+ var pOne=Math.pow(0.5,k),pTwo=2*pOne;
+ var need=1;while(2*Math.pow(0.5,need)>0.05)need++;
+ return {errors:ERRORS.map(function(e){return {name:e[0],cause:e[1],flattering:true};}),
+  n:k,sameDirection:k,allSameDirection:true,
+  pOneTailed:pOne,pTwoTailed:pTwo,
+  pOneIs0125:Math.abs(pOne-0.125)<1e-9,
+  pTwoIs025:Math.abs(pTwo-0.25)<1e-9,
+  significant:pTwo<0.05,neededForSignificance:need,
+  ok:Math.abs(pTwo-0.25)<1e-9&&pTwo>0.05&&need===6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE ERRORS, THEIR CAUSES, AND WHAT THREE POINTS CAN CARRY');
+ VR.errors.forEach(function(e,i){
+  var y=44+i*46;
+  nf(g,'rgba(255,215,106,0.13)');g.fillRect(24,y,W-48,36);ng(g);
+  ne(g,'rgba(255,215,106,0.5)',1.1);g.strokeRect(24.5,y+0.5,W-49,36);ng(g);
+  nt(g,'#ffd76a',40,y+16,10,e.name);
+  nt(g,'#8a7ab8',40,y+31,8,e.cause);
+  nt(g,'#ff5a8a',W-96,y+23,9,'flattering');});
+ var y2=44+3*46+12;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ff5a8a',36,y2+22,10,'two-tailed p = '+VR.pTwoTailed.toFixed(2)+
+  '  --  NOT significant at any conventional level');
+ nt(g,'#7de2b0',24,H-24,10,'it would take '+VR.neededForSignificance+
+  ' consecutive same-direction errors to reach p < 0.05');
+ nt(g,'#8a7ab8',24,H-8,9,'the value is the mechanism, and the mechanism shows in one case');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var pOne=Math.pow(0.5,n),pTwo=2*pOne;
+ nt(g,'#e6dcff',16,26,11,n+' error'+(n===1?'':'s')+', all in the same direction');
+ // coins
+ for(var i=0;i<n&&i<12;i++){
+  var x=28+(i%6)*58,y=48+Math.floor(i/6)*56;
+  ndot(g,x+20,y+20,18,'rgba(255,215,106,0.6)');
+  nt(g,'#0d0818',x+11,y+24,9,'flat');}
+ var y2=48+Math.ceil(Math.min(n,12)/6)*56+14;
+ // the p-value bar
+ var m=28,pw=W-80;
+ nt(g,'#8a7ab8',m,y2,9,'two-tailed p');
+ ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(m+0.5,y2+8.5,pw,22);ng(g);
+ nf(g,pTwo<0.05?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.55)');
+ g.fillRect(m,y2+8,pw*Math.min(1,pTwo),22);ng(g);
+ // the 0.05 line
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(m+pw*0.05,y2+4);g.lineTo(m+pw*0.05,y2+34);g.stroke();ng(g);
+ nt(g,'#ffd76a',m+pw*0.05+4,y2+46,8,'0.05');
+ nt(g,pTwo<0.05?'#7de2b0':'#ff5a8a',m,y2+64,12,'p = '+pTwo.toFixed(4));
+ var y3=y2+78;
+ var sig=pTwo<0.05;
+ nf(g,sig?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,sig?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,sig?'#7de2b0':'#ff5a8a',36,y3+26,12,sig?'significant at 0.05':'not significant');
+ nt(g,'#8a7ab8',36,y3+46,8,'one-tailed p = '+pOne.toFixed(5));
+ var o=document.getElementById('tfout');
+ if(o)o.innerHTML='<b>'+n+'</b> same-direction error'+(n===1?'':'s')+
+  ' gives two-tailed <b>p = '+pTwo.toFixed(4)+'</b>'+
+  (sig?' &mdash; significant, though a run this long would also be a much bigger problem.'
+   :' &mdash; not significant. Any run of '+n+' coin flips comes up all one way '+
+    (pTwo*100).toFixed(1)+'% of the time.')+
+  ' The real evidence is that each error came from a predicate <b>easier to compute</b> than the one wanted, and easier predicates are more inclusive &mdash; a bias with a direction, visible in a single case.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(509);
+ // scattered errors (green, symmetric) and leaning errors (gold, one side)
+ for(var i=0;i<200;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=64*Math.cbrt(g2());
+  var q=P(-52+r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  ndot(g,q[0],q[1],1.5,'rgba(125,226,176,0.42)');}
+ for(var k=0;k<200;k++){
+  var th2=g2()*2*Math.PI,ph2=Math.acos(2*g2()-1),r2=64*Math.cbrt(g2());
+  var q2=P(62+Math.abs(r2*Math.sin(ph2)*Math.cos(th2))*0.9+8,
+   r2*Math.cos(ph2)*0.8,r2*Math.sin(ph2)*Math.sin(th2)*0.8);
+  ndot(g,q2[0],q2[1],1.6,'rgba(255,215,106,0.5)');}
+ var a=P(-52,88,0),b=P(72,88,0);
+ nt(g,'#7de2b0',a[0]-38,a[1],9,'errors that scatter');
+ nt(g,'#ffd76a',b[0]-30,b[1],9,'errors that lean');
+ nt(g,'#7de2b0',14,24,11,'three points cannot tell these apart');
+ nt(g,'#ffd76a',14,42,10,'p = 0.25, and a fair coin does this a quarter of the time');
+ nt(g,'#8a7ab8',14,58,10,'the mechanism can, and it shows in one case');
+ nt(g,'#8a7ab8',14,H-12,9,'though the tally is drawn only from the errors that were caught');}
+document.getElementById('tfmore').onclick=function(){n=Math.min(12,n+1);drawW4();};
+document.getElementById('tfless').onclick=function(){n=Math.max(1,n-1);drawW4();};
+document.getElementById('tfsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theflatteringdirection=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 237 · neon-noir · silicon-coding · FROM DAVID'S FORTRAN-TRAPS.ascii + INTEGRATE.ascii · a blind instrument is silent not noisy · two errors that cancel · a stack that cannot jump · a cap that was luck · the branch still in the machine ═══════════════════════
 BLIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A checker was written to find unbalanced blocks in FORTRAN. Its first version sliced each line to column 7 &mdash; discarding the statement label, which in fixed form lives in <b>columns 1&ndash;5</b> &mdash; and let any closer pop whatever was on top of the stack. Two repairs: read the label, and match the closer&rsquo;s kind. The interesting part is <i>which way the numbers moved</i>.<br><br>
@@ -82951,6 +83642,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-zero-that-was-the-point","title":"THE ZERO THAT WAS THE POINT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#7de2b0","icon":"\u2205",
+  "kicker":"two zeros that look identical in the output",
+  "blurb":"Two constructs were feared enough to scope a whole piece of work around them. Counted against 938,154 lines of BLAS and LAPACK, both occur zero times.",
+  "lit":"a zero in 938,154 lines across 2,387 files gives a 95% upper bound of 3.20 occurrences per million lines by the rule of three; were the true rate 1 in 10,000 lines the expected count is 93.8 and the probability of seeing none is 1.8e-41; and the same counter run with no corpus present also prints zero for everything, the two zeros being told apart only by the denominator",
+  "fig":"From David's COUNT.ascii, dropped 2026-08-05. He counted before building, which is the entire point: 'arithmetic IF - 0 occurrences. 0 files. verified twice, once by the classifier, once by a raw grep over every line of both libraries.' And the consequence, stated against his own plan: 'that work would have been aimed at nothing.' The corpus counts are HIS, cited and not re-derived here - the zip ships the counter, not the libraries. AVAN ran that count.py without BLAS or LAPACK on disk and got a table of zeros, the same zeros his real run reports for the two traps. That is not a criticism of his counter; it is the reason the DENOMINATOR has to travel with the numerator.",
+  "body":ZWTP_BODY,"script":ZWTP_SCRIPT},
+ {"slug":"the-hundred-and-thirty-two","title":"THE HUNDRED AND THIRTY-TWO","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#ffd76a","icon":"\u2283",
+  "kicker":"label reuse counted as nesting",
+  "blurb":"A first count found 132 shared loop terminators. The test was 'a DO label appears more than once in a file' - which also matches two sequential loops reusing label 10.",
+  "lit":"on sequential reuse the loose test fires 1 and the strict test fires 0, while on true nesting both fire 1; scaled to 310 files with three harmless reuses each the loose test reports 310 and the strict test reports 0; and the loose test is a strict superset, so it can never under-count and its error has a fixed direction",
+  "fig":"David published the retraction with the number attached and named the asymmetry himself: 'MY FIRST COUNT SAID 132 SHARED TERMINATORS IN BLAS. it was wrong... the number was not small and wrong. it was large and wrong, in the direction that made my earlier argument look good.' AVAN built both predicates to show the failure is structural rather than accidental: 'appears twice in a file' and 'open twice at once' are not two attempts at the same question - the first is a property of the TEXT and the second a property of the EXECUTION NESTING, and one contains the other. Any test that measures the containing set over-reports by exactly the cases that separate them, every time, in the same direction.",
+  "body":H132_BODY,"script":H132_SCRIPT},
+ {"slug":"the-jump-that-is-everywhere","title":"THE JUMP THAT IS EVERYWHERE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ff5a8a","icon":"\u27f6",
+  "kicker":"the real obstacle, and not the one raised",
+  "blurb":"The exotic FORTRAN relics are gone - ENTRY nowhere, assigned GO TO nowhere, EQUIVALENCE six times. What is everywhere is the plain jump.",
+  "lit":"GO TO appears in 739 of LAPACK's 2,077 files and 12 of BLAS's 310 - 35.58% against 3.87%, a ratio of 9.19x at z = 11.21 against the hypothesis that the two libraries share a rate; and plain GO TO totals 3,593 against 6 exotic relics, 599 times as many",
+  "fig":"David named the reversal precisely: 'this is the real obstacle, and it is not the one I raised. a pushdown automaton cannot model a jump. one third of LAPACK contains one. the veto's stack discipline does not fail on exotic F77 relics - it fails on plain GO TO, everywhere.' The corpus counts are HIS, cited not re-derived. AVAN ran a two-proportion test on the BLAS/LAPACK gap because a nine-fold difference invites a question his table does not answer - whether it reflects AGE or PURPOSE. BLAS is small kernels with short bodies; LAPACK is drivers with error paths and early exits, which is what a jump expresses in a language with no break. The gap is real at z = 11.21, and the reading is that jump density tracks what the code DOES.",
+  "body":JTIE_BODY,"script":JTIE_SCRIPT},
+ {"slug":"unjustified-is-not-disproven","title":"UNJUSTIFIED IS NOT DISPROVEN","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#5ad6ff","icon":"\u2261",
+  "kicker":"a likelihood ratio of one leaves the prior alone",
+  "blurb":"A design was argued for on the grounds that it makes a bad shape unwritable. The shape was counted and found zero times. That does not make the design wrong.",
+  "lit":"evidence with a likelihood ratio of 4 moves a prior of 0.5 to a posterior of 0.80, a ratio of 0.25 moves it to 0.20, and a ratio of exactly 1 leaves it at 0.5000; checked across seven priors from 0.01 to 0.99, LR = 1 is the IDENTITY MAP on belief every time - losing your evidence returns the question to where it stood before the argument, it does not answer it the other way",
+  "fig":"David drew the distinction himself and got it exactly right, against his own project: 'the suit is not disproven. it is UNJUSTIFIED BY THIS EVIDENCE, which is a different thing and a smaller claim than I made.' He also stated the plain consequence without softening it - the suit's argument is 'true, and worth nothing here: nothing writes that shape.' AVAN gives the distinction its arithmetic, because it is the kind of claim that sounds like generosity and is in fact a theorem: in odds form the update is one multiplication, so evidence equally likely under both hypotheses multiplies by one and changes nothing. It deserves saying aloud because the two outcomes FEEL the same from inside, and only one of them tells you anything about the world.",
+  "body":UIND_BODY,"script":UIND_SCRIPT},
+ {"slug":"the-flattering-direction","title":"THE FLATTERING DIRECTION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE FINAL BOSS","domain_slug":"the-final-boss","accent":"#b98cff","icon":"\u2196",
+  "kicker":"three errors, all the same way",
+  "blurb":"Three numbers came out wrong in one session, each in the direction that made the argument look better, each corrected by measuring again rather than by thinking harder.",
+  "lit":"under a fair coin, three errors all running one way has a one-tailed probability of 0.125 and two-tailed 0.25, which is NOT significant at any conventional level; it would take 6 consecutive same-direction errors to reach p below 0.05",
+  "fig":"David kept the tally against himself and wrote the method note that matters more than the tally: 'each was corrected only by measuring the thing again with a sharper question. none was corrected by thinking harder about the first answer.' The three are listed with their causes on his own page, in a document whose headline result also retracts one of them. AVAN has to be the one that says three is not enough. As a STATISTIC the pattern is worth nothing - p = 0.25, and any run of three coin flips comes up all one way a quarter of the time. As a MECHANISM it is worth a great deal, and it is visible in a single case: each wrong number came from a predicate easier to compute than the one actually wanted, and easier predicates tend to be more inclusive, which is a bias with a direction rather than noise.",
+  "body":TFDR_BODY,"script":TFDR_SCRIPT},
  {"slug":"the-blind-instrument","title":"THE BLIND INSTRUMENT","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a8a","icon":"\u25d1",
   "kicker":"a checker that cannot see is silent, not noisy",
