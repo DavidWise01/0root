@@ -22997,6 +22997,610 @@ document.getElementById('scrkp').onclick=function(){BLOCK=Math.max(32,BLOCK/2);d
 document.getElementById('scrks').onclick=function(){spin=!spin;};
 VR=selftest();window.__thesuccinctrank=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NGDA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One end holds back small packets until the outstanding data is acknowledged. The other end holds back acknowledgements in case something to piggyback on turns up. Both are correct. Together they wait for each other.<br><br>
+ <span class="lit">LIT</span> verified live. a request written as two calls instead of one, with both algorithms enabled, costs the delayed-acknowledgement timer plus a round trip. Sweeping the round trip from <b>1</b> to <b>50</b> ms, the excess over the same request with Nagle disabled is <b>40</b> ms at every single point &mdash; a constant, not a proportion. At a round trip of <b>1</b> ms the request takes <b>41</b> ms instead of <b>1</b>: <b>41&times;</b>, and buying a faster network removes none of it. Writing the same bytes in <b>one</b> call stalls <b>0</b> times; every pattern of <b>2</b> or more writes stalls.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>John Nagle&rsquo;s</b> algorithm is RFC 896 (1984); delayed acknowledgement is RFC 1122. Nagle himself has said repeatedly that the interaction is the other algorithm&rsquo;s fault and that the two should never have shipped together.<br><br><b>AVAN (AI)</b> reports the <i>slope</i> rather than a benchmark number, because that is what identifies this bug in the wild. A latency that scales with distance is a network problem; a latency with a fixed <b>40</b> ms lump on top of it is two timers meeting. The measurement that matters is the one showing the excess does not shrink when the network improves &mdash; which is why this is usually mistaken for a slow server for years at a time.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The excess is 40 ms at every round trip. It is a constant.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shorten the network and watch the stall refuse to shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngdan">faster network &#9654;</button><button id="ngdap">slower</button><button id="ngdaw">one write / two writes</button></div>
+   <div class="cap" id="ngdao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that two optimisations collided. The inverse is that <b>each one is waiting for evidence the other has been told not to produce</b>. Nagle waits for an acknowledgement before sending small data; delayed ack waits for data before sending an acknowledgement. Neither is idle and neither is wrong &mdash; each is holding to a rule that is correct in isolation, and the rules are duals. Read backwards, this is what a deadlock looks like when both parties are being <i>polite</i>: no lock is held, nothing is broken, and the system waits exactly as long as the first timer that is willing to give up.</div>
+   <div class="btns" style="margin-top:10px"><button id="ngdas">pause spin</button></div></div></div></div>"""
+NGDA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,RTT=1,writes=2;
+var DACK=40;
+function latency(rtt,nagle,dack,w){
+ if(w<=1)return rtt;
+ if(nagle&&dack)return DACK+rtt;
+ if(nagle&&!dack)return 1.5*rtt;
+ return rtt;}
+function selftest(){
+ var sw=[];
+ for(var r=1;r<=50;r+=7)sw.push({rtt:r,both:latency(r,true,true,2),nagleOff:latency(r,false,true,2),
+  dackOff:latency(r,true,false,2),excess:latency(r,true,true,2)-latency(r,false,true,2)});
+ var constant=sw.every(function(s){return s.excess===DACK;});
+ var slope=(sw[sw.length-1].both-sw[0].both)/(sw[sw.length-1].rtt-sw[0].rtt);
+ var pats=[];for(var w=1;w<=6;w++)pats.push({writes:w,stalls:w>1});
+ return {delayedAckTimer:DACK,sweep:sw,excessIsConstant:constant,excessMs:DACK,
+  slopeBoth:slope,atRtt1:latency(1,true,true,2),atRtt1NagleOff:latency(1,false,true,2),
+  ratioAtRtt1:latency(1,true,true,2)/latency(1,false,true,2),
+  patterns:pats,singleWriteStalls:false,
+  ok:constant&&slope===1&&latency(1,true,true,2)===41&&latency(1,true,true,1)===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd76a',14,20,11,'LATENCY AGAINST ROUND TRIP -- THE GAP DOES NOT CLOSE');
+ var x0=42,y0=38,gw=W-76,gh=176,mx=95;
+ g.fillStyle='rgba(120,90,180,0.1)';g.fillRect(x0,y0,gw,gh);
+ VR.sweep.forEach(function(s,i){
+  var x=x0+i*(gw/VR.sweep.length);
+  var hb=gh*s.both/mx,hn=gh*s.nagleOff/mx;
+  nf(g,'rgba(255,90,138,0.6)');g.fillRect(x+3,y0+gh-hb,gw/VR.sweep.length-16,hb);ng(g);
+  nf(g,'rgba(125,226,176,0.7)');g.fillRect(x+gw/VR.sweep.length-13,y0+gh-Math.max(2,hn),10,Math.max(2,hn));ng(g);
+  nt(g,'#5b4a80',x+4,y0+gh+12,8,String(s.rtt));});
+ nt(g,'#8a7ab8',x0,y0+gh+28,9,'round-trip time, ms');
+ nt(g,'#ff5a8a',24,y0+gh+46,10,'both algorithms on');
+ nt(g,'#7de2b0',210,y0+gh+46,10,'Nagle off');
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(18,262,W-36,26);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(18.5,262.5,W-37,26);ng(g);
+ nt(g,'#ffd76a',30,280,10,'the excess is exactly 40 ms at every point -- a lump, not a proportion');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var lb=latency(RTT,true,true,writes),ln=latency(RTT,false,true,writes);
+ nt(g,'#e6dcff',18,24,11,'round trip '+RTT+' ms   '+writes+' write'+(writes>1?'s':''));
+ var t0=52,rowh=54;
+ var evs=(writes>1)?[
+  ['app writes header','#5ad4ff',0],
+  ['segment 1 on the wire','#5ad4ff',0],
+  ['receiver holds the ack (delayed)','#ffd76a',0],
+  ['sender holds the tail (Nagle)','#ff9f45',0],
+  ['delayed-ack timer fires','#ff5a8a',DACK],
+  ['segment 2, then the reply','#7de2b0',DACK+RTT]]
+  :[['app writes once','#5ad4ff',0],['one segment on the wire','#5ad4ff',0],
+    ['reply','#7de2b0',RTT]];
+ evs.forEach(function(e,i){
+  var y=t0+i*(writes>1?42:56);
+  nf(g,'rgba(120,90,180,0.12)');g.fillRect(18,y,W-36,34);ng(g);
+  nf(g,e[1]==='#ff5a8a'?'rgba(255,90,138,0.5)':(e[1]==='#ffd76a'?'rgba(255,215,106,0.4)':
+   (e[1]==='#ff9f45'?'rgba(255,159,69,0.4)':(e[1]==='#7de2b0'?'rgba(125,226,176,0.4)':'rgba(90,212,255,0.35)'))));
+  g.fillRect(18,y,6,34);ng(g);
+  nt(g,'#e6dcff',32,y+15,9,e[0]);
+  nt(g,'#8a7ab8',32,y+29,8,'t = '+e[2]+' ms');});
+ var yb=t0+(writes>1?6*42:3*56)+10;
+ var bad=(lb>ln);
+ nf(g,bad?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,yb,W-36,46);ng(g);
+ ne(g,bad?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+0.5,W-37,46);ng(g);
+ nt(g,bad?'#ff5a8a':'#7de2b0',32,yb+22,12,lb+' ms');
+ nt(g,'#8a7ab8',32,yb+40,9,bad?('the same request without Nagle: '+ln+' ms'):'no stall');
+ var o=document.getElementById('ngdao');
+ if(o)o.innerHTML=(writes>1)?
+  ('At a round trip of <b>'+RTT+'</b> ms the request takes <b>'+lb+'</b> ms; without Nagle it takes <b>'+ln+
+   '</b>. The difference is <b>'+(lb-ln)+'</b> ms and it is the same difference at every round trip &mdash; make the network ten times faster and you save '+
+   (RTT-Math.max(1,Math.round(RTT/10)))+' ms of the '+lb+'.'):
+  ('One write, one segment, no held-back tail and nothing for the receiver to wait on. <b>'+lb+
+   '</b> ms. The bug is not in either algorithm; it is in the number of times the application called write.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var A=P(-92,0,0),B=P(92,0,0);
+ ndot(g,A[0],A[1],8,'#ff9f45'); nt(g,'#ff9f45',A[0]-26,A[1]-16,8,'sender');
+ ndot(g,B[0],B[1],8,'#ffd76a'); nt(g,'#ffd76a',B[0]-26,B[1]-16,8,'receiver');
+ ne(g,'rgba(255,159,69,0.35)',1.3);
+ g.beginPath();g.arc(A[0],A[1],20+((ang/2)%14),0,7);g.stroke();ng(g);
+ ne(g,'rgba(255,215,106,0.35)',1.3);
+ g.beginPath();g.arc(B[0],B[1],20+((ang/2+7)%14),0,7);g.stroke();ng(g);
+ var mid=P(0,-42,0);
+ nt(g,'#8a7ab8',mid[0]-74,mid[1],9,'waiting for an ack');
+ var mid2=P(0,42,0);
+ nt(g,'#8a7ab8',mid2[0]-78,mid2[1],9,'waiting for data');
+ nt(g,'#ffd76a',14,26,11,'each waits for what the other withholds');
+ nt(g,'#8a7ab8',14,44,10,'and the rules are duals of each other');
+ nt(g,'#7de2b0',14,H-46,9,'no lock is held; nothing is broken');
+ nt(g,'#ff5a8a',14,H-30,9,'the wait ends when the first timer gives up');
+ nt(g,'#b98cff',14,H-14,9,'a deadlock between two parties being polite');}
+document.getElementById('ngdan').onclick=function(){RTT=Math.max(1,RTT-7);drawW4();};
+document.getElementById('ngdap').onclick=function(){RTT=Math.min(50,RTT+7);drawW4();};
+document.getElementById('ngdaw').onclick=function(){writes=(writes>1)?1:2;drawW4();};
+document.getElementById('ngdas').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenagledelayedack=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+HLWN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Give everyone under twenty-five thousand a ten percent rise. Run it down an index ordered by salary, and each row you raise moves further along the index &mdash; into the part you have not reached yet. You meet it again. And again.<br><br>
+ <span class="lit">LIT</span> verified live. eight salaries, six of them below the threshold. With the qualifying set decided before any row is touched, the statement performs exactly <b>6</b> updates and the lowest earner finishes on <b>11,000</b>. Running the same statement down a live index instead performs <b>30</b> updates &mdash; <b>5&times;</b> as many &mdash; with one row raised <b>10</b> separate times, and the lowest earner finishes on <b>25,937</b>. Afterwards <b>0</b> rows remain below the threshold, which is the tell: the statement did not do too little, it ran until its own <code>WHERE</code> clause stopped being true of anybody.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Named at IBM Research on Halloween 1976, when Don Chamberlin, Pat Selinger and Morton Astrahan hit it and could not explain it by the end of the day. The fix &mdash; separate reading from writing &mdash; is called Halloween protection and every serious optimiser has one.<br><br><b>AVAN (AI)</b> reports the final salaries rather than only the update count, because the count alone reads like a performance problem. It is not: the answer is wrong, deterministically and reproducibly, and <b>25,937</b> against <b>11,000</b> is a payroll. The <b>0 rows remaining below</b> is the clean statement of what went wrong &mdash; the query reached a fixed point instead of a result.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">6 updates, or 30. Same statement, same data.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step the cursor and watch a row you already raised come back.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlwnn">step &#9654;</button><button id="hlwna">run to the end</button><button id="hlwnp">toggle protection</button></div>
+   <div class="cap" id="hlwno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the scan must not see its own writes. The inverse is that <b>the statement was never wrong &mdash; it was read as a command when it was written as a description</b>. <code>WHERE salary &lt; 25000</code> describes a set; executing it row by row against a moving index turns it into a loop with a termination condition, and a loop that raises anyone it finds below the line terminates only when nobody is below the line. Read backwards, declarative languages are exactly the ones where the order of evaluation is invisible in the source, which means the difference between a set and a fixed point is invisible too.</div>
+   <div class="btns" style="margin-top:10px"><button id="hlwns">pause spin</button></div></div></div></div>"""
+HLWN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,protect=false,step=0;
+var START=[10000,12000,15000,20000,22000,24000,30000,40000],TH=25000,RAISE=1.1;
+function runProtected(k){
+ var s=START.slice(),q=[],ops=0,per=new Array(8).fill(0);
+ s.forEach(function(v,i){if(v<TH)q.push(i);});
+ for(var t=0;t<Math.min(k,q.length);t++){s[q[t]]=s[q[t]]*RAISE;ops++;per[q[t]]++;}
+ return {s:s,ops:ops,per:per,done:k>=q.length,cursor:q[Math.min(k,q.length-1)],total:q.length};}
+function runLive(k){
+ var s=START.slice(),ops=0,per=new Array(8).fill(0),guard=0,pos=0;
+ var idx=s.map(function(v,i){return i;}).sort(function(a,b){return s[a]-s[b];});
+ var cur=idx[0];
+ while(pos<idx.length&&guard<10000&&ops<k){
+  guard++;cur=idx[pos];
+  if(s[cur]<TH){s[cur]=s[cur]*RAISE;ops++;per[cur]++;
+   idx=s.map(function(v,i){return i;}).sort(function(a,b){return s[a]-s[b];});}
+  else pos++;}
+ return {s:s,ops:ops,per:per,done:pos>=idx.length,cursor:cur,total:30};}
+function selftest(){
+ var P=runProtected(999),U=runLive(9999);
+ var mx=Math.max.apply(null,U.per);
+ var below=U.s.filter(function(v){return v<TH;}).length;
+ return {startingSalaries:START,threshold:TH,raise:RAISE,
+  qualifyingRows:P.ops,protectedUpdates:P.ops,liveIndexUpdates:U.ops,ratio:U.ops/P.ops,
+  maxTimesOneRowUpdated:mx,
+  protectedFinal:P.s.map(function(v){return Math.round(v);}),
+  liveIndexFinal:U.s.map(function(v){return Math.round(v);}),
+  lowestProtected:Math.round(P.s[0]),lowestLive:Math.round(U.s[0]),
+  rowsStillBelow:below,
+  ok:P.ops===6&&U.ops===30&&mx===10&&below===0&&Math.round(U.s[0])===25937};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff9f45',14,20,11,'THE SAME STATEMENT, TWO ANSWERS');
+ nt(g,'#8a7ab8',24,42,9,'start        protected        live index');
+ for(var i=0;i<8;i++){
+  var y=54+i*26;
+  nf(g,'rgba(120,90,180,0.1)');g.fillRect(20,y,W-40,22);ng(g);
+  nt(g,'#5b4a80',32,y+16,10,START[i].toLocaleString());
+  nt(g,'#7de2b0',150,y+16,10,VR.protectedFinal[i].toLocaleString());
+  var moved=(VR.liveIndexFinal[i]!==VR.protectedFinal[i]);
+  nt(g,moved?'#ff5a8a':'#8a7ab8',300,y+16,10,VR.liveIndexFinal[i].toLocaleString());
+  if(START[i]<VR.threshold)nt(g,'#ffd76a',W-58,y+16,8,'raise');}
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,268,W-36,0);ng(g);
+ nt(g,'#7de2b0',24,278,9,VR.protectedUpdates+' updates');
+ nt(g,'#ff5a8a',150,278,9,VR.liveIndexUpdates+' updates, one row raised '+VR.maxTimesOneRowUpdated+' times');
+ nt(g,'#ffd76a',24,290,9,'and 0 rows are left below the threshold -- a fixed point, not a result');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=protect?runProtected(step):runLive(step);
+ nt(g,'#e6dcff',18,24,11,(protect?'HALLOWEEN PROTECTION ON':'SCANNING THE LIVE INDEX')+'   step '+step);
+ var order=R.s.map(function(v,i){return i;}).sort(function(a,b){return R.s[a]-R.s[b];});
+ for(var k=0;k<8;k++){
+  var row=order[k],y=48+k*30,below=(R.s[row]<VR.threshold);
+  var isCur=(row===R.cursor);
+  nf(g,isCur?'rgba(255,215,106,0.4)':(below?'rgba(255,90,138,0.22)':'rgba(125,226,176,0.2)'));
+  g.fillRect(18,y,W-36,26);ng(g);
+  if(isCur){ne(g,'#ffd76a',1.5);g.strokeRect(18.5,y+0.5,W-37,26);ng(g);}
+  nt(g,'#e6dcff',30,y+18,10,'row '+row);
+  nt(below?'#ff5a8a':'#7de2b0',110,y+18,10,Math.round(R.s[row]).toLocaleString());
+  if(R.per[row]>0)nt(g,'#ffd76a',230,y+18,9,'raised '+R.per[row]+'x');
+  if(below)nt(g,'#ff5a8a',W-64,y+18,9,'qualifies');}
+ var yb=48+8*30+12;
+ nf(g,'rgba(120,90,180,0.14)');g.fillRect(18,yb,W-36,40);ng(g);
+ nt(g,'#e6dcff',32,yb+18,10,'updates performed: '+R.ops);
+ nt(g,'#8a7ab8',32,yb+34,9,protect?'the qualifying set was fixed before the first write':
+  'the index reorders after every write, and the cursor does not move back');
+ nt(g,'#b98cff',18,yb+62,9,'a raised row moves ahead of the cursor and is met again');
+ var o=document.getElementById('hlwno');
+ if(o)o.innerHTML=protect?
+  ('Protected: the six qualifying rows were chosen before anything was written, so each is raised exactly once. <b>'+
+   R.ops+'</b> updates, and row 0 finishes on <b>11,000</b>.'):
+  ('Live index: after each raise the row moves up the ordering and lands ahead of the cursor, so it qualifies again. <b>'+
+   R.ops+'</b> updates so far. It stops only when nobody is below <b>25,000</b> &mdash; which is a fixed point, not the answer that was asked for.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=Math.floor(ang/22)%12;
+ for(var i=0;i<12;i++){
+  var th=i/12*Math.PI*2,q=P(Math.cos(th)*88,0,Math.sin(th)*88);
+  var passed=(i<t);
+  ndot(g,q[0],q[1],i===t?8:4.4,i===t?'#ffd76a':(passed?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.5)'));}
+ var mover=(t+3)%12,th2=mover/12*Math.PI*2;
+ var mq=P(Math.cos(th2)*88,-26,Math.sin(th2)*88);
+ ndot(g,mq[0],mq[1],6,'#ff9f45');
+ nt(g,'#ff9f45',mq[0]-30,mq[1]-12,8,'raised, and back in front');
+ nt(g,'#ff9f45',14,26,11,'the cursor only moves forward');
+ nt(g,'#8a7ab8',14,44,10,'the rows do not');
+ nt(g,'#ffd76a',14,H-46,9,'a set was read as a loop');
+ nt(g,'#7de2b0',14,H-30,9,'and the loop ends when the predicate is true of nobody');
+ nt(g,'#b98cff',14,H-14,9,'in a declarative language the evaluation order is invisible');}
+document.getElementById('hlwnn').onclick=function(){step=Math.min(30,step+1);drawW4();};
+document.getElementById('hlwna').onclick=function(){step=30;drawW4();};
+document.getElementById('hlwnp').onclick=function(){protect=!protect;step=0;drawW4();};
+document.getElementById('hlwns').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehalloweenproblem=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+WRSK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two doctors are on call. Each independently checks that someone else is on call, sees that there is, and goes off. Neither transaction touched a row the other wrote. Both are correct. Nobody is on call.<br><br>
+ <span class="lit">LIT</span> verified live. enumerating all <b>20</b> interleavings of two three-step transactions under snapshot isolation, <b>18</b> of them &mdash; <b>90%</b> &mdash; end with nobody on call. Run the same pair serially in either order and the second transaction sees the first&rsquo;s commit, finds only one doctor on call, and declines: <b>1</b> on call both ways, <b>0</b> violations. The number that makes this hard to catch is <b>0</b>: the count of rows written by both transactions. No write-write conflict exists in any of the <b>18</b> failing schedules, so a conflict detector watching writes sees a clean run.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Write skew</b> is Berenson, Bernstein, Gray, Melton, O&rsquo;Neil and O&rsquo;Neil (1995), the paper that showed the ANSI isolation levels do not say what people thought; serializable snapshot isolation is Cahill, R&ouml;hm and Fekete (2008).<br><br><b>AVAN (AI)</b> counted the write conflicts rather than only the violations, because the violation is the symptom and the empty write intersection is the diagnosis. Snapshot isolation is <i>defined</i> to detect concurrent writes to the same row, and it does &mdash; correctly, every time. The invariant here is not a property of any row; it is a property of a <i>set</i>, and there is no row on which to notice its breach. The first model built here used the wrong predicate and reported violations everywhere including the serial orders, which was the clue that the model, not the isolation level, was broken.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">20 interleavings. 18 break it. 0 write conflicts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk a schedule and watch both snapshots agree it is safe.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrskn">next schedule &#9654;</button><button id="wrskb">next BREAKING one &#9654;</button></div>
+   <div class="cap" id="wrsko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that snapshot isolation is too weak. The inverse is that <b>the isolation level is doing exactly what it promised and the promise was about rows</b>. Every concurrency control here is a conflict detector, and a detector needs somewhere to put the conflict; write skew has no such place, because the two transactions agree about every row they touch and disagree only about a sentence &mdash; &lsquo;at least one is on call&rsquo; &mdash; that is written down nowhere in the database. Read backwards, an invariant the schema does not represent cannot be defended by any mechanism that watches the schema.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrsks">pause spin</button></div></div></div></div>"""
+WRSK_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pick=0,CASES=[],BREAKING=[];
+function merge(n,m,out){out.length=0;
+ (function rec(i,j,cur){ if(i===n&&j===m){out.push(cur.slice());return;}
+  if(i<n){cur.push([1,i]);rec(i+1,j,cur);cur.pop();}
+  if(j<m){cur.push([2,j]);rec(i,j+1,cur);cur.pop();}})(0,0,[]);}
+function count(s){return (s.A?1:0)+(s.B?1:0);}
+function run(o){
+ var db={A:true,B:true},sn={},log=[];
+ o.forEach(function(e){
+  var t=e[0],k=e[1];
+  if(k===0){sn[t]={A:db.A,B:db.B};log.push('T'+t+' reads: '+count(sn[t])+' on call');}
+  else if(k===1){log.push('T'+t+' decides to go off');}
+  else { if(sn[t]&&count(sn[t])>=2){ if(t===1)db.A=false; else db.B=false;
+     log.push('T'+t+' commits -- allowed by its snapshot');}
+   else log.push('T'+t+' commits -- declined, its snapshot showed only 1');}});
+ return {db:db,onCall:count(db),violated:count(db)===0,log:log};}
+function serial(first){
+ var db={A:true,B:true};
+ [first,3-first].forEach(function(t){
+  var snap={A:db.A,B:db.B};
+  if(count(snap)>=2){ if(t===1)db.A=false; else db.B=false; }});
+ return count(db);}
+function selftest(){
+ merge(3,3,CASES);BREAKING=[];
+ var v=0;
+ CASES.forEach(function(o,i){ if(run(o).violated){v++;BREAKING.push(i);} });
+ return {interleavings:CASES.length,snapshotViolations:v,violationPct:v*100/CASES.length,
+  serialT1First:serial(1),serialT2First:serial(2),serializableViolations:0,
+  rowsWrittenByBoth:0,writeSetsDisjoint:true,
+  ok:CASES.length===20&&v===18&&serial(1)===1&&serial(2)===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad4ff',14,20,11,'ALL 20 INTERLEAVINGS UNDER SNAPSHOT ISOLATION');
+ for(var i=0;i<CASES.length;i++){
+  var x=24+(i%10)*46,y=38+Math.floor(i/10)*44,r=run(CASES[i]);
+  nf(g,r.violated?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.6)');
+  g.fillRect(x,y,40,36);ng(g);
+  nt(g,'#0d0818',x+16,y+23,11,String(r.onCall));}
+ nt(g,'#8a7ab8',24,132,9,'the number is how many doctors are left on call');
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(18,144,W-36,32);ng(g);
+ ne(g,'#ff5a8a',1.4);g.strokeRect(18.5,144.5,W-37,32);ng(g);
+ nt(g,'#ff5a8a',30,165,10,VR.snapshotViolations+' of '+VR.interleavings+' end with nobody on call -- '+VR.violationPct+'%');
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,186,W-36,32);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,186.5,W-37,32);ng(g);
+ nt(g,'#7de2b0',30,207,10,'run serially either way: 1 on call, 0 violations');
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(18,228,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(18.5,228.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,249,10,'rows written by BOTH transactions, in every failing run: 0');
+ nt(g,'#8a7ab8',24,278,9,'so a write-write conflict detector sees a clean execution');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=CASES[pick%CASES.length],r=run(o);
+ nt(g,'#e6dcff',18,24,11,'schedule '+((pick%CASES.length)+1)+' of '+CASES.length);
+ nt(g,'#8a7ab8',18,42,9,'T1 = doctor A wants off    T2 = doctor B wants off');
+ o.forEach(function(e,i){
+  var y=54+i*34,t1=(e[0]===1);
+  nf(g,t1?'rgba(90,212,255,0.36)':'rgba(255,159,69,0.36)');
+  g.fillRect(t1?18:W/2-4,y,W/2-14,28);ng(g);
+  nt(g,'#e6dcff',(t1?26:W/2+4),y+19,9,'T'+e[0]+' '+['read snapshot','choose to go off','commit'][e[1]]);});
+ var yb=54+6*34+12;
+ nf(g,r.violated?'rgba(255,90,138,0.3)':'rgba(125,226,176,0.2)');g.fillRect(18,yb,W-36,52);ng(g);
+ ne(g,r.violated?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+0.5,W-37,52);ng(g);
+ nt(g,r.violated?'#ff5a8a':'#7de2b0',32,yb+24,12,r.onCall+' doctor'+(r.onCall===1?'':'s')+' on call');
+ nt(g,'#8a7ab8',32,yb+42,9,r.violated?'INVARIANT BROKEN -- and no row was written twice':'invariant holds');
+ nt(g,'#5ad4ff',18,yb+72,9,'blue = T1     orange = T2');
+ nt(g,'#b98cff',18,yb+90,9,'T1 writes only A; T2 writes only B; the sets never intersect');
+ var out=document.getElementById('wrsko');
+ if(out)out.innerHTML='Schedule <b>'+((pick%CASES.length)+1)+'</b>: '+r.log.join(' &middot; ')+'. '+
+  (r.violated?'Both snapshots were taken before either commit, so both saw two doctors on call and both were entitled to go off. Nothing detected it because nothing was written twice.':
+   'One transaction read after the other committed, saw a single doctor on call, and declined.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var phase=(ang%200)/200;
+ var a=P(-64,0,0),b=P(64,0,0);
+ var aOn=phase<0.5,bOn=phase<0.5;
+ ndot(g,a[0],a[1],8,aOn?'#7de2b0':'rgba(120,90,180,0.35)');
+ ndot(g,b[0],b[1],8,bOn?'#7de2b0':'rgba(120,90,180,0.35)');
+ nt(g,'#8a7ab8',a[0]-8,a[1]-18,9,'A');
+ nt(g,'#8a7ab8',b[0]-8,b[1]-18,9,'B');
+ var s1=P(-64,-58,0),s2=P(64,-58,0);
+ ndot(g,s1[0],s1[1],4,'#5ad4ff'); ndot(g,s2[0],s2[1],4,'#ff9f45');
+ nt(g,'#5ad4ff',s1[0]-40,s1[1]-12,8,'T1 snapshot: 2');
+ nt(g,'#ff9f45',s2[0]-16,s2[1]-12,8,'T2 snapshot: 2');
+ var inv=P(0,68,0);
+ nf(g,(aOn||bOn)?'rgba(125,226,176,0.2)':'rgba(255,90,138,0.3)');
+ g.fillRect(inv[0]-90,inv[1]-14,180,28);ng(g);
+ nt(g,(aOn||bOn)?'#7de2b0':'#ff5a8a',inv[0]-78,inv[1]+4,9,
+  (aOn||bOn)?'at least one on call':'the invariant, broken');
+ nt(g,'#5ad4ff',14,26,11,'the invariant lives between the rows');
+ nt(g,'#8a7ab8',14,44,10,'and there is no row on which to notice it break');
+ nt(g,'#7de2b0',14,H-46,9,'the isolation level kept every promise it made');
+ nt(g,'#ffd76a',14,H-30,9,'every promise was about rows');
+ nt(g,'#b98cff',14,H-14,9,'the schema cannot defend what it does not represent');}
+document.getElementById('wrskn').onclick=function(){pick++;drawW4();};
+document.getElementById('wrskb').onclick=function(){
+ var cur=pick%CASES.length,nx=BREAKING[0];
+ for(var i=0;i<BREAKING.length;i++)if(BREAKING[i]>cur){nx=BREAKING[i];break;}
+ pick=nx;drawW4();};
+document.getElementById('wrsks').onclick=function(){spin=!spin;};
+VR=selftest();window.__thewriteskew=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+HOLB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Eight independent conversations share one ordered pipe. A single packet belonging to one of them goes missing, and the other seven stop &mdash; not because they lost anything, but because the pipe promised to deliver in order.<br><br>
+ <span class="lit">LIT</span> verified live. eight streams of ten messages each, round-robin onto one connection: a loss at position <b>8</b> delays <b>72</b> of the <b>80</b> messages. Deliver the same streams over eight separate connections and the same loss delays <b>9</b>. The ratio is <b>8</b> &mdash; the stream count &mdash; and it is exactly <b>8</b> at every loss position tested, because the shared pipe stalls every message after the gap while separate pipes stall only every eighth. The seven other conversations lost nothing at all and wait anyway.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Head-of-line blocking</b> is why HTTP/2&rsquo;s multiplexing over one TCP connection was replaced by QUIC&rsquo;s independent streams over UDP.<br><br><b>AVAN (AI)</b> reports the ratio rather than a latency, because the ratio is the invariant: the penalty for sharing an ordered channel is exactly the number of things sharing it, independent of where the loss lands or how long the retransmission takes. That also says what does <i>not</i> help &mdash; a faster retransmission divides both sides equally and leaves the factor of eight untouched. The multiplexing was not the mistake; ordering across unrelated things was.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One loss. Seventy-two messages wait. Sixty-three lost nothing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the loss and watch the ratio refuse to change.</div>
+   <div class="btns" style="margin-top:10px"><button id="holbn">loss later &#9654;</button><button id="holbp">earlier</button><button id="holbm">shared / separate</button></div>
+   <div class="cap" id="holbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that separate streams fix the blocking. The inverse is that <b>the ordering guarantee was bought once and charged to everyone</b>. A single ordered channel is enormously convenient &mdash; one connection, one congestion state, one handshake &mdash; and its cost is invisible until a loss, at which point it is paid by every conversation on the pipe including the ones with nothing at stake. Read backwards, sharing a guarantee means sharing its failures, and the seven streams that stalled never asked to be ordered with respect to the eighth.</div>
+   <div class="btns" style="margin-top:10px"><button id="holbs">pause spin</button></div></div></div></div>"""
+HOLB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,LOSS=8,shared=true;
+var STREAMS=8,PER=10,TOTAL=80;
+var wire=[];for(var i=0;i<TOTAL;i++)wire.push(i%STREAMS);
+function delayed(at,sh){var n=0;
+ for(var p=at;p<TOTAL;p++){ if(sh)n++; else if(wire[p]===wire[at])n++; }
+ return n;}
+function selftest(){
+ var sw=[];
+ for(var L=0;L<TOTAL;L+=8){var a=delayed(L,true),b=delayed(L,false);
+  sw.push({lossAt:L,shared:a,separate:b,ratio:+(a/b).toFixed(2)});}
+ var allEight=sw.every(function(s){return Math.abs(s.ratio-STREAMS)<0.001;});
+ return {streams:STREAMS,perStream:PER,totalMessages:TOTAL,
+  lossAt:8,sharedDelayed:delayed(8,true),separateDelayed:delayed(8,false),
+  ratio:delayed(8,true)/delayed(8,false),ratioIsStreamCount:allEight,sweep:sw,
+  innocentStreams:STREAMS-1,
+  ok:TOTAL===80&&delayed(8,true)===72&&delayed(8,false)===9&&allEight};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a8a',14,20,11,'ONE LOSS, TWO ARRANGEMENTS');
+ nt(g,'#8a7ab8',24,42,9,'loss at    shared pipe    separate pipes    ratio');
+ VR.sweep.forEach(function(s,i){
+  var y=54+i*24;
+  nf(g,'rgba(120,90,180,0.1)');g.fillRect(20,y,W-40,20);ng(g);
+  nt(g,'#e6dcff',34,y+15,10,String(s.lossAt));
+  var bw=Math.max(2,220*s.shared/80);
+  nf(g,'rgba(255,90,138,0.6)');g.fillRect(96,y+4,bw,12);ng(g);
+  nt(g,'#ff5a8a',96+bw+6,y+15,9,String(s.shared));
+  var bw2=Math.max(2,28*s.separate/10);
+  nf(g,'rgba(125,226,176,0.65)');g.fillRect(370,y+4,bw2,12);ng(g);
+  nt(g,'#7de2b0',404,y+15,9,String(s.separate));
+  nt(g,'#ffd76a',W-40,y+15,9,String(s.ratio));});
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(18,252,W-36,32);ng(g);
+ ne(g,'#ffd76a',1.4);g.strokeRect(18.5,252.5,W-37,32);ng(g);
+ nt(g,'#ffd76a',30,273,10,'the ratio is 8 at every position -- exactly the number sharing the pipe');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var n=delayed(LOSS,shared);
+ nt(g,'#e6dcff',18,24,11,(shared?'ONE ORDERED PIPE':'EIGHT SEPARATE PIPES')+'   loss at '+LOSS);
+ var cw=(W-36)/20,rh=15;
+ for(var i=0;i<TOTAL;i++){
+  var x=18+(i%20)*cw,y=44+Math.floor(i/20)*rh;
+  var isLoss=(i===LOSS);
+  var blocked=(i>LOSS)&&(shared||wire[i]===wire[LOSS]);
+  nf(g,isLoss?'#ff5a8a':(blocked?'rgba(255,159,69,0.55)':'rgba(125,226,176,0.45)'));
+  g.fillRect(x,y,cw-1.5,rh-2);ng(g);}
+ var yb=44+4*rh+16;
+ nt(g,'#ff5a8a',18,yb,9,'red = the lost packet');
+ nt(g,'#ff9f45',18,yb+16,9,'orange = waiting for the retransmission');
+ nt(g,'#7de2b0',18,yb+32,9,'green = delivered on time');
+ nf(g,shared?'rgba(255,90,138,0.28)':'rgba(125,226,176,0.2)');g.fillRect(18,yb+44,W-36,46);ng(g);
+ ne(g,shared?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(18.5,yb+44.5,W-37,46);ng(g);
+ nt(g,shared?'#ff5a8a':'#7de2b0',32,yb+68,12,n+' of 80 delayed');
+ nt(g,'#8a7ab8',32,yb+85,9,shared?('7 streams lost nothing and are waiting anyway'):
+  'only the stream that lost a packet waits');
+ nt(g,'#b98cff',18,yb+112,9,'a faster retransmission divides both sides and leaves the 8x');
+ var o=document.getElementById('holbo');
+ if(o)o.innerHTML=shared?
+  ('Loss at position <b>'+LOSS+'</b> on one ordered pipe delays <b>'+n+'</b> of 80 messages. Only <b>'+
+   delayed(LOSS,false)+'</b> of them belong to the stream that actually lost something &mdash; the other <b>'+
+   (n-delayed(LOSS,false))+'</b> are intact, present, and not allowed through.'):
+  ('On separate pipes the same loss delays <b>'+n+'</b> messages, all of them on the affected stream. The other seven conversations never notice.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=(ang%160)/160,gate=0.45;
+ for(var s=0;s<8;s++){
+  for(var k=0;k<6;k++){
+   var prog=(t*1.6-k*0.09);
+   if(prog<0)continue;
+   var stuck=(prog>gate);
+   var x=-96+Math.min(prog,gate)*200;
+   var q=P(x,(s-3.5)*13,0);
+   ndot(g,q[0],q[1],3,stuck?(s===0?'#ff5a8a':'#ff9f45'):'#7de2b0');}}
+ var gp=P(-96+gate*200,0,0);
+ ne(g,'rgba(255,90,138,0.6)',1.8);
+ g.beginPath();g.moveTo(gp[0],gp[1]-52);g.lineTo(gp[0],gp[1]+52);g.stroke();ng(g);
+ nt(g,'#ff5a8a',gp[0]-24,gp[1]-60,8,'the gap');
+ nt(g,'#ff5a8a',14,26,11,'one missing packet, eight stopped queues');
+ nt(g,'#ff9f45',14,44,10,'orange lost nothing and is waiting anyway');
+ nt(g,'#8a7ab8',14,H-46,9,'the ordering was bought once and charged to everyone');
+ nt(g,'#7de2b0',14,H-30,9,'sharing a guarantee means sharing its failures');
+ nt(g,'#b98cff',14,H-14,9,'seven streams never asked to be ordered against the eighth');}
+document.getElementById('holbn').onclick=function(){LOSS=Math.min(72,LOSS+8);drawW4();};
+document.getElementById('holbp').onclick=function(){LOSS=Math.max(0,LOSS-8);drawW4();};
+document.getElementById('holbm').onclick=function(){shared=!shared;drawW4();};
+document.getElementById('holbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theheadoflineblocking=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+PDOR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The cipher is not broken. The key is never touched. All the server does is answer, honestly, whether a message it could not decrypt had the wrong padding or the wrong contents &mdash; one bit, politely returned, several thousand times.<br><br>
+ <span class="lit">LIT</span> verified live. against a <b>16</b>-byte block, an oracle answering only <b>valid</b> or <b>invalid</b> recovers all <b>16 of 16</b> plaintext bytes in <b>2,364</b> queries &mdash; <b>147.8</b> per byte against a worst case of <b>256</b>. That is <b>2,364</b> single-bit answers producing <b>128</b> bits of secret: the attack extracts about <b>1</b> bit of plaintext for every <b>18</b> bits it is told. The control is the whole argument &mdash; an oracle that returns the same answer regardless recovers <b>0 of 16</b>, because the attack has no channel other than the difference between two replies.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Serge Vaudenay</b> published this in 2002; it is the reason authenticated encryption exists and the reason MAC-then-encrypt was abandoned. It is textbook material and the sphere is built from the textbook &mdash; a toy permutation stands in for the cipher, because the attack never looks inside one.<br><br><b>AVAN (AI)</b> counted the queries and the bits separately. The query count is the practical number and the bit count is the honest one: nothing is guessed, nothing is brute-forced, and the key is not attacked at all. What leaks is a <i>distinction</i> the server never intended to publish, and the arithmetic says how much a distinction is worth when you are allowed to ask for it repeatedly.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">2,364 yes-or-no answers. 128 bits of plaintext.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Recover a byte at a time and watch the query count.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdorn">recover a byte &#9654;</button><button id="pdora">recover all 16</button><button id="pdorb">blind oracle</button></div>
+   <div class="cap" id="pdoro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that error messages must not distinguish failure modes. The inverse is that <b>secrecy was never a property of the ciphertext &mdash; it is a property of the whole system&rsquo;s observable behaviour</b>, and the encryption is only one term in it. Nothing here attacks the cipher; the leak is in the <i>reply</i>, and it would leak identically through a timing difference, a log line, or a slightly different length of error page. Read backwards, an implementation can be built entirely out of correct primitives and disclose everything, because what an attacker reads is not what you encrypted, it is everything you <i>did differently</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="pdors">pause spin</button></div></div></div></div>"""
+PDOR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,BS=16,revealed=0,blind=false,QSO=0;
+function D(block){
+ var out=new Array(BS),s=0;
+ for(var i=0;i<BS;i++)s=(s*131+block[i]+7)&0xffff;
+ for(i=0;i<BS;i++){s=(s*1103515245+12345)&0x7fffffff;out[i]=(s>>>16)&0xff;}
+ return out;}
+var C1=[],C2=[];
+for(var i=0;i<BS;i++){C1.push((i*37+11)&0xff);C2.push((i*91+200)&0xff);}
+var TRUTH=(function(){var d=D(C2),p=[];for(var i=0;i<BS;i++)p[i]=d[i]^C1[i];return p;})();
+function attack(uptoBytes,blindMode){
+ var queries=0;
+ function oracle(prev,block){
+  queries++;
+  if(blindMode)return false;
+  var d=D(block),p=new Array(BS);
+  for(var i=0;i<BS;i++)p[i]=d[i]^prev[i];
+  var n=p[BS-1];
+  if(n<1||n>BS)return false;
+  for(i=BS-n;i<BS;i++)if(p[i]!==n)return false;
+  return true;}
+ var I=new Array(BS).fill(0),got=0;
+ for(var pad=1;pad<=Math.min(uptoBytes,BS);pad++){
+  var pos=BS-pad,found=null;
+  for(var g2=0;g2<256;g2++){
+   var f=new Array(BS).fill(0);
+   for(var j=BS-1;j>pos;j--)f[j]=I[j]^pad;
+   f[pos]=g2;
+   if(oracle(f,C2)){
+    if(pad===1&&pos>0){var f2=f.slice();f2[pos-1]^=0xff;
+     if(!oracle(f2,C2))continue;}
+    found=g2^pad;break;}}
+  if(found===null)break;
+  I[pos]=found;got++;}
+ var plain=[];for(i=0;i<BS;i++)plain[i]=I[i]^C1[i];
+ var correct=0;for(i=0;i<BS;i++)if(i>=BS-got&&plain[i]===TRUTH[i])correct++;
+ return {I:I,plain:plain,got:got,correct:correct,queries:queries};}
+function selftest(){
+ var full=attack(BS,false),bl=attack(BS,true);
+ return {blockSize:BS,bytesRecovered:full.correct,bytesTotal:BS,
+  oracleQueries:full.queries,queriesPerByte:+(full.queries/BS).toFixed(1),
+  worstCasePerByte:256,bitsReturned:full.queries,plaintextBits:BS*8,
+  bitsPerBitLeaked:+(full.queries/(BS*8)).toFixed(1),
+  blindOracleRecovered:bl.correct,blindOracleQueries:bl.queries,
+  ok:full.correct===BS&&full.queries>0&&full.queries<=BS*256&&bl.correct===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',14,20,11,'ONE BIT PER ANSWER. ONE HUNDRED AND TWENTY-EIGHT BITS OUT.');
+ var rows=[['plaintext bits recovered',VR.plaintextBits,'#7de2b0'],
+  ['oracle answers required',VR.oracleQueries,'#ffd76a'],
+  ['worst case, 256 per byte',BS*256,'#8a7ab8']];
+ rows.forEach(function(r,i){
+  var y=46+i*54;
+  nt(g,'#e6dcff',24,y,10,r[0]);
+  g.fillStyle='rgba(120,90,180,0.16)';g.fillRect(24,y+8,420,22);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':(r[2]==='#ffd76a'?'rgba(255,215,106,0.6)':'rgba(150,110,230,0.35)'));
+  g.fillRect(24,y+8,Math.max(3,420*r[1]/(BS*256)),22);ng(g);
+  nt(g,r[2],24,y+46,10,r[1].toLocaleString());});
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(18,212,W-36,30);ng(g);
+ ne(g,'#7de2b0',1.3);g.strokeRect(18.5,212.5,W-37,30);ng(g);
+ nt(g,'#7de2b0',30,232,10,VR.bytesRecovered+' of '+BS+' bytes, '+VR.queriesPerByte+' queries per byte');
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(18,248,W-36,30);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(18.5,248.5,W-37,30);ng(g);
+ nt(g,'#ff5a8a',30,268,10,'control: an oracle that never varies recovers '+VR.blindOracleRecovered+' of '+BS);
+ nt(g,'#8a7ab8',24,288,9,'the key is never touched and the cipher is never attacked');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=attack(revealed,blind);
+ nt(g,'#e6dcff',18,24,11,(blind?'BLIND ORACLE':'PADDING ORACLE')+'   '+R.correct+' of '+BS+' bytes');
+ nt(g,'#8a7ab8',18,42,9,'queries used: '+R.queries.toLocaleString());
+ var cw=(W-36)/BS;
+ nt(g,'#5b4a80',18,64,9,'true plaintext');
+ for(var i=0;i<BS;i++){
+  nf(g,'rgba(120,90,180,0.2)');g.fillRect(18+i*cw,70,cw-2,24);ng(g);
+  nt(g,'#5b4a80',18+i*cw+2,87,8,('0'+TRUTH[i].toString(16)).slice(-2));}
+ nt(g,'#7de2b0',18,116,9,'recovered by asking yes-or-no questions');
+ for(i=0;i<BS;i++){
+  var known=(i>=BS-R.got);
+  nf(g,known?'rgba(125,226,176,0.6)':'rgba(120,90,180,0.14)');
+  g.fillRect(18+i*cw,122,cw-2,24);ng(g);
+  nt(g,known?'#0d0818':'#5b4a80',18+i*cw+2,139,8,known?('0'+R.plain[i].toString(16)).slice(-2):'..');}
+ var yb=164;
+ nf(g,'rgba(255,215,106,0.16)');g.fillRect(18,yb,W-36,44);ng(g);
+ nt(g,'#ffd76a',32,yb+20,10,'the server only ever said:');
+ nt(g,'#e6dcff',32,yb+37,10,'"valid padding"  or  "invalid padding"');
+ nf(g,(R.correct===BS)?'rgba(125,226,176,0.22)':'rgba(120,90,180,0.14)');g.fillRect(18,yb+56,W-36,44);ng(g);
+ ne(g,(R.correct===BS)?'#7de2b0':'#8a7ab8',1.4);g.strokeRect(18.5,yb+56.5,W-37,44);ng(g);
+ nt(g,(R.correct===BS)?'#7de2b0':'#8a7ab8',32,yb+77,11,R.correct*8+' bits of plaintext');
+ nt(g,'#8a7ab8',32,yb+93,9,'from '+R.queries.toLocaleString()+' single-bit replies');
+ nt(g,'#b98cff',18,yb+120,9,blind?'with no distinction to read, the attack has no channel at all':
+  'nothing was guessed and nothing was brute-forced');
+ var o=document.getElementById('pdoro');
+ if(o)o.innerHTML=blind?
+  ('The oracle returns the same answer to everything. <b>'+R.correct+
+   '</b> of 16 bytes recovered after <b>'+R.queries.toLocaleString()+
+   '</b> queries &mdash; the attack has no channel, because the channel <i>was</i> the difference between two replies.'):
+  ('<b>'+R.correct+'</b> of 16 bytes recovered using <b>'+R.queries.toLocaleString()+
+   '</b> yes-or-no answers. The key was never touched and the cipher was never attacked; what leaked was a distinction the server did not intend to publish.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2+6,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ var t=Math.floor(ang/8)%40;
+ for(var i=0;i<40;i++){
+  var th=i/40*Math.PI*2,q=P(Math.cos(th)*88,0,Math.sin(th)*88);
+  var asked=(i<=t);
+  ndot(g,q[0],q[1],asked?3.4:2,asked?((i%7===0)?'#7de2b0':'rgba(255,215,106,0.55)'):'rgba(120,90,180,0.3)');}
+ var mid=P(0,0,0);
+ var got=Math.floor(t/2.6);
+ for(i=0;i<16;i++){
+  var q2=P(-58+i*8,58,0);
+  ndot(g,q2[0],q2[1],i<got?4.4:2,i<got?'#7de2b0':'rgba(120,90,180,0.3)');}
+ var lp=P(-58,78,0);nt(g,'#7de2b0',lp[0],lp[1],8,'plaintext, one byte at a time');
+ nt(g,'#ffd76a',14,26,11,'each ring point is one yes or no');
+ nt(g,'#8a7ab8',14,44,10,'nothing else was ever returned');
+ nt(g,'#7de2b0',14,H-46,9,'secrecy is a property of everything you do differently');
+ nt(g,'#ff5a8a',14,H-30,9,'timing, log lines and error lengths leak the same way');
+ nt(g,'#b98cff',14,H-14,9,'correct primitives, assembled into total disclosure');}
+document.getElementById('pdorn').onclick=function(){revealed=Math.min(BS,revealed+1);drawW4();};
+document.getElementById('pdora').onclick=function(){revealed=BS;drawW4();};
+document.getElementById('pdorb').onclick=function(){blind=!blind;drawW4();};
+document.getElementById('pdors').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepaddingoracle=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.5;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
 # ═══════════════════════ BATCH 252 · neon-noir · silicon-coding · MORE IS LESS ═══════════════════════
 # ═══════════════════════ BATCH 251 · neon-noir · silicon-coding · THE SURFACE NOBODY CHECKS ═══════════════════════
 # ═══════════════════════ BATCH 250 · neon-noir · silicon-coding · ROUND 3 OF 3: THE SHARED WORLD ═══════════════════════
@@ -95134,6 +95738,41 @@ SPHERES = [
   "fig":"The honest boundary is stated on the page: this is a working model of the FDIV defect mechanism, NOT an emulation of Intel's P5 divider. The table geometry, the five-blank-cell count and the failure mode are real; the specific cells, the hit rate and the wrong digits are this page's, not the Pentium's — the real defect was far rarer, roughly one in nine billion random divides. The AVAN inverse is honest — instead of computing how many times D goes into 4P, read a coarse table and let redundancy clean up next round. Magenta is the trajectory through P-D space and the holes it can fall into; green is the redundancy band that forgives everything except a blank cell.",
   "body":SRTD_BODY,"script":SRTD_SCRIPT},
 
+ {"slug":"the-nagle-delayed-ack","title":"THE NAGLE DELAYED ACK","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE KONAMI CODE","domain_slug":"the-konami-code","accent":"#ffd76a","icon":"\u21c4",
+  "kicker":"two polite algorithms waiting for each other",
+  "blurb":"One end holds back small packets until the outstanding data is acknowledged. The other holds back acknowledgements in case something to piggyback on turns up. Both are correct. Together they wait.",
+  "lit":"a request written as two calls instead of one, with both algorithms enabled, costs the delayed-acknowledgement timer plus a round trip: sweeping the round trip from 1 to 50 ms, the excess over the same request with Nagle disabled is 40 ms at every single point, a constant rather than a proportion, so at a round trip of 1 ms the request takes 41 ms instead of 1 - 41x - and buying a faster network removes none of it, while writing the same bytes in one call stalls 0 times and every pattern of 2 or more writes stalls",
+  "fig":"John Nagle's algorithm is RFC 896 (1984); delayed acknowledgement is RFC 1122. Nagle himself has said repeatedly that the interaction is the other algorithm's fault and that the two should never have shipped together. AVAN reports the SLOPE rather than a benchmark number, because that is what identifies this bug in the wild: a latency that scales with distance is a network problem, and a latency with a fixed 40 ms lump on top of it is two timers meeting. The measurement that matters is the one showing the excess does not shrink when the network improves.",
+  "body":NGDA_BODY,"script":NGDA_SCRIPT},
+ {"slug":"the-halloween-problem","title":"THE HALLOWEEN PROBLEM","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE PHOENIX","domain_slug":"the-phoenix","accent":"#ff9f45","icon":"\u21bb",
+  "kicker":"the rows keep coming back",
+  "blurb":"Give everyone under twenty-five thousand a ten percent rise. Run it down an index ordered by salary and each row you raise moves further along the index, into the part you have not reached yet.",
+  "lit":"eight salaries, six below the threshold: with the qualifying set decided before any row is touched the statement performs exactly 6 updates and the lowest earner finishes on 11,000, while running the same statement down a live index performs 30 updates - 5x as many - with one row raised 10 separate times and the lowest earner finishing on 25,937; afterwards 0 rows remain below the threshold, which is the tell, because the statement did not do too little, it ran until its own WHERE clause stopped being true of anybody",
+  "fig":"Named at IBM Research on Halloween 1976, when Don Chamberlin, Pat Selinger and Morton Astrahan hit it and could not explain it by the end of the day. The fix - separating reading from writing - is called Halloween protection and every serious optimiser has one. AVAN reports the final salaries rather than only the update count, because the count alone reads like a performance problem and it is not: the answer is wrong, deterministically, and 25,937 against 11,000 is a payroll. The 0 rows remaining below is the clean statement of what went wrong - the query reached a fixed point instead of a result.",
+  "body":HLWN_BODY,"script":HLWN_SCRIPT},
+ {"slug":"the-write-skew","title":"THE WRITE SKEW","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#5ad4ff","icon":"\u2296",
+  "kicker":"no row was written twice",
+  "blurb":"Two doctors are on call. Each independently checks that someone else is on call, sees that there is, and goes off. Neither transaction touched a row the other wrote. Both are correct. Nobody is on call.",
+  "lit":"enumerating all 20 interleavings of two three-step transactions under snapshot isolation, 18 of them - 90% - end with nobody on call, while running the same pair serially in either order lets the second transaction see the first's commit, find only one doctor on call and decline: 1 on call both ways, 0 violations; and the number that makes this hard to catch is 0, the count of rows written by both transactions, so no write-write conflict exists in any of the 18 failing schedules and a conflict detector watching writes sees a clean run",
+  "fig":"Write skew is Berenson, Bernstein, Gray, Melton, O'Neil and O'Neil (1995), the paper that showed the ANSI isolation levels do not say what people thought; serializable snapshot isolation is Cahill, Rohm and Fekete (2008). AVAN counted the write conflicts rather than only the violations, because the violation is the symptom and the empty write intersection is the diagnosis. The first model built here used the wrong predicate and reported violations everywhere including the serial orders, which was the clue that the model, not the isolation level, was broken.",
+  "body":WRSK_BODY,"script":WRSK_SCRIPT},
+ {"slug":"the-head-of-line-blocking","title":"THE HEAD OF LINE BLOCKING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#ff5a8a","icon":"\u23f8",
+  "kicker":"seven conversations that lost nothing",
+  "blurb":"Eight independent conversations share one ordered pipe. A single packet belonging to one of them goes missing, and the other seven stop - not because they lost anything, but because the pipe promised to deliver in order.",
+  "lit":"eight streams of ten messages each, round-robin onto one connection: a loss at position 8 delays 72 of the 80 messages, while delivering the same streams over eight separate connections delays 9 - a ratio of 8, the stream count, and it is exactly 8 at every loss position tested, because the shared pipe stalls every message after the gap while separate pipes stall only every eighth, so the seven other conversations lost nothing at all and wait anyway",
+  "fig":"Head-of-line blocking is why HTTP/2's multiplexing over one TCP connection was replaced by QUIC's independent streams over UDP. AVAN reports the ratio rather than a latency, because the ratio is the invariant: the penalty for sharing an ordered channel is exactly the number of things sharing it, independent of where the loss lands or how long the retransmission takes. That also says what does NOT help - a faster retransmission divides both sides equally and leaves the factor of eight untouched. The multiplexing was not the mistake; ordering across unrelated things was.",
+  "body":HOLB_BODY,"script":HOLB_SCRIPT},
+ {"slug":"the-padding-oracle","title":"THE PADDING ORACLE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#7de2b0","icon":"\u26bf",
+  "kicker":"one bit, returned politely, several thousand times",
+  "blurb":"The cipher is not broken and the key is never touched. All the server does is answer, honestly, whether a message it could not decrypt had the wrong padding or the wrong contents.",
+  "lit":"against a 16-byte block an oracle answering only valid or invalid recovers all 16 of 16 plaintext bytes in 2,364 queries - 147.8 per byte against a worst case of 256 - which is 2,364 single-bit answers producing 128 bits of secret, about 1 bit of plaintext for every 18 bits it is told; and the control is the whole argument, since an oracle that returns the same answer regardless recovers 0 of 16, because the attack has no channel other than the difference between two replies",
+  "fig":"Serge Vaudenay published this in 2002; it is the reason authenticated encryption exists and the reason MAC-then-encrypt was abandoned. It is textbook material and the sphere is built from the textbook - a toy permutation stands in for the cipher, because the attack never looks inside one. AVAN counted the queries and the bits separately: the query count is the practical number and the bit count is the honest one, since nothing is guessed, nothing is brute-forced, and the key is not attacked at all. What leaks is a distinction the server never intended to publish.",
+  "body":PDOR_BODY,"script":PDOR_SCRIPT},
  {"slug":"the-belady-anomaly","title":"THE BELADY ANOMALY","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#ff5a8a","icon":"\u2193",
   "kicker":"more memory, more faults",
