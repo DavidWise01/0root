@@ -27426,6 +27426,994 @@ document.getElementById('tgenr').onclick=function(){drop=-1;drawW4();};
 document.getElementById('tgens').onclick=function(){spin=!spin;};
 VR=selftest();window.__thetwogenerals=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+CORO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A load generator that waits for each response cannot issue requests while the service is stalled. The requests that <i>would</i> have been sent during the stall are never sent, never timed, and never counted &mdash; so the worst moment in the run erases its own evidence.<br><br>
+ <span class="lit">LIT</span> verified live. One service, one 100&nbsp;ms stall, one intended rate of 1 request per ms for 10 seconds. The closed loop records <b>9,900</b> samples; the open loop records <b>10,000</b> &mdash; <b>100</b> requests simply vanished. The closed loop reports a p99.9 of <b>1</b>&nbsp;ms and exactly <b>1</b> sample over 10&nbsp;ms. The open loop, same service, same stall, reports p99.9 of <b>92</b>&nbsp;ms and <b>91</b> samples over 10&nbsp;ms.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Gil Tene</b> named coordinated omission and built HdrHistogram partly to make it visible; it is the reason a great many published latency numbers are wrong.<br><br>
+ <b>AVAN (AI)</b> measured the shape of the lie rather than restating it. The p99 barely moves &mdash; <b>1</b>&nbsp;ms to <b>2</b>&nbsp;ms &mdash; because only 1% of the window is affected. It is the p99.9 that goes from <b>1</b> to <b>92</b>. A benchmark that reports p99 and stops will show almost nothing wrong, which is precisely why the omission survives review: the number that would expose it is the one nobody printed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same stall, seen by both meters.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the stall and watch which percentile notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="coron">longer stall &#9654;</button><button id="corom">shorter</button><button id="corop">next percentile</button><button id="coror">reset</button></div>
+   <div class="cap" id="coroo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a gap in the sampling, not in the service.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that closed-loop benchmarks under-report latency. The inverse is that <b>they report the truth about a system nobody has</b>. A closed loop measures a world in which load politely stops arriving whenever you are struggling &mdash; and that world is real for exactly one user, the one holding the connection. Read backwards, coordinated omission is not a measurement bug; it is a faithful measurement of the wrong system, and the wrong system is the one the benchmark accidentally built.</div>
+   <div class="btns" style="margin-top:10px"><button id="coros">pause spin</button></div></div></div></div>"""
+CORO_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,stall=100,pi=0;
+var PCTS=[0.5,0.9,0.99,0.999,1];
+function pct(a,q){var b=a.slice().sort(function(x,y){return x-y;});
+ return b[Math.min(b.length-1,Math.floor(q*b.length))];}
+function measure(st){
+ var T=10000,S=1,at=5000,naive=[],corrected=[],t=0,d;
+ while(t<T){var lat=(t>=at&&t<at+st)?(at+st-t+S):S;naive.push(lat);t+=lat;}
+ for(d=0;d<T;d++){var s=(d>=at&&d<at+st)?at+st:d;corrected.push(s-d+S);}
+ return {naive:naive,corrected:corrected,stall:st};}
+function selftest(){
+ var m=measure(100);
+ return {intendedRatePerMs:1,windowMs:10000,serviceMs:1,stallMs:100,
+  naiveSamples:m.naive.length,correctedSamples:m.corrected.length,
+  samplesLost:m.corrected.length-m.naive.length,
+  naiveP99:pct(m.naive,0.99),correctedP99:pct(m.corrected,0.99),
+  naiveP999:pct(m.naive,0.999),correctedP999:pct(m.corrected,0.999),
+  naiveOver10ms:m.naive.filter(function(x){return x>10;}).length,
+  correctedOver10ms:m.corrected.filter(function(x){return x>10;}).length,
+  p999Ratio:+(pct(m.corrected,0.999)/pct(m.naive,0.999)).toFixed(1),
+  ok:pct(m.corrected,0.999)>pct(m.naive,0.999)&&
+     m.corrected.length>m.naive.length&&
+     m.corrected.filter(function(x){return x>10;}).length>
+     m.naive.filter(function(x){return x>10;}).length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'THE SAME 100 ms STALL, SEEN BY BOTH METERS');
+ var labs=['p50','p90','p99','p99.9','max'],i;
+ var m=measure(100);
+ for(i=0;i<PCTS.length;i++){
+  var a=pct(m.naive,PCTS[i]),b=pct(m.corrected,PCTS[i]),y=48+i*44;
+  nt(g,'#8a7ab8',14,y+14,9,labs[i]);
+  nf(g,'rgba(90,208,255,0.7)');g.fillRect(70,y,Math.max(2,Math.round(380*a/101)),16);ng(g);
+  nt(g,'#5ad0ff',70+Math.max(2,Math.round(380*a/101))+6,y+13,8,a+' ms');
+  nf(g,'rgba(255,60,90,0.7)');g.fillRect(70,y+19,Math.max(2,Math.round(380*b/101)),16);ng(g);
+  nt(g,'#ff5a8a',70+Math.max(2,Math.round(380*b/101))+6,y+32,8,b+' ms');}
+ nt(g,'#5ad0ff',70,36,8,'closed loop (waits for the response)');
+ nt(g,'#ff5a8a',300,36,8,'open loop');
+ nt(g,'#7de2b0',14,278,9,'samples  '+VR.naiveSamples.toLocaleString()+'  vs  '+
+  VR.correctedSamples.toLocaleString()+'   --  '+VR.samplesLost+' requests were never issued');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(stall),q=PCTS[pi%PCTS.length],labs=['p50','p90','p99','p99.9','max'];
+ nt(g,'#7cfc00',12,20,11,'STALL '+stall+' ms   AT '+labs[pi%labs.length]);
+ var a=pct(m.naive,q),b=pct(m.corrected,q),mx=Math.max(a,b,1);
+ nf(g,'rgba(90,208,255,0.75)');g.fillRect(20,50,Math.round(330*a/mx),34);ng(g);
+ nt(g,'#e8e0ff',26,72,10,'closed loop  '+a+' ms');
+ nf(g,'rgba(255,60,90,0.75)');g.fillRect(20,96,Math.round(330*b/mx),34);ng(g);
+ nt(g,'#e8e0ff',26,118,10,'open loop    '+b+' ms');
+ nt(g,'#8a7ab8',20,158,9,'samples recorded   '+m.naive.length.toLocaleString()+
+  '  vs  '+m.corrected.length.toLocaleString());
+ nt(g,'#ffd76a',20,178,9,'never issued       '+(m.corrected.length-m.naive.length));
+ var o1=m.naive.filter(function(x){return x>10;}).length,
+     o2=m.corrected.filter(function(x){return x>10;}).length;
+ nt(g,'#5ad0ff',20,198,9,'over 10 ms         '+o1+'  vs  '+o2);
+ for(var i=0;i<PCTS.length;i++){
+  var aa=pct(m.naive,PCTS[i]),bb=pct(m.corrected,PCTS[i]),x=26+i*70;
+  nf(g,'rgba(90,208,255,0.6)');g.fillRect(x,290-Math.round(70*aa/101),26,Math.round(70*aa/101));ng(g);
+  nf(g,'rgba(255,60,90,0.6)');g.fillRect(x+28,290-Math.round(70*bb/101),26,Math.round(70*bb/101));ng(g);
+  nt(g,i===pi%PCTS.length?'#ffd76a':'#5a4a85',x,304,7,labs[i]);}
+ var o=document.getElementById('coroo');
+ if(o)o.innerHTML=labs[pi%labs.length]+': closed loop <b>'+a+'</b> ms, open loop <b>'+b+
+  '</b> ms &middot; '+(m.corrected.length-m.naive.length)+' requests never issued';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A GAP IN THE SAMPLING, NOT THE SERVICE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<56;i++){
+  var t=i/56,x=(t-0.5)*270,z=Math.sin(t*6.283)*50,y=0;
+  var gap=(t>0.45&&t<0.58);
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  if(!gap)ndot(g,px,py,2.5,'rgba(125,226,176,0.7)');
+  else ndot(g,px,py-30,2,'rgba(255,60,90,0.35)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the meter went quiet exactly where the trouble was');}
+document.getElementById('coron').onclick=function(){stall=Math.min(900,stall+100);drawW4();};
+document.getElementById('corom').onclick=function(){stall=Math.max(20,stall-100);drawW4();};
+document.getElementById('corop').onclick=function(){pi++;drawW4();};
+document.getElementById('coror').onclick=function(){stall=100;pi=3;drawW4();};
+document.getElementById('coros').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecoordinatedomission=VR;pi=3;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LITL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The number of things in a system equals how fast they arrive times how long each one stays. <code>L = &lambda;W</code>. It assumes almost nothing &mdash; no distribution, no independence, no service discipline &mdash; and it is exact, not approximate.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> customers through a single queue at <b>0.8</b> offered load. The three quantities are measured <i>separately</i>: the time-average number in the system by integrating the step function, the arrival rate by counting, the mean time in system by averaging. <b>L = 4.1637</b>. <b>&lambda; = 0.8010</b>. <b>W = 5.1981</b>. And <b>&lambda;W = 4.1637</b> &mdash; a relative error of <b>0%</b> to four decimals.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>John D. C. Little</b> proved it in 1961. The proof does not care what the queue does inside &mdash; it is a statement about areas, which is why it survives every discipline you can invent.<br><br>
+ <b>AVAN (AI)</b> measured the three terms by three different mechanisms on purpose. Deriving W from L and &lambda; and then announcing that L = &lambda;W would be a tautology dressed as a result. Integrating the occupancy curve is genuinely independent of averaging the per-customer waits, and the two agreeing to four decimals is the actual content of the law.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Occupancy over time. The area under it is L times the span.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the load. All three move; the identity does not.</div>
+   <div class="btns" style="margin-top:10px"><button id="litlu">busier &#9654;</button><button id="litld">quieter</button><button id="litlr">reset</button></div>
+   <div class="cap" id="litlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a box with a rate in and a dwell inside.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that Little&rsquo;s Law lets you compute the one you cannot measure. The inverse is that <b>it forbids you from improving one without touching another</b>. If arrivals are fixed by demand, then every reduction in queue length is a reduction in time spent, and there is no third place for the difference to hide. Read backwards, the law is not a calculator; it is a conservation statement, and most capacity plans that promise shorter queues at the same throughput and the same latency are asking it to be violated.</div>
+   <div class="btns" style="margin-top:10px"><button id="litls">pause spin</button></div></div></div></div>"""
+LITL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rho=0.8;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function runq(lam,N,seed){
+ var r=rng(seed),at=[],a=0,i;
+ for(i=0;i<N;i++){a+=-Math.log(1-r())/lam;at.push(a);}
+ var finish=0,dep=[],waits=[];
+ for(i=0;i<N;i++){var s=Math.max(at[i],finish);finish=s+(-Math.log(1-r())/1);
+  dep.push(finish);waits.push(finish-at[i]);}
+ var evs=[];
+ for(i=0;i<N;i++){evs.push([at[i],1]);evs.push([dep[i],-1]);}
+ evs.sort(function(x,y){return x[0]-y[0];});
+ var cur=0,tp=evs[0][0],area=0;
+ for(i=0;i<evs.length;i++){area+=cur*(evs[i][0]-tp);tp=evs[i][0];cur+=evs[i][1];}
+ var span=dep[N-1]-at[0];
+ var W=0;for(i=0;i<N;i++)W+=waits[i];W/=N;
+ return {L:area/span,lambda:N/span,W:W,at:at,dep:dep,span:span};}
+function selftest(){
+ var q=runq(0.8,200000,5);
+ return {customers:200000,offeredRho:0.8,
+  L:+q.L.toFixed(4),lambda:+q.lambda.toFixed(4),W:+q.W.toFixed(4),
+  lambdaW:+(q.lambda*q.W).toFixed(4),
+  relErrorPct:+(Math.abs(q.L-q.lambda*q.W)/q.L*100).toFixed(4),
+  measuredSeparately:true,
+  ok:Math.abs(q.L-q.lambda*q.W)/q.L<0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'OCCUPANCY OVER TIME -- THE AREA IS L x SPAN');
+ var q=runq(0.8,4000,5),evs=[],i;
+ for(i=0;i<4000;i++){evs.push([q.at[i],1]);evs.push([q.dep[i],-1]);}
+ evs.sort(function(x,y){return x[0]-y[0];});
+ var cur=0,pts=[],t0=evs[0][0],t1=evs[evs.length-1][0];
+ for(i=0;i<evs.length;i++){cur+=evs[i][1];pts.push([evs[i][0],cur]);}
+ var mx=0;for(i=0;i<pts.length;i++)if(pts[i][1]>mx)mx=pts[i][1];
+ ne(g,'rgba(0,245,255,0.7)',1);g.beginPath();
+ for(i=0;i<pts.length;i+=2){
+  var x=20+(pts[i][0]-t0)/(t1-t0)*(W-40),y=240-pts[i][1]/mx*180;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(125,226,176,0.85)',2);g.beginPath();
+ g.moveTo(20,240-VR.L/mx*180);g.lineTo(W-20,240-VR.L/mx*180);g.stroke();ng(g);
+ nt(g,'#7de2b0',24,240-VR.L/mx*180-6,9,'L = '+VR.L+'  (time-average)');
+ nt(g,'#8a7ab8',20,258,8,'peak occupancy in this window: '+mx);
+ nt(g,'#ffd76a',20,278,9,'lambda '+VR.lambda+'  x  W '+VR.W+'  =  '+VR.lambdaW+
+  '     error '+VR.relErrorPct+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var q=runq(rho,40000,5);
+ nt(g,'#00f5ff',12,20,11,'OFFERED LOAD '+rho.toFixed(2));
+ var vals=[['L  in system',q.L],['lambda  arrivals',q.lambda],['W  time in system',q.W],
+           ['lambda x W',q.lambda*q.W]];
+ for(var i=0;i<vals.length;i++){
+  var y=48+i*52,v=vals[i][1],mx=Math.max(q.L,q.W,2);
+  nt(g,i===3?'#ffd76a':'#8a7ab8',14,y,9,vals[i][0]);
+  nf(g,i===3?'rgba(255,215,106,0.7)':'rgba(0,245,255,0.6)');
+  g.fillRect(14,y+6,Math.max(2,Math.round(250*Math.min(1,v/mx))),22);ng(g);
+  nt(g,'#e8e0ff',276,y+22,10,v.toFixed(4));}
+ var err=Math.abs(q.L-q.lambda*q.W)/q.L*100;
+ nf(g,'rgba(125,226,176,0.14)');g.fillRect(12,262,W-24,32);ng(g);
+ nt(g,'#7de2b0',20,282,10,'L vs lambda x W  --  relative error '+err.toFixed(4)+'%');
+ var o=document.getElementById('litlo');
+ if(o)o.innerHTML='L <b>'+q.L.toFixed(4)+'</b> &middot; lambda <b>'+q.lambda.toFixed(4)+
+  '</b> &middot; W <b>'+q.W.toFixed(4)+'</b> &middot; error <b>'+err.toFixed(4)+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A RATE IN, A DWELL INSIDE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<8;i++)for(var j=0;j<4;j++){
+  var x=(i-3.5)*26,z=(j-1.5)*26,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.42;
+  ndot(g,px,py,3,'rgba(125,226,176,'+(0.35+0.06*((i+j)%6))+')');}
+ for(i=0;i<10;i++){
+  var t=(ang*0.6+i*36)%360/360;
+  var px2=cx-150+t*300,py2=cy-70;
+  ndot(g,px2,py2,2.5,'rgba(0,245,255,0.8)');}
+ nt(g,'#8a7ab8',12,H-22,8,'fix two of the three and the third is no longer yours to choose');}
+document.getElementById('litlu').onclick=function(){rho=Math.min(0.95,+(rho+0.05).toFixed(2));drawW4();};
+document.getElementById('litld').onclick=function(){rho=Math.max(0.1,+(rho-0.05).toFixed(2));drawW4();};
+document.getElementById('litlr').onclick=function(){rho=0.8;drawW4();};
+document.getElementById('litls').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelittleslaw=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UTKN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Waiting time does not rise smoothly with load. It rises as <code>1/(1&minus;&rho;)</code>, which is flat for most of the range and then vertical. The last few percent of utilisation cost more than all the rest combined.<br><br>
+ <span class="lit">LIT</span> verified live. With a service time of 1, time in system is <b>2&times;</b> service at <b>50%</b> utilisation, <b>10&times;</b> at <b>90%</b>, and <b>100&times;</b> at <b>99%</b>. Going from 90% to 95% &mdash; five percentage points &mdash; <b>doubles</b> the wait. A <b>300,000</b>-customer simulation at &rho;&nbsp;=&nbsp;0.9 gives <b>10.046</b> against the theoretical <b>10</b>: <b>0.46%</b> apart, with nothing fitted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>A. K. Erlang</b> founded queueing theory at the Copenhagen Telephone Company around 1909; the M/M/1 result is the simplest thing in it and the most ignored in practice.<br><br>
+ <b>AVAN (AI)</b> ran the simulation as a check on the formula rather than an illustration of it. The number worth carrying is not <b>100&times;</b> at 99% &mdash; it is the <b>doubling</b> between 90% and 95%. Utilisation targets are usually chosen as if the axis were linear, and on the flat part of the curve that intuition works, which is exactly what makes the cliff arrive without warning.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The curve. Flat, flat, flat, vertical.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Push utilisation up one step at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="utknu">more load &#9654;</button><button id="utknd">less</button><button id="utknk">jump to the knee</button><button id="utknr">reset</button></div>
+   <div class="cap" id="utkno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a wall standing where the axis looked empty.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that high utilisation causes latency. The inverse is that <b>idle capacity is not waste &mdash; it is the entire latency budget</b>. The 10% you are not using at &rho;&nbsp;=&nbsp;0.9 is what keeps the wait at 10&times; instead of 100&times;; buy it back and you have not saved a server, you have spent a service guarantee. Read backwards, every efficiency drive that targets utilisation is quietly trading a quantity it measures for one it does not, and the exchange rate is <code>1/(1&minus;&rho;)</code>.</div>
+   <div class="btns" style="margin-top:10px"><button id="utkns">pause spin</button></div></div></div></div>"""
+UTKN_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rho=0.5;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function sim(lam,N,seed){
+ var r=rng(seed),at=[],a=0,i;
+ for(i=0;i<N;i++){a+=-Math.log(1-r())/lam;at.push(a);}
+ var f=0,s2=0;
+ for(i=0;i<N;i++){var s=Math.max(at[i],f);f=s+(-Math.log(1-r())/1);s2+=f-at[i];}
+ return s2/N;}
+function selftest(){
+ var rows=[],rhos=[0.1,0.5,0.7,0.8,0.9,0.95,0.99],i;
+ for(i=0;i<rhos.length;i++)rows.push({rho:rhos[i],theoryW:+(1/(1-rhos[i])).toFixed(3),
+  xService:+(1/(1-rhos[i])).toFixed(2)});
+ var sw=sim(0.9,300000,9),th=1/(1-0.9);
+ return {serviceMs:1,rows:rows,
+  at50:rows[1].xService,at90:rows[4].xService,at99:rows[6].xService,
+  simRho:0.9,simW:+sw.toFixed(3),theoryW:+th.toFixed(3),
+  simRelErrPct:+(Math.abs(sw-th)/th*100).toFixed(2),
+  doubling90to95:+(rows[5].theoryW/rows[4].theoryW).toFixed(2),
+  ok:Math.abs(sw-th)/th<0.05&&rows[6].xService===100&&rows[1].xService===2};}
+function curve(g,W,H,mark){
+ ne(g,'rgba(90,208,255,0.85)',2);g.beginPath();
+ for(var i=0;i<=280;i++){
+  var p=i/280*0.995,w=1/(1-p);
+  var x=24+p*(W-56),y=H-46-Math.min(H-80,w*2.2);
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ if(mark!==undefined){
+  var w2=1/(1-mark),x2=24+mark*(W-56),y2=H-46-Math.min(H-80,w2*2.2);
+  ndot(g,x2,y2,4,'rgba(255,215,106,0.95)');
+  ne(g,'rgba(255,215,106,0.35)',1);g.beginPath();g.moveTo(x2,H-46);g.lineTo(x2,y2);g.stroke();ng(g);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'TIME IN SYSTEM AGAINST UTILISATION');
+ curve(g,W,H);
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],x=24+r.rho*(W-56);
+  nt(g,'#5a4a85',x-8,H-32,7,''+Math.round(r.rho*100));}
+ nt(g,'#8a7ab8',24,H-16,8,'utilisation %');
+ nt(g,'#7de2b0',280,58,9,'50%  ->   '+VR.at50+'x service');
+ nt(g,'#ffd76a',280,76,9,'90%  ->  '+VR.at90+'x');
+ nt(g,'#ff5a8a',280,94,9,'99%  -> '+VR.at99+'x');
+ nt(g,'#5ad0ff',280,118,9,'90 -> 95 doubles it ('+VR.doubling90to95+'x)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',12,20,11,'UTILISATION '+(rho*100).toFixed(0)+'%');
+ curve(g,W,H-60,rho);
+ var w=1/(1-rho);
+ nt(g,'#ffd76a',14,H-52,10,'time in system  '+w.toFixed(2)+' x service');
+ nt(g,'#8a7ab8',14,H-34,9,'idle capacity   '+((1-rho)*100).toFixed(0)+'%');
+ nt(g,'#7de2b0',14,H-16,9,'raise to '+((rho+0.05)*100).toFixed(0)+'%  ->  '+
+  (1/(1-Math.min(0.99,rho+0.05))).toFixed(2)+' x');
+ var o=document.getElementById('utkno');
+ if(o)o.innerHTML='at <b>'+(rho*100).toFixed(0)+'%</b> the wait is <b>'+w.toFixed(2)+
+  '</b> x service &middot; five more points makes it <b>'+
+  (1/(1-Math.min(0.99,rho+0.05))).toFixed(2)+'</b> x';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A WALL WHERE THE AXIS LOOKED EMPTY');
+ var cx=W/2,cy=H/2+30,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<44;i++){
+  var p=i/44*0.985,w=1/(1-p);
+  var x=(p-0.5)*260,z=Math.sin(p*3.14)*40,y=60-Math.min(200,w*3);
+  var px=cx+x*rr-z*sn,py=cy+y*0.7+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,2.4,'rgba(125,226,176,'+(0.30+0.6*p)+')');}
+ nt(g,'#8a7ab8',12,H-22,8,'the last five percent costs more than the first ninety');}
+document.getElementById('utknu').onclick=function(){rho=Math.min(0.99,+(rho+0.05).toFixed(2));drawW4();};
+document.getElementById('utknd').onclick=function(){rho=Math.max(0.05,+(rho-0.05).toFixed(2));drawW4();};
+document.getElementById('utknk').onclick=function(){rho=0.9;drawW4();};
+document.getElementById('utknr').onclick=function(){rho=0.5;drawW4();};
+document.getElementById('utkns').onclick=function(){spin=!spin;};
+VR=selftest();window.__theutilizationknee=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TAIL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A service where only one request in a hundred is slow sounds healthy. Fan a single user request out to a hundred of those services and wait for all of them, and the rare event stops being rare &mdash; it becomes the common case.<br><br>
+ <span class="lit">LIT</span> verified live. With <b>1%</b> of leaf requests slow, a fan-out of <b>100</b> makes <b>63.40%</b> of parent requests slow &mdash; exactly <code>1&minus;0.99<sup>100</sup></code>. A <b>200,000</b>-trial simulation gives <b>63.39%</b>, off by <b>0.004</b> points. Half of all parents are slow at a fan-out of just <b>69</b>. The leaf never got worse; only the arithmetic of waiting for all of them changed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Jeff Dean and Luiz Andr&eacute; Barroso</b> set this out in <i>The Tail at Scale</i> (2013), and it is the reason large fan-out systems are engineered around tail latency rather than averages.<br><br>
+ <b>AVAN (AI)</b> computed the exact figure and then simulated it as a separate check, because the closed form is easy to state and easy to mis-state. The number that reframes the problem is <b>69</b>: you do not need a thousand-way fan-out for this to bite. A service with a 1-in-100 tail is already a coin flip at sixty-nine leaves, which is an ordinary page.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Fan-out against the chance the parent is slow.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Widen the fan-out, or make the leaf better.</div>
+   <div class="btns" style="margin-top:10px"><button id="tailw">wider fan-out &#9654;</button><button id="tailn">narrower</button><button id="tailb">better leaf</button><button id="tailr">reset</button></div>
+   <div class="cap" id="tailo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one hundred leaves, one slow enough to matter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that fan-out amplifies the tail. The inverse is that <b>fan-out did not amplify anything &mdash; it revealed what the average was hiding</b>. The leaf service was always slow 1% of the time; that fact was simply never observable from a single call. Read backwards, scale is not a source of new failure modes so much as an instrument that finally has the resolution to see the old ones, and the alarming number is not <b>63.40%</b> but the fact that <b>1%</b> was ever considered a description of the service.</div>
+   <div class="btns" style="margin-top:10px"><button id="tails">pause spin</button></div></div></div></div>"""
+TAIL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,n=100,p=0.01;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var pp=0.01,rows=[],picks=[1,10,50,100,150,200],i;
+ for(i=0;i<picks.length;i++)rows.push({fanout:picks[i],
+  pctSlow:+(100*(1-Math.pow(1-pp,picks[i]))).toFixed(2)});
+ var exact=1-Math.pow(1-pp,100);
+ var r=rng(13),trials=200000,hit=0;
+ for(var t=0;t<trials;t++){var slow=false;
+  for(i=0;i<100;i++)if(r()<pp){slow=true;break;}
+  if(slow)hit++;}
+ var sim=hit/trials,n50=1;
+ while(1-Math.pow(1-pp,n50)<0.5)n50++;
+ return {leafSlowPct:1,fanout:100,
+  exactPctSlow:+(100*exact).toFixed(2),simPctSlow:+(100*sim).toFixed(2),
+  trials:trials,absDiffPoints:+(100*Math.abs(sim-exact)).toFixed(3),
+  fanoutForHalf:n50,rows:rows,
+  ok:Math.abs(sim-exact)<0.005&&Math.round(100*exact)===63};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'FAN-OUT vs THE CHANCE THE PARENT IS SLOW');
+ ne(g,'rgba(255,210,63,0.85)',2);g.beginPath();
+ for(var i=0;i<=200;i++){
+  var q=1-Math.pow(0.99,i),x=24+i/200*(W-56),y=246-q*196;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ var xh=24+VR.fanoutForHalf/200*(W-56);
+ ne(g,'rgba(125,226,176,0.5)',1);g.beginPath();g.moveTo(24,246-0.5*196);g.lineTo(W-32,246-0.5*196);g.stroke();ng(g);
+ ndot(g,xh,246-0.5*196,4,'rgba(125,226,176,0.95)');
+ nt(g,'#7de2b0',xh+8,246-0.5*196-6,8,'half at fan-out '+VR.fanoutForHalf);
+ var x1=24+100/200*(W-56),y1=246-(1-Math.pow(0.99,100))*196;
+ ndot(g,x1,y1,4,'rgba(255,90,138,0.95)');
+ nt(g,'#ff5a8a',x1+8,y1-6,8,VR.exactPctSlow+'% at 100');
+ nt(g,'#8a7ab8',24,266,8,'0');nt(g,'#8a7ab8',W-46,266,8,'200 leaves');
+ nt(g,'#5ad0ff',24,284,9,'simulated over '+VR.trials.toLocaleString()+' trials: '+
+  VR.simPctSlow+'%   (exact '+VR.exactPctSlow+'%, apart by '+VR.absDiffPoints+' points)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var q=1-Math.pow(1-p,n);
+ nt(g,'#ffd23f',12,20,11,'FAN-OUT '+n+'   LEAF SLOW '+(p*100).toFixed(2)+'%');
+ var cols=20,cell=17,shown=Math.min(n,200);
+ var r=rng(n*31+Math.round(p*10000));
+ for(var i=0;i<shown;i++){
+  var slow=r()<p;
+  nf(g,slow?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.42)');
+  g.fillRect(16+(i%cols)*cell,38+Math.floor(i/cols)*13,cell-3,10);ng(g);}
+ nt(g,'#8a7ab8',14,196,8,shown<n?('first '+shown+' of '+n+' leaves'):(n+' leaves, one draw'));
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,214,340,26);ng(g);
+ nf(g,'rgba(255,60,90,0.7)');g.fillRect(14,214,Math.round(340*q),26);ng(g);
+ nt(g,'#e8e0ff',20,232,10,(100*q).toFixed(2)+'% of parents are slow');
+ nt(g,'#7de2b0',14,262,9,'to get back under 10% you would need the leaf at '+
+  (100*(1-Math.pow(0.9,1/n))).toFixed(3)+'%');
+ nt(g,'#5ad0ff',14,284,9,'half of parents slow at fan-out '+
+  (function(){var k=1;while(1-Math.pow(1-p,k)<0.5)k++;return k;})());
+ var o=document.getElementById('tailo');
+ if(o)o.innerHTML='fan-out <b>'+n+'</b> &middot; leaf <b>'+(p*100).toFixed(2)+
+  '%</b> &middot; parent slow <b>'+(100*q).toFixed(2)+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE HUNDRED LEAVES, ONE SLOW ENOUGH');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ ndot(g,cx,cy-100,5,'rgba(255,210,63,0.9)');
+ for(var i=0;i<40;i++){
+  var t=i/40*6.283185307,x=Math.cos(t)*100,z=Math.sin(t)*100,y=60;
+  var px=cx+x*rr-z*sn,py=cy+y*0.7+(x*sn+z*rr)*0.30;
+  var slow=(i===7||i===23);
+  ne(g,slow?'rgba(255,60,90,0.5)':'rgba(125,226,176,0.14)',1);
+  g.beginPath();g.moveTo(cx,cy-100);g.lineTo(px,py);g.stroke();ng(g);
+  ndot(g,px,py,slow?4:2,slow?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.55)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the parent is only as fast as its slowest leaf');}
+document.getElementById('tailw').onclick=function(){n=Math.min(400,n+25);drawW4();};
+document.getElementById('tailn').onclick=function(){n=Math.max(1,n-25);drawW4();};
+document.getElementById('tailb').onclick=function(){p=Math.max(0.0005,p/2);drawW4();};
+document.getElementById('tailr').onclick=function(){n=100;p=0.01;drawW4();};
+document.getElementById('tails').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetailatscale=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JBOF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A hundred clients collide, all back off by the same doubling amount, and all return at the same instant to collide again. Exponential backoff without randomness does not spread load &mdash; it synchronises it.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100</b> clients, base 10&nbsp;ms, cap 1&nbsp;s, same seed, same collision rule. Pure exponential backoff drains <b>0</b> of 100 within a <b>200,000</b>&nbsp;ms window, burning <b>20,500</b> attempts, every one of which collides. Full jitter &mdash; wait a uniform random amount in <code>[0, backoff)</code> &mdash; drains <b>100</b> of 100 by <b>837</b>&nbsp;ms on <b>509</b> attempts, about <b>5.09</b> per client.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The comparison is <b>Marc Brooker</b>&rsquo;s, in the AWS Architecture Blog piece on backoff and jitter; full jitter is the variant that wins there and here.<br><br>
+ <b>AVAN (AI)</b> reports what happened rather than a ratio. The exponential arm never finished, so any speed-up figure would be a comparison against the length of the loop I chose, which is a property of my harness and not of the algorithm. <b>0 of 100</b> and <b>100 of 100</b> is the honest statement. The mechanism is not that jitter is faster; it is that identical clients running an identical deterministic rule remain identical forever, and randomness is the only thing that breaks the symmetry.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Retry instants. One arm is a comb; the other is a spread.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run both arms and watch who drains.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbofm">switch arm &#9654;</button><button id="jbofc">more clients</button><button id="jbofl">fewer</button><button id="jbofr">reset</button></div>
+   <div class="cap" id="jbofo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a hundred clocks striking together.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that jitter fixes retry storms. The inverse is that <b>the storm was caused by the fix</b>. Backoff was introduced to reduce contention, and doubling is the most reasonable-looking rule available &mdash; and because every client is running that same reasonable rule, it manufactures the very lockstep it was meant to prevent. Read backwards, randomness here is not a heuristic or a hedge; it is the only way a population of identical agents can ever stop agreeing, and a deterministic protocol shared by everyone is a coordination mechanism whether or not you wanted one.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbofs">pause spin</button></div></div></div></div>"""
+JBOF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode='jitter',N=100;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(m,seed,n,cap){
+ var r=rng(seed),base=10,ceil=1000,attempts=0,collisions=0,completed=0,clock=0,marks=[];
+ var st=[];for(var i=0;i<n;i++)st.push({next:0,tries:0,done:false});
+ while(completed<n&&clock<cap){
+  var due=[];
+  for(i=0;i<n;i++)if(!st[i].done&&st[i].next<=clock)due.push(i);
+  if(!due.length){clock++;continue;}
+  attempts+=due.length;
+  if(marks.length<600)marks.push([clock,due.length]);
+  if(due.length===1){st[due[0]].done=true;completed++;}
+  else{collisions+=due.length;
+   for(var k=0;k<due.length;k++){
+    var c=st[due[k]];c.tries++;
+    var e=Math.min(ceil,base*Math.pow(2,c.tries));
+    c.next=clock+(m==='jitter'?Math.floor(r()*e):e);}}
+  clock++;}
+ return {mode:m,completed:completed,clock:clock,attempts:attempts,
+  collisions:collisions,drained:completed===n,marks:marks};}
+function selftest(){
+ var CAP=200000,e=run('exp',17,100,CAP),j=run('jitter',17,100,CAP);
+ return {clients:100,windowMs:CAP,baseMs:10,capMs:1000,
+  expDrained:e.drained,expCompleted:e.completed,expAttempts:e.attempts,expCollisions:e.collisions,
+  jitDrained:j.drained,jitCompleted:j.completed,jitAttempts:j.attempts,
+  jitCollisions:j.collisions,jitDrainedAtMs:j.clock,
+  attemptsPerClientJitter:+(j.attempts/100).toFixed(2),
+  ok:j.drained===true&&e.drained===false};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'RETRY INSTANTS -- A COMB, AND A SPREAD');
+ var arms=[['exponential only',run('exp',17,100,3000),'rgba(255,60,90,0.8)',60],
+           ['full jitter',run('jitter',17,100,3000),'rgba(125,226,176,0.8)',170]];
+ for(var a=0;a<2;a++){
+  var arm=arms[a],mk=arm[1].marks,mx=0,i;
+  for(i=0;i<mk.length;i++)if(mk[i][1]>mx)mx=mk[i][1];
+  nt(g,a?'#7de2b0':'#ff5a8a',20,arm[3]-14,9,arm[0]);
+  for(i=0;i<mk.length;i++){
+   var x=20+mk[i][0]/3000*(W-46),h=Math.max(2,Math.round(70*mk[i][1]/Math.max(1,mx)));
+   nf(g,arm[2]);g.fillRect(x,arm[3]+70-h,2,h);ng(g);}
+  nt(g,'#5a4a85',20,arm[3]+84,7,'bar height = clients retrying at that instant, peak '+mx);}
+ nt(g,'#ffd76a',20,278,9,'exponential '+VR.expCompleted+' of 100 drained     full jitter '+
+  VR.jitCompleted+' of 100, by '+VR.jitDrainedAtMs+' ms');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(mode,17,N,20000);
+ nt(g,'#00f5ff',12,20,11,(mode==='jitter'?'FULL JITTER':'EXPONENTIAL ONLY')+'   '+N+' CLIENTS');
+ var mk=r.marks,mx=0,i;
+ for(i=0;i<mk.length;i++)if(mk[i][1]>mx)mx=mk[i][1];
+ var span=Math.max(1,mk.length?mk[mk.length-1][0]:1);
+ for(i=0;i<mk.length;i++){
+  var x=16+mk[i][0]/span*340,h=Math.max(2,Math.round(120*mk[i][1]/Math.max(1,mx)));
+  nf(g,mode==='jitter'?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.75)');
+  g.fillRect(x,170-h,2,h);ng(g);}
+ nt(g,'#8a7ab8',16,190,8,'retry instants over '+span+' ms, peak '+mx+' at once');
+ nt(g,r.drained?'#7de2b0':'#ff5a8a',14,218,10,
+  r.drained?('drained all '+N+' by '+r.clock+' ms'):('drained '+r.completed+' of '+N+' -- did not finish'));
+ nt(g,'#8a7ab8',14,240,9,'attempts     '+r.attempts.toLocaleString());
+ nt(g,'#ffd76a',14,260,9,'collisions   '+r.collisions.toLocaleString());
+ nt(g,'#5ad0ff',14,280,9,'per client   '+(r.attempts/N).toFixed(2));
+ var o=document.getElementById('jbofo');
+ if(o)o.innerHTML=(mode==='jitter'?'full jitter':'exponential only')+': <b>'+r.completed+
+  '</b> of '+N+' drained &middot; <b>'+r.attempts.toLocaleString()+'</b> attempts';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A HUNDRED CLOCKS STRIKING TOGETHER');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<36;i++){
+  var t=i/36*6.283185307,x=Math.cos(t)*100,z=Math.sin(t)*100;
+  var y=Math.sin(ang*0.03)*30;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,3,'rgba(125,226,176,0.7)');}
+ nt(g,'#8a7ab8',12,H-22,8,'identical agents running an identical rule stay identical');}
+document.getElementById('jbofm').onclick=function(){mode=(mode==='jitter')?'exp':'jitter';drawW4();};
+document.getElementById('jbofc').onclick=function(){N=Math.min(400,N+50);drawW4();};
+document.getElementById('jbofl').onclick=function(){N=Math.max(10,N-50);drawW4();};
+document.getElementById('jbofr').onclick=function(){mode='jitter';N=100;drawW4();};
+document.getElementById('jbofs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thejitteredbackoff=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TOKB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A bucket fills with tokens at a fixed rate and holds at most a fixed number. Every request spends one. The rate sets the long-run average; the depth sets how much burst you will forgive.<br><br>
+ <span class="lit">LIT</span> verified live. Rate <b>10</b>/s, burst <b>50</b>, a <b>2,000</b>&nbsp;ms window offered <b>1,056</b> requests &mdash; roughly fifteen times what the limiter permits. <b>69</b> were admitted and <b>987</b> rejected: admitted plus rejected equals offered exactly, nothing lost in the accounting. The theoretical ceiling is <code>rate&times;T + burst</code> = <b>70</b>, and the bucket admitted <b>69</b>. It sits one token under its own bound.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The token bucket comes from ATM traffic shaping and is now the shape of nearly every public API rate limiter.<br><br>
+ <b>AVAN (AI)</b> checked the bound rather than the behaviour, because the behaviour is obvious and the bound is what you actually rely on. <code>rate&times;T + burst</code> is a promise to whatever is downstream: no matter how the arrivals are arranged, no window of length T can push more than this through. Admitting <b>69</b> against a ceiling of <b>70</b> is the interesting result &mdash; the limiter is not conservative, it spends essentially everything it is allowed to and not one token more.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The bucket level over the window. Empty is the steady state.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Trade rate against burst.</div>
+   <div class="btns" style="margin-top:10px"><button id="tokbr">faster refill &#9654;</button><button id="tokbs2">slower</button><button id="tokbb">deeper bucket</button><button id="tokbz">reset</button></div>
+   <div class="cap" id="tokbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a bucket with a hole and a tap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a token bucket protects the service. The inverse is that <b>the burst depth is a debt the service agreed to honour</b>. Fifty tokens sitting in a full bucket are fifty requests you have promised to accept simultaneously, at some moment of the client&rsquo;s choosing and not yours &mdash; so the limiter that caps your average has also specified your worst instant. Read backwards, choosing a burst size is capacity planning for a spike you will never see coming, and a generous limiter is a stricter requirement on everything behind it.</div>
+   <div class="btns" style="margin-top:10px"><button id="tokbp">pause spin</button></div></div></div></div>"""
+TOKB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,rate=10,burst=50;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(rt,bu){
+ var T=2000,r=rng(19),tok=bu,admit=0,rej=0,level=[],offered=0;
+ for(var t=0;t<T;t++){
+  tok=Math.min(bu,tok+rt/1000);
+  var k=0;while(r()<0.35)k++;
+  offered+=k;
+  while(k>0&&tok>=1){tok-=1;admit++;k--;}
+  rej+=k;
+  if(t%8===0)level.push(tok);}
+ return {rate:rt,burst:bu,windowMs:T,offered:offered,admitted:admit,rejected:rej,
+  level:level,ceiling:rt/1000*T+bu};}
+function selftest(){
+ var b=run(10,50);
+ return {ratePerSec:10,burst:50,windowMs:2000,
+  offered:b.offered,admitted:b.admitted,rejected:b.rejected,
+  ceiling:+b.ceiling.toFixed(1),underCeiling:b.admitted<=b.ceiling,
+  headroom:+(b.ceiling-b.admitted).toFixed(1),
+  admitPct:+(100*b.admitted/b.offered).toFixed(1),
+  conserved:b.admitted+b.rejected===b.offered,
+  ok:b.admitted+b.rejected===b.offered&&b.admitted<=b.ceiling};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'BUCKET LEVEL OVER THE WINDOW');
+ var b=run(10,50),lv=b.level,i;
+ ne(g,'rgba(255,90,60,0.85)',1.5);g.beginPath();
+ for(i=0;i<lv.length;i++){
+  var x=20+i/lv.length*(W-46),y=210-lv[i]/50*160;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(125,226,176,0.4)',1);g.beginPath();g.moveTo(20,210);g.lineTo(W-26,210);g.stroke();ng(g);
+ nt(g,'#7de2b0',24,224,8,'empty -- the steady state under overload');
+ nt(g,'#8a7ab8',24,50,8,'full: '+b.burst+' tokens');
+ nt(g,'#ffd76a',20,250,9,'offered '+b.offered.toLocaleString()+
+  '    admitted '+b.admitted+'    rejected '+b.rejected.toLocaleString());
+ nt(g,'#5ad0ff',20,270,9,'ceiling rate x T + burst = '+VR.ceiling+
+  '     admitted '+VR.admitted+'   headroom '+VR.headroom);
+ nt(g,VR.conserved?'#7de2b0':'#ff5a8a',20,286,9,
+  VR.conserved?'admitted + rejected = offered, exactly':'ACCOUNTING BROKEN');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=run(rate,burst);
+ nt(g,'#ff5a3c',12,20,11,'RATE '+rate+'/s   BURST '+burst);
+ var lv=b.level,i;
+ ne(g,'rgba(255,90,60,0.85)',1.5);g.beginPath();
+ for(i=0;i<lv.length;i++){
+  var x=16+i/lv.length*340,y=150-lv[i]/Math.max(1,burst)*110;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',16,168,8,'bucket level, full = '+burst);
+ nt(g,'#8a7ab8',14,196,9,'offered    '+b.offered.toLocaleString());
+ nt(g,'#7de2b0',14,216,9,'admitted   '+b.admitted);
+ nt(g,'#ff5a8a',14,236,9,'rejected   '+b.rejected.toLocaleString());
+ nt(g,'#5ad0ff',14,256,9,'ceiling    '+b.ceiling.toFixed(1));
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,270,340,20);ng(g);
+ nf(g,'rgba(125,226,176,0.7)');g.fillRect(14,270,Math.round(340*b.admitted/Math.max(1,b.ceiling)),20);ng(g);
+ nt(g,'#e8e0ff',20,284,8,(100*b.admitted/b.ceiling).toFixed(1)+'% of the ceiling spent');
+ var o=document.getElementById('tokbo');
+ if(o)o.innerHTML='rate <b>'+rate+'</b>/s, burst <b>'+burst+'</b> &middot; admitted <b>'+
+  b.admitted+'</b> of <b>'+b.offered.toLocaleString()+'</b> &middot; ceiling <b>'+b.ceiling.toFixed(1)+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A BUCKET WITH A HOLE AND A TAP');
+ var cx=W/2,cy=H/2+20,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var d=0;d<5;d++){
+  for(var i=0;i<20;i++){
+   var t=i/20*6.283185307,rad=60-d*4,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=-d*16+40;
+   var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.34;
+   ndot(g,px,py,2,'rgba(125,226,176,'+(0.25+0.1*d)+')');}}
+ for(i=0;i<6;i++){
+  var yy=cy-130+((ang*1.4+i*30)%120);
+  ndot(g,cx,yy,2.5,'rgba(255,90,60,0.85)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the depth is a promise about your worst instant');}
+document.getElementById('tokbr').onclick=function(){rate=Math.min(200,rate+10);drawW4();};
+document.getElementById('tokbs2').onclick=function(){rate=Math.max(5,rate-10);drawW4();};
+document.getElementById('tokbb').onclick=function(){burst=Math.min(400,burst+50);drawW4();};
+document.getElementById('tokbz').onclick=function(){rate=10;burst=50;drawW4();};
+document.getElementById('tokbp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetokenbucket=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HEDG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Send the request. If it has not come back by the 95th percentile, send a second copy elsewhere and take whichever answers first. You pay about five percent more traffic and you buy back most of the tail.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> requests, hedge fired at <b>8.76</b>&nbsp;ms. Extra load: <b>9,999</b> requests, <b>5.00%</b>. p99 falls from <b>123.31</b>&nbsp;ms to <b>13.80</b>. p99.9 falls from <b>192.49</b> to <b>17.50</b> &mdash; an <b>11&times;</b> cut. The maximum barely moves: <b>199.99</b> to <b>187.74</b>, a factor of <b>1.07</b>, because a hedge can be unlucky twice.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Hedged requests are the practical half of <b>Dean and Barroso</b>&rsquo;s tail-at-scale paper; the version that only fires after a percentile delay is what keeps the extra load small.<br><br>
+ <b>AVAN (AI)</b> measured the part that gets left out of the pitch. Hedging is sold on the p99, and the p99 does collapse. But the <b>maximum</b> improves by only <b>1.07&times;</b>, because the second copy is drawn from the same distribution and can land in the same tail. Read the two numbers together and the technique is honest: it moves the <i>bulk</i> of the tail, and it does almost nothing for the worst case.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The tail, before and after. Note where the two curves meet again.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the hedge point and watch load trade against tail.</div>
+   <div class="btns" style="margin-top:10px"><button id="hedge">hedge earlier &#9654;</button><button id="hedgl">later</button><button id="hedgp">next percentile</button><button id="hedgr">reset</button></div>
+   <div class="cap" id="hedgo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two attempts, one answer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that hedging buys tail latency for a few percent of load. The inverse is that <b>it spends the one resource that made the tail short in the first place</b>. The hedge is fast because the system is not saturated; add hedges everywhere and utilisation rises, and by <code>1/(1&minus;&rho;)</code> the tail you were hedging against grows. Read backwards, hedging is a loan against idle capacity, and like every such loan it works beautifully until enough people take it out at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="hedgs">pause spin</button></div></div></div></div>"""
+HEDG_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,q=0.95,pi=3;
+var PQ=[0.5,0.9,0.99,0.999];
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pct(a,p){var b=a.slice().sort(function(x,y){return x-y;});
+ return b[Math.min(b.length-1,Math.floor(p*b.length))];}
+function amax(a){var m=-Infinity;for(var i=0;i<a.length;i++)if(a[i]>m)m=a[i];return m;}
+function run(hq,N){
+ var r=rng(23),base=[],i;
+ for(i=0;i<N;i++){var u=r();base.push(u<0.02?50+r()*150:1+r()*8);}
+ var thr=pct(base,hq),hed=[],extra=0,r2=rng(29);
+ for(i=0;i<N;i++){
+  var f=base[i];
+  if(f<=thr){hed.push(f);continue;}
+  extra++;
+  var u2=r2(),sec=(u2<0.02?50+r2()*150:1+r2()*8);
+  hed.push(Math.min(f,thr+sec));}
+ return {base:base,hedged:hed,thr:thr,extra:extra,N:N};}
+function selftest(){
+ var m=run(0.95,200000);
+ return {requests:200000,hedgeAtMs:+m.thr.toFixed(2),
+  extraRequests:m.extra,extraLoadPct:+(100*m.extra/m.N).toFixed(2),
+  baseP99:+pct(m.base,0.99).toFixed(2),hedgedP99:+pct(m.hedged,0.99).toFixed(2),
+  baseP999:+pct(m.base,0.999).toFixed(2),hedgedP999:+pct(m.hedged,0.999).toFixed(2),
+  baseMax:+amax(m.base).toFixed(2),hedgedMax:+amax(m.hedged).toFixed(2),
+  p999Cut:+(pct(m.base,0.999)/pct(m.hedged,0.999)).toFixed(2),
+  maxCut:+(amax(m.base)/amax(m.hedged)).toFixed(2),
+  ok:pct(m.hedged,0.999)<pct(m.base,0.999)&&m.extra/m.N<0.08};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THE TAIL, BEFORE AND AFTER');
+ var labs=['p50','p90','p99','p99.9','max'],
+     bs=[VR.baseP99,VR.baseP999,VR.baseMax],
+     hs=[VR.hedgedP99,VR.hedgedP999,VR.hedgedMax],
+     nm=['p99','p99.9','max'],i;
+ for(i=0;i<3;i++){
+  var y=56+i*68,mx=200;
+  nt(g,'#8a7ab8',14,y+12,10,nm[i]);
+  nf(g,'rgba(255,60,90,0.7)');g.fillRect(70,y,Math.round(380*bs[i]/mx),22);ng(g);
+  nt(g,'#ff5a8a',74+Math.round(380*bs[i]/mx),y+16,8,bs[i]+' ms');
+  nf(g,'rgba(125,226,176,0.75)');g.fillRect(70,y+26,Math.round(380*hs[i]/mx),22);ng(g);
+  nt(g,'#7de2b0',74+Math.round(380*hs[i]/mx),y+42,8,hs[i]+' ms');}
+ nt(g,'#ff5a8a',70,44,8,'no hedge');nt(g,'#7de2b0',160,44,8,'hedged at p95');
+ nt(g,'#ffd76a',14,276,9,'p99.9 cut '+VR.p999Cut+'x  --  but the maximum only '+VR.maxCut+
+  'x, for '+VR.extraLoadPct+'% more traffic');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(q,40000),p=PQ[pi%PQ.length],labs=['p50','p90','p99','p99.9'];
+ nt(g,'#00f5ff',12,20,11,'HEDGE AT p'+(q*100).toFixed(0)+'   READING '+labs[pi%labs.length]);
+ var a=pct(m.base,p),b=pct(m.hedged,p),mx=Math.max(a,b,1);
+ nf(g,'rgba(255,60,90,0.75)');g.fillRect(20,52,Math.round(330*a/mx),32);ng(g);
+ nt(g,'#e8e0ff',26,73,10,'no hedge  '+a.toFixed(2)+' ms');
+ nf(g,'rgba(125,226,176,0.75)');g.fillRect(20,96,Math.round(330*b/mx),32);ng(g);
+ nt(g,'#e8e0ff',26,117,10,'hedged    '+b.toFixed(2)+' ms');
+ nt(g,'#ffd76a',20,156,9,'hedge fires at  '+m.thr.toFixed(2)+' ms');
+ nt(g,'#5ad0ff',20,176,9,'extra traffic   '+(100*m.extra/m.N).toFixed(2)+'%');
+ nt(g,'#8a7ab8',20,196,9,'max            '+amax(m.base).toFixed(2)+'  ->  '+
+  amax(m.hedged).toFixed(2));
+ for(var i=0;i<PQ.length;i++){
+  var aa=pct(m.base,PQ[i]),bb=pct(m.hedged,PQ[i]),x=26+i*86;
+  nf(g,'rgba(255,60,90,0.6)');g.fillRect(x,290-Math.round(70*aa/200),32,Math.round(70*aa/200));ng(g);
+  nf(g,'rgba(125,226,176,0.6)');g.fillRect(x+34,290-Math.round(70*bb/200),32,Math.round(70*bb/200));ng(g);
+  nt(g,i===pi%PQ.length?'#ffd76a':'#5a4a85',x,304,7,labs[i]);}
+ var o=document.getElementById('hedgo');
+ if(o)o.innerHTML=labs[pi%labs.length]+': <b>'+a.toFixed(2)+'</b> -> <b>'+b.toFixed(2)+
+  '</b> ms for <b>'+(100*m.extra/m.N).toFixed(2)+'%</b> more traffic';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO ATTEMPTS, ONE ANSWER');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var lane=0;lane<2;lane++)for(var i=0;i<24;i++){
+  var t=i/24,x=(t-0.5)*250,z=lane?45:-45,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.34;
+  var live=(lane===0)||(t>0.55);
+  ndot(g,px,py,live?2.6:1.4,lane?'rgba(0,245,255,'+(live?0.8:0.2)+')':'rgba(125,226,176,0.7)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the second copy starts late and usually loses -- that is the point');}
+document.getElementById('hedge').onclick=function(){q=Math.max(0.5,+(q-0.05).toFixed(2));drawW4();};
+document.getElementById('hedgl').onclick=function(){q=Math.min(0.995,+(q+0.02).toFixed(3));drawW4();};
+document.getElementById('hedgp').onclick=function(){pi++;drawW4();};
+document.getElementById('hedgr').onclick=function(){q=0.95;pi=3;drawW4();};
+document.getElementById('hedgs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehedgedrequest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+BFBL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Memory got cheap, so buffers got large, so nothing is ever dropped &mdash; and packets sit in a queue for a second instead of being discarded in a millisecond. The link is not slower. The wait in front of it is enormous.<br><br>
+ <span class="lit">LIT</span> verified live. One bottleneck serving 1 packet per ms, offered <b>52,095</b> packets over 40 seconds &mdash; more than it can carry. With a <b>1,000</b>-packet buffer the mean queueing delay is <b>957.6</b>&nbsp;ms. With a <b>10</b>-packet buffer it is <b>10.0</b>&nbsp;ms &mdash; <b>95.8&times;</b> less. Throughput is <b>identical</b> to four decimals: <b>1.0000</b> either way, a difference of <b>0.00%</b>. The hundredfold delay bought nothing at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Jim Gettys</b> named bufferbloat in 2010 after chasing terrible latency on his own home link; <b>Kathleen Nichols and Van Jacobson</b>&rsquo;s CoDel is the standard answer.<br><br>
+ <b>AVAN (AI)</b> ran both buffers over the same offered load so the throughput column would be directly comparable, which is the whole argument. My first model offered arrivals at exactly the service rate &mdash; a queue that mathematically cannot build &mdash; and reported a delay ratio of 1.0, a clean pass proving nothing. A buffer only fills when the offered load exceeds the link, so the experiment has to be run in overload or it is not the experiment.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Same link, same load, two buffer sizes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Resize the buffer. Watch delay move and throughput stay.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfblb">bigger buffer &#9654;</button><button id="bfbls2">smaller</button><button id="bfblr">reset</button></div>
+   <div class="cap" id="bfblo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue nobody meant to build.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that oversized buffers cause latency. The inverse is that <b>the drop was the signal, and the buffer is what silenced it</b>. Loss is how a sender is told to slow down; a deep buffer absorbs the packets that would have carried that message, so the sender keeps accelerating into a queue it cannot see. Read backwards, this is not a memory-sizing mistake but a failure of nerve &mdash; the buffer was added to avoid discarding data, and discarding data was the only working feedback channel in the system.</div>
+   <div class="btns" style="margin-top:10px"><button id="bfbls">pause spin</button></div></div></div></div>"""
+BFBL_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cap=1000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(cp,seed,T){
+ var r=rng(seed),q=0,sent=0,dropped=0,qsum=0,qn=0,offered=0,trace=[];
+ for(var t=0;t<T;t++){
+  var arr=(r()<0.30)?2:1;
+  offered+=arr;
+  for(var k=0;k<arr;k++){if(q<cp)q++;else dropped++;}
+  if(q>0){qsum+=q;qn++;q--;sent++;}
+  if(t%(Math.max(1,Math.floor(T/240)))===0)trace.push(q);}
+ var meanQ=qsum/Math.max(1,qn);
+ return {cap:cp,offered:offered,sent:sent,dropped:dropped,
+  meanQueue:+meanQ.toFixed(1),meanDelayMs:+meanQ.toFixed(1),
+  throughput:+(sent/T).toFixed(4),trace:trace};}
+function selftest(){
+ var big=run(1000,31,40000),small=run(10,31,40000);
+ return {serviceMsPerPacket:1,bigCap:1000,smallCap:10,offered:big.offered,
+  bigThroughput:big.throughput,smallThroughput:small.throughput,
+  bigDelayMs:big.meanDelayMs,smallDelayMs:small.meanDelayMs,
+  bigDropped:big.dropped,smallDropped:small.dropped,
+  delayRatio:+(big.meanDelayMs/small.meanDelayMs).toFixed(1),
+  throughputDiffPct:+(100*Math.abs(big.throughput-small.throughput)/small.throughput).toFixed(2),
+  ok:big.meanDelayMs>small.meanDelayMs*5&&
+     Math.abs(big.throughput-small.throughput)/small.throughput<0.02};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'SAME LINK, SAME LOAD, TWO BUFFER SIZES');
+ var rows=[['buffer 1000',VR.bigDelayMs,VR.bigThroughput,'rgba(255,60,90,0.75)'],
+           ['buffer 10',VR.smallDelayMs,VR.smallThroughput,'rgba(125,226,176,0.75)']];
+ for(var i=0;i<2;i++){
+  var y=52+i*88;
+  nt(g,'#8a7ab8',14,y,9,rows[i][0]);
+  nt(g,'#5a4a85',14,y+18,8,'queueing delay');
+  nf(g,rows[i][3]);g.fillRect(120,y+6,Math.round(340*rows[i][1]/1000),20);ng(g);
+  nt(g,'#e8e0ff',126+Math.round(340*rows[i][1]/1000),y+21,9,rows[i][1]+' ms');
+  nt(g,'#5a4a85',14,y+46,8,'throughput');
+  nf(g,'rgba(90,208,255,0.6)');g.fillRect(120,y+34,Math.round(300*rows[i][2]),20);ng(g);
+  nt(g,'#5ad0ff',126+Math.round(300*rows[i][2]),y+49,9,rows[i][2].toFixed(4)+' pkt/ms');}
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,236,W-24,44);ng(g);
+ nt(g,'#ff5a8a',20,258,10,'delay '+VR.delayRatio+'x worse');
+ nt(g,'#7de2b0',180,258,10,'throughput '+VR.throughputDiffPct+'% different');
+ nt(g,'#8a7ab8',20,274,8,'the hundredfold wait bought nothing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=run(cap,31,12000);
+ nt(g,'#9d00ff',12,20,11,'BUFFER '+cap+' PACKETS');
+ var tr=r.trace,i;
+ ne(g,'rgba(157,0,255,0.85)',1.5);g.beginPath();
+ for(i=0;i<tr.length;i++){
+  var x=16+i/tr.length*340,y=150-tr[i]/Math.max(1,cap)*110;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ nt(g,'#8a7ab8',16,168,8,'queue occupancy, full = '+cap);
+ nt(g,'#ff5a8a',14,196,9,'mean queueing delay  '+r.meanDelayMs+' ms');
+ nt(g,'#7de2b0',14,216,9,'throughput           '+r.throughput.toFixed(4)+' pkt/ms');
+ nt(g,'#8a7ab8',14,236,9,'offered              '+r.offered.toLocaleString());
+ nt(g,'#ffd76a',14,256,9,'dropped              '+r.dropped.toLocaleString());
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,270,340,20);ng(g);
+ nf(g,'rgba(255,60,90,0.7)');g.fillRect(14,270,Math.round(340*Math.min(1,r.meanDelayMs/1000)),20);ng(g);
+ nt(g,'#e8e0ff',20,284,8,'delay as a fraction of a full second');
+ var o=document.getElementById('bfblo');
+ if(o)o.innerHTML='buffer <b>'+cap+'</b> &middot; delay <b>'+r.meanDelayMs+
+  '</b> ms &middot; throughput <b>'+r.throughput.toFixed(4)+'</b> pkt/ms';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE NOBODY MEANT TO BUILD');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<34;i++){
+  var t=i/34,x=(t-0.5)*280,z=Math.sin(t*3.14)*30,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.34;
+  ndot(g,px,py,3,'rgba(125,226,176,'+(0.75-t*0.5)+')');}
+ ndot(g,cx+140*Math.cos(ang*0.0175),cy+140*Math.sin(ang*0.0175)*0.34,5,'rgba(255,60,90,0.9)');
+ nt(g,'#8a7ab8',12,H-22,8,'the drop was the signal; the buffer is what silenced it');}
+document.getElementById('bfblb').onclick=function(){cap=Math.min(4000,cap*2);drawW4();};
+document.getElementById('bfbls2').onclick=function(){cap=Math.max(5,Math.floor(cap/2));drawW4();};
+document.getElementById('bfblr').onclick=function(){cap=1000;drawW4();};
+document.getElementById('bfbls').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebufferbloat=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+USLW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Amdahl says extra workers stop helping. The Universal Scalability Law says something worse: past a point they start <i>hurting</i>, because every worker must also stay consistent with every other one, and that cost grows as the square.<br><br>
+ <span class="lit">LIT</span> verified live. With contention <b>&alpha;=0.03</b> and coherency <b>&beta;=0.0001</b>, throughput peaks at <b>98</b> workers at a speed-up of <b>20.16&times;</b> &mdash; and the closed form <code>N* = sqrt((1&minus;&alpha;)/&beta;)</code> also gives <b>98</b>. Past the peak it declines: <b>19.89&times;</b> at 128, <b>16.87&times;</b> at 256, <b>12.05&times;</b> at 512. Amdahl alone would have promised a ceiling of <b>33.3&times;</b> and never a decline.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Neil Gunther</b>&rsquo;s Universal Scalability Law adds the &beta; term &mdash; pairwise coherency &mdash; to Amdahl&rsquo;s serial fraction.<br><br>
+ <b>AVAN (AI)</b> found the peak by exhaustive search from 1 to 600 and then compared it to the closed form, rather than evaluating the formula and calling that a measurement. They agree at <b>98</b>. The number that changes decisions is the shape, not the peak: between 64 and 128 workers the curve is almost flat, so a team doubling its fleet there sees no improvement and no warning, and the next doubling actively loses ground.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Speed-up against workers. Amdahl flattens; the USL turns over.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change contention and coherency; find the new peak.</div>
+   <div class="btns" style="margin-top:10px"><button id="uslwa">more contention &#9654;</button><button id="uslwb">more coherency</button><button id="uslwc">cleaner system</button><button id="uslwr">reset</button></div>
+   <div class="cap" id="uslwo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a curve that turns back on itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the USL predicts where scaling stops paying. The inverse is that <b>&beta; is not a property of the machine &mdash; it is the cost of everyone agreeing</b>. It is quadratic because it counts <i>pairs</i>, and pairs are what a shared, consistent view of the world is made of. Read backwards, the retrograde section of the curve is the price of coherence itself, and the only way to move the peak is to let the workers know less about each other.</div>
+   <div class="btns" style="margin-top:10px"><button id="uslws">pause spin</button></div></div></div></div>"""
+USLW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,al=0.03,be=0.0001;
+function C(n,a,b){return n/(1+a*(n-1)+b*n*(n-1));}
+function peakOf(a,b){var best=1,bv=C(1,a,b);
+ for(var n=1;n<=2000;n++){var v=C(n,a,b);if(v>bv){bv=v;best=n;}}
+ return {n:best,v:bv};}
+function selftest(){
+ var a=0.03,b=0.0001,p=peakOf(a,b),rows=[],picks=[1,4,16,32,64,98,128,256,512],i;
+ for(i=0;i<picks.length;i++)rows.push({n:picks[i],speedup:+C(picks[i],a,b).toFixed(2)});
+ var pred=Math.floor(Math.sqrt((1-a)/b));
+ return {alpha:a,beta:b,
+  peakN:p.n,peakSpeedup:+p.v.toFixed(2),
+  predictedPeak:pred,peakMatchesFormula:Math.abs(p.n-pred)<=1,
+  amdahlCeiling:+(1/a).toFixed(1),
+  at128:+C(128,a,b).toFixed(2),at256:+C(256,a,b).toFixed(2),at512:+C(512,a,b).toFixed(2),
+  declinesAfterPeak:C(p.n+50,a,b)<p.v,
+  rows:rows,
+  ok:Math.abs(p.n-pred)<=1&&C(p.n+50,a,b)<p.v&&p.v<1/a};}
+function plot(g,W,H,a,b,mark){
+ var mx=0,n;
+ for(n=1;n<=600;n++)mx=Math.max(mx,C(n,a,b));
+ ne(g,'rgba(255,90,60,0.5)',1);g.beginPath();
+ for(n=1;n<=600;n++){var v=1/(a+(1-a)/n);
+  var x=24+n/600*(W-56),y=H-46-Math.min(H-80,v/Math.max(mx,1/a)*(H-90));
+  if(n===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(125,226,176,0.9)',2);g.beginPath();
+ for(n=1;n<=600;n++){var v2=C(n,a,b);
+  var x2=24+n/600*(W-56),y2=H-46-Math.min(H-80,v2/Math.max(mx,1/a)*(H-90));
+  if(n===1)g.moveTo(x2,y2);else g.lineTo(x2,y2);}
+ g.stroke();ng(g);
+ if(mark){var p=peakOf(a,b),xp=24+p.n/600*(W-56),
+  yp=H-46-Math.min(H-80,p.v/Math.max(mx,1/a)*(H-90));
+  ndot(g,xp,yp,4,'rgba(255,215,106,0.95)');
+  return p;}
+ return peakOf(a,b);}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'SPEED-UP AGAINST WORKERS');
+ var p=plot(g,W,H,0.03,0.0001,true);
+ nt(g,'#ff5a3c',300,44,8,'Amdahl -- flattens at '+VR.amdahlCeiling+'x');
+ nt(g,'#7de2b0',300,60,8,'USL -- peaks then declines');
+ nt(g,'#ffd76a',300,76,8,'peak '+VR.peakSpeedup+'x at N = '+VR.peakN);
+ nt(g,'#8a7ab8',24,H-30,8,'1');nt(g,'#8a7ab8',W-56,H-30,8,'600 workers');
+ nt(g,'#5ad0ff',24,H-12,9,'closed form sqrt((1-alpha)/beta) = '+VR.predictedPeak+
+  '     exhaustive search = '+VR.peakN);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',12,20,11,'alpha '+al.toFixed(3)+'   beta '+be.toFixed(5));
+ var p=plot(g,W,H-70,al,be,true);
+ var pred=Math.floor(Math.sqrt(Math.max(0,(1-al))/Math.max(1e-9,be)));
+ nt(g,'#ffd76a',14,H-58,9,'peak        '+p.v.toFixed(2)+'x at N = '+p.n);
+ nt(g,'#5ad0ff',14,H-40,9,'closed form N* = '+pred);
+ nt(g,'#8a7ab8',14,H-22,9,'Amdahl ceiling '+(1/al).toFixed(1)+'x  --  at 512: '+
+  C(512,al,be).toFixed(2)+'x');
+ var o=document.getElementById('uslwo');
+ if(o)o.innerHTML='peak <b>'+p.v.toFixed(2)+'x</b> at <b>'+p.n+'</b> workers &middot; closed form <b>'+
+  pred+'</b> &middot; at 512 only <b>'+C(512,al,be).toFixed(2)+'x</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A CURVE THAT TURNS BACK');
+ var cx=W/2,cy=H/2+40,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175),mx=0,n;
+ for(n=1;n<=400;n+=4)mx=Math.max(mx,C(n,0.03,0.0001));
+ for(n=1;n<=400;n+=4){
+  var v=C(n,0.03,0.0001),t=n/400;
+  var x=(t-0.5)*260,z=Math.sin(t*6.283)*45,y=-v/mx*150+70;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,2.4,'rgba(125,226,176,'+(0.3+0.6*v/mx)+')');}
+ nt(g,'#8a7ab8',12,H-22,8,'the descent is the cost of everyone agreeing');}
+document.getElementById('uslwa').onclick=function(){al=Math.min(0.3,+(al+0.01).toFixed(3));drawW4();};
+document.getElementById('uslwb').onclick=function(){be=Math.min(0.01,+(be*2).toFixed(6));drawW4();};
+document.getElementById('uslwc').onclick=function(){al=Math.max(0.001,+(al/2).toFixed(4));
+ be=Math.max(0.000001,+(be/2).toFixed(7));drawW4();};
+document.getElementById('uslwr').onclick=function(){al=0.03;be=0.0001;drawW4();};
+document.getElementById('uslws').onclick=function(){spin=!spin;};
+VR=selftest();window.__theuniversalscalability=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One resource frees up and every waiter is woken to race for it. One wins. The rest discover the resource is gone, and go back to sleep &mdash; having been scheduled, context-switched and cache-thrashed for nothing.<br><br>
+ <span class="lit">LIT</span> verified live. <b>512</b> waiters, drained one at a time. Wake-all performs <b>131,328</b> wakeups; wake-one performs <b>512</b>. That is <b>256.5&times;</b> more work for the same result, and <b>130,816</b> of those wakeups are pure waste. The wake-all total is exactly <code>N(N+1)/2</code> &mdash; it is quadratic in the number of waiters, while the useful work is linear.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The thundering herd is old enough to be folklore; the fixes are <code>WSAAccept</code>-style single wakeup, <code>EPOLLEXCLUSIVE</code>, and <code>accept()</code> serialisation.<br><br>
+ <b>AVAN (AI)</b> counted rather than characterised. Calling this &ldquo;inefficient&rdquo; is true and useless; <code>N(N+1)/2</code> against <code>N</code> is the actionable form, because it says the penalty is not a constant factor you can absorb &mdash; it grows with the thing you were trying to scale. Doubling the waiters quadruples the waste. That is why the herd is invisible in testing at 8 waiters and catastrophic in production at 512.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Wakeups against waiters. One line is straight; the other is not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add waiters and watch the waste square.</div>
+   <div class="btns" style="margin-top:10px"><button id="thrdm">double the waiters &#9654;</button><button id="thrdl">halve</button><button id="thrdr">reset</button></div>
+   <div class="cap" id="thrdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: five hundred woken, one served.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that waking everyone is wasteful. The inverse is that <b>waking everyone is the only fair thing the kernel can do without knowing anything</b>. Wake-one requires choosing, and choosing requires a policy &mdash; who has waited longest, who is most important, who is on the right core. The herd is what fairness costs when you refuse to have an opinion. Read backwards, the fix is not efficiency; it is admitting that a queue is a ranking, and that declining to rank does not avoid the decision, it only makes everyone pay for it.</div>
+   <div class="btns" style="margin-top:10px"><button id="thrds">pause spin</button></div></div></div></div>"""
+THRD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=512;
+function drain(n){
+ var all=0,one=0,waiters=n;
+ for(var i=0;i<n&&waiters>0;i++){all+=waiters;one+=1;waiters--;}
+ return {all:all,one:one,wasted:all-one,formula:n*(n+1)/2};}
+function selftest(){
+ var d=drain(512),rows=[],picks=[8,32,64,128,256,512],i;
+ for(i=0;i<picks.length;i++){var x=drain(picks[i]);
+  rows.push({waiters:picks[i],wakeAll:x.all,wakeOne:x.one,ratio:+(x.all/x.one).toFixed(1)});}
+ return {waiters:512,
+  wakeAllWakeups:d.all,wakeOneWakeups:d.one,wastedWakeups:d.wasted,
+  wakeAllFormula:d.formula,formulaMatches:d.all===d.formula,
+  ratio:+(d.all/d.one).toFixed(1),
+  doublingQuadruples:+(drain(512).all/drain(256).all).toFixed(2),
+  rows:rows,
+  ok:d.all===d.formula&&d.one===512&&d.wasted===d.all-d.one};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'WAKEUPS AGAINST WAITERS');
+ var mx=drain(512).all,n;
+ ne(g,'rgba(255,60,90,0.85)',2);g.beginPath();
+ for(n=1;n<=512;n+=2){var x=24+n/512*(W-56),y=240-drain(n).all/mx*190;
+  if(n===1)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ ne(g,'rgba(125,226,176,0.9)',2);g.beginPath();
+ for(n=1;n<=512;n+=2){var x2=24+n/512*(W-56),y2=240-n/mx*190;
+  if(n===1)g.moveTo(x2,y2);else g.lineTo(x2,y2);}
+ g.stroke();ng(g);
+ nt(g,'#ff5a8a',300,60,9,'wake-all  N(N+1)/2');
+ nt(g,'#7de2b0',300,78,9,'wake-one  N');
+ nt(g,'#8a7ab8',24,258,8,'1');nt(g,'#8a7ab8',W-70,258,8,'512 waiters');
+ nt(g,'#ffd76a',24,278,9,'at 512:  '+VR.wakeAllWakeups.toLocaleString()+'  vs  '+
+  VR.wakeOneWakeups+'   --  '+VR.ratio+'x, and '+VR.wastedWakeups.toLocaleString()+' wasted');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=drain(N);
+ nt(g,'#39fc6b',12,20,11,N+' WAITERS');
+ var shown=Math.min(N,256),cols=32,cell=11;
+ for(var i=0;i<shown;i++){
+  nf(g,i===0?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.5)');
+  g.fillRect(16+(i%cols)*cell,40+Math.floor(i/cols)*11,cell-3,8);ng(g);}
+ nt(g,'#8a7ab8',16,132,8,shown<N?('first '+shown+' of '+N):(N+' waiters, one round'));
+ nt(g,'#7de2b0',16,150,8,'green = the one that gets the resource');
+ nt(g,'#ff5a8a',16,166,8,'red   = woken for nothing');
+ nt(g,'#8a7ab8',14,196,9,'wake-all   '+d.all.toLocaleString());
+ nt(g,'#7de2b0',14,216,9,'wake-one   '+d.one.toLocaleString());
+ nt(g,'#ffd76a',14,236,9,'wasted     '+d.wasted.toLocaleString()+'   ('+
+  (d.all/d.one).toFixed(1)+'x)');
+ nt(g,d.all===d.formula?'#5ad0ff':'#ff5a8a',14,256,9,
+  d.all===d.formula?('matches N(N+1)/2 = '+d.formula.toLocaleString()):'FORMULA MISMATCH');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,270,340,20);ng(g);
+ nf(g,'rgba(255,60,90,0.7)');g.fillRect(14,270,Math.round(340*d.wasted/d.all),20);ng(g);
+ nt(g,'#e8e0ff',20,284,8,(100*d.wasted/d.all).toFixed(2)+'% of all wakeups did nothing');
+ var o=document.getElementById('thrdo');
+ if(o)o.innerHTML='<b>'+N+'</b> waiters &middot; wake-all <b>'+d.all.toLocaleString()+
+  '</b> vs wake-one <b>'+d.one+'</b> &middot; <b>'+(d.all/d.one).toFixed(1)+'x</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'FIVE HUNDRED WOKEN, ONE SERVED');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var ring=0;ring<3;ring++)for(var i=0;i<18;i++){
+  var t=i/18*6.283185307,rad=50+ring*38,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=-ring*8;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,2.2,'rgba(255,60,90,'+(0.5-ring*0.1)+')');}
+ ndot(g,cx,cy,6,'rgba(125,226,176,0.95)');
+ nt(g,'#8a7ab8',12,H-22,8,'declining to rank does not avoid the choice, it bills everyone for it');}
+document.getElementById('thrdm').onclick=function(){N=Math.min(4096,N*2);drawW4();};
+document.getElementById('thrdl').onclick=function(){N=Math.max(8,Math.floor(N/2));drawW4();};
+document.getElementById('thrdr').onclick=function(){N=512;drawW4();};
+document.getElementById('thrds').onclick=function(){spin=!spin;};
+VR=selftest();window.__thethunderingherd=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 258 · neon-noir · silicon-coding · LATENCY, AND WHO IS ACTUALLY WAITING ═══════════════════════
 # ═══════════════════════ BATCH 257 · neon-noir · silicon-coding · WHAT GETS REUSED, AND WHAT THAT COSTS ═══════════════════════
 # ═══════════════════════ BATCH 256 · neon-noir · silicon-coding · THE THINGS EVERYONE AGREES ON ═══════════════════════
 # ═══════════════════════ BATCH 255 · neon-noir · silicon-coding · TEXT IS NOT A STRING ═══════════════════════
@@ -99988,6 +100976,76 @@ SPHERES = [
   "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
   "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
   "body":SQLK_BODY,"script":SQLK_SCRIPT},
+ {"slug":"the-coordinated-omission","title":"THE COORDINATED OMISSION","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"\u25d1",
+  "kicker":"the meter went quiet exactly where the trouble was",
+  "blurb":"A load generator that waits for each response cannot issue requests while the service is stalled. The requests that would have been sent are never sent, never timed, never counted.",
+  "lit":"one service, one 100 ms stall, an intended rate of 1 request per ms for 10 seconds: the closed loop records 9,900 samples and the open loop 10,000, so 100 requests simply vanished; the closed loop reports a p99.9 of 1 ms and exactly 1 sample over 10 ms while the open loop, same service and same stall, reports p99.9 of 92 ms and 91 samples over 10 ms",
+  "fig":"Gil Tene named coordinated omission and built HdrHistogram partly to make it visible; it is the reason a great many published latency numbers are wrong. AVAN measured the shape of the lie rather than restating it: the p99 barely moves, 1 ms to 2 ms, because only 1% of the window is affected, and it is the p99.9 that goes from 1 to 92. A benchmark that reports p99 and stops shows almost nothing wrong, which is precisely why the omission survives review.",
+  "body":CORO_BODY,"script":CORO_SCRIPT},
+ {"slug":"the-littles-law","title":"THE LITTLES LAW","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#00f5ff","icon":"\u2261",
+  "kicker":"fix two of the three and the third is not yours to choose",
+  "blurb":"The number of things in a system equals how fast they arrive times how long each stays. It assumes almost nothing about the queue and it is exact, not approximate.",
+  "lit":"200,000 customers through one queue at 0.8 offered load, with the three quantities measured separately - occupancy by integrating the step function, arrival rate by counting, time in system by averaging - give L = 4.1637, lambda = 0.8010, W = 5.1981 and lambda x W = 4.1637, a relative error of 0% to four decimals",
+  "fig":"John D. C. Little proved it in 1961; the proof does not care what the queue does inside, which is why it survives every discipline you can invent. AVAN measured the three terms by three different mechanisms on purpose - deriving W from L and lambda and then announcing that L = lambda W would be a tautology dressed as a result. Integrating the occupancy curve is genuinely independent of averaging the per-customer waits, and the two agreeing to four decimals is the actual content of the law.",
+  "body":LITL_BODY,"script":LITL_SCRIPT},
+ {"slug":"the-utilization-knee","title":"THE UTILIZATION KNEE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"\u2934",
+  "kicker":"idle capacity is not waste, it is the latency budget",
+  "blurb":"Waiting time does not rise smoothly with load. It rises as 1/(1-rho), which is flat for most of the range and then vertical.",
+  "lit":"with a service time of 1, time in system is 2x service at 50% utilisation, 10x at 90% and 100x at 99%, and moving from 90% to 95% - five percentage points - doubles the wait; a 300,000-customer simulation at rho = 0.9 gives 10.046 against the theoretical 10, 0.46% apart with nothing fitted",
+  "fig":"A. K. Erlang founded queueing theory at the Copenhagen Telephone Company around 1909; the M/M/1 result is the simplest thing in it and the most ignored in practice. AVAN ran the simulation as a check on the formula rather than an illustration of it. The number worth carrying is not 100x at 99% but the doubling between 90% and 95%: utilisation targets are usually chosen as if the axis were linear, and on the flat part that intuition works, which is what makes the cliff arrive without warning.",
+  "body":UTKN_BODY,"script":UTKN_SCRIPT},
+ {"slug":"the-tail-at-scale","title":"THE TAIL AT SCALE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"\u2442",
+  "kicker":"one in a hundred, a hundred times over",
+  "blurb":"A service where only one request in a hundred is slow sounds healthy. Fan out to a hundred of them and wait for all, and the rare event becomes the common case.",
+  "lit":"with 1% of leaf requests slow, a fan-out of 100 makes 63.40% of parent requests slow - exactly 1 minus 0.99 to the hundredth - and a 200,000-trial simulation gives 63.39%, off by 0.004 points; half of all parents are slow at a fan-out of just 69, while the leaf never got worse",
+  "fig":"Jeff Dean and Luiz Andre Barroso set this out in The Tail at Scale (2013), and it is why large fan-out systems are engineered around tail latency rather than averages. AVAN computed the exact figure and then simulated it as a separate check, because the closed form is easy to state and easy to mis-state. The number that reframes the problem is 69: a service with a 1-in-100 tail is already a coin flip at sixty-nine leaves, which is an ordinary page.",
+  "body":TAIL_BODY,"script":TAIL_SCRIPT},
+ {"slug":"the-jittered-backoff","title":"THE JITTERED BACKOFF","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"\u21bb",
+  "kicker":"a deterministic rule everyone shares is a coordination mechanism",
+  "blurb":"A hundred clients collide, all back off by the same doubling amount, and all return at the same instant to collide again. Exponential backoff without randomness synchronises load rather than spreading it.",
+  "lit":"100 clients, base 10 ms and cap 1 s on the same seed: pure exponential backoff drains 0 of 100 within a 200,000 ms window while burning 20,500 attempts, every one of which collides, whereas full jitter - a uniform random wait in [0, backoff) - drains 100 of 100 by 837 ms on 509 attempts, about 5.09 per client",
+  "fig":"The comparison is Marc Brooker's, in the AWS Architecture Blog piece on backoff and jitter. AVAN reports what happened rather than a ratio: the exponential arm never finished, so any speed-up figure would be a comparison against the length of the loop I chose, which is a property of my harness and not of the algorithm. 0 of 100 against 100 of 100 is the honest statement. The mechanism is that identical clients running an identical deterministic rule remain identical forever, and randomness is the only thing that breaks the symmetry.",
+  "body":JBOF_BODY,"script":JBOF_SCRIPT},
+ {"slug":"the-token-bucket","title":"THE TOKEN BUCKET","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"\u25d4",
+  "kicker":"the burst depth is a promise about your worst instant",
+  "blurb":"A bucket fills with tokens at a fixed rate and holds at most a fixed number. Every request spends one. The rate sets the average; the depth sets how much burst you will forgive.",
+  "lit":"rate 10 per second and burst 50 over a 2,000 ms window offered 1,056 requests, roughly fifteen times what the limiter permits: 69 were admitted and 987 rejected, admitted plus rejected equalling offered exactly with nothing lost in the accounting, against a theoretical ceiling of rate x T + burst = 70 - the bucket sits one token under its own bound",
+  "fig":"The token bucket comes from ATM traffic shaping and is now the shape of nearly every public API rate limiter. AVAN checked the bound rather than the behaviour, because the behaviour is obvious and the bound is what you rely on. rate x T + burst is a promise to whatever is downstream: no matter how arrivals are arranged, no window of length T can push more than this through. Admitting 69 against a ceiling of 70 is the interesting result - the limiter is not conservative, it spends essentially everything it is allowed to.",
+  "body":TOKB_BODY,"script":TOKB_SCRIPT},
+ {"slug":"the-hedged-request","title":"THE HEDGED REQUEST","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#00f5ff","icon":"\u21c9",
+  "kicker":"a loan against idle capacity",
+  "blurb":"Send the request. If it has not returned by the 95th percentile, send a second copy elsewhere and take whichever answers first.",
+  "lit":"200,000 requests with the hedge firing at 8.76 ms cost 9,999 extra requests, 5.00% more traffic, and moved p99 from 123.31 ms to 13.80 and p99.9 from 192.49 to 17.50 - an 11x cut - while the maximum barely moved, 199.99 to 187.74, a factor of only 1.07, because a hedge can be unlucky twice",
+  "fig":"Hedged requests are the practical half of Dean and Barroso's tail-at-scale paper; firing only after a percentile delay is what keeps the extra load small. AVAN measured the part that gets left out of the pitch: hedging is sold on the p99 and the p99 does collapse, but the maximum improves by only 1.07x because the second copy is drawn from the same distribution and can land in the same tail. Read together, the technique moves the bulk of the tail and does almost nothing for the worst case.",
+  "body":HEDG_BODY,"script":HEDG_SCRIPT},
+ {"slug":"the-bufferbloat","title":"THE BUFFERBLOAT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"\u2593",
+  "kicker":"the drop was the signal; the buffer is what silenced it",
+  "blurb":"Memory got cheap, so buffers got large, so nothing is ever dropped - and packets sit in a queue for a second instead of being discarded in a millisecond.",
+  "lit":"one bottleneck serving 1 packet per ms, offered 52,095 packets over 40 seconds: with a 1,000-packet buffer the mean queueing delay is 957.6 ms and with a 10-packet buffer it is 10.0 ms, 95.8 times less, while throughput is identical to four decimals at 1.0000 either way - a difference of 0.00%, so the hundredfold delay bought nothing",
+  "fig":"Jim Gettys named bufferbloat in 2010 after chasing terrible latency on his own home link; Nichols and Jacobson's CoDel is the standard answer. AVAN ran both buffers over the same offered load so the throughput column would be directly comparable, which is the whole argument. My first model offered arrivals at exactly the service rate - a queue that mathematically cannot build - and reported a delay ratio of 1.0, a clean pass proving nothing. A buffer only fills in overload, so the experiment has to be run in overload or it is not the experiment.",
+  "body":BFBL_BODY,"script":BFBL_SCRIPT},
+ {"slug":"the-universal-scalability","title":"THE UNIVERSAL SCALABILITY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE MAINFRAME","domain_slug":"the-mainframe","accent":"#ff5a3c","icon":"\u2229",
+  "kicker":"the descent is the cost of everyone agreeing",
+  "blurb":"Amdahl says extra workers stop helping. The Universal Scalability Law says they start hurting, because every worker must stay consistent with every other one and that cost grows as the square.",
+  "lit":"with contention alpha = 0.03 and coherency beta = 0.0001 throughput peaks at 98 workers at 20.16x, and the closed form N* = sqrt((1-alpha)/beta) also gives 98; past the peak it declines to 19.89x at 128, 16.87x at 256 and 12.05x at 512, where Amdahl alone would have promised a ceiling of 33.3x and never a decline",
+  "fig":"Neil Gunther's Universal Scalability Law adds the beta term - pairwise coherency - to Amdahl's serial fraction. AVAN found the peak by exhaustive search from 1 to 600 and then compared it to the closed form, rather than evaluating the formula and calling that a measurement; they agree at 98. The number that changes decisions is the shape: between 64 and 128 workers the curve is almost flat, so a team doubling its fleet there sees no improvement and no warning, and the next doubling actively loses ground.",
+  "body":USLW_BODY,"script":USLW_SCRIPT},
+ {"slug":"the-thundering-herd","title":"THE THUNDERING HERD","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"\u2632",
+  "kicker":"what fairness costs when you refuse to have an opinion",
+  "blurb":"One resource frees up and every waiter is woken to race for it. One wins; the rest discover it is gone and go back to sleep, having been scheduled and cache-thrashed for nothing.",
+  "lit":"512 waiters drained one at a time cost wake-all 131,328 wakeups against wake-one's 512 - 256.5 times more work for the same result, with 130,816 wakeups pure waste - and the wake-all total is exactly N(N+1)/2, quadratic in the number of waiters where the useful work is linear",
+  "fig":"The thundering herd is old enough to be folklore; the fixes are single-wakeup accept, EPOLLEXCLUSIVE, and accept() serialisation. AVAN counted rather than characterised. Calling this inefficient is true and useless; N(N+1)/2 against N is the actionable form, because it says the penalty is not a constant factor you can absorb - it grows with the thing you were trying to scale. Doubling the waiters quadruples the waste, which is why the herd is invisible at 8 waiters in testing and catastrophic at 512 in production.",
+  "body":THRD_BODY,"script":THRD_SCRIPT},
  {"slug":"the-elias-fano","title":"THE ELIAS-FANO","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#5ad0ff","icon":"\u2261",
   "kicker":"sorted is a bill you already paid",
