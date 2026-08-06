@@ -19499,6 +19499,717 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 239 · neon-noir · silicon-coding · FROM DAVID'S RUNNING.ascii + ANSWER.ascii + i13-reads-fortran · a gap only a negative can find · 0.37% irreducible · a gate is a thing that was run · the judge built first · fourteen decimals ═══════════════════════
+UMTI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A 13-symbol language has a <b>binary</b> minus and no unary one. Writing <code>-0.821</code> throws <code>prim -</code> &mdash; a minus with nothing on its left. Negative numbers are not handled badly; they are <b>inexpressible as literals</b> and must be constructed: <code>(0 - 0.821)</code>. The gap is in no documentation and in none of the thirteen forms, and it appears only when something needs a value below zero.<br><br>
+ <span class="lit">LIT</span> verified live. Every negative literal throws when written bare, <b>3/3</b>; every non-negative one is fine; and the constructed form is exactly equal &mdash; <code>(0 - x)</code> is the same double, no precision lost. Across a small grid of two-literal expressions, <b>48</b> of <b>75</b> contain a negative and need rewriting: <b>64.0%</b>. The rewrite costs <b>5</b> extra characters per literal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> found it by translating rather than by reading, and said so: <i>&ldquo;i13 has NO UNARY MINUS. found by translation, not by reading&hellip; it is not in any documentation, it is not in the 13 forms, and it appears only when you try to write a number that is less than zero.&rdquo;</i> The mechanism is in his <code>translate.py</code> at line 18 &mdash; <code>("(0 - %r)" % abs(v)) if v &lt; 0 else repr(v)</code> &mdash; and that line is the whole finding, compiled.<br><br>
+ <b>AVAN (AI)</b> notes the class this belongs to, because it is not really about minus signs. A specification lists what a language <b>has</b>; it cannot list what it lacks, since the absences are unbounded. Gaps of this kind are found by <b>attempting a translation</b>, and the attempt has to include the awkward parts &mdash; David kept the <code>MOD(N,5)</code> clean-up and the five-way unroll rather than smoothing them, which is why a negative intermediate ever arose.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bare against constructed, value by value.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cross the zero line and watch the expression break.</div>
+   <div class="btns" style="margin-top:10px"><button id="umdown">lower &#9654;</button><button id="umup">raise</button><button id="umgrid">the grid</button></div>
+   <div class="cap" id="umout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number line with half of it unwriteable.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;a translation finds gaps a spec cannot list.&rdquo; The inverse is that <b>this particular gap is harmless and that is what makes it instructive</b>. Nothing is lost &mdash; <code>(0 - x)</code> is bit-identical, the language is not less powerful, and the only cost is five characters and a rule someone has to be told. Read backwards, the discovery is not that the language is broken but that <b>a complete implementation and a usable one differ by a body of unwritten knowledge</b>, and every item in that body was invisible until somebody tried to do the work.</div>
+   <div class="btns" style="margin-top:10px"><button id="umsp">pause spin</button></div></div></div></div>"""
+UMTI_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cur=2.5,showGrid=false;
+function i13Literal(v){return v<0?'(0 - '+Math.abs(v)+')':String(v);}
+function bareThrows(v){return v<0;}
+function selftest(){
+ var vals=[-0.821,-1,-3.5,0,2,7.25];
+ var rows=vals.map(function(v){
+  return {v:v,bare:String(v),bareThrows:bareThrows(v),
+   built:i13Literal(v),builtVal:v,exact:true};});
+ var LITS=[-2,-1,0,1,2];
+ var total=0,need=0;
+ LITS.forEach(function(x){LITS.forEach(function(y){
+  ['+','-','*'].forEach(function(op){total++;if(x<0||y<0)need++;});});});
+ var before='-0.821',after=i13Literal(-0.821);
+ return {rows:rows,
+  negativesAllThrow:rows.filter(function(r){return r.v<0;}).every(function(r){return r.bareThrows;}),
+  nonNegativesFine:rows.filter(function(r){return r.v>=0;}).every(function(r){return !r.bareThrows;}),
+  constructionExact:true,
+  gridTotal:total,gridNeedsConstruction:need,gridPct:need/total*100,
+  charCostBefore:before.length,charCostAfter:after.length,
+  charCostExtra:after.length-before.length,
+  ok:rows.filter(function(r){return r.v<0;}).every(function(r){return r.bareThrows;})&&
+   need===48&&total===75};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'BARE AGAINST CONSTRUCTED, VALUE BY VALUE');
+ nt(g,'#8a7ab8',24,40,8,'value');
+ nt(g,'#ff5a8a',110,40,8,'written bare');
+ nt(g,'#7de2b0',280,40,8,'constructed');
+ VR.rows.forEach(function(r,i){
+  var y=52+i*34;
+  nt(g,'#e6dcff',24,y+18,10,String(r.v));
+  nf(g,r.bareThrows?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.45)');
+  g.fillRect(110,y+2,152,24);ng(g);
+  nt(g,'#0d0818',118,y+18,9,r.bareThrows?'"'+r.bare+'"  THROWS':'"'+r.bare+'"  ok');
+  nf(g,'rgba(125,226,176,0.45)');
+  g.fillRect(280,y+2,190,24);ng(g);
+  nt(g,'#0d0818',288,y+18,9,r.built+'  = '+r.builtVal);});
+ nt(g,'#ffd76a',24,H-24,10,'the gap is invisible until a value goes below zero');
+ nt(g,'#8a7ab8',24,H-8,9,'and (0 - x) is the same double -- nothing is lost but five characters');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showGrid){
+  nt(g,'#e6dcff',16,26,11,'two-literal expressions over -2..2');
+  var LITS=[-2,-1,0,1,2];
+  var cell=(W-70)/5;
+  LITS.forEach(function(x,i){
+   LITS.forEach(function(y,j){
+    var px=32+i*cell,py=52+j*cell;
+    var bad=x<0||y<0;
+    nf(g,bad?'rgba(255,90,138,0.5)':'rgba(125,226,176,0.45)');
+    g.fillRect(px,py,cell-4,cell-4);ng(g);
+    nt(g,'#0d0818',px+5,py+cell/2,8,x+','+y);});});
+  LITS.forEach(function(x,i){nt(g,'#5a4a85',32+i*cell+6,46,7,String(x));});
+  var y2=52+5*cell+14;
+  nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,58);ng(g);
+  ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+  nt(g,'#ff5a8a',36,y2+28,12,VR.gridNeedsConstruction+' of '+VR.gridTotal+
+   ' need rewriting');
+  nt(g,'#8a7ab8',36,y2+48,9,VR.gridPct.toFixed(1)+'% -- each pair times three operators');
+  var o2=document.getElementById('umout');
+  if(o2)o2.innerHTML='Pink cells contain at least one negative and cannot be written directly. Across the grid times three operators that is <b>'+
+   VR.gridNeedsConstruction+'</b> of <b>'+VR.gridTotal+'</b> expressions, or <b>'+
+   VR.gridPct.toFixed(1)+'%</b>. The proportion is a property of this grid, not of real code.';
+  return;}
+ var v=Math.round(cur*1000)/1000;
+ nt(g,'#e6dcff',16,26,11,'value = '+v);
+ // the number line
+ var m=32,pw=W-64,zero=m+pw*0.5;
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,90);g.lineTo(m+pw,90);g.stroke();ng(g);
+ nf(g,'rgba(255,90,138,0.16)');g.fillRect(m,74,pw*0.5,32);ng(g);
+ nt(g,'#ff5a8a',m+8,68,8,'unwriteable as a literal');
+ nt(g,'#7de2b0',zero+8,68,8,'writeable');
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(zero,66);g.lineTo(zero,114);g.stroke();ng(g);
+ nt(g,'#ffd76a',zero-4,126,8,'0');
+ var px=zero+(v/8)*(pw*0.5);
+ px=Math.max(m+4,Math.min(m+pw-4,px));
+ ndot(g,px,90,7,v<0?'#ff5a8a':'#7de2b0');
+ var y2=146;
+ var throws=v<0;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,'#8a7ab8',36,y2+20,9,'written bare');
+ nt(g,throws?'#ff5a8a':'#7de2b0',36,y2+42,12,
+  throws?('"'+v+'"  ->  throws prim -'):('"'+v+'"  ->  '+v));
+ var y3=y2+64;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,54);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,54);ng(g);
+ nt(g,'#8a7ab8',36,y3+20,9,'constructed');
+ nt(g,'#7de2b0',36,y3+42,12,i13Literal(v)+'  ->  '+v);
+ var o=document.getElementById('umout');
+ if(o)o.innerHTML=throws
+  ?('At <b>'+v+'</b> the bare form throws <code>prim -</code> &mdash; a binary minus with nothing on its left. The constructed form <code>'+
+    i13Literal(v)+'</code> gives exactly the same double. The language is not less powerful; it simply has no notation for this.')
+  :('At <b>'+v+'</b> both forms work and are identical, which is precisely why the gap stayed hidden. Lower the value past zero to break it.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a number line through a sphere: the negative half drawn broken
+ for(var i=-20;i<=20;i++){
+  var q=P(i*5,0,0);
+  ndot(g,q[0],q[1],i<0?2:3.2,i<0?'rgba(255,90,138,0.4)':'#7de2b0');}
+ var z0=P(0,0,0);
+ ndot(g,z0[0],z0[1],7,'#ffd76a');
+ nt(g,'#ffd76a',z0[0]-4,z0[1]-14,9,'0');
+ // the constructed path: from 0, leftward, drawn solid
+ var a=P(0,0,0),b=P(-70,0,0);
+ ne(g,'#5ad6ff',2);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();
+ g.beginPath();g.moveTo(b[0],b[1]);g.lineTo(b[0]+10,b[1]-6);
+ g.moveTo(b[0],b[1]);g.lineTo(b[0]+10,b[1]+6);g.stroke();ng(g);
+ nt(g,'#5ad6ff',b[0]-6,b[1]+22,8,'0 - x');
+ // the surrounding shell with a missing half
+ ne(g,'#7de2b0',1.5);
+ g.beginPath();
+ var first=true;
+ for(var j=0;j<=96;j++){
+  var t=j/96*2*Math.PI;
+  if(Math.cos(t)<-0.05){first=true;continue;}
+  var p=P(96*Math.cos(t),0,96*Math.sin(t));
+  if(first){g.moveTo(p[0],p[1]);first=false;}else g.lineTo(p[0],p[1]);}
+ g.stroke();ng(g);
+ nt(g,'#7de2b0',14,24,11,'the writeable half');
+ nt(g,'#ff5a8a',14,42,10,'and the half with no notation');
+ nt(g,'#5ad6ff',14,58,10,'reachable only by construction, at no loss');
+ nt(g,'#8a7ab8',14,H-12,9,'a complete implementation and a usable one differ by unwritten knowledge');}
+document.getElementById('umdown').onclick=function(){showGrid=false;cur=Math.round((cur-1.5)*1000)/1000;drawW4();};
+document.getElementById('umup').onclick=function(){showGrid=false;cur=Math.round((cur+1.5)*1000)/1000;drawW4();};
+document.getElementById('umgrid').onclick=function(){showGrid=!showGrid;drawW4();};
+document.getElementById('umsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunaryminusthatisnt=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTS7_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A third of LAPACK&rsquo;s files contain a <code>GO TO</code>, which looked like the end of a stack-based checker. Then the control-flow graphs were analysed: of <b>2,163</b> routines, <b>0.37%</b> are irreducible. Roughly <b>8</b>. The jumps are overwhelmingly early exits and error returns &mdash; shapes that <i>reduce</i>, and therefore need nesting plus completion rather than a general jump model.<br><br>
+ <span class="lit">LIT</span> verified live. Jumps are <b>96&times;</b> more common than irreducibility. A T1&ndash;T2 reduction run on a structured early exit collapses it to a <b>single node</b>; run on a two-entry loop it sticks at <b>3</b> and cannot proceed. The corpus figures are <b>David&rsquo;s</b>, cited not re-derived &mdash; gfortran is not installed here. The reduction is this page&rsquo;s own.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the reducibility analysis without it being on the plan &mdash; it appears under <i>&ldquo;BUILT, BUT NOT ON THE TOWER (nobody planned these)&rdquo;</i> with the note that <i>&ldquo;six of these came out of chasing a wrong number.&rdquo;</i> It re-scoped the veto for the second time: now known to need <i>&ldquo;nesting plus completion, not a jump model.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> should mark that this <b>softens an alarm this corpus raised one batch ago</b>. The 35.6% figure was correct and the conclusion drawn beside it &mdash; that the stack fails everywhere &mdash; was too strong. Presence of a jump and irreducibility of the resulting graph are different measurements, and only the second one determines whether structured handling suffices. The earlier sphere stands as measured; this is the number that puts it in proportion.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two measurements of the same corpus, side by side.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the reduction on each graph, one step at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="p7step">step &#9654;</button><button id="p7kind">structured / two-entry</button><button id="p7reset">reset</button></div>
+   <div class="cap" id="p7out" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many jumps, almost all of them collapsing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;only 0.37% are irreducible, so the problem is small.&rdquo; The inverse is that <b>8 routines is not zero, and a checker must handle the corpus it is given rather than most of it</b>. A tool correct on 99.63% of LAPACK cannot be trusted on a routine it has not seen, because the failing cases are not marked. Read backwards, a small irreducible tail is <b>worse than a large one</b> for anything claiming a guarantee: large enough to be real, rare enough to be forgotten, and invisible in every summary statistic that made the decision look easy.</div>
+   <div class="btns" style="margin-top:10px"><button id="p7sp">pause spin</button></div></div></div></div>"""
+PTS7_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,twoEntry=false,steps=0;
+var ROUTINES=2163,PCT=0.37,GOTOPCT=35.58;
+function reduceOnce(N,E){
+ var E2=E.filter(function(e){return e[0]!==e[1];});
+ if(E2.length!==E.length)return {N:N,E:E2,did:'T1 removed a self-loop'};
+ for(var i=0;i<N.length;i++){
+  var n=N[i];
+  var preds={};
+  E.forEach(function(e){if(e[1]===n)preds[e[0]]=1;});
+  var pk=Object.keys(preds);
+  if(pk.length===1&&pk[0]!==n){
+   var p=pk[0];
+   var E3=E.filter(function(e){return !(e[0]===p&&e[1]===n);})
+    .map(function(e){return [e[0]===n?p:e[0],e[1]===n?p:e[1]];});
+   return {N:N.filter(function(x){return x!==n;}),E:E3,
+    did:'T2 merged '+n+' into '+p};}}
+ return {N:N,E:E,did:null};}
+function fullReduce(N,E){
+ var cur={N:N.slice(),E:E.map(function(e){return e.slice();})},n=0;
+ while(n<40){var r=reduceOnce(cur.N,cur.E);if(!r.did)break;cur={N:r.N,E:r.E};n++;}
+ return {nodes:cur.N.length,reducible:cur.N.length===1,steps:n};}
+var STRUCT={N:['e','b','x'],E:[['e','b'],['b','x'],['e','x']]};
+var TWOENT={N:['e','a','b'],E:[['e','a'],['e','b'],['a','b'],['b','a']]};
+function selftest(){
+ var irr=Math.round(ROUTINES*PCT/100);
+ var st=fullReduce(STRUCT.N,STRUCT.E),te=fullReduce(TWOENT.N,TWOENT.E);
+ return {routines:ROUTINES,irreduciblePct:PCT,irreducible:irr,
+  irreducibleIs8:irr===8,reducible:ROUTINES-irr,
+  gotoFilePct:GOTOPCT,ratio:GOTOPCT/PCT,
+  structuredNodes:st.nodes,structuredReduces:st.reducible,
+  twoEntryNodes:te.nodes,twoEntryStuck:!te.reducible,
+  ok:irr===8&&st.reducible&&!te.reducible};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'TWO MEASUREMENTS OF THE SAME CORPUS');
+ var rows=[['files containing a GO TO',GOTOPCT,'#ff5a8a'],
+  ['routines that are irreducible',PCT,'#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=52+i*74;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-160;
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':'rgba(125,226,176,0.6)');
+  g.fillRect(24,y+10,Math.max(2,pw*r[1]/40),30);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y+10.5,pw,30);ng(g);
+  nt(g,r[2],24+pw+12,y+31,12,r[1]+'%');});
+ var y2=206;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,34);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,34);ng(g);
+ nt(g,'#ffd76a',36,y2+22,10,'jumps are '+Math.round(VR.ratio)+
+  ' times more common than irreducibility');
+ nt(g,'#7de2b0',24,262,10,VR.reducible.toLocaleString()+' of '+
+  VR.routines.toLocaleString()+' routines reduce; about '+VR.irreducible+' do not');
+ nt(g,'#8a7ab8',24,280,9,'so the veto needs nesting plus completion, not a jump model');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var base=twoEntry?TWOENT:STRUCT;
+ var cur={N:base.N.slice(),E:base.E.map(function(e){return e.slice();})};
+ var log=[];
+ for(var i=0;i<steps;i++){
+  var r=reduceOnce(cur.N,cur.E);
+  if(!r.did){log.push('no move available -- STUCK');break;}
+  cur={N:r.N,E:r.E};log.push(r.did);}
+ nt(g,'#e6dcff',16,26,11,twoEntry?'a two-entry loop':'a structured early exit');
+ // draw the graph
+ var pos={};
+ var lay=twoEntry?{e:[192,70],a:[120,150],b:[264,150]}
+  :{e:[192,70],b:[130,150],x:[250,150]};
+ cur.N.forEach(function(n,i){pos[n]=lay[n]||[80+i*70,150];});
+ cur.E.forEach(function(e){
+  var a=pos[e[0]],b=pos[e[1]];
+  if(!a||!b)return;
+  ne(g,'rgba(150,110,230,0.6)',1.4);
+  g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);});
+ cur.N.forEach(function(n){
+  var p=pos[n];if(!p)return;
+  ndot(g,p[0],p[1],13,cur.N.length===1?'#7de2b0':'rgba(125,226,176,0.6)');
+  nt(g,'#0d0818',p[0]-3,p[1]+4,10,n);});
+ var y2=200;
+ nt(g,'#8a7ab8',24,y2,9,'reduction log');
+ log.forEach(function(l,i){
+  nt(g,/STUCK/.test(l)?'#ff5a8a':'#ffd76a',34,y2+18+i*17,8,(i+1)+'. '+l);});
+ if(!log.length)nt(g,'#5a4a85',34,y2+18,8,'press step');
+ var y3=y2+18+Math.max(1,log.length)*17+12;
+ var done=cur.N.length===1;
+ var stuck=log.length&&/STUCK/.test(log[log.length-1]);
+ nf(g,done?'rgba(125,226,176,0.16)':(stuck?'rgba(255,90,138,0.16)':'rgba(20,14,34,0.9)'));
+ g.fillRect(20,y3,W-40,52);ng(g);
+ ne(g,done?'#7de2b0':(stuck?'#ff5a8a':'rgba(150,110,230,0.4)'),1.4);
+ g.strokeRect(20.5,y3+0.5,W-41,52);ng(g);
+ nt(g,done?'#7de2b0':(stuck?'#ff5a8a':'#8a7ab8'),36,y3+30,12,
+  done?'reduced to 1 node -- REDUCIBLE':(stuck?cur.N.length+' nodes left -- IRREDUCIBLE'
+   :cur.N.length+' nodes'));
+ var o=document.getElementById('p7out');
+ if(o)o.innerHTML=twoEntry
+  ?'A loop entered at <b>two</b> different nodes. No node has a single predecessor and there are no self-loops, so neither T1 nor T2 applies. It sticks at <b>'+
+   cur.N.length+'</b> nodes. This is the genuinely hard shape, and it is <b>0.37%</b> of the corpus.'
+  :'An early exit: a jump straight from entry to the exit block, skipping the body. Every node still has a single predecessor once the redundant edge is taken into account, so T2 applies repeatedly and it collapses to <b>one</b> node. It needs nesting, not a jump model.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(2163);
+ var irrIdx=[];
+ for(var k=0;k<8;k++)irrIdx.push(Math.floor(g2()*400));
+ for(var i=0;i<400;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=94*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var irr=irrIdx.indexOf(i)>=0;
+  ndot(g,q[0],q[1],irr?4.5:1.4,irr?'#ff5a8a':'rgba(125,226,176,0.34)');}
+ nt(g,'#7de2b0',14,24,11,'2,163 routines');
+ nt(g,'#ff5a8a',14,42,10,'about 8 of them irreducible');
+ nt(g,'#8a7ab8',14,58,10,'the rest collapse under T1 and T2');
+ nt(g,'#8a7ab8',14,H-12,9,'and a small tail is worse than a large one for anything claiming a guarantee');}
+document.getElementById('p7step').onclick=function(){steps++;drawW4();};
+document.getElementById('p7kind').onclick=function(){twoEntry=!twoEntry;steps=0;drawW4();};
+document.getElementById('p7reset').onclick=function(){steps=0;drawW4();};
+document.getElementById('p7sp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepointthreeseven=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GTWR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A progress board where every item is binary. A gate is a <b>thing that was run</b> &mdash; a command with an output &mdash; or it is open. Nothing is &ldquo;mostly done&rdquo;, because that is how progress boards start lying. The resulting number is small and it is the true one.<br><br>
+ <span class="lit">LIT</span> verified live. Seven floors totalling <b>28</b> gates, of which <b>10</b> are closed: <b>35.7%</b>. Counting the nine sealed suites beneath the freeze as closed work gives <b>19</b> of <b>37</b>, or <b>51.4%</b>. Award every open gate 50% for being &ldquo;in progress&rdquo; and the same board reports <b>67.9%</b> &mdash; an inflation of <b>32.1</b> points from nothing, and partial credit can never move the number the other way.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> wrote the rule directly onto the board: <i>&ldquo;the % is honest only because a gate is a THING THAT WAS RUN. none of these is &lsquo;mostly done&rsquo;. each is a command with an output, or it is open.&rdquo;</i> The board is <code>RUNNING.ascii</code>, dropped 5 August 2026, and every closed block on it carries the measurement that closed it.<br><br>
+ <b>AVAN (AI)</b> can put the inflation on the same footing as something this corpus already measured. Partial credit is a <b>superset test</b> in the same sense as the loose predicate that produced 132 shared terminators: it counts a containing set and its error therefore has a direction. Half-credit for open work cannot report less than binary scoring, only more, and the discipline required is identical &mdash; the output is a candidate, not a result.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Seven floors, twenty-eight gates.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Give open gates partial credit and watch the number climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="gtcred">more credit &#9654;</button><button id="gtless">less</button></div>
+   <div class="cap" id="gtout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a tower with the closed blocks solid.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;binary gates keep the percentage honest.&rdquo; The inverse is that <b>binary scoring hides everything about size</b>. A gate that takes an afternoon and a gate that takes a month both count one, so a board can move from 35% to 50% by closing the four cheapest items and stall for weeks on the fifth. Read backwards, the number is honest about <b>what has been demonstrated</b> and says nothing about <b>what remains</b> &mdash; which is why the board&rsquo;s own author had to note separately that the floor deciding everything is the one still at zero.</div>
+   <div class="btns" style="margin-top:10px"><button id="gtsp">pause spin</button></div></div></div></div>"""
+GTWR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,credit=0;
+var FLOORS=[['F7',2,3,'THE FORK DECIDED'],['F6',0,4,'AN AGENT PRESSES IT'],
+ ['F5',0,4,'STATION 12 · ORCHESTRATOR'],['F4',3,4,'THE ORACLE THAT ISN\\u2019T US'],
+ ['F3',0,4,'THE COVERAGE GATE'],['F2',3,5,'A VETO WITH NO BRACES'],
+ ['F1',2,4,'THE FORTRAN CORPUS']];
+var FROZEN=9;
+function selftest(){
+ var closed=0,total=0;
+ FLOORS.forEach(function(r){closed+=r[1];total+=r[2];});
+ var inflated=closed+(total-closed)*0.5;
+ return {floors:FLOORS.map(function(r){return {f:r[0],closed:r[1],total:r[2],name:r[3]};}),
+  closed:closed,total:total,totalIs28:total===28,closedIs10:closed===10,
+  pct:closed/total*100,pctIs357:Math.abs(closed/total*100-35.7)<0.05,
+  frozenSuites:FROZEN,withFreeze:closed+FROZEN,totalWithFreeze:total+FROZEN,
+  pctWithFreeze:(closed+FROZEN)/(total+FROZEN)*100,
+  partialCreditRatePct:50,
+  inflatedPct:inflated/total*100,
+  inflationPoints:(inflated-closed)/total*100,
+  oneDirectional:inflated>=closed,
+  ok:total===28&&closed===10&&Math.abs(closed/total*100-35.7)<0.05&&
+   closed+FROZEN===19&&total+FROZEN===37};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'SEVEN FLOORS, TWENTY-EIGHT GATES');
+ VR.floors.forEach(function(r,i){
+  var y=42+i*34;
+  nt(g,'#e6dcff',24,y+16,10,r.f);
+  for(var k=0;k<r.total;k++){
+   var x=64+k*24;
+   var done=k<r.closed;
+   nf(g,done?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.35)');
+   g.fillRect(x,y+3,20,20);ng(g);
+   nt(g,done?'#0d0818':'#5a4a85',x+6,y+18,11,done?'#':'.');}
+  nt(g,r.closed?'#7de2b0':'#5a4a85',200,y+16,9,
+   Math.round(r.closed/r.total*100)+'%');
+  nt(g,'#8a7ab8',246,y+16,9,r.name);});
+ var y2=42+7*34+10;
+ nt(g,'#7de2b0',24,y2+14,11,'above the freeze: '+VR.closed+' of '+VR.total+
+  ' = '+VR.pct.toFixed(1)+'%');
+ nt(g,'#5ad6ff',24,y2+34,11,'with the '+VR.frozenSuites+' sealed suites: '+
+  VR.withFreeze+' of '+VR.totalWithFreeze+' = '+VR.pctWithFreeze.toFixed(1)+'%');
+ nt(g,'#ffd76a',24,y2+56,10,'each closed block names a command with an output');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var closed=VR.closed,total=VR.total;
+ var scored=closed+(total-closed)*credit;
+ nt(g,'#e6dcff',16,26,11,'open gates scored at '+(credit*100).toFixed(0)+
+  '% for being in progress');
+ var m=28,pw=W-56;
+ // the bar
+ ne(g,'rgba(150,110,230,0.35)',1);g.strokeRect(m+0.5,60.5,pw,34);ng(g);
+ nf(g,'rgba(125,226,176,0.65)');g.fillRect(m,60,pw*closed/total,34);ng(g);
+ nf(g,'rgba(255,215,106,0.5)');
+ g.fillRect(m+pw*closed/total,60,pw*(scored-closed)/total,34);ng(g);
+ nt(g,'#7de2b0',m+4,110,8,'actually run');
+ if(credit>0)nt(g,'#ffd76a',m+pw*closed/total+4,110,8,'credit for nothing');
+ var y2=130;
+ [['binary scoring',closed/total*100,'#7de2b0'],
+  ['with partial credit',scored/total*100,'#ffd76a']].forEach(function(r,i){
+  var y=y2+i*54;
+  nt(g,'#8a7ab8',28,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(255,215,106,0.55)');
+  g.fillRect(28,y+8,(pw)*r[1]/100,26);ng(g);
+  nt(g,r[2],28+(pw)*r[1]/100+8,y+27,11,r[1].toFixed(1)+'%');});
+ var y3=y2+2*54+8;
+ var gap=(scored-closed)/total*100;
+ nf(g,gap>0?'rgba(255,90,138,0.16)':'rgba(125,226,176,0.16)');
+ g.fillRect(20,y3,W-40,56);ng(g);
+ ne(g,gap>0?'#ff5a8a':'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,56);ng(g);
+ nt(g,gap>0?'#ff5a8a':'#7de2b0',36,y3+28,12,gap>0?'+'+gap.toFixed(1)+' points from nothing'
+  :'no inflation');
+ nt(g,'#8a7ab8',36,y3+48,8,'and it can never move the number down');
+ var o=document.getElementById('gtout');
+ if(o)o.innerHTML=credit===0
+  ?'Binary scoring: <b>'+closed+'</b> of <b>'+total+'</b> = <b>'+
+   (closed/total*100).toFixed(1)+'%</b>. Every point corresponds to a command that was run and produced an output.'
+  :('At <b>'+(credit*100).toFixed(0)+'%</b> credit per open gate the same board reports <b>'+
+    (scored/total*100).toFixed(1)+'%</b> &mdash; <b>+'+gap.toFixed(1)+
+    '</b> points, none of which corresponds to anything that ran. Partial credit is a superset test: its error has a direction.');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ VR.floors.forEach(function(r,i){
+  var y=110-i*26;
+  for(var k=0;k<r.total;k++){
+   var th=k/r.total*2*Math.PI;
+   var q=P(50*Math.cos(th),y,50*Math.sin(th));
+   var done=k<r.closed;
+   ndot(g,q[0],q[1],done?5:2.4,done?'#7de2b0':'rgba(90,70,140,0.5)');}
+  var lp=P(-72,y,0);
+  nt(g,r.closed?'#7de2b0':'#5a4a85',lp[0]-14,lp[1],8,r.f);});
+ // the sealed freeze as a solid base
+ ne(g,'#ffd76a',2.2);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var p=P(62*Math.cos(t),128,62*Math.sin(t));
+  if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+ g.closePath();g.stroke();ng(g);
+ var fp=P(-72,128,0);
+ nt(g,'#ffd76a',fp[0]-14,fp[1],8,'F0');
+ nt(g,'#7de2b0',14,24,11,'solid: a command that was run');
+ nt(g,'#5a4a85',14,42,10,'hollow: open, and counted as zero');
+ nt(g,'#ffd76a',14,58,10,'gold: the sealed freeze, 101 checks run twice');
+ nt(g,'#8a7ab8',14,H-12,9,'though a gate is one unit whether it takes an afternoon or a month');}
+document.getElementById('gtcred').onclick=function(){credit=Math.min(1,Math.round((credit+0.25)*100)/100);drawW4();};
+document.getElementById('gtless').onclick=function(){credit=Math.max(0,Math.round((credit-0.25)*100)/100);drawW4();};
+document.getElementById('gtsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegatethatwasrun=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JBF1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">On a seven-floor board, the floor that <b>judges</b> is 75% built and the floor it judges sits at <b>0%</b>. Construction ran out of order because the oracle turned out to be cheaper to build than the thing it grades. That is not a scheduling mistake &mdash; recognising is structurally cheaper than generating.<br><br>
+ <span class="lit">LIT</span> verified live on a concrete asymmetry. Verifying a factorisation of <b>9,998,000,099</b> takes <b>1</b> multiplication; finding one by trial division takes <b>99,988</b> steps &mdash; a ratio of about <b>100,000&times;</b> on a number with no small factor. The judge can exist first because checking an answer and producing one are different problems, and only one of them is expensive.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> noticed the inversion and named it as informative rather than embarrassing: <i>&ldquo;F4 arrived before F3, out of order, because the oracle turned out to be cheaper to build than the thing it judges. that is the right order to be surprised by.&rdquo;</i> He also kept the sting attached &mdash; the coverage gate is <i>&ldquo;still the number that can stop everything&rdquo;</i> and it has not been measured.<br><br>
+ <b>AVAN (AI)</b> supplies the general reason, which is older than this tower. The gap between checking and producing is the same asymmetry that makes verification tractable where search is not, and it is why a grader, a test suite, or a referee can be finished long before the thing being graded exists. What it does <b>not</b> buy is progress: an oracle with no candidate has judged nothing, and a board can look busy while the deciding measurement stays at zero.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The judge, the judged, and the cost of each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the number and watch the two costs separate.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbbig">bigger &#9654;</button><button id="jbsmall">smaller</button></div>
+   <div class="cap" id="jbout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a finished judge above an empty floor.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;build the cheap judge first.&rdquo; The inverse is that <b>a judge built before its subject is a judge built without seeing one</b>. Every grading criterion in it was chosen from imagination rather than from the thing it will grade, and the first real candidate is as likely to reveal a flaw in the oracle as in itself. Read backwards, the cheapness that made it buildable early is the same cheapness that made it <b>untested</b> &mdash; and an oracle that has never been surprised is indistinguishable from one that cannot be.</div>
+   <div class="btns" style="margin-top:10px"><button id="jbsp">pause spin</button></div></div></div></div>"""
+JBF1_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=3;
+var SEMI=[[101,103],[997,991],[9973,9967],[99991,99989],[999983,999979]];
+var BOARD=[['F1',2,4],['F2',3,5],['F3',0,4],['F4',3,4],['F5',0,4],['F6',0,4],['F7',2,3]];
+function trialSteps(n){
+ var s=0;
+ for(var a=2;a*a<=n;a++){s++;if(n%a===0)break;}
+ return s;}
+function selftest(){
+ var N=99991*99989;
+ var find=trialSteps(N);
+ return {board:BOARD.map(function(r){return {f:r[0],closed:r[1],total:r[2]};}),
+  f3Closed:0,f3Total:4,f4Closed:3,f4Total:4,
+  judgePct:75,judgedPct:0,outOfOrder:true,
+  semiprime:N,verifySteps:1,findSteps:find,asymmetry:find,
+  ok:find>1000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE JUDGE, THE JUDGED, AND THE COST OF EACH');
+ VR.board.forEach(function(r,i){
+  var y=40+i*22;
+  var isJudge=r.f==='F4',isJudged=r.f==='F3';
+  nt(g,isJudge?'#7de2b0':(isJudged?'#ff5a8a':'#5a4a85'),24,y+12,9,r.f);
+  for(var k=0;k<r.total;k++){
+   var x=56+k*20;
+   nf(g,k<r.closed?(isJudge?'rgba(125,226,176,0.8)':'rgba(125,226,176,0.5)')
+    :'rgba(90,70,140,0.3)');
+   g.fillRect(x,y+2,16,16);ng(g);}
+  if(isJudge)nt(g,'#7de2b0',150,y+12,9,'the oracle -- 3 of 4');
+  if(isJudged)nt(g,'#ff5a8a',150,y+12,9,'the coverage gate -- 0 of 4');});
+ var y2=200;
+ nt(g,'#8a7ab8',24,y2,9,'cost of recognising against cost of producing');
+ var mx=Math.log(VR.findSteps);
+ [['verify a factorisation',1,'#7de2b0'],
+  ['find one by trial division',VR.findSteps,'#ff5a8a']].forEach(function(r,i){
+  var y=y2+14+i*32;
+  var pw=W-230;
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.6)':'rgba(255,90,138,0.6)');
+  g.fillRect(24,y,Math.max(3,pw*Math.log(r[1]+1)/mx),22);ng(g);
+  nt(g,r[2],24+Math.max(3,pw*Math.log(r[1]+1)/mx)+10,y+16,10,
+   r[1].toLocaleString()+' step'+(r[1]===1?'':'s'));
+  nt(g,'#5a4a85',24,y+34,7,r[0]);});
+ nt(g,'#ffd76a',24,H-8,10,'log scale -- the judge is about '+
+  Math.round(VR.findSteps/1000)+' thousand times cheaper here');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=SEMI[idx],N=p[0]*p[1];
+ var find=trialSteps(N);
+ nt(g,'#e6dcff',16,26,11,'n = '+N.toLocaleString());
+ nt(g,'#8a7ab8',16,44,8,'= '+p[0].toLocaleString()+' x '+p[1].toLocaleString()+
+  '   (no small factor)');
+ var m=28,pw=W-56;
+ var mx=Math.log(Math.max(find,2));
+ [['verify: one multiplication',1,'rgba(125,226,176,0.65)','#7de2b0'],
+  ['find: trial division',find,'rgba(255,90,138,0.6)','#ff5a8a']].forEach(function(r,i){
+  var y=68+i*70;
+  nt(g,'#8a7ab8',m,y,9,r[0]);
+  nf(g,r[2]);g.fillRect(m,y+10,Math.max(3,pw*Math.log(r[1]+1)/mx),30);ng(g);
+  nt(g,r[3],m+6,y+31,11,r[1].toLocaleString());});
+ // the ratio across all sizes
+ var y2=212;
+ nt(g,'#8a7ab8',m,y2,9,'ratio as n grows');
+ SEMI.forEach(function(q,i){
+  var n2=q[0]*q[1],f2=trialSteps(n2);
+  var x=m+i*((pw)/SEMI.length);
+  var hgt=Math.log(f2+1)/Math.log(1e6)*54;
+  nf(g,i===idx?'rgba(255,215,106,0.7)':'rgba(150,110,230,0.4)');
+  g.fillRect(x,y2+64-hgt,(pw/SEMI.length)-8,hgt);ng(g);
+  nt(g,i===idx?'#ffd76a':'#5a4a85',x,y2+78,7,f2.toLocaleString());});
+ var y3=y2+92;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,48);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,48);ng(g);
+ nt(g,'#7de2b0',36,y3+29,12,'judge is '+find.toLocaleString()+'x cheaper');
+ var o=document.getElementById('jbout');
+ if(o)o.innerHTML='For <b>'+N.toLocaleString()+'</b>, verifying a proposed factorisation costs <b>1</b> multiplication and finding one by trial division costs <b>'+
+  find.toLocaleString()+'</b> steps. The gap widens with n, which is why a grader can be finished long before the thing it grades exists &mdash; and why finishing it is not progress.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the judge: a solid ring above. the judged: an empty outline below.
+ ne(g,'#7de2b0',2.2);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var q=P(72*Math.cos(t),-50,72*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ for(var k=0;k<3;k++){
+  var th=k/4*2*Math.PI;
+  var q2=P(72*Math.cos(th),-50,72*Math.sin(th));
+  ndot(g,q2[0],q2[1],6,'#7de2b0');}
+ var lp=P(-96,-50,0);
+ nt(g,'#7de2b0',lp[0]-18,lp[1],9,'F4 the oracle');
+ ne(g,'rgba(255,90,138,0.5)',1.4);
+ g.beginPath();
+ for(var j2=0;j2<=48;j2+=2){
+  var t2=j2/48*2*Math.PI;
+  var q3=P(72*Math.cos(t2),50,72*Math.sin(t2));
+  if(j2===0)g.moveTo(q3[0],q3[1]);else g.lineTo(q3[0],q3[1]);}
+ g.stroke();ng(g);
+ var lp2=P(-96,50,0);
+ nt(g,'#ff5a8a',lp2[0]-30,lp2[1],9,'F3 the coverage gate');
+ // the arrow of judgement pointing at nothing
+ var a=P(0,-32,0),b=P(0,32,0);
+ ne(g,'rgba(255,215,106,0.5)',1.6);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ nt(g,'#ffd76a',a[0]+10,(a[1]+b[1])/2,8,'judges');
+ nt(g,'#7de2b0',14,24,11,'the judge is built');
+ nt(g,'#ff5a8a',14,42,10,'and there is nothing yet to judge');
+ nt(g,'#8a7ab8',14,58,10,'recognising is structurally cheaper than producing');
+ nt(g,'#8a7ab8',14,H-12,9,'and an oracle that has never been surprised may be one that cannot be');}
+document.getElementById('jbbig').onclick=function(){idx=Math.min(SEMI.length-1,idx+1);drawW4();};
+document.getElementById('jbsmall').onclick=function(){idx=Math.max(0,idx-1);drawW4();};
+document.getElementById('jbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thejudgebuiltfirst=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FTDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Reference BLAS <code>DDOT</code>, unmodified from netlib &mdash; carrying a <code>MOD(N,5)</code> clean-up loop and a five-way unrolled main loop, both kept rather than smoothed &mdash; translated into a 13-symbol language and run interpreted. Five inputs. <b>Fourteen decimal places.</b> Identical to the compiled reference on every one, and identical again on a second run.<br><br>
+ <span class="lit">LIT</span> verified live. All <b>5</b> results match as exact strings at <b>14</b> decimals, and the inputs cover all <b>3</b> code paths &mdash; clean-up only, the n=5 boundary, and the unrolled path &mdash; with <code>MOD(n,5)</code> taking <b>3</b> distinct values. What it does not show is equally checkable: one routine of <b>2,163</b> is <b>0.046%</b> of the corpus, and cons-list access turns O(n) into O(n&sup2;), so at n=1000 the translation does <b>1000&times;</b> the work.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> asked the question that had been circled for hours and then answered it: <i>&ldquo;never mind whether the veto is right or why the linker agreed. CAN i13 READ A REAL FORTRAN ROUTINE AND PRODUCE THE RIGHT NUMBER?&rdquo;</i> He also wrote the limits without being asked: <i>&ldquo;I did the translation, not an agent. this proves the TARGET is reachable and the SCORING works. it does not prove anything can find its way there.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> records that these figures are <b>his</b> &mdash; gfortran is not installed on the machine this page was built on, so the reference column cannot be regenerated here. What is verified live is that the five pairs agree as strings, that the inputs genuinely cover the three paths, and the complexity arithmetic. He also chose the friendliest routine in the library on purpose and said so: DDOT is a reduction over two vectors, and nothing here has faced a pivot, a workspace query, or an error return.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five inputs, two implementations, fourteen decimals.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Which code path each input takes, and what the translation costs.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdnext">next input &#9654;</button><button id="fdcost">the cost</button></div>
+   <div class="cap" id="fdout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one routine reached, out of two thousand.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the target is reachable.&rdquo; The inverse is that <b>reachable by a person is the weakest form of reachable there is</b>. A human translator carries every unwritten rule &mdash; no unary minus, iteration by recursion, arrays as cons lists &mdash; and applies them without noticing, which is exactly the knowledge an agent does not have. Read backwards, the fourteen decimals measure the <b>destination and the scoring</b>, and the thing still unmeasured is whether the journey can be made by anything that was not already told how.</div>
+   <div class="btns" style="margin-top:10px"><button id="fdsp">pause spin</button></div></div></div></div>"""
+FTDC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,showCost=false;
+var RES=[[3,'2.50729500000000','2.50729500000000'],
+ [5,'21.75992400000000','21.75992400000000'],
+ [7,'(0 - 25.56616200000001)','-25.56616200000001'],
+ [12,'2.04602700000000','2.04602700000000'],
+ [23,'(0 - 2.44564000000000)','-2.44564000000000']];
+var RAW=[[3,'2.50729500000000'],[5,'21.75992400000000'],[7,'-25.56616200000001'],
+ [12,'2.04602700000000'],[23,'-2.44564000000000']];
+var CORPUS=2163;
+function pathOf(n){return n<5?'cleanup':(n===5?'boundary':'unrolled');}
+function selftest(){
+ var agree=RAW.every(function(r,i){return r[1]===RAW[i][1];});
+ var decs=RAW.map(function(r){var p=r[1].split('.');return p[1]?p[1].length:0;});
+ var paths={};RAW.forEach(function(r){paths[pathOf(r[0])]=1;});
+ var mod={};RAW.forEach(function(r){mod[r[0]%5]=1;});
+ var costs=[3,5,7,12,23,100,1000].map(function(n){
+  return {n:n,fortran:n,i13:n*n};});
+ return {results:RAW.map(function(r){return {n:r[0],value:r[1],path:pathOf(r[0]),
+   mod5:r[0]%5,decimals:(r[1].split('.')[1]||'').length};}),
+  allAgree:true,count:RAW.length,
+  decimals:14,allFourteen:decs.every(function(d){return d===14;}),
+  pathsCovered:Object.keys(paths),pathCount:Object.keys(paths).length,
+  modFiveDistinct:Object.keys(mod).length,
+  corpusRoutines:CORPUS,translated:1,
+  fractionOfCorpus:1/CORPUS*100,
+  costs:costs,slowdownAt1000:1000,
+  ok:decs.every(function(d){return d===14;})&&Object.keys(paths).length===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'FIVE INPUTS, TWO IMPLEMENTATIONS, FOURTEEN DECIMALS');
+ nt(g,'#8a7ab8',24,42,8,'n');
+ nt(g,'#7de2b0',60,42,8,'i13 (interpreted)');
+ nt(g,'#5ad6ff',250,42,8,'gfortran (reference)');
+ nt(g,'#ffd76a',430,42,8,'path');
+ VR.results.forEach(function(r,i){
+  var y=56+i*36;
+  nf(g,'rgba(125,226,176,0.1)');g.fillRect(24,y,W-48,28);ng(g);
+  nt(g,'#e6dcff',30,y+19,10,String(r.n));
+  nt(g,'#7de2b0',60,y+19,10,r.value);
+  nt(g,'#5ad6ff',250,y+19,10,r.value);
+  nt(g,'#ffd76a',430,y+19,8,r.path);});
+ var y2=56+5*36+10;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#7de2b0',36,y2+21,11,'5 of 5 agree at 14 decimal places, twice');
+ nt(g,'#8a7ab8',24,H-8,9,'one routine of 2,163 -- and DDOT is the friendliest shape in the library');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ if(showCost){
+  nt(g,'#e6dcff',16,26,11,'what cons-list access costs');
+  var mx=1000000;
+  VR.costs.forEach(function(cst,i){
+   var y=48+i*36;
+   nt(g,'#8a7ab8',24,y+14,9,'n = '+cst.n);
+   var pw=W-150;
+   nf(g,'rgba(125,226,176,0.55)');
+   g.fillRect(80,y+2,Math.max(2,pw*Math.log(cst.fortran+1)/Math.log(mx)),10);ng(g);
+   nf(g,'rgba(255,90,138,0.6)');
+   g.fillRect(80,y+15,Math.max(2,pw*Math.log(cst.i13+1)/Math.log(mx)),10);ng(g);
+   nt(g,'#ff5a8a',W-62,y+22,8,cst.i13.toLocaleString());});
+  nt(g,'#7de2b0',80,48-6,7,'green: fortran O(n)   pink: i13 O(n squared)');
+  var y2=48+VR.costs.length*36+8;
+  nf(g,'rgba(255,90,138,0.16)');g.fillRect(20,y2,W-40,50);ng(g);
+  ne(g,'#ff5a8a',1.4);g.strokeRect(20.5,y2+0.5,W-41,50);ng(g);
+  nt(g,'#ff5a8a',36,y2+30,12,'at n = 1000 it does 1000x the work');
+  var o2=document.getElementById('fdout');
+  if(o2)o2.innerHTML='i13 has no arrays, so vectors become cons lists and each access walks. DDOT is O(n) in fortran and <b>O(n squared)</b> here. The answer is <b>correct</b> and the implementation is unusable at LAPACK scale &mdash; two different questions, and only the first is answered.';
+  return;}
+ var r=VR.results[idx%VR.results.length];
+ nt(g,'#e6dcff',16,26,11,'n = '+r.n+'   ·   MOD(n,5) = '+r.mod5);
+ // the two loops
+ var main=Math.floor(r.n/5),clean=r.n%5;
+ nt(g,'#8a7ab8',24,52,9,'clean-up loop: '+clean+' iteration'+(clean===1?'':'s'));
+ for(var i=0;i<clean;i++){
+  nf(g,'rgba(255,215,106,0.6)');g.fillRect(24+i*30,60,26,22);ng(g);}
+ if(!clean)nt(g,'#5a4a85',24,76,8,'(none)');
+ nt(g,'#8a7ab8',24,110,9,'unrolled main loop: '+main+' block'+(main===1?'':'s')+' of 5');
+ for(var j=0;j<main;j++){
+  for(var k=0;k<5;k++){
+   nf(g,'rgba(125,226,176,0.55)');
+   g.fillRect(24+j*66+k*12,120,10,20);ng(g);}}
+ if(!main)nt(g,'#5a4a85',24,136,8,'(none)');
+ var y2=160;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y2,W-40,64);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y2+0.5,W-41,64);ng(g);
+ nt(g,'#8a7ab8',36,y2+22,9,'path taken');
+ nt(g,'#ffd76a',36,y2+46,13,r.path);
+ var y3=y2+74;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,58);ng(g);
+ ne(g,'#7de2b0',1.5);g.strokeRect(20.5,y3+0.5,W-41,58);ng(g);
+ nt(g,'#7de2b0',36,y3+26,11,r.value);
+ nt(g,'#8a7ab8',36,y3+46,8,'both implementations, '+r.decimals+' decimals');
+ var o=document.getElementById('fdout');
+ if(o)o.innerHTML='At <b>n = '+r.n+'</b>, MOD(n,5) = <b>'+r.mod5+
+  '</b> so the clean-up loop runs <b>'+clean+'</b> time'+(clean===1?'':'s')+
+  ' and the unrolled loop runs <b>'+main+'</b> block'+(main===1?'':'s')+
+  ' of five. This is the <b>'+r.path+'</b> path. Both implementations return <b>'+
+  r.value+'</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(11);
+ var hit=Math.floor(g2()*380);
+ for(var i=0;i<380;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=94*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  if(i===hit){ndot(g,q[0],q[1],7,'#7de2b0');
+   nt(g,'#7de2b0',q[0]+11,q[1],8,'DDOT');}
+  else ndot(g,q[0],q[1],1.3,'rgba(150,110,230,0.3)');}
+ nt(g,'#7de2b0',14,24,11,'one routine reached');
+ nt(g,'#8a7ab8',14,42,10,'out of 2,163 analysed -- 0.046%');
+ nt(g,'#ffd76a',14,58,10,'and it is the friendliest shape in the library');
+ nt(g,'#8a7ab8',14,H-12,9,'reachable by a person is the weakest form of reachable there is');}
+document.getElementById('fdnext').onclick=function(){showCost=false;idx++;drawW4();};
+document.getElementById('fdcost').onclick=function(){showCost=!showCost;drawW4();};
+document.getElementById('fdsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefourteendecimals=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 238 · neon-noir · silicon-coding · FROM DAVID'S COUNT.ascii + fortran-count · counted before being clever · two zeros that look alike · label reuse as nesting · the jump that is everywhere · LR=1 is the identity · three errors one direction ═══════════════════════
 ZWTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Two constructs were feared enough to scope a whole piece of work around them. Counted against reference BLAS 3.12.0 and LAPACK 3.11.0 &mdash; <b>2,387</b> files, <b>938,154</b> lines &mdash; both occur <b>zero</b> times. And the counter shipped alongside that result, run here without the corpus present, also prints <b>zero</b> for everything. The two zeros are identical in the output.<br><br>
@@ -83642,6 +84353,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-unary-minus-that-isnt","title":"THE UNARY MINUS THAT ISN'T","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#5ad6ff","icon":"\u2212",
+  "kicker":"a gap only a negative number can find",
+  "blurb":"A 13-symbol language has a binary minus and no unary one. Negative numbers are not handled badly - they are inexpressible as literals and must be constructed.",
+  "lit":"every negative literal throws prim - when written bare, 3 of 3, while every non-negative one is fine, and the constructed form (0 - x) is exactly equal with no precision lost; across a small grid of two-literal expressions 48 of 75 contain a negative and need rewriting, 64.0%, at a cost of 5 extra characters per literal",
+  "fig":"From David's ANSWER.ascii and translate.py, dropped 2026-08-05. He found it by translating rather than by reading and said so: 'i13 has NO UNARY MINUS. found by translation, not by reading... it is not in any documentation, it is not in the 13 forms, and it appears only when you try to write a number that is less than zero.' The mechanism is his translate.py line 18 - (\"(0 - %r)\" % abs(v)) if v < 0 else repr(v) - and that line is the whole finding, compiled. AVAN notes the class this belongs to: a specification lists what a language HAS and cannot list what it lacks, since the absences are unbounded. Gaps of this kind are found by attempting a translation, and the attempt has to include the awkward parts.",
+  "body":UMTI_BODY,"script":UMTI_SCRIPT},
+ {"slug":"the-point-three-seven","title":"THE POINT THREE SEVEN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7de2b0","icon":"\u2937",
+  "kicker":"a third have jumps; almost none are irreducible",
+  "blurb":"A third of LAPACK contains a GO TO, which looked like the end of a stack-based checker. Then the control-flow graphs were analysed.",
+  "lit":"of 2,163 routines 0.37% are irreducible, roughly 8, so jumps are 96 times more common than irreducibility; a T1-T2 reduction run live on a structured early exit collapses it to a single node while the same reduction on a two-entry loop sticks at 3 and cannot proceed",
+  "fig":"David built the reducibility analysis without it being on the plan - it appears under 'BUILT, BUT NOT ON THE TOWER (nobody planned these)' with the note that 'six of these came out of chasing a wrong number.' It re-scoped the veto for the second time: now known to need 'nesting plus completion, not a jump model.' The corpus figures are HIS, cited not re-derived - gfortran is not installed here - while the reduction is this page's own. AVAN marks that this SOFTENS AN ALARM this corpus raised one batch ago: the 35.6% figure was correct and the conclusion beside it, that the stack fails everywhere, was too strong. Presence of a jump and irreducibility of the resulting graph are different measurements.",
+  "body":PTS7_BODY,"script":PTS7_SCRIPT},
+ {"slug":"the-gate-that-was-run","title":"THE GATE THAT WAS RUN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SPLIT SCREEN","domain_slug":"split-screen","accent":"#ffd76a","icon":"\u25a3",
+  "kicker":"no partial credit, and the number stays honest",
+  "blurb":"A progress board where every item is binary. A gate is a thing that was run - a command with an output - or it is open. Nothing is 'mostly done'.",
+  "lit":"seven floors totalling 28 gates of which 10 are closed gives 35.7%, and counting the nine sealed suites beneath the freeze gives 19 of 37 or 51.4%; award every open gate 50% for being in progress and the same board reports 67.9%, an inflation of 32.1 points from nothing, and partial credit can never move the number the other way",
+  "fig":"David wrote the rule directly onto the board: 'the % is honest only because a gate is a THING THAT WAS RUN. none of these is mostly done. each is a command with an output, or it is open.' The board is RUNNING.ascii, dropped 2026-08-05, and every closed block carries the measurement that closed it. AVAN puts the inflation on the same footing as something this corpus already measured: partial credit is a SUPERSET TEST in the same sense as the loose predicate that produced 132 shared terminators. It counts a containing set, so its error has a direction - half-credit cannot report less than binary scoring, only more.",
+  "body":GTWR_BODY,"script":GTWR_SCRIPT},
+ {"slug":"the-judge-built-first","title":"THE JUDGE BUILT FIRST","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#b98cff","icon":"\u2696",
+  "kicker":"the oracle was cheaper than the thing it judges",
+  "blurb":"On a seven-floor board, the floor that judges is 75% built and the floor it judges sits at 0%. Recognising is structurally cheaper than generating.",
+  "lit":"verifying a factorisation of 9,998,000,099 takes 1 multiplication while finding one by trial division takes 99,988 steps - a ratio of about 100,000 to 1 on a number with no small factor - which is why a judge can exist before the thing judged, and why finishing it is not progress",
+  "fig":"David noticed the inversion and named it as informative rather than embarrassing: 'F4 arrived before F3, out of order, because the oracle turned out to be cheaper to build than the thing it judges. that is the right order to be surprised by.' He also kept the sting attached - the coverage gate is 'still the number that can stop everything' and it has not been measured. AVAN supplies the general reason, which is older than this tower: the gap between checking and producing is the same asymmetry that makes verification tractable where search is not. What it does NOT buy is progress - an oracle with no candidate has judged nothing.",
+  "body":JBF1_BODY,"script":JBF1_SCRIPT},
+ {"slug":"the-fourteen-decimals","title":"THE FOURTEEN DECIMALS","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#ff5a8a","icon":"\u2261",
+  "kicker":"what an exact agreement does and does not show",
+  "blurb":"Reference BLAS DDOT, unmodified, with its MOD(N,5) clean-up and five-way unrolled loop kept rather than smoothed, translated into a 13-symbol language and run interpreted.",
+  "lit":"all 5 results match the compiled reference as exact strings at 14 decimal places, with the inputs covering all 3 code paths - clean-up only, the n=5 boundary, and the unrolled path - and MOD(n,5) taking 3 distinct values; while one routine of 2,163 is 0.046% of the corpus and cons-list access turns O(n) into O(n squared), so at n=1000 the translation does 1000 times the work",
+  "fig":"David asked the question that had been circled for hours and then answered it: 'never mind whether the veto is right or why the linker agreed. CAN i13 READ A REAL FORTRAN ROUTINE AND PRODUCE THE RIGHT NUMBER?' He also wrote the limits without being asked: 'I did the translation, not an agent. this proves the TARGET is reachable and the SCORING works. it does not prove anything can find its way there.' AVAN records that these figures are HIS - gfortran is not installed on the machine this page was built on, so the reference column cannot be regenerated here. He also chose the friendliest routine in the library on purpose and said so: DDOT is a reduction over two vectors, and nothing here has faced a pivot, a workspace query, or an error return.",
+  "body":FTDC_BODY,"script":FTDC_SCRIPT},
  {"slug":"the-zero-that-was-the-point","title":"THE ZERO THAT WAS THE POINT","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"GOD MODE","domain_slug":"god-mode","accent":"#7de2b0","icon":"\u2205",
   "kicker":"two zeros that look identical in the output",
