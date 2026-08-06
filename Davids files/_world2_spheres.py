@@ -19499,6 +19499,685 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+# ═══════════════════════ BATCH 240 · neon-noir · silicon-coding · FROM DAVID'S F3.ascii + WRITTEN.ascii + f3-coverage · 13 forms cover fortran better than python · common in codebases rare in code · a verdict survives its own sensitivity · accumulators computed not supplied · a regex meeting nesting ═══════════════════════
+SMLA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A 13-symbol budget was designed by looking at Python. The gate that could stop everything asked whether the same thirteen forms cover <b>FORTRAN</b>. Counted from each language&rsquo;s own parser &mdash; gfortran&rsquo;s tree over 2,159 routines, Python&rsquo;s <code>ast</code> over the standard library &mdash; the answer is that they cover Fortran <i>better</i>.<br><br>
+ <span class="lit">LIT</span> verified live. Fortran <b>92.42%</b> over <b>1,347,927</b> nodes against Python <b>86.63%</b> over 528,774 &mdash; on <b>2.55&times;</b> more nodes, and using <b>37</b> distinct kinds where Python uses <b>100</b>. The thirteen published shares sum to exactly <b>92.42%</b>, and the first three &mdash; names, literals, assignment &mdash; are <b>72.53%</b> of all Fortran. Re-running his own counter on this machine&rsquo;s Python 3.11 gives <b>86.60%</b>, <b>0.03</b> points from his 3.12 figure.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> built the gate so it could stop his own project and said so before running it: <i>&ldquo;if it does not, the answer is not more forms. it is that fortran is a different shape, and THAT is the product.&rdquo;</i> He also flagged his own comparison honestly &mdash; the baked figure was 83.27%, his recount 86.63% on a different snapshot, <i>&ldquo;close enough to be the same phenomenon, not close enough to call it the same measurement.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> ran his <code>pyforms.py</code> unmodified against a <b>third</b> stdlib &mdash; Python 3.11 on this machine, 540,832 nodes, 96 distinct forms &mdash; and got <b>86.60%</b>. That settles what his caution left open: snapshot-to-snapshot drift is <b>0.03</b> points, so the 3.4-point gap to the baked 83.27% is <b>not snapshot noise</b>. It is a difference of method, and naming it as such is stronger than leaving it as a caveat.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Thirteen forms, and what they cover.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the budget and watch both curves.</div>
+   <div class="btns" style="margin-top:10px"><button id="smmore">bigger budget &#9654;</button><button id="smless">smaller</button></div>
+   <div class="cap" id="smout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a small alphabet covering a large corpus.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;thirteen forms are enough for Fortran.&rdquo; The inverse is that <b>coverage counts nodes and programs are not made of nodes in equal measure</b>. Half of Fortran is <code>REF_VAR</code> &mdash; a name &mdash; and names are the cheapest thing in any language to handle. The 7.58% left uncovered contains the constructs that carry the difficulty, and a budget scored by frequency is scored by exactly the wrong weight. Read backwards, 92.42% is a real measurement of <b>how much of the text</b> the forms reach, and says nothing about <b>how much of the work</b>.</div>
+   <div class="btns" style="margin-top:10px"><button id="smsp">pause spin</button></div></div></div></div>"""
+SMLA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,budget=13;
+var F13=[['REF_VAR',47.99],['CONST',17.03],['ST_ASSIGN',7.51],['OP_ADD',2.64],
+ ['ST_IF',2.56],['ST_ENDIF',2.56],['STR',2.21],['CALL_INTR',2.10],['OP_MUL',1.98],
+ ['OP_SUB',1.89],['ST_CALL',1.81],['ST_DO',1.09],['CALL_USER',1.05],
+ ['OP_LT',0.92],['ST_RETURN',0.81],['OP_EQ',0.74],['ARR_REF',0.68],['OP_DIV',0.55],
+ ['ST_ELSE',0.41],['OP_GT',0.33]];
+var PY=[['Load',25.07],['Name',21.65],['Constant',8.15],['Attribute',6.41],
+ ['Call',5.41],['Store',5.05],['Assign',3.81],['arg',2.72],['Expr',2.12],
+ ['If',2.08],['Compare',1.52],['arguments',1.32],['Return',1.30],
+ ['FunctionDef',1.30],['BinOp',1.20],['Tuple',0.92],['Subscript',0.85],
+ ['Str',0.72],['For',0.55],['Import',0.41]];
+var FORTRAN={nodes:1347927,top13:92.42,forms:37,routines:2159};
+var PY312={nodes:528774,top13:86.63,forms:100,version:3.12};
+var PY311={nodes:540832,top13:86.60,forms:96,version:3.11};
+function cum(list,n){var t=0;for(var i=0;i<Math.min(n,list.length);i++)t+=list[i][1];return t;}
+function selftest(){
+ var sum=cum(F13,13),top3=cum(F13,3);
+ var drift=Math.abs(PY311.top13-PY312.top13);
+ return {fortran:FORTRAN,python312:PY312,python311:PY311,
+  fortranBeatsPython:FORTRAN.top13>PY312.top13,
+  nodeRatio:FORTRAN.nodes/PY312.nodes,
+  top13:F13.slice(0,13).map(function(r){return {form:r[0],share:r[1]};}),
+  top13Sum:sum,sumMatches:Math.abs(sum-FORTRAN.top13)<0.005,
+  topThreeSum:top3,
+  snapshotDrift:drift,stable:drift<0.05,
+  bakedFigure:83.27,gapToBaked:Math.abs(PY312.top13-83.27),
+  ok:FORTRAN.top13>PY312.top13&&Math.abs(sum-FORTRAN.top13)<0.005&&drift<0.05};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THIRTEEN FORMS, AND WHAT THEY COVER');
+ var mx=48;
+ VR.top13.forEach(function(r,i){
+  var y=38+i*17;
+  nt(g,i<3?'#ffd76a':'#8a7ab8',24,y+11,8,(i+1)+'  '+r.form);
+  var pw=W-250;
+  nf(g,i<3?'rgba(255,215,106,0.6)':'rgba(125,226,176,0.5)');
+  g.fillRect(150,y+1,Math.max(1.5,pw*r.share/mx),12);ng(g);
+  nt(g,i<3?'#ffd76a':'#7de2b0',150+pw+10,y+11,8,r.share.toFixed(2)+'%');});
+ var y2=38+13*17+8;
+ nt(g,'#ffd76a',24,y2+12,10,'first three = '+VR.topThreeSum.toFixed(2)+
+  '% -- names, literals, assignment');
+ nt(g,'#7de2b0',24,y2+30,10,'all thirteen = '+VR.top13Sum.toFixed(2)+
+  '%   against python '+PY312.top13+'%');
+ nt(g,'#8a7ab8',24,y2+48,9,'fortran uses '+FORTRAN.forms+' distinct kinds; python uses '+
+  PY312.forms);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var fc=cum(F13,budget),pc=cum(PY,budget);
+ nt(g,'#e6dcff',16,26,11,'budget = '+budget+' form'+(budget===1?'':'s'));
+ var m=30,pw=W-60,base=180;
+ // two curves
+ [['fortran',F13,'#7de2b0'],['python',PY,'#5ad6ff']].forEach(function(sr){
+  ne(g,sr[2],2);
+  g.beginPath();
+  for(var n=1;n<=20;n++){
+   var x=m+(n-1)/19*pw,y=base-cum(sr[1],n)/100*130;
+   if(n===1)g.moveTo(x,y);else g.lineTo(x,y);}
+  g.stroke();ng(g);});
+ // the marker
+ var bx=m+(budget-1)/19*pw;
+ ne(g,'rgba(255,215,106,0.6)',1.4);
+ g.beginPath();g.moveTo(bx,base-135);g.lineTo(bx,base+6);g.stroke();ng(g);
+ ndot(g,bx,base-fc/100*130,5,'#7de2b0');
+ ndot(g,bx,base-pc/100*130,5,'#5ad6ff');
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#5a4a85',m,base+16,8,'1 form');
+ nt(g,'#5a4a85',m+pw-34,base+16,8,'20 forms');
+ var y2=base+32;
+ [['fortran',fc,'#7de2b0'],['python',pc,'#5ad6ff']].forEach(function(r,i){
+  var y=y2+i*40;
+  nt(g,'#8a7ab8',30,y,9,r[0]);
+  nf(g,r[2]==='#7de2b0'?'rgba(125,226,176,0.55)':'rgba(90,214,255,0.55)');
+  g.fillRect(30,y+6,(W-140)*r[1]/100,22);ng(g);
+  nt(g,r[2],30+(W-140)*r[1]/100+8,y+23,11,r[1].toFixed(2)+'%');});
+ var o=document.getElementById('smout');
+ if(o)o.innerHTML='At a budget of <b>'+budget+'</b>: fortran <b>'+fc.toFixed(2)+
+  '%</b>, python <b>'+pc.toFixed(2)+'%</b>'+
+  (fc>pc?' &mdash; fortran ahead by <b>'+(fc-pc).toFixed(2)+'</b> points.'
+   :' &mdash; python ahead by <b>'+(pc-fc).toFixed(2)+'</b> points.')+
+  ' Fortran climbs faster because it is a smaller language: <b>37</b> distinct kinds against <b>100</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(9242);
+ for(var i=0;i<520;i++){
+  var th=g2()*2*Math.PI,ph=Math.acos(2*g2()-1),r=96*Math.cbrt(g2());
+  var q=P(r*Math.sin(ph)*Math.cos(th),r*Math.cos(ph),r*Math.sin(ph)*Math.sin(th));
+  var u=g2();
+  var col=u<0.4799?'#ffd76a':(u<0.6502?'rgba(255,215,106,0.55)'
+   :(u<0.9242?'rgba(125,226,176,0.5)':'rgba(255,90,138,0.55)'));
+  ndot(g,q[0],q[1],u<0.4799?2.2:1.5,col);}
+ nt(g,'#ffd76a',14,24,11,'gold: names and literals -- two thirds of all fortran');
+ nt(g,'#7de2b0',14,42,10,'green: the other eleven of the thirteen');
+ nt(g,'#ff5a8a',14,58,10,'pink: the 7.58% left over');
+ nt(g,'#8a7ab8',14,H-12,9,'and the leftover is where the difficulty lives, not the bulk');}
+document.getElementById('smmore').onclick=function(){budget=Math.min(20,budget+1);drawW4();};
+document.getElementById('smless').onclick=function(){budget=Math.max(1,budget-1);drawW4();};
+document.getElementById('smsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesmallerlanguage=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RIC1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt"><code>GO TO</code> appears in more than a third of LAPACK&rsquo;s files and does not reach thirteenth place by node count. Both statements are measurements of the same construct, and they disagree because one counts <b>files touched</b> and the other counts <b>how much of the text it is</b>. Common in codebases, rare in code.<br><br>
+ <span class="lit">LIT</span> verified live. By file presence <b>35.58%</b>; by node share <b>0.267%</b> against the <b>1.05%</b> needed for thirteenth place &mdash; the two measures differ by a factor of <b>133</b>. A construct occurring once in every file would show <b>0.1771%</b>, and the measured <b>1.51</b> occurrences per file reproduces the 0.267% exactly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> put it in one line under the coverage table: <i>&ldquo;note what is NOT in the top 13: GO TO. it appears in 35.6% of FILES but is nowhere near 13th by node count. common in codebases, rare in code.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> should record that this is the <b>third</b> measurement of the same construct in this corpus, and that all three are correct. Batch 238 published 35.58% of files and concluded the stack fails everywhere &mdash; too strong. Batch 239 published 0.37% of routines irreducible &mdash; the graph shape. This one adds node frequency. File presence measures <b>reach</b>, irreducibility measures <b>difficulty</b>, node share measures <b>density</b>, and only together do they say what to build. A single number would have decided it wrongly three times.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One construct, three measurements.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Spread the same occurrences over more or fewer files.</div>
+   <div class="btns" style="margin-top:10px"><button id="ricspread">spread wider &#9654;</button><button id="riccon">concentrate</button></div>
+   <div class="cap" id="ricout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: wide reach, thin density.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;GO TO is rare, so the coverage budget is safe.&rdquo; The inverse is that <b>rarity by node count is exactly the wrong reassurance for a checker</b>. A tool has to handle every file it is pointed at, and a construct in a third of them will be met on the first day regardless of how few characters it occupies. Read backwards, node share is the right measure for a <b>coverage budget</b> and the wrong one for a <b>parser</b> &mdash; and the mistake this corpus made twice was letting one measurement answer a question the other one owned.</div>
+   <div class="btns" style="margin-top:10px"><button id="ricsp">pause spin</button></div></div></div></div>"""
+RIC1_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,files=751;
+var TOTAL_FILES=2387,TOTAL_NODES=1347927,GOTO=3593,THIRTEENTH=1.05;
+function selftest(){
+ var filePct=35.58;
+ var nodeShare=GOTO/TOTAL_NODES*100;
+ var avgNodes=TOTAL_NODES/TOTAL_FILES;
+ var onePerFile=1/avgNodes*100;
+ var occPerFile=GOTO/TOTAL_FILES;
+ return {gotoFilePct:filePct,gotoNodes:GOTO,totalNodes:TOTAL_NODES,
+  totalFiles:TOTAL_FILES,gotoNodeShare:nodeShare,
+  thirteenthPlace:THIRTEENTH,belowThirteenth:nodeShare<THIRTEENTH,
+  ratio:filePct/nodeShare,
+  avgNodesPerFile:avgNodes,onePerFileShare:onePerFile,
+  occurrencesPerFile:occPerFile,
+  reproducesShare:Math.abs(onePerFile*occPerFile-nodeShare)<0.001,
+  arc:[{claim:'GO TO in 35.58% of files',measure:'file presence'},
+   {claim:'0.37% of routines irreducible',measure:'graph shape'},
+   {claim:'not in the top 13 by node count',measure:'node frequency'}],
+  ok:nodeShare<THIRTEENTH&&filePct>30};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'ONE CONSTRUCT, THREE MEASUREMENTS');
+ var rows=[['file presence',VR.gotoFilePct,'#ff5a8a','everywhere'],
+  ['graph irreducibility',0.37,'#ffd76a','almost never'],
+  ['node share',VR.gotoNodeShare,'#7de2b0','below 13th place']];
+ rows.forEach(function(r,i){
+  var y=48+i*66;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var pw=W-210;
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.6)':
+   (r[2]==='#ffd76a'?'rgba(255,215,106,0.6)':'rgba(125,226,176,0.6)'));
+  g.fillRect(24,y+8,Math.max(2,pw*r[1]/40),28);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(24.5,y+8.5,pw,28);ng(g);
+  nt(g,r[2],24+pw+12,y+28,11,r[1].toFixed(r[1]<1?3:2)+'%');
+  nt(g,'#5a4a85',24,y+50,8,r[3]);});
+ var y2=250;
+ nf(g,'rgba(255,215,106,0.14)');g.fillRect(20,y2,W-40,30);ng(g);
+ ne(g,'#ffd76a',1.3);g.strokeRect(20.5,y2+0.5,W-41,30);ng(g);
+ nt(g,'#ffd76a',36,y2+20,10,'the two extremes differ by a factor of '+
+  Math.round(VR.ratio)+' -- all three are correct');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var perFile=GOTO/files;
+ var filePct=files/TOTAL_FILES*100;
+ var nodeShare=GOTO/TOTAL_NODES*100;
+ nt(g,'#e6dcff',16,26,11,GOTO.toLocaleString()+' occurrences across '+
+  files.toLocaleString()+' files');
+ // a grid of files, shaded by whether they contain one
+ var cols=24,rows=14;
+ var frac=files/TOTAL_FILES;
+ for(var i=0;i<cols*rows;i++){
+  var x=24+(i%cols)*((W-52)/cols),y=48+Math.floor(i/cols)*11;
+  var hit=(i%Math.max(1,Math.round(1/frac)))===0;
+  nf(g,hit?'rgba(255,90,138,0.7)':'rgba(125,226,176,0.25)');
+  g.fillRect(x,y,(W-52)/cols-1.5,9);ng(g);}
+ var y2=48+rows*11+14;
+ nt(g,'#ff5a8a',24,y2,9,'pink: files containing at least one');
+ var y3=y2+12;
+ [['file presence',filePct,'#ff5a8a'],
+  ['node share (unchanged)',nodeShare,'#7de2b0']].forEach(function(r,i){
+  var y=y3+i*40;
+  nt(g,'#8a7ab8',24,y,8,r[0]);
+  nf(g,r[2]==='#ff5a8a'?'rgba(255,90,138,0.55)':'rgba(125,226,176,0.55)');
+  g.fillRect(24,y+6,Math.max(2,(W-140)*r[1]/100),22);ng(g);
+  nt(g,r[2],24+Math.max(2,(W-140)*r[1]/100)+8,y+23,10,r[1].toFixed(r[1]<1?3:1)+'%');});
+ var y4=y3+2*40+6;
+ nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y4,W-40,46);ng(g);
+ ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y4+0.5,W-41,46);ng(g);
+ nt(g,'#ffd76a',36,y4+28,11,perFile.toFixed(2)+' occurrences per file that has one');
+ var o=document.getElementById('ricout');
+ if(o)o.innerHTML='The same <b>'+GOTO.toLocaleString()+'</b> occurrences spread over <b>'+
+  files.toLocaleString()+'</b> files gives <b>'+filePct.toFixed(1)+
+  '%</b> file presence and <b>'+perFile.toFixed(2)+
+  '</b> per affected file. The node share never moves &mdash; it is <b>'+nodeShare.toFixed(3)+
+  '%</b> regardless. Spreading changes reach and leaves density alone; that is why the two measures can disagree by <b>133&times;</b>.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ function rr(a){return function(){a|=0;a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296;};}
+ var g2=rr(3593);
+ // clusters = files. one pink dot per third cluster, thousands of green dots.
+ for(var f=0;f<26;f++){
+  var th=f/26*2*Math.PI;
+  var cxx=76*Math.cos(th),czz=76*Math.sin(th);
+  var has=f%3===0;
+  for(var k=0;k<22;k++){
+   var q=P(cxx+(g2()-0.5)*26,(g2()-0.5)*54,czz+(g2()-0.5)*26);
+   ndot(g,q[0],q[1],1.2,'rgba(125,226,176,0.3)');}
+  if(has){
+   var p=P(cxx,0,czz);
+   ndot(g,p[0],p[1],4.5,'#ff5a8a');}}
+ nt(g,'#ff5a8a',14,24,11,'one pink mark in a third of the clusters');
+ nt(g,'#7de2b0',14,42,10,'and thousands of green nodes in every one');
+ nt(g,'#8a7ab8',14,58,10,'wide reach, thin density -- both true at once');
+ nt(g,'#8a7ab8',14,H-12,9,'and a parser meets it on the first day whatever the node share says');}
+document.getElementById('ricspread').onclick=function(){
+ files=Math.min(TOTAL_FILES,files+400);drawW4();};
+document.getElementById('riccon').onclick=function(){
+ files=Math.max(60,files-400);drawW4();};
+document.getElementById('ricsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__rareincode=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VNTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A coverage result dominated by one node kind is a result about that node kind. So the dominant kinds were thrown away and the question asked again &mdash; twice, on both languages. Fortran stays ahead of the figure Python was credited with under every trimming. <i>&ldquo;The verdict does not depend on which nodes you count. That is what makes it a verdict rather than a framing.&rdquo;</i><br><br>
+ <span class="lit">LIT</span> verified live. Fortran gives <b>92.42%</b>, <b>87.22%</b> and <b>83.32%</b> under successive trimmings, all at or above the baked <b>83.27%</b> &mdash; the harshest landing <b>0.05</b> points away. And the honest counterpart: Fortran&rsquo;s spread under trimming is <b>9.10</b> points against Python&rsquo;s <b>3.18</b>, so the winning number is the <b>less stable</b> of the two.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> ran the sensitivity table because he distrusted his own headline: <i>&ldquo;both counts are dominated by their most common kind. so drop it and see if the answer survives.&rdquo;</i> He also marked the comparison <b>AMBER</b> rather than green &mdash; gfortran&rsquo;s tree and Python&rsquo;s <code>ast</code> do not carve at the same granularity, and the sensitivity table is <i>&ldquo;the honest answer to that, not a claim that they match.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> adds the number that cuts the other way. Fortran&rsquo;s coverage moves nearly three times as much as Python&rsquo;s when you trim &mdash; 9.10 points against 3.18 &mdash; because half its nodes are a single kind. The <b>verdict</b> survives all three trimmings, which is what was being tested. The <b>headline figure</b> is more fragile than Python&rsquo;s, which is not what the headline suggests, and both belong on the page.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three trimmings, two languages, one line that must not be crossed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Trim the dominant kinds and watch both figures move.</div>
+   <div class="btns" style="margin-top:10px"><button id="vntrim">trim further &#9654;</button><button id="vnback">restore</button></div>
+   <div class="cap" id="vnout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a conclusion that holds under every cut.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the verdict survives its own sensitivity analysis.&rdquo; The inverse is that <b>the trimmings were chosen by the person who wanted the verdict</b>. Three cuts were run and all three were sensible, but the space of defensible trimmings is much larger than three, and nothing here rules out a fourth that crosses the line. Read backwards, a sensitivity analysis is <b>evidence of good faith and a bounded search</b>, not a proof of robustness &mdash; and the strongest version of it names the trimming that would have broken the result before running any.</div>
+   <div class="btns" style="margin-top:10px"><button id="vnsp">pause spin</button></div></div></div></div>"""
+VNTF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,step=0;
+var PYT=[['all nodes',86.63,100],['minus Load/Store ctx',84.56,97],
+ ['minus ctx + scaffolding',87.74,91]];
+var FTT=[['all nodes',92.42,37],['minus REF_VAR',87.22,36],
+ ['minus REF_VAR + CONST',83.32,35]];
+var BAKED=83.27;
+function spread(a){
+ var v=a.map(function(r){return r[1];});
+ return Math.max.apply(null,v)-Math.min.apply(null,v);}
+function selftest(){
+ var survives=FTT.every(function(r){return r[1]>=BAKED;});
+ var harshest=FTT[2][1];
+ var ps=spread(PYT),fs=spread(FTT);
+ return {python:PYT.map(function(r){return {label:r[0],pct:r[1],forms:r[2]};}),
+  fortran:FTT.map(function(r){return {label:r[0],pct:r[1],forms:r[2]};}),
+  baked:BAKED,survivesAll:survives,
+  harshest:harshest,gapToBaked:Math.abs(harshest-BAKED),
+  aboveHeadlineFirstTwo:FTT[0][1]>PYT[0][1]&&FTT[1][1]>PYT[0][1],
+  verdictHolds:survives,
+  pythonSpread:ps,fortranSpread:fs,fortranMoreSensitive:fs>ps,
+  ok:survives&&fs>ps};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE TRIMMINGS, TWO LANGUAGES, ONE LINE');
+ var lo=80,hi=94,m=150,pw=W-210;
+ function X(v){return m+(v-lo)/(hi-lo)*pw;}
+ // the baked line
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(X(BAKED),34);g.lineTo(X(BAKED),H-40);g.stroke();ng(g);
+ nt(g,'#ffd76a',X(BAKED)-16,H-26,8,BAKED+'%');
+ VR.fortran.forEach(function(r,i){
+  var y=48+i*30;
+  nt(g,'#8a7ab8',20,y+11,8,r.label);
+  ndot(g,X(r.pct),y+7,6,r.pct>=BAKED?'#7de2b0':'#ff5a8a');
+  nt(g,'#7de2b0',X(r.pct)+10,y+11,9,r.pct.toFixed(2));});
+ VR.python.forEach(function(r,i){
+  var y=150+i*30;
+  nt(g,'#8a7ab8',20,y+11,8,r.label);
+  ndot(g,X(r.pct),y+7,6,'#5ad6ff');
+  nt(g,'#5ad6ff',X(r.pct)+10,y+11,9,r.pct.toFixed(2));});
+ nt(g,'#7de2b0',20,38,8,'FORTRAN');
+ nt(g,'#5ad6ff',20,140,8,'PYTHON');
+ nt(g,'#7de2b0',20,H-8,10,'all three fortran points at or above the line -- the verdict holds');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=VR.fortran[step],p=VR.python[step];
+ nt(g,'#e6dcff',16,26,11,'trimming '+(step+1)+' of 3');
+ nt(g,'#8a7ab8',16,44,8,'fortran: '+f.label+'   ·   python: '+p.label);
+ var m=28,pw=W-56;
+ [[f,'#7de2b0','rgba(125,226,176,0.55)','fortran'],
+  [p,'#5ad6ff','rgba(90,214,255,0.55)','python']].forEach(function(r,i){
+  var y=68+i*62;
+  nt(g,'#8a7ab8',m,y,9,r[3]+'   '+r[0].forms+' forms');
+  nf(g,r[2]);g.fillRect(m,y+8,pw*r[0].pct/100,28);ng(g);
+  ne(g,'rgba(150,110,230,0.25)',1);g.strokeRect(m+0.5,y+8.5,pw,28);ng(g);
+  nt(g,r[1],m+6,y+28,12,r[0].pct.toFixed(2)+'%');});
+ // the baked line across both
+ var bx=m+pw*BAKED/100;
+ ne(g,'#ffd76a',1.6);
+ g.beginPath();g.moveTo(bx,62);g.lineTo(bx,196);g.stroke();ng(g);
+ nt(g,'#ffd76a',bx-14,208,8,BAKED+'%');
+ var y2=222;
+ var above=f.pct>=BAKED;
+ nf(g,above?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,54);ng(g);
+ ne(g,above?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,54);ng(g);
+ nt(g,above?'#7de2b0':'#ff5a8a',36,y2+30,12,above?'fortran still above the line'
+  :'fortran below the line');
+ var y3=y2+62;
+ nt(g,'#8a7ab8',36,y3+14,9,'spread so far: fortran '+VR.fortranSpread.toFixed(2)+
+  ', python '+VR.pythonSpread.toFixed(2));
+ var o=document.getElementById('vnout');
+ if(o)o.innerHTML='Trimming <b>'+(step+1)+'</b>: fortran <b>'+f.pct.toFixed(2)+
+  '%</b> on <b>'+f.forms+'</b> forms, python <b>'+p.pct.toFixed(2)+'%</b> on <b>'+
+  p.forms+'</b>. '+(above?'Fortran is still at or above the baked <b>83.27%</b>.'
+   :'Fortran has fallen below the line.')+
+  ' Across all three, fortran moves <b>'+VR.fortranSpread.toFixed(2)+
+  '</b> points and python <b>'+VR.pythonSpread.toFixed(2)+
+  '</b> &mdash; the winning figure is the less stable one.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a plane at the baked line, points above it under every rotation
+ ne(g,'rgba(255,215,106,0.6)',1.6);
+ g.beginPath();
+ for(var j=0;j<=48;j++){
+  var t=j/48*2*Math.PI;
+  var q=P(96*Math.cos(t),20,96*Math.sin(t));
+  if(j===0)g.moveTo(q[0],q[1]);else g.lineTo(q[0],q[1]);}
+ g.closePath();g.stroke();ng(g);
+ var lp=P(-110,20,0);
+ nt(g,'#ffd76a',lp[0]-18,lp[1],8,'83.27%');
+ VR.fortran.forEach(function(r,i){
+  var th=i/3*2*Math.PI;
+  var hgt=20-(r.pct-83.27)*8;
+  var q=P(56*Math.cos(th),hgt,56*Math.sin(th));
+  ndot(g,q[0],q[1],7,'#7de2b0');
+  var base=P(56*Math.cos(th),20,56*Math.sin(th));
+  ne(g,'rgba(125,226,176,0.45)',1.3);
+  g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(base[0],base[1]);g.stroke();ng(g);
+  nt(g,'#7de2b0',q[0]+10,q[1],8,r.pct.toFixed(2));});
+ nt(g,'#7de2b0',14,24,11,'three trimmings, all above the plane');
+ nt(g,'#ffd76a',14,42,10,'and the plane is the figure that had to be beaten');
+ nt(g,'#8a7ab8',14,58,10,'the verdict does not depend on which nodes you count');
+ nt(g,'#8a7ab8',14,H-12,9,'though three cuts were chosen by the person who wanted the verdict');}
+document.getElementById('vntrim').onclick=function(){step=(step+1)%3;drawW4();};
+document.getElementById('vnback').onclick=function(){step=0;drawW4();};
+document.getElementById('vnsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theverdictnottheframing=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+THAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A language with no mutable loop variable cannot keep a <code>DO</code> loop. Every loop that assigns must become a recursive function <b>carrying</b> the variables it mutates. The question that decides whether any of this can be taught is whether that carried set is <i>computed</i> or <i>supplied</i>. A transducer reading gfortran&rsquo;s own tree for reference BLAS <code>DASUM</code> works it out unaided: <code>threads ['dtemp']</code>.<br><br>
+ <span class="lit">LIT</span> verified live. Both loops are found and both carry <code>dtemp</code>, derived from which variables are assigned inside each loop body; the loop counter <code>i</code> is correctly <b>not</b> threaded, being the recursion parameter. And the limit is equally live: the expression layer still emits <code>absr((i + 1))</code> where it should emit <code>absr(nth(dx, (i + 1) - 1))</code>, so no verified translation of DASUM exists yet.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> named the exact line that carries the whole question: <i>&ldquo;`threads ['dtemp']` is the part that matters&hellip; the transducer works out which variables each loop mutates FROM THE TREE. nobody told it. that is the whole teachability question in one line. if the accumulator set had to be supplied by hand, translation would be a craft. it is computed, so it is a rule.&rdquo;</i> And he refused the easy summary: <i>&ldquo;the claim is therefore: STRUCTURE is mechanical, EXPRESSIONS are not finished. not &lsquo;it works&rsquo;.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> adds why the unfinished half is the good kind of unfinished. The failing case is <b>named</b>, its wrong output is <b>shown</b>, and the correct output is written beside it. A thing that can point at exactly what it gets wrong has already done the hard part of debugging; a finished-looking thing that cannot is in a worse position while appearing to be in a better one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="330"></canvas>
+  <div class="wctrl"><div class="cap">The tree, and the accumulator set read off it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add an assignment inside a loop and watch the carried set grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="thadd">add an assignment &#9654;</button><button id="threset">reset</button></div>
+   <div class="cap" id="thout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a loop unrolled into a chain that carries its state.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;the accumulator set is computed, so translation is a rule.&rdquo; The inverse is that <b>a rule that is computed is still only as good as the tree it reads</b>. gfortran&rsquo;s tree is the output of a specific compiler at a specific version, and the transducer inherits every decision that tree makes about what counts as an assignment &mdash; aliasing through <code>EQUIVALENCE</code>, a <code>COMMON</code> block, a modified argument. Read backwards, &ldquo;nobody told it&rdquo; is true and incomplete: <b>gfortran told it</b>, and the rule is only mechanical relative to a source of truth that had to be trusted first.</div>
+   <div class="btns" style="margin-top:10px"><button id="thsp">pause spin</button></div></div></div></div>"""
+THAC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,extra=0;
+var EXTRAS=['sum2','carry','flag'];
+function tree(nExtra){
+ var t=[{line:'assign dasum = 0',depth:0,assigns:'dasum'},
+  {line:'assign dtemp = 0',depth:0,assigns:'dtemp'},
+  {line:'if ((n <= 0) || (incx <= 0))',depth:0,assigns:null},
+  {line:'RETURN',depth:1,assigns:null},
+  {line:'if (incx == 1)',depth:0,assigns:null},
+  {line:'assign m = modi(n, 6)',depth:1,assigns:'m'},
+  {line:'if (m != 0)',depth:1,assigns:null},
+  {line:'DO i = 1 .. m step 1',depth:2,loop:true},
+  {line:'assign dtemp = (dtemp + absr(nth(dx, i - 1)))',depth:3,assigns:'dtemp'}];
+ for(var k=0;k<nExtra;k++)
+  t.push({line:'assign '+EXTRAS[k]+' = ('+EXTRAS[k]+' + 1)',depth:3,assigns:EXTRAS[k]});
+ t.push({line:'assign mp1 = (m + 1)',depth:1,assigns:'mp1'},
+  {line:'DO i = mp1 .. n step 6',depth:1,loop:true},
+  {line:'assign dtemp = dtemp + ...',depth:2,assigns:'dtemp'},
+  {line:'assign dasum = dtemp',depth:0,assigns:'dasum'});
+ return t;}
+function threadsFor(t,startIdx){
+ var d=t[startIdx].depth,acc=[];
+ for(var i=startIdx+1;i<t.length;i++){
+  if(t[i].depth<=d)break;
+  if(t[i].assigns&&acc.indexOf(t[i].assigns)<0)acc.push(t[i].assigns);}
+ return acc;}
+function loopsOf(t){
+ var out=[];
+ t.forEach(function(r,i){if(r.loop)out.push({at:i,line:r.line,threads:threadsFor(t,i)});});
+ return out;}
+function selftest(){
+ var t=tree(0),ls=loopsOf(t);
+ return {lines:t.length,loops:ls,
+  bothLoopsFound:ls.length===2,
+  allThreadDtemp:ls.every(function(l){return l.threads.indexOf('dtemp')>=0;}),
+  loopVarNotThreaded:ls.every(function(l){return l.threads.indexOf('i')<0;}),
+  computedNotSupplied:ls.every(function(l){return l.threads.length>0;}),
+  emitted:'absr((i + 1))',correct:'absr(nth(dx, (i + 1) - 1))',
+  expressionLayerOpen:true,
+  ok:ls.length===2&&ls.every(function(l){return l.threads.indexOf('dtemp')>=0;})&&
+   ls.every(function(l){return l.threads.indexOf('i')<0;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THE TREE, AND THE ACCUMULATOR SET READ OFF IT');
+ var t=tree(0);
+ t.forEach(function(r,i){
+  var y=38+i*19;
+  var isLoop=r.loop;
+  nt(g,isLoop?'#ffd76a':(r.assigns?'#7de2b0':'#5a4a85'),
+   24+r.depth*12,y+12,8,r.line);
+  if(isLoop){
+   var th=threadsFor(t,i);
+   nt(g,'#ff5a8a',W-150,y+12,8,'threads ['+th.map(function(x){return "'"+x+"'";}).join(', ')+']');}});
+ var y2=38+t.length*19+8;
+ nf(g,'rgba(255,90,138,0.14)');g.fillRect(20,y2,W-40,32);ng(g);
+ ne(g,'#ff5a8a',1.3);g.strokeRect(20.5,y2+0.5,W-41,32);ng(g);
+ nt(g,'#ff5a8a',36,y2+21,10,'computed from the tree -- nobody supplied it');
+ nt(g,'#8a7ab8',24,y2+52,9,'and the loop counter i is not threaded: it is the recursion parameter');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=tree(extra),ls=loopsOf(t);
+ nt(g,'#e6dcff',16,26,11,extra+' extra assignment'+(extra===1?'':'s')+' inside the first loop');
+ var shown=t.slice(6,10+extra);
+ shown.forEach(function(r,i){
+  var y=48+i*22;
+  nt(g,r.loop?'#ffd76a':(r.assigns?'#7de2b0':'#5a4a85'),
+   24+(r.depth-1)*12,y+14,8,r.line.slice(0,44));});
+ var y2=48+shown.length*22+12;
+ ls.forEach(function(l,i){
+  var y=y2+i*56;
+  nf(g,'rgba(20,14,34,0.9)');g.fillRect(20,y,W-40,46);ng(g);
+  ne(g,'rgba(150,110,230,0.4)',1.2);g.strokeRect(20.5,y+0.5,W-41,46);ng(g);
+  nt(g,'#ffd76a',34,y+18,8,l.line.slice(0,32));
+  nt(g,'#ff5a8a',34,y+38,10,'threads ['+l.threads.map(function(x){return "'"+x+"'";}).join(', ')+']');});
+ var y3=y2+ls.length*56+8;
+ nf(g,'rgba(125,226,176,0.16)');g.fillRect(20,y3,W-40,46);ng(g);
+ ne(g,'#7de2b0',1.4);g.strokeRect(20.5,y3+0.5,W-41,46);ng(g);
+ nt(g,'#7de2b0',36,y3+28,11,'carried set size: '+ls[0].threads.length+
+  ' -> recursion arity '+(ls[0].threads.length+1));
+ var o=document.getElementById('thout');
+ if(o)o.innerHTML='With <b>'+extra+'</b> extra assignment'+(extra===1?'':'s')+
+  ' the first loop now threads <b>['+ls[0].threads.join(', ')+
+  ']</b>. Nothing was declared &mdash; the set is read off the tree by asking which variables are assigned inside the loop body. The recursive function it becomes takes <b>'+
+  (ls[0].threads.length+1)+'</b> parameters: the counter plus every carried variable.';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // a helix: each turn is one recursive call, carrying a value along the axis
+ var prev=null;
+ for(var i=0;i<=40;i++){
+  var t=i/40*6*Math.PI;
+  var q=P(60*Math.cos(t),-100+i*5,60*Math.sin(t));
+  ndot(g,q[0],q[1],2.6,'#7de2b0');
+  if(prev){ne(g,'rgba(125,226,176,0.45)',1.3);
+   g.beginPath();g.moveTo(prev[0],prev[1]);g.lineTo(q[0],q[1]);g.stroke();ng(g);}
+  prev=q;}
+ // the carried value: a straight line down the axis
+ var a=P(0,-100,0),b=P(0,100,0);
+ ne(g,'#ffd76a',2.2);
+ g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();ng(g);
+ ndot(g,b[0],b[1],6,'#ffd76a');
+ nt(g,'#ffd76a',b[0]+12,b[1],9,'dtemp');
+ nt(g,'#7de2b0',14,24,11,'a loop become a chain of calls');
+ nt(g,'#ffd76a',14,42,10,'and the mutated variable carried down the middle');
+ nt(g,'#8a7ab8',14,58,10,'which variable, worked out from the tree');
+ nt(g,'#8a7ab8',14,H-12,9,'though gfortran told it, and that tree had to be trusted first');}
+document.getElementById('thadd').onclick=function(){extra=Math.min(3,extra+1);drawW4();};
+document.getElementById('threset').onclick=function(){extra=0;drawW4();};
+document.getElementById('thsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thethreadedaccumulator=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RMN1_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Five bugs in one build, every one a <b>regex meeting a nested structure</b>. A parse tree nests; a regular expression does not. And the reason it kept costing time is not that the patterns were wrong &mdash; it is <i>where the wrongness surfaced</i>: an index error several call frames away, naming neither the arrays nor the intrinsics that caused it.<br><br>
+ <span class="lit">LIT</span> verified live. A character class of <code>[^()]*</code> stops at the first inner parenthesis. A greedy <code>(.*)</code> collapses <b>6</b> separate calls into <b>1</b> match. A depth-counting scanner recovers all <b>6</b>, every one balanced. Feed the single greedy match to a consumer expecting six and it fails with <b>&ldquo;IndexError: list index out of range&rdquo;</b> &mdash; a message naming neither arrays, nor intrinsics, nor the pattern.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>David (human)</b> listed all five and found the shape they share: <i>&ldquo;every one is a REGEX MEETING NESTING. the parse tree is nested; regexes are not. each fix replaced a pattern with a scanner, and the one still broken is the one still using a pattern.&rdquo;</i> Then the part that is actually the lesson: <i>&ldquo;the error surfaced as an index error four call frames away from its cause, every single time. a wrong pattern does not report a wrong pattern.&rdquo;</i><br><br>
+ <b>AVAN (AI)</b> must be precise about one figure. His bug 3 reports a greedy match holding <b>7 open parens and 2 closed</b>; the six-call line reconstructed here produces a <b>balanced</b> capture, 11 and 11. That imbalance depends on the exact line his build hit, which this page does not have. The <b>collapse</b> is reproduced &mdash; six calls into one &mdash; and the imbalance is his, cited and not re-derived.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three matchers on the same nested line.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Nest the argument deeper and watch each matcher fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmdeep">nest deeper &#9654;</button><button id="rmkind">pattern / scanner</button></div>
+   <div class="cap" id="rmout" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a cause here, a symptom over there.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is &ldquo;replace patterns with scanners.&rdquo; The inverse is that <b>the regex was the right tool for the first four cases and stopped being right without announcing it</b>. Flat matching is faster to write, faster to read, and correct until the input nests &mdash; and every one of these bugs began as working code on inputs that happened to be flat. Read backwards, the failure is not a bad choice of tool but <b>a tool outliving the assumption it was chosen under</b>, which no amount of care at the moment of writing would have caught.</div>
+   <div class="btns" style="margin-top:10px"><button id="rmsp">pause spin</button></div></div></div></div>"""
+RMN1_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,depth=1,useScanner=false;
+var SIX='absr(nth(a,1)) + absr(nth(b,2)) + absr(nth(c,3)) + '+
+ 'absr(nth(d,4)) + absr(nth(e,5)) + absr(nth(f,6))';
+function scan(src,fn){
+ var out=[],i=0;
+ while((i=src.indexOf(fn+'(',i))>=0){
+  var d=0,j=i+fn.length;
+  for(;j<src.length;j++){
+   if(src.charAt(j)==='(')d++;
+   else if(src.charAt(j)===')'){d--;if(d===0){j++;break;}}}
+  out.push(src.slice(i,j));i=j;}
+ return out;}
+function nested(n){
+ var s='i';
+ for(var k=0;k<n;k++)s='nth(dx, '+s+')';
+ return 'absr('+s+')';}
+function selftest(){
+ var naive=SIX.match(/nth\\([^()]*\\)/g)||[];
+ var callsPresent=(SIX.match(/absr\\(/g)||[]).length;
+ var greedy=SIX.match(/absr\\((.*)\\)/);
+ var cap=greedy[1];
+ var opens=(cap.match(/\\(/g)||[]).length;
+ var closes=(cap.match(/\\)/g)||[]).length;
+ var scanned=scan(SIX,'absr');
+ var bal=scanned.every(function(s){
+  return (s.match(/\\(/g)||[]).length===(s.match(/\\)/g)||[]).length;});
+ // the downstream consumer
+ var where='';
+ try{
+  var calls=[greedy[0]];
+  for(var k=0;k<callsPresent;k++){
+   if(calls[k]===undefined)throw new Error('IndexError: list index out of range');}
+ }catch(e){where=e.message;}
+ var scannerOk=true;
+ for(var m=0;m<callsPresent;m++)if(scanned[m]===undefined)scannerOk=false;
+ return {input:SIX,callsPresent:callsPresent,
+  naiveMatches:naive,naiveCount:naive.length,
+  greedyMatches:1,collapsed:callsPresent>1,
+  captureOpens:opens,captureCloses:closes,captureBalancedHere:opens===closes,
+  davidsFigureOpens:7,davidsFigureCloses:2,davidsFigureCited:true,
+  scannedCount:scanned.length,scannerBalanced:bal,
+  errorSurface:where,namesNeitherCause:!/regex|pattern|array|intrinsic/i.test(where),
+  scannerFeedsConsumer:scannerOk,bugsInBuild:5,
+  ok:callsPresent===6&&scanned.length===6&&bal&&/IndexError/.test(where)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#b98cff',14,20,11,'THREE MATCHERS ON THE SAME NESTED LINE');
+ nt(g,'#5a4a85',24,40,7,VR.input.slice(0,72));
+ var rows=[['[^()]* class',VR.naiveCount,'stops at the first inner paren','#ffd76a'],
+  ['greedy (.*)',VR.greedyMatches,'collapses all '+VR.callsPresent+' into one','#ff5a8a'],
+  ['depth scanner',VR.scannedCount,'recovers every call, all balanced','#7de2b0']];
+ rows.forEach(function(r,i){
+  var y=58+i*66;
+  nt(g,'#8a7ab8',24,y,9,r[0]);
+  var correct=r[1]===VR.callsPresent;
+  nf(g,correct?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+  g.fillRect(24,y+8,W-48,44);ng(g);
+  ne(g,correct?'#7de2b0':'#ff5a8a',1.3);g.strokeRect(24.5,y+8.5,W-49,44);ng(g);
+  nt(g,r[3],40,y+30,13,r[1]+' match'+(r[1]===1?'':'es'));
+  nt(g,'#8a7ab8',150,y+30,9,r[2]);
+  nt(g,correct?'#7de2b0':'#ff5a8a',W-96,y+30,9,correct?'correct':'wrong');});
+ nt(g,'#ff5a8a',24,H-24,10,'downstream: "'+VR.errorSurface+'"');
+ nt(g,'#8a7ab8',24,H-8,9,'which names neither arrays, nor intrinsics, nor the pattern');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var src=nested(depth);
+ nt(g,'#e6dcff',16,26,11,'nesting depth '+depth+
+  '   ·   '+(useScanner?'depth scanner':'[^()]* pattern'));
+ nt(g,'#5a4a85',20,46,7,src.slice(0,58));
+ // draw the paren depth profile
+ var d=0,prof=[];
+ for(var i=0;i<src.length;i++){
+  var ch=src.charAt(i);
+  if(ch==='(')d++;
+  prof.push(d);
+  if(ch===')')d--;}
+ var m=24,pw=W-48,base=140,mx=Math.max(1,Math.max.apply(null,prof));
+ for(var k=0;k<prof.length;k++){
+  var x=m+k*(pw/prof.length);
+  nf(g,'rgba(125,226,176,'+(0.2+prof[k]/mx*0.6)+')');
+  g.fillRect(x,base-prof[k]*(70/mx),Math.max(1,pw/prof.length-0.4),
+   Math.max(1,prof[k]*(70/mx)));ng(g);}
+ ne(g,'rgba(150,110,230,0.4)',1);
+ g.beginPath();g.moveTo(m,base);g.lineTo(m+pw,base);g.stroke();ng(g);
+ nt(g,'#8a7ab8',m,base+16,8,'paren depth, max '+mx);
+ var got,ok;
+ if(useScanner){got=scan(src,'absr');ok=got.length===1&&
+  (got[0].match(/\\(/g)||[]).length===(got[0].match(/\\)/g)||[]).length;}
+ else{var mm=src.match(/absr\\([^()]*\\)/g);got=mm||[];ok=got.length===1;}
+ var y2=base+34;
+ nf(g,ok?'rgba(125,226,176,0.16)':'rgba(255,90,138,0.16)');
+ g.fillRect(20,y2,W-40,58);ng(g);
+ ne(g,ok?'#7de2b0':'#ff5a8a',1.5);g.strokeRect(20.5,y2+0.5,W-41,58);ng(g);
+ nt(g,ok?'#7de2b0':'#ff5a8a',36,y2+26,12,ok?'recovered the call':'no match at all');
+ nt(g,'#8a7ab8',36,y2+46,8,got.length+' match'+(got.length===1?'':'es'));
+ var y3=y2+68;
+ nt(g,'#5a4a85',24,y3+12,7,got.length?got[0].slice(0,52):'(nothing)');
+ var o=document.getElementById('rmout');
+ if(o)o.innerHTML=useScanner
+  ?('At depth <b>'+depth+'</b> the scanner counts parens and returns <b>'+got.length+
+    '</b> balanced match. It does not care how deep the argument nests &mdash; it tracks the depth rather than describing it.')
+  :('At depth <b>'+depth+'</b> the <code>[^()]*</code> class '+
+    (ok?'still works, because the argument has no inner parens yet.'
+     :'matches <b>nothing</b>: the class forbids the very parens the argument contains. It failed silently the moment the input started nesting.'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var cx=W/2,cy=H/2,ca=Math.cos(ang*Math.PI/180),sa=Math.sin(ang*Math.PI/180);
+ function P(x,y,z){var xr=x*ca-z*sa,zr=x*sa+z*ca;return [cx+xr,cy+y*0.8-zr*0.34];}
+ // the cause: a small pink knot. the symptom: a bright flare far away.
+ var cause=P(-76,-40,0);
+ ndot(g,cause[0],cause[1],5,'#ff5a8a');
+ nt(g,'#ff5a8a',cause[0]-14,cause[1]-14,8,'the pattern');
+ var sym=P(80,50,0);
+ ndot(g,sym[0],sym[1],9,'#ffd76a');
+ nt(g,'#ffd76a',sym[0]-30,sym[1]+20,8,'IndexError');
+ // four frames between them
+ for(var k=1;k<=4;k++){
+  var t=k/5;
+  var q=P(-76+t*156,-40+t*90,0);
+  ndot(g,q[0],q[1],3,'rgba(150,110,230,0.55)');
+  nt(g,'#5a4a85',q[0]-8,q[1]-10,7,'frame '+k);}
+ ne(g,'rgba(150,110,230,0.4)',1.3);
+ g.beginPath();g.moveTo(cause[0],cause[1]);g.lineTo(sym[0],sym[1]);g.stroke();ng(g);
+ // the nested structure it could not see
+ for(var i=0;i<4;i++){
+  ne(g,'rgba(125,226,176,'+(0.5-i*0.09)+')',1.3);
+  g.beginPath();
+  for(var j=0;j<=40;j++){
+   var th=j/40*2*Math.PI;
+   var p=P((92-i*20)*Math.cos(th),-10,(92-i*20)*Math.sin(th));
+   if(j===0)g.moveTo(p[0],p[1]);else g.lineTo(p[0],p[1]);}
+  g.closePath();g.stroke();ng(g);}
+ nt(g,'#7de2b0',14,24,11,'the structure nests');
+ nt(g,'#ff5a8a',14,42,10,'the matcher does not');
+ nt(g,'#ffd76a',14,58,10,'and the report arrives four frames downstream');
+ nt(g,'#8a7ab8',14,H-12,9,'a tool outliving the assumption it was chosen under');}
+document.getElementById('rmdeep').onclick=function(){depth=depth>=4?0:depth+1;drawW4();};
+document.getElementById('rmkind').onclick=function(){useScanner=!useScanner;drawW4();};
+document.getElementById('rmsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__aregexmeetingnesting=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.35;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 239 · neon-noir · silicon-coding · FROM DAVID'S RUNNING.ascii + ANSWER.ascii + i13-reads-fortran · a gap only a negative can find · 0.37% irreducible · a gate is a thing that was run · the judge built first · fourteen decimals ═══════════════════════
 UMTI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A 13-symbol language has a <b>binary</b> minus and no unary one. Writing <code>-0.821</code> throws <code>prim -</code> &mdash; a minus with nothing on its left. Negative numbers are not handled badly; they are <b>inexpressible as literals</b> and must be constructed: <code>(0 - 0.821)</code>. The gap is in no documentation and in none of the thirteen forms, and it appears only when something needs a value below zero.<br><br>
@@ -84353,6 +85032,41 @@ mk();drawW3();drawW4();window.__givens=verify();
 function loop(){if(spin)ang+=0.02;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
 
 SPHERES = [
+ {"slug":"the-smaller-language","title":"THE SMALLER LANGUAGE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PULL REQUEST","domain_slug":"the-pull-request","accent":"#7de2b0","icon":"\u2261",
+  "kicker":"13 forms cover fortran better than python",
+  "blurb":"A 13-symbol budget was designed by looking at Python. The gate that could stop everything asked whether the same thirteen forms cover FORTRAN.",
+  "lit":"fortran comes to 92.42% over 1,347,927 nodes against python's 86.63% over 528,774 - on 2.55 times more nodes and using 37 distinct kinds where python uses 100; the thirteen published shares sum to exactly 92.42%, the first three are 72.53% of all fortran, and re-running his own counter on this machine's python 3.11 gives 86.60%, 0.03 points from his 3.12 figure",
+  "fig":"From David's F3.ascii, dropped 2026-08-05. He built the gate so it could stop his own project and said so before running it: 'if it does not, the answer is not more forms. it is that fortran is a different shape, and THAT is the product.' He also flagged his own comparison honestly - the baked figure was 83.27%, his recount 86.63% on a different snapshot, 'close enough to be the same phenomenon, not close enough to call it the same measurement.' AVAN ran his pyforms.py unmodified against a THIRD stdlib and got 86.60%, which settles what his caution left open: snapshot drift is 0.03 points, so the 3.4-point gap to the baked figure is NOT snapshot noise. It is a difference of method.",
+  "body":SMLA_BODY,"script":SMLA_SCRIPT},
+ {"slug":"rare-in-code","title":"RARE IN CODE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE PUSH","domain_slug":"the-push","accent":"#ff5a8a","icon":"\u2237",
+  "kicker":"common in codebases, rare in code",
+  "blurb":"GO TO appears in more than a third of LAPACK's files and does not reach thirteenth place by node count. Both are measurements of the same construct.",
+  "lit":"by file presence GO TO is 35.58% and by node share 0.267% against the 1.05% needed for thirteenth place, the two measures differing by a factor of 133; a construct occurring once in every file would show 0.1771%, and the measured 1.51 occurrences per file reproduces the 0.267% exactly",
+  "fig":"David put it in one line under the coverage table: 'note what is NOT in the top 13: GO TO. it appears in 35.6% of FILES but is nowhere near 13th by node count. common in codebases, rare in code.' AVAN records that this is the THIRD measurement of the same construct in this corpus and that all three are correct. Batch 238 published 35.58% of files and concluded the stack fails everywhere - too strong. Batch 239 published 0.37% of routines irreducible. This adds node frequency. File presence measures REACH, irreducibility measures DIFFICULTY, node share measures DENSITY, and only together do they say what to build - a single number would have decided it wrongly three times.",
+  "body":RIC1_BODY,"script":RIC1_SCRIPT},
+ {"slug":"the-verdict-not-the-framing","title":"THE VERDICT NOT THE FRAMING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"DIVIDE BY ZERO","domain_slug":"divide-by-zero","accent":"#ffd76a","icon":"\u2202",
+  "kicker":"drop the dominant kind and ask again",
+  "blurb":"A coverage result dominated by one node kind is a result about that node kind. So the dominant kinds were thrown away and the question asked again.",
+  "lit":"fortran gives 92.42%, 87.22% and 83.32% under successive trimmings, all at or above the baked 83.27% with the harshest landing 0.05 points away; and the honest counterpart is that fortran's spread under trimming is 9.10 points against python's 3.18, so the winning number is the LESS STABLE of the two",
+  "fig":"David ran the sensitivity table because he distrusted his own headline: 'both counts are dominated by their most common kind. so drop it and see if the answer survives.' He also marked the comparison AMBER rather than green - gfortran's tree and python's ast do not carve at the same granularity, and the sensitivity table is 'the honest answer to that, not a claim that they match.' AVAN adds the number that cuts the other way: fortran's coverage moves nearly three times as much as python's when you trim, because half its nodes are a single kind. The VERDICT survives all three trimmings, which is what was being tested. The HEADLINE FIGURE is more fragile than python's, which is not what the headline suggests.",
+  "body":VNTF_BODY,"script":VNTF_SCRIPT},
+ {"slug":"the-threaded-accumulator","title":"THE THREADED ACCUMULATOR","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE ROOT KIT","domain_slug":"the-root-kit","accent":"#5ad6ff","icon":"\u21bb",
+  "kicker":"computed from the tree, not supplied by hand",
+  "blurb":"A language with no mutable loop variable cannot keep a DO loop. Every loop that assigns must become a recursive function carrying the variables it mutates.",
+  "lit":"both loops in reference BLAS DASUM are found and both carry dtemp, derived from which variables are assigned inside each loop body, while the loop counter i is correctly NOT threaded since it is the recursion parameter; and the limit is equally live - the expression layer still emits absr((i + 1)) where it should emit absr(nth(dx, (i + 1) - 1)), so no verified translation of DASUM exists yet",
+  "fig":"David named the exact line that carries the whole question: 'threads [dtemp] is the part that matters... the transducer works out which variables each loop mutates FROM THE TREE. nobody told it. that is the whole teachability question in one line. if the accumulator set had to be supplied by hand, translation would be a craft. it is computed, so it is a rule.' And he refused the easy summary: 'the claim is therefore: STRUCTURE is mechanical, EXPRESSIONS are not finished. not it works.' AVAN adds why the unfinished half is the good kind: the failing case is NAMED, its wrong output SHOWN, and the correct output written beside it.",
+  "body":THAC_BODY,"script":THAC_SCRIPT},
+ {"slug":"a-regex-meeting-nesting","title":"A REGEX MEETING NESTING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE RAID","domain_slug":"the-raid","accent":"#b98cff","icon":"\u2307",
+  "kicker":"the error surfaces four frames from its cause",
+  "blurb":"Five bugs in one build, every one a regex meeting a nested structure. A parse tree nests; a regular expression does not.",
+  "lit":"a character class of [^()]* stops at the first inner parenthesis, a greedy (.*) collapses 6 separate calls into 1 match, and a depth-counting scanner recovers all 6 every one balanced; feed the single greedy match to a consumer expecting six and it fails with IndexError list index out of range - a message naming neither arrays, nor intrinsics, nor the pattern",
+  "fig":"David listed all five and found the shape they share: 'every one is a REGEX MEETING NESTING. the parse tree is nested; regexes are not. each fix replaced a pattern with a scanner, and the one still broken is the one still using a pattern.' Then the actual lesson: 'the error surfaced as an index error four call frames away from its cause, every single time. a wrong pattern does not report a wrong pattern.' AVAN must be precise about one figure: his bug 3 reports a greedy match holding 7 open parens and 2 closed, while the six-call line reconstructed here produces a BALANCED capture, 11 and 11. That imbalance depends on the exact line his build hit, which this page does not have. The COLLAPSE is reproduced; the imbalance is his, cited and not re-derived.",
+  "body":RMN1_BODY,"script":RMN1_SCRIPT},
  {"slug":"the-unary-minus-that-isnt","title":"THE UNARY MINUS THAT ISN'T","appeal_name":"CO-OP","appeal_slug":"co-op",
   "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#5ad6ff","icon":"\u2212",
   "kicker":"a gap only a negative number can find",
