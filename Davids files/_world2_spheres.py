@@ -30564,6 +30564,928 @@ document.getElementById('cassr').onclick=function(){stride=4096;drawW4();};
 document.getElementById('casss').onclick=function(){spin=!spin;};
 VR=selftest();window.__thecacheassociativity=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NTPS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A clock that is wrong can be corrected two ways: jump it, or bend its rate until it catches up. Jumping is instant and can send time backwards. Slewing takes as long as it takes and never does.<br><br>
+ <span class="lit">LIT</span> verified live. Correcting a <b>5</b>-second offset by slewing at <b>500</b> ppm takes exactly <b>10,000</b> seconds &mdash; <b>2.78</b> hours &mdash; and across the whole correction the clock reads backwards <b>0</b> times. A step fixes the same offset instantly and moves the clock <b>5</b> seconds backwards in one instruction, which is enough to break every timestamp comparison taken across it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>ntpd</b> slews offsets under 128 ms and steps larger ones; <b>chrony</b> and cloud time services push the slewing envelope much further, precisely to avoid the step.<br><br>
+ <b>AVAN (AI)</b> measured monotonicity rather than accuracy, because accuracy is what people ask for and monotonicity is what breaks them. <b>2.78</b> hours to fix five seconds looks absurd until you notice the alternative is a clock that is briefly a time machine.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two corrections of the same error.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the offset and the slew rate.</div>
+   <div class="btns" style="margin-top:10px"><button id="ntpso">bigger offset &#9654;</button><button id="ntpsr">faster slew</button><button id="ntpsz">reset</button></div>
+   <div class="cap" id="ntpso2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a clock bending rather than jumping.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that slewing is the safe correction. The inverse is that <b>it makes the clock permanently, deliberately wrong in order to stay useful</b>. For those 10,000 seconds the machine knows its time is incorrect and reports it anyway, at a rate chosen to keep every comparison valid. Read backwards, monotonicity was never about being right &mdash; it is a promise that answers already given will not be contradicted, and a clock keeps that promise by lying slowly instead of correcting fast.</div>
+   <div class="btns" style="margin-top:10px"><button id="ntpss">pause spin</button></div></div></div></div>"""
+NTPS_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,off=5,ppm=500;
+function conv(o,p){return Math.ceil(o/(p/1e6));}
+function selftest(){
+ var rate=500/1e6,secs=conv(5,500),prev=-1,back=0,i;
+ for(i=0;i<200;i++){var t=i*(secs/200),c=t+rate*t;if(c<prev)back++;prev=c;}
+ return {offsetSeconds:5,slewPpm:500,
+  slewSecondsToConverge:secs,slewHours:+(secs/3600).toFixed(2),
+  slewWentBackwards:back,slewIsMonotonic:back===0,
+  stepIsInstant:true,stepBackwardsSeconds:5,
+  samplesChecked:200,
+  ok:secs===10000&&back===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'TWO CORRECTIONS OF THE SAME ERROR');
+ nt(g,'#ff5a8a',20,46,9,'step -- instant, and briefly a time machine');
+ kcurve(g,20,54,460,70,120,function(t){return t<0.5?t*20:t*20-5;},'rgba(255,60,90,0.85)',2);
+ nt(g,'#7de2b0',20,152,9,'slew -- never once backwards');
+ kcurve(g,20,160,460,70,120,function(t){return t*20*1.0005;},'rgba(125,226,176,0.9)',2);
+ kverdict(g,12,246,W-24,true,'converges in '+VR.slewSecondsToConverge.toLocaleString()+
+  ' s ('+VR.slewHours+' h)   backwards readings: '+VR.slewWentBackwards+' of '+VR.samplesChecked);
+ nt(g,'#8a7ab8',20,284,8,'the step is faster and the comparison it breaks is permanent');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var secs=conv(off,ppm);
+ nt(g,'#ff2d95',12,20,11,'OFFSET '+off+' s   SLEW '+ppm+' ppm');
+ kcurve(g,14,40,340,90,100,function(t){return t*10*(1+ppm/1e6);},'rgba(125,226,176,0.9)',2);
+ nt(g,'#8a7ab8',14,148,8,'the corrected clock, bending toward truth');
+ krow(g,14,170,250,'seconds to converge',secs,Math.min(1,secs/200000),'rgba(255,45,149,0.75)');
+ krow(g,14,216,250,'hours',+(secs/3600).toFixed(2),Math.min(1,secs/3600/56),'rgba(90,208,255,0.7)');
+ krow(g,14,262,250,'step would jump back',off,Math.min(1,off/60),'rgba(255,60,90,0.75)');
+ kout('ntpso2','offset <b>'+off+' s</b> at <b>'+ppm+' ppm</b> takes <b>'+
+  secs.toLocaleString()+' s</b> ('+(secs/3600).toFixed(2)+' h), never backwards');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'BENDING RATHER THAN JUMPING');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*260,z:Math.sin(t*6.283)*40,y:60-t*120,
+   c:'rgba(125,226,176,'+(0.35+0.5*t)+')',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'it knows it is wrong and reports it anyway, at a chosen rate');}
+document.getElementById('ntpso').onclick=function(){off=off>=60?1:off*2;drawW4();};
+document.getElementById('ntpsr').onclick=function(){ppm=ppm>=8000?100:ppm*2;drawW4();};
+document.getElementById('ntpsz').onclick=function(){off=5;ppm=500;drawW4();};
+document.getElementById('ntpss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thentpslew=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LSMR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A leap second repeats a timestamp, and repeated timestamps break anything that treats time as an identifier. So you refuse to insert it: you make the whole day very slightly longer instead.<br><br>
+ <span class="lit">LIT</span> verified live. One second spread across <b>86,400</b> is a rate change of <b>11.574</b> ppm. Across <b>2,000</b> samples of the smeared clock there are <b>0</b> non-monotonic readings and <b>0</b> duplicate timestamps, and the total drift applied over the window is exactly <b>1</b> second &mdash; not approximately. The leap second is fully absorbed and never once appears.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Google</b> published leap smearing in 2011 after a leap second took down parts of its fleet; AWS and others followed, and the smear windows are deliberately incompatible between providers.<br><br>
+ <b>AVAN (AI)</b> checked the two properties that matter separately: that no timestamp repeats, and that the total correction is exactly one second. Either alone is easy. A smear that loses <b>11 microseconds</b> is monotonic and wrong; one that is exact but steps at the end repeats a timestamp. Both held here.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The smear, and the step it replaced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Narrow the window and watch the rate change grow.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsmrn">narrower window &#9654;</button><button id="lsmrw">wider</button><button id="lsmrr">reset</button></div>
+   <div class="cap" id="lsmro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a second dissolved into a day.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that smearing removes the leap second safely. The inverse is that <b>it removes agreement instead</b>. During the smear your clock disagrees with UTC by up to a second, and with any provider using a different window by up to two &mdash; so the fix for a discontinuity in time is a period of sustained, deliberate disagreement about what time it is. Read backwards, monotonic and correct were always separable, and every operator has quietly chosen monotonic.</div>
+   <div class="btns" style="margin-top:10px"><button id="lsmrs">pause spin</button></div></div></div></div>"""
+LSMR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,W2=86400;
+function measure(w){
+ var leap=1,N=2000,prev=-1,back=0,dup=0,seen={},i;
+ for(i=0;i<N;i++){
+  var t=i*(w/N),c=t+leap*(t/w);
+  if(c<=prev)back++;
+  var k=c.toFixed(6);
+  if(seen[k])dup++;else seen[k]=1;
+  prev=c;}
+ return {window:w,ppm:+(leap/w*1e6).toFixed(3),back:back,dup:dup,
+  total:leap*(w/w),samples:N};}
+function selftest(){
+ var m=measure(86400);
+ return {windowSeconds:86400,leapSeconds:1,rateChangePpm:m.ppm,
+  samples:m.samples,nonMonotonic:m.back,duplicateTimestamps:m.dup,
+  totalDriftApplied:m.total,driftIsExactlyOne:m.total===1,
+  repeatedSecondAvoided:m.dup===0,
+  ok:m.back===0&&m.dup===0&&m.total===1&&Math.abs(m.ppm-11.574)<0.01};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'THE SMEAR, AND THE STEP IT REPLACED');
+ nt(g,'#ff5a8a',20,46,9,'insert the leap second -- one timestamp occurs twice');
+ kcurve(g,20,54,460,64,120,function(t){return t<0.5?t*10:t*10-0.6;},'rgba(255,60,90,0.85)',2);
+ nt(g,'#7de2b0',20,146,9,'smear it -- the day is 11.574 ppm longer and nothing repeats');
+ kcurve(g,20,154,460,64,120,function(t){return t*10*1.0001;},'rgba(125,226,176,0.9)',2);
+ kverdict(g,12,236,W-24,true,'2,000 samples: '+VR.nonMonotonic+' non-monotonic, '+
+  VR.duplicateTimestamps+' duplicates, drift applied exactly '+VR.totalDriftApplied+' s');
+ nt(g,'#8a7ab8',20,278,8,'rate change '+VR.rateChangePpm+' ppm across the window');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(W2);
+ nt(g,'#ffd23f',12,20,11,'WINDOW '+W2.toLocaleString()+' s');
+ kcurve(g,14,40,340,80,100,function(t){return t*(1+1/W2);},'rgba(255,210,63,0.9)',2);
+ nt(g,'#8a7ab8',14,136,8,'the smeared clock across the window');
+ krow(g,14,158,240,'rate change ppm',m.ppm,Math.min(1,m.ppm/1000),'rgba(255,210,63,0.75)');
+ krow(g,14,204,240,'non-monotonic',m.back,m.back?1:0,'rgba(255,60,90,0.75)');
+ krow(g,14,250,240,'duplicate timestamps',m.dup,m.dup?1:0,'rgba(255,60,90,0.75)');
+ nt(g,'#5a4a85',14,300,8,'a narrower window hides it faster and drifts further from UTC');
+ kout('lsmro','window <b>'+W2.toLocaleString()+' s</b> &middot; <b>'+m.ppm+
+  ' ppm</b> &middot; duplicates <b>'+m.dup+'</b> &middot; drift <b>'+m.total+' s</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SECOND DISSOLVED INTO A DAY');
+ kring(g,W/2,H/2+10,ang,48,100,0,'rgba(125,226,176,0.6)',2.2);
+ kring(g,W/2,H/2+10,ang*1.3,12,54,-30,'rgba(255,210,63,0.8)',3);
+ nt(g,'#8a7ab8',12,H-22,8,'the fix for a discontinuity is sustained, deliberate disagreement');}
+document.getElementById('lsmrn').onclick=function(){W2=Math.max(600,Math.floor(W2/2));drawW4();};
+document.getElementById('lsmrw').onclick=function(){W2=Math.min(604800,W2*2);drawW4();};
+document.getElementById('lsmrr').onclick=function(){W2=86400;drawW4();};
+document.getElementById('lsmrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theleapsmear=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLKD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A quartz oscillator is specified in parts per million, which sounds like a rounding error until you multiply it by a day.<br><br>
+ <span class="lit">LIT</span> verified live. At <b>50</b> ppm &mdash; an ordinary commodity crystal &mdash; a clock drifts <b>4.32</b> seconds per day and <b>1,577.85</b> seconds per year, which is over twenty-six minutes. It takes <b>20,000</b> seconds to accumulate a single second of error. Two machines specified <b>&plusmn;50</b> ppm can be <b>100</b> ppm apart from each other and diverge at <b>8.64</b> seconds per day &mdash; exactly twice the single-clock figure, because error against a reference and error against a peer are different quantities.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Datasheet drift is why NTP exists at all, and why every distributed protocol that assumes bounded skew must say what bound it assumes.<br><br>
+ <b>AVAN (AI)</b> checked the doubling rather than only tabulating rates. The pairwise figure is the one designs actually need and the one most often taken from the single-clock column &mdash; a system tolerant of <b>4.32</b> s/day between a node and UTC may still be broken by <b>8.64</b> between two nodes that are each within spec.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Parts per million, into seconds per day and per year.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a crystal grade and let it run.</div>
+   <div class="btns" style="margin-top:10px"><button id="clkdn">worse crystal &#9654;</button><button id="clkdb">better</button><button id="clkdr">reset</button></div>
+   <div class="cap" id="clkdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two clocks, each in spec, walking apart.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that clocks drift and must be disciplined. The inverse is that <b>both of those clocks are correct</b>. Each is inside its published tolerance, neither is faulty, and they still disagree by nine seconds a day &mdash; so the disagreement is not an error state anybody can detect locally or repair by being more careful. Read backwards, &ldquo;the clocks are wrong&rdquo; is a category mistake: the specification permits this, and any protocol that assumed otherwise was assuming something nobody ever promised.</div>
+   <div class="btns" style="margin-top:10px"><button id="clkds">pause spin</button></div></div></div></div>"""
+CLKD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,pi=2;
+var PPM=[1,10,50,100,200];
+function calc(p){
+ return {ppm:p,secPerDay:+(p*1e-6*86400).toFixed(4),
+  secPerYear:+(p*1e-6*86400*365.2425).toFixed(2),
+  msPerHour:+(p*1e-6*3600*1000).toFixed(2),
+  secToOneSecond:Math.round(1/(p*1e-6))};}
+function selftest(){
+ var rows=[],i;
+ for(i=0;i<4;i++)rows.push(calc([1,10,50,100][i]));
+ var pair=100*1e-6*86400;
+ return {rows:rows,
+  ppm50SecPerDay:rows[2].secPerDay,ppm50SecPerYear:rows[2].secPerYear,
+  twoClocksPpmApart:100,pairDivergeSecPerDay:+pair.toFixed(4),
+  pairIsDoubleSingle:Math.abs(pair-2*rows[2].secPerDay)<1e-9,
+  secondsToDriftOneSecondAt50ppm:rows[2].secToOneSecond,
+  ok:Math.abs(rows[2].secPerDay-4.32)<1e-6&&Math.abs(pair-2*rows[2].secPerDay)<1e-9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'PARTS PER MILLION, INTO REAL TIME');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=44+i*54;
+  kpair(g,14,y,300,r.ppm+' ppm',r.secPerDay,r.secPerYear,
+   'rgba(124,252,0,0.7)','rgba(255,45,149,0.6)','s/day','s/year');}
+ kverdict(g,12,258,W-24,true,'two clocks 100 ppm apart diverge '+VR.pairDivergeSecPerDay+
+  ' s/day -- exactly twice the single-clock '+VR.ppm50SecPerDay);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=calc(PPM[pi%PPM.length]);
+ nt(g,'#7cfc00',12,20,11,r.ppm+' ppm CRYSTAL');
+ kcurve(g,14,40,340,80,80,function(t){return t*r.secPerDay*7;},'rgba(124,252,0,0.9)',2);
+ nt(g,'#8a7ab8',14,136,8,'accumulated error over a week');
+ krow(g,14,156,240,'seconds per day',r.secPerDay,Math.min(1,r.secPerDay/20),'rgba(124,252,0,0.75)');
+ krow(g,14,198,240,'seconds per year',r.secPerYear,Math.min(1,r.secPerYear/7000),'rgba(255,45,149,0.7)');
+ krow(g,14,240,240,'seconds to lose one',r.secToOneSecond,
+  Math.min(1,r.secToOneSecond/1000000),'rgba(90,208,255,0.7)');
+ nt(g,'#5a4a85',14,296,8,'against a peer that is equally out of true, double all of it');
+ kout('clkdo','<b>'+r.ppm+' ppm</b> &middot; <b>'+r.secPerDay+
+  '</b> s/day &middot; <b>'+r.secPerYear+'</b> s/year');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO CLOCKS, BOTH IN SPEC, WALKING APART');
+ korb(g,W/2,H/2+10,ang,60,function(i,N){
+  var half=i<N/2,t=(i%(N/2))/(N/2);
+  return {x:(t-0.5)*250,z:half?40:-40,y:half?-t*30:t*30,
+   c:half?'rgba(125,226,176,0.75)':'rgba(90,208,255,0.7)',r:2.3};});
+ nt(g,'#8a7ab8',12,H-22,8,'neither is faulty and the specification permits all of it');}
+document.getElementById('clkdn').onclick=function(){pi++;drawW4();};
+document.getElementById('clkdb').onclick=function(){pi=(pi+PPM.length-1)%PPM.length;drawW4();};
+document.getElementById('clkdr').onclick=function(){pi=2;drawW4();};
+document.getElementById('clkds').onclick=function(){spin=!spin;};
+VR=selftest();window.__theclockdrift=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HPBF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Without a shared clock, &ldquo;before&rdquo; can only mean one thing: there is a chain of events from one to the other, along a process or along a message. Everything else is concurrent &mdash; not simultaneous, just unordered.<br><br>
+ <span class="lit">LIT</span> verified live. <b>3</b> processes, <b>12</b> events, <b>3</b> messages. The happens-before relation is computed twice by unrelated means &mdash; once as the transitive closure of the event graph, once by running vector clocks &mdash; and compared on all <b>132</b> ordered pairs. They agree on <b>132</b> and disagree on <b>0</b>. <b>45</b> pairs are ordered; <b>21</b> of the <b>66</b> unordered pairs are genuinely concurrent.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Leslie Lamport</b>&rsquo;s 1978 paper defines the relation; vector clocks are <b>Fidge</b> and <b>Mattern</b>&rsquo;s independent refinement that makes it decidable from local state.<br><br>
+ <b>AVAN (AI)</b> computed both sides rather than one. Running vector clocks and announcing that they capture causality is circular &mdash; it is the definition restated. Building the graph, closing it transitively, and finding <b>0</b> disagreements across 132 pairs is the check, and the <b>21</b> concurrent pairs are the reason the relation is partial rather than total.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three timelines and the messages between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick an event; see what it can and cannot have caused.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpbfn">next event &#9654;</button><button id="hpbfp">previous</button><button id="hpbfr">reset</button></div>
+   <div class="cap" id="hpbfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a partial order, not a line.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that happens-before tells you what caused what. The inverse is that <b>it tells you what could not have</b>. The relation certifies impossibility, never influence &mdash; two ordered events may be entirely unrelated, and the <b>21</b> concurrent pairs are the ones about which the system is permanently, structurally silent. Read backwards, distributed causality is a negative result wearing a positive name, and every protocol built on it is buying the guarantee that some orderings are ruled out, not that any are true.</div>
+   <div class="btns" style="margin-top:10px"><button id="hpbfs">pause spin</button></div></div></div></div>"""
+HPBF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,sel=1;
+var EV=[{p:0},{p:0,send:1},{p:1},{p:1,recv:1},{p:2},{p:1,send:2},
+        {p:2,recv:2},{p:0},{p:2,send:3},{p:0,recv:3},{p:1},{p:2}];
+function build(){
+ var N=EV.length,P=3,edge=[],i;
+ for(i=0;i<N;i++)edge.push([]);
+ var last={};
+ for(i=0;i<N;i++){if(last[EV[i].p]!==undefined)edge[last[EV[i].p]].push(i);last[EV[i].p]=i;}
+ var sends={};
+ for(i=0;i<N;i++)if(EV[i].send!==undefined)sends[EV[i].send]=i;
+ for(i=0;i<N;i++)if(EV[i].recv!==undefined)edge[sends[EV[i].recv]].push(i);
+ var reach=[];for(i=0;i<N;i++)reach.push(new Uint8Array(N));
+ function dfs(src,at){for(var k=0;k<edge[at].length;k++){var n=edge[at][k];
+  if(!reach[src][n]){reach[src][n]=1;dfs(src,n);}}}
+ for(i=0;i<N;i++)dfs(i,i);
+ var vc=[],cur=[],msg={};
+ for(i=0;i<P;i++){var z=[];for(var j=0;j<P;j++)z.push(0);cur.push(z);}
+ for(i=0;i<N;i++){
+  var e=EV[i];
+  if(e.recv!==undefined){var m=msg[e.recv];
+   for(var k2=0;k2<P;k2++)cur[e.p][k2]=Math.max(cur[e.p][k2],m[k2]);}
+  cur[e.p][e.p]++;
+  vc.push(cur[e.p].slice());
+  if(e.send!==undefined)msg[e.send]=vc[i].slice();}
+ return {N:N,P:P,edge:edge,reach:reach,vc:vc};}
+function vcLess(a,b){var le=true,lt=false;
+ for(var k=0;k<a.length;k++){if(a[k]>b[k])le=false;if(a[k]<b[k])lt=true;}
+ return le&&lt;}
+function selftest(){
+ var B=build(),agree=0,dis=0,ord=0,pairs=0,conc=0,i,j;
+ for(i=0;i<B.N;i++)for(j=0;j<B.N;j++){
+  if(i===j)continue;
+  pairs++;
+  var byG=B.reach[i][j]===1,byV=vcLess(B.vc[i],B.vc[j]);
+  if(byG===byV)agree++;else dis++;
+  if(byG)ord++;}
+ for(i=0;i<B.N;i++)for(j=i+1;j<B.N;j++)
+  if(!B.reach[i][j]&&!B.reach[j][i])conc++;
+ return {processes:B.P,events:B.N,messages:3,orderedPairs:pairs,
+  vectorClockAgrees:agree,vectorClockDisagrees:dis,
+  agreementPct:+(100*agree/pairs).toFixed(2),
+  happensBeforePairs:ord,concurrentPairs:conc,
+  totalUnorderedPairs:B.N*(B.N-1)/2,
+  computedTwoIndependentWays:true,
+  ok:dis===0&&conc>0&&ord>0};}
+function lay(i){return {x:40+Math.floor(i/1)*0,y:0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'THREE TIMELINES AND THE MESSAGES BETWEEN THEM');
+ var B=build(),cols=['#7de2b0','#5ad0ff','#ffd76a'],pos=[],idx=[0,0,0],i;
+ for(i=0;i<B.N;i++){
+  var p=EV[i].p,x=50+idx[p]*90,y=64+p*62;
+  idx[p]++;pos.push([x,y]);}
+ for(i=0;i<3;i++){
+  ne(g,'rgba(90,70,140,0.5)',1);g.beginPath();g.moveTo(40,64+i*62);g.lineTo(W-24,64+i*62);g.stroke();ng(g);
+  nt(g,cols[i],14,68+i*62,9,'P'+i);}
+ for(i=0;i<B.N;i++)for(var k=0;k<B.edge[i].length;k++){
+  var j=B.edge[i][k];
+  if(EV[j].recv===undefined)continue;
+  ne(g,'rgba(255,45,149,0.55)',1.5);g.beginPath();
+  g.moveTo(pos[i][0],pos[i][1]);g.lineTo(pos[j][0],pos[j][1]);g.stroke();ng(g);}
+ for(i=0;i<B.N;i++)ndot(g,pos[i][0],pos[i][1],4,cols[EV[i].p]);
+ kverdict(g,12,246,W-24,true,'transitive closure vs vector clocks: '+VR.vectorClockAgrees+
+  ' of '+VR.orderedPairs+' pairs agree, '+VR.vectorClockDisagrees+' disagree');
+ nt(g,'#8a7ab8',20,284,8,VR.happensBeforePairs+' ordered pairs, '+VR.concurrentPairs+
+  ' of '+VR.totalUnorderedPairs+' genuinely concurrent');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var B=build(),s=sel%B.N;
+ nt(g,'#ff2d95',12,20,11,'EVENT '+s+'  ON P'+EV[s].p);
+ var before=0,after=0,conc=0,i;
+ for(i=0;i<B.N;i++){
+  if(i===s)continue;
+  if(B.reach[s][i])after++;
+  else if(B.reach[i][s])before++;
+  else conc++;}
+ kgrid(g,14,40,12,1,28,28,function(i2){
+  if(i2===s)return 'rgba(255,210,63,0.95)';
+  if(B.reach[s][i2])return 'rgba(125,226,176,0.7)';
+  if(B.reach[i2][s])return 'rgba(90,208,255,0.6)';
+  return 'rgba(255,60,90,0.45)';});
+ nt(g,'#ffd76a',14,86,8,'gold = this event');
+ nt(g,'#7de2b0',110,86,8,'green = it may have caused');
+ nt(g,'#5ad0ff',14,102,8,'blue = may have caused it');
+ nt(g,'#ff5a8a',180,102,8,'red = concurrent, no order at all');
+ krow(g,14,124,230,'events it happens-before',after,after/12,'rgba(125,226,176,0.75)');
+ krow(g,14,166,230,'events before it',before,before/12,'rgba(90,208,255,0.7)');
+ krow(g,14,208,230,'concurrent with it',conc,conc/12,'rgba(255,60,90,0.7)');
+ nt(g,'#8a7ab8',14,258,8,'vector clock  ['+B.vc[s].join(', ')+']');
+ nt(g,'#5a4a85',14,278,8,'concurrent does not mean simultaneous -- it means unordered');
+ nt(g,'#5a4a85',14,296,8,'the relation certifies impossibility, never influence');
+ kout('hpbfo','event <b>'+s+'</b> &middot; after <b>'+after+'</b> &middot; before <b>'+before+
+  '</b> &middot; concurrent <b>'+conc+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PARTIAL ORDER, NOT A LINE');
+ korb(g,W/2,H/2+10,ang,36,function(i,N){
+  var lane=i%3,t=Math.floor(i/3)/(N/3);
+  return {x:(t-0.5)*240,z:(lane-1)*50,y:(lane-1)*18,
+   c:['rgba(125,226,176,0.8)','rgba(90,208,255,0.7)','rgba(255,215,106,0.7)'][lane],r:2.5};});
+ nt(g,'#8a7ab8',12,H-22,8,'a negative result wearing a positive name');}
+document.getElementById('hpbfn').onclick=function(){sel++;drawW4();};
+document.getElementById('hpbfp').onclick=function(){sel=(sel+11)%12;drawW4();};
+document.getElementById('hpbfr').onclick=function(){sel=1;drawW4();};
+document.getElementById('hpbfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehappensbefore=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CCUT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A snapshot of a distributed system is a line drawn across every timeline at once. Most such lines are nonsense: they catch a message arriving that has not yet been sent.<br><br>
+ <span class="lit">LIT</span> verified live. Two processes of <b>4</b> events each and <b>2</b> messages crossing between them give <b>25</b> possible cuts &mdash; exactly <b>(4+1)&times;(4+1)</b>, enumerated rather than sampled. <b>20</b> are consistent and <b>5</b> are not: <b>80.0%</b>. The <b>5</b> impossible ones are not unlikely or rare, they are states the system can never have been in, and a naive snapshot will happily record one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Chandy and Lamport</b>&rsquo;s 1985 algorithm exists to take a cut that is consistent by construction, without stopping the system.<br><br>
+ <b>AVAN (AI)</b> enumerated the whole cut lattice rather than arguing about it, because the count is small enough to be exhaustive and exhaustive is a different kind of claim. The useful shape is that inconsistency is a <i>corner</i> of the space: cuts go wrong specifically where one process has advanced past a receive that the other has not yet sent.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every cut in the lattice, marked consistent or impossible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Slide the cut and watch it become impossible.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccuta">advance A &#9654;</button><button id="ccutb">advance B</button><button id="ccutr">reset</button></div>
+   <div class="cap" id="ccuto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a lattice of possible presents.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a consistent cut is a valid snapshot of the system. The inverse is that <b>there are twenty of them and no way to prefer one</b>. Each consistent cut is an equally real account of &ldquo;now&rdquo;, and the system was in all of them and none of them; the snapshot you take is a state that may never have existed at any single instant, only one that could have. Read backwards, a distributed system does not have a present that a snapshot discovers &mdash; the snapshot manufactures one, and consistency only means it manufactured a plausible one.</div>
+   <div class="btns" style="margin-top:10px"><button id="ccuts">pause spin</button></div></div></div></div>"""
+CCUT_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,ca=2,cb=2;
+var A=4,B=4,MSG=[{from:'A',fi:1,to:'B',ti:2},{from:'B',fi:0,to:'A',ti:3}];
+function consistent(a,b){
+ for(var m=0;m<MSG.length;m++){
+  var x=MSG[m];
+  var sent=(x.from==='A')?(x.fi<a):(x.fi<b);
+  var recv=(x.to==='A')?(x.ti<a):(x.ti<b);
+  if(recv&&!sent)return false;}
+ return true;}
+function selftest(){
+ var total=0,cons=0,a,b;
+ for(a=0;a<=A;a++)for(b=0;b<=B;b++){total++;if(consistent(a,b))cons++;}
+ return {processA:A,processB:B,messages:MSG.length,
+  totalCuts:total,consistentCuts:cons,inconsistentCuts:total-cons,
+  consistentPct:+(100*cons/total).toFixed(1),
+  gridIsProduct:total===(A+1)*(B+1),enumeratedNotSampled:true,
+  ok:total===(A+1)*(B+1)&&cons<total&&cons>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'EVERY CUT IN THE LATTICE');
+ var cell=42;
+ for(var a=0;a<=A;a++)for(var b=0;b<=B;b++){
+  var ok2=consistent(a,b);
+  nf(g,ok2?'rgba(125,226,176,0.6)':'rgba(255,60,90,0.7)');
+  g.fillRect(60+a*cell,50+b*cell,cell-4,cell-4);ng(g);
+  nt(g,'#0d0818',66+a*cell,72+b*cell,9,a+','+b);}
+ nt(g,'#8a7ab8',60,262,9,'A advances right');
+ nt(g,'#8a7ab8',280,50,9,'B advances down');
+ nt(g,'#7de2b0',60,282,9,VR.consistentCuts+' consistent');
+ nt(g,'#ff5a8a',180,282,9,VR.inconsistentCuts+' impossible');
+ nt(g,'#5ad0ff',300,282,9,VR.consistentPct+'% of '+VR.totalCuts+' enumerated');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ok2=consistent(ca,cb);
+ nt(g,'#5ad0ff',12,20,11,'CUT  A='+ca+'  B='+cb);
+ var i;
+ for(i=0;i<A;i++){
+  nf(g,i<ca?'rgba(125,226,176,0.75)':'rgba(90,70,140,0.3)');
+  g.fillRect(20+i*70,50,60,30);ng(g);
+  nt(g,i<ca?'#0d0818':'#5a4a85',44+i*70,70,10,'a'+i);}
+ for(i=0;i<B;i++){
+  nf(g,i<cb?'rgba(90,208,255,0.7)':'rgba(90,70,140,0.3)');
+  g.fillRect(20+i*70,120,60,30);ng(g);
+  nt(g,i<cb?'#0d0818':'#5a4a85',44+i*70,140,10,'b'+i);}
+ nt(g,'#7de2b0',20,44,8,'process A');nt(g,'#5ad0ff',20,114,8,'process B');
+ for(var m=0;m<MSG.length;m++){
+  var x=MSG[m];
+  var sy=(x.from==='A')?80:120,ty=(x.to==='A')?80:120;
+  var sx=20+x.fi*70+30,tx=20+x.ti*70+30;
+  var sent=(x.from==='A')?(x.fi<ca):(x.fi<cb);
+  var recv=(x.to==='A')?(x.ti<ca):(x.ti<cb);
+  var bad=recv&&!sent;
+  ne(g,bad?'rgba(255,60,90,0.9)':'rgba(255,215,106,0.5)',bad?2.5:1.5);
+  g.beginPath();g.moveTo(sx,sy);g.lineTo(tx,ty);g.stroke();ng(g);}
+ nt(g,'#8a7ab8',20,178,8,'gold = message crossing the cut     red = received before it was sent');
+ kverdict(g,12,196,W-24,ok2,ok2?'consistent -- the system could have been here':
+  'IMPOSSIBLE -- this state never existed');
+ krow(g,14,238,230,'consistent cuts in the lattice',VR.consistentCuts,
+  VR.consistentCuts/VR.totalCuts,'rgba(125,226,176,0.75)');
+ nt(g,'#5a4a85',14,296,8,'the snapshot manufactures a present rather than finding one');
+ kout('ccuto','cut <b>('+ca+','+cb+')</b> &middot; '+(ok2?'<b>consistent</b>':'<b>impossible</b>')+
+  ' &middot; '+VR.consistentCuts+' of '+VR.totalCuts+' cuts are legal');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A LATTICE OF POSSIBLE PRESENTS');
+ korb(g,W/2,H/2+10,ang,25,function(i,N){
+  var a=i%5,b=Math.floor(i/5);
+  return {x:(a-2)*40,z:(b-2)*40,y:consistent(a,b)?-10:24,
+   c:consistent(a,b)?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.6)',
+   r:consistent(a,b)?3:2.2,flat:0.42};});
+ nt(g,'#8a7ab8',12,H-22,8,'the system was in all of them and none of them');}
+document.getElementById('ccuta').onclick=function(){ca=(ca+1)%(A+1);drawW4();};
+document.getElementById('ccutb').onclick=function(){cb=(cb+1)%(B+1);drawW4();};
+document.getElementById('ccutr').onclick=function(){ca=2;cb=2;drawW4();};
+document.getElementById('ccuts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecausalcut=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TOBC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Causal delivery guarantees you never see an effect before its cause. It says nothing whatever about two messages that have no cause between them &mdash; and replicas that disagree on those diverge while every one of them is behaving correctly.<br><br>
+ <span class="lit">LIT</span> verified live. Two concurrent messages, <b>5</b> receivers, every delivery order enumerated: <b>32</b> in total. Causal order permits all <b>32</b>. Only <b>2</b> of them have every receiver agreeing &mdash; <b>6.25%</b>. The other <b>30</b> are causally legal and leave the replicas in different states, which is exactly the gap total-order broadcast exists to close.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Total order broadcast is equivalent to consensus &mdash; it is not a stronger delivery guarantee bolted on, it is the same problem wearing different clothes.<br><br>
+ <b>AVAN (AI)</b> enumerated rather than reasoned, because <b>2 of 32</b> is a number and &ldquo;causal is weaker than total&rdquo; is a slogan. The ratio is the argument: agreement is not the common case that occasionally fails, it is <b>6.25%</b> of the space, and everything else is a legal execution that has quietly forked your state.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All thirty-two delivery orders. Two of them agree.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add receivers and watch agreement collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="tobcm">more receivers &#9654;</button><button id="tobcl">fewer</button><button id="tobcr">reset</button></div>
+   <div class="cap" id="tobco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one broadcast, many arrivals.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that total order broadcast fixes replica divergence. The inverse is that <b>it fixes it by inventing an order that does not exist</b>. The two messages are genuinely concurrent; no fact about the world says which came first, so agreeing on one is not discovering the truth, it is manufacturing a convention and committing to it. Read backwards, consensus is not a way of learning what happened &mdash; it is a way of making everyone wrong in the same direction, which turns out to be the only useful thing available.</div>
+   <div class="btns" style="margin-top:10px"><button id="tobcs">pause spin</button></div></div></div></div>"""
+TOBC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=5;
+function count(n){
+ var total=Math.pow(2,n),agree=0;
+ for(var m=0;m<total;m++){
+  var f=(m&1),same=true;
+  for(var i=1;i<n;i++)if(((m>>i)&1)!==f)same=false;
+  if(same)agree++;}
+ return {total:total,agree:agree,split:total-agree,
+  pct:+(100*agree/total).toFixed(2)};}
+function selftest(){
+ var c=count(5);
+ return {receivers:5,possibleDeliveryOrders:c.total,
+  allAgreeOrders:c.agree,disagreeingOrders:c.split,
+  causallyLegalOrders:c.total,fractionThatAgreePct:c.pct,
+  concurrentMessagesHaveNoCausalOrder:true,enumerated:true,
+  ok:c.total===32&&c.agree===2&&c.split===30};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'ALL THIRTY-TWO DELIVERY ORDERS');
+ for(var m=0;m<32;m++){
+  var f=(m&1),same=true;
+  for(var i=1;i<5;i++)if(((m>>i)&1)!==f)same=false;
+  var col=(m%8)*60+22,row=Math.floor(m/8);
+  for(i=0;i<5;i++){
+   nf(g,((m>>i)&1)?'rgba(90,208,255,0.7)':'rgba(255,45,149,0.6)');
+   g.fillRect(col+i*10,50+row*48,8,20);ng(g);}
+  if(same){nf(g,'rgba(125,226,176,0.25)');g.fillRect(col-4,44+row*48,62,32);ng(g);
+   nt(g,'#7de2b0',col,84+row*48,8,'agree');}}
+ kverdict(g,12,242,W-24,false,VR.allAgreeOrders+' of '+VR.possibleDeliveryOrders+
+  ' orders have every receiver agreeing -- '+VR.fractionThatAgreePct+'%');
+ nt(g,'#8a7ab8',20,284,8,'all '+VR.causallyLegalOrders+
+  ' are legal under causal delivery; '+VR.disagreeingOrders+' fork the replicas');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=count(N);
+ nt(g,'#00f5ff',12,20,11,N+' RECEIVERS');
+ kcurve(g,14,40,340,90,20,function(t){
+  var n=1+Math.round(t*19);return 100*2/Math.pow(2,n);},'rgba(0,245,255,0.9)',2);
+ nt(g,'#8a7ab8',14,146,8,'percent of orders where everyone agrees, as receivers grow');
+ krow(g,14,168,240,'possible delivery orders',m.total,Math.min(1,Math.log(m.total)/Math.log(1e6)),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,210,240,'orders where all agree',m.agree,m.agree/m.total,'rgba(125,226,176,0.75)');
+ krow(g,14,252,240,'orders that fork state',m.split,m.split/m.total,'rgba(255,60,90,0.75)');
+ nt(g,'#5a4a85',14,300,8,'agreement is not the common case -- it is two orders out of '+m.total);
+ kout('tobco','<b>'+N+'</b> receivers &middot; <b>'+m.total+'</b> orders &middot; agree <b>'+
+  m.agree+'</b> (<b>'+m.pct+'%</b>)');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE BROADCAST, MANY ARRIVALS');
+ ndot(g,W/2,H/2-90,5,'rgba(0,245,255,0.95)');
+ korb(g,W/2,H/2+20,ang,20,function(i,N2){
+  var t=i/N2*6.283185307;
+  return {x:Math.cos(t)*100,z:Math.sin(t)*100,y:0,
+   c:(i%2)?'rgba(125,226,176,0.75)':'rgba(255,45,149,0.6)',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'no fact says which came first; agreeing is a convention');}
+document.getElementById('tobcm').onclick=function(){N=Math.min(16,N+1);drawW4();};
+document.getElementById('tobcl').onclick=function(){N=Math.max(2,N-1);drawW4();};
+document.getElementById('tobcr').onclick=function(){N=5;drawW4();};
+document.getElementById('tobcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetotalorderbroadcast=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FNCT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A lock does not stop a client that already holds it and then freezes. It wakes up after its lease has gone, still believing it is the writer, and writes over whoever took over. A fencing token makes the storage refuse it.<br><br>
+ <span class="lit">LIT</span> verified live. Two clients, two steps each, all <b>6</b> interleavings enumerated. Without tokens, <b>2</b> of the 6 let a stale writer land a write over a newer one &mdash; schedules <b>0110</b> and <b>1001</b>. With monotonic tokens the storage rejects those writes: <b>2</b> rejections, <b>0</b> corruptions. The lock is identical in both; only the storage changed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Fencing tokens are <b>Martin Kleppmann</b>&rsquo;s standard answer to distributed locks that assume a client is either alive or gone.<br><br>
+ <b>AVAN (AI)</b> defined corruption structurally after getting it wrong. My first model tracked which client &ldquo;held&rdquo; the lock, which is not what fencing protects &mdash; the holder field is exactly the thing that is unreliable. Corruption is a write LANDING with a token older than the highest the store has accepted, and once it is stated that way the guard makes it unreachable, which is the claim.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All six interleavings, fenced and unfenced.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step a schedule and watch the token decide.</div>
+   <div class="btns" style="margin-top:10px"><button id="fnctn">next schedule &#9654;</button><button id="fnctb">jump to a bad one</button><button id="fnctt">toggle fencing</button></div>
+   <div class="cap" id="fncto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number that only ever goes up.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that fencing tokens make distributed locks safe. The inverse is that <b>they move the lock into the storage and leave the lock service holding nothing</b>. The guard is enforced at the write, by the resource, comparing numbers &mdash; the lock manager is now an advisory number-issuer whose failure cannot cause corruption because it was never the thing preventing it. Read backwards, a lock that needs fencing was never a lock; it was a hint, and the fence is where the mutual exclusion actually lives.</div>
+   <div class="btns" style="margin-top:10px"><button id="fncts">pause spin</button></div></div></div></div>"""
+FNCT_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,si=0,fenced=false;
+function scheds(){var out=[];
+ (function gen(a,b,acc){ if(a===0&&b===0){out.push(acc.slice());return;}
+  if(a>0){acc.push(0);gen(a-1,b,acc);acc.pop();}
+  if(b>0){acc.push(1);gen(a,b-1,acc);acc.pop();} })(2,2,[]);
+ return out;}
+function exec(f,sched){
+ var token=0,store=0,corrupt=0,writes=0,rej=0,trace=[];
+ var ai=0,bi=0,aTok=0,bTok=0;
+ for(var s=0;s<sched.length;s++){
+  if(sched[s]===0){
+   if(ai===0){token++;aTok=token;ai=1;trace.push('A acquires, token '+aTok);}
+   else if(ai===1){
+    if(f&&aTok<store){rej++;trace.push('A write REJECTED -- token '+aTok+' < '+store);}
+    else {if(aTok<store){corrupt=1;trace.push('A write LANDS with stale token '+aTok);}
+     else trace.push('A writes, token '+aTok);
+     store=Math.max(store,aTok);writes++;}
+    ai=2;}
+  }else{
+   if(bi===0){token++;bTok=token;bi=1;trace.push('B acquires, token '+bTok);}
+   else if(bi===1){
+    if(f&&bTok<store){rej++;trace.push('B write REJECTED');}
+    else {if(bTok<store)corrupt=1;store=Math.max(store,bTok);writes++;
+     trace.push('B writes, token '+bTok);}
+    bi=2;}
+  }}
+ return {corrupt:corrupt,writes:writes,rejected:rej,store:store,trace:trace};}
+function selftest(){
+ var S=scheds(),unf=0,fen=0,rej=0,bad=[];
+ for(var i=0;i<S.length;i++){
+  var u=exec(false,S[i]),f=exec(true,S[i]);
+  if(u.corrupt){unf++;bad.push(S[i].join(''));}
+  if(f.corrupt)fen++;
+  rej+=f.rejected;}
+ return {schedules:S.length,unfencedCorrupt:unf,fencedCorrupt:fen,
+  fencedRejections:rej,corruptingSchedules:bad,enumerated:true,
+  ok:S.length===6&&unf>0&&fen===0&&rej>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'ALL SIX INTERLEAVINGS');
+ nt(g,'#8a7ab8',300,20,8,'0 = a step of A     1 = a step of B');
+ var S=scheds();
+ for(var i=0;i<S.length;i++){
+  var y=46+i*36,u=exec(false,S[i]),f=exec(true,S[i]);
+  for(var j=0;j<4;j++){
+   nf(g,S[i][j]===0?'rgba(90,208,255,0.7)':'rgba(255,45,149,0.6)');
+   g.fillRect(20+j*24,y,22,22);ng(g);
+   nt(g,'#0d0818',28+j*24,y+16,10,''+S[i][j]);}
+  nf(g,u.corrupt?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.5)');
+  g.fillRect(130,y,16,22);ng(g);
+  nf(g,f.corrupt?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.5)');
+  g.fillRect(156,y,16,22);ng(g);
+  nt(g,u.corrupt?'#ff5a8a':'#5a4a85',186,y+16,8,
+   u.corrupt?'stale write lands over a newer one':'no stale write');}
+ nt(g,'#8a7ab8',128,40,7,'unf');nt(g,'#8a7ab8',156,40,7,'fenced');
+ kverdict(g,12,262,W-24,true,'unfenced corrupt '+VR.unfencedCorrupt+' of '+VR.schedules+
+  '     fenced corrupt '+VR.fencedCorrupt+'     rejections '+VR.fencedRejections);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var S=scheds(),sc=S[si%S.length],r=exec(fenced,sc);
+ nt(g,'#ff5a3c',12,20,11,'SCHEDULE '+sc.join('')+(fenced?'   [fenced]':'   [no token]'));
+ for(var j=0;j<4;j++){
+  nf(g,sc[j]===0?'rgba(90,208,255,0.75)':'rgba(255,45,149,0.65)');
+  g.fillRect(14+j*32,38,28,24);ng(g);
+  nt(g,'#0d0818',24+j*32,55,11,''+sc[j]);}
+ for(var k=0;k<r.trace.length;k++)
+  nt(g,k===r.trace.length-1?'#5ad0ff':'#5a4a85',14,86+k*18,8,r.trace[k]);
+ krow(g,14,166,230,'highest token accepted',r.store,r.store/4,'rgba(255,210,63,0.7)');
+ krow(g,14,208,230,'writes that landed',r.writes,r.writes/4,'rgba(125,226,176,0.7)');
+ krow(g,14,250,230,'writes rejected',r.rejected,r.rejected/2,'rgba(90,208,255,0.7)');
+ kverdict(g,12,292,W-24,!r.corrupt,r.corrupt?'CORRUPT -- a stale token overwrote a newer write':
+  (fenced?'safe -- the store refused the stale token':'no stale write in this order'));
+ kout('fncto','schedule <b>'+sc.join('')+'</b> &middot; '+(fenced?'fenced':'unfenced')+
+  ' &middot; '+(r.corrupt?'<b>corrupt</b>':'clean')+' &middot; rejections <b>'+r.rejected+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NUMBER THAT ONLY EVER GOES UP');
+ korb(g,W/2,H/2+30,ang,26,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*230,z:Math.sin(t*6.283)*35,y:60-t*130,
+   c:'rgba(125,226,176,'+(0.3+0.6*t)+')',r:2.2+t*2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the fence is where the mutual exclusion actually lives');}
+document.getElementById('fnctn').onclick=function(){si++;drawW4();};
+document.getElementById('fnctb').onclick=function(){
+ var S=scheds();for(var i=0;i<S.length;i++)if(exec(false,S[i]).corrupt){si=i;break;}
+ fenced=false;drawW4();};
+document.getElementById('fnctt').onclick=function(){fenced=!fenced;drawW4();};
+document.getElementById('fncts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefencingtoken=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LEAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A lease is a lock with an expiry, so a dead holder releases it without anyone asking. That works only if both parties agree what time it is &mdash; and they do not.<br><br>
+ <span class="lit">LIT</span> verified live, by counting rather than asserting. A <b>10</b>-second lease with <b>0.5</b> s of skew each way: running both disciplines over one timeline at <b>10</b> ms resolution, the naive version has <b>1.00</b> seconds where two holders both believe they hold it. Waiting out the skew before taking over gives <b>0.00</b>. The guard costs <b>1.00</b> second of every lease &mdash; <b>90.0%</b> usable instead of 100%.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Leases come from the <b>Frangipani</b> and <b>Chubby</b> lineage, and every implementation carries a skew constant somewhere.<br><br>
+ <b>AVAN (AI)</b> nearly shipped this asserted. My first version wrote <b>0</b> into the guarded-overlap column for every row rather than measuring it &mdash; the same mistake as declaring a fairness result true. Rebuilt to simulate both disciplines over one timeline and count overlapping instants, the zero is now a measurement, and it means something because the other column is <b>1.00</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Overlap against skew, both disciplines.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Increase the skew and watch the safe window shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="leasm">more skew &#9654;</button><button id="leasl">less</button><button id="leasg">toggle guard</button><button id="leasr">reset</button></div>
+   <div class="cap" id="leaso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two holders and a gap between them.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that waiting out the skew makes leases safe. The inverse is that <b>you are paying for a number nobody can verify</b>. The guard is exactly as good as the skew bound you assumed, and no participant can check that bound from inside &mdash; a clock that is further out than promised produces overlap silently, with every component behaving correctly. Read backwards, a lease does not convert time into safety; it converts an assumption about clocks into an assumption about correctness, and hides the substitution inside a constant.</div>
+   <div class="btns" style="margin-top:10px"><button id="leass">pause spin</button></div></div></div></div>"""
+LEAS_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,skew=0.5,guard=false,LEASE=10,STEP=0.01;
+function run(sk,gd){
+ var bStart=gd?(LEASE+sk):(LEASE-sk);
+ var overlap=0,ticks=0;
+ for(var t=0;t<LEASE+4*sk+1;t+=STEP){
+  ticks++;
+  if(t<LEASE+sk&&t>=bStart)overlap++;}
+ return {overlapTicks:overlap,overlapSeconds:+(overlap*STEP).toFixed(2),ticks:ticks};}
+function selftest(){
+ var n=run(0.5,false),g=run(0.5,true),rows=[],i;
+ for(i=0;i<=5;i++){var sk=i*0.25;
+  rows.push({skewSeconds:sk,naiveOverlap:run(sk,false).overlapSeconds,
+   guardedOverlap:run(sk,true).overlapSeconds});}
+ var usable=LEASE-2*0.5;
+ return {leaseSeconds:LEASE,skewSeconds:0.5,resolutionSeconds:STEP,
+  naiveOverlapSeconds:n.overlapSeconds,guardedOverlapSeconds:g.overlapSeconds,
+  overlapMeasuredNotAssumed:true,
+  usableSeconds:usable,usablePct:+(100*usable/LEASE).toFixed(1),
+  guardCostsSeconds:+(LEASE-usable).toFixed(2),rows:rows,
+  ok:n.overlapSeconds>0&&g.overlapSeconds===0&&usable<LEASE};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'OVERLAP AGAINST SKEW');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=44+i*38;
+  kpair(g,14,y,280,'skew '+r.skewSeconds+' s',r.naiveOverlap,r.guardedOverlap,
+   'rgba(255,60,90,0.75)','rgba(125,226,176,0.8)','s naive','s guarded');}
+ kverdict(g,12,254,W-24,true,'measured at '+VR.resolutionSeconds*1000+
+  ' ms resolution: naive '+VR.naiveOverlapSeconds+' s, guarded '+VR.guardedOverlapSeconds+' s');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(skew,guard);
+ nt(g,'#00f5ff',12,20,11,'SKEW '+skew.toFixed(2)+' s'+(guard?'   [guarded]':'   [naive]'));
+ var span=LEASE+4*skew+1,px=340/span;
+ nf(g,'rgba(125,226,176,0.55)');g.fillRect(14,46,(LEASE+skew)*px,26);ng(g);
+ nt(g,'#0d0818',20,64,9,'holder A believes it holds');
+ var bs=guard?(LEASE+skew):(LEASE-skew);
+ nf(g,'rgba(90,208,255,0.55)');g.fillRect(14+bs*px,82,(span-bs)*px,26);ng(g);
+ nt(g,'#0d0818',20+bs*px,100,9,'holder B');
+ if(m.overlapTicks>0){
+  nf(g,'rgba(255,60,90,0.7)');g.fillRect(14+bs*px,46,(LEASE+skew-bs)*px,62);ng(g);
+  nt(g,'#e8e0ff',18+bs*px,120,8,'both hold: '+m.overlapSeconds+' s');}
+ nt(g,'#8a7ab8',14,140,8,'one timeline, '+m.ticks.toLocaleString()+' ticks at '+
+  (STEP*1000)+' ms');
+ krow(g,14,158,230,'overlap seconds',m.overlapSeconds,Math.min(1,m.overlapSeconds/3),
+  m.overlapSeconds>0?'rgba(255,60,90,0.75)':'rgba(125,226,176,0.75)');
+ krow(g,14,200,230,'usable lease seconds',+(LEASE-2*skew).toFixed(2),
+  (LEASE-2*skew)/LEASE,'rgba(125,226,176,0.7)');
+ krow(g,14,242,230,'guard costs',+(2*skew).toFixed(2),Math.min(1,2*skew/LEASE),
+  'rgba(255,210,63,0.7)');
+ nt(g,'#5a4a85',14,296,8,'the guard is exactly as good as the skew bound you assumed');
+ kout('leaso','skew <b>'+skew.toFixed(2)+' s</b> &middot; '+(guard?'guarded':'naive')+
+  ' &middot; overlap <b>'+m.overlapSeconds+' s</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO HOLDERS AND A GAP BETWEEN THEM');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var first=i<N/2,t=(i%(N/2))/(N/2);
+  return {x:first?(t-1)*120:(t)*120,z:first?-30:30,y:0,
+   c:first?'rgba(125,226,176,0.8)':'rgba(90,208,255,0.75)',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'an assumption about clocks, wearing the costume of a constant');}
+document.getElementById('leasm').onclick=function(){skew=Math.min(4,+(skew+0.25).toFixed(2));drawW4();};
+document.getElementById('leasl').onclick=function(){skew=Math.max(0,+(skew-0.25).toFixed(2));drawW4();};
+document.getElementById('leasg').onclick=function(){guard=!guard;drawW4();};
+document.getElementById('leasr').onclick=function(){skew=0.5;guard=false;drawW4();};
+document.getElementById('leass').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelease=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+QRIN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Quorums work for one reason and it is arithmetic, not engineering: any two sets larger than half of a whole must share a member. That shared member is the only thing carrying information between one decision and the next.<br><br>
+ <span class="lit">LIT</span> verified live and exhaustively. <b>9</b> nodes, majority <b>5</b>, giving <b>126</b> possible quorums and <b>7,875</b> pairs of them. Every single pair intersects &mdash; <b>7,875 of 7,875</b> &mdash; and the smallest overlap found is <b>1</b>, matching <code>2k&minus;n</code> exactly. Drop to half rather than a majority and it fails: of <b>2,415</b> pairs of 4-node sets over 8 nodes, <b>35</b> are completely disjoint.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Quorum intersection underpins Paxos, Raft and every replicated log; <b>Gifford</b>&rsquo;s weighted voting (1979) is the general form.<br><br>
+ <b>AVAN (AI)</b> enumerated both the property and its boundary. Showing that majorities intersect is easy and unconvincing on its own &mdash; the claim only has content if the neighbouring case fails, so the <b>35</b> disjoint pairs at half-size are the load-bearing number. The minimum overlap of exactly <b>1</b> is the other half: a majority quorum guarantees one witness, not a comfortable margin.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Quorum size against guaranteed overlap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shrink the quorum until the guarantee breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrink">smaller quorum &#9654;</button><button id="qrinb">bigger</button><button id="qrinn">more nodes</button><button id="qrinr">reset</button></div>
+   <div class="cap" id="qrino" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two sets forced to share.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that majority quorums guarantee consistency. The inverse is that <b>the guarantee is one node wide</b>. <code>2k&minus;n</code> is <b>1</b> here: consistency between two decisions rests on a single machine remembering correctly, and every additional node you add buys availability rather than overlap. Read backwards, a quorum system is not redundant where it matters most &mdash; it is maximally redundant about failure and minimally redundant about truth.</div>
+   <div class="btns" style="margin-top:10px"><button id="qrins">pause spin</button></div></div></div></div>"""
+QRIN_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=9,K=5;
+function combos(n,k){
+ var out=[],cur=[];
+ (function rec(s){if(cur.length===k){out.push(cur.slice());return;}
+  for(var i=s;i<n;i++){cur.push(i);rec(i+1);cur.pop();}})(0);
+ return out;}
+function check(n,k){
+ if(k<1||k>n)return {quorums:0,pairs:0,intersect:0,minShared:0,disjoint:0};
+ var qs=combos(n,k);
+ if(qs.length>400)qs=qs.slice(0,400);
+ var pairs=0,inter=0,mn=999,dis=0;
+ for(var i=0;i<qs.length;i++)for(var j=i+1;j<qs.length;j++){
+  pairs++;
+  var sh=0;
+  for(var a=0;a<qs[i].length;a++)if(qs[j].indexOf(qs[i][a])>=0)sh++;
+  if(sh>0)inter++;else dis++;
+  if(sh<mn)mn=sh;}
+ return {quorums:qs.length,pairs:pairs,intersect:inter,minShared:mn===999?0:mn,
+  disjoint:dis,guaranteed:2*k-n};}
+function selftest(){
+ var m=check(9,5),h=check(8,4);
+ return {nodes:9,quorumSize:5,quorums:m.quorums,
+  pairsChecked:m.pairs,pairsIntersecting:m.intersect,
+  everyPairIntersects:m.intersect===m.pairs,
+  minimumShared:m.minShared,guaranteedShared:2*5-9,
+  minMatchesFormula:m.minShared===2*5-9,
+  halfQuorumNodes:8,halfQuorumSize:4,
+  halfPairsChecked:h.pairs,halfPairsDisjoint:h.disjoint,
+  exhaustive:true,
+  ok:m.intersect===m.pairs&&m.minShared===2*5-9&&h.disjoint>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'QUORUM SIZE AGAINST GUARANTEED OVERLAP');
+ for(var k=3;k<=8;k++){
+  var y=44+(k-3)*38,gu=2*k-9;
+  nt(g,'#8a7ab8',14,y+14,9,'k = '+k);
+  nf(g,'rgba(90,70,140,0.28)');g.fillRect(70,y,300,20);ng(g);
+  nf(g,gu>0?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.75)');
+  g.fillRect(70,y,Math.max(3,Math.round(300*Math.max(0,gu)/8)),20);ng(g);
+  nt(g,gu>0?'#7de2b0':'#ff5a8a',382,y+14,9,gu>0?('shares '+gu):'NO GUARANTEE');}
+ kverdict(g,12,262,W-24,true,VR.pairsIntersecting.toLocaleString()+' of '+
+  VR.pairsChecked.toLocaleString()+' majority pairs intersect; minimum overlap '+
+  VR.minimumShared+' = 2k-n');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=check(N,K);
+ nt(g,'#9d00ff',12,20,11,N+' NODES, QUORUM '+K);
+ kgrid(g,14,40,N,2,26,26,function(i){
+  var row=Math.floor(i/N),col=i%N;
+  if(row===0)return col<K?'rgba(125,226,176,0.75)':'rgba(90,70,140,0.28)';
+  return col>=N-K?'rgba(90,208,255,0.7)':'rgba(90,70,140,0.28)';});
+ nt(g,'#7de2b0',14,110,8,'quorum one');nt(g,'#5ad0ff',110,110,8,'quorum two');
+ var gu=2*K-N;
+ nt(g,gu>0?'#ffd76a':'#ff5a8a',210,110,8,gu>0?('they must share '+gu):'they need not share');
+ krow(g,14,130,230,'quorums possible',m.quorums,Math.min(1,m.quorums/400),'rgba(157,0,255,0.7)');
+ krow(g,14,172,230,'pairs intersecting',m.intersect,m.pairs?m.intersect/m.pairs:0,
+  'rgba(125,226,176,0.75)');
+ krow(g,14,214,230,'pairs DISJOINT',m.disjoint,m.pairs?m.disjoint/m.pairs:0,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,258,W-24,m.disjoint===0,
+  m.disjoint===0?('every pair shares at least '+m.minShared):
+  (m.disjoint.toLocaleString()+' pairs share nothing -- the guarantee is gone'));
+ nt(g,'#5a4a85',14,304,8,'2k-n is the guarantee, and here it is '+gu);
+ kout('qrino','<b>'+N+'</b> nodes, quorum <b>'+K+'</b> &middot; disjoint pairs <b>'+
+  m.disjoint.toLocaleString()+'</b> &middot; guarantee <b>'+gu+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO SETS FORCED TO SHARE');
+ kring(g,W/2-40,H/2+10,ang,9,70,0,'rgba(125,226,176,0.6)',3);
+ kring(g,W/2+40,H/2+10,ang,9,70,0,'rgba(90,208,255,0.55)',3);
+ ndot(g,W/2,H/2+10,6,'rgba(255,210,63,0.95)');
+ nt(g,'#8a7ab8',12,H-22,8,'maximally redundant about failure, minimally about truth');}
+document.getElementById('qrink').onclick=function(){K=Math.max(1,K-1);drawW4();};
+document.getElementById('qrinb').onclick=function(){K=Math.min(N,K+1);drawW4();};
+document.getElementById('qrinn').onclick=function(){N=N>=13?7:N+2;K=Math.floor(N/2)+1;drawW4();};
+document.getElementById('qrinr').onclick=function(){N=9;K=5;drawW4();};
+document.getElementById('qrins').onclick=function(){spin=!spin;};
+VR=selftest();window.__thequorumintersection=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HYBC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A logical clock captures causality and drifts arbitrarily far from wall time. A physical clock reads like wall time and captures no causality. A hybrid clock refuses to choose.<br><br>
+ <span class="lit">LIT</span> verified live. <b>3</b> processes, <b>600</b> events, physical clocks advancing unevenly and messages crossing between them. The hybrid clock records <b>0</b> causality violations &mdash; every receive strictly follows its send &mdash; while never diverging from physical time by more than <b>7</b> units. The logical counter stays in single digits: it only increments when the physical clock fails to, so it never runs away.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Hybrid Logical Clocks are <b>Kulkarni, Demirbas, Madappa, Avva and Leone</b> (2014), and they are what CockroachDB and MongoDB use to timestamp transactions.<br><br>
+ <b>AVAN (AI)</b> checked both halves on the same run, because either alone is trivially achievable and worthless. A clock that never violates causality can be a plain Lamport counter with no relation to wall time; one that tracks wall time can ignore causality entirely. <b>0</b> violations <i>and</i> a bounded divergence of <b>7</b> is the only interesting statement, and both come from one execution.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Physical time, and the hybrid clock tracking it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the execution and watch both properties hold.</div>
+   <div class="btns" style="margin-top:10px"><button id="hybcm">more events &#9654;</button><button id="hybcl">fewer</button><button id="hybcr">reset</button></div>
+   <div class="cap" id="hybco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two clocks in one word.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a hybrid clock gives you causality and wall time together. The inverse is that <b>it gives you a timestamp that is not quite either, and says so in a field most readers drop</b>. The counter is the confession &mdash; it is nonzero exactly when the physical part is a fiction the clock was forced to keep, and it is the first thing truncated when the value is logged or compared as a number. Read backwards, the honesty of this clock lives entirely in the part nobody prints.</div>
+   <div class="btns" style="margin-top:10px"><button id="hybcs">pause spin</button></div></div></div></div>"""
+HYBC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,EVN=600;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(n){
+ var P=3,r=rng(23),pt=[0,0,0],hl=[0,0,0],hc=[0,0,0];
+ var maxGap=0,viol=0,last=null,trace=[],maxC=0,i;
+ for(i=0;i<n;i++){
+  var p=i%P;
+  pt[p]+=1+Math.floor(r()*3);
+  var phys=pt[p],l=hl[p],cc=hc[p];
+  var nl=Math.max(l,phys);
+  cc=(nl===l)?cc+1:0;
+  hl[p]=nl;hc[p]=cc;
+  var gap=Math.abs(hl[p]-phys);
+  if(gap>maxGap)maxGap=gap;
+  if(cc>maxC)maxC=cc;
+  if(i%7===0)last={l:hl[p],c:hc[p],p:p};
+  if(i%11===0&&last&&last.p!==p){
+   var ml=last.l,mc=last.c;
+   var nl2=Math.max(hl[p],ml,phys),nc2;
+   if(nl2===hl[p]&&nl2===ml)nc2=Math.max(hc[p],mc)+1;
+   else if(nl2===hl[p])nc2=hc[p]+1;
+   else if(nl2===ml)nc2=mc+1;
+   else nc2=0;
+   hl[p]=nl2;hc[p]=nc2;
+   if(hl[p]<ml||(hl[p]===ml&&hc[p]<=mc))viol++;}
+  if(i%6===0)trace.push({l:hl[p],phys:phys});}
+ return {maxGap:maxGap,viol:viol,trace:trace,hl:hl.slice(),hc:hc.slice(),maxCounter:maxC};}
+function selftest(){
+ var m=run(600);
+ return {processes:3,events:600,
+  maxDivergenceFromPhysical:m.maxGap,causalityViolations:m.viol,
+  boundedByPhysical:m.maxGap<50,largestCounter:m.maxCounter,
+  counterStaysSmall:m.maxCounter<20,
+  bothPropertiesOneRun:true,
+  finalLogical:m.hl,finalCounters:m.hc,
+  ok:m.viol===0&&m.maxGap<50};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'PHYSICAL TIME, AND THE HYBRID CLOCK TRACKING IT');
+ var m=run(600),tr=m.trace;
+ kcurve(g,20,44,460,150,tr.length-1,function(t){
+  return tr[Math.round(t*(tr.length-1))].phys;},'rgba(90,208,255,0.55)',3);
+ kcurve(g,20,44,460,150,tr.length-1,function(t){
+  return tr[Math.round(t*(tr.length-1))].l;},'rgba(125,226,176,0.9)',1.5);
+ nt(g,'#5ad0ff',30,64,8,'physical');nt(g,'#7de2b0',30,80,8,'hybrid logical');
+ nt(g,'#8a7ab8',20,212,8,'they never separate by more than '+VR.maxDivergenceFromPhysical+' units');
+ kverdict(g,12,228,W-24,true,VR.causalityViolations+' causality violations across '+
+  VR.events+' events, and divergence bounded at '+VR.maxDivergenceFromPhysical);
+ nt(g,'#8a7ab8',20,278,8,'largest logical counter reached: '+VR.largestCounter+
+  ' -- it only ticks when the physical clock does not');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(EVN);
+ nt(g,'#5ad0ff',12,20,11,EVN+' EVENTS OVER 3 PROCESSES');
+ var tr=m.trace;
+ kcurve(g,14,40,340,90,tr.length-1,function(t){
+  return tr[Math.round(t*(tr.length-1))].l;},'rgba(125,226,176,0.9)',2);
+ nt(g,'#8a7ab8',14,146,8,'the hybrid logical value across the run');
+ krow(g,14,166,230,'causality violations',m.viol,m.viol?1:0,
+  m.viol?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.75)');
+ krow(g,14,208,230,'max divergence from physical',m.maxGap,Math.min(1,m.maxGap/50),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,250,230,'largest logical counter',m.maxCounter,Math.min(1,m.maxCounter/20),
+  'rgba(255,210,63,0.7)');
+ kverdict(g,12,292,W-24,m.viol===0,m.viol===0?
+  'both properties hold on this one run':'CAUSALITY VIOLATED');
+ kout('hybco','<b>'+EVN+'</b> events &middot; violations <b>'+m.viol+
+  '</b> &middot; max divergence <b>'+m.maxGap+'</b> &middot; counter <b>'+m.maxCounter+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO CLOCKS IN ONE WORD');
+ kring(g,W/2,H/2+10,ang,24,95,-20,'rgba(90,208,255,0.6)',2.6);
+ kring(g,W/2,H/2+10,ang*1.6,8,42,26,'rgba(255,210,63,0.85)',3);
+ nt(g,'#8a7ab8',12,H-22,8,'the honesty lives entirely in the part nobody prints');}
+document.getElementById('hybcm').onclick=function(){EVN=Math.min(3000,EVN+300);drawW4();};
+document.getElementById('hybcl').onclick=function(){EVN=Math.max(60,EVN-300);drawW4();};
+document.getElementById('hybcr').onclick=function(){EVN=600;drawW4();};
+document.getElementById('hybcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehybridclock=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 261 · neon-noir · silicon-coding · WHAT TIME IT IS, AND WHO AGREES ═══════════════════════
 # ═══════════════════════ BATCH 260 · neon-noir · silicon-coding · THE LIE OF THE FLAT ADDRESS ═══════════════════════
 # ═══════════════════════ BATCH 259 · neon-noir · silicon-coding · THE COST OF A NAME ═══════════════════════
 # ═══════════════════════ BATCH 258 · neon-noir · silicon-coding · LATENCY, AND WHO IS ACTUALLY WAITING ═══════════════════════
@@ -103129,6 +104051,76 @@ SPHERES = [
   "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
   "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
   "body":SQLK_BODY,"script":SQLK_SCRIPT},
+ {"slug":"the-ntp-slew","title":"THE NTP SLEW","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ff2d95","icon":"~",
+  "kicker":"it lies slowly instead of correcting fast",
+  "blurb":"A wrong clock can be jumped or bent. Jumping is instant and can send time backwards. Slewing takes as long as it takes and never does.",
+  "lit":"correcting a 5-second offset by slewing at 500 ppm takes exactly 10,000 seconds - 2.78 hours - and across 200 samples of the correction the clock reads backwards 0 times, where a step fixes the same offset instantly and moves the clock 5 seconds backwards in one instruction",
+  "fig":"ntpd slews offsets under 128 ms and steps larger ones; chrony and cloud time services push the slewing envelope much further, precisely to avoid the step. AVAN measured monotonicity rather than accuracy, because accuracy is what people ask for and monotonicity is what breaks them. 2.78 hours to fix five seconds looks absurd until you notice the alternative is a clock that is briefly a time machine.",
+  "body":NTPS_BODY,"script":NTPS_SCRIPT},
+ {"slug":"the-leap-smear","title":"THE LEAP SMEAR","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE CRON JOB","domain_slug":"the-cron-job","accent":"#ffd23f","icon":"\u2248",
+  "kicker":"monotonic and correct were always separable",
+  "blurb":"A leap second repeats a timestamp, and repeated timestamps break anything treating time as an identifier. So you refuse to insert it and make the whole day slightly longer instead.",
+  "lit":"one second spread across 86,400 is a rate change of 11.574 ppm, and across 2,000 samples of the smeared clock there are 0 non-monotonic readings and 0 duplicate timestamps while the total drift applied over the window is exactly 1 second - not approximately - so the leap second is fully absorbed and never once appears",
+  "fig":"Google published leap smearing in 2011 after a leap second took down parts of its fleet; AWS and others followed, and the smear windows are deliberately incompatible between providers. AVAN checked the two properties separately: that no timestamp repeats, and that the total correction is exactly one second. Either alone is easy - a smear that loses 11 microseconds is monotonic and wrong, one that is exact but steps at the end repeats a timestamp.",
+  "body":LSMR_BODY,"script":LSMR_SCRIPT},
+ {"slug":"the-clock-drift","title":"THE CLOCK DRIFT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"\u2307",
+  "kicker":"both clocks are correct and they still disagree",
+  "blurb":"A quartz oscillator is specified in parts per million, which sounds like a rounding error until you multiply it by a day.",
+  "lit":"at 50 ppm a clock drifts 4.32 seconds per day and 1,577.85 per year, taking 20,000 seconds to accumulate a single second of error, while two machines each specified plus or minus 50 ppm can be 100 ppm apart and diverge at 8.64 seconds per day - exactly twice the single-clock figure, because error against a reference and error against a peer are different quantities",
+  "fig":"Datasheet drift is why NTP exists and why every distributed protocol assuming bounded skew must say what bound it assumes. AVAN checked the doubling rather than only tabulating rates. The pairwise figure is the one designs actually need and the one most often taken from the single-clock column - a system tolerant of 4.32 s/day between a node and UTC may still be broken by 8.64 between two nodes that are each within spec.",
+  "body":CLKD_BODY,"script":CLKD_SCRIPT},
+ {"slug":"the-happens-before","title":"THE HAPPENS BEFORE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE HANDOFF","domain_slug":"the-handoff","accent":"#ff2d95","icon":"\u227a",
+  "kicker":"a negative result wearing a positive name",
+  "blurb":"Without a shared clock, before can only mean one thing: a chain of events along a process or along a message. Everything else is concurrent - not simultaneous, just unordered.",
+  "lit":"3 processes, 12 events and 3 messages, with the happens-before relation computed twice by unrelated means - once as the transitive closure of the event graph and once by running vector clocks - agree on all 132 ordered pairs and disagree on 0, with 45 pairs ordered and 21 of the 66 unordered pairs genuinely concurrent",
+  "fig":"Leslie Lamport's 1978 paper defines the relation; vector clocks are Fidge and Mattern's independent refinement that makes it decidable from local state. AVAN computed both sides rather than one - running vector clocks and announcing that they capture causality is circular, it is the definition restated. Building the graph, closing it transitively and finding 0 disagreements across 132 pairs is the check, and the 21 concurrent pairs are why the relation is partial rather than total.",
+  "body":HPBF_BODY,"script":HPBF_SCRIPT},
+ {"slug":"the-causal-cut","title":"THE CAUSAL CUT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#5ad0ff","icon":"\u2500",
+  "kicker":"the snapshot manufactures a present rather than finding one",
+  "blurb":"A snapshot of a distributed system is a line drawn across every timeline at once. Most such lines are nonsense: they catch a message arriving that has not yet been sent.",
+  "lit":"two processes of 4 events each with 2 messages crossing give 25 possible cuts - exactly 5 times 5, enumerated rather than sampled - of which 20 are consistent and 5 are not, and those 5 are not unlikely or rare but states the system can never have been in, which a naive snapshot will happily record",
+  "fig":"Chandy and Lamport's 1985 algorithm exists to take a cut that is consistent by construction, without stopping the system. AVAN enumerated the whole cut lattice rather than arguing about it, because the count is small enough to be exhaustive and exhaustive is a different kind of claim. The useful shape is that inconsistency is a corner of the space: cuts go wrong specifically where one process has advanced past a receive the other has not yet sent.",
+  "body":CCUT_BODY,"script":CCUT_SCRIPT},
+ {"slug":"the-total-order-broadcast","title":"THE TOTAL ORDER BROADCAST","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE BROADCAST","domain_slug":"the-broadcast","accent":"#00f5ff","icon":"\u2261",
+  "kicker":"a way of making everyone wrong in the same direction",
+  "blurb":"Causal delivery guarantees you never see an effect before its cause. It says nothing about two messages with no cause between them - and replicas that disagree on those diverge while all behave correctly.",
+  "lit":"two concurrent messages across 5 receivers give 32 delivery orders when every one is enumerated, all 32 permitted by causal order, and only 2 of them have every receiver agreeing - 6.25% - leaving 30 that are causally legal and leave the replicas in different states",
+  "fig":"Total order broadcast is equivalent to consensus - not a stronger delivery guarantee bolted on but the same problem wearing different clothes. AVAN enumerated rather than reasoned, because 2 of 32 is a number and causal is weaker than total is a slogan. The ratio is the argument: agreement is not the common case that occasionally fails, it is 6.25% of the space.",
+  "body":TOBC_BODY,"script":TOBC_SCRIPT},
+ {"slug":"the-fencing-token","title":"THE FENCING TOKEN","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"\u21d1",
+  "kicker":"a lock that needs fencing was never a lock",
+  "blurb":"A lock does not stop a client that holds it and then freezes. It wakes after its lease has gone, still believing it is the writer, and writes over whoever took over.",
+  "lit":"two clients of two steps each give 6 interleavings when all are enumerated, and without tokens 2 of them let a stale writer land a write over a newer one - schedules 0110 and 1001 - while with monotonic tokens the storage rejects those writes for 2 rejections and 0 corruptions, the lock being identical in both and only the storage changed",
+  "fig":"Fencing tokens are Martin Kleppmann's standard answer to distributed locks that assume a client is either alive or gone. AVAN defined corruption structurally after getting it wrong: my first model tracked which client held the lock, which is not what fencing protects - the holder field is exactly the thing that is unreliable. Corruption is a write LANDING with a token older than the highest the store accepted, and stated that way the guard makes it unreachable.",
+  "body":FNCT_BODY,"script":FNCT_SCRIPT},
+ {"slug":"the-lease","title":"THE LEASE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE BOUNTY","domain_slug":"the-bounty","accent":"#00f5ff","icon":"\u29d6",
+  "kicker":"an assumption about clocks wearing the costume of a constant",
+  "blurb":"A lease is a lock with an expiry, so a dead holder releases it without anyone asking. That works only if both parties agree what time it is - and they do not.",
+  "lit":"a 10-second lease with 0.5 s of skew each way, run as both disciplines over one timeline at 10 ms resolution, gives 1.00 seconds where two holders both believe they hold it under the naive rule and 0.00 under the rule that waits out the skew - a guard costing 1.00 second of every lease, leaving 90.0% usable instead of 100%",
+  "fig":"Leases come from the Frangipani and Chubby lineage, and every implementation carries a skew constant somewhere. AVAN nearly shipped this asserted: my first version wrote 0 into the guarded-overlap column for every row rather than measuring it, the same mistake as declaring a fairness result true. Rebuilt to simulate both disciplines over one timeline and count overlapping instants, the zero is now a measurement, and it means something because the other column is 1.00.",
+  "body":LEAS_BODY,"script":LEAS_SCRIPT},
+ {"slug":"the-quorum-intersection","title":"THE QUORUM INTERSECTION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"\u222a",
+  "kicker":"the guarantee is one node wide",
+  "blurb":"Quorums work for one reason and it is arithmetic: any two sets larger than half of a whole must share a member. That member is the only thing carrying information between one decision and the next.",
+  "lit":"9 nodes with a majority of 5 give 126 possible quorums and 7,875 pairs, every single pair intersecting - 7,875 of 7,875 - with a smallest overlap of 1 matching 2k-n exactly; drop to half rather than a majority and it fails, since of 2,415 pairs of 4-node sets over 8 nodes, 35 are completely disjoint",
+  "fig":"Quorum intersection underpins Paxos, Raft and every replicated log; Gifford's weighted voting (1979) is the general form. AVAN enumerated both the property and its boundary. Showing that majorities intersect is easy and unconvincing alone - the claim only has content if the neighbouring case fails, so the 35 disjoint pairs at half-size are the load-bearing number. The minimum overlap of exactly 1 is the other half: a majority quorum guarantees one witness, not a comfortable margin.",
+  "body":QRIN_BODY,"script":QRIN_SCRIPT},
+ {"slug":"the-hybrid-clock","title":"THE HYBRID CLOCK","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"CHECKPOINT ZERO","domain_slug":"checkpoint-zero","accent":"#5ad0ff","icon":"\u25d4",
+  "kicker":"the honesty lives in the part nobody prints",
+  "blurb":"A logical clock captures causality and drifts from wall time. A physical clock reads like wall time and captures no causality. A hybrid clock refuses to choose.",
+  "lit":"3 processes over 600 events with unevenly advancing physical clocks and messages crossing record 0 causality violations - every receive strictly following its send - while never diverging from physical time by more than 7 units, and the logical counter stays in single digits because it only increments when the physical clock fails to",
+  "fig":"Hybrid Logical Clocks are Kulkarni, Demirbas, Madappa, Avva and Leone (2014), and they are what CockroachDB and MongoDB use to timestamp transactions. AVAN checked both halves on the same run, because either alone is trivially achievable and worthless: a clock that never violates causality can be a plain Lamport counter with no relation to wall time, and one that tracks wall time can ignore causality entirely. 0 violations AND a bounded divergence of 7 is the only interesting statement.",
+  "body":HYBC_BODY,"script":HYBC_SCRIPT},
  {"slug":"the-tlb-reach","title":"THE TLB REACH","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u25a6",
   "kicker":"a unit trick, not a capacity gain",
