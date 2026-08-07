@@ -19499,6 +19499,59 @@ function ng(g){g.shadowBlur=0;}
 function nt(g,c,x,y,s,txt){g.shadowBlur=0;g.fillStyle=c;g.font=(s||10)+'px monospace';g.fillText(txt,x,y);}
 function ndot(g,x,y,r,c){nf(g,c);g.beginPath();g.arc(x,y,r,0,7);g.fill();ng(g);}"""
 
+KIT = """
+function kfmt(v){if(typeof v!=='number')return ''+v;
+ if(v===Math.floor(v)&&Math.abs(v)<1e15)return v.toLocaleString();
+ return ''+(Math.round(v*1000)/1000);}
+function krow(g,x,y,w,label,val,frac,col){
+ nt(g,'#8a7ab8',x,y,9,label);
+ nf(g,'rgba(90,70,140,0.28)');g.fillRect(x,y+6,w,20);ng(g);
+ nf(g,col);g.fillRect(x,y+6,Math.max(2,Math.round(w*Math.max(0,Math.min(1,frac)))),20);ng(g);
+ nt(g,'#e8e0ff',x+w+8,y+21,10,kfmt(val));}
+function kpair(g,x,y,w,lab,a,b,ca,cb,na,nb){
+ nt(g,'#8a7ab8',x,y,9,lab);
+ var m=Math.max(Math.abs(a),Math.abs(b),1e-9);
+ nf(g,ca);g.fillRect(x,y+6,Math.max(2,Math.round(w*Math.abs(a)/m)),17);ng(g);
+ nt(g,'#e8e0ff',x+w+8,y+20,9,kfmt(a)+(na?' '+na:''));
+ nf(g,cb);g.fillRect(x,y+27,Math.max(2,Math.round(w*Math.abs(b)/m)),17);ng(g);
+ nt(g,'#e8e0ff',x+w+8,y+41,9,kfmt(b)+(nb?' '+nb:''));}
+function kcurve(g,x,y,w,h,n,fn,col,wd){
+ ne(g,col,wd||2);g.beginPath();
+ var mn=1e30,mx=-1e30,i,v,vs=[];
+ for(i=0;i<=n;i++){v=fn(i/n);vs.push(v);if(v<mn)mn=v;if(v>mx)mx=v;}
+ if(mx-mn<1e-12)mx=mn+1;
+ for(i=0;i<=n;i++){
+  var px=x+i/n*w,py=y+h-(vs[i]-mn)/(mx-mn)*h;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ return {min:mn,max:mx};}
+function kgrid(g,x,y,cols,rows,cw,ch,fn){
+ for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
+  var col=fn(r*cols+c);
+  if(!col)continue;
+  nf(g,col);g.fillRect(x+c*cw,y+r*ch,cw-1.2,ch-1.2);ng(g);}}
+function korb(g,cx,cy,ang,n,fn){
+ var rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<n;i++){
+  var p=fn(i,n);
+  if(!p)continue;
+  var px=cx+p.x*rr-p.z*sn,py=cy+(p.y||0)*0.8+(p.x*sn+p.z*rr)*(p.flat||0.32);
+  ndot(g,px,py,p.r||2.4,p.c);}}
+function kring(g,cx,cy,ang,n,rad,lift,col,rsize){
+ korb(g,cx,cy,ang,n,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*rad,z:Math.sin(t)*rad,y:lift||0,c:col,r:rsize||2.4};});}
+function kbits(g,v,x,y,cw,onCol,offCol,bits){
+ var B=bits||32;
+ for(var i=0;i<B;i++){
+  var on=(v>>>(B-1-i))&1;
+  nf(g,on?onCol:offCol);g.fillRect(x+i*cw,y,cw-1.4,15);ng(g);}}
+function kverdict(g,x,y,w,good,txt){
+ nf(g,good?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.15)');g.fillRect(x,y,w,30);ng(g);
+ nt(g,good?'#7de2b0':'#ff5a8a',x+8,y+20,10,txt);}
+function kout(id,html){var o=document.getElementById(id);if(o)o.innerHTML=html;}
+"""
+
 ONEH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">An <i>N</i>-state machine can be encoded in <code>ceil(log&#8322;N)</code> bits &mdash; or in <i>N</i> bits with exactly one of them high. The second choice looks profligate. It is also the only one of the two that can tell you it has been damaged.<br><br>
  <span class="lit">LIT</span> verified live. of the <b>256</b> eight-bit patterns exactly <b>8</b> are legal one-hot codewords. All <b>28</b> pairs of codewords sit at Hamming distance <b>exactly 2</b>, so every one of the <b>64</b> single-bit flips of a codeword lands outside the code and is caught &mdash; <b>64 of 64</b>. The dense 3-bit binary encoding of the same 8 states catches <b>0 of its 24</b> flips, because every pattern three bits can produce is already a legal state.</div></div>
