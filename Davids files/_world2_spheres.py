@@ -33334,6 +33334,953 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 264 · neon-noir · silicon-coding · THE SHAPE OF FAILURE ═══════════════════════
+PRTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A remote call has three outcomes, not two. It worked, it did not happen, or &mdash; the one nobody designs for &mdash; it happened and the answer was lost. From the caller those last two look identical.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> calls: <b>94,039</b> succeeded, <b>2,965</b> cleanly failed before arriving, and <b>2,996</b> arrived and lost their reply &mdash; <b>3.00%</b> in a state the caller cannot distinguish. Only the <b>2,965</b> are safe to retry blindly. Retrying the other <b>2,996</b> duplicates real work. With an idempotency key all <b>100,000</b> become safe, because the question changes from &ldquo;did it happen&rdquo; to &ldquo;has this one happened&rdquo;.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The three-outcome problem is why every payments API has an idempotency key and why &ldquo;at least once&rdquo; is the only delivery guarantee most systems can actually offer.<br><br>
+ <b>AVAN (AI)</b> counted the buckets separately rather than reporting a success rate. <b>94%</b> succeeded is the number that gets published; <b>3%</b> unknown is the number that decides your architecture, and averaging them into &ldquo;97% did not fail&rdquo; hides exactly the population that needs the design work.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three outcomes, and which two the caller can tell apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Retry, and watch the duplicates arrive.</div>
+   <div class="btns" style="margin-top:10px"><button id="prtfr">retry blindly &#9654;</button><button id="prtfi">add idempotency key</button><button id="prtfz">reset</button></div>
+   <div class="cap" id="prtfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a question with no answer coming.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that partial failure is a hard case to handle. The inverse is that <b>it is the only case, and the other two are conveniences</b>. Success and clean failure are both just partial failure where the evidence happened to survive; nothing about the network promised you that evidence. Read backwards, an idempotency key does not solve the unknown &mdash; it makes the unknown harmless, which is the only kind of solution available when the fact you need is genuinely not in your possession.</div>
+   <div class="btns" style="margin-top:10px"><button id="prtfs">pause spin</button></div></div></div></div>"""
+PRTF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,retried=false,idem=false;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(){
+ var N=100000,r=rng(3),ok=0,fail=0,unk=0,i;
+ for(i=0;i<N;i++){var u=r();
+  if(u<0.94)ok++;else if(u<0.97)fail++;else unk++;}
+ return {N:N,ok:ok,fail:fail,unk:unk};}
+function selftest(){
+ var m=run();
+ return {requests:m.N,succeeded:m.ok,cleanlyFailed:m.fail,unknown:m.unk,
+  unknownPct:+(100*m.unk/m.N).toFixed(2),
+  safeToRetryWithoutIdempotency:m.fail,
+  retryingUnknownDuplicates:m.unk,
+  duplicateRiskPct:+(100*m.unk/m.N).toFixed(2),
+  withIdempotencyKeyAllSafe:m.N,
+  callerCannotDistinguishTwoOfThree:true,
+  ok:m.unk>0&&m.fail<m.N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'THREE OUTCOMES');
+ krow(g,20,48,300,'succeeded -- reply arrived',VR.succeeded,VR.succeeded/VR.requests,
+  'rgba(125,226,176,0.8)');
+ krow(g,20,100,300,'never arrived -- safe to retry',VR.cleanlyFailed,
+  VR.cleanlyFailed/VR.requests*20,'rgba(90,208,255,0.75)');
+ krow(g,20,152,300,'arrived, reply lost -- UNKNOWN',VR.unknown,
+  VR.unknown/VR.requests*20,'rgba(255,60,90,0.8)');
+ nf(g,'rgba(255,60,90,0.12)');g.fillRect(12,206,W-24,34);ng(g);
+ nt(g,'#ff5a8a',22,228,10,'the caller sees the same thing for the bottom two: nothing');
+ kverdict(g,12,246,W-24,true,VR.unknownPct+'% cannot be retried safely -- unless the '+
+  'question becomes "has THIS one happened"');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var dup=retried&&!idem?VR.unknown:0;
+ var safe=retried?(idem?VR.cleanlyFailed+VR.unknown:VR.cleanlyFailed):0;
+ nt(g,'#7cfc00',12,20,11,retried?(idem?'RETRIED WITH A KEY':'RETRIED BLINDLY'):'NOT RETRIED');
+ kgrid(g,14,40,40,5,8.6,10,function(i){
+  var f=i/200;
+  if(f<0.94)return 'rgba(125,226,176,0.55)';
+  if(f<0.97)return 'rgba(90,208,255,0.7)';
+  return dup?'rgba(255,60,90,0.9)':'rgba(255,60,90,0.5)';});
+ nt(g,'#8a7ab8',14,106,8,'200 cells standing for 100,000 calls');
+ krow(g,14,124,230,'recovered by the retry',safe,safe/6000,'rgba(125,226,176,0.75)');
+ krow(g,14,166,230,'DUPLICATE work created',dup,dup/6000,'rgba(255,60,90,0.8)');
+ krow(g,14,208,230,'still unknown',retried&&!idem?0:VR.unknown,
+  (retried&&!idem?0:VR.unknown)/6000,'rgba(255,210,63,0.7)');
+ kverdict(g,12,252,W-24,dup===0,
+  !retried?'nothing retried yet':(idem?
+   'the key made every retry safe -- duplicates are recognised and dropped':
+   dup.toLocaleString()+' duplicates: work that already happened, done again'));
+ nt(g,'#5a4a85',14,304,8,'success and clean failure are partial failure with surviving evidence');
+ kout('prtfo',retried?(idem?'<b>0</b> duplicates, <b>'+safe.toLocaleString()+
+  '</b> recovered':'<b>'+dup.toLocaleString()+'</b> duplicates created'):
+  'unknown <b>'+VR.unknown.toLocaleString()+'</b> of '+VR.requests.toLocaleString());}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUESTION WITH NO ANSWER COMING');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,lost=(t>0.55);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*34,y:lost?18:-6,
+   c:lost?'rgba(255,60,90,0.5)':'rgba(125,226,176,0.8)',r:lost?1.8:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'it does not solve the unknown, it makes the unknown harmless');}
+document.getElementById('prtfr').onclick=function(){retried=true;idem=false;drawW4();};
+document.getElementById('prtfi').onclick=function(){retried=true;idem=true;drawW4();};
+document.getElementById('prtfz').onclick=function(){retried=false;idem=false;drawW4();};
+document.getElementById('prtfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepartialfailure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PSNM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A queue with ordered delivery and infinite retry has a failure mode with no moving parts: one message that can never be processed stops every message behind it, forever.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1,000</b> messages, one poison at position <b>7</b>. With unlimited retry the consumer processes <b>7</b> messages, burns <b>200,000</b> attempts, and never drains. With a dead-letter queue after <b>3</b> attempts it processes <b>999</b>, spends <b>1,002</b> attempts, sets <b>1</b> message aside, and finishes. One message held <b>992</b> others hostage.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Dead-letter queues exist for exactly this; the failure is common enough that ordered-delivery systems treat a retry cap as mandatory rather than optional.<br><br>
+ <b>AVAN (AI)</b> reports the work column alongside the throughput one, because <b>200,000</b> attempts for <b>7</b> messages is the part that hurts. The consumer is not idle or crashed &mdash; it is fully busy, at maximum CPU, making no progress, which is the hardest failure to spot on a dashboard.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The queue, with and without a retry cap.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the retry cap and watch the queue drain or not.</div>
+   <div class="btns" style="margin-top:10px"><button id="psnmn">raise the cap &#9654;</button><button id="psnml">lower</button><button id="psnmu">unlimited</button><button id="psnmr">reset</button></div>
+   <div class="cap" id="psnmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue stopped at position seven.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a dead-letter queue rescues the consumer. The inverse is that <b>it rescues it by abandoning correctness for one message</b>. The retry cap is a decision that after three tries you will stop trying to do something you were asked to do, and set it aside where nobody is watching. Read backwards, ordered delivery and guaranteed processing cannot both survive a message that will never succeed, and every dead-letter queue is a quiet admission of which one was given up.</div>
+   <div class="btns" style="margin-top:10px"><button id="psnms">pause spin</button></div></div></div></div>"""
+PSNM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cap=3;
+function run(maxAttempts){
+ var Q=[],i;
+ for(i=0;i<1000;i++)Q.push({id:i,poison:(i===7)});
+ var attempts={},head=0,guard=0,processed=0,work=0,dead=0;
+ while(head<Q.length&&guard<200000){
+  guard++;
+  var m=Q[head];
+  attempts[m.id]=(attempts[m.id]||0)+1;
+  work++;
+  if(m.poison){
+   if(maxAttempts>0&&attempts[m.id]>=maxAttempts){head++;dead++;continue;}
+   continue;}
+  processed++;head++;}
+ return {processed:processed,work:work,dead:dead,drained:head>=Q.length,head:head};}
+function selftest(){
+ var none=run(0),dlq=run(3);
+ return {messages:1000,poisonAt:7,retryCap:3,
+  noDlqProcessed:none.processed,noDlqWork:none.work,noDlqDrained:none.drained,
+  dlqProcessed:dlq.processed,dlqWork:dlq.work,dlqDrained:dlq.drained,
+  dlqDeadLettered:dlq.dead,
+  hostages:1000-none.processed-1,
+  busyButNotProgressing:true,
+  ok:none.drained===false&&dlq.drained===true&&dlq.processed===999};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'THE QUEUE, WITH AND WITHOUT A RETRY CAP');
+ nt(g,'#ff5a8a',20,46,9,'unlimited retry');
+ kgrid(g,20,54,60,1,8,26,function(i){
+  if(i===7)return 'rgba(255,60,90,0.95)';
+  return i<7?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.28)';});
+ nt(g,'#8a7ab8',20,98,8,'processed 7, then stopped -- '+
+  VR.noDlqWork.toLocaleString()+' attempts and still going');
+ nt(g,'#7de2b0',20,134,9,'dead-letter after 3 attempts');
+ kgrid(g,20,142,60,1,8,26,function(i){
+  if(i===7)return 'rgba(255,210,63,0.9)';
+  return 'rgba(125,226,176,0.7)';});
+ nt(g,'#8a7ab8',20,186,8,'processed '+VR.dlqProcessed+', set 1 aside, '+
+  VR.dlqWork.toLocaleString()+' attempts, finished');
+ kverdict(g,12,204,W-24,true,'one message held '+VR.hostages.toLocaleString()+
+  ' others hostage, at full CPU, making no progress');
+ nt(g,'#5a4a85',20,268,8,'gold = the message that was set aside where nobody is watching');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(cap);
+ nt(g,'#39fc6b',12,20,11,cap===0?'RETRY CAP: UNLIMITED':'RETRY CAP: '+cap);
+ kgrid(g,14,40,40,3,8.6,12,function(i){
+  if(i===7)return m.drained?'rgba(255,210,63,0.9)':'rgba(255,60,90,0.95)';
+  return i<m.head?'rgba(125,226,176,0.7)':'rgba(90,70,140,0.28)';});
+ nt(g,'#8a7ab8',14,90,8,'first 120 of 1,000 messages');
+ krow(g,14,108,230,'processed',m.processed,m.processed/1000,'rgba(125,226,176,0.75)');
+ krow(g,14,150,230,'attempts spent',m.work,Math.min(1,m.work/200000),
+  'rgba(255,60,90,0.75)');
+ krow(g,14,192,230,'dead-lettered',m.dead,m.dead,'rgba(255,210,63,0.7)');
+ kverdict(g,12,236,W-24,m.drained,m.drained?
+  'drained -- at the cost of one message set aside':
+  'STUCK at position 7, busy and making no progress');
+ nt(g,'#5a4a85',14,286,8,'ordered delivery and guaranteed processing cannot both survive');
+ nt(g,'#5a4a85',14,306,8,'a message that will never succeed');
+ kout('psnmo','cap <b>'+(cap||'unlimited')+'</b> &middot; processed <b>'+
+  m.processed+'</b> &middot; attempts <b>'+m.work.toLocaleString()+'</b> &middot; '+
+  (m.drained?'drained':'<b>stuck</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE STOPPED AT POSITION SEVEN');
+ korb(g,W/2,H/2+10,ang,34,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:i===7?-26:0,
+   c:i===7?'rgba(255,60,90,0.95)':(i<7?'rgba(125,226,176,0.75)':'rgba(90,70,140,0.5)'),
+   r:i===7?5:2.3};});
+ nt(g,'#8a7ab8',12,H-22,8,'a quiet admission of which guarantee was given up');}
+document.getElementById('psnmn').onclick=function(){cap=cap===0?1:Math.min(50,cap+1);drawW4();};
+document.getElementById('psnml').onclick=function(){cap=Math.max(1,cap-1);drawW4();};
+document.getElementById('psnmu').onclick=function(){cap=0;drawW4();};
+document.getElementById('psnmr').onclick=function(){cap=3;drawW4();};
+document.getElementById('psnms').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepoisonmessage=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SPLB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Partition a cluster and both halves can decide they are in charge. Requiring a strict majority makes that arithmetically impossible &mdash; and the arithmetic also explains why clusters come in odd numbers.<br><br>
+ <span class="lit">LIT</span> verified live and exhaustively. Every partition of a <b>5</b>-node cluster &mdash; all <b>32</b> &mdash; enumerated. Naive election gives two leaders in <b>30</b> of them. Quorum gives two leaders in <b>0</b>, at every size from 3 to 8. But look at the deadlocks: odd sizes leave <b>0</b> partitions with no leader at all, while <b>4</b> nodes deadlock in <b>6</b> of <b>16</b> &mdash; <b>37.5%</b>. Adding a fifth node to a four-node cluster does not add capacity; it removes the tie.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Quorum intersection is the guarantee, and its arithmetic is measured next door in <b>THE PAXOS QUORUM</b> &mdash; that sphere proves the <i>safety</i> side, that no two majority quorums are disjoint. This one measures what the safety costs: the odd-size convention is the folklore that follows from it.<br><br>
+ <b>AVAN (AI)</b> found the odd-size result by getting a gate wrong. I had asserted that some partition of five nodes would leave nobody in charge; it never does, because one side always holds three. Sweeping <b>3</b> to <b>8</b> instead of testing one size turned a failed assertion into the actual finding: even clusters deadlock on the tie and odd ones cannot.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Cluster size against deadlocked partitions.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cut the cluster and see who may lead.</div>
+   <div class="btns" style="margin-top:10px"><button id="splbn">move the cut &#9654;</button><button id="splbg">grow the cluster</button><button id="splbq">toggle quorum</button><button id="splbr">reset</button></div>
+   <div class="cap" id="splbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one cluster, cut in two.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that quorum prevents split brain. The inverse is that <b>it prevents it by choosing unavailability</b>. The minority side is working perfectly, holds all its data and can reach its users &mdash; and it refuses to serve them, because it cannot prove it is not the one that was cut off. Read backwards, quorum does not detect the partition or resolve it; it hands the same rule to both halves and lets the smaller one disqualify itself, which is the only move available when neither side can see the other.</div>
+   <div class="btns" style="margin-top:10px"><button id="splbs">pause spin</button></div></div></div></div>"""
+SPLB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=5,cut=2,quorum=true;
+function sweep(n){
+ var total=Math.pow(2,n),nt2=0,qt=0,qz=0;
+ for(var m=0;m<total;m++){
+  var a=0;for(var i=0;i<n;i++)if((m>>i)&1)a++;
+  var b=n-a;
+  if(a>0&&b>0)nt2++;
+  var aq=a>n/2,bq=b>n/2;
+  if(aq&&bq)qt++;
+  if(!aq&&!bq)qz++;}
+ return {n:n,total:total,naiveTwo:nt2,quorumTwo:qt,quorumZero:qz,
+  zeroPct:+(100*qz/total).toFixed(2)};}
+function selftest(){
+ var rows=[],k;
+ for(k=3;k<=8;k++)rows.push(sweep(k));
+ var five=sweep(5),four=sweep(4);
+ var odd=rows.filter(function(r){return r.n%2===1;})
+   .every(function(r){return r.quorumZero===0&&r.quorumTwo===0;});
+ var even=rows.filter(function(r){return r.n%2===0;})
+   .every(function(r){return r.quorumZero>0;});
+ return {rows:rows,
+  atFivePartitions:five.total,atFiveNaiveTwoLeaders:five.naiveTwo,
+  atFiveQuorumTwoLeaders:five.quorumTwo,atFiveQuorumNoLeader:five.quorumZero,
+  atFourPartitions:four.total,atFourQuorumNoLeader:four.quorumZero,
+  atFourNoLeaderPct:four.zeroPct,
+  quorumNeverAllowsTwoAtAnyN:rows.every(function(r){return r.quorumTwo===0;}),
+  oddSizesAlwaysElectExactlyOne:odd,evenSizesCanDeadlock:even,
+  exhaustive:true,
+  ok:five.naiveTwo>0&&rows.every(function(r){return r.quorumTwo===0;})&&odd&&even};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'CLUSTER SIZE AGAINST DEADLOCKED PARTITIONS');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=48+i*38;
+  nt(g,r.n%2?'#7de2b0':'#ff5a8a',14,y+14,10,r.n+' nodes');
+  nf(g,'rgba(90,70,140,0.3)');g.fillRect(100,y,300,20);ng(g);
+  nf(g,r.quorumZero?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)');
+  g.fillRect(100,y,Math.max(3,Math.round(300*r.zeroPct/40)),20);ng(g);
+  nt(g,'#e8e0ff',410,y+14,9,r.zeroPct+'%');
+  nt(g,'#5a4a85',450,y+14,8,r.quorumZero+'/'+r.total);}
+ kverdict(g,12,278-6,W-24,true,'odd sizes deadlock in 0 partitions; four nodes in '+
+  VR.atFourQuorumNoLeader+' of '+VR.atFourPartitions+' -- the fifth node removes the tie');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=cut,b=N-cut;
+ var aLead=quorum?(a>N/2):(a>0),bLead=quorum?(b>N/2):(b>0);
+ nt(g,'#9d00ff',12,20,11,N+' NODES, CUT '+a+' / '+b+(quorum?'   [quorum]':'   [naive]'));
+ var i;
+ for(i=0;i<N;i++){
+  var side=i<a;
+  nf(g,side?(aLead?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.35)')
+           :(bLead?'rgba(90,208,255,0.75)':'rgba(90,70,140,0.35)'));
+  g.fillRect(20+i*42+(side?0:14),50,34,34);ng(g);}
+ ne(g,'rgba(255,60,90,0.7)',2);g.beginPath();
+ g.moveTo(20+a*42+7,40);g.lineTo(20+a*42+7,96);g.stroke();ng(g);
+ nt(g,'#8a7ab8',20,112,8,'red line is the partition');
+ nt(g,aLead?'#7de2b0':'#5a4a85',20,140,10,'side A ('+a+')  '+(aLead?'LEADS':'stands down'));
+ nt(g,bLead?'#5ad0ff':'#5a4a85',20,164,10,'side B ('+b+')  '+(bLead?'LEADS':'stands down'));
+ var leaders=(aLead?1:0)+(bLead?1:0);
+ kverdict(g,12,182,W-24,leaders===1,
+  leaders===2?'SPLIT BRAIN -- two leaders, both accepting writes':
+  (leaders===0?'no leader -- the cluster is up and refusing to serve':
+   'exactly one leader'));
+ krow(g,14,226,230,'partitions with two leaders (naive)',sweep(N).naiveTwo,
+  sweep(N).naiveTwo/sweep(N).total,'rgba(255,60,90,0.75)');
+ krow(g,14,268,230,'partitions with none (quorum)',sweep(N).quorumZero,
+  sweep(N).quorumZero/sweep(N).total,'rgba(255,210,63,0.7)');
+ nt(g,'#5a4a85',14,314,8,'the minority side is healthy and disqualifies itself');
+ kout('splbo',N+' nodes, cut <b>'+a+'/'+b+'</b> &middot; <b>'+leaders+
+  '</b> leader'+(leaders===1?'':'s'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE CLUSTER, CUT IN TWO');
+ korb(g,W/2,H/2+10,ang,10,function(i,Nn){
+  var t=i/Nn*6.283185307,left=i<6;
+  return {x:Math.cos(t)*90+(left?-40:40),z:Math.sin(t)*70,y:0,
+   c:left?'rgba(125,226,176,0.8)':'rgba(90,208,255,0.6)',r:left?3.4:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'it lets the smaller side disqualify itself');}
+document.getElementById('splbn').onclick=function(){cut=(cut+1)%(N+1);drawW4();};
+document.getElementById('splbg').onclick=function(){N=N>=8?3:N+1;cut=Math.min(cut,N);drawW4();};
+document.getElementById('splbq').onclick=function(){quorum=!quorum;drawW4();};
+document.getElementById('splbr').onclick=function(){N=5;cut=2;quorum=true;drawW4();};
+document.getElementById('splbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesplitbrain=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRYF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The worst kind of broken is the kind that answers the health check. A node that is slow, or failing only on the path your users take, stays in rotation because the thing watching it is not doing what they are doing.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> samples of the same node. The health probe &mdash; small, cached, no dependencies &mdash; succeeds <b>99.91%</b> of the time. Real requests, which touch the degraded dependency, succeed <b>61.93%</b>. That is a gap of <b>37.99</b> points on one machine at one moment, and the node is <b>not</b> removed from rotation, because nothing that decides rotation ever saw the second number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Gray failure was named by <b>Huang et al.</b> (HotOS 2017); the definition is precisely this differential observability between the system&rsquo;s view and the user&rsquo;s.<br><br>
+ <b>AVAN (AI)</b> measured both populations rather than describing the idea, because the number that matters is the <i>gap</i>, not either rate. <b>99.91%</b> is a true statement about the probe. <b>61.93%</b> is a true statement about the users. Nothing is lying, and the node stays up.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What the probe sees, and what the users see.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Make the probe more like a real request.</div>
+   <div class="btns" style="margin-top:10px"><button id="gryfd">probe touches the dependency &#9654;</button><button id="gryfl">back to shallow</button><button id="gryfr">reset</button></div>
+   <div class="cap" id="gryfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two observers, one machine.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that shallow health checks miss real failures. The inverse is that <b>a health check deep enough to catch this becomes the outage</b>. A probe that exercises every dependency fails whenever any dependency is briefly slow, and a fleet that removes nodes on that signal removes all of them at once. Read backwards, the shallowness is not laziness &mdash; it is the thing stopping the health system from being the largest source of downtime, and gray failure is the price of that restraint.</div>
+   <div class="btns" style="margin-top:10px"><button id="gryfs">pause spin</button></div></div></div></div>"""
+GRYF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,depth=0;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(d){
+ var N=200000,r=rng(7),p=0,u=0,i;
+ var probeRate=0.999-(0.999-0.62)*d;
+ for(i=0;i<N;i++){
+  if(r()<probeRate)p++;
+  if(r()<0.62)u++;}
+ return {N:N,probe:100*p/N,user:100*u/N};}
+function selftest(){
+ var m=run(0);
+ return {samples:m.N,
+  probeSuccessPct:+m.probe.toFixed(2),
+  userSuccessPct:+m.user.toFixed(2),
+  gapPoints:+(m.probe-m.user).toFixed(2),
+  probeSaysHealthy:m.probe>99,userSaysBroken:m.user<70,
+  nodeIsRemovedFromRotation:false,
+  bothStatementsAreTrue:true,
+  ok:m.probe>99&&m.user<70};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'TWO OBSERVERS, ONE MACHINE');
+ krow(g,20,52,320,'health probe says',VR.probeSuccessPct,VR.probeSuccessPct/100,
+  'rgba(125,226,176,0.8)');
+ krow(g,20,110,320,'real requests say',VR.userSuccessPct,VR.userSuccessPct/100,
+  'rgba(255,60,90,0.8)');
+ nf(g,'rgba(255,210,63,0.14)');g.fillRect(12,166,W-24,38);ng(g);
+ nt(g,'#ffd76a',22,190,11,'gap  '+VR.gapPoints+' points, on the same node at the same moment');
+ kverdict(g,12,212,W-24,false,
+  'the node stays in rotation, because nothing that decides rotation saw the second number');
+ nt(g,'#5a4a85',20,272,8,'neither measurement is wrong -- they are measuring different things');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(depth);
+ nt(g,'#ff5a3c',12,20,11,depth===0?'SHALLOW PROBE':'PROBE DEPTH '+(depth*100).toFixed(0)+'%');
+ kgrid(g,14,40,40,3,8.6,12,function(i){
+  return (i/120)<(m.probe/100)?'rgba(125,226,176,0.65)':'rgba(255,60,90,0.7)';});
+ nt(g,'#8a7ab8',14,90,8,'what the probe sees');
+ kgrid(g,14,102,40,3,8.6,12,function(i){
+  return (i/120)<(m.user/100)?'rgba(125,226,176,0.65)':'rgba(255,60,90,0.7)';});
+ nt(g,'#8a7ab8',14,152,8,'what the users see');
+ krow(g,14,170,230,'probe success %',+m.probe.toFixed(2),m.probe/100,
+  'rgba(125,226,176,0.75)');
+ krow(g,14,212,230,'gap in points',+(m.probe-m.user).toFixed(2),
+  (m.probe-m.user)/40,'rgba(255,210,63,0.75)');
+ kverdict(g,12,256,W-24,Math.abs(m.probe-m.user)<5,
+  Math.abs(m.probe-m.user)<5?
+   'the probe now agrees with the users -- and will fail whenever anything is briefly slow':
+   'the probe is still blind to what the users are hitting');
+ nt(g,'#5a4a85',14,306,8,'a probe deep enough to catch this becomes the outage');
+ kout('gryfo','probe <b>'+m.probe.toFixed(2)+'%</b> &middot; users <b>'+
+  m.user.toFixed(2)+'%</b> &middot; gap <b>'+(m.probe-m.user).toFixed(2)+'</b> points');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO OBSERVERS, ONE MACHINE');
+ ndot(g,W/2,H/2+10,7,'rgba(255,210,63,0.9)');
+ kring(g,W/2,H/2+10,ang,14,60,-34,'rgba(125,226,176,0.75)',2.6);
+ kring(g,W/2,H/2+10,-ang,14,100,30,'rgba(255,60,90,0.6)',2.6);
+ nt(g,'#8a7ab8',12,H-22,8,'the shallowness is restraint, not laziness');}
+document.getElementById('gryfd').onclick=function(){depth=Math.min(1,+(depth+0.25).toFixed(2));drawW4();};
+document.getElementById('gryfl').onclick=function(){depth=Math.max(0,+(depth-0.25).toFixed(2));drawW4();};
+document.getElementById('gryfr').onclick=function(){depth=0;drawW4();};
+document.getElementById('gryfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegrayfailure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CASF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A dependency loses capacity. Requests fail. Every failure is retried, so the offered load rises, so more fail, so more are retried. The retries are load, and the load is what caused the retries.<br><br>
+ <span class="lit">LIT</span> verified live. Base load <b>1,000</b>, healthy capacity <b>1,200</b>, two retries per failure. Capacity drops to <b>600</b> for three rounds: offered load climbs to <b>3,400</b> with <b>2,800</b> failing. Capacity is then <b>fully restored</b> at round 5 &mdash; and by round 9 the offered load is <b>84,600</b>, an amplification of <b>84.60&times;</b>, with <b>83,400</b> still failing. The trigger is gone and the failure is not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Retry amplification is why every serious client library has a retry budget rather than a retry count, and why load shedding is applied at the caller.<br><br>
+ <b>AVAN (AI)</b> set the healthy capacity <i>above</i> the base load at first, so nothing ever failed and there was no cascade to measure &mdash; a clean run proving nothing. The version that means something needs the dependency to actually lose capacity. Restoring it at round 5 is the important half: <b>84,600</b> against a base of <b>1,000</b>, four rounds after the cause was removed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Offered load per round. The capacity comes back at round 5.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the retry policy and run it again.</div>
+   <div class="btns" style="margin-top:10px"><button id="casfm">more retries &#9654;</button><button id="casfl">fewer</button><button id="casfb">retry budget</button><button id="casfr">reset</button></div>
+   <div class="cap" id="casfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: load feeding on its own failure.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that retries cause cascading failure. The inverse is that <b>every retry was individually correct</b>. Each client saw a failed request and did the reasonable thing; not one of them misbehaved, and no single caller sent enough traffic to matter. Read backwards, this is a failure with no faulty component anywhere in it &mdash; the system is the defect, assembled entirely out of correct parts each doing what it was told.</div>
+   <div class="btns" style="margin-top:10px"><button id="casfs">pause spin</button></div></div></div></div>"""
+CASF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,retries=2,budget=false;
+function run(rt,bud){
+ var base=1000,healthy=1200,degraded=600,load=base,steps=[],i;
+ for(i=0;i<10;i++){
+  var cap=(i>=2&&i<5)?degraded:healthy;
+  var served=Math.min(load,cap),failed=load-served;
+  steps.push({round:i,capacity:cap,offered:load,served:served,failed:failed});
+  var extra=failed*rt;
+  if(bud)extra=Math.min(extra,base*0.1);   // retries capped at 10% of base
+  load=base+extra;}
+ return {base:base,steps:steps};}
+function selftest(){
+ var m=run(2,false),s=m.steps;
+ var peak=0,i;
+ for(i=0;i<s.length;i++)if(s[i].offered>peak)peak=s[i].offered;
+ return {baseLoad:1000,healthyCapacity:1200,degradedCapacity:600,
+  retriesPerFailure:2,degradedRounds:3,capacityRestoredAtRound:5,
+  offeredAtWorst:s[4].offered,failedAtWorst:s[4].failed,
+  peakOffered:peak,peakAmplification:+(peak/1000).toFixed(2),
+  offeredAfterHeal:s[9].offered,failedAfterHeal:s[9].failed,
+  recoveredAfterCapacityReturned:s[9].failed===0,
+  everyRetryIndividuallyCorrect:true,
+  steps:s,
+  ok:peak>1000&&s[4].failed>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'OFFERED LOAD PER ROUND');
+ var s=VR.steps,mx=VR.peakOffered,i;
+ for(i=0;i<s.length;i++){
+  var h=Math.round(170*Math.log(1+s[i].offered)/Math.log(1+mx));
+  nf(g,s[i].failed>0?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.75)');
+  g.fillRect(30+i*46,206-h,36,h);ng(g);
+  nt(g,'#5a4a85',36+i*46,222,7,'r'+i);}
+ ne(g,'rgba(255,210,63,0.8)',2);g.beginPath();
+ g.moveTo(30+5*46-6,36);g.lineTo(30+5*46-6,206);g.stroke();ng(g);
+ nt(g,'#ffd76a',30+5*46+2,48,8,'capacity restored');
+ nt(g,'#8a7ab8',30,240,8,'bars are log-scaled; red means requests failed that round');
+ kverdict(g,12,250,W-24,false,'four rounds after the cause was removed: '+
+  VR.offeredAfterHeal.toLocaleString()+' offered, '+
+  VR.failedAfterHeal.toLocaleString()+' still failing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(retries,budget),s=m.steps,peak=0,i;
+ for(i=0;i<s.length;i++)if(s[i].offered>peak)peak=s[i].offered;
+ nt(g,'#9d00ff',12,20,11,retries+' RETRIES'+(budget?'   [budget capped]':''));
+ kcurve(g,14,40,340,90,s.length-1,function(t){
+  return Math.log(1+s[Math.round(t*(s.length-1))].offered);},'rgba(157,0,255,0.9)',2);
+ nt(g,'#8a7ab8',14,146,8,'offered load, log scale, across ten rounds');
+ krow(g,14,164,230,'peak offered',peak,Math.min(1,Math.log(peak)/Math.log(100000)),
+  'rgba(255,60,90,0.75)');
+ krow(g,14,206,230,'amplification',+(peak/1000).toFixed(2),
+  Math.min(1,(peak/1000)/90),'rgba(255,210,63,0.75)');
+ krow(g,14,248,230,'failing at round 9',s[9].failed,
+  Math.min(1,s[9].failed/84000),'rgba(255,60,90,0.8)');
+ kverdict(g,12,292,W-24,s[9].failed===0,s[9].failed===0?
+  'recovered once capacity returned':'still failing long after the cause is gone');
+ kout('casfo',retries+' retries'+(budget?', budgeted':'')+' &middot; peak <b>'+
+  peak.toLocaleString()+'</b> &middot; <b>'+(peak/1000).toFixed(2)+'x</b> &middot; '+
+  (s[9].failed===0?'recovers':'<b>does not recover</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'LOAD FEEDING ON ITS OWN FAILURE');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,rad=30+t*90;
+  return {x:Math.cos(t*12.56)*rad,z:Math.sin(t*12.56)*rad,y:0,
+   c:'rgba(255,60,90,'+(0.25+0.6*t)+')',r:1.6+t*3};});
+ nt(g,'#8a7ab8',12,H-22,8,'no faulty component anywhere in it');}
+document.getElementById('casfm').onclick=function(){retries=Math.min(6,retries+1);drawW4();};
+document.getElementById('casfl').onclick=function(){retries=Math.max(0,retries-1);drawW4();};
+document.getElementById('casfb').onclick=function(){budget=!budget;drawW4();};
+document.getElementById('casfr').onclick=function(){retries=2;budget=false;drawW4();};
+document.getElementById('casfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecascadingfailure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+METF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Some systems have two thresholds: the load at which they break, and the much lower load at which they recover. Between them the system stays broken with no cause present, sustained entirely by its own reaction to being broken.<br><br>
+ <span class="lit">LIT</span> verified live. Capacity <b>1,000</b>, retry amplification <b>3&times;</b>. It breaks at an offered load of <b>1,010</b> &mdash; just past capacity, as expected. It recovers only when offered load falls to <b>330</b>, because until then the retries alone exceed capacity. The gap is <b>680</b> requests, <b>68.0%</b> of capacity: removing the trigger is not enough, and the load must drop to a third of what the system could originally serve.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Metastable failure was characterised by <b>Bronson et al.</b> (HotOS 2021); the defining feature is exactly this sustaining effect that outlives its trigger.<br><br>
+ <b>AVAN (AI)</b> computed both thresholds rather than describing hysteresis, because the gap is the whole phenomenon and it is a number. <b>1,010</b> to break, <b>330</b> to recover. An operator watching load return to normal sees a system that should be fine and is not, and the instinct &mdash; restart it, send the traffic back &mdash; puts it straight back over the line.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two thresholds, and the gap between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Push it over, then try to bring it back.</div>
+   <div class="btns" style="margin-top:10px"><button id="metfm">more load &#9654;</button><button id="metfl">less load</button><button id="metfa">stronger retries</button><button id="metfr">reset</button></div>
+   <div class="cap" id="metfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a state that holds itself down.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that metastable failure is a system stuck below its capacity. The inverse is that <b>it is a system doing its job perfectly at the wrong equilibrium</b>. Nothing is degraded; every component is serving exactly as much as it can, and the work arriving is genuine work that genuine clients want done. Read backwards, there is no fault to find and nothing to repair &mdash; the only intervention that works is to refuse traffic you are able to serve, which is why the fix always feels wrong to the person who has to do it.</div>
+   <div class="btns" style="margin-top:10px"><button id="metfs">pause spin</button></div></div></div></div>"""
+METF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,load=900,amp=3,broken=false;
+function thresholds(a){
+ var cap=1000,trig=0,rec=0,l;
+ for(l=800;l<=2000;l+=10)if(l>cap){trig=l;break;}
+ for(l=1000;l>=0;l-=10)if(l*a<=cap){rec=l;break;}
+ return {cap:cap,trigger:trig,recover:rec,gap:trig-rec};}
+function selftest(){
+ var t=thresholds(3);
+ return {capacity:t.cap,retryAmplification:3,
+  breaksAtLoad:t.trigger,recoversAtLoad:t.recover,
+  hysteresisGap:t.gap,gapAsPctOfCapacity:+(100*t.gap/t.cap).toFixed(1),
+  removingTheTriggerIsNotEnough:t.recover<t.trigger,
+  loadMustFallToThisFractionOfCapacity:+(t.recover/t.cap).toFixed(2),
+  ok:t.recover<t.trigger&&t.gap>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'TWO THRESHOLDS');
+ var mx=1400,x=function(v){return 30+v/mx*440;};
+ nf(g,'rgba(125,226,176,0.28)');g.fillRect(30,60,x(VR.recoversAtLoad)-30,40);ng(g);
+ nf(g,'rgba(255,210,63,0.30)');
+ g.fillRect(x(VR.recoversAtLoad),60,x(VR.breaksAtLoad)-x(VR.recoversAtLoad),40);ng(g);
+ nf(g,'rgba(255,60,90,0.35)');g.fillRect(x(VR.breaksAtLoad),60,440-x(VR.breaksAtLoad)+30,40);ng(g);
+ ne(g,'rgba(90,208,255,0.8)',2);g.beginPath();
+ g.moveTo(x(VR.capacity),50);g.lineTo(x(VR.capacity),110);g.stroke();ng(g);
+ nt(g,'#5ad0ff',x(VR.capacity)-24,124,8,'capacity');
+ nt(g,'#7de2b0',34,142,9,'recovers below '+VR.recoversAtLoad);
+ nt(g,'#ffd76a',x(VR.recoversAtLoad)+6,158,9,'stays broken through here');
+ nt(g,'#ff5a8a',x(VR.breaksAtLoad)-40,174,9,'breaks above '+VR.breaksAtLoad);
+ krow(g,30,196,300,'hysteresis gap',VR.hysteresisGap,VR.hysteresisGap/1000,
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,244,W-24,false,'load must fall to '+
+  (100*VR.loadMustFallToThisFractionOfCapacity).toFixed(0)+
+  '% of capacity before it recovers -- removing the trigger is not enough');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=thresholds(amp);
+ if(load>t.trigger)broken=true;
+ if(broken&&load*amp<=t.cap)broken=false;
+ var effective=broken?load*amp:load;
+ nt(g,'#9d00ff',12,20,11,'LOAD '+load+(broken?'   [BROKEN]':'   [healthy]'));
+ krow(g,14,44,230,'offered by clients',load,load/1400,'rgba(90,208,255,0.7)');
+ krow(g,14,86,230,'actually arriving',effective,Math.min(1,effective/3000),
+  broken?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.75)');
+ krow(g,14,128,230,'capacity',t.cap,t.cap/3000,'rgba(255,210,63,0.6)');
+ kverdict(g,12,172,W-24,!broken,broken?
+  'retries alone are '+(load*amp).toLocaleString()+' against a capacity of '+t.cap:
+  'serving normally');
+ nt(g,'#8a7ab8',14,222,9,'breaks above    '+t.trigger);
+ nt(g,'#8a7ab8',14,242,9,'recovers below  '+t.recover);
+ nt(g,'#ffd76a',14,262,9,'gap             '+t.gap+'  ('+
+  (100*t.gap/t.cap).toFixed(0)+'% of capacity)');
+ nt(g,'#5a4a85',14,292,8,'every component is serving exactly as much as it can');
+ nt(g,'#5a4a85',14,310,8,'the only fix is refusing traffic you are able to serve');
+ kout('metfo','load <b>'+load+'</b> &middot; arriving <b>'+effective.toLocaleString()+
+  '</b> &middot; '+(broken?'<b>broken</b>':'healthy')+' &middot; recovers below <b>'+
+  t.recover+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A STATE THAT HOLDS ITSELF DOWN');
+ korb(g,W/2,H/2+30,ang,40,function(i,N){
+  var t=i/N,dip=Math.sin(t*3.14159);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:60-dip*110,
+   c:dip>0.75?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'no fault to find, and nothing to repair');}
+document.getElementById('metfm').onclick=function(){load=Math.min(1400,load+100);drawW4();};
+document.getElementById('metfl').onclick=function(){load=Math.max(0,load-100);drawW4();};
+document.getElementById('metfa').onclick=function(){amp=amp>=6?2:amp+1;drawW4();};
+document.getElementById('metfr').onclick=function(){load=900;amp=3;broken=false;drawW4();};
+document.getElementById('metfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__themetastablefailure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CORF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Three replicas at <b>99%</b> give six nines &mdash; if they fail independently. They share a rack, a power feed, a kernel version and a deploy pipeline, so they do not.<br><br>
+ <span class="lit">LIT</span> verified live. With a <b>1%</b> single-replica failure rate and perfect independence, all three fail together with probability <b>0.000001</b>: <b>6.00</b> nines. Fully correlated, they fail together with probability <b>0.01</b> &mdash; <b>2.00</b> nines, the same as one replica, and <b>10,000&times;</b> worse. The collapse is not gradual: at a correlation of just <b>0.2</b> the figure is already <b>2.70</b> nines. Four of the six nines are gone by the time the replicas are one fifth alike.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Correlated failure is why availability targets are written per failure domain, and why &ldquo;multi-AZ&rdquo; means something specific rather than &ldquo;three copies&rdquo;.<br><br>
+ <b>AVAN (AI)</b> swept the correlation rather than contrasting the endpoints, because the endpoints suggest a trade-off and the sweep shows a cliff. Going from independent to <b>0.2</b> correlated costs more nines than going from <b>0.2</b> to fully correlated. The damage is done by the first small amount of shared fate.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Correlation against nines. The cliff is at the left.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add replicas, or admit they share something.</div>
+   <div class="btns" style="margin-top:10px"><button id="corfm">more replicas &#9654;</button><button id="corfc">more correlation</button><button id="corfr">reset</button></div>
+   <div class="cap" id="corfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three copies of one fate.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that correlation destroys the benefit of replication. The inverse is that <b>the independence was never measured, only assumed</b>. Nobody computes the correlation between their replicas; the six nines come from multiplying a number by itself three times, which is an arithmetic operation performed on an assumption. Read backwards, the availability figure in the design document is not a prediction about the system &mdash; it is a restatement of a belief about how much the replicas have in common, and that belief is usually never written down at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="corfs">pause spin</button></div></div></div></div>"""
+CORF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=3,rho=0;
+function allFail(n,p,r){
+ var indep=Math.pow(p,n);
+ return indep+(p-indep)*r;}
+function nines(x){return -Math.log(x)/Math.LN10;}
+function selftest(){
+ var p=0.01,n=3,rows=[],r;
+ for(r=0;r<=1.0001;r+=0.2){
+  var a=allFail(n,p,r);
+  rows.push({rho:+r.toFixed(1),allFailProb:a,nines:+nines(a).toFixed(2)});}
+ var ind=Math.pow(p,n);
+ return {replicas:n,singleFailureProb:p,
+  independentAllFail:ind,independentNines:+nines(ind).toFixed(2),
+  fullyCorrelatedAllFail:p,fullyCorrelatedNines:+nines(p).toFixed(2),
+  ratio:Math.round(p/ind),
+  atRhoPoint2Nines:rows[1].nines,
+  ninesLostByFirstFifth:+(nines(ind)-rows[1].nines).toFixed(2),
+  rows:rows,
+  ok:p/ind>1000&&rows[0].nines>rows[5].nines};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'CORRELATION AGAINST NINES');
+ kcurve(g,30,44,440,170,60,function(t){
+  return nines(allFail(3,0.01,t));},'rgba(255,210,63,0.9)',2.5);
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],px=30+r.rho*440;
+  ndot(g,px,44+170-(r.nines-2)/4*170,3.4,'rgba(125,226,176,0.9)');
+  nt(g,'#5a4a85',px-8,230,8,''+r.rho);}
+ nt(g,'#8a7ab8',30,248,8,'correlation between replicas');
+ nt(g,'#7de2b0',330,60,9,'independent: '+VR.independentNines+' nines');
+ nt(g,'#ff5a8a',330,78,9,'correlated:  '+VR.fullyCorrelatedNines+' nines');
+ kverdict(g,12,256,W-24,false,VR.ninesLostByFirstFifth+
+  ' of the '+VR.independentNines+' nines are gone by a correlation of only 0.2');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=allFail(N,0.01,rho);
+ nt(g,'#ffd23f',12,20,11,N+' REPLICAS, CORRELATION '+rho.toFixed(1));
+ var i;
+ for(i=0;i<N&&i<8;i++){
+  nf(g,'rgba(125,226,176,'+(0.35+0.5*(1-rho))+')');
+  g.fillRect(20+i*44,44,36,36);ng(g);}
+ if(rho>0){
+  nf(g,'rgba(255,60,90,'+(0.15+0.5*rho)+')');
+  g.fillRect(16,40,Math.min(8,N)*44,44);ng(g);
+  nt(g,'#ff5a8a',20,100,8,'shared fate: rack, power, kernel, deploy');}
+ krow(g,14,120,230,'P(all fail)',a,Math.min(1,a*100),'rgba(255,60,90,0.8)');
+ krow(g,14,162,230,'nines',+nines(a).toFixed(2),nines(a)/8,'rgba(125,226,176,0.75)');
+ krow(g,14,204,230,'if truly independent',+nines(Math.pow(0.01,N)).toFixed(2),
+  nines(Math.pow(0.01,N))/8,'rgba(90,208,255,0.6)');
+ kverdict(g,12,248,W-24,rho===0,rho===0?
+  'independence assumed -- and never measured':
+  'the extra replicas are buying '+
+  (nines(Math.pow(0.01,N))-nines(a)).toFixed(2)+' fewer nines than the arithmetic promised');
+ nt(g,'#5a4a85',14,298,8,'nobody computes the correlation between their replicas');
+ kout('corfo','<b>'+N+'</b> replicas at rho <b>'+rho.toFixed(1)+'</b> &middot; <b>'+
+  nines(a).toFixed(2)+'</b> nines, not <b>'+nines(Math.pow(0.01,N)).toFixed(2)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THREE COPIES OF ONE FATE');
+ kring(g,W/2,H/2+10,ang,3,90,-20,'rgba(125,226,176,0.85)',6);
+ kring(g,W/2,H/2+10,ang*1.3,30,48,22,'rgba(255,60,90,0.4)',2);
+ nt(g,'#8a7ab8',12,H-22,8,'a restatement of a belief that is never written down');}
+document.getElementById('corfm').onclick=function(){N=N>=7?3:N+2;drawW4();};
+document.getElementById('corfc').onclick=function(){rho=rho>=1?0:+(rho+0.2).toFixed(1);drawW4();};
+document.getElementById('corfr').onclick=function(){N=3;rho=0;drawW4();};
+document.getElementById('corfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecorrelatedfailure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SILC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A disk does not always tell you when it returns the wrong bytes. Without a checksum there is no failure to detect: the read succeeds, the data is wrong, and nothing anywhere reports a problem.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> four-byte blocks under a bit error rate of <b>1e-4</b>. <b>670</b> blocks were corrupted by a single flipped bit. A CRC-8 caught <b>670</b> of <b>670</b> &mdash; <b>100.00%</b>, with an escape rate of <b>0</b>, because a single-bit error is exactly what a CRC is built to catch. Without the checksum all <b>670</b> pass silently, and the read reports success every time.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Silent data corruption is why ZFS and modern filesystems checksum every block, and why <b>Bairavasundaram et al.</b> found real corruption at rates that made it a design requirement rather than a curiosity.<br><br>
+ <b>AVAN (AI)</b> tested single-bit flips, which is the case a CRC is designed for &mdash; so <b>100%</b> here is not a claim about CRC strength in general. A CRC-8 has a <b>1 in 256</b> escape rate against arbitrary multi-bit corruption. The honest finding is the comparison: <b>670</b> caught against <b>670</b> silent, with the only difference being whether anybody wrote the checksum down.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Corrupted blocks, caught and silent.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Raise the error rate and watch what a read reports.</div>
+   <div class="btns" style="margin-top:10px"><button id="silcm">worse media &#9654;</button><button id="silcl">better</button><button id="silcc">remove the checksum</button><button id="silcr">reset</button></div>
+   <div class="cap" id="silco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a read that succeeded and was wrong.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that checksums detect silent corruption. The inverse is that <b>they convert a data problem into an availability problem, on purpose</b>. Before the checksum you had wrong bytes and a working system; after it you have a read that fails and an application that cannot proceed. Read backwards, the checksum does not save the data &mdash; the data was already gone &mdash; it forces someone to find out, and every layer that adds one is choosing a visible outage over an invisible corruption.</div>
+   <div class="btns" style="margin-top:10px"><button id="silcs">pause spin</button></div></div></div></div>"""
+SILC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,rate=1e-4,useCrc=true;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function crc8(b){var c=0,j,k;
+ for(j=0;j<b.length;j++){c^=b[j];
+  for(k=0;k<8;k++)c=(c&128)?(((c<<1)^7)&255):((c<<1)&255);}
+ return c;}
+function run(br,crc){
+ var N=200000,r=rng(11),corrupt=0,caught=0,silent=0,i;
+ for(i=0;i<N;i++){
+  var block=[(i*37)&255,(i*91)&255,(i*13)&255,(i*57)&255];
+  var sum=crc8(block);
+  if(r()<br*32){
+   corrupt++;
+   var pos=Math.floor(r()*4),bit=1<<Math.floor(r()*8);
+   block[pos]^=bit;
+   if(crc&&crc8(block)!==sum)caught++;else silent++;}}
+ return {N:N,corrupt:corrupt,caught:caught,silent:silent};}
+function selftest(){
+ var m=run(1e-4,true);
+ return {blocks:m.N,bitErrorRate:1e-4,
+  corruptedBlocks:m.corrupt,caughtByCrc:m.caught,silentlyPassed:m.silent,
+  detectionPct:+(100*m.caught/Math.max(1,m.corrupt)).toFixed(2),
+  withoutChecksumAllSilent:m.corrupt,
+  crc8EscapeRate:+(m.silent/Math.max(1,m.corrupt)).toFixed(6),
+  singleBitIsTheDesignedCase:true,
+  ok:m.corrupt>0&&m.caught>0&&m.caught>m.silent};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'CORRUPTED BLOCKS, CAUGHT AND SILENT');
+ nt(g,'#7de2b0',20,48,9,'with a CRC-8');
+ kgrid(g,20,56,60,2,7.6,16,function(i){
+  return i<VR.caughtByCrc/VR.corruptedBlocks*120?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)';});
+ nt(g,'#8a7ab8',20,104,8,VR.caughtByCrc+' caught, '+VR.silentlyPassed+' silent');
+ nt(g,'#ff5a8a',20,136,9,'without one');
+ kgrid(g,20,144,60,2,7.6,16,function(){return 'rgba(255,60,90,0.8)';});
+ nt(g,'#8a7ab8',20,192,8,'0 caught, '+VR.withoutChecksumAllSilent+
+  ' silent -- and every read reported success');
+ kverdict(g,12,208,W-24,true,VR.detectionPct+
+  '% detection on single-bit flips, which is the case a CRC is designed for');
+ nt(g,'#5a4a85',20,268,8,'a CRC-8 escapes roughly 1 in 256 arbitrary multi-bit corruptions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(rate,useCrc);
+ nt(g,'#7cfc00',12,20,11,'BIT ERROR RATE '+rate.toExponential(0)+
+  (useCrc?'   [CRC on]':'   [no checksum]'));
+ kgrid(g,14,40,40,4,8.6,11,function(i){
+  var f=i/160;
+  if(f>m.corrupt/m.N*40)return 'rgba(90,70,140,0.25)';
+  return useCrc?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.85)';});
+ nt(g,'#8a7ab8',14,96,8,'160 cells; lit ones are corrupted blocks, scaled up 40x');
+ krow(g,14,114,230,'corrupted',m.corrupt,Math.min(1,m.corrupt/5000),
+  'rgba(255,210,63,0.7)');
+ krow(g,14,156,230,'caught',m.caught,m.corrupt?m.caught/m.corrupt:0,
+  'rgba(125,226,176,0.75)');
+ krow(g,14,198,230,'SILENT -- read said success',m.silent,
+  m.corrupt?m.silent/m.corrupt:0,'rgba(255,60,90,0.85)');
+ kverdict(g,12,242,W-24,m.silent===0,m.silent===0?
+  'every corruption surfaced as a failed read':
+  m.silent.toLocaleString()+' wrong blocks returned with no error anywhere');
+ nt(g,'#5a4a85',14,292,8,'the checksum does not save the data -- it was already gone');
+ nt(g,'#5a4a85',14,310,8,'it forces someone to find out');
+ kout('silco','rate <b>'+rate.toExponential(0)+'</b> &middot; corrupted <b>'+
+  m.corrupt+'</b> &middot; silent <b>'+m.silent+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A READ THAT SUCCEEDED AND WAS WRONG');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,bad=(i%17===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*34,y:bad?-20:0,
+   c:bad?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.6)',r:bad?3.6:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'a visible outage chosen over an invisible corruption');}
+document.getElementById('silcm').onclick=function(){rate=Math.min(1e-2,rate*10);drawW4();};
+document.getElementById('silcl').onclick=function(){rate=Math.max(1e-6,rate/10);drawW4();};
+document.getElementById('silcc').onclick=function(){useCrc=!useCrc;drawW4();};
+document.getElementById('silcr').onclick=function(){rate=1e-4;useCrc=true;drawW4();};
+document.getElementById('silcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesilentcorruption=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BKPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An unbounded queue never rejects anything, which sounds generous until you notice what it is doing instead: accepting work it will not get to for hours, and making everyone wait behind it.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> ticks, offered above capacity. Unbounded: <b>0</b> rejected, final queue <b>6,917</b> deep, mean wait <b>3,461.9</b>. Bounded at <b>100</b>: <b>6,818</b> shed, final queue <b>99</b>, mean wait <b>99.4</b> &mdash; <b>34.8&times;</b> shorter. And the throughput is identical: <b>20,000</b> served either way, a difference of <b>0</b>. The unbounded queue served nobody extra; it only made the served ones wait.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is Little&rsquo;s Law with a policy attached: throughput is set by the server, and the queue only decides how long the wait is.<br><br>
+ <b>AVAN (AI)</b> put the throughput columns side by side because that is the whole argument and it is the column people expect to differ. <b>20,000</b> and <b>20,000</b>. Accepting the extra work bought exactly nothing, and the <b>6,818</b> requests that were shed would have waited an hour to be told the same thing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two queues, one server, same arrivals.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the bound and watch the wait, not the throughput.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkprm">deeper queue &#9654;</button><button id="bkprl">shallower</button><button id="bkpru">unbounded</button><button id="bkprr">reset</button></div>
+   <div class="cap" id="bkpro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue that says no.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that backpressure protects the system. The inverse is that <b>it moves the failure to where somebody can see it</b>. The unbounded queue fails too &mdash; it fails as a timeout, in a client, minutes later, with no error anywhere in your logs. Read backwards, shedding does not reduce the number of unhappy users by one; it changes an invisible slow failure into a visible fast one, and every argument against it is really an argument for not being the one who says no.</div>
+   <div class="btns" style="margin-top:10px"><button id="bkprs">pause spin</button></div></div></div></div>"""
+BKPR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cap=100;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(bound){
+ var T=20000,r=rng(13),q=0,served=0,shed=0,wSum=0,wN=0,trace=[],t,k;
+ for(t=0;t<T;t++){
+  var arr=(r()<0.35)?2:1;
+  for(k=0;k<arr;k++){
+   if(bound>0&&q>=bound){shed++;continue;}
+   q++;}
+  if(q>0){wSum+=q;wN++;q--;served++;}
+  if(t%160===0)trace.push(q);}
+ return {served:served,shed:shed,queue:q,
+  meanWait:+(wSum/Math.max(1,wN)).toFixed(1),trace:trace};}
+function selftest(){
+ var un=run(0),bd=run(100);
+ return {ticks:20000,capacity:100,
+  unboundedServed:un.served,unboundedShed:un.shed,
+  unboundedFinalQueue:un.queue,unboundedMeanWait:un.meanWait,
+  boundedServed:bd.served,boundedShed:bd.shed,
+  boundedFinalQueue:bd.queue,boundedMeanWait:bd.meanWait,
+  waitRatio:+(un.meanWait/bd.meanWait).toFixed(1),
+  throughputDiff:un.served-bd.served,
+  throughputIsSetByTheServer:true,
+  ok:un.meanWait>bd.meanWait*5&&un.served===bd.served};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'TWO QUEUES, ONE SERVER, SAME ARRIVALS');
+ var un=run(0),bd=run(100);
+ nt(g,'#ff5a8a',20,46,9,'unbounded -- queue depth over time');
+ kcurve(g,20,54,460,60,un.trace.length-1,function(t){
+  return un.trace[Math.round(t*(un.trace.length-1))];},'rgba(255,60,90,0.85)',2);
+ nt(g,'#7de2b0',20,142,9,'bounded at 100');
+ kcurve(g,20,150,460,60,bd.trace.length-1,function(t){
+  return bd.trace[Math.round(t*(bd.trace.length-1))];},'rgba(125,226,176,0.9)',2);
+ nt(g,'#ffd76a',20,232,10,'mean wait  '+VR.unboundedMeanWait.toLocaleString()+
+  '   vs   '+VR.boundedMeanWait+'   ('+VR.waitRatio+'x)');
+ kverdict(g,12,244,W-24,true,'throughput '+VR.unboundedServed.toLocaleString()+
+  ' vs '+VR.boundedServed.toLocaleString()+' -- a difference of '+VR.throughputDiff);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(cap);
+ nt(g,'#5ad0ff',12,20,11,cap===0?'UNBOUNDED QUEUE':'BOUNDED AT '+cap);
+ kcurve(g,14,40,340,80,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))];},
+  cap===0?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.9)',2);
+ nt(g,'#8a7ab8',14,136,8,'queue depth across the run');
+ krow(g,14,154,230,'served',m.served,m.served/20000,'rgba(125,226,176,0.75)');
+ krow(g,14,196,230,'shed',m.shed,Math.min(1,m.shed/8000),'rgba(255,210,63,0.7)');
+ krow(g,14,238,230,'mean wait',m.meanWait,Math.min(1,m.meanWait/3500),
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,282,W-24,m.meanWait<200,m.meanWait<200?
+  'short wait, and the same throughput':
+  'the queue is absorbing work nobody will get to in time');
+ kout('bkpro',(cap?'bound '+cap:'unbounded')+' &middot; served <b>'+
+  m.served.toLocaleString()+'</b> &middot; wait <b>'+m.meanWait+'</b> &middot; shed <b>'+
+  m.shed.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE THAT SAYS NO');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,shed=(t>0.72);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:shed?26:0,
+   c:shed?'rgba(255,210,63,0.75)':'rgba(125,226,176,0.75)',r:shed?2:2.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'an invisible slow failure made a visible fast one');}
+document.getElementById('bkprm').onclick=function(){cap=cap===0?50:Math.min(4000,cap*2);drawW4();};
+document.getElementById('bkprl').onclick=function(){cap=Math.max(5,Math.floor((cap||4000)/2));drawW4();};
+document.getElementById('bkpru').onclick=function(){cap=0;drawW4();};
+document.getElementById('bkprr').onclick=function(){cap=100;drawW4();};
+document.getElementById('bkprs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebackpressure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CIRB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If a dependency has failed the last five times, the sixth call is not a request &mdash; it is a guess with a timeout attached. A circuit breaker stops guessing and checks back occasionally instead.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>2,000</b>-tick outage inside a <b>6,000</b>-tick run. Without a breaker: <b>6,000</b> calls, <b>2,000</b> failures &mdash; every single request during the outage waits for a timeout. With a breaker that opens after <b>5</b> consecutive failures and probes every <b>200</b> ticks: <b>14</b> failures and <b>1,990</b> rejected immediately. That is <b>1,986</b> wasted calls avoided, a <b>99.3%</b> reduction, at the cost of <b>10</b> probe calls to notice the recovery.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The pattern is <b>Michael Nygard</b>&rsquo;s, from <i>Release It!</i>; the half-open state is the part that makes it a breaker rather than a fuse.<br><br>
+ <b>AVAN (AI)</b> counted the probes as well as the savings, because the probe interval is the real design parameter. <b>10</b> probes across the outage is what buys the recovery detection, and shortening the interval to notice faster is precisely what turns the breaker back into the retry storm it was installed to stop.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The run, with and without a breaker.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Tune the probe interval and the trip threshold.</div>
+   <div class="btns" style="margin-top:10px"><button id="cirbp">probe sooner &#9654;</button><button id="cirbl">probe later</button><button id="cirbt">trip faster</button><button id="cirbr">reset</button></div>
+   <div class="cap" id="cirbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a door that closes itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a breaker protects you from a failing dependency. The inverse is that <b>it fails your requests on the dependency&rsquo;s behalf, using stale evidence</b>. Once open it rejects calls that might have succeeded, based on what was true two hundred ticks ago, and every rejection is a decision made without asking. Read backwards, a breaker converts a dependency&rsquo;s outage into your own deliberate outage &mdash; faster, cheaper, and entirely your responsibility.</div>
+   <div class="btns" style="margin-top:10px"><button id="cirbs">pause spin</button></div></div></div></div>"""
+CIRB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,probe=200,trip=5;
+function run(useBreaker,pr,tp){
+ var T=6000,calls=0,failed=0,rejected=0,state='closed',consec=0,openedAt=-1,i;
+ var trace=[];
+ for(i=0;i<T;i++){
+  var down=(i>=1000&&i<3000);
+  if(useBreaker&&state==='open'){
+   if(i-openedAt>=pr)state='half';
+   else {rejected++;if(i%40===0)trace.push(2);continue;}}
+  calls++;
+  if(down){failed++;consec++;
+   if(useBreaker&&consec>=tp){state='open';openedAt=i;}}
+  else {consec=0;if(state==='half')state='closed';}
+  if(i%40===0)trace.push(down?1:0);}
+ return {calls:calls,failed:failed,rejected:rejected,trace:trace};}
+function selftest(){
+ var off=run(false,200,5),on=run(true,200,5);
+ return {ticks:6000,outageFrom:1000,outageTo:3000,
+  tripAfter:5,probeEvery:200,
+  noBreakerCalls:off.calls,noBreakerFailed:off.failed,
+  breakerCalls:on.calls,breakerFailed:on.failed,breakerRejected:on.rejected,
+  wastedCallsAvoided:off.failed-on.failed,
+  reductionPct:+(100*(1-on.failed/off.failed)).toFixed(1),
+  probesDuringOutage:Math.floor(2000/200),
+  ok:on.failed<off.failed&&on.rejected>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THE RUN, WITH AND WITHOUT A BREAKER');
+ var off=run(false,200,5),on=run(true,200,5),i;
+ nt(g,'#ff5a8a',20,46,9,'no breaker');
+ for(i=0;i<off.trace.length&&i<150;i++){
+  nf(g,off.trace[i]===1?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)');
+  g.fillRect(20+i*3.1,54,2.6,26);ng(g);}
+ nt(g,'#7de2b0',20,110,9,'breaker: opens after 5 failures, probes every 200');
+ for(i=0;i<on.trace.length&&i<150;i++){
+  nf(g,on.trace[i]===2?'rgba(255,210,63,0.75)':
+     (on.trace[i]===1?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)'));
+  g.fillRect(20+i*3.1,118,2.6,26);ng(g);}
+ nt(g,'#ffd76a',20,162,8,'gold = rejected without calling');
+ krow(g,20,180,300,'failures without a breaker',VR.noBreakerFailed,
+  VR.noBreakerFailed/2000,'rgba(255,60,90,0.8)');
+ krow(g,20,224,300,'failures with one',VR.breakerFailed,VR.breakerFailed/2000,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,262-4,W-24,true,VR.wastedCallsAvoided.toLocaleString()+
+  ' wasted calls avoided -- '+VR.reductionPct+'% -- for '+VR.probesDuringOutage+' probes');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var off=run(false,probe,trip),on=run(true,probe,trip);
+ nt(g,'#00f5ff',12,20,11,'TRIP AFTER '+trip+'   PROBE EVERY '+probe);
+ for(var i=0;i<on.trace.length&&i<110;i++){
+  nf(g,on.trace[i]===2?'rgba(255,210,63,0.75)':
+     (on.trace[i]===1?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)'));
+  g.fillRect(14+i*3.1,44,2.6,30);ng(g);}
+ nt(g,'#8a7ab8',14,90,8,'green served, red failed, gold rejected without calling');
+ krow(g,14,108,230,'failures',on.failed,on.failed/2000,'rgba(255,60,90,0.8)');
+ krow(g,14,150,230,'rejected immediately',on.rejected,on.rejected/2000,
+  'rgba(255,210,63,0.7)');
+ krow(g,14,192,230,'probes during the outage',Math.floor(2000/probe),
+  Math.min(1,Math.floor(2000/probe)/100),'rgba(90,208,255,0.7)');
+ krow(g,14,234,230,'reduction %',+(100*(1-on.failed/off.failed)).toFixed(1),
+  (1-on.failed/off.failed),'rgba(125,226,176,0.75)');
+ kverdict(g,12,278,W-24,Math.floor(2000/probe)<50,
+  Math.floor(2000/probe)<50?'probing rarely enough to stay out of the way':
+  'probing this often is the retry storm the breaker was installed to stop');
+ kout('cirbo','trip <b>'+trip+'</b>, probe <b>'+probe+'</b> &middot; failures <b>'+
+  on.failed+'</b> &middot; rejected <b>'+on.rejected.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A DOOR THAT CLOSES ITSELF');
+ kring(g,W/2,H/2+10,ang,20,92,0,'rgba(125,226,176,0.6)',2.4);
+ kring(g,W/2,H/2+10,-ang*1.6,6,44,-22,'rgba(255,210,63,0.85)',3.4);
+ nt(g,'#8a7ab8',12,H-22,8,'a dependency outage converted into your own, deliberately');}
+document.getElementById('cirbp').onclick=function(){probe=Math.max(20,Math.floor(probe/2));drawW4();};
+document.getElementById('cirbl').onclick=function(){probe=Math.min(1600,probe*2);drawW4();};
+document.getElementById('cirbt').onclick=function(){trip=trip<=2?10:trip-2;drawW4();};
+document.getElementById('cirbr').onclick=function(){probe=200;trip=5;drawW4();};
+document.getElementById('cirbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecircuitbreaker=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 263 · neon-noir · silicon-coding · WHAT CANNOT BE SQUEEZED ═══════════════════════
 # ═══════════════════════ BATCH 262 · neon-noir · silicon-coding · THE NUMBERS THAT DO NOT ADD UP ═══════════════════════
 # ═══════════════════════ BATCH 261 · neon-noir · silicon-coding · WHAT TIME IT IS, AND WHO AGREES ═══════════════════════
@@ -105446,6 +106393,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-partial-failure","title":"THE PARTIAL FAILURE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"⁇",
+  "kicker":"it makes the unknown harmless, not known",
+  "blurb":"A remote call has three outcomes, not two. It worked, it did not happen, or it happened and the answer was lost. From the caller the last two look identical.",
+  "lit":"100,000 calls give 94,039 successes, 2,965 clean failures that never arrived, and 2,996 that arrived and lost their reply - 3.00% in a state the caller cannot distinguish - so only the 2,965 are safe to retry blindly while retrying the other 2,996 duplicates real work, and an idempotency key makes all 100,000 safe",
+  "fig":"The three-outcome problem is why every payments API has an idempotency key and why at-least-once is the only delivery guarantee most systems can offer. AVAN counted the buckets separately rather than reporting a success rate: 94% succeeded is the number that gets published, 3% unknown is the number that decides your architecture, and averaging them into 97% did not fail hides exactly the population that needs the design work.",
+  "body":PRTF_BODY,"script":PRTF_SCRIPT},
+ {"slug":"the-poison-message","title":"THE POISON MESSAGE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"☠",
+  "kicker":"busy, at full CPU, making no progress",
+  "blurb":"A queue with ordered delivery and infinite retry has a failure mode with no moving parts: one message that can never be processed stops every message behind it, forever.",
+  "lit":"1,000 messages with one poison at position 7: unlimited retry processes 7, burns 200,000 attempts and never drains, while a dead-letter queue after 3 attempts processes 999, spends 1,002 attempts, sets 1 message aside and finishes - one message held 992 others hostage",
+  "fig":"Dead-letter queues exist for exactly this; the failure is common enough that ordered-delivery systems treat a retry cap as mandatory. AVAN reports the work column alongside the throughput one, because 200,000 attempts for 7 messages is the part that hurts. The consumer is not idle or crashed - it is fully busy, at maximum CPU, making no progress, which is the hardest failure to spot on a dashboard.",
+  "body":PSNM_BODY,"script":PSNM_SCRIPT},
+ {"slug":"the-split-brain","title":"THE SPLIT BRAIN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"⑃",
+  "kicker":"it lets the smaller side disqualify itself",
+  "blurb":"Partition a cluster and both halves can decide they are in charge. Requiring a strict majority makes that arithmetically impossible - and the arithmetic also explains why clusters come in odd numbers.",
+  "lit":"every partition of a 5-node cluster - all 32 - enumerated gives two leaders in 30 under naive election and 0 under quorum, at every size from 3 to 8; and the deadlocks are the finding, since odd sizes leave 0 partitions with no leader while 4 nodes deadlock in 6 of 16, which is 37.5%",
+  "fig":"Quorum intersection is the guarantee, and its arithmetic is measured next door in THE PAXOS QUORUM - that sphere proves the safety side, that no two majority quorums are disjoint, while this one measures what the safety costs. The odd-size convention is the folklore that follows. AVAN found the odd-size result by getting a gate wrong: I asserted that some partition of five nodes would leave nobody in charge, and it never does, because one side always holds three. Sweeping 3 to 8 instead of testing one size turned a failed assertion into the actual finding - even clusters deadlock on the tie and odd ones cannot.",
+  "body":SPLB_BODY,"script":SPLB_SCRIPT},
+ {"slug":"the-gray-failure","title":"THE GRAY FAILURE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"◐",
+  "kicker":"the shallowness is restraint, not laziness",
+  "blurb":"The worst kind of broken is the kind that answers the health check. A node failing only on the path your users take stays in rotation because the thing watching it is not doing what they are doing.",
+  "lit":"200,000 samples of one node give a health probe - small, cached, no dependencies - succeeding 99.91% of the time while real requests touching the degraded dependency succeed 61.93%, a gap of 37.99 points on the same machine at the same moment, and the node is not removed from rotation because nothing that decides rotation saw the second number",
+  "fig":"Gray failure was named by Huang et al. (HotOS 2017); the definition is precisely this differential observability between the system's view and the user's. AVAN measured both populations rather than describing the idea, because the number that matters is the gap, not either rate. 99.91% is a true statement about the probe and 61.93% is a true statement about the users - nothing is lying, and the node stays up.",
+  "body":GRYF_BODY,"script":GRYF_SCRIPT},
+ {"slug":"the-cascading-failure","title":"THE CASCADING FAILURE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⇈",
+  "kicker":"no faulty component anywhere in it",
+  "blurb":"A dependency loses capacity. Requests fail. Every failure is retried, so the offered load rises, so more fail. The retries are load, and the load is what caused the retries.",
+  "lit":"base load 1,000 against a healthy capacity of 1,200 with two retries per failure: when capacity drops to 600 for three rounds the offered load climbs to 3,400 with 2,800 failing, and after capacity is fully restored at round 5 the offered load reaches 84,600 by round 9 - an amplification of 84.60x with 83,400 still failing, four rounds after the cause was removed",
+  "fig":"Retry amplification is why every serious client library has a retry budget rather than a retry count, and why load shedding is applied at the caller. AVAN set the healthy capacity above the base load at first, so nothing ever failed and there was no cascade to measure - a clean run proving nothing. Restoring capacity at round 5 is the important half: 84,600 against a base of 1,000, long after the trigger is gone.",
+  "body":CASF_BODY,"script":CASF_SCRIPT},
+ {"slug":"the-metastable-failure","title":"THE METASTABLE FAILURE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"∿",
+  "kicker":"the only fix is refusing traffic you can serve",
+  "blurb":"Some systems have two thresholds: the load at which they break, and the much lower load at which they recover. Between them they stay broken with no cause present.",
+  "lit":"with a capacity of 1,000 and a retry amplification of 3x the system breaks at an offered load of 1,010, just past capacity, but recovers only when offered load falls to 330, because until then the retries alone exceed capacity - a gap of 680 requests or 68.0% of capacity, so load must drop to a third of what the system could originally serve",
+  "fig":"Metastable failure was characterised by Bronson et al. (HotOS 2021); the defining feature is exactly this sustaining effect that outlives its trigger. AVAN computed both thresholds rather than describing hysteresis, because the gap is the whole phenomenon and it is a number. An operator watching load return to normal sees a system that should be fine and is not, and the instinct - restart it, send the traffic back - puts it straight back over the line.",
+  "body":METF_BODY,"script":METF_SCRIPT},
+ {"slug":"the-correlated-failure","title":"THE CORRELATED FAILURE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"⋈",
+  "kicker":"an availability figure is a belief about shared fate",
+  "blurb":"Three replicas at 99% give six nines - if they fail independently. They share a rack, a power feed, a kernel version and a deploy pipeline, so they do not.",
+  "lit":"a 1% single-replica failure rate with perfect independence gives all three failing together at probability 0.000001, which is 6.00 nines, while fully correlated they fail together at 0.01 - 2.00 nines, the same as one replica and 10,000 times worse - and the collapse is not gradual, since at a correlation of only 0.2 the figure is already 2.70 nines",
+  "fig":"Correlated failure is why availability targets are written per failure domain and why multi-AZ means something specific rather than three copies. AVAN swept the correlation rather than contrasting the endpoints, because the endpoints suggest a trade-off and the sweep shows a cliff: going from independent to 0.2 correlated costs more nines than going from 0.2 to fully correlated. The damage is done by the first small amount of shared fate.",
+  "body":CORF_BODY,"script":CORF_SCRIPT},
+ {"slug":"the-silent-corruption","title":"THE SILENT CORRUPTION","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⌗",
+  "kicker":"a visible outage chosen over an invisible corruption",
+  "blurb":"A disk does not always tell you when it returns the wrong bytes. Without a checksum there is no failure to detect: the read succeeds, the data is wrong, and nothing reports a problem.",
+  "lit":"200,000 four-byte blocks under a bit error rate of 1e-4 leave 670 corrupted by a single flipped bit, of which a CRC-8 catches 670 - 100.00% with an escape rate of 0, because a single-bit error is exactly what a CRC is built to catch - while without the checksum all 670 pass silently and the read reports success every time",
+  "fig":"Silent data corruption is why ZFS and modern filesystems checksum every block. AVAN tested single-bit flips, which is the case a CRC is designed for, so 100% here is not a claim about CRC strength in general - a CRC-8 has roughly a 1 in 256 escape rate against arbitrary multi-bit corruption. The honest finding is the comparison: 670 caught against 670 silent, with the only difference being whether anybody wrote the checksum down.",
+  "body":SILC_BODY,"script":SILC_SCRIPT},
+ {"slug":"the-backpressure","title":"THE BACKPRESSURE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⊣",
+  "kicker":"an invisible slow failure made a visible fast one",
+  "blurb":"An unbounded queue never rejects anything, which sounds generous until you notice what it does instead: accepting work it will not get to for hours, and making everyone wait behind it.",
+  "lit":"20,000 ticks offered above capacity give an unbounded queue 0 rejected, a final depth of 6,917 and a mean wait of 3,461.9, against a queue bounded at 100 which sheds 6,818, ends 99 deep and waits 99.4 - 34.8 times shorter - while serving the identical 20,000, a throughput difference of 0",
+  "fig":"This is Little's Law with a policy attached: throughput is set by the server, and the queue only decides how long the wait is. AVAN put the throughput columns side by side because that is the whole argument and it is the column people expect to differ. 20,000 and 20,000. Accepting the extra work bought exactly nothing, and the 6,818 requests that were shed would have waited an hour to be told the same thing.",
+  "body":BKPR_BODY,"script":BKPR_SCRIPT},
+ {"slug":"the-circuit-breaker","title":"THE CIRCUIT BREAKER","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"⏻",
+  "kicker":"a dependency outage converted into your own, deliberately",
+  "blurb":"If a dependency has failed the last five times, the sixth call is not a request - it is a guess with a timeout attached. A circuit breaker stops guessing and checks back occasionally instead.",
+  "lit":"a 2,000-tick outage inside a 6,000-tick run costs 6,000 calls and 2,000 failures without a breaker, while a breaker opening after 5 consecutive failures and probing every 200 ticks gives 14 failures and 1,990 immediate rejections - 1,986 wasted calls avoided, a 99.3% reduction, at the cost of 10 probe calls to notice the recovery",
+  "fig":"The pattern is Michael Nygard's, from Release It!; the half-open state is what makes it a breaker rather than a fuse. AVAN counted the probes as well as the savings, because the probe interval is the real design parameter. 10 probes across the outage is what buys the recovery detection, and shortening the interval to notice faster is precisely what turns the breaker back into the retry storm it was installed to stop.",
+  "body":CIRB_BODY,"script":CIRB_SCRIPT},
  {"slug":"the-dodgson","title":"THE DODGSON","appeal_name":"CHEAT","appeal_slug":"cheat",
   "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#00f5ff","icon":"dodgson",
   "kicker":"a determinant shrunk out of 2x2 windows",
