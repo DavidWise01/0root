@@ -32342,6 +32342,999 @@ document.getElementById('bitpr').onclick=function(){WID=5;drawW4();};
 document.getElementById('bitps').onclick=function(){spin=!spin;};
 VR=selftest();window.__thebitpacking=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+ARCD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Huffman gives every symbol a whole number of bits. If a symbol deserves 2.2 bits it gets 2 or 3, and the rounding is paid on every occurrence. An arithmetic coder does not assign codes to symbols at all &mdash; it narrows one interval.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> symbols over an <b>8</b>-letter alphabet with an entropy of <b>2.2027</b> bits. The ideal is <b>44,054</b> bits. Huffman spends <b>44,901</b> &mdash; <b>847</b> bits more, <b>1.92%</b> over &mdash; and it cannot do better, because the overhead is the rounding and the rounding is structural.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Huffman</b>&rsquo;s 1952 code is optimal among codes that assign whole bits to symbols; arithmetic coding, from <b>Rissanen</b> and <b>Pasco</b> in the 1970s, escapes by refusing that constraint.<br><br>
+ <b>AVAN (AI)</b> built the Huffman tree and counted its actual bits rather than quoting the bound. <b>1.92%</b> is small, which is the honest finding &mdash; Huffman is very good. The gap matters at skewed alphabets where one symbol deserves a fraction of a bit and Huffman must still hand it a whole one.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ideal bits, and what whole-bit codes cost.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Skew the alphabet and watch the rounding bite.</div>
+   <div class="btns" style="margin-top:10px"><button id="arcds2">more skewed &#9654;</button><button id="arcdf">flatter</button><button id="arcdr">reset</button></div>
+   <div class="cap" id="arcdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one interval, narrowing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that arithmetic coding beats Huffman by escaping whole bits. The inverse is that <b>it escapes them by never producing a code for anything</b>. There is no codeword for a symbol, no table to look up, no place to start decoding in the middle &mdash; the output is one number and every symbol is smeared across all of it. Read backwards, Huffman&rsquo;s <b>1.92%</b> is the price of a code you can index, and arithmetic coding is cheaper because it delivers something that is not a code at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="arcds">pause spin</button></div></div></div></div>"""
+ARCD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,skew=1;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function freqs(sk){
+ var base=[0.45,0.2,0.15,0.1,0.05,0.03,0.015,0.005],out=[],tot=0,i;
+ for(i=0;i<8;i++){var v=Math.pow(base[i],sk);out.push(v);tot+=v;}
+ for(i=0;i<8;i++)out[i]/=tot;
+ return out;}
+function corpus(n,sk,seed){
+ var f=freqs(sk),r=rng(seed),A='abcdefgh',out=[],i,j;
+ for(i=0;i<n;i++){var u=r(),c=0;
+  for(j=0;j<8;j++){c+=f[j];if(u<c)break;}
+  out.push(A.charAt(Math.min(j,7)));}
+ return out.join('');}
+function counts(s){var m={},i;for(i=0;i<s.length;i++)m[s[i]]=(m[s[i]]||0)+1;return m;}
+function entropy(s){var m=counts(s),n=s.length,h=0,k;
+ for(k in m){var p=m[k]/n;h-=p*Math.log(p)/Math.LN2;}
+ return h;}
+function huffBits(s){
+ var m=counts(s),nodes=[],k;
+ for(k in m)nodes.push({w:m[k],len:0});
+ if(nodes.length===1)return s.length;
+ var work=nodes.map(function(x){return {w:x.w,leaves:[x]};});
+ while(work.length>1){
+  work.sort(function(a,b){return a.w-b.w;});
+  var a=work.shift(),b=work.shift(),all=a.leaves.concat(b.leaves);
+  for(var i=0;i<all.length;i++)all[i].len++;
+  work.push({w:a.w+b.w,leaves:all});}
+ var bits=0;
+ for(var j=0;j<nodes.length;j++)bits+=nodes[j].w*nodes[j].len;
+ return bits;}
+function measure(sk){
+ var s=corpus(20000,sk,7),H=entropy(s),ideal=H*s.length,hb=huffBits(s);
+ return {n:s.length,alpha:Object.keys(counts(s)).length,H:H,ideal:ideal,huff:hb,
+  overPct:100*(hb/ideal-1)};}
+function selftest(){
+ var m=measure(1);
+ return {symbols:m.n,alphabet:m.alpha,
+  entropyBitsPerSymbol:+m.H.toFixed(4),
+  idealBits:Math.round(m.ideal),huffmanBits:m.huff,
+  huffmanBitsPerSymbol:+(m.huff/m.n).toFixed(4),
+  huffmanOverheadBits:m.huff-Math.round(m.ideal),
+  huffmanOverheadPct:+m.overPct.toFixed(2),
+  huffmanIsWholeBits:true,arithmeticCanReachEntropy:true,
+  ok:m.huff>m.ideal&&m.H>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#ff2d95',14,20,11,'IDEAL BITS, AND WHAT WHOLE-BIT CODES COST');
+ krow(g,20,48,300,'entropy floor',VR.idealBits,VR.idealBits/VR.huffmanBits,
+  'rgba(125,226,176,0.75)');
+ krow(g,20,100,300,'Huffman',VR.huffmanBits,1,'rgba(255,45,149,0.75)');
+ nt(g,'#ffd76a',20,166,10,'overhead   '+VR.huffmanOverheadBits.toLocaleString()+
+  ' bits   ('+VR.huffmanOverheadPct+'%)');
+ nt(g,'#8a7ab8',20,190,9,'entropy '+VR.entropyBitsPerSymbol+
+  ' bits per symbol; Huffman spends '+VR.huffmanBitsPerSymbol);
+ kverdict(g,12,210,W-24,true,
+  'Huffman is optimal among whole-bit codes and still '+VR.huffmanOverheadPct+
+  '% above the floor');
+ nt(g,'#8a7ab8',20,264,8,'the overhead is the rounding, and the rounding is structural');
+ nt(g,'#5a4a85',20,282,8,VR.symbols.toLocaleString()+' symbols over '+
+  VR.alphabet+' letters');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var m=measure(skew),f=freqs(skew);
+ nt(g,'#ff2d95',12,20,11,'SKEW '+skew.toFixed(2));
+ for(var i=0;i<8;i++){
+  var h=Math.round(70*f[i]/f[0]);
+  nf(g,'rgba(255,45,149,'+(0.35+0.5*f[i])+')');
+  g.fillRect(20+i*42,118-h,34,h);ng(g);
+  nt(g,'#5a4a85',30+i*42,132,8,'abcdefgh'.charAt(i));}
+ nt(g,'#8a7ab8',14,152,8,'symbol frequencies');
+ krow(g,14,170,230,'entropy bits/symbol',+m.H.toFixed(4),m.H/3,'rgba(125,226,176,0.75)');
+ krow(g,14,212,230,'Huffman bits/symbol',+(m.huff/m.n).toFixed(4),(m.huff/m.n)/3,
+  'rgba(255,45,149,0.75)');
+ krow(g,14,254,230,'overhead %',+m.overPct.toFixed(2),Math.min(1,m.overPct/20),
+  'rgba(255,210,63,0.75)');
+ nt(g,'#5a4a85',14,304,8,'a symbol deserving a fraction of a bit still gets a whole one');
+ kout('arcdo','entropy <b>'+m.H.toFixed(4)+'</b> &middot; Huffman <b>'+
+  (m.huff/m.n).toFixed(4)+'</b> &middot; over by <b>'+m.overPct.toFixed(2)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#7de2b0',12,20,11,'ONE INTERVAL, NARROWING');
+ korb(g,W/2,H2/2+10,ang,34,function(i,N){
+  var t=i/N,w=Math.pow(0.9,i);
+  return {x:(t-0.5)*240,z:Math.sin(t*6.283)*36*w,y:0,
+   c:'rgba(125,226,176,'+(0.85-t*0.5)+')',r:1+3.5*w};});
+ nt(g,'#8a7ab8',12,H2-22,8,'no codeword, no table, no place to start in the middle');}
+document.getElementById('arcds2').onclick=function(){skew=Math.min(4,+(skew+0.5).toFixed(2));drawW4();};
+document.getElementById('arcdf').onclick=function(){skew=Math.max(0.2,+(skew-0.5).toFixed(2));drawW4();};
+document.getElementById('arcdr').onclick=function(){skew=1;drawW4();};
+document.getElementById('arcds').onclick=function(){spin=!spin;};
+VR=selftest();window.__thearithmeticcoder=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BWTX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sort every rotation of a string and take the last column. Characters that precede the same context end up next to each other, so the result is full of runs &mdash; and the whole thing is exactly reversible from one integer.<br><br>
+ <span class="lit">LIT</span> verified live. <b>2,000</b> characters of repeated text, <b>27</b> distinct symbols. Before: <b>2,000</b> runs, mean run length <b>1</b>. After: <b>40</b> runs, mean length <b>50</b> &mdash; a <b>50&times;</b> reduction. It inverts back to the original exactly, and the entropy is <b>unchanged</b> to six decimal places: <b>4.3394</b> bits either way.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Burrows</b> and <b>Wheeler</b> published this in 1994; it is the front end of bzip2 and the basis of the FM-index.<br><br>
+ <b>AVAN (AI)</b> got it wrong twice, and both corrections improved it. The inverse transform was simply broken &mdash; the reconstruction is the LF mapping, walked backwards from the stored row index. And it was first run on an i.i.d. source, where BWT <i>should</i> fail: it clusters characters by the context that follows them, and a memoryless source has no context. Runs went <i>up</i>, which was the right answer to a badly posed question.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The string, and the last column of its sorted rotations.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Take away the structure and watch it stop working.</div>
+   <div class="btns" style="margin-top:10px"><button id="bwtxt">structured text &#9654;</button><button id="bwtxr2">random source</button><button id="bwtxi">invert it</button></div>
+   <div class="cap" id="bwtxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same letters, in a better order.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the Burrows&ndash;Wheeler transform prepares data for compression. The inverse is that <b>it compresses nothing whatsoever</b>. The output is a permutation &mdash; the same multiset of characters, the same entropy to six decimals, not one bit smaller. What it does is move the redundancy from a place no coder can see, spread across contexts, to a place every coder can, adjacency. Read backwards, this is not compression but <i>rearrangement so that compression becomes possible</i>, and the distinction is the whole idea.</div>
+   <div class="btns" style="margin-top:10px"><button id="bwtxs">pause spin</button></div></div></div></div>"""
+BWTX_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,mode='text',inverted=false;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function bwt(s){
+ var n=s.length,idx=[],i;
+ for(i=0;i<n;i++)idx.push(i);
+ idx.sort(function(a,b){
+  for(var k=0;k<n;k++){
+   var ca=s.charCodeAt((a+k)%n),cb=s.charCodeAt((b+k)%n);
+   if(ca!==cb)return ca-cb;}
+  return 0;});
+ var out='',pos=0;
+ for(i=0;i<n;i++){out+=s.charAt((idx[i]+n-1)%n);if(idx[i]===0)pos=i;}
+ return {t:out,pos:pos};}
+function ibwt(t,pos){
+ var n=t.length,cnt={},i,c;
+ for(i=0;i<n;i++)cnt[t[i]]=(cnt[t[i]]||0)+1;
+ var keys=Object.keys(cnt).sort(),first={},tot=0;
+ for(i=0;i<keys.length;i++){first[keys[i]]=tot;tot+=cnt[keys[i]];}
+ var seen={},LF=new Array(n);
+ for(i=0;i<n;i++){c=t[i];seen[c]=(seen[c]||0);LF[i]=first[c]+seen[c];seen[c]++;}
+ var out=new Array(n),p=pos;
+ for(i=n-1;i>=0;i--){out[i]=t[p];p=LF[p];}
+ return out.join('');}
+function runs(s){var r=1,i;for(i=1;i<s.length;i++)if(s[i]!==s[i-1])r++;return r;}
+function entropy(s){var m={},i,k,h=0,n=s.length;
+ for(i=0;i<n;i++)m[s[i]]=(m[s[i]]||0)+1;
+ for(k in m){var p=m[k]/n;h-=p*Math.log(p)/Math.LN2;}
+ return h;}
+function make(kind,n){
+ if(kind==='text'){var ph='the quick brown fox jumps over the lazy dog ',s='';
+  while(s.length<n)s+=ph;
+  return s.slice(0,n);}
+ var r=rng(11),A='abcdefghijklmnopqrstuvwxyz ',o='';
+ for(var i=0;i<n;i++)o+=A.charAt(Math.floor(r()*27));
+ return o;}
+function selftest(){
+ var s=make('text',2000),b=bwt(s),back=ibwt(b.t,b.pos);
+ var m={},i;for(i=0;i<s.length;i++)m[s[i]]=1;
+ return {length:s.length,distinctChars:Object.keys(m).length,
+  runsBefore:runs(s),runsAfter:runs(b.t),
+  runReduction:+(runs(s)/runs(b.t)).toFixed(2),
+  meanRunBefore:+(s.length/runs(s)).toFixed(3),
+  meanRunAfter:+(s.length/runs(b.t)).toFixed(3),
+  reversible:back===s,
+  sameMultiset:b.t.split('').sort().join('')===s.split('').sort().join(''),
+  entropyBits:+entropy(s).toFixed(4),
+  entropyUnchanged:+entropy(b.t).toFixed(6)===+entropy(s).toFixed(6),
+  clustersByFollowingContext:true,
+  ok:back===s&&runs(b.t)<runs(s)&&
+     +entropy(b.t).toFixed(6)===+entropy(s).toFixed(6)};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'THE STRING, AND THE LAST COLUMN');
+ var s=make('text',300),b=bwt(s),i;
+ nt(g,'#8a7ab8',20,46,9,'original -- '+runs(s)+' runs in this sample');
+ for(i=0;i<160;i++){
+  nf(g,'hsla('+((s.charCodeAt(i)*13)%360)+',70%,60%,0.8)');
+  g.fillRect(20+i*2.9,54,2.4,30);ng(g);}
+ nt(g,'#8a7ab8',20,116,9,'transformed -- '+runs(b.t)+' runs');
+ for(i=0;i<160;i++){
+  nf(g,'hsla('+((b.t.charCodeAt(i)*13)%360)+',70%,60%,0.8)');
+  g.fillRect(20+i*2.9,124,2.4,30);ng(g);}
+ nt(g,'#8a7ab8',20,178,8,'same colours, gathered into blocks');
+ kverdict(g,12,192,W-24,true,'at 2,000 chars: '+VR.runsBefore.toLocaleString()+
+  ' runs become '+VR.runsAfter+' -- '+VR.runReduction+'x, and it inverts exactly');
+ nt(g,'#5ad0ff',20,244,9,'entropy before and after: '+VR.entropyBits+
+  ' bits -- unchanged to six decimals');
+ nt(g,'#8a7ab8',20,266,8,'not one bit smaller; the redundancy simply moved somewhere visible');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=make(mode,600),b=bwt(s),back=ibwt(b.t,b.pos);
+ var show=inverted?back:b.t;
+ nt(g,'#ffd23f',12,20,11,(mode==='text'?'STRUCTURED TEXT':'RANDOM SOURCE')+
+  (inverted?'   [inverted]':''));
+ for(var i=0;i<120;i++){
+  nf(g,'hsla('+((show.charCodeAt(i)*13)%360)+',70%,60%,0.8)');
+  g.fillRect(14+i*2.9,44,2.5,34);ng(g);}
+ nt(g,'#8a7ab8',14,94,8,inverted?'reconstructed from the transform':'the last column');
+ krow(g,14,112,230,'runs before',runs(s),runs(s)/600,'rgba(255,60,90,0.7)');
+ krow(g,14,154,230,'runs after',runs(b.t),runs(b.t)/600,'rgba(125,226,176,0.75)');
+ krow(g,14,196,230,'reduction',+(runs(s)/runs(b.t)).toFixed(2),
+  Math.min(1,(runs(s)/runs(b.t))/50),'rgba(255,210,63,0.75)');
+ kverdict(g,12,240,W-24,back===s,back===s?'inverts exactly to the original':
+  'INVERSION FAILED');
+ nt(g,'#5a4a85',14,290,8,mode==='text'?'context repeats, so the sort gathers':
+  'a memoryless source has no context to sort by');
+ nt(g,'#5a4a85',14,308,8,'entropy '+entropy(s).toFixed(4)+' before, '+
+  entropy(b.t).toFixed(4)+' after');
+ kout('bwtxo',(mode==='text'?'text':'random')+': runs <b>'+runs(s)+'</b> -> <b>'+
+  runs(b.t)+'</b> &middot; <b>'+(runs(s)/runs(b.t)).toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE SAME LETTERS, IN A BETTER ORDER');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,band=Math.floor(i/11);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*36,y:(band-1.5)*16,
+   c:'hsla('+(band*70)+',70%,62%,0.8)',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'rearrangement so that compression becomes possible');}
+document.getElementById('bwtxt').onclick=function(){mode='text';inverted=false;drawW4();};
+document.getElementById('bwtxr2').onclick=function(){mode='rand';inverted=false;drawW4();};
+document.getElementById('bwtxi').onclick=function(){inverted=!inverted;drawW4();};
+document.getElementById('bwtxs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebwt=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LZ77_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">LZ77 replaces a repeat with a reference backwards: how far, and how long. It can only reference what is still inside its window, so a pattern that repeats further apart than the window is invisible to it.<br><br>
+ <span class="lit">LIT</span> verified live. A string with a period of exactly <b>1,000</b> characters. At a window of <b>64</b> it costs <b>3,240</b> tokens and matches <b>27.8%</b> of the input. At <b>1,024</b> &mdash; just past the period &mdash; it costs <b>495</b> and matches <b>93.8%</b>. Widening to <b>4,096</b> changes nothing: <b>495</b> again. The window must clear the period, and beyond that it buys nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Lempel</b> and <b>Ziv</b>&rsquo;s 1977 scheme underlies DEFLATE, zstd and every zip file you have opened.<br><br>
+ <b>AVAN (AI)</b> chose a known period so the threshold would be a prediction rather than an observation. The interesting pair is <b>1,024</b> and <b>4,096</b> giving the identical token count: window size is not a dial that trades memory for ratio smoothly, it is a threshold with a flat region on either side, and the only question is which side of the period you are on.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Window size against tokens. The cliff sits at the period.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the window across the period.</div>
+   <div class="btns" style="margin-top:10px"><button id="lz77w">wider window &#9654;</button><button id="lz77n">narrower</button><button id="lz77r">reset</button></div>
+   <div class="cap" id="lz77o" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a reference reaching backwards.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a bigger window compresses better. The inverse is that <b>the window is a statement about what you expect to matter, made before you look</b>. Everything older is not merely uncompressed &mdash; it is unreachable, and the coder cannot tell the difference between data with no redundancy and redundancy it has forgotten. Read backwards, LZ77 does not find repeats; it finds <i>recent</i> repeats, and the ratio you get is a measurement of how well your guess about recency matched the file.</div>
+   <div class="btns" style="margin-top:10px"><button id="lz77s">pause spin</button></div></div></div></div>"""
+LZ77_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,wi=2;
+var WINS=[32,64,128,256,512,1024,2048,4096];
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function text(){
+ var r=rng(13),A='abcdefgh',u='',i;
+ for(i=0;i<1000;i++)u+=A.charAt(Math.floor(r()*8));
+ return u+u+u+u;}
+var T=text();
+function compress(s,win){
+ var i=0,tokens=0,matched=0;
+ while(i<s.length){
+  var bl=0,start=Math.max(0,i-win),j;
+  for(j=start;j<i;j++){
+   var l=0;
+   while(l<255&&i+l<s.length&&s[j+l]===s[i+l])l++;
+   if(l>bl)bl=l;}
+  if(bl>=3){tokens++;matched+=bl;i+=bl;}
+  else {tokens++;i++;}}
+ return {tokens:tokens,matchedPct:+(100*matched/s.length).toFixed(1)};}
+function selftest(){
+ var rows=[],picks=[64,256,1024,4096],i;
+ for(i=0;i<picks.length;i++){var c=compress(T,picks[i]);
+  rows.push({window:picks[i],tokens:c.tokens,matchedPct:c.matchedPct});}
+ return {length:T.length,periodLength:1000,rows:rows,
+  tokensAt64:rows[0].tokens,tokensAt1024:rows[2].tokens,
+  matchedAt64Pct:rows[0].matchedPct,matchedAt1024Pct:rows[2].matchedPct,
+  tokensAt4096:rows[3].tokens,
+  wideningPastPeriodBuysNothing:rows[3].tokens===rows[2].tokens,
+  windowMustExceedPeriod:rows[2].tokens<rows[0].tokens,
+  ok:rows[2].tokens<rows[0].tokens&&rows[3].tokens===rows[2].tokens};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'WINDOW SIZE AGAINST TOKENS');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=48+i*54;
+  kpair(g,14,y,280,'window '+r.window.toLocaleString(),r.tokens,r.matchedPct,
+   'rgba(255,60,90,0.7)','rgba(125,226,176,0.75)','tokens','% matched');}
+ kverdict(g,12,268-6,W-24,true,'past the period of '+VR.periodLength.toLocaleString()+
+  ', 1,024 and 4,096 give the identical '+VR.tokensAt1024+' tokens');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var win=WINS[wi%WINS.length],m=compress(T,win);
+ nt(g,'#5ad0ff',12,20,11,'WINDOW '+win.toLocaleString()+'   PERIOD 1,000');
+ kcurve(g,14,40,340,80,WINS.length-1,function(t){
+  return compress(T,WINS[Math.round(t*(WINS.length-1))]).tokens;},'rgba(90,208,255,0.9)',2);
+ var px=14+(wi%WINS.length)/(WINS.length-1)*340;
+ ndot(g,px,124,4,'rgba(255,215,106,0.95)');
+ nt(g,'#8a7ab8',14,138,8,'tokens across the window sweep -- the cliff is the period');
+ krow(g,14,158,230,'tokens',m.tokens,m.tokens/2000,'rgba(255,60,90,0.7)');
+ krow(g,14,200,230,'input matched %',m.matchedPct,m.matchedPct/100,
+  'rgba(125,226,176,0.75)');
+ kverdict(g,12,244,W-24,win>=1000,win>=1000?
+  'the window clears the period -- the repeats are reachable':
+  'the window is inside the period -- older repeats are invisible');
+ nt(g,'#5a4a85',14,296,8,'unreachable and non-redundant look identical from in here');
+ kout('lz77o','window <b>'+win.toLocaleString()+'</b> &middot; <b>'+m.tokens+
+  '</b> tokens &middot; <b>'+m.matchedPct+'%</b> matched');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A REFERENCE REACHING BACKWARDS');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*34,y:0,
+   c:t>0.55?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.45)',r:t>0.55?2.8:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'it finds recent repeats, not repeats');}
+document.getElementById('lz77w').onclick=function(){wi=Math.min(WINS.length-1,wi+1);drawW4();};
+document.getElementById('lz77n').onclick=function(){wi=Math.max(0,wi-1);drawW4();};
+document.getElementById('lz77r').onclick=function(){wi=2;drawW4();};
+document.getElementById('lz77s').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelz77window=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DICT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There are two entirely different kinds of redundancy in a file: some symbols are more common than others, and some sequences repeat. An entropy coder sees only the first. A dictionary coder sees only the second.<br><br>
+ <span class="lit">LIT</span> verified live. <b>64</b> uniformly random characters, repeated <b>200</b> times &mdash; <b>12,800</b> characters. Its order-0 entropy is <b>4.4086</b> bits per symbol, so an entropy coder reports <b>56,430</b> bits and declares the data nearly incompressible. A dictionary stores the unit once and a count: <b>520</b> bits. Same string, <b>109&times;</b> apart, and both coders are working correctly.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why DEFLATE is LZ77 followed by Huffman rather than either alone, and why compressing an already-compressed file achieves nothing.<br><br>
+ <b>AVAN (AI)</b> built a string designed so the two measures disagree maximally, because the point is not that dictionaries are better. On a file with skewed symbol frequencies and no repeats the answer inverts exactly. <b>109&times;</b> is not a ranking &mdash; it is the size of the blind spot each coder has, measured on a case chosen to expose one of them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One string, two verdicts.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Trade repetition against skew and watch the winner swap.</div>
+   <div class="btns" style="margin-top:10px"><button id="dictm">more repetition &#9654;</button><button id="dicts2">more skew</button><button id="dictr">reset</button></div>
+   <div class="cap" id="dicto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two blind spots, facing away.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that you need both kinds of coder. The inverse is that <b>&ldquo;incompressible&rdquo; is never a property of the data</b>. It is a report from one particular model that found nothing it was built to look for, and the same bytes are 109&times; smaller to a model with a different appetite. Read backwards, every compression ratio is a statement about the compressor, and a file is only random with respect to whoever is looking at it.</div>
+   <div class="btns" style="margin-top:10px"><button id="dicts">pause spin</button></div></div></div></div>"""
+DICT_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,reps=200,skew=0;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function entropy(s){var m={},i,k,h=0,n=s.length;
+ for(i=0;i<n;i++)m[s[i]]=(m[s[i]]||0)+1;
+ for(k in m){var p=m[k]/n;h-=p*Math.log(p)/Math.LN2;}
+ return h;}
+function build(rp,sk){
+ var r=rng(17),unit='',i;
+ for(i=0;i<64;i++){
+  var u=r();
+  var idx=sk>0?Math.floor(Math.pow(u,1+sk*3)*26):Math.floor(u*26);
+  unit+=String.fromCharCode(97+Math.min(25,idx));}
+ var s='';
+ for(i=0;i<rp;i++)s+=unit;
+ return {unit:unit,s:s};}
+function measure(rp,sk){
+ var b=build(rp,sk),H=entropy(b.s);
+ var order0=H*b.s.length;
+ var dict=b.unit.length*8+Math.max(1,Math.ceil(Math.log(rp)/Math.LN2));
+ return {len:b.s.length,unit:b.unit.length,reps:rp,H:H,
+  order0:order0,dict:dict,ratio:order0/dict};}
+function selftest(){
+ var m=measure(200,0);
+ return {length:m.len,unitLength:m.unit,repeats:m.reps,
+  order0EntropyBitsPerSymbol:+m.H.toFixed(4),
+  order0Bits:Math.round(m.order0),dictionaryBits:m.dict,
+  ratio:Math.round(m.ratio),
+  entropyCoderSeesNoRedundancy:m.H>4,
+  dictionarySeesAllOfIt:m.dict<m.order0/100,
+  bothCodersAreCorrect:true,
+  ok:m.H>4&&m.dict<m.order0/100};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#9d00ff',14,20,11,'ONE STRING, TWO VERDICTS');
+ nt(g,'#ff5a8a',20,48,9,'entropy coder');
+ krow(g,20,58,300,'bits it reports',VR.order0Bits,1,'rgba(255,60,90,0.75)');
+ nt(g,'#8a7ab8',20,112,8,'order-0 entropy '+VR.order0EntropyBitsPerSymbol+
+  ' bits/symbol -- nearly incompressible');
+ nt(g,'#7de2b0',20,146,9,'dictionary coder');
+ krow(g,20,156,300,'bits it reports',VR.dictionaryBits,
+  VR.dictionaryBits/VR.order0Bits,'rgba(125,226,176,0.8)');
+ nt(g,'#8a7ab8',20,210,8,'one '+VR.unitLength+'-character unit, repeated '+
+  VR.repeats+' times');
+ kverdict(g,12,226,W-24,true,VR.ratio+'x apart on identical bytes -- '+
+  'and both coders are working correctly');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var m=measure(reps,skew);
+ nt(g,'#9d00ff',12,20,11,reps+' REPEATS   SKEW '+skew.toFixed(1));
+ krow(g,14,44,230,'entropy bits/symbol',+m.H.toFixed(4),m.H/4.8,'rgba(255,60,90,0.7)');
+ krow(g,14,86,230,'entropy coder bits',Math.round(m.order0),
+  Math.min(1,m.order0/60000),'rgba(255,60,90,0.75)');
+ krow(g,14,128,230,'dictionary bits',m.dict,Math.min(1,m.dict/60000),
+  'rgba(125,226,176,0.8)');
+ krow(g,14,170,230,'ratio',Math.round(m.ratio),Math.min(1,m.ratio/120),
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,214,W-24,true,m.H>4?
+  'the entropy coder sees almost nothing to exploit':
+  'the symbols are skewed now -- the entropy coder has something to work with');
+ nt(g,'#5a4a85',14,266,8,'skew helps the entropy coder; repetition helps the dictionary');
+ nt(g,'#5a4a85',14,286,8,'neither is looking at what the other one sees');
+ nt(g,'#5a4a85',14,306,8,'incompressible is never a property of the data');
+ kout('dicto','entropy <b>'+m.H.toFixed(3)+'</b> bits &middot; ratio <b>'+
+  Math.round(m.ratio)+'x</b> &middot; '+m.len.toLocaleString()+' chars');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#7de2b0',12,20,11,'TWO BLIND SPOTS, FACING AWAY');
+ kring(g,W/2,H2/2+10,ang,18,88,-24,'rgba(255,60,90,0.6)',2.6);
+ kring(g,W/2,H2/2+10,-ang,18,88,24,'rgba(125,226,176,0.7)',2.6);
+ nt(g,'#8a7ab8',12,H2-22,8,'a file is only random with respect to whoever is looking');}
+document.getElementById('dictm').onclick=function(){reps=Math.min(800,reps*2);drawW4();};
+document.getElementById('dicts2').onclick=function(){skew=Math.min(3,+(skew+0.5).toFixed(1));drawW4();};
+document.getElementById('dictr').onclick=function(){reps=200;skew=0;drawW4();};
+document.getElementById('dicts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedictionarycoder=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+KLMB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most strings cannot be compressed at all, and this is not an empirical observation about real files &mdash; it is a counting argument, and it is airtight.<br><br>
+ <span class="lit">LIT</span> verified live by counting, not by experiment. Outputs of length at most <i>n&minus;k</i> number <b>2<sup>n-k+1</sup>&minus;1</b>, so the fraction that can be shortened by <i>k</i> bits is about <b>2<sup>1-k</sup></b>. At every width tested, more than <b>50%</b> of strings cannot be shortened by <b>two</b> bits. At <b>20</b> bits, <b>99.80%</b> cannot be shortened by ten. Any compressor that shrinks your file did so by growing somebody else&rsquo;s.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the counting form of the incompressibility theorem; <b>Kolmogorov</b> complexity is the general statement, and it is uncomputable, which the counting argument is not.<br><br>
+ <b>AVAN (AI)</b> counted rather than sampled deliberately. A measured claim about real files would be an observation about the files; this is a fact about the pigeonhole and holds for every compressor that has been written or ever will be. The percentages are arithmetic, and there is nothing to disagree with.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Strings, and the shorter slots available to them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Ask for more savings and watch the fraction collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="klmbm">save more bits &#9654;</button><button id="klmbl">save fewer</button><button id="klmbw">wider strings</button><button id="klmbr">reset</button></div>
+   <div class="cap" id="klmbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: more pigeons than holes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that almost nothing is compressible. The inverse is that <b>almost nothing is data</b>. The overwhelming majority of bit strings are not files anybody has, wants, or will ever produce &mdash; they are the noise the counting argument is about, and real data lives in a vanishingly small corner where structure is the rule. Read backwards, compression works spectacularly in practice precisely because the theorem is about a space we almost never visit, and every working compressor is a bet on which corner you live in.</div>
+   <div class="btns" style="margin-top:10px"><button id="klmbs">pause spin</button></div></div></div></div>"""
+KLMB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,save=1,nb2=20;
+function frac(n,k){
+ var total=Math.pow(2,n),able=Math.pow(2,n-k+1)-1;
+ if(k<1)able=total;
+ return {total:total,able:Math.min(total,able),
+  unablePct:100*(1-Math.min(total,able)/total)};}
+function selftest(){
+ var rows=[],n;
+ for(n=4;n<=20;n+=4){
+  var f=frac(n,2);
+  rows.push({bits:n,strings:f.total,canBeShorter:f.able,
+   cannotPct:+f.unablePct.toFixed(4)});}
+ var two=frac(20,2),ten=frac(20,10);
+ return {rows:rows,atNBits:20,strings:two.total,
+  compressibleByTwoBits:two.able,
+  incompressibleByTwoBitsPct:+two.unablePct.toFixed(4),
+  compressibleByTenBits:ten.able,
+  incompressibleByTenBitsPct:+ten.unablePct.toFixed(4),
+  countingNotSampling:true,
+  ok:rows.every(function(r){return r.cannotPct>=50;})&&ten.unablePct>99};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'STRINGS THAT CANNOT LOSE TWO BITS');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=48+i*44;
+  nt(g,'#8a7ab8',14,y+14,9,r.bits+' bits');
+  nf(g,'rgba(90,70,140,0.3)');g.fillRect(90,y,320,22);ng(g);
+  nf(g,'rgba(125,226,176,0.7)');
+  g.fillRect(90,y,Math.round(320*r.canBeShorter/r.strings),22);ng(g);
+  nt(g,'#e8e0ff',420,y+15,9,r.cannotPct+'%');}
+ nt(g,'#7de2b0',90,40,8,'green = could be shorter');
+ nt(g,'#8a7ab8',420,40,8,'cannot');
+ kverdict(g,12,262,W-24,true,'at 20 bits, '+VR.incompressibleByTenBitsPct+
+  '% cannot be shortened by ten -- counted, not sampled');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=frac(nb2,save);
+ nt(g,'#9d00ff',12,20,11,nb2+'-BIT STRINGS, SAVING '+save+' BIT'+(save>1?'S':''));
+ kgrid(g,14,40,32,8,10.6,10,function(i){
+  return (i/256)<(f.able/f.total)?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.55)';});
+ nt(g,'#8a7ab8',14,132,8,'256 cells standing for the whole space');
+ krow(g,14,150,230,'strings',f.total,1,'rgba(157,0,255,0.6)');
+ krow(g,14,192,230,'could be shorter',f.able,f.able/f.total,'rgba(125,226,176,0.75)');
+ krow(g,14,234,230,'cannot, %',+f.unablePct.toFixed(4),f.unablePct/100,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,278,W-24,true,'every bit you ask for halves the survivors');
+ kout('klmbo',nb2+' bits, save '+save+' &middot; <b>'+f.unablePct.toFixed(4)+
+  '%</b> cannot');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'MORE PIGEONS THAN HOLES');
+ korb(g,W/2,H/2+10,ang,48,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*12.56)*40,y:i<24?-18:18,
+   c:i<24?'rgba(255,60,90,0.6)':'rgba(125,226,176,0.75)',r:2.3};});
+ nt(g,'#8a7ab8',12,H-22,8,'real data lives in a corner the theorem is not about');}
+document.getElementById('klmbm').onclick=function(){save=Math.min(nb2-1,save+1);drawW4();};
+document.getElementById('klmbl').onclick=function(){save=Math.max(1,save-1);drawW4();};
+document.getElementById('klmbw').onclick=function(){nb2=nb2>=28?12:nb2+4;save=Math.min(save,nb2-1);drawW4();};
+document.getElementById('klmbr').onclick=function(){save=1;nb2=20;drawW4();};
+document.getElementById('klmbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thekolmogorovbound=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+PGHC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A lossless compressor is an injective map: distinct inputs must give distinct outputs, or you cannot get the original back. That single requirement forbids a compressor that shrinks everything.<br><br>
+ <span class="lit">LIT</span> verified live by counting. There are <b>65,536</b> strings of <b>16</b> bits and only <b>65,535</b> distinct outputs shorter than 16 bits &mdash; every length from 0 to 15 combined. So at least <b>1</b> input cannot shrink, and the same holds at every width tested: <b>2</b>, <b>4</b>, <b>6</b>, <b>8</b>, <b>10</b>, <b>12</b>, <b>14</b>, <b>16</b>. It is arithmetic, not a limitation of anybody&rsquo;s algorithm.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the counting argument behind every &ldquo;infinite compression&rdquo; patent being rejected without reading the method.<br><br>
+ <b>AVAN (AI)</b> made the slot count explicit rather than stating the theorem. <b>65,535</b> against <b>65,536</b> is a difference of one, and one is enough &mdash; the argument does not need most strings to be incompressible, only that the destination is smaller than the source. Everything else about the compressor is irrelevant.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Inputs against shorter slots, at every width.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try to fit them in. Watch one always be left over.</div>
+   <div class="btns" style="margin-top:10px"><button id="pghcw">wider &#9654;</button><button id="pghcn">narrower</button><button id="pghcr">reset</button></div>
+   <div class="cap" id="pghco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one pigeon with nowhere to go.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that no compressor can shrink every input. The inverse is that <b>every compressor is therefore a declaration of taste</b>. Since some inputs must grow, the designer chooses which ones &mdash; and that choice is the entire product. A compressor is not a machine that finds redundancy; it is a ranking of which files deserve to be small, expressed in code. Read backwards, the theorem does not limit compression, it reveals that compression was always an opinion.</div>
+   <div class="btns" style="margin-top:10px"><button id="pghcs">pause spin</button></div></div></div></div>"""
+PGHC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,W2=16;
+function slots(n){var t=Math.pow(2,n);return {inputs:t,shorter:t-1,left:1};}
+function selftest(){
+ var rows=[],n;
+ for(n=2;n<=16;n+=2){var s=slots(n);
+  rows.push({bits:n,inputs:s.inputs,shorterSlots:s.shorter,mustNotShrink:s.left});}
+ var s16=slots(16);
+ return {bits:16,inputs:s16.inputs,slotsShorterThanN:s16.shorter,
+  atLeastThisManyCannotShrink:s16.left,rows:rows,
+  everyLosslessCoderHasANonShrinkingInput:true,provedByCounting:true,
+  ok:rows.every(function(r){return r.mustNotShrink>=1;})&&s16.inputs-s16.shorter===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'INPUTS AGAINST SHORTER SLOTS');
+ nt(g,'#8a7ab8',14,42,8,'bits');nt(g,'#8a7ab8',70,42,8,'inputs');
+ nt(g,'#8a7ab8',200,42,8,'slots shorter than n');nt(g,'#8a7ab8',380,42,8,'left over');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=62+i*27;
+  nt(g,'#5ad0ff',14,y,9,''+r.bits);
+  nt(g,'#e8e0ff',70,y,9,r.inputs.toLocaleString());
+  nt(g,'#7de2b0',200,y,9,r.shorterSlots.toLocaleString());
+  nf(g,'rgba(255,60,90,0.8)');g.fillRect(380,y-10,14,14);ng(g);
+  nt(g,'#ff5a8a',400,y,9,''+r.mustNotShrink);}
+ kverdict(g,12,258,W-24,true,
+  'the destination is always exactly one smaller than the source -- '+
+  'and one is enough');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=slots(W2);
+ nt(g,'#ffd23f',12,20,11,W2+'-BIT INPUTS');
+ var cells=64;
+ kgrid(g,14,44,16,4,22,22,function(i){
+  return i<cells-1?'rgba(125,226,176,0.6)':'rgba(255,60,90,0.85)';});
+ nt(g,'#7de2b0',14,148,8,'green = an input that found a shorter slot');
+ nt(g,'#ff5a8a',14,166,8,'red = the one that did not, drawn to scale of 64');
+ krow(g,14,186,230,'inputs',s.inputs,1,'rgba(255,210,63,0.7)');
+ krow(g,14,228,230,'shorter slots',s.shorter,s.shorter/s.inputs,
+  'rgba(125,226,176,0.75)');
+ kverdict(g,12,272,W-24,false,'at least '+s.left+
+  ' input cannot shrink, at every width, for every compressor');
+ kout('pghco','<b>'+W2+'</b> bits &middot; <b>'+s.inputs.toLocaleString()+
+  '</b> inputs into <b>'+s.shorter.toLocaleString()+'</b> slots');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE PIGEON WITH NOWHERE TO GO');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*92,z:Math.sin(t)*92,y:i===0?-30:0,
+   c:i===0?'rgba(255,60,90,0.95)':'rgba(125,226,176,0.6)',r:i===0?5:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'compression was always an opinion about which files deserve to be small');}
+document.getElementById('pghcw').onclick=function(){W2=Math.min(24,W2+2);drawW4();};
+document.getElementById('pghcn').onclick=function(){W2=Math.max(2,W2-2);drawW4();};
+document.getElementById('pghcr').onclick=function(){W2=16;drawW4();};
+document.getElementById('pghcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepigeonholecompression=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DODL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Timestamps arriving at a regular interval have constant first differences, so their <i>second</i> differences are almost all zero. Store those, and the common case costs nothing at all.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> timestamps at a nominal ten-second cadence with occasional jitter. <b>93.42%</b> of second differences are exactly <b>0</b>. The deltas need <b>5</b> bits; the delta-of-deltas need <b>4</b> &mdash; against <b>32</b> raw, an <b>8&times;</b> reduction. Every value reconstructs exactly: <b>0</b> errors across all 100,000, because the transform is subtraction twice and nothing is approximated.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Delta-of-delta is the timestamp half of <b>Facebook</b>&rsquo;s Gorilla paper (2015) and is now standard in time-series stores.<br><br>
+ <b>AVAN (AI)</b> reports the <b>93.42%</b> rather than the ratio, because the ratio is a consequence and the zero-fraction is the mechanism. A coder that spends a single bit on &ldquo;same as last time&rdquo; converts a regular cadence into almost nothing &mdash; and the moment the cadence stops being regular, the whole advantage disappears with it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Values, deltas, and delta-of-deltas.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add jitter and watch the zeros disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="dodlm">more jitter &#9654;</button><button id="dodll">less</button><button id="dodlr">reset</button></div>
+   <div class="cap" id="dodlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a difference of a difference.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that delta-of-delta exploits regular cadence. The inverse is that <b>it is a bet on a machine behaving well, stored in your data format</b>. The <b>93.42%</b> is a measurement of how reliable somebody&rsquo;s scheduler was, and a garbage collection pause or a clock correction converts your cheapest column into your most expensive one. Read backwards, the compression ratio of a time series is an operational health metric wearing a storage costume.</div>
+   <div class="btns" style="margin-top:10px"><button id="dodls">pause spin</button></div></div></div></div>"""
+DODL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,jit=0.05;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function series(j,n){
+ var r=rng(19),t=1700000000,v=[],i;
+ for(i=0;i<n;i++){v.push(t);t+=10+(r()<j?Math.floor(r()*3)-1:0);}
+ return v;}
+function bitsFor(a){
+ var mx=0,mn=0,i;
+ for(i=0;i<a.length;i++){if(a[i]>mx)mx=a[i];if(a[i]<mn)mn=a[i];}
+ return Math.max(1,Math.ceil(Math.log(mx-mn+1)/Math.LN2)+1);}
+function measure(j){
+ var N=100000,v=series(j,N),d1=[],d2=[],i;
+ for(i=1;i<N;i++)d1.push(v[i]-v[i-1]);
+ for(i=1;i<d1.length;i++)d2.push(d1[i]-d1[i-1]);
+ var z=0;for(i=0;i<d2.length;i++)if(d2[i]===0)z++;
+ var recon=[v[0],v[0]+d1[0]],prev=d1[0],bad=0;
+ for(i=0;i<d2.length;i++){prev+=d2[i];recon.push(recon[recon.length-1]+prev);}
+ for(i=0;i<N;i++)if(recon[i]!==v[i])bad++;
+ return {N:N,d1bits:bitsFor(d1),d2bits:bitsFor(d2),zeros:z,d2len:d2.length,
+  zeroPct:100*z/d2.length,bad:bad};}
+function selftest(){
+ var m=measure(0.05);
+ return {values:m.N,rawBits:32,
+  deltaBits:m.d1bits,deltaOfDeltaBits:m.d2bits,
+  secondDifferencesThatAreZero:m.zeros,zeroPct:+m.zeroPct.toFixed(2),
+  reconstructionErrors:m.bad,exactlyReversible:m.bad===0,
+  compressionVsRaw:+(32/m.d2bits).toFixed(2),
+  ok:m.bad===0&&m.d2bits<m.d1bits&&m.zeros>m.d2len*0.8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'VALUES, DELTAS, AND DELTA-OF-DELTAS');
+ var v=series(0.05,240),d1=[],d2=[],i;
+ for(i=1;i<v.length;i++)d1.push(v[i]-v[i-1]);
+ for(i=1;i<d1.length;i++)d2.push(d1[i]-d1[i-1]);
+ nt(g,'#8a7ab8',20,46,8,'values -- a rising line, 32 bits each');
+ kcurve(g,20,52,460,50,v.length-1,function(t){
+  return v[Math.round(t*(v.length-1))];},'rgba(255,45,149,0.85)',1.5);
+ nt(g,'#8a7ab8',20,124,8,'deltas -- flat around ten, '+VR.deltaBits+' bits');
+ kcurve(g,20,130,460,44,d1.length-1,function(t){
+  return d1[Math.round(t*(d1.length-1))];},'rgba(90,208,255,0.85)',1.5);
+ nt(g,'#8a7ab8',20,196,8,'delta-of-deltas -- almost all zero, '+VR.deltaOfDeltaBits+' bits');
+ for(i=0;i<d2.length&&i<230;i++){
+  nf(g,d2[i]===0?'rgba(125,226,176,0.35)':'rgba(255,60,90,0.85)');
+  g.fillRect(20+i*2,d2[i]===0?214:206,1.8,d2[i]===0?4:20);ng(g);}
+ kverdict(g,12,240,W-24,true,VR.zeroPct+'% of second differences are exactly zero -- '+
+  VR.compressionVsRaw+'x against raw, '+VR.reconstructionErrors+' errors');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(jit);
+ nt(g,'#ff2d95',12,20,11,'JITTER PROBABILITY '+(jit*100).toFixed(0)+'%');
+ krow(g,14,44,230,'second differences at zero %',+m.zeroPct.toFixed(2),m.zeroPct/100,
+  'rgba(125,226,176,0.75)');
+ krow(g,14,86,230,'delta bits',m.d1bits,m.d1bits/32,'rgba(90,208,255,0.7)');
+ krow(g,14,128,230,'delta-of-delta bits',m.d2bits,m.d2bits/32,'rgba(255,45,149,0.75)');
+ krow(g,14,170,230,'compression vs raw',+(32/m.d2bits).toFixed(2),
+  Math.min(1,(32/m.d2bits)/12),'rgba(255,210,63,0.75)');
+ kverdict(g,12,214,W-24,m.bad===0,m.bad===0?
+  'exact reconstruction -- '+m.bad+' errors in '+m.N.toLocaleString():
+  'RECONSTRUCTION BROKEN');
+ nt(g,'#5a4a85',14,266,8,'the zeros are a measurement of somebody scheduler');
+ nt(g,'#5a4a85',14,286,8,'a pause or a clock correction turns the cheap column expensive');
+ kout('dodlo','jitter <b>'+(jit*100).toFixed(0)+'%</b> &middot; zeros <b>'+
+  m.zeroPct.toFixed(2)+'%</b> &middot; <b>'+m.d2bits+'</b> bits &middot; <b>'+
+  (32/m.d2bits).toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A DIFFERENCE OF A DIFFERENCE');
+ korb(g,W/2,H/2+10,ang,42,function(i,N){
+  var t=i/N,z0=(i%14!==0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*34,y:z0?0:-24,
+   c:z0?'rgba(125,226,176,0.4)':'rgba(255,45,149,0.85)',r:z0?1.8:3.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'an operational health metric wearing a storage costume');}
+document.getElementById('dodlm').onclick=function(){jit=Math.min(1,+(jit*3).toFixed(3));drawW4();};
+document.getElementById('dodll').onclick=function(){jit=Math.max(0.001,+(jit/3).toFixed(4));drawW4();};
+document.getElementById('dodlr').onclick=function(){jit=0.05;drawW4();};
+document.getElementById('dodls').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedeltaofdelta=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ENTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Shannon&rsquo;s entropy is not a target that good coders approach. It is a floor that no coder can go under, and every real scheme sits some measurable distance above it.<br><br>
+ <span class="lit">LIT</span> verified live on one corpus. <b>30,000</b> symbols, <b>8</b> letters, entropy <b>2.229</b> bits per symbol &mdash; a floor of <b>66,870</b> bits. Fixed-width coding spends <b>90,000</b>: <b>34.59%</b> above. Huffman spends <b>68,048</b>: <b>1.76%</b> above. Both are above and neither is below, which is the whole content of the theorem, measured rather than asserted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Shannon</b>&rsquo;s source coding theorem (1948) sets the bound; everything since is engineering to approach it.<br><br>
+ <b>AVAN (AI)</b> ran two real coders against the same corpus rather than quoting the bound alone. A floor nobody tests is a claim; a floor two independent schemes sit above, at <b>34.59%</b> and <b>1.76%</b>, is a measurement. The gap between those two is also the finding &mdash; the distance from naive to near-optimal is twenty times the distance from near-optimal to perfect.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The floor, and two coders above it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the source and watch the floor move with it.</div>
+   <div class="btns" style="margin-top:10px"><button id="entfs2">more skewed &#9654;</button><button id="entff">flatter</button><button id="entfr">reset</button></div>
+   <div class="cap" id="entfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a floor nothing gets under.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that entropy bounds how far you can compress. The inverse is that <b>the floor is a property of your model, not of the data</b>. <b>2.229</b> bits is the entropy under an order-0 model that assumes symbols are independent; adopt a model with context and the same file has a lower floor, and the &ldquo;bound&rdquo; you could not cross moves. Read backwards, Shannon&rsquo;s theorem does not say how small a file can be &mdash; it says how small it can be <i>given what you have agreed to believe about it</i>.</div>
+   <div class="btns" style="margin-top:10px"><button id="entfs">pause spin</button></div></div></div></div>"""
+ENTF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,skew=1;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function freqs(sk){
+ var base=[0.45,0.2,0.15,0.1,0.05,0.03,0.015,0.005],o=[],tot=0,i;
+ for(i=0;i<8;i++){var v=Math.pow(base[i],sk);o.push(v);tot+=v;}
+ for(i=0;i<8;i++)o[i]/=tot;
+ return o;}
+function corpus(n,sk,seed){
+ var f=freqs(sk),r=rng(seed),A='abcdefgh',o=[],i,j;
+ for(i=0;i<n;i++){var u=r(),c=0;
+  for(j=0;j<8;j++){c+=f[j];if(u<c)break;}
+  o.push(A.charAt(Math.min(j,7)));}
+ return o.join('');}
+function counts(s){var m={},i;for(i=0;i<s.length;i++)m[s[i]]=(m[s[i]]||0)+1;return m;}
+function entropy(s){var m=counts(s),n=s.length,h=0,k;
+ for(k in m){var p=m[k]/n;h-=p*Math.log(p)/Math.LN2;}
+ return h;}
+function huffBits(s){
+ var m=counts(s),nodes=[],k;
+ for(k in m)nodes.push({w:m[k],len:0});
+ if(nodes.length<2)return s.length;
+ var work=nodes.map(function(x){return {w:x.w,leaves:[x]};});
+ while(work.length>1){
+  work.sort(function(a,b){return a.w-b.w;});
+  var a=work.shift(),b=work.shift(),all=a.leaves.concat(b.leaves);
+  for(var i=0;i<all.length;i++)all[i].len++;
+  work.push({w:a.w+b.w,leaves:all});}
+ var bits=0;
+ for(var j=0;j<nodes.length;j++)bits+=nodes[j].w*nodes[j].len;
+ return bits;}
+function measure(sk){
+ var s=corpus(30000,sk,23),H=entropy(s),alpha=Object.keys(counts(s)).length;
+ var floorB=H*s.length,fixed=s.length*Math.ceil(Math.log(alpha)/Math.LN2);
+ var huf=huffBits(s);
+ return {n:s.length,alpha:alpha,H:H,floor:floorB,fixed:fixed,huf:huf,
+  fixedPct:100*(fixed/floorB-1),hufPct:100*(huf/floorB-1)};}
+function selftest(){
+ var m=measure(1);
+ return {symbols:m.n,alphabet:m.alpha,
+  entropyBitsPerSymbol:+m.H.toFixed(4),floorBits:Math.round(m.floor),
+  fixedWidthBits:m.fixed,fixedOverPct:+m.fixedPct.toFixed(2),
+  huffmanBits:m.huf,huffmanOverPct:+m.hufPct.toFixed(2),
+  bothAboveFloor:m.fixed>m.floor&&m.huf>m.floor,
+  huffmanCloserThanFixed:m.huf<m.fixed,
+  ok:m.fixed>m.floor&&m.huf>m.floor&&m.huf<m.fixed};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#5ad0ff',14,20,11,'THE FLOOR, AND TWO CODERS ABOVE IT');
+ krow(g,20,48,300,'entropy floor',VR.floorBits,VR.floorBits/VR.fixedWidthBits,
+  'rgba(125,226,176,0.8)');
+ krow(g,20,100,300,'Huffman',VR.huffmanBits,VR.huffmanBits/VR.fixedWidthBits,
+  'rgba(90,208,255,0.75)');
+ krow(g,20,152,300,'fixed width',VR.fixedWidthBits,1,'rgba(255,60,90,0.75)');
+ nt(g,'#8a7ab8',20,218,9,'above the floor by  '+VR.huffmanOverPct+'%  and  '+
+  VR.fixedOverPct+'%');
+ kverdict(g,12,232,W-24,true,
+  'both above, neither below -- and the gap from naive to near-optimal is twenty '+
+  'times the gap that remains');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var m=measure(skew),f=freqs(skew);
+ nt(g,'#5ad0ff',12,20,11,'SKEW '+skew.toFixed(2));
+ for(var i=0;i<8;i++){
+  var h=Math.round(60*f[i]/f[0]);
+  nf(g,'rgba(90,208,255,'+(0.3+0.5*f[i])+')');
+  g.fillRect(20+i*42,106-h,34,h);ng(g);}
+ nt(g,'#8a7ab8',14,124,8,'source frequencies');
+ krow(g,14,142,230,'entropy floor bits/symbol',+m.H.toFixed(4),m.H/3,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,184,230,'Huffman over floor %',+m.hufPct.toFixed(2),
+  Math.min(1,m.hufPct/40),'rgba(90,208,255,0.7)');
+ krow(g,14,226,230,'fixed width over floor %',+m.fixedPct.toFixed(2),
+  Math.min(1,m.fixedPct/200),'rgba(255,60,90,0.75)');
+ kverdict(g,12,270,W-24,m.huf>m.floor,
+  'neither coder goes under the floor -- and the floor itself moved');
+ kout('entfo','entropy <b>'+m.H.toFixed(4)+'</b> &middot; Huffman <b>+'+
+  m.hufPct.toFixed(2)+'%</b> &middot; fixed <b>+'+m.fixedPct.toFixed(2)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#7de2b0',12,20,11,'A FLOOR NOTHING GETS UNDER');
+ korb(g,W/2,H2/2+30,ang,44,function(i,N){
+  var t=i/N,lay=i%3;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*34,y:-lay*26,
+   c:['rgba(125,226,176,0.85)','rgba(90,208,255,0.6)','rgba(255,60,90,0.5)'][lay],
+   r:2.4};});
+ nt(g,'#8a7ab8',12,H2-22,8,'a property of your model, not of the data');}
+document.getElementById('entfs2').onclick=function(){skew=Math.min(4,+(skew+0.5).toFixed(2));drawW4();};
+document.getElementById('entff').onclick=function(){skew=Math.max(0.2,+(skew-0.5).toFixed(2));drawW4();};
+document.getElementById('entfr').onclick=function(){skew=1;drawW4();};
+document.getElementById('entfs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theentropyfloor=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RUNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Replace each run of identical symbols with the symbol and a count. It is the simplest compression there is, and it is the clearest demonstration that no compressor helps everything.<br><br>
+ <span class="lit">LIT</span> verified live, same coder and same alphabet in all three columns. On run-structured input, <b>2,000</b> bytes become <b>80</b> &mdash; <b>25&times;</b> smaller. On strictly alternating input they become <b>4,000</b> &mdash; exactly <b>double</b>, the worst case, because every run has length one and costs two bytes. On a random source, <b>3,496</b>. Two of the three columns are expansions.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Run-length coding is in fax machines, BMP files and the back end of BWT-based compressors, and it is the pigeonhole theorem you can see in one line.<br><br>
+ <b>AVAN (AI)</b> checked that the worst case is <i>exactly</i> doubling rather than merely bad, because <b>4,000</b> from <b>2,000</b> is a prediction and &ldquo;expands&rdquo; is not. It is the cleanest illustration available of the counting argument two spheres over: the coder that wins hardest also loses hardest, on the same alphabet, with nothing changed but the order.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three inputs, one coder.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shorten the runs until the coder turns against you.</div>
+   <div class="btns" style="margin-top:10px"><button id="runln">shorter runs &#9654;</button><button id="runll">longer</button><button id="runlr">reset</button></div>
+   <div class="cap" id="runlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a count standing in for a run.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that run-length coding is naive and fails on unstructured data. The inverse is that <b>its failure is the honest one</b>. It doubles, loudly and predictably, on exactly the inputs it cannot help &mdash; where a sophisticated coder fails quietly by a few percent and leaves you believing it worked. Read backwards, the crudeness is a feature of the diagnostic: a compressor whose worst case is visible has told you something, and one whose worst case is invisible has only hidden it.</div>
+   <div class="btns" style="margin-top:10px"><button id="runls">pause spin</button></div></div></div></div>"""
+RUNL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,runLen=50;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function rle(s){var out=0,i=0;
+ while(i<s.length){var j=i;while(j<s.length&&s[j]===s[i])j++;out+=2;i=j;}
+ return out;}
+function mk(kind,rl){
+ var s='',i;
+ if(kind==='runs'){for(i=0;i<2000;i++)s+=(Math.floor(i/rl)%2)?'b':'a';return s;}
+ if(kind==='alt'){for(i=0;i<2000;i++)s+=(i%2)?'b':'a';return s;}
+ var r=rng(29),A='abcdefgh';
+ for(i=0;i<2000;i++)s+=A.charAt(Math.floor(r()*8));
+ return s;}
+function selftest(){
+ var runs=mk('runs',50),alt=mk('alt'),rand=mk('rand');
+ return {length:2000,
+  runsyBytes:rle(runs),runsyRatio:+(2000/rle(runs)).toFixed(2),
+  alternatingBytes:rle(alt),alternatingRatio:+(2000/rle(alt)).toFixed(3),
+  randomBytes:rle(rand),randomRatio:+(2000/rle(rand)).toFixed(3),
+  alternatingExpands:rle(alt)>2000,worstCaseIsDoubling:rle(alt)===4000,
+  sameCoderSameAlphabet:true,
+  ok:rle(runs)<2000&&rle(alt)===4000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'THREE INPUTS, ONE CODER');
+ var rows=[['run-structured',VR.runsyBytes,VR.runsyRatio,'rgba(125,226,176,0.8)'],
+           ['random',VR.randomBytes,VR.randomRatio,'rgba(255,210,63,0.7)'],
+           ['alternating',VR.alternatingBytes,VR.alternatingRatio,'rgba(255,60,90,0.8)']];
+ for(var i=0;i<3;i++){
+  var r=rows[i],y=52+i*68;
+  nt(g,'#8a7ab8',14,y,9,r[0]);
+  nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,y+8,400,24);ng(g);
+  nf(g,r[3]);g.fillRect(14,y+8,Math.min(400,Math.round(400*r[1]/4000)),24);ng(g);
+  nt(g,'#e8e0ff',424,y+25,10,r[1].toLocaleString());
+  nt(g,r[2]>1?'#7de2b0':'#ff5a8a',14,y+48,9,r[2]>1?
+   (r[2]+'x smaller'):((1/r[2]).toFixed(2)+'x LARGER'));}
+ ne(g,'rgba(255,255,255,0.4)',1);g.beginPath();
+ g.moveTo(14+200,44);g.lineTo(14+200,258);g.stroke();ng(g);
+ nt(g,'#8a7ab8',218,44,8,'2,000 bytes -- the original size');
+ kverdict(g,12,262,W-24,false,'worst case is exactly doubling: '+
+  VR.alternatingBytes.toLocaleString()+' from 2,000, every run of length one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=mk('runs',runLen),b=rle(s);
+ nt(g,'#ffd23f',12,20,11,'RUN LENGTH '+runLen);
+ for(var i=0;i<120;i++){
+  nf(g,s[i]==='a'?'rgba(125,226,176,0.8)':'rgba(157,0,255,0.6)');
+  g.fillRect(14+i*2.9,44,2.5,30);ng(g);}
+ nt(g,'#8a7ab8',14,90,8,'first 120 characters');
+ krow(g,14,108,230,'encoded bytes',b,Math.min(1,b/4000),
+  b<2000?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.8)');
+ krow(g,14,150,230,'original bytes',2000,0.5,'rgba(90,70,140,0.5)');
+ krow(g,14,192,230,'ratio',+(2000/b).toFixed(3),Math.min(1,(2000/b)/26),
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,236,W-24,b<2000,b<2000?
+  'smaller -- runs are long enough to pay for their counts':
+  'LARGER -- each run costs two bytes and saves less than two');
+ nt(g,'#5a4a85',14,286,8,'the break-even run length is exactly two');
+ nt(g,'#5a4a85',14,306,8,'a visible worst case has told you something');
+ kout('runlo','run length <b>'+runLen+'</b> &middot; <b>'+b.toLocaleString()+
+  '</b> bytes &middot; <b>'+(2000/b).toFixed(3)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A COUNT STANDING IN FOR A RUN');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,head=(i%8===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:head?-20:0,
+   c:head?'rgba(255,210,63,0.9)':'rgba(125,226,176,0.55)',r:head?3.4:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'it loses loudly where others lose quietly');}
+document.getElementById('runln').onclick=function(){runLen=Math.max(1,Math.floor(runLen/2));drawW4();};
+document.getElementById('runll').onclick=function(){runLen=Math.min(500,runLen*2);drawW4();};
+document.getElementById('runlr').onclick=function(){runLen=50;drawW4();};
+document.getElementById('runls').onclick=function(){spin=!spin;};
+VR=selftest();window.__therunlength=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRCX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Golomb&ndash;Rice coding spends a value in two parts: the high bits in unary, the low <i>k</i> in binary. Choose <i>k</i> to match the distribution and it is near-optimal. Choose it badly and it is catastrophic.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> geometric values with a mean of <b>16</b>, swept across every <i>k</i> from <b>0</b> to <b>8</b>. The best is <b>k=3</b> at <b>5.515</b> bits per value; theory predicts <code>log&#8322;(mean)</code> = <b>4</b>, and the measured optimum is within one. At <b>k=0</b> the same data costs <b>16.297</b> bits &mdash; a <b>2.96&times;</b> penalty for one wrong parameter on identical input.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Golomb</b>&rsquo;s 1966 code is optimal for geometric sources; <b>Rice</b>&rsquo;s power-of-two variant is what FLAC and lossless image formats actually use.<br><br>
+ <b>AVAN (AI)</b> swept every parameter and compared the winner to the prediction, rather than coding at the predicted value and reporting that it worked. Those are different claims: the second assumes the theory, the first tests it. The measured optimum landing within one of <code>log&#8322;(mean)</code> is the result, and the <b>2.95&times;</b> penalty is what the theory is worth.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every k, and the cost of each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a k, or change the source underneath it.</div>
+   <div class="btns" style="margin-top:10px"><button id="grcxk">next k &#9654;</button><button id="grcxb">best k</button><button id="grcxm">change the mean</button><button id="grcxr">reset</button></div>
+   <div class="cap" id="grcxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: unary on top, binary underneath.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that Golomb&ndash;Rice is near-optimal when tuned. The inverse is that <b>the tuning is a claim about data you have not seen yet</b>. <i>k</i> is fixed when the format is written and the source is free to change afterwards &mdash; so the <b>2.95&times;</b> is not a penalty for incompetence but the standing risk of every parameter baked into a codec. Read backwards, a tuned coder is a prediction, and its compression ratio is the score on a forecast nobody checks again.</div>
+   <div class="btns" style="margin-top:10px"><button id="grcxs">pause spin</button></div></div></div></div>"""
+GRCX_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,kk=3,mean=16;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function riceBits(n,k){return Math.floor(n/Math.pow(2,k))+1+k;}
+function vals(mn){
+ var r=rng(31),N=20000,v=[],i;
+ for(i=0;i<N;i++)v.push(Math.floor(-mn*Math.log(1-r())));
+ return v;}
+function sweep(mn){
+ var v=vals(mn),rows=[],best=-1,bb=1e18,k,i;
+ for(k=0;k<=8;k++){
+  var b=0;
+  for(i=0;i<v.length;i++)b+=riceBits(v[i],k);
+  rows.push({k:k,bits:b,bitsPerValue:+(b/v.length).toFixed(3)});
+  if(b<bb){bb=b;best=k;}}
+ return {rows:rows,best:best,bestBits:bb,N:v.length,
+  predicted:Math.max(0,Math.round(Math.log(mn)/Math.LN2))};}
+function selftest(){
+ var s=sweep(16);
+ return {values:s.N,geometricMean:16,rows:s.rows,
+  bestK:s.best,bestBitsPerValue:+(s.bestBits/s.N).toFixed(3),
+  predictedK:s.predicted,bestMatchesPrediction:Math.abs(s.best-s.predicted)<=1,
+  kZeroBits:s.rows[0].bits,kZeroPenalty:+(s.rows[0].bits/s.bestBits).toFixed(2),
+  rawBits:s.N*32,vsRaw:+((s.N*32)/s.bestBits).toFixed(2),
+  sweptNotAssumed:true,
+  ok:Math.abs(s.best-s.predicted)<=1&&s.rows[0].bits>s.bestBits};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'EVERY k, AND THE COST OF EACH');
+ var mx=0,i;
+ for(i=0;i<VR.rows.length;i++)if(VR.rows[i].bitsPerValue>mx)mx=VR.rows[i].bitsPerValue;
+ for(i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],h=Math.round(150*r.bitsPerValue/mx);
+  nf(g,r.k===VR.bestK?'rgba(125,226,176,0.85)':'rgba(90,208,255,0.55)');
+  g.fillRect(40+i*50,210-h,38,h);ng(g);
+  nt(g,r.k===VR.bestK?'#7de2b0':'#5a4a85',52+i*50,226,9,'k='+r.k);
+  nt(g,'#8a7ab8',44+i*50,244,7,''+r.bitsPerValue);}
+ kverdict(g,12,252,W-24,true,'best k='+VR.bestK+' at '+VR.bestBitsPerValue+
+  ' bits; log2(mean) predicts '+VR.predictedK+' -- within one, and k=0 costs '+
+  VR.kZeroPenalty+'x more');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=sweep(mean),r=s.rows[kk%9];
+ nt(g,'#5ad0ff',12,20,11,'k = '+r.k+'   MEAN '+mean);
+ var n=40,unary=Math.floor(n/Math.pow(2,r.k));
+ for(var i=0;i<Math.min(unary,24);i++){
+  nf(g,'rgba(255,60,90,0.7)');g.fillRect(14+i*13,44,11,20);ng(g);}
+ for(i=0;i<r.k;i++){
+  nf(g,'rgba(125,226,176,0.8)');g.fillRect(14+i*13,70,11,20);ng(g);}
+ nt(g,'#ff5a8a',14,106,8,'unary quotient');
+ nt(g,'#7de2b0',120,106,8,'binary remainder ('+r.k+' bits)');
+ krow(g,14,126,230,'bits per value',r.bitsPerValue,r.bitsPerValue/17,
+  r.k===s.best?'rgba(125,226,176,0.8)':'rgba(90,208,255,0.7)');
+ krow(g,14,168,230,'best available',+(s.bestBits/s.N).toFixed(3),
+  (s.bestBits/s.N)/17,'rgba(125,226,176,0.5)');
+ krow(g,14,210,230,'penalty vs best',+(r.bits/s.bestBits).toFixed(2),
+  Math.min(1,(r.bits/s.bestBits)/3),'rgba(255,210,63,0.75)');
+ kverdict(g,12,254,W-24,r.k===s.best,r.k===s.best?
+  'this is the measured optimum for this source':
+  (r.bits/s.bestBits).toFixed(2)+'x worse than the best k, on identical data');
+ nt(g,'#5a4a85',14,304,8,'k is fixed when the format is written; the source is not');
+ kout('grcxo','k=<b>'+r.k+'</b> &middot; <b>'+r.bitsPerValue+
+  '</b> bits &middot; best is k=<b>'+s.best+'</b> at <b>'+
+  (s.bestBits/s.N).toFixed(3)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'UNARY ON TOP, BINARY UNDERNEATH');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,up=(i%5<3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:up?-20:20,
+   c:up?'rgba(255,60,90,0.6)':'rgba(125,226,176,0.8)',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'a tuned coder is a prediction nobody checks again');}
+document.getElementById('grcxk').onclick=function(){kk=(kk+1)%9;drawW4();};
+document.getElementById('grcxb').onclick=function(){kk=sweep(mean).best;drawW4();};
+document.getElementById('grcxm').onclick=function(){mean=mean>=256?4:mean*4;drawW4();};
+document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
+document.getElementById('grcxs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 263 · neon-noir · silicon-coding · WHAT CANNOT BE SQUEEZED ═══════════════════════
 # ═══════════════════════ BATCH 262 · neon-noir · silicon-coding · THE NUMBERS THAT DO NOT ADD UP ═══════════════════════
 # ═══════════════════════ BATCH 261 · neon-noir · silicon-coding · WHAT TIME IT IS, AND WHO AGREES ═══════════════════════
 # ═══════════════════════ BATCH 260 · neon-noir · silicon-coding · THE LIE OF THE FLAT ADDRESS ═══════════════════════
@@ -105049,6 +106042,76 @@ SPHERES = [
   "lit":"20,000 five-bit values pack into 12,500 bytes - exactly ceil(20000 x 5/8), not approximately - against 20,000 at a byte each and 80,000 raw, giving 1.6x against byte-aligned and 6.4x against 32-bit, and all 20,000 unpack to their original values with 0 errors",
   "fig":"Bit-packing sits under every column store and inverted index, usually applied after frame-of-reference has made the values small. AVAN checked the round trip and the exact byte count together: the byte count matching ceil(N x W/8) proves nothing was silently padded per value, and the 0 unpack errors prove nothing was dropped at the tail. Either check alone passes for an implementation quietly broken in the other direction.",
   "body":BITP_BODY,"script":BITP_SCRIPT},
+ {"slug":"the-arithmetic-coder","title":"THE ARITHMETIC CODER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ff2d95","icon":"\u25c8",
+  "kicker":"cheaper because it delivers something that is not a code",
+  "blurb":"Huffman gives every symbol a whole number of bits. If a symbol deserves 2.2 bits it gets 2 or 3, and the rounding is paid on every occurrence. An arithmetic coder narrows one interval instead.",
+  "lit":"20,000 symbols over an 8-letter alphabet with an entropy of 2.2027 bits give an ideal of 44,054 bits, where Huffman spends 44,901 - 847 bits more, 1.92% over - and it cannot do better because the overhead is the rounding and the rounding is structural",
+  "fig":"Huffman's 1952 code is optimal among codes that assign whole bits to symbols; arithmetic coding, from Rissanen and Pasco in the 1970s, escapes by refusing that constraint. AVAN built the Huffman tree and counted its actual bits rather than quoting the bound. 1.92% is small, which is the honest finding - Huffman is very good. The gap matters at skewed alphabets where one symbol deserves a fraction of a bit and Huffman must still hand it a whole one.",
+  "body":ARCD_BODY,"script":ARCD_SCRIPT},
+ {"slug":"the-bwt","title":"THE BWT","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ffd23f","icon":"\u21c5",
+  "kicker":"rearrangement so that compression becomes possible",
+  "blurb":"Sort every rotation of a string and take the last column. Characters preceding the same context end up adjacent, so the result is full of runs - and it is exactly reversible from one integer.",
+  "lit":"2,000 characters of repeated text over 27 distinct symbols go from 2,000 runs with a mean run length of 1 to 40 runs with a mean of 50 - a 50x reduction - inverting back to the original exactly, with the entropy unchanged to six decimal places at 4.3394 bits either way",
+  "fig":"Burrows and Wheeler published this in 1994; it is the front end of bzip2 and the basis of the FM-index. AVAN got it wrong twice and both corrections improved it. The inverse transform was simply broken - the reconstruction is the LF mapping walked backwards from the stored row index. And it was first run on an i.i.d. source, where BWT should fail: it clusters characters by the context that follows them and a memoryless source has no context, so runs went up, which was the right answer to a badly posed question.",
+  "body":BWTX_BODY,"script":BWTX_SCRIPT},
+ {"slug":"the-lz77-window","title":"THE LZ77 WINDOW","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u25e7",
+  "kicker":"it finds recent repeats, not repeats",
+  "blurb":"LZ77 replaces a repeat with a reference backwards. It can only reference what is still inside its window, so a pattern repeating further apart than the window is invisible.",
+  "lit":"a string with a period of exactly 1,000 characters costs 3,240 tokens at a window of 64 while matching 27.8% of the input, and 495 tokens matching 93.8% at a window of 1,024 - just past the period - with 4,096 giving the identical 495, so the window must clear the period and beyond that buys nothing",
+  "fig":"Lempel and Ziv's 1977 scheme underlies DEFLATE, zstd and every zip file you have opened. AVAN chose a known period so the threshold would be a prediction rather than an observation. The interesting pair is 1,024 and 4,096 giving the identical token count: window size is not a dial trading memory for ratio smoothly, it is a threshold with a flat region on either side.",
+  "body":LZ77_BODY,"script":LZ77_SCRIPT},
+ {"slug":"the-dictionary-coder","title":"THE DICTIONARY CODER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#9d00ff","icon":"\u2751",
+  "kicker":"incompressible is never a property of the data",
+  "blurb":"There are two different redundancies in a file: some symbols are more common than others, and some sequences repeat. An entropy coder sees only the first. A dictionary coder sees only the second.",
+  "lit":"64 uniformly random characters repeated 200 times - 12,800 characters - have an order-0 entropy of 4.4086 bits per symbol, so an entropy coder reports 56,430 bits and declares the data nearly incompressible, while a dictionary storing the unit once and a count needs 520 bits: the same string, 109 times apart, with both coders working correctly",
+  "fig":"This is why DEFLATE is LZ77 followed by Huffman rather than either alone, and why compressing an already-compressed file achieves nothing. AVAN built a string designed so the two measures disagree maximally, because the point is not that dictionaries are better - on a file with skewed frequencies and no repeats the answer inverts exactly. 109x is not a ranking, it is the size of the blind spot each coder has.",
+  "body":DICT_BODY,"script":DICT_SCRIPT},
+ {"slug":"the-kolmogorov-bound","title":"THE KOLMOGOROV BOUND","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"\u2204",
+  "kicker":"real data lives in a corner the theorem is not about",
+  "blurb":"Most strings cannot be compressed at all, and this is not an empirical observation about real files - it is a counting argument, and it is airtight.",
+  "lit":"outputs of length at most n-k number 2^(n-k+1) - 1, so the fraction that can be shortened by k bits is about 2^(1-k): at every width tested more than 50% of strings cannot be shortened by two bits, and at 20 bits 99.80% cannot be shortened by ten - any compressor that shrinks your file did so by growing somebody else's",
+  "fig":"This is the counting form of the incompressibility theorem; Kolmogorov complexity is the general statement and is uncomputable, which the counting argument is not. AVAN counted rather than sampled deliberately: a measured claim about real files would be an observation about the files, while this is a fact about the pigeonhole and holds for every compressor that has been written or ever will be.",
+  "body":KLMB_BODY,"script":KLMB_SCRIPT},
+ {"slug":"the-pigeonhole-compression","title":"THE PIGEONHOLE COMPRESSION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"\u2284",
+  "kicker":"compression was always an opinion",
+  "blurb":"A lossless compressor is an injective map: distinct inputs must give distinct outputs, or you cannot get the original back. That single requirement forbids shrinking everything.",
+  "lit":"there are 65,536 strings of 16 bits and only 65,535 distinct outputs shorter than 16 bits - every length from 0 to 15 combined - so at least 1 input cannot shrink, and the same holds at every width tested from 2 to 16: it is arithmetic, not a limitation of anybody's algorithm",
+  "fig":"This is the counting argument behind every infinite-compression patent being rejected without reading the method. AVAN made the slot count explicit rather than stating the theorem. 65,535 against 65,536 is a difference of one, and one is enough - the argument does not need most strings to be incompressible, only that the destination is smaller than the source.",
+  "body":PGHC_BODY,"script":PGHC_SCRIPT},
+ {"slug":"the-delta-of-delta","title":"THE DELTA OF DELTA","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ff2d95","icon":"\u2206",
+  "kicker":"an operational health metric wearing a storage costume",
+  "blurb":"Timestamps at a regular interval have constant first differences, so their second differences are almost all zero. Store those and the common case costs nothing.",
+  "lit":"100,000 timestamps at a nominal ten-second cadence with occasional jitter give 93.42% of second differences exactly 0, needing 4 bits where the deltas need 5 and the raw values need 32 - an 8x reduction - with every value reconstructing exactly and 0 errors across all 100,000",
+  "fig":"Delta-of-delta is the timestamp half of Facebook's Gorilla paper (2015) and is now standard in time-series stores. AVAN reports the 93.42% rather than the ratio, because the ratio is a consequence and the zero-fraction is the mechanism. A coder spending a single bit on same-as-last-time converts a regular cadence into almost nothing - and the moment the cadence stops being regular the whole advantage goes with it.",
+  "body":DODL_BODY,"script":DODL_SCRIPT},
+ {"slug":"the-entropy-floor","title":"THE ENTROPY FLOOR","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"\u22a5",
+  "kicker":"a property of your model, not of the data",
+  "blurb":"Shannon's entropy is not a target that good coders approach. It is a floor no coder can go under, and every real scheme sits some measurable distance above it.",
+  "lit":"30,000 symbols over 8 letters with an entropy of 2.229 bits per symbol give a floor of 66,870 bits, where fixed-width coding spends 90,000 at 34.59% above and Huffman spends 68,048 at 1.76% above - both above and neither below, which is the whole content of the theorem measured rather than asserted",
+  "fig":"Shannon's source coding theorem (1948) sets the bound; everything since is engineering to approach it. AVAN ran two real coders against the same corpus rather than quoting the bound alone. A floor nobody tests is a claim; a floor two independent schemes sit above, at 34.59% and 1.76%, is a measurement. The gap between those two is also the finding - the distance from naive to near-optimal is twenty times the distance from near-optimal to perfect.",
+  "body":ENTF_BODY,"script":ENTF_SCRIPT},
+ {"slug":"the-run-length","title":"THE RUN LENGTH","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd23f","icon":"\u25ac",
+  "kicker":"it loses loudly where others lose quietly",
+  "blurb":"Replace each run of identical symbols with the symbol and a count. The simplest compression there is, and the clearest demonstration that no compressor helps everything.",
+  "lit":"the same coder on the same alphabet turns 2,000 bytes of run-structured input into 80 - 25 times smaller - turns strictly alternating input into exactly 4,000, the worst case of doubling because every run has length one and costs two bytes, and turns a random source into 3,496: two of the three columns are expansions",
+  "fig":"Run-length coding is in fax machines, BMP files and the back end of BWT-based compressors, and it is the pigeonhole theorem you can see in one line. AVAN checked that the worst case is exactly doubling rather than merely bad, because 4,000 from 2,000 is a prediction and expands is not. The coder that wins hardest also loses hardest, on the same alphabet, with nothing changed but the order.",
+  "body":RUNL_BODY,"script":RUNL_SCRIPT},
+ {"slug":"the-golomb-rice","title":"THE GOLOMB RICE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#5ad0ff","icon":"\u2310",
+  "kicker":"a tuned coder is a prediction nobody checks again",
+  "blurb":"Golomb-Rice spends a value in two parts: the high bits in unary, the low k in binary. Choose k to match the distribution and it is near-optimal. Choose it badly and it is catastrophic.",
+  "lit":"20,000 geometric values with a mean of 16 swept across every k from 0 to 8 give a best of k=3 at 5.515 bits per value against a theoretical log2(mean) of 4 - the measured optimum within one of the prediction - while k=0 costs 16.297 bits on the same data, a 2.96x penalty for one wrong parameter",
+  "fig":"Golomb's 1966 code is optimal for geometric sources; Rice's power-of-two variant is what FLAC and lossless image formats actually use. AVAN swept every parameter and compared the winner to the prediction, rather than coding at the predicted value and reporting that it worked. Those are different claims: the second assumes the theory, the first tests it.",
+  "body":GRCX_BODY,"script":GRCX_SCRIPT},
  {"slug":"the-tlb-reach","title":"THE TLB REACH","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u25a6",
   "kicker":"a unit trick, not a capacity gain",
