@@ -33334,6 +33334,1079 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 265 · neon-noir · silicon-coding · WHO RUNS NEXT ═══════════════════════
+CNVY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">First-come-first-served is the fairest-sounding rule there is, and it is the one that makes almost everybody wait longest. A few long jobs at the front, and the whole short queue sits behind them.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200</b> jobs, <b>12</b> long and <b>188</b> short. FIFO gives a mean wait of <b>1,540</b>. Shortest-job-first gives <b>409</b> &mdash; <b>3.77&times;</b> shorter. The total work is identical: both finish at <b>3,689</b>. Nothing was made faster and nothing was dropped; the same jobs ran on the same machine for the same total time, and the only thing that changed was the order.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The convoy effect is the standard argument for SJF, and the standard argument against it is that it needs to know the job lengths &mdash; which is what <b>THE MULTILEVEL FEEDBACK</b> gets around.<br><br>
+ <b>AVAN (AI)</b> published the makespan next to the mean wait because that is the column that shows nothing was stolen. <b>3,689</b> either way. A scheduler cannot create throughput; it can only decide who does the waiting, and FIFO decides that <b>188</b> short jobs should wait for <b>12</b> long ones.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The same jobs, two orders.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Reorder the queue and watch the wait, not the finish.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnvys">sort shortest first &#9654;</button><button id="cnvyl">longest first</button><button id="cnvyf">back to arrival order</button></div>
+   <div class="cap" id="cnvyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue behind one long thing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that SJF is better than FIFO. The inverse is that <b>it is better for the mean and worse for the long job, and the mean has no opinion about that</b>. Every one of those <b>188</b> short jobs gained, and the <b>12</b> long ones paid for all of it. Read backwards, &ldquo;<b>3.77&times;</b> improvement&rdquo; is a statement about a population, and there is no arrangement of a queue that improves it for everybody &mdash; the total wait is fixed by the job lengths, and a scheduler only ever decides whose it is.</div>
+   <div class="btns" style="margin-top:10px"><button id="cnvyp">pause spin</button></div></div></div></div>"""
+CNVY_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,mode='fifo';
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mkjobs(){var r=rng(3),j=[],i;
+ for(i=0;i<200;i++)j.push(r()<0.05?200+Math.floor(r()*100):1+Math.floor(r()*8));
+ return j;}
+function order(j,m){
+ if(m==='sjf')return j.slice().sort(function(a,b){return a-b;});
+ if(m==='ljf')return j.slice().sort(function(a,b){return b-a;});
+ return j.slice();}
+function measure(o){var t=0,w=0,k;
+ for(k=0;k<o.length;k++){w+=t;t+=o[k];}
+ return {meanWait:w/o.length,makespan:t};}
+function selftest(){
+ var j=mkjobs(),f=measure(order(j,'fifo')),s=measure(order(j,'sjf'));
+ var lng=j.filter(function(x){return x>100;}).length;
+ return {jobs:j.length,longJobs:lng,shortJobs:j.length-lng,
+  fifoMeanWait:+f.meanWait.toFixed(1),
+  sjfMeanWait:+s.meanWait.toFixed(1),
+  ratio:+(f.meanWait/s.meanWait).toFixed(2),
+  makespanFifo:f.makespan,makespanSjf:s.makespan,
+  sameTotalWork:f.makespan===s.makespan,
+  schedulerCannotCreateThroughput:true,
+  ok:f.meanWait>s.meanWait&&f.makespan===s.makespan};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'THE SAME JOBS, TWO ORDERS');
+ var j=mkjobs(),f=order(j,'fifo'),s=order(j,'sjf'),i;
+ nt(g,'#ff5a8a',20,46,9,'arrival order');
+ for(i=0;i<f.length&&i<160;i++){
+  nf(g,f[i]>100?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)');
+  g.fillRect(20+i*2.9,54,2.4,Math.min(40,3+f[i]/8));ng(g);}
+ nt(g,'#7de2b0',20,124,9,'shortest first');
+ for(i=0;i<s.length&&i<160;i++){
+  nf(g,s[i]>100?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)');
+  g.fillRect(20+i*2.9,132,2.4,Math.min(40,3+s[i]/8));ng(g);}
+ krow(g,20,186,300,'FIFO mean wait',VR.fifoMeanWait,VR.fifoMeanWait/1800,
+  'rgba(255,60,90,0.8)');
+ krow(g,20,226,300,'SJF mean wait',VR.sjfMeanWait,VR.sjfMeanWait/1800,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,258-4,W-24,true,'both finish at '+VR.makespanFifo.toLocaleString()+
+  ' -- nothing got faster, the order changed who waits');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var j=mkjobs(),o=order(j,mode),m=measure(o);
+ nt(g,'#5ad0ff',12,20,11,mode==='sjf'?'SHORTEST FIRST':(mode==='ljf'?'LONGEST FIRST':'ARRIVAL ORDER'));
+ var i;
+ for(i=0;i<o.length&&i<120;i++){
+  nf(g,o[i]>100?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)');
+  g.fillRect(14+i*3.05,40,2.6,Math.min(46,3+o[i]/6));ng(g);}
+ nt(g,'#8a7ab8',14,102,8,'bar height is job length; red is a long job');
+ krow(g,14,120,230,'mean wait',+m.meanWait.toFixed(1),m.meanWait/3000,
+  mode==='sjf'?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)');
+ krow(g,14,162,230,'makespan (fixed)',m.makespan,m.makespan/4000,
+  'rgba(255,210,63,0.65)');
+ krow(g,14,204,230,'longest single wait',
+  +(measure(o).makespan-o[o.length-1]).toFixed(0),
+  (m.makespan-o[o.length-1])/4000,'rgba(90,208,255,0.7)');
+ kverdict(g,12,248,W-24,mode==='sjf',
+  mode==='sjf'?'best mean -- and the 12 long jobs paid for all of it':
+  (mode==='ljf'?'worst possible mean, from the same work':
+   'the default, and the one almost everybody waits longest in'));
+ nt(g,'#5a4a85',14,300,8,'the total wait is fixed; a scheduler decides whose it is');
+ kout('cnvyo','mean wait <b>'+m.meanWait.toFixed(1)+'</b> &middot; makespan <b>'+
+  m.makespan.toLocaleString()+'</b> (unchanged)');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE BEHIND ONE LONG THING');
+ korb(g,W/2,H/2+10,ang,46,function(i,N){
+  var t=i/N,big=(i===6);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:big?-22:0,
+   c:big?'rgba(255,60,90,0.95)':'rgba(125,226,176,0.65)',r:big?6:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'no arrangement improves it for everybody');}
+document.getElementById('cnvys').onclick=function(){mode='sjf';drawW4();};
+document.getElementById('cnvyl').onclick=function(){mode='ljf';drawW4();};
+document.getElementById('cnvyf').onclick=function(){mode='fifo';drawW4();};
+document.getElementById('cnvyp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theconvoyeffect=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WSTL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Deciding who does what before you start only works if you already know how long each piece takes. When you do not, seven workers finish early and stand still while the eighth is buried.<br><br>
+ <span class="lit">LIT</span> verified live. <b>2,000</b> tasks, <b>74,359</b> units of work, <b>8</b> workers. A fixed block split finishes at <b>35,505</b> &mdash; <b>3.82&times;</b> the ideal <b>9,294.9</b>, with the fleet idle <b>73.82%</b> of the time. Letting a free worker take the next task off the most loaded queue finishes at <b>9,511</b>: <b>2.3%</b> off ideal, <b>2.27%</b> idle, <b>3.73&times;</b> faster, after <b>358</b> steals. Same tasks, same workers, same total work.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Work stealing is the scheduler in Cilk, in Go&rsquo;s runtime, in Java&rsquo;s fork/join pool; the deque-with-stealing shape is <b>Blumofe and Leiserson</b>&rsquo;s.<br><br>
+ <b>AVAN (AI)</b> first ran this with tasks dealt round-robin, and measured <b>0</b> steals &mdash; because <b>250</b> random draws per worker converge to the same sum, so there was nothing to steal. That is not the case the technique exists for. Static partitioning only loses when the work is <i>skewed</i>, and the experiment has to put the skew somewhere a fixed split cannot see it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight workers, decided up front and decided as it goes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the skew and watch the fixed split fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="wstlm">more skew &#9654;</button><button id="wstll">less skew</button><button id="wstlt">toggle stealing</button><button id="wstlr">reset</button></div>
+   <div class="cap" id="wstlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: seven idle, one buried.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that stealing beats planning. The inverse is that <b>the plan was never wrong &mdash; it was made too early</b>. A fixed split is optimal for the information available when it is made, and it stays committed to that information after the work has told you something better. Read backwards, work stealing does not schedule more cleverly; it schedules <i>later</i>, and almost all of the <b>3.73&times;</b> is the value of not having decided yet.</div>
+   <div class="btns" style="margin-top:10px"><button id="wstlp">pause spin</button></div></div></div></div>"""
+WSTL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,skew=0.30,stealing=true;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function build(sk){
+ var r=rng(5),N=2000,tasks=[],i;
+ for(i=0;i<N;i++){
+  var heavy=(i>1500&&r()<sk);
+  tasks.push(heavy?200+Math.floor(r()*400):1+Math.floor(r()*10));}
+ return tasks;}
+function run(tasks,steal){
+ var W=8,N=tasks.length,block=Math.ceil(N/W),i,k;
+ var stat=[];
+ for(k=0;k<W;k++){var s=0;
+  for(i=k*block;i<Math.min(N,(k+1)*block);i++)s+=tasks[i];
+  stat.push(s);}
+ var staticMk=Math.max.apply(null,stat);
+ if(!steal)return {loads:stat,makespan:staticMk,steals:0,staticLoads:stat,staticMakespan:staticMk};
+ var deque=[];for(k=0;k<W;k++)deque.push([]);
+ for(i=0;i<N;i++)deque[Math.min(W-1,Math.floor(i/block))].push(i);
+ var load=[];for(k=0;k<W;k++)load.push(0);
+ var steals=0,guard=0;
+ while(guard++<100000){
+  var free=0;
+  for(k=1;k<W;k++)if(load[k]<load[free])free=k;
+  var task=-1;
+  if(deque[free].length)task=deque[free].shift();
+  else{var big=-1,bmax=0;
+   for(k=0;k<W;k++)if(deque[k].length>bmax){bmax=deque[k].length;big=k;}
+   if(big<0)break;
+   task=deque[big].pop();steals++;}
+  load[free]+=tasks[task];}
+ return {loads:load,makespan:Math.max.apply(null,load),steals:steals,
+  staticLoads:stat,staticMakespan:staticMk};}
+function selftest(){
+ var t=build(0.30),total=t.reduce(function(a,b){return a+b;},0),ideal=total/8;
+ var st=run(t,false),sw=run(t,true);
+ return {workers:8,tasks:t.length,totalWork:total,
+  idealMakespan:+ideal.toFixed(1),
+  staticMakespan:st.makespan,stealingMakespan:sw.makespan,
+  steals:sw.steals,
+  staticOverIdeal:+(st.makespan/ideal).toFixed(3),
+  stealingOverIdeal:+(sw.makespan/ideal).toFixed(3),
+  staticIdlePct:+(100*(1-total/(8*st.makespan))).toFixed(2),
+  stealingIdlePct:+(100*(1-total/(8*sw.makespan))).toFixed(2),
+  speedup:+(st.makespan/sw.makespan).toFixed(2),
+  sameTotalWork:true,
+  ok:sw.makespan<st.makespan&&sw.steals>0};}
+function bars(g,x,y,w,loads,ideal,col){
+ var mx=Math.max.apply(null,loads),k;
+ for(k=0;k<loads.length;k++){
+  nf(g,'rgba(90,70,140,0.28)');g.fillRect(x,y+k*13,w,10);ng(g);
+  nf(g,col);g.fillRect(x,y+k*13,Math.round(w*loads[k]/mx),10);ng(g);}
+ var ix=x+Math.round(w*ideal/mx);
+ ne(g,'rgba(255,210,63,0.85)',1.5);g.beginPath();
+ g.moveTo(ix,y-3);g.lineTo(ix,y+loads.length*13);g.stroke();ng(g);}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'EIGHT WORKERS, TWO WAYS OF DECIDING');
+ var t=build(0.30),total=t.reduce(function(a,b){return a+b;},0),ideal=total/8;
+ var st=run(t,false),sw=run(t,true);
+ nt(g,'#ff5a8a',20,46,9,'fixed split, decided up front');
+ bars(g,20,54,300,st.loads,ideal,'rgba(255,60,90,0.8)');
+ nt(g,'#8a7ab8',336,66,8,'makespan');
+ nt(g,'#ff5a8a',336,82,10,''+st.makespan.toLocaleString());
+ nt(g,'#7de2b0',20,178,9,'stealing, decided as it goes');
+ bars(g,20,186,300,sw.loads,ideal,'rgba(125,226,176,0.8)');
+ nt(g,'#7de2b0',336,206,10,''+sw.makespan.toLocaleString());
+ nt(g,'#ffd76a',336,224,8,'gold = ideal');
+ kverdict(g,12,262-4,W-24,true,VR.speedup+'x faster from '+VR.steals+
+  ' steals -- same tasks, same workers, same total work');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=build(skew),total=t.reduce(function(a,b){return a+b;},0),ideal=total/8;
+ var m=run(t,stealing);
+ nt(g,'#9d00ff',12,20,11,'SKEW '+(skew*100).toFixed(0)+'%'+
+  (stealing?'   [stealing]':'   [fixed split]'));
+ bars(g,14,42,250,m.loads,ideal,stealing?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)');
+ nt(g,'#8a7ab8',14,160,8,'one bar per worker; gold line is the ideal');
+ krow(g,14,176,230,'makespan',m.makespan,Math.min(1,m.makespan/40000),
+  stealing?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)');
+ krow(g,14,218,230,'over ideal',+(m.makespan/ideal).toFixed(3),
+  Math.min(1,(m.makespan/ideal)/4),'rgba(255,210,63,0.7)');
+ krow(g,14,260,230,'fleet idle %',
+  +(100*(1-total/(8*m.makespan))).toFixed(2),
+  (1-total/(8*m.makespan)),'rgba(90,208,255,0.7)');
+ kverdict(g,12,296,W-24,m.makespan/ideal<1.2,
+  m.makespan/ideal<1.2?'within '+((m.makespan/ideal-1)*100).toFixed(1)+
+   '% of ideal':'the split committed before the work said anything');
+ kout('wstlo',(stealing?'stealing':'fixed')+' &middot; makespan <b>'+
+  m.makespan.toLocaleString()+'</b> &middot; <b>'+(m.makespan/ideal).toFixed(2)+
+  'x</b> ideal &middot; steals <b>'+m.steals+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'SEVEN IDLE, ONE BURIED');
+ korb(g,W/2,H/2+10,ang,8,function(i,N){
+  var t=i/N*6.283185307,heavy=(i===3);
+  return {x:Math.cos(t)*100,z:Math.sin(t)*70,y:heavy?-40:0,
+   c:heavy?'rgba(255,60,90,0.95)':'rgba(125,226,176,0.5)',r:heavy?8:3};});
+ nt(g,'#8a7ab8',12,H-22,8,'it does not schedule more cleverly, it schedules later');}
+document.getElementById('wstlm').onclick=function(){skew=Math.min(1,+(skew+0.15).toFixed(2));drawW4();};
+document.getElementById('wstll').onclick=function(){skew=Math.max(0,+(skew-0.15).toFixed(2));drawW4();};
+document.getElementById('wstlt').onclick=function(){stealing=!stealing;drawW4();};
+document.getElementById('wstlr').onclick=function(){skew=0.30;stealing=true;drawW4();};
+document.getElementById('wstlp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theworkstealing=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FSHR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Splitting a resource evenly is not fair when some of the claimants want less than their share. Max-min fairness gives the small ones everything they asked for first, then divides what is left.<br><br>
+ <span class="lit">LIT</span> verified live. Capacity <b>30</b>, demands <b>2</b>, <b>2.6</b>, <b>4</b>, <b>10</b>, <b>40</b>. An equal split gives everyone <b>6</b> &mdash; which hands <b>9.4</b> units to claimants who cannot use them while the one wanting <b>40</b> gets <b>6</b>. Max-min converges in <b>3</b> rounds to <b>2</b>, <b>2.6</b>, <b>4</b>, <b>10</b>, <b>11.4</b>: everyone below their share is fully satisfied, the remainder goes to the one who can still use it, and all <b>30</b> is allocated with none wasted.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Max-min fairness is the allocation behind fair queueing and behind every &ldquo;fair share&rdquo; scheduler; the water-filling procedure is the standard construction.<br><br>
+ <b>AVAN (AI)</b> published the wasted column because it is the one that makes the argument. Equal splitting is not merely less efficient &mdash; it is unfair <i>and</i> wasteful at the same time, handing <b>9.4</b> units to parties who will not use them while a party that would has to go without.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Equal split against max-min, on the same demands.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the capacity and watch the water rise.</div>
+   <div class="btns" style="margin-top:10px"><button id="fshrm">more capacity &#9654;</button><button id="fshrl">less</button><button id="fshre">show equal split</button><button id="fshrr">reset</button></div>
+   <div class="cap" id="fshro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: water finding its level.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that max-min is the fair allocation. The inverse is that <b>it is fair only if asking for less is honest</b>. The whole procedure rewards a small declared demand with full satisfaction, so it is a rule that pays you to understate what you want &mdash; and it has no way to tell a claimant who needs <b>2</b> from one who asked for <b>2</b> to be served first. Read backwards, every fair-share scheduler is an allocation built on self-reported need, and its fairness is exactly as good as that reporting.</div>
+   <div class="btns" style="margin-top:10px"><button id="fshrp">pause spin</button></div></div></div></div>"""
+FSHR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cap=30,showEqual=false;
+var DEM=[2,2.6,4,10,40];
+function maxmin(demands,capacity){
+ var alloc=demands.map(function(){return 0;}),done=demands.map(function(){return false;});
+ var remaining=capacity,rounds=0,i,j;
+ while(true){
+  rounds++;
+  var open=0;
+  for(i=0;i<demands.length;i++)if(!done[i])open++;
+  if(!open)break;
+  var share=remaining/open,progressed=false;
+  for(i=0;i<demands.length;i++){
+   if(done[i])continue;
+   if(demands[i]<=share){alloc[i]=demands[i];remaining-=demands[i];done[i]=true;progressed=true;}}
+  if(!progressed){
+   for(j=0;j<demands.length;j++)if(!done[j]){alloc[j]=remaining/open;done[j]=true;}
+   remaining=0;break;}}
+ return {alloc:alloc,rounds:rounds};}
+function selftest(){
+ var m=maxmin(DEM,30),served=m.alloc.reduce(function(a,b){return a+b;},0);
+ var eq=DEM.map(function(){return 30/DEM.length;}),waste=0,i;
+ for(i=0;i<DEM.length;i++)if(eq[i]>DEM[i])waste+=eq[i]-DEM[i];
+ return {capacity:30,demands:DEM,
+  allocation:m.alloc.map(function(x){return +x.toFixed(3);}),
+  totalAllocated:+served.toFixed(3),rounds:m.rounds,
+  equalSplit:eq.map(function(x){return +x.toFixed(2);}),
+  equalSplitWasted:+waste.toFixed(2),
+  smallestFullySatisfied:m.alloc[0]===DEM[0],
+  largestGetsRemainder:m.alloc[4]>m.alloc[3],
+  nothingWasted:Math.abs(served-30)<1e-9,
+  ok:Math.abs(served-30)<1e-9&&m.alloc[0]===DEM[0]&&waste>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'EQUAL SPLIT AGAINST MAX-MIN');
+ var i,mx=42;
+ for(i=0;i<DEM.length;i++){
+  var y=48+i*40;
+  nt(g,'#8a7ab8',20,y+14,9,'wants '+DEM[i]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(96,y,340,20);ng(g);
+  var eq=Math.min(6,DEM[i]);
+  nf(g,'rgba(255,60,90,0.55)');g.fillRect(96,y,340*6/mx,9);ng(g);
+  nf(g,'rgba(125,226,176,0.85)');
+  g.fillRect(96,y+11,340*VR.allocation[i]/mx,9);ng(g);
+  nt(g,'#e8e0ff',444,y+14,8,''+VR.allocation[i]);}
+ nt(g,'#ff5a8a',96,258,8,'red = equal split (6 each)');
+ nt(g,'#7de2b0',270,258,8,'green = max-min');
+ kverdict(g,12,262,W-24,true,'equal splitting wastes '+VR.equalSplitWasted+
+  ' units on claimants who cannot use them');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=maxmin(DEM,cap),i;
+ nt(g,'#00f5ff',12,20,11,'CAPACITY '+cap+(showEqual?'   [equal split shown]':''));
+ var mx=42;
+ for(i=0;i<DEM.length;i++){
+  var x=22+i*68;
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(x,44,44,150);ng(g);
+  var dh=Math.round(150*DEM[i]/mx);
+  ne(g,'rgba(138,122,184,0.7)',1);g.strokeRect(x,44+150-dh,44,dh);ng(g);
+  var ah=Math.round(150*m.alloc[i]/mx);
+  nf(g,'rgba(125,226,176,0.8)');g.fillRect(x,44+150-ah,44,ah);ng(g);
+  if(showEqual){
+   var eh=Math.round(150*(cap/DEM.length)/mx);
+   ne(g,'rgba(255,60,90,0.9)',2);g.beginPath();
+   g.moveTo(x,44+150-eh);g.lineTo(x+44,44+150-eh);g.stroke();ng(g);}
+  nt(g,'#5a4a85',x+8,208,8,''+DEM[i]);}
+ nt(g,'#8a7ab8',22,224,8,'outline = demand, fill = allocation, red line = equal split');
+ krow(g,14,240,230,'rounds to converge',m.rounds,m.rounds/6,'rgba(90,208,255,0.7)');
+ var served=m.alloc.reduce(function(a,b){return a+b;},0);
+ kverdict(g,12,282,W-24,Math.abs(served-Math.min(cap,63.6))<0.01,
+  'all '+served.toFixed(1)+' allocated; smallest satisfied first, remainder to the largest');
+ kout('fshro','capacity <b>'+cap+'</b> &middot; '+
+  m.alloc.map(function(x){return x.toFixed(1);}).join(' / ')+
+  ' &middot; <b>'+m.rounds+'</b> rounds');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'WATER FINDING ITS LEVEL');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,lvl=Math.sin(t*6.283)*8;
+  return {x:(t-0.5)*250,z:Math.cos(t*6.283)*34,y:lvl,
+   c:'rgba(0,245,255,'+(0.3+0.5*Math.abs(Math.sin(t*3.14)))+')',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'fairness exactly as good as the self-reporting');}
+document.getElementById('fshrm').onclick=function(){cap=Math.min(70,cap+6);drawW4();};
+document.getElementById('fshrl').onclick=function(){cap=Math.max(6,cap-6);drawW4();};
+document.getElementById('fshre').onclick=function(){showEqual=!showEqual;drawW4();};
+document.getElementById('fshrr').onclick=function(){cap=30;showEqual=false;drawW4();};
+document.getElementById('fshrp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefairshare=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STRV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Strict priority is not a queue, it is a promise that one class always wins. When that class alone can keep the server busy, the promise is that the other class never runs.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> ticks, high-priority arrivals <b>0.95</b> and low <b>0.20</b> against a service rate of <b>1</b>. Strict priority serves <b>19,009</b> high and <b>991</b> low, leaves <b>2,956</b> low jobs still queued, and one of them has been waiting <b>14,833</b> ticks. Aging &mdash; letting a job&rsquo;s priority climb with its wait &mdash; serves <b>3,280</b> low, backlog <b>667</b>, worst wait <b>3,418</b>. The high class serves <b>2,289</b> fewer, which is exactly the <b>2,289</b> the low class gained.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Aging is the textbook fix for starvation, and the exact-conservation result is not a coincidence: the server is saturated, so every tick given to one class is taken from the other.<br><br>
+ <b>AVAN (AI)</b> first ran this at an offered load of <b>0.80</b> against a service rate of <b>1</b> &mdash; under capacity, so nothing starved and both schedulers were identical. Starvation is a property of saturation, not of priority. The rule only bites when the favoured class alone can fill the server, so that is where the experiment belongs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Who gets served, and who is still waiting.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the load across the saturation line.</div>
+   <div class="btns" style="margin-top:10px"><button id="strvm">more high-priority load &#9654;</button><button id="strvl">less</button><button id="strva">toggle aging</button><button id="strvr">reset</button></div>
+   <div class="cap" id="strvo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue that is never reached.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that aging fixes starvation. The inverse is that <b>it fixes it by breaking the priority promise, and the ledger is exact</b>. <b>2,289</b> low jobs ran, <b>2,289</b> high jobs did not; at saturation there is no other way for the numbers to come out. Read backwards, aging is not a repair to the scheduler &mdash; the scheduler was doing precisely what it was told. It is a decision that the priority order was a lie you were willing to tell only until the wait got embarrassing.</div>
+   <div class="btns" style="margin-top:10px"><button id="strvp">pause spin</button></div></div></div></div>"""
+STRV_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,hiRate=0.95,aging=false;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(age,hr){
+ var r=rng(9),T=20000,q=[],hi=0,lo=0,lowMax=0,t,i,trace=[];
+ for(t=0;t<T;t++){
+  if(r()<hr)q.push({p:0,born:t});
+  if(r()<0.20)q.push({p:5,born:t});
+  if(q.length){
+   var best=0;
+   for(i=1;i<q.length;i++){
+    var pi=q[i].p-(age?(t-q[i].born)/200:0);
+    var pb=q[best].p-(age?(t-q[best].born)/200:0);
+    if(pi<pb)best=i;}
+   var job=q.splice(best,1)[0],w=t-job.born;
+   if(job.p===0)hi++;else{lo++;if(w>lowMax)lowMax=w;}}
+  if(t%400===0){var bl=0;
+   for(i=0;i<q.length;i++)if(q[i].p>0)bl++;
+   trace.push(bl);}}
+ var backlogLow=0;
+ for(i=0;i<q.length;i++)if(q[i].p>0)backlogLow++;
+ return {hi:hi,lo:lo,lowMax:lowMax,backlogLow:backlogLow,trace:trace};}
+function selftest(){
+ var s=run(false,0.95),a=run(true,0.95);
+ return {ticks:20000,highArrivalRate:0.95,lowArrivalRate:0.20,serviceRate:1,
+  offeredLoad:1.15,
+  strictHighServed:s.hi,strictLowServed:s.lo,
+  strictLowBacklog:s.backlogLow,strictLowMaxWait:s.lowMax,
+  agedHighServed:a.hi,agedLowServed:a.lo,
+  agedLowBacklog:a.backlogLow,agedLowMaxWait:a.lowMax,
+  lowServedGain:a.lo-s.lo,highGaveUp:s.hi-a.hi,
+  exactConservation:(a.lo-s.lo)===(s.hi-a.hi),
+  starvationNeedsSaturation:true,
+  ok:a.lo>s.lo&&a.backlogLow<s.backlogLow&&s.backlogLow>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'WHO GETS SERVED, AND WHO IS STILL WAITING');
+ krow(g,20,44,300,'strict: high served',VR.strictHighServed,
+  VR.strictHighServed/20000,'rgba(90,208,255,0.75)');
+ krow(g,20,86,300,'strict: low served',VR.strictLowServed,
+  VR.strictLowServed/20000,'rgba(255,60,90,0.8)');
+ krow(g,20,128,300,'aged: low served',VR.agedLowServed,
+  VR.agedLowServed/20000,'rgba(125,226,176,0.8)');
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,174,W-24,36);ng(g);
+ nt(g,'#ff5a8a',22,196,10,'longest a low job waited under strict priority:  '+
+  VR.strictLowMaxWait.toLocaleString()+' of 20,000 ticks');
+ kverdict(g,12,216,W-24,true,'aging gained '+VR.lowServedGain.toLocaleString()+
+  ' low jobs and cost exactly '+VR.highGaveUp.toLocaleString()+' high ones');
+ nt(g,'#5a4a85',20,274,8,'at saturation there is no other way for the numbers to come out');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(aging,hiRate),load=hiRate+0.20;
+ nt(g,'#ffd23f',12,20,11,'HIGH LOAD '+hiRate.toFixed(2)+
+  (aging?'   [aging]':'   [strict]'));
+ kcurve(g,14,40,340,80,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))];},
+  aging?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.85)',2);
+ nt(g,'#8a7ab8',14,136,8,'low-priority backlog across the run');
+ krow(g,14,154,230,'low served',m.lo,m.lo/6000,'rgba(125,226,176,0.75)');
+ krow(g,14,196,230,'low still queued',m.backlogLow,
+  Math.min(1,m.backlogLow/4000),'rgba(255,60,90,0.8)');
+ krow(g,14,238,230,'worst low wait',m.lowMax,Math.min(1,m.lowMax/20000),
+  'rgba(255,210,63,0.7)');
+ kverdict(g,12,282,W-24,load<=1,load<=1?
+  'offered '+load.toFixed(2)+' -- under capacity, so nothing can starve':
+  'offered '+load.toFixed(2)+' -- the high class alone fills the server');
+ kout('strvo','load <b>'+load.toFixed(2)+'</b> &middot; low served <b>'+m.lo+
+  '</b> &middot; backlog <b>'+m.backlogLow+'</b> &middot; worst wait <b>'+
+  m.lowMax.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE THAT IS NEVER REACHED');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,low=(t>0.62);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:low?30:-8,
+   c:low?'rgba(255,60,90,0.35)':'rgba(90,208,255,0.85)',r:low?1.8:2.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'the scheduler was doing precisely what it was told');}
+document.getElementById('strvm').onclick=function(){hiRate=Math.min(1.0,+(hiRate+0.15).toFixed(2));drawW4();};
+document.getElementById('strvl').onclick=function(){hiRate=Math.max(0.10,+(hiRate-0.15).toFixed(2));drawW4();};
+document.getElementById('strva').onclick=function(){aging=!aging;drawW4();};
+document.getElementById('strvr').onclick=function(){hiRate=0.95;aging=false;drawW4();};
+document.getElementById('strvp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestarvation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TSLC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A short time slice makes the machine feel responsive and spends most of its day switching. A long one is efficient and makes everything feel stuck. The good value is in the middle and it is not a matter of taste.<br><br>
+ <span class="lit">LIT</span> verified live. <b>50</b> jobs, a switch costing <b>2</b>. At a quantum of <b>1</b> the machine spends <b>66.67%</b> of all elapsed time switching, and mean turnaround is <b>3,871.1</b>. At <b>128</b> the overhead is small and turnaround is worse again. The best of the eight measured is a quantum of <b>32</b>, and it is an interior point &mdash; neither end of the range wins.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Every real scheduler tunes this, and the interior optimum is why: the two costs pull in opposite directions and neither can be minimised alone.<br><br>
+ <b>AVAN (AI)</b> swept the quantum rather than arguing for a value, because the shape is the finding. <b>66.67%</b> overhead at quantum <b>1</b> means two thirds of the machine&rsquo;s life is bookkeeping &mdash; and the fix is not a faster switch, it is a longer turn.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Quantum against turnaround and overhead.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Set the quantum and the switch cost.</div>
+   <div class="btns" style="margin-top:10px"><button id="tslcm">longer quantum &#9654;</button><button id="tslcl">shorter</button><button id="tslcc">costlier switch</button><button id="tslcr">reset</button></div>
+   <div class="cap" id="tslco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a turn, cut into pieces.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the quantum trades responsiveness against overhead. The inverse is that <b>responsiveness is not a property of the machine at all</b>. Turnaround, overhead, throughput &mdash; all of them are measured here. Whether <b>32</b> feels better than <b>8</b> is a fact about a person waiting, and no sweep on this page contains it. Read backwards, the interior optimum is the honest half of the problem, and the half that decided the value in the machine you are reading this on was never a number.</div>
+   <div class="btns" style="margin-top:10px"><button id="tslcp">pause spin</button></div></div></div></div>"""
+TSLC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,quantum=32,swcost=2;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function jobs(){var r=rng(11),j=[],i;
+ for(i=0;i<50;i++)j.push(5+Math.floor(r()*60));
+ return j;}
+function run(q,sc){
+ var J=jobs(),rem=J.slice(),t=0,switches=0,done=[],i,guard=0;
+ while(guard++<400000){
+  var any=false;
+  for(i=0;i<rem.length;i++){
+   if(rem[i]<=0)continue;
+   any=true;
+   var slice=Math.min(q,rem[i]);
+   t+=slice;rem[i]-=slice;
+   if(rem[i]<=0)done.push(t);
+   t+=sc;switches++;}
+  if(!any)break;}
+ var turn=done.reduce(function(a,b){return a+b;},0)/done.length;
+ return {quantum:q,total:t,switches:switches,overhead:switches*sc,
+  overheadPct:+(100*switches*sc/t).toFixed(2),
+  meanTurnaround:+turn.toFixed(1)};}
+function selftest(){
+ var qs=[1,2,4,8,16,32,64,128],rows=qs.map(function(q){return run(q,2);}),i;
+ var best=rows[0];
+ for(i=1;i<rows.length;i++)if(rows[i].meanTurnaround<best.meanTurnaround)best=rows[i];
+ return {jobs:50,switchCost:2,rows:rows,
+  bestQuantum:best.quantum,bestTurnaround:best.meanTurnaround,
+  tinyQuantumOverheadPct:rows[0].overheadPct,
+  tinyQuantumTurnaround:rows[0].meanTurnaround,
+  hugeQuantumOverheadPct:rows[7].overheadPct,
+  hugeQuantumTurnaround:rows[7].meanTurnaround,
+  optimumIsInterior:best.quantum!==1&&best.quantum!==128,
+  ok:rows[0].overheadPct>rows[7].overheadPct&&best.meanTurnaround<rows[0].meanTurnaround};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'QUANTUM AGAINST TURNAROUND AND OVERHEAD');
+ var R=VR.rows,i,mxT=0,mxO=0;
+ for(i=0;i<R.length;i++){if(R[i].meanTurnaround>mxT)mxT=R[i].meanTurnaround;
+  if(R[i].overheadPct>mxO)mxO=R[i].overheadPct;}
+ for(i=0;i<R.length;i++){
+  var x=34+i*56;
+  var ht=Math.round(150*R[i].meanTurnaround/mxT);
+  nf(g,R[i].quantum===VR.bestQuantum?'rgba(125,226,176,0.9)':'rgba(157,0,255,0.55)');
+  g.fillRect(x,196-ht,22,ht);ng(g);
+  var ho=Math.round(150*R[i].overheadPct/mxO);
+  nf(g,'rgba(255,60,90,0.6)');g.fillRect(x+24,196-ho,10,ho);ng(g);
+  nt(g,'#5a4a85',x+2,212,7,''+R[i].quantum);}
+ nt(g,'#8a7ab8',34,230,8,'wide bar = mean turnaround   thin bar = switching overhead %');
+ nt(g,'#7de2b0',34,246,9,'best quantum '+VR.bestQuantum+
+  '  (turnaround '+VR.bestTurnaround.toLocaleString()+')');
+ kverdict(g,12,254,W-24,true,'both ends lose: '+VR.tinyQuantumOverheadPct+
+  '% overhead at 1, worse turnaround at 128');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(quantum,swcost);
+ nt(g,'#39fc6b',12,20,11,'QUANTUM '+quantum+'   SWITCH COST '+swcost);
+ var slices=Math.min(60,Math.ceil(200/quantum)*8),i;
+ for(i=0;i<60;i++){
+  var run_=(i%(1+Math.max(1,Math.round(quantum/8))))!==0;
+  nf(g,run_?'rgba(125,226,176,0.6)':'rgba(255,60,90,0.8)');
+  g.fillRect(14+i*5.6,42,4.6,26);ng(g);}
+ nt(g,'#8a7ab8',14,84,8,'green = running, red = switching');
+ krow(g,14,102,230,'mean turnaround',m.meanTurnaround,
+  Math.min(1,m.meanTurnaround/4200),'rgba(157,0,255,0.8)');
+ krow(g,14,144,230,'switches',m.switches,Math.min(1,m.switches/1800),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,186,230,'overhead %',m.overheadPct,m.overheadPct/100,
+  'rgba(255,60,90,0.8)');
+ krow(g,14,228,230,'elapsed',m.total,Math.min(1,m.total/5400),
+  'rgba(255,210,63,0.65)');
+ kverdict(g,12,272,W-24,m.overheadPct<20,
+  m.overheadPct<20?'overhead under control':
+  m.overheadPct.toFixed(1)+'% of the machine is bookkeeping, not work');
+ nt(g,'#5a4a85',14,318,8,'whether this FEELS better is not on this page');
+ kout('tslco','q <b>'+quantum+'</b> &middot; turnaround <b>'+m.meanTurnaround+
+  '</b> &middot; overhead <b>'+m.overheadPct+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TURN, CUT INTO PIECES');
+ korb(g,W/2,H/2+10,ang,48,function(i,N){
+  var t=i/N,cut=(i%6===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:cut?-14:0,
+   c:cut?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)',r:cut?3.2:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the half that decided the real value was never a number');}
+document.getElementById('tslcm').onclick=function(){quantum=Math.min(256,quantum*2);drawW4();};
+document.getElementById('tslcl').onclick=function(){quantum=Math.max(1,Math.floor(quantum/2));drawW4();};
+document.getElementById('tslcc').onclick=function(){swcost=swcost>=16?1:swcost*2;drawW4();};
+document.getElementById('tslcr').onclick=function(){quantum=32;swcost=2;drawW4();};
+document.getElementById('tslcp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetimeslice=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOTT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Hand out tickets in proportion to the share each process should get, then draw one at random and run its owner. No queue to maintain, no priorities to age, no bookkeeping at all &mdash; and it is only fair on average.<br><br>
+ <span class="lit">LIT</span> verified live. Tickets <b>10 / 20 / 30 / 40</b>, and the error measured as a mean over <b>200</b> independent runs at each size. At <b>100</b> draws the total absolute share error is <b>0.1296</b>; at <b>6,400</b> it is <b>0.01694</b>. Every quadrupling of the draws roughly halves the error &mdash; measured ratios <b>2.037</b>, <b>1.899</b>, <b>1.978</b> against the <b>2</b> that 1/&radic;N predicts. The fairness is real, and it is asymptotic.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Lottery scheduling is <b>Waldspurger and Weihl</b>&rsquo;s (1994); the appeal is that proportional share falls out of the draw with no state to keep.<br><br>
+ <b>AVAN (AI)</b> first gated this on the error shrinking at every step and it failed &mdash; <b>10,000</b> draws came out worse than <b>1,000</b>, because a single Monte Carlo walk is not monotonic and never was. The claim being made is a <i>rate</i>, and a rate cannot be read off one walk. Averaging <b>200</b> runs per point is what turns the assertion into a measurement.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Error against draws. Four times the draws, half the error.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Draw tickets and watch the shares settle.</div>
+   <div class="btns" style="margin-top:10px"><button id="lottd">draw more &#9654;</button><button id="lottf">fewer</button><button id="lottr">reset</button></div>
+   <div class="cap" id="lotto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a share that only exists over time.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that lottery scheduling gives proportional share. The inverse is that <b>it gives it to nobody who is watching</b>. A process holding <b>40</b> of <b>100</b> tickets can lose ten draws running, and over any window short enough for a person to notice, the guarantee simply is not there. Read backwards, the elegance is bought by moving the promise from each moment to the limit, and every user complaint about a scheduler is a complaint about a window too short for the limit to have arrived.</div>
+   <div class="btns" style="margin-top:10px"><button id="lottp">pause spin</button></div></div></div></div>"""
+LOTT_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,draws=400;
+var TICK=[10,20,30,40],TOT=100;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function draw(N,seed){
+ var r=rng(seed),win=[0,0,0,0],i,k;
+ for(i=0;i<N;i++){
+  var t=r()*TOT,a=0;
+  for(k=0;k<4;k++){a+=TICK[k];if(t<a){win[k]++;break;}}}
+ return win;}
+function errOf(win,N){
+ var e=0;
+ for(var k=0;k<4;k++)e+=Math.abs(win[k]/N-TICK[k]/TOT);
+ return e;}
+function meanErr(N,s0){
+ var acc=0,TR=200;
+ for(var tr=0;tr<TR;tr++)acc+=errOf(draw(N,1000+s0*7919+tr*104729),N);
+ return acc/TR;}
+function selftest(){
+ var Ns=[100,400,1600,6400],rows=[],i;
+ for(i=0;i<Ns.length;i++)rows.push({draws:Ns[i],meanAbsError:+meanErr(Ns[i],i).toFixed(5)});
+ var shrinks=true;
+ for(i=1;i<rows.length;i++)if(rows[i].meanAbsError>=rows[i-1].meanAbsError)shrinks=false;
+ var ratios=[];
+ for(i=1;i<rows.length;i++)ratios.push(+(rows[i-1].meanAbsError/rows[i].meanAbsError).toFixed(3));
+ var nearTwo=ratios.every(function(x){return x>1.8&&x<2.2;});
+ return {tickets:TICK,trialsPerPoint:200,rows:rows,
+  errorShrinks:shrinks,quadruplingDrawsHalvesError:nearTwo,
+  observedRatios:ratios,predictedRatio:2,
+  errorAt100:rows[0].meanAbsError,errorAt6400:rows[3].meanAbsError,
+  overallShrink:+(rows[0].meanAbsError/rows[3].meanAbsError).toFixed(2),
+  fairOnlyInTheLimit:true,
+  ok:shrinks&&nearTwo};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'ERROR AGAINST DRAWS');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var x=50+i*110,h=Math.round(150*R[i].meanAbsError/R[0].meanAbsError);
+  nf(g,'rgba(125,226,176,0.8)');g.fillRect(x,200-h,54,h);ng(g);
+  nt(g,'#e8e0ff',x,216,8,''+R[i].draws+' draws');
+  nt(g,'#8a7ab8',x,230,8,''+R[i].meanAbsError);}
+ for(i=0;i<VR.observedRatios.length;i++)
+  nt(g,'#ffd76a',104+i*110,190,10,'/'+VR.observedRatios[i]);
+ nt(g,'#8a7ab8',50,250,8,'mean of 200 independent runs at each size; gold = the drop');
+ kverdict(g,12,258-4,W-24,true,'four times the draws, half the error -- '+
+  VR.observedRatios.join(', ')+' against the 2 that 1/sqrt(N) predicts');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var win=draw(draws,7),i;
+ nt(g,'#7cfc00',12,20,11,draws.toLocaleString()+' DRAWS');
+ for(i=0;i<4;i++){
+  var y=44+i*54,got=100*win[i]/draws,want=TICK[i];
+  nt(g,'#8a7ab8',14,y+12,9,TICK[i]+' tickets');
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(96,y,240,20);ng(g);
+  nf(g,'rgba(125,226,176,0.8)');g.fillRect(96,y,Math.round(240*got/50),20);ng(g);
+  ne(g,'rgba(255,210,63,0.9)',2);g.beginPath();
+  g.moveTo(96+240*want/50,y-3);g.lineTo(96+240*want/50,y+23);g.stroke();ng(g);
+  nt(g,'#e8e0ff',344,y+14,9,got.toFixed(1)+'%');}
+ nt(g,'#ffd76a',96,278,8,'gold line = the share the tickets promise');
+ kverdict(g,12,286,W-24,errOf(win,draws)<0.03,
+  'total absolute error '+errOf(win,draws).toFixed(4)+
+  (errOf(win,draws)<0.03?' -- settled':' -- not there yet'));
+ kout('lotto','<b>'+draws.toLocaleString()+'</b> draws &middot; error <b>'+
+  errOf(win,draws).toFixed(4)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SHARE THAT ONLY EXISTS OVER TIME');
+ kring(g,W/2,H/2+10,ang,40,90,0,'rgba(125,226,176,0.6)',2.4);
+ kring(g,W/2,H/2+10,-ang*2.1,10,46,-20,'rgba(255,210,63,0.85)',3.6);
+ nt(g,'#8a7ab8',12,H-22,8,'a window too short for the limit to have arrived');}
+document.getElementById('lottd').onclick=function(){draws=Math.min(102400,draws*4);drawW4();};
+document.getElementById('lottf').onclick=function(){draws=Math.max(25,Math.floor(draws/4));drawW4();};
+document.getElementById('lottr').onclick=function(){draws=400;drawW4();};
+document.getElementById('lottp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelotteryscheduler=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CTXS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Saving registers and loading the next process is the part of a context switch you can count. It is not the part that costs. The new process arrives to a cache full of somebody else&rsquo;s data and has to earn its own back.<br><br>
+ <span class="lit">LIT</span> verified live, on a stated model. Save/restore is a fixed <b>1</b>; the working set is <b>64</b> units and refilling costs <b>0.5</b> each. Switch to a process that runs for <b>1</b> unit and the switch costs <b>1.5</b> &mdash; <b>150%</b> of the work done. Let it run <b>256</b> and the same switch costs <b>33</b>, which is <b>12.89%</b> of the run, and <b>96.97%</b> of that cost is cache, not registers. The direct cost never moved from <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The indirect cost dominating the direct one is the standard result; the numbers here come from a stated model, <b>not</b> from a measured machine, and the model is on the page so you can disagree with it.<br><br>
+ <b>AVAN (AI)</b> is being explicit about that because it is the honest limit of this sphere. What is genuinely demonstrated is the <i>shape</i>: a fixed cost plus a cost bounded by how long you get to run means the penalty per unit of work falls with the run length, and no improvement to save/restore changes that.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Run length against what the switch really costs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the working set and see what registers are worth.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctxsm">bigger working set &#9654;</button><button id="ctxsl">smaller</button><button id="ctxsf">faster save/restore</button><button id="ctxsr">reset</button></div>
+   <div class="cap" id="ctxso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: arriving to someone else&rsquo;s memory.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the cache refill is the hidden cost of switching. The inverse is that <b>it is not a cost of switching at all &mdash; it is the cost of having been away</b>. Nothing was spent at the moment of the switch; the process simply returns to a machine that has forgotten it, and pays on the way back in. Read backwards, that is why making the switch itself cheaper buys so little, and why the only real lever is the one the scheduler already holds: how long it lets anybody stay.</div>
+   <div class="btns" style="margin-top:10px"><button id="ctxsp">pause spin</button></div></div></div></div>"""
+CTXS_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,foot=64,save=1;
+var MISS=0.5;
+function cost(runLength,footprint,sv){
+ var warm=Math.min(runLength,footprint);
+ return sv+warm*MISS;}
+function rowsFor(footprint,sv){
+ return [1,2,4,8,16,32,64,128,256].map(function(rl){
+  var c=cost(rl,footprint,sv);
+  return {runLength:rl,switchCost:+c.toFixed(2),directCost:sv,
+   cacheCost:+(c-sv).toFixed(2),pctOfRun:+(100*c/rl).toFixed(2)};});}
+function selftest(){
+ var R=rowsFor(64,1),a=R[0],b=R[R.length-1];
+ return {saveRestore:1,workingSetUnits:64,missCost:MISS,rows:R,
+  costAtRun1:a.switchCost,pctAtRun1:a.pctOfRun,
+  costAtRun256:b.switchCost,pctAtRun256:b.pctOfRun,
+  cacheShareAtRun256:+(100*b.cacheCost/b.switchCost).toFixed(2),
+  directCostIsConstant:R.every(function(r){return r.directCost===1;}),
+  statedModelNotMeasuredHardware:true,
+  ok:a.pctOfRun>b.pctOfRun&&b.cacheCost>1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'RUN LENGTH AGAINST WHAT THE SWITCH COSTS');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var x=32+i*52,h=Math.round(150*Math.min(150,R[i].pctOfRun)/150);
+  h=Math.round(150*R[i].pctOfRun/150);
+  nf(g,'rgba(157,0,255,0.65)');g.fillRect(x,196-h,30,h);ng(g);
+  var dh=Math.round(150*(100*R[i].directCost/R[i].runLength)/150);
+  nf(g,'rgba(90,208,255,0.8)');g.fillRect(x,196-dh,30,Math.max(1,dh));ng(g);
+  nt(g,'#5a4a85',x+4,212,7,''+R[i].runLength);}
+ nt(g,'#8a7ab8',32,230,8,'purple = whole switch as % of the run   blue = save/restore alone');
+ nt(g,'#7de2b0',32,248,9,'at a run of 256 the cache is '+VR.cacheShareAtRun256+
+  '% of the cost; save/restore never moved from 1');
+ kverdict(g,12,256,W-24,true,'a stated model, not measured hardware -- '+
+  'what is shown is the shape, and no faster save/restore changes it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=rowsFor(foot,save),i;
+ nt(g,'#9d00ff',12,20,11,'WORKING SET '+foot+'   SAVE/RESTORE '+save);
+ kcurve(g,14,40,340,100,R.length-1,function(t){
+  return R[Math.round(t*(R.length-1))].pctOfRun;},'rgba(157,0,255,0.9)',2.5);
+ nt(g,'#8a7ab8',14,156,8,'switch cost as a percentage of the run it interrupts');
+ var a=R[0],b=R[R.length-1];
+ krow(g,14,174,230,'cost at run 1',a.switchCost,a.switchCost/40,
+  'rgba(255,60,90,0.8)');
+ krow(g,14,216,230,'cost at run 256',b.switchCost,b.switchCost/40,
+  'rgba(125,226,176,0.75)');
+ krow(g,14,258,230,'cache share at 256 (%)',
+  +(100*b.cacheCost/b.switchCost).toFixed(1),
+  b.cacheCost/b.switchCost,'rgba(255,210,63,0.7)');
+ kverdict(g,12,296,W-24,b.cacheCost>save,
+  b.cacheCost>save?'the cache still dominates -- registers are the small half':
+  'save/restore now dominates; the working set is small enough to not matter');
+ kout('ctxso','set <b>'+foot+'</b>, save <b>'+save+'</b> &middot; at run 256 the switch is <b>'+
+  b.switchCost+'</b>, <b>'+(100*b.cacheCost/b.switchCost).toFixed(0)+'%</b> of it cache');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ARRIVING TO SOMEONE ELSE\\u2019S MEMORY');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,mine=(t<0.35);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:0,
+   c:mine?'rgba(125,226,176,0.8)':'rgba(157,0,255,0.35)',r:mine?2.8:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'not the cost of switching -- the cost of having been away');}
+document.getElementById('ctxsm').onclick=function(){foot=Math.min(1024,foot*2);drawW4();};
+document.getElementById('ctxsl').onclick=function(){foot=Math.max(2,Math.floor(foot/2));drawW4();};
+document.getElementById('ctxsf').onclick=function(){save=save<=0.25?8:save/2;drawW4();};
+document.getElementById('ctxsr').onclick=function(){foot=64;save=1;drawW4();};
+document.getElementById('ctxsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecontextswitch=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PRMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Without preemption an urgent arrival waits for whatever happens to be running to finish on its own. With it, the running job is stopped mid-stride. The urgent case gets what it needs and everything else pays in interruptions.<br><br>
+ <span class="lit">LIT</span> verified live. <b>304</b> arrivals over <b>6,000</b> ticks, <b>52</b> of them urgent. Non-preemptive: urgent jobs wait <b>24.8</b> on average. Preemptive: <b>4.3</b> &mdash; <b>5.77&times;</b> faster to first run. The ordinary jobs are not the ones who paid the obvious price: their mean response actually improved from <b>2,053.8</b> to <b>1,862.9</b>. What preemption cost was <b>37</b> extra context switches.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Preemption is the difference between a batch system and an interactive one, and between a general-purpose kernel and a real-time one.<br><br>
+ <b>AVAN (AI)</b> reports the ordinary jobs improving because it is the result that was not expected and it has a plain cause: pulling short urgent work through promptly stops it accumulating in front of everyone else. The honest cost line is <b>37</b> switches &mdash; and <b>THE CONTEXT SWITCH</b> next door is the sphere about what those actually cost.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Time to first run, urgent and ordinary.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change how much of the load is urgent.</div>
+   <div class="btns" style="margin-top:10px"><button id="prmpm">more urgent &#9654;</button><button id="prmpl">less</button><button id="prmpt">toggle preemption</button><button id="prmpr">reset</button></div>
+   <div class="cap" id="prmpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a job stopped mid-stride.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that preemption serves urgency. The inverse is that <b>it requires the running job to be interruptible, and that is a property of the job, not the scheduler</b>. Anything holding a lock, mid-write, or partway through a transaction cannot simply be stopped &mdash; and a scheduler that stops it anyway produces <b>THE PRIORITY INVERSION</b>. Read backwards, preemption is not a power the scheduler has; it is a permission every piece of code in the system has to keep granting it.</div>
+   <div class="btns" style="margin-top:10px"><button id="prmpp">pause spin</button></div></div></div></div>"""
+PRMP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,urgFrac=0.15,preempt=true;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function arrivalsFor(uf){
+ var r=rng(17),T=6000,a=[],i;
+ for(i=0;i<T;i++)if(r()<0.05)a.push({at:i,len:1+Math.floor(r()*60),urgent:r()<uf});
+ return a;}
+function run(arr,pre){
+ var t=0,q=[],cur=null,switches=0,resp=[],i,idx=0,T=6000;
+ for(t=0;t<T*3;t++){
+  while(idx<arr.length&&arr[idx].at<=t){
+   var a=arr[idx++];
+   q.push({len:a.len,left:a.len,at:a.at,urgent:a.urgent});
+   if(pre&&cur&&a.urgent&&!cur.urgent){q.push(cur);cur=null;switches++;}}
+  if(!cur&&q.length){
+   var pick=0;
+   for(i=1;i<q.length;i++)if(q[i].urgent&&!q[pick].urgent)pick=i;
+   cur=q.splice(pick,1)[0];
+   if(cur.left===cur.len)resp.push({urgent:cur.urgent,resp:t-cur.at});}
+  if(cur){cur.left--;if(cur.left<=0)cur=null;}}
+ function mean(f){
+  var s=resp.filter(f);
+  return s.length?s.reduce(function(a2,x){return a2+x.resp;},0)/s.length:0;}
+ return {switches:switches,
+  urgentResp:+mean(function(x){return x.urgent;}).toFixed(1),
+  normalResp:+mean(function(x){return !x.urgent;}).toFixed(1),
+  urgentN:resp.filter(function(x){return x.urgent;}).length,
+  normalN:resp.filter(function(x){return !x.urgent;}).length};}
+function selftest(){
+ var arr=arrivalsFor(0.15),off=run(arr,false),on=run(arr,true);
+ return {ticks:6000,arrivals:arr.length,
+  urgentCount:arr.filter(function(a){return a.urgent;}).length,
+  nonPreemptiveUrgentResp:off.urgentResp,
+  preemptiveUrgentResp:on.urgentResp,
+  urgentSpeedup:+(off.urgentResp/Math.max(0.1,on.urgentResp)).toFixed(2),
+  nonPreemptiveNormalResp:off.normalResp,
+  preemptiveNormalResp:on.normalResp,
+  extraSwitches:on.switches-off.switches,
+  ordinaryAlsoImproved:on.normalResp<off.normalResp,
+  ok:on.urgentResp<off.urgentResp&&on.switches>off.switches};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'TIME TO FIRST RUN');
+ krow(g,20,46,300,'urgent, no preemption',VR.nonPreemptiveUrgentResp,
+  VR.nonPreemptiveUrgentResp/30,'rgba(255,60,90,0.8)');
+ krow(g,20,88,300,'urgent, preemptive',VR.preemptiveUrgentResp,
+  VR.preemptiveUrgentResp/30,'rgba(125,226,176,0.85)');
+ nt(g,'#ffd76a',20,142,10,VR.urgentSpeedup+'x faster to first run');
+ krow(g,20,156,300,'ordinary, no preemption',VR.nonPreemptiveNormalResp,
+  VR.nonPreemptiveNormalResp/2200,'rgba(90,208,255,0.6)');
+ krow(g,20,198,300,'ordinary, preemptive',VR.preemptiveNormalResp,
+  VR.preemptiveNormalResp/2200,'rgba(90,208,255,0.85)');
+ kverdict(g,12,240,W-24,true,'the ordinary jobs improved too -- the cost was '+
+  VR.extraSwitches+' extra context switches');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var arr=arrivalsFor(urgFrac),m=run(arr,preempt),base=run(arr,false);
+ nt(g,'#ff5a3c',12,20,11,(urgFrac*100).toFixed(0)+'% URGENT'+
+  (preempt?'   [preemptive]':'   [run to completion]'));
+ var i,ur=arr.filter(function(a){return a.urgent;}).length;
+ kgrid(g,14,42,40,2,8.6,12,function(i2){
+  return (i2/80)<(ur/arr.length)?'rgba(255,60,90,0.85)':'rgba(90,208,255,0.5)';});
+ nt(g,'#8a7ab8',14,80,8,'red = urgent share of '+arr.length+' arrivals');
+ krow(g,14,98,230,'urgent time to first run',m.urgentResp,
+  Math.min(1,m.urgentResp/40),'rgba(255,60,90,0.8)');
+ krow(g,14,140,230,'ordinary time to first run',m.normalResp,
+  Math.min(1,m.normalResp/2400),'rgba(90,208,255,0.7)');
+ krow(g,14,182,230,'context switches',m.switches,
+  Math.min(1,m.switches/200),'rgba(255,210,63,0.7)');
+ krow(g,14,224,230,'urgent speedup vs run-to-completion',
+  +(base.urgentResp/Math.max(0.1,m.urgentResp)).toFixed(2),
+  Math.min(1,(base.urgentResp/Math.max(0.1,m.urgentResp))/8),
+  'rgba(125,226,176,0.75)');
+ kverdict(g,12,268,W-24,preempt,preempt?
+  'urgency served, paid for in interruptions':
+  'an urgent arrival waits for whatever happens to be running');
+ nt(g,'#5a4a85',14,318,8,'interruptibility is a property of the job, not the scheduler');
+ kout('prmpo',(preempt?'preemptive':'run-to-completion')+' &middot; urgent <b>'+
+  m.urgentResp+'</b> &middot; ordinary <b>'+m.normalResp+'</b> &middot; switches <b>'+
+  m.switches+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A JOB STOPPED MID-STRIDE');
+ korb(g,W/2,H/2+10,ang,42,function(i,N){
+  var t=i/N,cut=(i===18);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:cut?-26:0,
+   c:cut?'rgba(255,90,60,0.95)':'rgba(125,226,176,0.65)',r:cut?5:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'a permission every piece of code has to keep granting');}
+document.getElementById('prmpm').onclick=function(){urgFrac=Math.min(0.9,+(urgFrac+0.15).toFixed(2));drawW4();};
+document.getElementById('prmpl').onclick=function(){urgFrac=Math.max(0.05,+(urgFrac-0.15).toFixed(2));drawW4();};
+document.getElementById('prmpt').onclick=function(){preempt=!preempt;drawW4();};
+document.getElementById('prmpr').onclick=function(){urgFrac=0.15;preempt=true;drawW4();};
+document.getElementById('prmpp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepreemption=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EDLF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Fixed priorities are decided once, by period. Earliest-deadline-first re-decides on every tick, by whoever is closest to being late. There is a band of load where that difference is the difference between meeting every deadline and missing them.<br><br>
+ <span class="lit">LIT</span> verified live. Two periodic tasks, <b>(period 5, cost 2)</b> and <b>(period 7, cost 4)</b>, utilisation <b>0.9714</b>. That sits above the Liu&ndash;Layland bound for two fixed-priority tasks, <b>0.8284</b>, and below EDF&rsquo;s bound of <b>1</b>. Over <b>1,400</b> ticks EDF misses <b>0</b> deadlines. Rate-monotonic, running the identical tasks on the identical machine, misses <b>40</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The bounds are <b>Liu and Layland</b> (1973): EDF is optimal for uniprocessor scheduling up to <b>100%</b> utilisation, fixed priority only up to n(2<sup>1/n</sup>&minus;1), which falls to about <b>69%</b> as n grows.<br><br>
+ <b>AVAN (AI)</b> first picked a task set at utilisation <b>0.75</b> &mdash; <i>below</i> the fixed-priority bound of <b>0.7798</b>, so both schedulers met every deadline and the comparison demonstrated nothing. The gap only exists between the two bounds. A comparison has to be run where the thing being compared can differ.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The two bounds, and the band between them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the load and watch the deadlines.</div>
+   <div class="btns" style="margin-top:10px"><button id="edlfm">heavier task &#9654;</button><button id="edlfl">lighter</button><button id="edlfs">switch scheduler</button><button id="edlfr">reset</button></div>
+   <div class="cap" id="edlfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: whoever is closest to late.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that EDF is optimal and fixed priority is not. The inverse is that <b>optimal means nothing about what happens when you are wrong</b>. Push a fixed-priority set past its bound and the long-period tasks miss first, predictably, and the important short ones keep running. Push EDF past <b>1</b> and it has no opinion about who matters &mdash; everything is equally close to late, so everything fails together. Read backwards, the extra <b>17</b> points of utilisation are bought by giving up the ability to fail in a chosen order.</div>
+   <div class="btns" style="margin-top:10px"><button id="edlfp">pause spin</button></div></div></div></div>"""
+EDLF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,c2=4,edfMode=true;
+function util(ts){var s=0;for(var i=0;i<ts.length;i++)s+=ts[i].c/ts[i].p;return s;}
+function llBound(n){return n*(Math.pow(2,1/n)-1);}
+function simulate(ts,edf,horizon){
+ var rem=ts.map(function(){return 0;}),dl=ts.map(function(t){return t.p;});
+ var missed=0,t,i,trace=[];
+ for(t=0;t<horizon;t++){
+  for(i=0;i<ts.length;i++)if(t%ts[i].p===0){
+   if(rem[i]>0)missed++;
+   rem[i]+=ts[i].c;dl[i]=t+ts[i].p;}
+  var pick=-1;
+  for(i=0;i<ts.length;i++){
+   if(rem[i]<=0)continue;
+   if(pick<0){pick=i;continue;}
+   if(edf?(dl[i]<dl[pick]):(ts[i].p<ts[pick].p))pick=i;}
+  if(pick>=0)rem[pick]--;
+  if(t<120)trace.push(pick);}
+ return {missed:missed,trace:trace};}
+function selftest(){
+ var tasks=[{p:5,c:2},{p:7,c:4}],u=util(tasks),b=llBound(2),H=1400;
+ var e=simulate(tasks,true,H),r=simulate(tasks,false,H);
+ return {tasks:tasks,utilisation:+u.toFixed(4),
+  edfBound:1,rateMonotonicBound:+b.toFixed(4),
+  aboveRmBound:u>b,withinEdfBound:u<=1,
+  edfDeadlinesMissed:e.missed,rateMonotonicDeadlinesMissed:r.missed,
+  horizon:H,identicalTasksAndMachine:true,
+  ok:u>b&&u<=1&&e.missed===0&&r.missed>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'THE TWO BOUNDS, AND THE BAND BETWEEN');
+ var x=function(u){return 30+u*440;};
+ nf(g,'rgba(125,226,176,0.3)');g.fillRect(30,58,x(VR.rateMonotonicBound)-30,36);ng(g);
+ nf(g,'rgba(255,210,63,0.32)');
+ g.fillRect(x(VR.rateMonotonicBound),58,x(1)-x(VR.rateMonotonicBound),36);ng(g);
+ nf(g,'rgba(255,60,90,0.34)');g.fillRect(x(1),58,470-x(1)+0,36);ng(g);
+ ne(g,'rgba(232,224,255,0.95)',2);g.beginPath();
+ g.moveTo(x(VR.utilisation),48);g.lineTo(x(VR.utilisation),104);g.stroke();ng(g);
+ nt(g,'#e8e0ff',x(VR.utilisation)-30,120,9,'U = '+VR.utilisation);
+ nt(g,'#7de2b0',34,142,8,'both schedulers safe');
+ nt(g,'#ffd76a',x(VR.rateMonotonicBound)+6,158,8,'only EDF is safe here');
+ nt(g,'#ff5a8a',x(1)+4,174,8,'neither');
+ nt(g,'#8a7ab8',34,192,8,'rate-monotonic bound '+VR.rateMonotonicBound+
+  '   -   EDF bound 1');
+ krow(g,30,206,300,'EDF deadlines missed',VR.edfDeadlinesMissed,0,
+  'rgba(125,226,176,0.85)');
+ krow(g,30,244,300,'rate-monotonic missed',VR.rateMonotonicDeadlinesMissed,
+  VR.rateMonotonicDeadlinesMissed/60,'rgba(255,60,90,0.85)');
+ kverdict(g,12,262-4,W-24,true,'identical tasks, identical machine, '+
+  VR.horizon.toLocaleString()+' ticks');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var tasks=[{p:5,c:2},{p:7,c:c2}],u=util(tasks),b=llBound(2);
+ var m=simulate(tasks,edfMode,1400);
+ nt(g,'#9d00ff',12,20,11,(edfMode?'EDF':'RATE-MONOTONIC')+
+  '   U = '+u.toFixed(4));
+ var i;
+ for(i=0;i<m.trace.length&&i<110;i++){
+  nf(g,m.trace[i]<0?'rgba(90,70,140,0.25)':
+     (m.trace[i]===0?'rgba(90,208,255,0.8)':'rgba(255,210,63,0.8)'));
+  g.fillRect(14+i*3.1,44,2.6,30);ng(g);}
+ nt(g,'#8a7ab8',14,90,8,'blue = task (5,2)   gold = task (7,'+c2+')   dark = idle');
+ krow(g,14,108,230,'utilisation',+u.toFixed(4),Math.min(1,u),
+  u<=1?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.8)');
+ krow(g,14,150,230,'rate-monotonic bound',+b.toFixed(4),b,
+  'rgba(255,210,63,0.6)');
+ krow(g,14,192,230,'deadlines missed',m.missed,Math.min(1,m.missed/120),
+  m.missed?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.85)');
+ kverdict(g,12,236,W-24,m.missed===0,
+  m.missed===0?'every deadline met':
+  (u>1?'utilisation above 1 -- no scheduler can meet these':
+   'above the fixed-priority bound, and this scheduler is one'));
+ nt(g,'#5a4a85',14,286,8,'optimal says nothing about what happens when you are wrong');
+ kout('edlfo',(edfMode?'EDF':'RM')+' &middot; U <b>'+u.toFixed(4)+
+  '</b> &middot; missed <b>'+m.missed+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'WHOEVER IS CLOSEST TO LATE');
+ korb(g,W/2,H/2+10,ang,36,function(i,N){
+  var t=i/N,due=Math.abs(Math.sin(t*9.42));
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:-30*due,
+   c:due>0.85?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.7)',r:2+due*3};});
+ nt(g,'#8a7ab8',12,H-22,8,'bought by giving up the ability to fail in a chosen order');}
+document.getElementById('edlfm').onclick=function(){c2=Math.min(7,c2+1);drawW4();};
+document.getElementById('edlfl').onclick=function(){c2=Math.max(1,c2-1);drawW4();};
+document.getElementById('edlfs').onclick=function(){edfMode=!edfMode;drawW4();};
+document.getElementById('edlfr').onclick=function(){c2=4;edfMode=true;drawW4();};
+document.getElementById('edlfp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theearliestdeadline=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MLFQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Shortest-job-first needs to know how long each job will run, which nothing does. The multi-level feedback queue guesses instead: start everything at the top, and demote anything that uses its whole slice. A job that keeps running proves it is long.<br><br>
+ <span class="lit">LIT</span> verified live. <b>300</b> jobs, <b>238</b> short and the rest long. FIFO gives a mean turnaround of <b>6,484.6</b>. An oracle running true shortest-first gives <b>1,480.2</b>. The feedback queue &mdash; three levels, quanta <b>4/16/64</b>, and <b>no</b> knowledge of any job&rsquo;s length &mdash; gives <b>2,867.5</b>: <b>2.26&times;</b> better than FIFO, and <b>1.94&times;</b> off the oracle it cannot see.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">MLFQ is the scheduler in the classic Unix lineage; the demotion rule is the whole idea, and <b>Corbat&oacute;</b>&rsquo;s CTSS had it in 1962.<br><br>
+ <b>AVAN (AI)</b> published the oracle column because without it &ldquo;<b>2.26&times;</b> better than FIFO&rdquo; sounds like the end of the story. The gap to the oracle is <b>1.94&times;</b>, and that gap is the standing price of not knowing &mdash; the thing the technique is designed around rather than the thing it removes.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three schedulers, one of which is not allowed to look.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the quanta and watch jobs fall through the levels.</div>
+   <div class="btns" style="margin-top:10px"><button id="mlfqm">wider quanta &#9654;</button><button id="mlfql">narrower</button><button id="mlfqr">reset</button></div>
+   <div class="cap" id="mlfqo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: falling through the levels.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the feedback queue learns which jobs are short. The inverse is that <b>it learns nothing &mdash; it charges for the answer</b>. A job is demoted for having run, which is a fee levied on evidence, not a conclusion drawn from it, and the scheduler never holds a belief about anything. Read backwards, that is exactly why it cannot be fooled by a job lying about its length, and exactly why a long job that turns interactive stays punished for a past it has already left.</div>
+   <div class="btns" style="margin-top:10px"><button id="mlfqp">pause spin</button></div></div></div></div>"""
+MLFQ_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,qscale=1;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mkjobs(){var r=rng(19),j=[],i;
+ for(i=0;i<300;i++)j.push(r()<0.8?1+Math.floor(r()*6):100+Math.floor(r()*200));
+ return j;}
+function fifo(J){var t=0,turn=0,k;
+ for(k=0;k<J.length;k++){t+=J[k];turn+=t;}
+ return turn/J.length;}
+function sjf(J){var s=J.slice().sort(function(a,b){return a-b;}),t=0,turn=0,k;
+ for(k=0;k<s.length;k++){t+=s[k];turn+=t;}
+ return turn/s.length;}
+function mlfq(J,quanta){
+ var Q=[[],[],[]],k,levelDrops=[0,0,0];
+ for(k=0;k<J.length;k++)Q[0].push({left:J[k]});
+ var t=0,turn=0,fin=0,guard=0;
+ while(fin<J.length&&guard++<2000000){
+  var lvl=-1;
+  for(k=0;k<3;k++)if(Q[k].length){lvl=k;break;}
+  if(lvl<0)break;
+  var j=Q[lvl].shift(),slice=Math.min(quanta[lvl],j.left);
+  t+=slice;j.left-=slice;
+  if(j.left<=0){turn+=t;fin++;continue;}
+  if(slice===quanta[lvl]&&lvl<2){Q[lvl+1].push(j);levelDrops[lvl+1]++;}
+  else Q[lvl].push(j);}
+ return {turn:turn/J.length,drops:levelDrops};}
+function selftest(){
+ var J=mkjobs(),f=fifo(J),s=sjf(J),m=mlfq(J,[4,16,64]);
+ return {jobs:J.length,
+  totalWork:J.reduce(function(a,b){return a+b;},0),
+  shortJobs:J.filter(function(x){return x<50;}).length,
+  quanta:[4,16,64],
+  fifoTurnaround:+f.toFixed(1),
+  sjfOracleTurnaround:+s.toFixed(1),
+  mlfqTurnaround:+m.turn.toFixed(1),
+  mlfqKnowsNoJobLength:true,
+  mlfqBeatsFifoBy:+(f/m.turn).toFixed(2),
+  gapToOracle:+(m.turn/s).toFixed(2),
+  ok:m.turn<f&&s<=m.turn};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THREE SCHEDULERS, ONE NOT ALLOWED TO LOOK');
+ krow(g,20,48,300,'FIFO',VR.fifoTurnaround,VR.fifoTurnaround/7000,
+  'rgba(255,60,90,0.8)');
+ krow(g,20,102,300,'feedback queue (blind)',VR.mlfqTurnaround,
+  VR.mlfqTurnaround/7000,'rgba(0,245,255,0.85)');
+ krow(g,20,156,300,'oracle: true shortest-first',VR.sjfOracleTurnaround,
+  VR.sjfOracleTurnaround/7000,'rgba(125,226,176,0.85)');
+ nt(g,'#ffd76a',20,208,10,VR.mlfqBeatsFifoBy+'x better than FIFO   -   '+
+  VR.gapToOracle+'x off the oracle');
+ kverdict(g,12,220,W-24,true,'the gap to the oracle is the standing price of not '+
+  'knowing -- what the technique is built around, not what it removes');
+ nt(g,'#5a4a85',20,276,8,'quanta 4 / 16 / 64; a job that uses its whole slice drops a level');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var q=[4*qscale,16*qscale,64*qscale],J=mkjobs(),m=mlfq(J,q);
+ nt(g,'#00f5ff',12,20,11,'QUANTA '+q[0]+' / '+q[1]+' / '+q[2]);
+ var i,names=['level 0 (newest)','level 1','level 2 (proven long)'];
+ for(i=0;i<3;i++){
+  var y=44+i*54;
+  nt(g,'#8a7ab8',14,y+12,9,names[i]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(150,y,190,20);ng(g);
+  nf(g,i===0?'rgba(125,226,176,0.8)':(i===1?'rgba(255,210,63,0.8)':'rgba(255,60,90,0.8)'));
+  g.fillRect(150,y,Math.min(190,Math.round(190*m.drops[i]/80)),20);ng(g);
+  nt(g,'#e8e0ff',346,y+14,9,''+m.drops[i]);}
+ nt(g,'#5a4a85',14,218,8,'how many jobs were demoted INTO each level');
+ krow(g,14,232,230,'mean turnaround',+m.turn.toFixed(1),
+  Math.min(1,m.turn/7000),'rgba(0,245,255,0.85)');
+ krow(g,14,274,230,'off the oracle',+(m.turn/sjf(J)).toFixed(2),
+  Math.min(1,(m.turn/sjf(J))/4),'rgba(255,210,63,0.7)');
+ kverdict(g,12,310,W-24,m.turn<fifo(J),
+  'demotion is a fee on evidence, not a conclusion drawn from it');
+ kout('mlfqo','quanta <b>'+q.join('/')+'</b> &middot; turnaround <b>'+
+  m.turn.toFixed(1)+'</b> &middot; <b>'+(m.turn/sjf(J)).toFixed(2)+'x</b> the oracle');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'FALLING THROUGH THE LEVELS');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,lvl=Math.floor(t*3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:-30+lvl*30,
+   c:lvl===0?'rgba(125,226,176,0.8)':(lvl===1?'rgba(255,210,63,0.75)':'rgba(255,60,90,0.7)'),
+   r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'punished for a past it has already left');}
+document.getElementById('mlfqm').onclick=function(){qscale=Math.min(8,qscale*2);drawW4();};
+document.getElementById('mlfql').onclick=function(){qscale=Math.max(0.25,qscale/2);drawW4();};
+document.getElementById('mlfqr').onclick=function(){qscale=1;drawW4();};
+document.getElementById('mlfqp').onclick=function(){spin=!spin;};
+VR=selftest();window.__themultilevelfeedback=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 264 · neon-noir · silicon-coding · THE SHAPE OF FAILURE ═══════════════════════
 PRTF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A remote call has three outcomes, not two. It worked, it did not happen, or &mdash; the one nobody designs for &mdash; it happened and the answer was lost. From the caller those last two look identical.<br><br>
@@ -106393,6 +107466,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-convoy-effect","title":"THE CONVOY EFFECT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⇥",
+  "kicker":"the total wait is fixed; order decides whose it is",
+  "blurb":"First-come-first-served is the fairest-sounding rule there is, and the one that makes almost everybody wait longest. A few long jobs at the front, and the whole short queue sits behind them.",
+  "lit":"200 jobs - 12 long and 188 short - give a FIFO mean wait of 1,540 against 409 for shortest-job-first, which is 3.77 times shorter, while the total work is identical at a makespan of 3,689 either way, so nothing was made faster and nothing was dropped and the only thing that changed was the order",
+  "fig":"The convoy effect is the standard argument for SJF, and the standard argument against it is that it needs to know the job lengths - which is what THE MULTILEVEL FEEDBACK gets around. AVAN published the makespan next to the mean wait because that is the column showing nothing was stolen: 3,689 either way. A scheduler cannot create throughput, it can only decide who does the waiting, and FIFO decides that 188 short jobs should wait for 12 long ones.",
+  "body":CNVY_BODY,"script":CNVY_SCRIPT},
+ {"slug":"the-work-stealing","title":"THE WORK STEALING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"⇄",
+  "kicker":"it does not schedule more cleverly, it schedules later",
+  "blurb":"Deciding who does what before you start only works if you already know how long each piece takes. When you do not, seven workers finish early and stand still while the eighth is buried.",
+  "lit":"2,000 tasks totalling 74,359 units across 8 workers finish at 35,505 under a fixed block split - 3.82 times the ideal 9,294.9, with the fleet idle 73.82% of the time - against 9,511 when a free worker takes the next task off the most loaded queue, which is 2.3% off ideal and 2.27% idle, a speedup of 3.73 after 358 steals",
+  "fig":"Work stealing is the scheduler in Cilk, in Go's runtime and in Java's fork/join pool; the deque-with-stealing shape is Blumofe and Leiserson's. AVAN first ran this with tasks dealt round-robin and measured 0 steals, because 250 random draws per worker converge to the same sum and there was nothing to steal. Static partitioning only loses when the work is skewed, and the experiment has to put the skew somewhere a fixed split cannot see it.",
+  "body":WSTL_BODY,"script":WSTL_SCRIPT},
+ {"slug":"the-fair-share","title":"THE FAIR SHARE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"⚖",
+  "kicker":"an allocation built on self-reported need",
+  "blurb":"Splitting a resource evenly is not fair when some claimants want less than their share. Max-min fairness gives the small ones everything they asked for first, then divides what is left.",
+  "lit":"a capacity of 30 against demands of 2, 2.6, 4, 10 and 40 gives an equal split of 6 each, which hands 9.4 units to claimants who cannot use them, while max-min converges in 3 rounds to 2, 2.6, 4, 10, 11.4 - everyone below their share fully satisfied, the remainder to the one who can still use it, and all 30 allocated with none wasted",
+  "fig":"Max-min fairness is the allocation behind fair queueing and behind every fair-share scheduler; the water-filling procedure is the standard construction. AVAN published the wasted column because it is the one that makes the argument. Equal splitting is not merely less efficient - it is unfair and wasteful at the same time, handing 9.4 units to parties who will not use them while a party that would has to go without.",
+  "body":FSHR_BODY,"script":FSHR_SCRIPT},
+ {"slug":"the-starvation","title":"THE STARVATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"⌛",
+  "kicker":"the scheduler was doing precisely what it was told",
+  "blurb":"Strict priority is not a queue, it is a promise that one class always wins. When that class alone can keep the server busy, the promise is that the other class never runs.",
+  "lit":"over 20,000 ticks with high-priority arrivals at 0.95 and low at 0.20 against a service rate of 1, strict priority serves 19,009 high and 991 low, leaves 2,956 low jobs queued and one waiting 14,833 ticks, while aging serves 3,280 low with a backlog of 667 and a worst wait of 3,418 - and the high class serves exactly 2,289 fewer, which is exactly the 2,289 the low class gained",
+  "fig":"Aging is the textbook fix for starvation, and the exact conservation is not a coincidence: the server is saturated, so every tick given to one class is taken from the other. AVAN first ran this at an offered load of 0.80 against a service rate of 1 - under capacity, so nothing starved and both schedulers were identical. Starvation is a property of saturation, not of priority, and the rule only bites when the favoured class alone can fill the server.",
+  "body":STRV_BODY,"script":STRV_SCRIPT},
+ {"slug":"the-time-slice","title":"THE TIME SLICE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"⧗",
+  "kicker":"the half that decided the real value was never a number",
+  "blurb":"A short time slice makes a machine feel responsive and spends most of its day switching. A long one is efficient and makes everything feel stuck. The good value is in the middle and it is not a matter of taste.",
+  "lit":"50 jobs with a switch costing 2 spend 66.67% of all elapsed time switching at a quantum of 1, for a mean turnaround of 3,871.1, while a quantum of 128 has small overhead and worse turnaround again - the best of the eight measured is 32, an interior point, so neither end of the range wins",
+  "fig":"Every real scheduler tunes this, and the interior optimum is why: the two costs pull in opposite directions and neither can be minimised alone. AVAN swept the quantum rather than arguing for a value, because the shape is the finding. 66.67% overhead at quantum 1 means two thirds of the machine's life is bookkeeping - and the fix is not a faster switch, it is a longer turn.",
+  "body":TSLC_BODY,"script":TSLC_SCRIPT},
+ {"slug":"the-lottery-scheduler","title":"THE LOTTERY SCHEDULER","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⚄",
+  "kicker":"a window too short for the limit to have arrived",
+  "blurb":"Hand out tickets in proportion to the share each process should get, draw one at random, run its owner. No queue, no priorities to age, no bookkeeping at all - and it is only fair on average.",
+  "lit":"tickets of 10, 20, 30 and 40 with the error measured as a mean over 200 independent runs give a total absolute share error of 0.1296 at 100 draws and 0.01694 at 6,400, so every quadrupling of the draws roughly halves the error - measured ratios 2.037, 1.899 and 1.978 against the 2 that 1/sqrt(N) predicts",
+  "fig":"Lottery scheduling is Waldspurger and Weihl's (1994); the appeal is that proportional share falls out of the draw with no state to keep. AVAN first gated this on the error shrinking at every step and it failed - 10,000 draws came out worse than 1,000, because a single Monte Carlo walk is not monotonic and never was. The claim being made is a rate, and a rate cannot be read off one walk; averaging 200 runs per point is what turns the assertion into a measurement.",
+  "body":LOTT_BODY,"script":LOTT_SCRIPT},
+ {"slug":"the-context-switch","title":"THE CONTEXT SWITCH","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"⇋",
+  "kicker":"not the cost of switching, the cost of having been away",
+  "blurb":"Saving registers and loading the next process is the part you can count. It is not the part that costs. The new process arrives to a cache full of somebody else's data and has to earn its own back.",
+  "lit":"on a stated model with save/restore fixed at 1, a working set of 64 units and a refill costing 0.5 each, a switch to a process that runs for 1 unit costs 1.5 - which is 150% of the work done - while the same switch before a run of 256 costs 33, or 12.89% of the run, with 96.97% of that cost being cache rather than registers, and the direct cost never moving from 1",
+  "fig":"The indirect cost dominating the direct one is the standard result; the numbers here come from a stated model, NOT from measured hardware, and the model is on the page so you can disagree with it. AVAN is explicit about that because it is the honest limit of this sphere. What is genuinely demonstrated is the shape: a fixed cost plus a cost bounded by how long you get to run means the penalty per unit of work falls with the run length, and no improvement to save/restore changes that.",
+  "body":CTXS_BODY,"script":CTXS_SCRIPT},
+ {"slug":"the-preemption","title":"THE PREEMPTION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⏸",
+  "kicker":"a permission every piece of code has to keep granting",
+  "blurb":"Without preemption an urgent arrival waits for whatever happens to be running to finish on its own. With it, the running job is stopped mid-stride.",
+  "lit":"304 arrivals over 6,000 ticks with 52 urgent give urgent jobs a mean wait to first run of 24.8 without preemption and 4.3 with it, a factor of 5.77, while the ordinary jobs also improved - from 2,053.8 to 1,862.9 - so what preemption actually cost was 37 extra context switches",
+  "fig":"Preemption is the difference between a batch system and an interactive one, and between a general-purpose kernel and a real-time one. AVAN reports the ordinary jobs improving because it is the result that was not expected and it has a plain cause: pulling short urgent work through promptly stops it accumulating in front of everyone else. The honest cost line is 37 switches - and THE CONTEXT SWITCH next door is the sphere about what those actually cost.",
+  "body":PRMP_BODY,"script":PRMP_SCRIPT},
+ {"slug":"the-earliest-deadline","title":"THE EARLIEST DEADLINE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⏱",
+  "kicker":"optimal says nothing about what happens when you are wrong",
+  "blurb":"Fixed priorities are decided once, by period. Earliest-deadline-first re-decides on every tick, by whoever is closest to being late. There is a band of load where that is the difference between meeting every deadline and missing them.",
+  "lit":"two periodic tasks of (period 5, cost 2) and (period 7, cost 4) give a utilisation of 0.9714, which is above the Liu-Layland bound of 0.8284 for two fixed-priority tasks and below EDF's bound of 1, and over 1,400 ticks EDF misses 0 deadlines while rate-monotonic - identical tasks, identical machine - misses 40",
+  "fig":"The bounds are Liu and Layland (1973): EDF is optimal for uniprocessor scheduling up to 100% utilisation, fixed priority only up to n(2^(1/n)-1), which falls to about 69% as n grows. AVAN first picked a task set at utilisation 0.75 - below the fixed-priority bound of 0.7798 - so both schedulers met every deadline and the comparison demonstrated nothing. The gap only exists between the two bounds, and a comparison has to be run where the thing being compared can differ.",
+  "body":EDLF_BODY,"script":EDLF_SCRIPT},
+ {"slug":"the-multilevel-feedback","title":"THE MULTILEVEL FEEDBACK","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"⇓",
+  "kicker":"a fee levied on evidence, not a conclusion drawn from it",
+  "blurb":"Shortest-job-first needs to know how long each job will run, which nothing does. The feedback queue guesses instead: start everything at the top, demote anything that uses its whole slice. A job that keeps running proves it is long.",
+  "lit":"300 jobs of which 238 are short give a FIFO mean turnaround of 6,484.6 and an oracle running true shortest-first 1,480.2, while a three-level feedback queue with quanta 4/16/64 and no knowledge of any job's length gives 2,867.5 - 2.26 times better than FIFO and 1.94 times off the oracle it cannot see",
+  "fig":"MLFQ is the scheduler in the classic Unix lineage; the demotion rule is the whole idea, and Corbato's CTSS had it in 1962. AVAN published the oracle column because without it 2.26 times better than FIFO sounds like the end of the story. The gap to the oracle is 1.94, and that gap is the standing price of not knowing - the thing the technique is designed around rather than the thing it removes.",
+  "body":MLFQ_BODY,"script":MLFQ_SCRIPT},
  {"slug":"the-partial-failure","title":"THE PARTIAL FAILURE","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"⁇",
   "kicker":"it makes the unknown harmless, not known",
