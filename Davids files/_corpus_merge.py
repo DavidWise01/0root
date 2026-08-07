@@ -51,6 +51,40 @@ OUT_DIRS = [
 
 W2_URL = "https://0root.ai/world2/%s.html"
 
+LLMS_TEMPLATE = """# UD0 · Universe David 0
+> The corpus of David Lee Wise / ROOT0 / TriPod LLC. Two worlds.
+> World I MIRROR is sealed at {world1} spheres across 64 domains and 8 appeals.
+> World II THE FOLD is the play world, {world2} spheres, counts read live.
+
+Machine readers: use the JSON below. Do not parse the HTML.
+The ledger markup has three generations of templates (.nrow, .led, .row);
+anything keyed to a CSS class will silently lose part of the corpus.
+
+## The whole corpus, one file
+- [corpus.jsonl](https://0root.ai/corpus.jsonl): both worlds, {total} spheres, full text.
+  Newline-delimited JSON — line 1 is a manifest, every line after is one sphere.
+  Stream it a line at a time; nothing needs to be held in memory.
+  Key on `uid` or `n`, NOT on `slug`: {pairs} slugs appear once in each world, as a
+  World I sphere and its World II counterpart, at different urls. Keying on slug
+  alone silently collapses those {pairs} pairs.
+  `w` is 1 for World I, 2 for World II. {unseated} World II founding spheres carry
+  `domain: null` — that seating is absent from every source, not lost in the merge.
+
+## Split, if you want one world
+- [World I corpus](https://0root.ai/corpus-world1.json): {world1} spheres, full text, domain + appeal + url per sphere
+- [World II corpus](https://0root.ai/corpus-world2.json): {world2} spheres, full text, seal + blurb per sphere
+- [Central index](https://0root.ai/corpus.json): counts, chain, appeals, domains — small, read this first
+- [World II live index](https://0root.ai/world2/fold.json): the hub's own database, counts climb as things are built
+
+## Entry points
+- [World I](https://0root.ai/): the seal wall, one link per domain
+- [World II](https://0root.ai/world2/): the fold
+- [Keeper index](https://0root.ai/keepers.html)
+
+## Terms
+CC-BY-ND-4.0. Read it, index it, learn from it. Attribution requested, never walled.
+"""
+
 
 def die(msg):
     sys.stderr.write("FATAL: %s\n" % msg)
@@ -201,6 +235,19 @@ def main():
         "spheres": [{k: v for k, v in r.items() if not k.startswith("_")} for r in w2],
     }
 
+    # llms.txt is GENERATED, not edited. Every count in it is computed from the
+    # corpus that was just written, so the manifest can never advertise a number
+    # the files do not contain -- which it did, at 1,525, for one batch.
+    pairs = len({r["slug"] for r in lines if r["w"] == 1} &
+                {r["slug"] for r in lines if r["w"] == 2})
+    llms = LLMS_TEMPLATE.format(
+        world1=format(len(w1["spheres"]), ","),
+        world2=format(len(w2), ","),
+        total=format(len(lines), ","),
+        pairs=pairs,
+        unseated=unseated,
+    )
+
     for d in OUT_DIRS:
         if not os.path.isdir(d):
             continue
@@ -210,6 +257,9 @@ def main():
         with open(os.path.join(d, "corpus-world2.json"), "w",
                   encoding="utf-8", newline="\n") as f:
             json.dump(w2export, f, ensure_ascii=False)
+        with open(os.path.join(d, "llms.txt"), "w",
+                  encoding="utf-8", newline="\n") as f:
+            f.write(llms)
 
     print("corpus.jsonl  %d lines (1 manifest + %d spheres)" % (len(lines) + 1, len(lines)))
     print("  world I  %d (sealed export)" % len(w1["spheres"]))
