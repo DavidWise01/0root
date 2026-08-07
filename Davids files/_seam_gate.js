@@ -42,7 +42,14 @@ function makeContextStub() {
       if (k === 'measureText') return () => ({ width: 10 });
       if (k === 'createLinearGradient' || k === 'createRadialGradient')
         return () => ({ addColorStop: noop });
-      if (k === 'getImageData') return () => ({ data: new Uint8ClampedArray(4) });
+      if (k === 'createPattern') return () => ({});
+      // pages index into .data, so hand back a real full-size buffer
+      if (k === 'getImageData')
+        return (x, y, w, h) => ({ width: w || 1, height: h || 1,
+          data: new Uint8ClampedArray(Math.max(4, (w || 1) * (h || 1) * 4)) });
+      if (k === 'createImageData')
+        return (w, h) => ({ width: w || 1, height: h || 1,
+          data: new Uint8ClampedArray(Math.max(4, (w || 1) * (h || 1) * 4)) });
       return noop;
     },
     set() { return true; }
@@ -50,85 +57,192 @@ function makeContextStub() {
   return ctx;
 }
 
-function makeSandbox() {
+// A DOM element stub with an actual surface.
+//
+// The previous version returned undefined for every unknown property, so any
+// method call on an element threw. 41 of the 45 pages marked UNMEASURED died on
+// appendChild or querySelectorAll alone, and several counted as BROKEN were
+// failing on classList.toggle or getImageData().data -- the same gap wearing a
+// different error message. A facility missing from the harness is not a defect
+// in the page, so the harness is where it gets fixed.
+function makeElement() {
   const ctx = makeContextStub();
-  const el = new Proxy({
-    width: 512, height: 360,
+  const el = {
+    width: 512, height: 360, offsetWidth: 512, offsetHeight: 360,
+    clientWidth: 512, clientHeight: 360, scrollTop: 0, scrollLeft: 0,
+    scrollWidth: 512, scrollHeight: 360,
+    id: '', tagName: 'DIV', nodeType: 1, value: '', checked: false,
+    textContent: '', innerText: '', innerHTML: '', outerHTML: '',
+    className: '', title: '', href: '', src: '', disabled: false,
     getContext: () => ctx,
-    addEventListener: () => {},
-    getBoundingClientRect: () => ({ left: 0, top: 0, width: 512, height: 360 }),
-    style: {}, textContent: '', className: '', dataset: {}
-  }, {
+    toDataURL: () => 'data:,',
+    children: [], childNodes: [], parentNode: null, parentElement: null,
+    firstChild: null, lastChild: null, nextSibling: null, previousSibling: null,
+    firstElementChild: null, lastElementChild: null,
+    appendChild: (c) => c, removeChild: (c) => c, replaceChild: (c) => c,
+    insertBefore: (c) => c, insertAdjacentHTML: () => {},
+    append: () => {}, prepend: () => {}, remove: () => {},
+    cloneNode: () => makeElement(),
+    setAttribute: () => {}, getAttribute: () => null,
+    removeAttribute: () => {}, hasAttribute: () => false,
+    setAttributeNS: () => {}, getAttributeNS: () => null,
+    querySelector: () => makeElement(),
+    querySelectorAll: () => [],
+    getElementsByClassName: () => [],
+    getElementsByTagName: () => [],
+    closest: () => null, contains: () => false, matches: () => false,
+    addEventListener: () => {}, removeEventListener: () => {},
+    dispatchEvent: () => true,
+    focus: () => {}, blur: () => {}, click: () => {}, select: () => {},
+    scrollIntoView: () => {}, scrollTo: () => {},
+    getBoundingClientRect: () => ({ left: 0, top: 0, right: 512, bottom: 360,
+      width: 512, height: 360, x: 0, y: 0 }),
+    getBBox: () => ({ x: 0, y: 0, width: 512, height: 360 }),
+    createSVGPoint: () => ({ x: 0, y: 0, matrixTransform: () => ({ x: 0, y: 0 }) }),
+    getTotalLength: () => 100, getPointAtLength: () => ({ x: 0, y: 0 }),
+    baseVal: { value: 0, valueAsString: '', numberOfItems: 0 },
+    options: [], rows: [], cells: [], files: [],
+    classList: {
+      add: () => {}, remove: () => {}, toggle: () => false,
+      contains: () => false, replace: () => {}
+    },
+    dataset: {},
+    style: new Proxy({ setProperty: () => {}, removeProperty: () => {},
+                       getPropertyValue: () => '' },
+      { get(t, k) { return (k in t) ? t[k] : ''; },
+        set(t, k, v) { t[k] = v; return true; } })
+  };
+  return new Proxy(el, {
     get(t, k) {
       if (k in t) return t[k];
-      return undefined;               // onclick etc. assignable, readable as undefined
+      if (typeof k === 'string' && k.slice(0, 2) === 'on') return null;
+      return undefined;
     },
     set(t, k, v) { t[k] = v; return true; }
   });
+}
+
+function makeSandbox() {
+  const el = makeElement();
   const win = {};
+
+  function TE() {}
+  TE.prototype.encode = function (str) {
+    const s = String(str), out = [];
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+      else out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return new Uint8Array(out);
+  };
+  function TD() {}
+  TD.prototype.decode = function (buf) {
+    const a = buf instanceof Uint8Array ? buf : new Uint8Array(buf || []);
+    let s = '';
+    for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+    return s;
+  };
+
   const sandbox = {
     window: win,
     document: {
       getElementById: () => el,
       querySelector: () => el,
       querySelectorAll: () => [],
-      createElement: () => el,
-      addEventListener: () => {},
-      body: el
+      getElementsByClassName: () => [],
+      getElementsByTagName: () => [],
+      createElement: () => makeElement(),
+      createElementNS: () => makeElement(),
+      createTextNode: () => makeElement(),
+      createDocumentFragment: () => makeElement(),
+      addEventListener: () => {}, removeEventListener: () => {},
+      body: el, documentElement: el, head: el,
+      readyState: 'complete', hidden: false, visibilityState: 'visible'
     },
-    requestAnimationFrame: () => 0,     // never actually animate
+    requestAnimationFrame: () => 0,
     cancelAnimationFrame: () => {},
     setTimeout: () => 0,
     clearTimeout: () => {},
     setInterval: () => 0,
     clearInterval: () => {},
+    queueMicrotask: () => {},
     innerWidth: 1280, innerHeight: 800, devicePixelRatio: 1,
     addEventListener: () => {}, removeEventListener: () => {},
-    location: { href: '', hash: '', search: '' },
-    navigator: { userAgent: 'seamgate' },
+    location: { href: '', hash: '', search: '', pathname: '/' },
+    navigator: { userAgent: 'seamgate', language: 'en' },
     performance: { now: () => 0 },
     localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+    sessionStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
     fetch: () => ({ then: () => ({ then: () => ({ catch: () => {} }), catch: () => {} }), catch: () => {} }),
     alert: () => {}, matchMedia: () => ({ matches: false, addEventListener: () => {} }),
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
     console: { log: () => {}, warn: () => {}, error: () => {} },
+    TextEncoder: TE, TextDecoder: TD,
+    crypto: {
+      getRandomValues: (a) => { for (let i = 0; i < a.length; i++) a[i] = ((i * 2654435761) >>> 0) & 255; return a; },
+      subtle: { digest: () => ({ then: () => ({ then: () => ({ catch: () => {} }), catch: () => {} }), catch: () => {} }) }
+    },
+    Promise,
     Math, JSON, Number, String, Array, Object, Boolean, Date, RegExp, Error,
     isFinite, isNaN, parseFloat, parseInt, Set, Map, Symbol, BigInt,
-    Uint8ClampedArray, Float64Array, Int32Array, Uint32Array, Proxy, Reflect
+    Uint8Array, Uint8ClampedArray, Int8Array, Int16Array, Uint16Array,
+    Float32Array, Float64Array, Int32Array, Uint32Array,
+    ArrayBuffer, DataView, Proxy, Reflect
   };
   sandbox.globalThis = sandbox;
   sandbox.self = sandbox;
   ['innerWidth','innerHeight','devicePixelRatio','addEventListener','removeEventListener',
-   'location','navigator','performance','localStorage','requestAnimationFrame',
-   'cancelAnimationFrame','setTimeout','matchMedia','getComputedStyle','document']
-   .forEach(function(k){ win[k]=sandbox[k]; });
+   'location','navigator','performance','localStorage','sessionStorage',
+   'requestAnimationFrame','cancelAnimationFrame','setTimeout','matchMedia',
+   'getComputedStyle','document','TextEncoder','TextDecoder','crypto','fetch']
+   .forEach(function (k) { win[k] = sandbox[k]; });
   return { sandbox, win };
 }
 
 // ---------- extract the page script + the LIT paragraph ----------
 function readSphere(file) {
   const html = fs.readFileSync(file, 'utf8');
-  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  // <script> with ATTRIBUTES was invisible to the old pattern, so a page whose
+  // instrument carried type= or defer= reported "ships no script". Skip external
+  // src= and non-JS payloads like application/json.
+  const scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)]
+    .filter(m => !/src\s*=/i.test(m[1]))
+    .filter(m => !/type\s*=\s*["'](?!text\/javascript|module)/i.test(m[1]))
+    .map(m => m[2])
+    .filter(t => t.trim().length > 0);
   // the sphere's instrument is the LAST inline script (earlier ones are shell/nav)
   const script = scripts.length ? scripts[scripts.length - 1] : null;
   // LIT run: <span class="lit">LIT</span> ... up to <span class="fig"> or </div>
   const litM = html.match(/<span class="lit">LIT<\/span>([\s\S]*?)(?:<span class="fig">|<\/div>)/);
   const lit = litM ? litM[1].replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;|&#\d+;/g, ' ') : '';
-  return { html, script, lit };
+  const hasModule = /<script[^>]*type\s*=\s*["']module["']/i.test(html);
+  return { html, script, scripts, lit, hasModule };
 }
 
 // ---------- harvest the live selftest values ----------
 function runScript(script) {
+  // A page is not one script. Several sphere pages declare state in an early
+  // <script> and use it in a later one -- periodic-table failed with "D is not
+  // defined" for exactly that reason. A browser runs them all in one shared
+  // context and so does this, in order. Only a failure in the LAST script is
+  // fatal; earlier ones are shell and nav, and their errors are recorded.
+  const list = Array.isArray(script) ? script : [script];
   const { sandbox, win } = makeSandbox();
   const ctxObj = vm.createContext(sandbox);
-  try {
-    vm.runInContext(script, ctxObj, { timeout: 20000 });
-  } catch (e) {
-    return { error: e.message.slice(0, 120) };
+  const earlier = [];
+  for (let i = 0; i < list.length; i++) {
+    try {
+      vm.runInContext(list[i], ctxObj, { timeout: 60000 });
+    } catch (e) {
+      if (i === list.length - 1) return { error: e.message.slice(0, 120), earlier };
+      earlier.push(e.message.slice(0, 80));
+    }
   }
   const globals = {};
   for (const k of Object.keys(win)) if (k.startsWith('__')) globals[k] = win[k];
-  return { globals };
+  return { globals, earlier };
 }
 
 function flatten(obj, out, depth) {
@@ -240,7 +354,7 @@ function main() {
     try { s = readSphere(path.join(DIR, f)); }
     catch (e) { unreadable++; badRows.push([slug, 'UNREADABLE: ' + e.message]); continue; }
     if (!s.script) { noScript++; badRows.push([slug, 'NO SCRIPT EXTRACTED -- page ships no instrument']); continue; }
-    const r = runScript(s.script);
+    const r = runScript(s.scripts || s.script);
     if (r.error) { failedRun++; badRows.push([slug, 'RUN ERROR: ' + r.error]); continue; }
     const keys = Object.keys(r.globals || {});
     if (!keys.length) { legacy++; legacyRows.push(slug); continue; }

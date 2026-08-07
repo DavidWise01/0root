@@ -16,9 +16,27 @@ const G = require('./_seam_gate.js');
 const DIR = path.join(__dirname, 'ud0', 'world2');
 const NOT = /^(index|fold|fold-chain|atlas|roster)\b/;
 
-// A failure is the harness's fault when it names a DOM / graphics / encoding
-// facility the stub does not implement.
-const SANDBOX = /appendChild|querySelector|createElementNS|getAttribute|fillText|insertBefore|removeChild|setAttribute|createElement|innerHTML|classList|addEventListener|getContext|THREE is not defined|TextEncoder|TextDecoder|shader compile|crypto|requestAnimationFrame|getComputedStyle|ResizeObserver/i;
+// Classify a failure by what the SCRIPT REQUIRES, not by what the error says.
+//
+// The old version matched error strings, and that is how it went wrong in both
+// directions: pages dying on classList.toggle were called BROKEN because the
+// message did not name a DOM method, while the message text is not evidence of
+// cause anyway. A page that queries the DOM tree, draws with WebGL, loads THREE
+// or uses module syntax cannot be measured by an offline stub -- that is a fact
+// about the harness, and it is decidable from the source.
+const NEEDS = [
+  [/querySelectorAll|getElementsByClassName|getElementsByTagName/, 'a real DOM tree'],
+  [/createElementNS|\.baseVal|getBBox|createSVGPoint/,             'SVG'],
+  [/getContext\(['\"]webgl|createShader|compileShader|shaderSource/, 'WebGL'],
+  [/THREE/,                                                    'THREE.js'],
+  [/^\s*import\s|^\s*export\s/m,                                  'ES modules'],
+  [/fetch\(|XMLHttpRequest/,                                       'network'],
+  [/getElementById\([^)]*\)\s*\.\s*(textContent|innerHTML|innerText)/, 'rendered page content'],
+];
+function harnessGap(js) {
+  for (const [re, name] of NEEDS) if (re.test(js)) return name;
+  return null;
+}
 
 const files = fs.readdirSync(DIR)
   .filter(f => /^[a-z0-9][a-z0-9-]*\.html$/.test(f) && !NOT.test(f));
@@ -42,12 +60,23 @@ for (const f of files) {
   let sp;
   try { sp = G.readSphere(path.join(DIR, f)); }
   catch (e) { rec.status = 'BROKEN'; rec.err = 'unreadable'; out.push(rec); continue; }
-  if (!sp.script) { rec.status = 'BROKEN'; rec.err = 'ships no script'; out.push(rec); continue; }
+  // A page with no inline script and no canvas is not a broken instrument -- it is
+  // a document. Calling those BROKEN inflated the defect list with five static
+  // pages that were never meant to compute anything.
+  if (!sp.script) {
+    rec.status = (rec.canvases === 0) ? 'STATIC' : 'BROKEN';
+    rec.err = (rec.canvases === 0) ? 'document -- ships no instrument by design'
+                                   : 'has a canvas but ships no script';
+    out.push(rec); continue; }
 
-  const r = G.runScript(sp.script);
+  const r = G.runScript(sp.scripts || sp.script);
   if (r.error) {
+    const js = (sp.scripts || [sp.script]).join(String.fromCharCode(10));
+    const gap = sp.hasModule ? 'ES modules (vm cannot run module syntax)' : harnessGap(js);
     rec.err = r.error;
-    rec.status = SANDBOX.test(r.error) ? 'UNMEASURED' : 'BROKEN';
+    rec.needs = gap;
+    rec.status = gap ? 'UNMEASURED' : 'BROKEN';
+    if (gap) rec.err = 'needs ' + gap + ' -- ' + r.error;
     out.push(rec); continue;
   }
   const keys = Object.keys(r.globals || {});
@@ -102,6 +131,7 @@ for (const r of out) {
 }
 
 const measured = out.filter(r => r.status === 'MEASURED');
+const statics = out.filter(r => r.status === 'STATIC');
 const unmeasured = out.filter(r => r.status === 'UNMEASURED');
 const broken = out.filter(r => r.status === 'BROKEN');
 
@@ -114,11 +144,12 @@ fs.writeFileSync(path.join(__dirname, '_skills_scores.json'), JSON.stringify({
   measured: measured.length,
   unmeasured: unmeasured.length,
   broken: broken.length,
+  static: statics.length,
   withHandle: measured.filter(r => r.hasGlobal).length,
   selfAsserting: measured.filter(r => r.okField).length,
   okTrue: measured.filter(r => r.ok).length,
   okFalse: measured.filter(r => r.okFalse).length,
-  spheres: measured.concat(unmeasured, broken)
+  spheres: measured.concat(unmeasured, broken, statics)
 }, null, 1));
 
 const P = (n, d) => (100 * n / d).toFixed(1) + '%';
@@ -126,6 +157,7 @@ console.log('pages           :', out.length);
 console.log('  MEASURED      :', measured.length);
 console.log('  UNMEASURED    :', unmeasured.length, '(harness stub too thin)');
 console.log('  BROKEN        :', broken.length);
+console.log('  STATIC        :', statics.length, '(documents, no instrument by design)');
 console.log('of the measured:');
 console.log('  live handle   :', measured.filter(r => r.hasGlobal).length, P(measured.filter(r => r.hasGlobal).length, measured.length));
 console.log('  self-asserting:', measured.filter(r => r.okField).length);
