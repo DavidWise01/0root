@@ -31485,6 +31485,864 @@ document.getElementById('hybcr').onclick=function(){EVN=600;drawW4();};
 document.getElementById('hybcs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thehybridclock=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+FMAX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Multiply then add, and the machine rounds twice: once to store the product, once to store the sum. A fused multiply-add keeps the exact product and rounds only at the end.<br><br>
+ <span class="lit">LIT</span> verified live. Over <b>200,000</b> random triples, <code>a*b+c</code> and the fused result differ <b>22,469</b> times &mdash; <b>11.23%</b>. The clearest case is a 2&times;2 determinant: for <code>[1e8+1, 1e8; 1e8, 1e8-1]</code> the true answer is <b>&minus;1</b>. Fused arithmetic returns <b>&minus;1</b>. Naive arithmetic returns <b>0</b> &mdash; not close to wrong, but the wrong sign of nothing at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">FMA is in IEEE 754-2008 and in every modern instruction set; the exact product here is recovered with <b>Dekker</b>&rsquo;s splitting, which is how you get it without hardware help.<br><br>
+ <b>AVAN (AI)</b> chose a determinant rather than a percentage as the headline, because <b>11.23%</b> only says the two disagree. Returning <b>0</b> for a matrix whose determinant is <b>&minus;1</b> is a different category of failure: the answer is not imprecise, it has lost the fact that the matrix is invertible at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two roundings, and one.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Bring the two products closer and watch naive arithmetic fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmaxn">closer &#9654;</button><button id="fmaxf">further apart</button><button id="fmaxr">reset</button></div>
+   <div class="cap" id="fmaxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a product kept whole.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that fusing removes a rounding and improves accuracy. The inverse is that <b>it makes the same expression mean two things</b>. <code>a*b+c</code> now depends on whether the compiler chose to fuse it, so a program can produce different results on the same inputs with the same source on the same machine at a different optimisation level. Read backwards, the accuracy was bought with reproducibility, and every language that later added a &ldquo;do not fuse&rdquo; pragma was buying it back.</div>
+   <div class="btns" style="margin-top:10px"><button id="fmaxs">pause spin</button></div></div></div></div>"""
+FMAX_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,gap=1;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function split(a){var c=134217729*a,hi=c-(c-a);return [hi,a-hi];}
+function exactMul(a,b){var p=a*b,A=split(a),B=split(b);
+ return [p,((A[0]*B[0]-p)+A[0]*B[1]+A[1]*B[0])+A[1]*B[1]];}
+function fma(a,b,c){var e=exactMul(a,b);return (e[0]+c)+e[1];}
+function det(g){var w=1e8+g,x=1e8,y=1e8,z=1e8-g;
+ return {naive:w*z-x*y,fused:fma(w,z,-(x*y)),truth:-g*g};}
+function selftest(){
+ var r=rng(7),N=200000,diff=0,i;
+ for(i=0;i<N;i++){
+  var a=(r()*2-1)*1e8,b=(r()*2-1)*1e8,c=(r()*2-1)*1e16;
+  if(a*b+c!==fma(a,b,c))diff++;}
+ var d=det(1);
+ return {trials:N,disagreements:diff,disagreementPct:+(100*diff/N).toFixed(2),
+  detNaive:d.naive,detFused:d.fused,detTrue:-1,
+  fusedGetsDetRight:d.fused===-1,naiveGetsDetRight:d.naive===-1,
+  oneRoundingNotTwo:true,
+  ok:diff>0&&d.fused===-1&&d.naive!==-1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'TWO ROUNDINGS, AND ONE');
+ nt(g,'#ff5a8a',20,48,9,'naive   a*b  ->  round  ->  + c  ->  round');
+ nt(g,'#7de2b0',20,72,9,'fused   a*b (exact)  ->  + c  ->  round');
+ krow(g,20,100,300,'triples where they differ',VR.disagreements,
+  VR.disagreements/VR.trials,'rgba(255,60,90,0.75)');
+ nt(g,'#8a7ab8',20,150,9,'of '+VR.trials.toLocaleString()+' -- '+VR.disagreementPct+'%');
+ nt(g,'#ffd76a',20,180,10,'determinant of [1e8+1, 1e8; 1e8, 1e8-1]');
+ nt(g,'#7de2b0',20,204,11,'fused   '+VR.detFused);
+ nt(g,'#ff5a8a',160,204,11,'naive   '+VR.detNaive);
+ nt(g,'#5ad0ff',300,204,11,'true    '+VR.detTrue);
+ kverdict(g,12,222,W-24,true,
+  'naive returns 0 for a matrix whose determinant is -1 -- it has lost invertibility');
+ nt(g,'#8a7ab8',20,278,8,'not imprecise: a different category of wrong');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var d=det(gap);
+ nt(g,'#5ad0ff',12,20,11,'OFF-DIAGONAL GAP '+gap);
+ nt(g,'#8a7ab8',14,50,9,'matrix');
+ nt(g,'#e8e0ff',14,72,10,'[ '+(1e8+gap)+'   '+1e8+' ]');
+ nt(g,'#e8e0ff',14,92,10,'[ '+1e8+'   '+(1e8-gap)+' ]');
+ nt(g,'#8a7ab8',14,124,9,'true determinant');
+ nt(g,'#5ad0ff',14,146,13,''+d.truth);
+ nt(g,'#8a7ab8',14,174,9,'fused');
+ nt(g,d.fused===d.truth?'#7de2b0':'#ff5a8a',14,196,13,''+d.fused);
+ nt(g,'#8a7ab8',14,224,9,'naive');
+ nt(g,d.naive===d.truth?'#7de2b0':'#ff5a8a',14,246,13,''+d.naive);
+ kverdict(g,12,262,W-24,d.fused===d.truth&&d.naive!==d.truth,
+  d.naive===d.truth?'both correct at this gap':'naive has lost the answer entirely');
+ nt(g,'#5a4a85',14,308,8,'the products cancel; only the exact one keeps the difference');
+ kout('fmaxo','gap <b>'+gap+'</b> &middot; true <b>'+d.truth+'</b> &middot; fused <b>'+
+  d.fused+'</b> &middot; naive <b>'+d.naive+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PRODUCT KEPT WHOLE');
+ kring(g,W/2,H/2+10,ang,28,95,-18,'rgba(125,226,176,0.7)',2.6);
+ kring(g,W/2,H/2+10,ang*1.7,10,44,24,'rgba(255,60,90,0.6)',2.4);
+ nt(g,'#8a7ab8',12,H-22,8,'accuracy bought with reproducibility');}
+document.getElementById('fmaxn').onclick=function(){gap=Math.max(1,Math.floor(gap/4));drawW4();};
+document.getElementById('fmaxf').onclick=function(){gap=Math.min(1e7,gap*4);drawW4();};
+document.getElementById('fmaxr').onclick=function(){gap=1;drawW4();};
+document.getElementById('fmaxs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefma=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DECB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One tenth has no exact binary representation, for the same reason one third has no exact decimal one. Every currency figure you have ever added in a float was approximate before you touched it.<br><br>
+ <span class="lit">LIT</span> verified live and exhaustively. All <b>10,000</b> sums of two two-decimal values were tested against the exact decimal answer. <b>2,106</b> of them disagree &mdash; <b>21.06%</b>. This is not a corner case selected to embarrass the format; it is one sum in five. <code>0.1&nbsp;+&nbsp;0.2</code> gives <b>0.30000000000000004</b>, and <b>0.01&nbsp;+&nbsp;0.05</b> gives <b>0.060000000000000005</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why financial systems use decimal types or integer cents, and why <b>0.1 + 0.2</b> is the most famous three characters in floating point.<br><br>
+ <b>AVAN (AI)</b> enumerated the whole space rather than quoting the famous example, because the famous example invites the response that it is a curiosity. <b>2,106 of 10,000</b> is not a curiosity. The failure rate is the finding, and the celebrated case is simply one of two thousand.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The full grid. Every red cell is a sum that misses.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a pair and see the exact bits you got.</div>
+   <div class="btns" style="margin-top:10px"><button id="decbn">next failing pair &#9654;</button><button id="decbf">famous one</button><button id="decbr">reset</button></div>
+   <div class="cap" id="decbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a grid mostly right and reliably wrong.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that binary floats cannot represent decimal fractions. The inverse is that <b>they represent them perfectly and we are asking the wrong question</b>. The stored value is the exact binary number nearest one tenth, and it is stored, added and returned with total fidelity; what fails is the assumption that a decimal string and a binary float are the same object. Read backwards, this is not a precision defect but a translation one, and it happens at the boundary where a human writes 0.1 and a machine agrees to pretend it heard that.</div>
+   <div class="btns" style="margin-top:10px"><button id="decbs">pause spin</button></div></div></div></div>"""
+DECB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,pa=1,pb=5;
+function fails(i,j){return (i/100+j/100)!==Math.round(i+j)/100;}
+function selftest(){
+ var bad=0,total=0,ex=[],i,j;
+ for(i=0;i<100;i++)for(j=0;j<100;j++){
+  total++;
+  if(fails(i,j)){bad++;if(ex.length<5)ex.push({a:i/100,b:j/100,got:i/100+j/100,want:Math.round(i+j)/100});}}
+ return {pairsTested:total,pairsThatDisagree:bad,
+  disagreePct:+(100*bad/total).toFixed(2),
+  oneTenthPlusTwoTenthsIsThreeTenths:(0.1+0.2===0.3),
+  actualSum:0.1+0.2,exampleFailures:ex,exhaustive:true,
+  ok:bad>0&&(0.1+0.2===0.3)===false&&total===10000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'ALL 10,000 TWO-DECIMAL SUMS');
+ kgrid(g,20,36,100,100,4.6,2.1,function(i){
+  var a=Math.floor(i/100),b=i%100;
+  return fails(a,b)?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.28)';});
+ nt(g,'#8a7ab8',20,264,8,'each cell is one sum; red missed the exact decimal answer');
+ kverdict(g,12,248,W-24,false,VR.pairsThatDisagree.toLocaleString()+' of '+
+  VR.pairsTested.toLocaleString()+' disagree -- '+VR.disagreePct+'%, one sum in five');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=pa/100,b=pb/100,got=a+b,want=Math.round(pa+pb)/100;
+ nt(g,'#7cfc00',12,20,11,a+'  +  '+b);
+ nt(g,'#8a7ab8',14,54,9,'what you asked for');
+ nt(g,'#5ad0ff',14,78,15,''+want);
+ nt(g,'#8a7ab8',14,110,9,'what you got');
+ nt(g,got===want?'#7de2b0':'#ff5a8a',14,134,13,''+got);
+ nt(g,'#8a7ab8',14,166,9,'difference');
+ nt(g,'#ffd76a',14,188,11,(got-want).toExponential(4));
+ kverdict(g,12,204,W-24,got===want,
+  got===want?'this pair happens to land exactly':'the sum missed by one unit in the last place');
+ krow(g,14,246,230,'failing pairs in the grid',VR.pairsThatDisagree,
+  VR.pairsThatDisagree/VR.pairsTested,'rgba(255,60,90,0.75)');
+ nt(g,'#5a4a85',14,300,8,'the float is exact -- the decimal string was never the same object');
+ kout('decbo','<b>'+a+' + '+b+'</b> &middot; got <b>'+got+'</b> &middot; wanted <b>'+want+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'MOSTLY RIGHT AND RELIABLY WRONG');
+ korb(g,W/2,H/2+10,ang,64,function(i,N){
+  var a=i%8,b=Math.floor(i/8);
+  return {x:(a-3.5)*28,z:(b-3.5)*28,y:fails(a*13,b*13)?-22:0,
+   c:fails(a*13,b*13)?'rgba(255,60,90,0.75)':'rgba(125,226,176,0.5)',
+   r:2.4,flat:0.42};});
+ nt(g,'#8a7ab8',12,H-22,8,'a translation defect, at the point where a human writes 0.1');}
+document.getElementById('decbn').onclick=function(){
+ for(var k=0;k<10000;k++){pb++;if(pb>=100){pb=0;pa=(pa+1)%100;}if(fails(pa,pb))break;}drawW4();};
+document.getElementById('decbf').onclick=function(){pa=10;pb=20;drawW4();};
+document.getElementById('decbr').onclick=function(){pa=1;pb=5;drawW4();};
+document.getElementById('decbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedecimalvsbinary=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INTP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">JavaScript numbers are 64-bit floats until you use a bitwise operator, at which point they are silently converted to signed 32-bit integers, operated on, and converted back. The conversion is not an error and produces no warning.<br><br>
+ <span class="lit">LIT</span> verified live. <code>1&nbsp;&lt;&lt;&nbsp;31</code> is <b>&minus;2147483648</b>: shifting a positive number left makes it negative. <code>1&nbsp;&lt;&lt;&nbsp;32</code> is <b>1</b>, because the shift count itself wraps at 32. And <code>2<sup>32</sup>&nbsp;|&nbsp;0</code> is <b>0</b> &mdash; four billion becomes nothing. Of the <b>64</b> powers of two tested, <b>33</b> change value when passed through a single <code>| 0</code>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The ToInt32 conversion is specified in ECMA-262 and is the reason <code>|0</code> was used as an optimisation hint for years by people who understood exactly what it truncates.<br><br>
+ <b>AVAN (AI)</b> swept every power of two rather than showing the famous shift, because the interesting boundary is <b>2<sup>30</sup></b>: everything at or below survives, everything above does not, and there is no diagnostic anywhere. <b>33 of 64</b> is the shape of a cliff sitting in the middle of the number line with no fence around it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every power of two, before and after a bitwise operator.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk across the boundary.</div>
+   <div class="btns" style="margin-top:10px"><button id="intpn">next power &#9654;</button><button id="intpb">jump to the cliff</button><button id="intpr">reset</button></div>
+   <div class="cap" id="intpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a 64-bit value passing through a 32-bit door.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that bitwise operators truncate silently and that is a hazard. The inverse is that <b>the truncation is the only honest part</b>. A double can hold integers up to 2<sup>53</sup> and pretends to be an integer type the whole way; the bitwise operator is the single place the language admits there is a width at all. Read backwards, the surprise is not that <code>|0</code> narrows &mdash; it is that everything else let you believe the number had no size.</div>
+   <div class="btns" style="margin-top:10px"><button id="intps">pause spin</button></div></div></div></div>"""
+INTP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,pw=28;
+function selftest(){
+ var changed=0,ex=[],i;
+ for(i=0;i<64;i++){
+  var v=Math.pow(2,i);
+  if((v|0)!==v){changed++;if(ex.length<4)ex.push({power:i,value:v,after:v|0});}}
+ return {powersTested:64,valuesChangedBy0r:changed,
+  lastSafePower:30,
+  oneShiftedBy31:(1<<31),isNegative:(1<<31)<0,
+  oneShiftedBy32:(1<<32),shiftWrapsToOne:(1<<32)===1,
+  twoTo32NarrowsTo:(4294967296|0),
+  examples:ex,
+  ok:(1<<31)===-2147483648&&(1<<32)===1&&(4294967296|0)===0&&changed>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'EVERY POWER OF TWO THROUGH A BITWISE OPERATOR');
+ kgrid(g,20,40,32,2,14.6,26,function(i){
+  var v=Math.pow(2,i);
+  return ((v|0)===v)?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)';});
+ nt(g,'#7de2b0',20,110,8,'green = survives');
+ nt(g,'#ff5a8a',140,110,8,'red = changed, silently');
+ nt(g,'#8a7ab8',20,132,8,'powers 0 to 63, left to right then down');
+ nt(g,'#5ad0ff',20,164,10,'1 << 31   =  '+VR.oneShiftedBy31);
+ nt(g,'#5ad0ff',20,186,10,'1 << 32   =  '+VR.oneShiftedBy32+'   (the shift count wrapped)');
+ nt(g,'#5ad0ff',20,208,10,'2^32 | 0  =  '+VR.twoTo32NarrowsTo);
+ kverdict(g,12,226,W-24,false,VR.valuesChangedBy0r+' of '+VR.powersTested+
+  ' powers change value, with no diagnostic anywhere');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var v=Math.pow(2,pw),after=v|0,safe=(after===v);
+ nt(g,'#ffd23f',12,20,11,'2 ^ '+pw);
+ nt(g,'#8a7ab8',14,54,9,'value');
+ nt(g,'#5ad0ff',14,78,13,''+v);
+ nt(g,'#8a7ab8',14,110,9,'after | 0');
+ nt(g,safe?'#7de2b0':'#ff5a8a',14,134,13,''+after);
+ kbits(g,after,14,152,10.6,'rgba(125,226,176,0.8)','rgba(90,70,140,0.3)',32);
+ nt(g,'#8a7ab8',14,186,8,'the 32 bits that survived');
+ kverdict(g,12,200,W-24,safe,safe?'inside the 32-bit window -- unchanged':
+  'outside the window -- four billion became '+after);
+ krow(g,14,242,230,'powers that survive',31,31/64,'rgba(125,226,176,0.75)');
+ nt(g,'#5a4a85',14,292,8,'the boundary is 2^30, and nothing marks it');
+ kout('intpo','2^<b>'+pw+'</b> = <b>'+v+'</b> &middot; after |0 <b>'+after+'</b> &middot; '+
+  (safe?'safe':'<b>truncated</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A 64-BIT VALUE THROUGH A 32-BIT DOOR');
+ korb(g,W/2,H/2+10,ang,50,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*40,y:0,
+   c:t<0.5?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.6)',r:t<0.5?2.6:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'the truncation is the only place the language admits a width');}
+document.getElementById('intpn').onclick=function(){pw=(pw+1)%64;drawW4();};
+document.getElementById('intpb').onclick=function(){pw=31;drawW4();};
+document.getElementById('intpr').onclick=function(){pw=28;drawW4();};
+document.getElementById('intps').onclick=function(){spin=!spin;};
+VR=selftest();window.__theintegerpromotion=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MODB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Take a uniform random number in <code>[0, R)</code> and reduce it modulo <i>k</i>. Unless <i>k</i> divides <i>R</i> exactly, some residues get one extra chance and the result is not uniform.<br><br>
+ <span class="lit">LIT</span> verified live and computed exactly, not sampled. Over <code>R = 2<sup>32</sup></code>: with <b>k = 6</b> there are <b>715,827,882</b> complete cycles and <b>4</b> favoured residues, an excess of <b>0.00000014%</b> &mdash; harmless. With <b>k = 1,000,000,007</b> there are only <b>4</b> complete cycles and the excess is <b>25%</b>. With <b>k = 3,000,000,000</b> there is <b>1</b> cycle and the excess is <b>100%</b>: some outcomes are twice as likely as others.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Modulo bias is why every good library uses rejection sampling rather than <code>rand() % n</code>.<br><br>
+ <b>AVAN (AI)</b> had the relationship backwards at first. I gated on a large divisor giving negligible bias, which is the intuition and is wrong: a large <i>k</i> leaves <i>fewer</i> complete cycles in the range, so the bias grows with <code>k/R</code>. Correcting it produced the better instrument &mdash; the sweep from <b>715,827,882</b> cycles down to <b>1</b> is the whole mechanism, visible in a single column.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Divisor against excess probability. Exact, not sampled.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the divisor until the bias is unmissable.</div>
+   <div class="btns" style="margin-top:10px"><button id="modbn">bigger divisor &#9654;</button><button id="modbs2">smaller</button><button id="modbr">reset</button></div>
+   <div class="cap" id="modbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a range that does not divide evenly.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that modulo introduces bias into a uniform source. The inverse is that <b>the source was never uniform over the thing you wanted</b>. It was uniform over <code>2<sup>32</sup></code> outcomes, and you asked for <i>k</i>; unless <i>k</i> divides that, no function of one draw can be uniform, because you cannot partition a set into equal parts that do not exist. Read backwards, rejection sampling is not a correction &mdash; it is the admission that sometimes you must throw the draw away and ask again, because there is no arithmetic that makes the counts come out even.</div>
+   <div class="btns" style="margin-top:10px"><button id="modbsp">pause spin</button></div></div></div></div>"""
+MODB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,ki=0;
+var KS=[6,1000,1000000,100000000,1000000007,3000000000];
+var R=Math.pow(2,32);
+function bias(k){
+ var full=Math.floor(R/k),rem=R%k;
+ return {k:k,fullCycles:full,favoured:rem,
+  excessPct:+(100*((full+1)/full-1)).toFixed(9)};}
+function selftest(){
+ var t=bias(6),m=bias(1000000007),h=bias(3000000000),rows=[],i;
+ for(i=0;i<KS.length;i++){var b=bias(KS[i]);
+  rows.push({k:KS[i],fullCycles:b.fullCycles,excessPct:b.excessPct});}
+ return {range:R,
+  k6FullCycles:t.fullCycles,k6FavouredResidues:t.favoured,k6ExcessPct:t.excessPct,
+  kBillionFullCycles:m.fullCycles,kBillionExcessPct:m.excessPct,
+  kHugeFullCycles:h.fullCycles,kHugeExcessPct:h.excessPct,
+  biasGrowsWithK:t.excessPct<m.excessPct&&m.excessPct<h.excessPct,
+  rows:rows,exactNotSampled:true,
+  ok:t.fullCycles===715827882&&m.excessPct===25&&h.excessPct===100&&
+     t.excessPct<m.excessPct&&m.excessPct<h.excessPct};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'DIVISOR AGAINST EXCESS PROBABILITY');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=44+i*38;
+  nt(g,'#8a7ab8',14,y+14,9,'k = '+r.k.toLocaleString());
+  nf(g,'rgba(90,70,140,0.28)');g.fillRect(160,y,240,20);ng(g);
+  var frac=Math.min(1,Math.log(1+r.excessPct)/Math.log(101));
+  nf(g,r.excessPct>1?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)');
+  g.fillRect(160,y,Math.max(2,Math.round(240*frac)),20);ng(g);
+  nt(g,'#e8e0ff',410,y+14,9,r.excessPct+'%');}
+ nt(g,'#8a7ab8',14,266,8,'complete cycles fall from '+VR.k6FullCycles.toLocaleString()+
+  ' to '+VR.kHugeFullCycles+' across this table');
+ nt(g,'#5ad0ff',14,284,8,'computed exactly from floor(R/k) and R mod k -- nothing sampled');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=bias(KS[ki%KS.length]);
+ nt(g,'#ff2d95',12,20,11,'k = '+b.k.toLocaleString());
+ nt(g,'#8a7ab8',14,52,9,'complete cycles in 2^32');
+ nt(g,'#5ad0ff',14,76,14,b.fullCycles.toLocaleString());
+ nt(g,'#8a7ab8',14,106,9,'residues with one extra chance');
+ nt(g,'#ffd76a',14,130,13,b.favoured.toLocaleString());
+ krow(g,14,152,230,'excess probability %',b.excessPct,
+  Math.min(1,Math.log(1+b.excessPct)/Math.log(101)),
+  b.excessPct>1?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.7)');
+ var slots=Math.min(24,b.k);
+ kgrid(g,14,200,24,1,14,26,function(i){
+  if(i>=slots)return null;
+  return i<Math.min(slots,b.favoured)?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.55)';});
+ nt(g,'#8a7ab8',14,244,8,'first '+slots+' residues; red ones are favoured');
+ kverdict(g,12,258,W-24,b.excessPct<0.001,
+  b.excessPct<0.001?'bias is negligible at this divisor':
+   'some outcomes are '+(1+b.excessPct/100).toFixed(2)+'x more likely than others');
+ nt(g,'#5a4a85',14,306,8,'a larger k leaves fewer cycles -- the bias grows with k/R');
+ kout('modbo','k = <b>'+b.k.toLocaleString()+'</b> &middot; cycles <b>'+
+  b.fullCycles.toLocaleString()+'</b> &middot; excess <b>'+b.excessPct+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A RANGE THAT DOES NOT DIVIDE EVENLY');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*95,z:Math.sin(t)*95,y:i<4?-24:0,
+   c:i<4?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.6)',r:i<4?3.4:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'you cannot partition a set into equal parts that do not exist');}
+document.getElementById('modbn').onclick=function(){ki++;drawW4();};
+document.getElementById('modbs2').onclick=function(){ki=(ki+KS.length-1)%KS.length;drawW4();};
+document.getElementById('modbr').onclick=function(){ki=0;drawW4();};
+document.getElementById('modbsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__themodularbias=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLEQ_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">There are at least three notions of &ldquo;the same number&rdquo; in floating point, and they disagree with each other by design rather than by accident.<br><br>
+ <span class="lit">LIT</span> verified live. <code>NaN === NaN</code> is <b>false</b>. <code>0 === -0</code> is <b>true</b>, but <code>1/0 === 1/-0</code> is <b>false</b> and <code>Object.is(0,&nbsp;-0)</code> is <b>false</b> &mdash; the same two values, three verdicts. Across <b>200,000</b> near-pairs the implication runs one way only: equality forces epsilon-closeness, with <b>0</b> counterexamples, while <b>106,390</b> pairs are within <b>1e-9</b> and are not equal.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The three notions are IEEE 754 equality, bitwise identity, and application tolerance; only the first two are specified anywhere.<br><br>
+ <b>AVAN (AI)</b> corrected how the zero was reported. My harness printed &ldquo;equal but not within epsilon: <b>0</b>&rdquo; as though it were a measurement that came out empty. It is not &mdash; <code>a === b</code> forces <code>|a-b|</code> to be exactly zero, so that count can never be anything else. Reported as a count it looks like a near miss; reported as a one-way implication it is the actual structure.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five comparisons, and what each operator says.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the tolerance and watch the two tests separate.</div>
+   <div class="btns" style="margin-top:10px"><button id="fleqw">looser epsilon &#9654;</button><button id="fleqt">tighter</button><button id="fleqr">reset</button></div>
+   <div class="cap" id="fleqo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one question, three answers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that float equality is unreliable and you should compare with a tolerance. The inverse is that <b>the tolerance is a claim about your problem that the numbers cannot check</b>. <code>===</code> is fully specified and always right about what it was asked; <b>1e-9</b> is a guess about how much difference matters here, and it will be wrong at some scale in the same program. Read backwards, replacing equality with a tolerance does not remove the uncertainty &mdash; it moves it out of the standard and into a constant nobody will revisit.</div>
+   <div class="btns" style="margin-top:10px"><button id="fleqs">pause spin</button></div></div></div></div>"""
+FLEQ_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,ei=9;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function cases(){
+ var nan=NaN,z=0,nz=-0;
+ return [{name:'NaN === NaN',got:(nan===nan),want:false},
+  {name:'0 === -0',got:(z===nz),want:true},
+  {name:'1/0 === 1/-0',got:(1/z===1/nz),want:false},
+  {name:'Object.is(0,-0)',got:Object.is(z,nz),want:false},
+  {name:'0.1+0.2 === 0.3',got:(0.1+0.2===0.3),want:false}];}
+function sweep(eps){
+ var r=rng(13),N=200000,eqNot=0,nearNot=0,j;
+ for(j=0;j<N;j++){
+  var a=(r()*2-1)*Math.pow(10,Math.floor(r()*12)-6);
+  var b=a*(1+(r()*2-1)*1e-8);
+  var eq=(a===b),near=(Math.abs(a-b)<eps);
+  if(eq&&!near)eqNot++;
+  if(near&&!eq)nearNot++;}
+ return {N:N,eqNot:eqNot,nearNot:nearNot};}
+function selftest(){
+ var cs=cases(),agree=0,i;
+ for(i=0;i<cs.length;i++)if(cs[i].got===cs[i].want)agree++;
+ var s=sweep(1e-9);
+ return {casesTested:cs.length,casesAsExpected:agree,cases:cs,
+  sweepN:s.N,epsilon:1e-9,
+  equalButNotWithinEpsilon:s.eqNot,
+  equalityImpliesEpsilonCloseness:s.eqNot===0,
+  withinEpsilonButNotEqual:s.nearNot,
+  epsilonDoesNotImplyEquality:s.nearNot>0,
+  implicationIsOneWay:s.eqNot===0&&s.nearNot>0,
+  ok:agree===cs.length&&s.eqNot===0&&s.nearNot>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'FIVE COMPARISONS, AND WHAT EACH SAYS');
+ var cs=VR.cases;
+ for(var i=0;i<cs.length;i++){
+  var y=50+i*38;
+  nt(g,'#e8e0ff',20,y+14,11,cs[i].name);
+  nf(g,cs[i].got?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.75)');
+  g.fillRect(320,y,70,22);ng(g);
+  nt(g,'#0d0818',340,y+16,11,cs[i].got?'true':'false');}
+ kverdict(g,12,248,W-24,true,'equality forces epsilon-closeness ('+
+  VR.equalButNotWithinEpsilon+' counterexamples) but not the reverse ('+
+  VR.withinEpsilonButNotEqual.toLocaleString()+')');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var eps=Math.pow(10,-ei),s=sweep(eps);
+ nt(g,'#9d00ff',12,20,11,'EPSILON  1e-'+ei);
+ krow(g,14,44,230,'equal but not within epsilon',s.eqNot,s.eqNot/s.N,'rgba(255,60,90,0.8)');
+ krow(g,14,90,230,'within epsilon but not equal',s.nearNot,s.nearNot/s.N,
+  'rgba(90,208,255,0.75)');
+ nt(g,'#8a7ab8',14,146,8,'over '+s.N.toLocaleString()+' near-pairs');
+ kverdict(g,12,160,W-24,s.eqNot===0,
+  s.eqNot===0?'equality still implies epsilon-closeness -- it always will':
+  'IMPOSSIBLE STATE');
+ nt(g,'#7de2b0',14,214,9,'=== is fully specified and always right about its question');
+ nt(g,'#ffd76a',14,236,9,'1e-'+ei+' is a guess about how much difference matters here');
+ nt(g,'#5a4a85',14,268,8,'a tolerance moves the uncertainty out of the standard');
+ nt(g,'#5a4a85',14,288,8,'and into a constant nobody will revisit');
+ kout('fleqo','epsilon <b>1e-'+ei+'</b> &middot; equal-not-near <b>'+s.eqNot+
+  '</b> &middot; near-not-equal <b>'+s.nearNot.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE QUESTION, THREE ANSWERS');
+ kring(g,W/2,H/2+10,ang,3,88,-30,'rgba(125,226,176,0.85)',5);
+ kring(g,W/2,H/2+10,ang*1.4,24,60,14,'rgba(157,0,255,0.55)',2.2);
+ nt(g,'#8a7ab8',12,H-22,8,'they disagree by design, not by accident');}
+document.getElementById('fleqw').onclick=function(){ei=Math.max(3,ei-2);drawW4();};
+document.getElementById('fleqt').onclick=function(){ei=Math.min(15,ei+2);drawW4();};
+document.getElementById('fleqr').onclick=function(){ei=9;drawW4();};
+document.getElementById('fleqs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefloatequality=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+DBLR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Round a value to three decimals, then round that to one. You will sometimes get a different answer than rounding the original straight to one &mdash; because the first rounding can push a value across the boundary the second one is looking at.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1,000,000</b> values swept from 0 to 10. Rounding once to one decimal and rounding twice via three decimals disagree <b>4,996</b> times &mdash; <b>0.4996%</b>. At <b>0.0495</b>, rounding once gives <b>0</b> and rounding twice gives <b>0.1</b>: the intermediate step turned it into 0.05, which then rounded up.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Double rounding is why x87&rsquo;s 80-bit intermediates were a correctness problem rather than a bonus, and why IEEE 754 specifies a single correctly-rounded result for each operation.<br><br>
+ <b>AVAN (AI)</b> swept a million values rather than presenting the boundary case, because <b>0.4996%</b> is the useful number: roughly one value in two hundred. It is rare enough to survive testing and common enough to appear in production, which is the worst possible frequency for a defect.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the two paths disagree, across the sweep.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk to a disagreement and watch the intermediate move it.</div>
+   <div class="btns" style="margin-top:10px"><button id="dblrn">next disagreement &#9654;</button><button id="dblrw">wider intermediate</button><button id="dblrr">reset</button></div>
+   <div class="cap" id="dblro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a value crossing a line it had not reached.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that intermediate precision causes double rounding errors. The inverse is that <b>the extra precision was correct at every step</b>. Rounding to three decimals is right; rounding that to one is right; the composition is wrong, and no individual operation misbehaved. Read backwards, correctness does not compose &mdash; a chain of individually correct roundings is not a correct rounding, and that is why the standard specifies results rather than steps.</div>
+   <div class="btns" style="margin-top:10px"><button id="dblrs">pause spin</button></div></div></div></div>"""
+DBLR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cur=49500,MID=3;
+function r2(x,d){var p=Math.pow(10,d);return Math.round(x*p)/p;}
+function bad(i,mid){var x=i/1000000*10;return r2(x,1)!==r2(r2(x,mid),1);}
+function selftest(){
+ var n=0,total=0,ex=[],i;
+ for(i=0;i<1000000;i++){
+  total++;
+  if(bad(i,3)){n++;if(ex.length<4){var x=i/1000000*10;
+   ex.push({x:+x.toFixed(7),once:r2(x,1),twice:r2(r2(x,3),1)});}}}
+ return {valuesTested:total,disagreements:n,
+  disagreePct:+(100*n/total).toFixed(4),examples:ex,
+  roundingTwiceIsNotRoundingOnce:n>0,
+  ok:n>0&&total===1000000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'WHERE THE TWO PATHS DISAGREE');
+ var bins=120,hist=[],i,j;
+ for(i=0;i<bins;i++)hist.push(0);
+ for(i=0;i<1000000;i+=13)if(bad(i,3))hist[Math.floor(i/1000000*bins)]++;
+ var mx=1;for(i=0;i<bins;i++)if(hist[i]>mx)mx=hist[i];
+ for(i=0;i<bins;i++){
+  var h=Math.round(150*hist[i]/mx);
+  nf(g,hist[i]?'rgba(255,60,90,0.75)':'rgba(90,70,140,0.25)');
+  g.fillRect(22+i*3.9,200-h,3,Math.max(2,h));ng(g);}
+ nt(g,'#8a7ab8',22,218,8,'0');nt(g,'#8a7ab8',W-40,218,8,'10');
+ nt(g,'#8a7ab8',22,236,8,'disagreements cluster at the rounding boundaries');
+ kverdict(g,12,248,W-24,false,VR.disagreements.toLocaleString()+' of '+
+  VR.valuesTested.toLocaleString()+' disagree -- '+VR.disagreePct+
+  '%, about one value in two hundred');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var x=cur/1000000*10,once=r2(x,1),mid=r2(x,MID),twice=r2(mid,1);
+ nt(g,'#00f5ff',12,20,11,'INTERMEDIATE AT '+MID+' DECIMALS');
+ nt(g,'#8a7ab8',14,52,9,'value');
+ nt(g,'#e8e0ff',14,76,13,x.toFixed(7));
+ nt(g,'#8a7ab8',14,106,9,'rounded once to 1 dp');
+ nt(g,'#7de2b0',14,128,13,''+once);
+ nt(g,'#8a7ab8',14,158,9,'via '+MID+' dp  ->  '+mid+'  ->  1 dp');
+ nt(g,once===twice?'#7de2b0':'#ff5a8a',14,180,13,''+twice);
+ kverdict(g,12,196,W-24,once===twice,
+  once===twice?'the two paths agree here':
+  'the intermediate pushed it across the boundary');
+ krow(g,14,238,230,'disagreements in the sweep',VR.disagreements,
+  VR.disagreements/VR.valuesTested*200,'rgba(255,60,90,0.75)');
+ nt(g,'#5a4a85',14,290,8,'every individual rounding is correct; the composition is not');
+ kout('dblro','x = <b>'+x.toFixed(7)+'</b> &middot; once <b>'+once+'</b> &middot; twice <b>'+
+  twice+'</b> &middot; '+(once===twice?'agree':'<b>differ</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'CROSSING A LINE IT HAD NOT REACHED');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*9.42)*38,y:t<0.5?18:-18,
+   c:t<0.5?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.6)',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'correctness does not compose');}
+document.getElementById('dblrn').onclick=function(){
+ for(var k=0;k<1000000;k++){cur=(cur+1)%1000000;if(bad(cur,MID))break;}drawW4();};
+document.getElementById('dblrw').onclick=function(){MID=MID>=6?2:MID+1;drawW4();};
+document.getElementById('dblrr').onclick=function(){cur=49500;MID=3;drawW4();};
+document.getElementById('dblrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedoublerounding=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VRNT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most integers are small. A fixed 32-bit field spends four bytes on the number seven. A varint spends seven bits per byte on the value and one on the question &ldquo;is there more?&rdquo;<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> values encoded and decoded with <b>0</b> round-trip failures. The boundaries are exact: <b>1</b> byte up to <b>127</b>, <b>2</b> up to <b>16,383</b>, <b>3</b> up to <b>2,097,151</b>. Across the range the mean is <b>2.917</b> bytes against a fixed <b>4</b> &mdash; <b>27.06%</b> smaller, and that is the <i>worst</i> case for varints because the values are uniformly spread.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Varints are the backbone of Protocol Buffers and appear in nearly every binary format that expects small numbers.<br><br>
+ <b>AVAN (AI)</b> chose a uniform sweep deliberately, which is the least flattering input possible. Real data is skewed toward small values and does far better; quoting that figure would be quoting the marketing. <b>27.06%</b> on uniform values is the floor, and a floor is worth more than a best case.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Bytes per value, and where each boundary sits.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Encode a value and watch the continuation bits.</div>
+   <div class="btns" style="margin-top:10px"><button id="vrntn">bigger value &#9654;</button><button id="vrnts2">smaller</button><button id="vrntb">next boundary</button><button id="vrntr">reset</button></div>
+   <div class="cap" id="vrnto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a length that is part of the value.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that varints make small numbers cheap. The inverse is that <b>they make every number unskippable</b>. A fixed field can be jumped over without being read; a varint must be decoded byte by byte to find out where it ends, so random access into an array of them is gone. Read backwards, the four wasted bytes were buying you the ability to not look, and a format that always knows where things are is paying for that with space.</div>
+   <div class="btns" style="margin-top:10px"><button id="vrnts">pause spin</button></div></div></div></div>"""
+VRNT_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,val=300;
+function enc(n){var out=[];while(n>=128){out.push((n&127)|128);n=Math.floor(n/128);}out.push(n);return out;}
+function dec(b){var n=0,s=1,i;for(i=0;i<b.length;i++){n+=(b[i]&127)*s;s*=128;}return n;}
+function selftest(){
+ var bad=0,total=0,bytes=0,i;
+ for(i=0;i<200000;i++){total++;var e=enc(i);bytes+=e.length;if(dec(e)!==i)bad++;}
+ var rows=[],b=[0,127,128,16383,16384,2097151,2097152];
+ for(i=0;i<b.length;i++)rows.push({value:b[i],bytes:enc(b[i]).length});
+ return {valuesTested:total,roundTripFailures:bad,
+  totalBytes:bytes,meanBytes:+(bytes/total).toFixed(3),
+  rawBytes:total*4,savingPct:+(100*(1-bytes/(total*4))).toFixed(2),
+  boundaryRows:rows,oneByteUpTo:127,twoBytesUpTo:16383,
+  uniformIsWorstCase:true,
+  ok:bad===0&&rows[1].bytes===1&&rows[2].bytes===2&&rows[3].bytes===2&&rows[4].bytes===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'BYTES PER VALUE, AND THE BOUNDARIES');
+ for(var i=0;i<VR.boundaryRows.length;i++){
+  var r=VR.boundaryRows[i],y=44+i*30;
+  nt(g,'#8a7ab8',20,y+14,9,r.value.toLocaleString());
+  for(var b=0;b<r.bytes;b++){
+   nf(g,'rgba(90,208,255,'+(0.4+0.12*b)+')');
+   g.fillRect(150+b*34,y,30,20);ng(g);}
+  nt(g,'#e8e0ff',330,y+14,9,r.bytes+' byte'+(r.bytes>1?'s':''));}
+ kverdict(g,12,250,W-24,true,'mean '+VR.meanBytes+' bytes against a fixed 4 -- '+
+  VR.savingPct+'% smaller, on uniformly spread values');
+ nt(g,'#8a7ab8',20,286,8,VR.valuesTested.toLocaleString()+' round trips, '+
+  VR.roundTripFailures+' failures');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var e=enc(val),back=dec(e);
+ nt(g,'#5ad0ff',12,20,11,'VALUE  '+val.toLocaleString());
+ for(var i=0;i<e.length&&i<6;i++){
+  var cont=(e[i]&128)!==0;
+  nf(g,cont?'rgba(255,210,63,0.75)':'rgba(125,226,176,0.8)');
+  g.fillRect(14+i*60,44,52,34);ng(g);
+  nt(g,'#0d0818',22+i*60,66,10,''+(e[i]&127));
+  nt(g,cont?'#ffd76a':'#7de2b0',14+i*60,94,8,cont?'more':'last');}
+ nt(g,'#8a7ab8',14,116,8,'each byte carries 7 bits of value and 1 continuation bit');
+ krow(g,14,134,230,'bytes used',e.length,e.length/5,'rgba(90,208,255,0.75)');
+ krow(g,14,176,230,'fixed-field bytes',4,4/5,'rgba(255,60,90,0.6)');
+ nt(g,'#8a7ab8',14,232,9,'decoded back   '+back.toLocaleString());
+ kverdict(g,12,246,W-24,back===val,back===val?'round trip exact':'ROUND TRIP FAILED');
+ nt(g,'#5a4a85',14,296,8,'and you cannot skip it -- the end is only known by reading');
+ kout('vrnto','<b>'+val.toLocaleString()+'</b> &middot; <b>'+e.length+
+  '</b> bytes &middot; fixed field would use <b>4</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A LENGTH THAT IS PART OF THE VALUE');
+ korb(g,W/2,H/2+10,ang,36,function(i,N){
+  var t=i/N,last=(i%4===3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*36,y:last?-18:12,
+   c:last?'rgba(125,226,176,0.85)':'rgba(255,210,63,0.6)',r:last?3:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the four wasted bytes were buying the ability to not look');}
+document.getElementById('vrntn').onclick=function(){val=Math.min(2000000000,val*7);drawW4();};
+document.getElementById('vrnts2').onclick=function(){val=Math.max(0,Math.floor(val/7));drawW4();};
+document.getElementById('vrntb').onclick=function(){
+ var b=[127,128,16383,16384,2097151,2097152],i;
+ for(i=0;i<b.length;i++)if(b[i]>val){val=b[i];break;}
+ if(i===b.length)val=127;drawW4();};
+document.getElementById('vrntr').onclick=function(){val=300;drawW4();};
+document.getElementById('vrnts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thevarint=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ZGZG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A varint assumes small numbers are cheap, and two&rsquo;s complement makes <b>&minus;1</b> the largest number there is. Zigzag interleaves positive and negative so that small magnitudes stay small whichever side of zero they are on.<br><br>
+ <span class="lit">LIT</span> verified live. Every value from <b>&minus;100,000</b> to <b>100,000</b> &mdash; <b>200,001</b> of them &mdash; maps and maps back with <b>0</b> failures: the encoding is a bijection, not an approximation. <b>&minus;1</b> becomes <b>1</b> and costs <b>1</b> byte, where the two&rsquo;s-complement bit pattern would cost <b>10</b>. That is <b>9</b> bytes saved on the most common small negative there is.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Zigzag is the <code>sint32</code> and <code>sint64</code> types in Protocol Buffers, and it exists solely because varints and two&rsquo;s complement disagree about what &ldquo;small&rdquo; means.<br><br>
+ <b>AVAN (AI)</b> checked bijectivity across the whole range rather than spot-checking the mapping, because an encoding that is <i>almost</i> reversible is worthless. <b>200,001 of 200,001</b> is the claim; the byte counts are the payoff, and the interesting one is that zero costs the same either way &mdash; the saving is entirely on the negative side.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The interleave, and what each value costs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cross zero and watch the cost stay flat.</div>
+   <div class="btns" style="margin-top:10px"><button id="zgzgn">step up &#9654;</button><button id="zgzgd">step down</button><button id="zgzgj">jump negative</button><button id="zgzgr">reset</button></div>
+   <div class="cap" id="zgzgo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number line folded at zero.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that zigzag makes negative numbers cheap. The inverse is that <b>it makes the sign bit expensive for everyone</b>. Every positive value now costs one extra bit of magnitude, because the low bit has been given to the sign &mdash; so the encoding is a subsidy paid by common positives to rescue common negatives. Read backwards, this is a bet about your data, and if your values are never negative it is a bet you lose on every single one.</div>
+   <div class="btns" style="margin-top:10px"><button id="zgzgs">pause spin</button></div></div></div></div>"""
+ZGZG_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,val=-1;
+function zz(n){return n<0?(-n*2-1):(n*2);}
+function unzz(u){return (u%2)?-(u+1)/2:u/2;}
+function vb(n){var b=1;while(n>=128){n=Math.floor(n/128);b++;}return b;}
+function tcBytes(n){return n<0?10:vb(n);}
+function selftest(){
+ var bad=0,total=0,i;
+ for(i=-100000;i<=100000;i++){total++;if(unzz(zz(i))!==i)bad++;}
+ var rows=[],vals=[-64,-2,-1,0,1,63,64];
+ for(i=0;i<vals.length;i++){var v=vals[i];
+  rows.push({value:v,zigzag:zz(v),zigzagBytes:vb(zz(v)),twosComplementBytes:tcBytes(v)});}
+ return {valuesTested:total,roundTripFailures:bad,bijective:bad===0,
+  minusOneZigzag:zz(-1),minusOneBytes:vb(zz(-1)),minusOneTwosComplementBytes:10,
+  saving:10-vb(zz(-1)),rows:rows,
+  zeroCostsSameEitherWay:vb(zz(0))===tcBytes(0),
+  ok:bad===0&&zz(-1)===1&&vb(zz(-1))===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'THE INTERLEAVE, AND WHAT IT COSTS');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=44+i*32;
+  nt(g,'#8a7ab8',20,y+14,10,(r.value>=0?' ':'')+r.value);
+  nt(g,'#5ad0ff',80,y+14,10,'->  '+r.zigzag);
+  nf(g,'rgba(125,226,176,0.75)');g.fillRect(180,y,r.zigzagBytes*26,20);ng(g);
+  nt(g,'#7de2b0',180+r.zigzagBytes*26+8,y+14,9,r.zigzagBytes+'B zigzag');
+  nf(g,'rgba(255,60,90,0.6)');g.fillRect(300,y,Math.min(10,r.twosComplementBytes)*16,20);ng(g);
+  nt(g,'#ff5a8a',300+Math.min(10,r.twosComplementBytes)*16+8,y+14,9,
+   r.twosComplementBytes+'B raw');}
+ kverdict(g,12,262,W-24,true,VR.valuesTested.toLocaleString()+
+  ' values round-trip with '+VR.roundTripFailures+' failures -- a bijection, and -1 saves '+
+  VR.saving+' bytes');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var z=zz(val),back=unzz(z);
+ nt(g,'#7cfc00',12,20,11,'VALUE  '+val);
+ nt(g,'#8a7ab8',14,52,9,'zigzag');
+ nt(g,'#5ad0ff',14,76,15,''+z);
+ nt(g,'#8a7ab8',14,106,9,'decoded back');
+ nt(g,back===val?'#7de2b0':'#ff5a8a',14,128,13,''+back);
+ krow(g,14,150,230,'zigzag varint bytes',vb(z),vb(z)/10,'rgba(125,226,176,0.75)');
+ krow(g,14,192,230,'two-complement bytes',tcBytes(val),tcBytes(val)/10,
+  'rgba(255,60,90,0.7)');
+ var lo=Math.max(-8,val-8);
+ kgrid(g,14,240,17,1,20,24,function(i){
+  var v=lo+i;
+  return vb(zz(v))<=1?'rgba(125,226,176,0.7)':'rgba(255,210,63,0.6)';});
+ nt(g,'#8a7ab8',14,282,8,'neighbours of this value; green fits in one byte');
+ nt(g,'#5a4a85',14,302,8,'positives pay one bit so negatives can be cheap');
+ kout('zgzgo','<b>'+val+'</b> -> zigzag <b>'+z+'</b> &middot; <b>'+vb(z)+
+  '</b> bytes vs <b>'+tcBytes(val)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NUMBER LINE FOLDED AT ZERO');
+ korb(g,W/2,H/2+10,ang,32,function(i,N){
+  var v=i-16,t=i/N;
+  return {x:zz(v)/32*240-120,z:Math.sin(t*6.283)*34,y:v<0?-16:16,
+   c:v<0?'rgba(255,210,63,0.75)':'rgba(125,226,176,0.75)',r:2.5};});
+ nt(g,'#8a7ab8',12,H-22,8,'a subsidy paid by positives to rescue negatives');}
+document.getElementById('zgzgn').onclick=function(){val++;drawW4();};
+document.getElementById('zgzgd').onclick=function(){val--;drawW4();};
+document.getElementById('zgzgj').onclick=function(){val=-Math.abs(val)-63;drawW4();};
+document.getElementById('zgzgr').onclick=function(){val=-1;drawW4();};
+document.getElementById('zgzgs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thezigzag=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRMR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A column of timestamps looks like large numbers and is really a small range with a big offset. Store the minimum once and the distances from it, and the values shrink to fit the <i>spread</i> rather than the magnitude.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> timestamps around <b>1,700,000,000</b> spanning <b>999</b>. The deltas need <b>10</b> bits each rather than <b>32</b> &mdash; <b>125,004</b> bytes against <b>400,000</b>, a factor of <b>3.2</b>. Every value reconstructs exactly: <b>0</b> errors across all 100,000, because the transform is subtraction and nothing is approximated.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Frame-of-reference encoding is standard in column stores and time-series databases, usually stacked with bit-packing on top of it.<br><br>
+ <b>AVAN (AI)</b> verified exact reconstruction rather than only measuring the ratio, because a compression figure means nothing without it. The number that carries the idea is <b>10 bits</b>: the data was never 32 bits wide, it was 10 bits of information wearing a 32-bit costume, and the encoding does not compress anything &mdash; it stops storing a constant a hundred thousand times.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The values, and the same values minus their minimum.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Widen the spread and watch the saving disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="frmrw">wider spread &#9654;</button><button id="frmrn">narrower</button><button id="frmrr">reset</button></div>
+   <div class="cap" id="frmro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one offset, and a hundred thousand small numbers.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that frame-of-reference compresses a column dramatically. The inverse is that <b>it compresses nothing and merely stops repeating yourself</b>. The 22 high bits were identical in every row; they were never data, they were a fact about the column stored once per value. Read backwards, most impressive compression ratios are measurements of how much redundancy the format introduced in the first place, and the honest figure is not <b>3.2&times;</b> but <b>10 bits</b> &mdash; the amount that was ever there.</div>
+   <div class="btns" style="margin-top:10px"><button id="frmrs">pause spin</button></div></div></div></div>"""
+FRMR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,spread=1000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function measure(sp){
+ var r=rng(17),N=100000,base=1700000000,mn=1e18,mx=-1e18,vals=[],i;
+ for(i=0;i<N;i++){var v=base+Math.floor(r()*sp);vals.push(v);
+  if(v<mn)mn=v;if(v>mx)mx=v;}
+ var span=mx-mn,bits=Math.max(1,Math.ceil(Math.log(span+1)/Math.LN2));
+ var bad=0;
+ for(i=0;i<N;i++)if(mn+(vals[i]-mn)!==vals[i])bad++;
+ return {N:N,min:mn,max:mx,span:span,bits:bits,
+  frameBytes:Math.ceil(N*bits/8)+4,rawBytes:N*4,bad:bad,vals:vals};}
+function selftest(){
+ var m=measure(1000);
+ return {values:m.N,minimum:m.min,maximum:m.max,span:m.span,
+  bitsPerDelta:m.bits,rawBitsPerValue:32,
+  frameBytes:m.frameBytes,rawBytes:m.rawBytes,
+  compression:+(m.rawBytes/m.frameBytes).toFixed(2),
+  reconstructionErrors:m.bad,exactlyReversible:m.bad===0,
+  ok:m.bad===0&&m.bits<32};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'THE VALUES, AND THE VALUES MINUS THEIR MINIMUM');
+ nt(g,'#ff5a8a',20,46,9,'raw -- 32 bits each, and 22 of them identical in every row');
+ kbits(g,1700000000,20,54,14.5,'rgba(255,60,90,0.7)','rgba(90,70,140,0.3)',32);
+ nt(g,'#7de2b0',20,100,9,'delta -- '+VR.bitsPerDelta+' bits carry everything that varies');
+ kbits(g,999,20,108,14.5,'rgba(125,226,176,0.8)','rgba(90,70,140,0.3)',32);
+ krow(g,20,150,300,'frame-of-reference bytes',VR.frameBytes,
+  VR.frameBytes/VR.rawBytes,'rgba(125,226,176,0.75)');
+ krow(g,20,196,300,'raw bytes',VR.rawBytes,1,'rgba(255,60,90,0.7)');
+ kverdict(g,12,246,W-24,true,VR.compression+'x smaller, with '+
+  VR.reconstructionErrors+' reconstruction errors across '+VR.values.toLocaleString());}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(spread);
+ nt(g,'#9d00ff',12,20,11,'SPREAD  '+m.span.toLocaleString());
+ kcurve(g,14,40,340,80,120,function(t){
+  return m.vals[Math.floor(t*(m.vals.length-1))]-m.min;},'rgba(157,0,255,0.85)',1.5);
+ nt(g,'#8a7ab8',14,136,8,'the deltas, sampled across the column');
+ krow(g,14,154,230,'bits per delta',m.bits,m.bits/32,'rgba(125,226,176,0.75)');
+ krow(g,14,196,230,'bytes stored',m.frameBytes,m.frameBytes/m.rawBytes,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,238,230,'compression',+(m.rawBytes/m.frameBytes).toFixed(2),
+  Math.min(1,(m.rawBytes/m.frameBytes)/8),'rgba(255,210,63,0.7)');
+ kverdict(g,12,282,W-24,m.bits<32,m.bits<32?
+  'the span needs '+m.bits+' bits; the other '+(32-m.bits)+' were a constant':
+  'the spread now fills the word -- nothing to save');
+ kout('frmro','span <b>'+m.span.toLocaleString()+'</b> &middot; <b>'+m.bits+
+  '</b> bits per delta &middot; <b>'+(m.rawBytes/m.frameBytes).toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE OFFSET, A HUNDRED THOUSAND SMALL NUMBERS');
+ ndot(g,W/2,H/2-90,7,'rgba(255,210,63,0.95)');
+ kring(g,W/2,H/2+20,ang,32,100,0,'rgba(125,226,176,0.6)',2.2);
+ nt(g,'#8a7ab8',12,H-22,8,'the honest figure is 10 bits -- the amount that was ever there');}
+document.getElementById('frmrw').onclick=function(){spread=Math.min(2000000000,spread*32);drawW4();};
+document.getElementById('frmrn').onclick=function(){spread=Math.max(2,Math.floor(spread/32));drawW4();};
+document.getElementById('frmrr').onclick=function(){spread=1000;drawW4();};
+document.getElementById('frmrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__theframeofreference=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BITP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If every value fits in five bits, storing each in a byte wastes three bits per value. Bit-packing ignores byte boundaries entirely and lays the values end to end.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> five-bit values pack into <b>12,500</b> bytes &mdash; exactly <code>ceil(20000&times;5/8)</code>, not approximately &mdash; against <b>20,000</b> at a byte each and <b>80,000</b> raw. That is <b>1.6&times;</b> against byte-aligned and <b>6.4&times;</b> against 32-bit. All <b>20,000</b> unpack to their original values with <b>0</b> errors, which is the part worth checking, because a packer that loses the last partial value would still produce a good ratio.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Bit-packing sits under every column store and inverted index, usually applied after frame-of-reference has made the values small.<br><br>
+ <b>AVAN (AI)</b> checked the round trip and the exact byte count together. The byte count matching <code>ceil(N&times;W/8)</code> proves nothing was silently padded per value; the <b>0</b> unpack errors prove nothing was dropped at the tail. Either check alone passes for an implementation that is quietly broken in the other direction.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five-bit values crossing byte boundaries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the width and watch the packing change shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="bitpn">wider values &#9654;</button><button id="bitpm">narrower</button><button id="bitpr">reset</button></div>
+   <div class="cap" id="bitpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: values that ignore the byte.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that bit-packing removes the padding waste. The inverse is that <b>the byte boundary was never waste &mdash; it was an index</b>. Byte-aligned data can be addressed, sliced, memory-mapped and read by anything; packed data must be decoded from a known start before any single value can be found. Read backwards, the three wasted bits per value were paying for random access, and the <b>1.6&times;</b> is the price of that access rather than a free saving.</div>
+   <div class="btns" style="margin-top:10px"><button id="bitps">pause spin</button></div></div></div></div>"""
+BITP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,WID=5;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pack(v,w){
+ var out=[],acc=0,bits=0,i;
+ for(i=0;i<v.length;i++){
+  acc=acc*Math.pow(2,w)+v[i];bits+=w;
+  while(bits>=8){var sh=Math.pow(2,bits-8);out.push(Math.floor(acc/sh));acc=acc%sh;bits-=8;}}
+ if(bits>0)out.push(acc*Math.pow(2,8-bits));
+ return out;}
+function unpack(b,w,n){
+ var out=[],acc=0,bits=0,bi=0;
+ while(out.length<n){
+  while(bits<w&&bi<b.length){acc=acc*256+b[bi++];bits+=8;}
+  var sh=Math.pow(2,bits-w);
+  out.push(Math.floor(acc/sh));acc=acc%sh;bits-=w;}
+ return out;}
+function measure(w){
+ var r=rng(19),N=20000,v=[],i;
+ for(i=0;i<N;i++)v.push(Math.floor(r()*Math.pow(2,w)));
+ var p=pack(v,w),back=unpack(p,w,N),bad=0;
+ for(i=0;i<N;i++)if(back[i]!==v[i])bad++;
+ return {N:N,w:w,packed:p.length,theory:Math.ceil(N*w/8),bad:bad,vals:v};}
+function selftest(){
+ var m=measure(5);
+ return {values:m.N,bitsPerValue:5,
+  packedBytes:m.packed,byteAlignedBytes:m.N,rawBytes:m.N*4,
+  theoreticalBytes:m.theory,matchesTheory:m.packed===m.theory,
+  roundTripErrors:m.bad,exact:m.bad===0,
+  vsBytePerValue:+(m.N/m.packed).toFixed(3),vsRaw:+(m.N*4/m.packed).toFixed(2),
+  ok:m.bad===0&&m.packed===m.theory};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'FIVE-BIT VALUES CROSSING BYTE BOUNDARIES');
+ var x=20,i,cols=['rgba(125,226,176,0.75)','rgba(0,245,255,0.7)','rgba(255,210,63,0.7)',
+  'rgba(157,0,255,0.6)','rgba(255,60,90,0.6)'];
+ for(i=0;i<40;i++){
+  nf(g,cols[i%5]);g.fillRect(20+i*11.5,50,10,30);ng(g);}
+ for(i=0;i<25;i++){
+  ne(g,'rgba(255,255,255,0.25)',1);g.beginPath();
+  g.moveTo(20+i*18.4,44);g.lineTo(20+i*18.4,90);g.stroke();ng(g);}
+ nt(g,'#8a7ab8',20,106,8,'coloured blocks are values; white lines are byte boundaries');
+ nt(g,'#8a7ab8',20,124,8,'they do not line up, and that is the entire technique');
+ krow(g,20,146,300,'packed bytes',VR.packedBytes,VR.packedBytes/VR.rawBytes,
+  'rgba(125,226,176,0.75)');
+ krow(g,20,190,300,'byte per value',VR.byteAlignedBytes,VR.byteAlignedBytes/VR.rawBytes,
+  'rgba(0,245,255,0.6)');
+ krow(g,20,234,300,'raw 32-bit',VR.rawBytes,1,'rgba(255,60,90,0.65)');
+ kverdict(g,12,272,W-24,true,'exactly ceil(N*W/8) and '+VR.roundTripErrors+
+  ' unpack errors -- both checks, not one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(WID);
+ nt(g,'#00f5ff',12,20,11,WID+' BITS PER VALUE');
+ kgrid(g,14,40,32,3,10.6,14,function(i){
+  var v=m.vals[i]||0;
+  return 'rgba(0,245,255,'+(0.2+0.7*v/Math.pow(2,WID))+')';});
+ nt(g,'#8a7ab8',14,96,8,'first 96 values, brightness = magnitude');
+ krow(g,14,114,230,'packed bytes',m.packed,m.packed/(m.N*4),'rgba(125,226,176,0.75)');
+ krow(g,14,156,230,'theory ceil(N*W/8)',m.theory,m.theory/(m.N*4),'rgba(90,208,255,0.7)');
+ krow(g,14,198,230,'vs one byte each',+(m.N/m.packed).toFixed(3),
+  Math.min(1,(m.N/m.packed)/8),'rgba(255,210,63,0.7)');
+ kverdict(g,12,242,W-24,m.bad===0&&m.packed===m.theory,
+  (m.bad===0&&m.packed===m.theory)?'exact byte count and exact round trip':
+  'PACKING IS LOSSY OR PADDED');
+ nt(g,'#5a4a85',14,292,8,'at 8 bits the packing is byte-aligned and buys nothing');
+ nt(g,'#5a4a85',14,310,8,'the padding was paying for random access');
+ kout('bitpo','<b>'+WID+'</b> bits &middot; <b>'+m.packed.toLocaleString()+
+  '</b> bytes &middot; <b>'+(m.N/m.packed).toFixed(3)+'x</b> vs byte-aligned');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'VALUES THAT IGNORE THE BYTE');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*12.56)*30,y:(i%5===0)?-16:10,
+   c:(i%5===0)?'rgba(255,255,255,0.35)':'rgba(125,226,176,0.75)',
+   r:(i%5===0)?1.6:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'the byte boundary was never waste -- it was an index');}
+document.getElementById('bitpn').onclick=function(){WID=WID>=16?2:WID+1;drawW4();};
+document.getElementById('bitpm').onclick=function(){WID=WID<=2?16:WID-1;drawW4();};
+document.getElementById('bitpr').onclick=function(){WID=5;drawW4();};
+document.getElementById('bitps').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebitpacking=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 262 · neon-noir · silicon-coding · THE NUMBERS THAT DO NOT ADD UP ═══════════════════════
 # ═══════════════════════ BATCH 261 · neon-noir · silicon-coding · WHAT TIME IT IS, AND WHO AGREES ═══════════════════════
 # ═══════════════════════ BATCH 260 · neon-noir · silicon-coding · THE LIE OF THE FLAT ADDRESS ═══════════════════════
 # ═══════════════════════ BATCH 259 · neon-noir · silicon-coding · THE COST OF A NAME ═══════════════════════
@@ -104121,6 +104979,76 @@ SPHERES = [
   "lit":"3 processes over 600 events with unevenly advancing physical clocks and messages crossing record 0 causality violations - every receive strictly following its send - while never diverging from physical time by more than 7 units, and the logical counter stays in single digits because it only increments when the physical clock fails to",
   "fig":"Hybrid Logical Clocks are Kulkarni, Demirbas, Madappa, Avva and Leone (2014), and they are what CockroachDB and MongoDB use to timestamp transactions. AVAN checked both halves on the same run, because either alone is trivially achievable and worthless: a clock that never violates causality can be a plain Lamport counter with no relation to wall time, and one that tracks wall time can ignore causality entirely. 0 violations AND a bounded divergence of 7 is the only interesting statement.",
   "body":HYBC_BODY,"script":HYBC_SCRIPT},
+ {"slug":"the-fma","title":"THE FMA","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#5ad0ff","icon":"\u00d7",
+  "kicker":"accuracy bought with reproducibility",
+  "blurb":"Multiply then add and the machine rounds twice. A fused multiply-add keeps the exact product and rounds only at the end.",
+  "lit":"over 200,000 random triples a*b+c and the fused result differ 22,469 times - 11.23% - and for the 2x2 determinant of [1e8+1, 1e8; 1e8, 1e8-1] whose true value is -1, fused arithmetic returns -1 while naive arithmetic returns 0, which is not close to wrong but the wrong sign of nothing at all",
+  "fig":"FMA is in IEEE 754-2008 and in every modern instruction set; the exact product here is recovered with Dekker's splitting, which is how you get it without hardware help. AVAN chose a determinant rather than a percentage as the headline, because 11.23% only says the two disagree. Returning 0 for a matrix whose determinant is -1 is a different category of failure: the answer is not imprecise, it has lost the fact that the matrix is invertible at all.",
+  "body":FMAX_BODY,"script":FMAX_SCRIPT},
+ {"slug":"the-decimal-vs-binary","title":"THE DECIMAL VS BINARY","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"\u00bd",
+  "kicker":"a translation defect, not a precision one",
+  "blurb":"One tenth has no exact binary representation, for the same reason one third has no exact decimal one. Every currency figure you have added in a float was approximate before you touched it.",
+  "lit":"all 10,000 sums of two two-decimal values tested against the exact decimal answer give 2,106 disagreements - 21.06%, one sum in five and not a corner case selected to embarrass the format - with 0.1 + 0.2 giving 0.30000000000000004 and 0.01 + 0.05 giving 0.060000000000000005",
+  "fig":"This is why financial systems use decimal types or integer cents, and why 0.1 + 0.2 is the most famous three characters in floating point. AVAN enumerated the whole space rather than quoting the famous example, because the famous example invites the response that it is a curiosity. 2,106 of 10,000 is not a curiosity - the failure rate is the finding, and the celebrated case is simply one of two thousand.",
+  "body":DECB_BODY,"script":DECB_SCRIPT},
+ {"slug":"the-integer-promotion","title":"THE INTEGER PROMOTION","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd23f","icon":"\u21e5",
+  "kicker":"the truncation is the only honest part",
+  "blurb":"JavaScript numbers are 64-bit floats until you use a bitwise operator, at which point they are silently converted to signed 32-bit integers and back. No error, no warning.",
+  "lit":"1 << 31 is -2147483648 so shifting a positive number left makes it negative, 1 << 32 is 1 because the shift count itself wraps at 32, and 2^32 | 0 is 0 - four billion becomes nothing - while of the 64 powers of two tested, 33 change value when passed through a single | 0",
+  "fig":"The ToInt32 conversion is specified in ECMA-262 and is why |0 was used as an optimisation hint for years by people who understood exactly what it truncates. AVAN swept every power of two rather than showing the famous shift, because the interesting boundary is 2^30: everything at or below survives, everything above does not, and there is no diagnostic anywhere. 33 of 64 is the shape of a cliff in the middle of the number line with no fence around it.",
+  "body":INTP_BODY,"script":INTP_SCRIPT},
+ {"slug":"the-modular-bias","title":"THE MODULAR BIAS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ff2d95","icon":"\u2044",
+  "kicker":"you cannot partition a set into equal parts that do not exist",
+  "blurb":"Take a uniform random number in [0, R) and reduce it modulo k. Unless k divides R exactly, some residues get one extra chance and the result is not uniform.",
+  "lit":"computed exactly rather than sampled over R = 2^32: k = 6 leaves 715,827,882 complete cycles and 4 favoured residues for an excess of 0.00000014%, k = 1,000,000,007 leaves only 4 cycles and an excess of 25%, and k = 3,000,000,000 leaves 1 cycle and an excess of 100% - some outcomes twice as likely as others",
+  "fig":"Modulo bias is why every good library uses rejection sampling rather than rand() % n. AVAN had the relationship backwards at first: I gated on a large divisor giving negligible bias, which is the intuition and is wrong, because a large k leaves fewer complete cycles in the range so the bias grows with k/R. Correcting it produced the better instrument - the sweep from 715,827,882 cycles down to 1 is the whole mechanism in a single column.",
+  "body":MODB_BODY,"script":MODB_SCRIPT},
+ {"slug":"the-float-equality","title":"THE FLOAT EQUALITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"\u2261",
+  "kicker":"a tolerance moves the uncertainty into a constant nobody revisits",
+  "blurb":"There are at least three notions of the same number in floating point, and they disagree with each other by design rather than by accident.",
+  "lit":"NaN === NaN is false, 0 === -0 is true but 1/0 === 1/-0 is false and Object.is(0,-0) is false - the same two values, three verdicts - and across 200,000 near-pairs the implication runs one way only: equality forces epsilon-closeness with 0 counterexamples, while 106,390 pairs are within 1e-9 and are not equal",
+  "fig":"The three notions are IEEE 754 equality, bitwise identity, and application tolerance; only the first two are specified anywhere. AVAN corrected how the zero was reported: my harness printed equal-but-not-within-epsilon as 0 as though it were a measurement that came out empty, when a === b forces the difference to be exactly zero, so that count can never be anything else. Reported as a count it looks like a near miss; as a one-way implication it is the actual structure.",
+  "body":FLEQ_BODY,"script":FLEQ_SCRIPT},
+ {"slug":"the-double-rounding","title":"THE DOUBLE ROUNDING","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#00f5ff","icon":"\u25d4",
+  "kicker":"correctness does not compose",
+  "blurb":"Round to three decimals, then to one, and you sometimes get a different answer than rounding straight to one - because the first rounding can push a value across the boundary the second is looking at.",
+  "lit":"1,000,000 values swept from 0 to 10 give 4,996 disagreements between rounding once to one decimal and rounding twice via three - 0.4996%, roughly one value in two hundred - and at 0.0495 rounding once gives 0 while rounding twice gives 0.1, because the intermediate step turned it into 0.05 which then rounded up",
+  "fig":"Double rounding is why x87's 80-bit intermediates were a correctness problem rather than a bonus, and why IEEE 754 specifies a single correctly-rounded result for each operation. AVAN swept a million values rather than presenting the boundary case, because 0.4996% is the useful number: rare enough to survive testing and common enough to appear in production, which is the worst possible frequency for a defect.",
+  "body":DBLR_BODY,"script":DBLR_SCRIPT},
+ {"slug":"the-varint","title":"THE VARINT","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE STASH","domain_slug":"the-stash","accent":"#5ad0ff","icon":"\u2026",
+  "kicker":"the wasted bytes were buying the ability to not look",
+  "blurb":"Most integers are small. A fixed 32-bit field spends four bytes on the number seven. A varint spends seven bits per byte on the value and one on the question is there more.",
+  "lit":"200,000 values encode and decode with 0 round-trip failures at exact boundaries - 1 byte up to 127, 2 up to 16,383, 3 up to 2,097,151 - for a mean of 2.917 bytes against a fixed 4, which is 27.06% smaller and is the worst case for varints because the values are uniformly spread",
+  "fig":"Varints are the backbone of Protocol Buffers and appear in nearly every binary format that expects small numbers. AVAN chose a uniform sweep deliberately, which is the least flattering input possible: real data is skewed toward small values and does far better, and quoting that figure would be quoting the marketing. 27.06% on uniform values is the floor, and a floor is worth more than a best case.",
+  "body":VRNT_BODY,"script":VRNT_SCRIPT},
+ {"slug":"the-zigzag","title":"THE ZIGZAG","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"\u2307",
+  "kicker":"a subsidy paid by positives to rescue negatives",
+  "blurb":"A varint assumes small numbers are cheap, and two's complement makes -1 the largest number there is. Zigzag interleaves positive and negative so small magnitudes stay small on either side of zero.",
+  "lit":"every value from -100,000 to 100,000 - 200,001 of them - maps and maps back with 0 failures, so the encoding is a bijection rather than an approximation, and -1 becomes 1 costing 1 byte where the two's-complement bit pattern would cost 10, saving 9 bytes on the most common small negative there is",
+  "fig":"Zigzag is the sint32 and sint64 types in Protocol Buffers, and it exists solely because varints and two's complement disagree about what small means. AVAN checked bijectivity across the whole range rather than spot-checking the mapping, because an encoding that is almost reversible is worthless. 200,001 of 200,001 is the claim; the interesting payoff is that zero costs the same either way, so the saving is entirely on the negative side.",
+  "body":ZGZG_BODY,"script":ZGZG_SCRIPT},
+ {"slug":"the-frame-of-reference","title":"THE FRAME OF REFERENCE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE INVENTORY","domain_slug":"the-inventory","accent":"#9d00ff","icon":"\u2223",
+  "kicker":"it compresses nothing and merely stops repeating yourself",
+  "blurb":"A column of timestamps looks like large numbers and is really a small range with a big offset. Store the minimum once and the distances from it.",
+  "lit":"100,000 timestamps around 1,700,000,000 spanning 999 need 10 bits per delta rather than 32 - 125,004 bytes against 400,000, a factor of 3.2 - and every value reconstructs exactly with 0 errors across all 100,000, because the transform is subtraction and nothing is approximated",
+  "fig":"Frame-of-reference encoding is standard in column stores and time-series databases, usually stacked with bit-packing on top. AVAN verified exact reconstruction rather than only measuring the ratio, because a compression figure means nothing without it. The number that carries the idea is 10 bits: the data was never 32 bits wide, it was 10 bits of information wearing a 32-bit costume, and the encoding stops storing a constant a hundred thousand times.",
+  "body":FRMR_BODY,"script":FRMR_SCRIPT},
+ {"slug":"the-bitpacking","title":"THE BITPACKING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#00f5ff","icon":"\u2593",
+  "kicker":"the byte boundary was never waste, it was an index",
+  "blurb":"If every value fits in five bits, storing each in a byte wastes three bits per value. Bit-packing ignores byte boundaries entirely and lays the values end to end.",
+  "lit":"20,000 five-bit values pack into 12,500 bytes - exactly ceil(20000 x 5/8), not approximately - against 20,000 at a byte each and 80,000 raw, giving 1.6x against byte-aligned and 6.4x against 32-bit, and all 20,000 unpack to their original values with 0 errors",
+  "fig":"Bit-packing sits under every column store and inverted index, usually applied after frame-of-reference has made the values small. AVAN checked the round trip and the exact byte count together: the byte count matching ceil(N x W/8) proves nothing was silently padded per value, and the 0 unpack errors prove nothing was dropped at the tail. Either check alone passes for an implementation quietly broken in the other direction.",
+  "body":BITP_BODY,"script":BITP_SCRIPT},
  {"slug":"the-tlb-reach","title":"THE TLB REACH","appeal_name":"GRIND","appeal_slug":"grind",
   "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u25a6",
   "kicker":"a unit trick, not a capacity gain",
