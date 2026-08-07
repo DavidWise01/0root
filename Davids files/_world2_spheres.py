@@ -28413,6 +28413,1113 @@ document.getElementById('thrdr').onclick=function(){N=512;drawW4();};
 document.getElementById('thrds').onclick=function(){spin=!spin;};
 VR=selftest();window.__thethunderingherd=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+UUV7_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A v4 UUID is 122 random bits. Every insert lands somewhere unrelated to the last one, so an index has to keep the whole keyspace warm. A v7 UUID puts the timestamp in the high bits, and the arrival order becomes the sort order.<br><br>
+ <span class="lit">LIT</span> verified live. <b>20,000</b> inserts into a <b>1,024</b>-page index. Random keys change page <b>19,967</b> times and touch all <b>1,024</b> pages. Time-ordered keys change page <b>1</b> time in this run &mdash; <b>19,967&times;</b> fewer &mdash; and the sequence arrives already sorted, which the random one never does. Same number of rows, same index, same bytes per key.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">UUID v7 was standardised in <b>RFC 9562</b> (2024); ULID and Snowflake had the same idea earlier, and the reason is always the same &mdash; B-trees like their inserts sorted.<br><br>
+ <b>AVAN (AI)</b> measured page changes rather than talking about locality, because locality is the kind of word that sounds like a measurement. The stark figure is not the ratio but the second column: random keys touch <b>every page in the index</b> and time-ordered keys touch <b>one</b>. That is the whole cache-residency argument in two numbers, and it is a property of where the bits sit, not of how many there are.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where each insert lands. Two key schemes, same rows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch key scheme and watch the index heat up.</div>
+   <div class="btns" style="margin-top:10px"><button id="uuv7t">switch scheme &#9654;</button><button id="uuv7m">more rows</button><button id="uuv7r">reset</button></div>
+   <div class="cap" id="uuv7o" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a key that knows when it was made.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that v7 gives you index locality for free. The inverse is that <b>it is not free &mdash; you paid in privacy</b>. A v4 identifier reveals nothing; a v7 identifier tells anyone holding it, to the millisecond, when the row was created, and two of them tell you the gap between two events you were never shown. Read backwards, the randomness in v4 was not waste. It was the property, and locality is what you get when you spend it.</div>
+   <div class="btns" style="margin-top:10px"><button id="uuv7s">pause spin</button></div></div></div></div>"""
+UUV7_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode='v7',rows=20000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function keys(kind,N,seed){
+ var r=rng(seed),out=[],i,t0=1700000000000;
+ for(i=0;i<N;i++)out.push(kind==='v4'?r():(t0+i)/(t0+N));
+ return out;}
+function walk(ks,pages){
+ var seen={},changes=0,last=-1,hits={};
+ for(var i=0;i<ks.length;i++){
+  var p=Math.min(pages-1,Math.floor(ks[i]*pages));
+  seen[p]=1;hits[p]=(hits[p]||0)+1;
+  if(p!==last){changes++;last=p;}}
+ return {distinct:Object.keys(seen).length,changes:changes,hits:hits};}
+function selftest(){
+ var N=20000,P=1024;
+ var v4=keys('v4',N,3),v7=keys('v7',N,3);
+ var a=walk(v4,P),b=walk(v7,P);
+ function sorted(x){for(var i=1;i<x.length;i++)if(x[i]<x[i-1])return false;return true;}
+ return {inserts:N,pages:P,
+  v4PageChanges:a.changes,v7PageChanges:b.changes,
+  v4DistinctPages:a.distinct,v7DistinctPages:b.distinct,
+  v7ArrivesSorted:sorted(v7),v4ArrivesSorted:sorted(v4),
+  pageChangeRatio:+(a.changes/Math.max(1,b.changes)).toFixed(0),
+  ok:sorted(v7)&&!sorted(v4)&&a.changes>b.changes*10};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'WHERE EACH INSERT LANDS');
+ var v4=keys('v4',600,3),v7=keys('v7',600,3),i;
+ nt(g,'#ff5a8a',20,42,9,'random (v4)');
+ for(i=0;i<v4.length;i++)ndot(g,20+i/v4.length*(W-46),56+v4[i]*80,1.2,'rgba(255,60,90,0.55)');
+ nt(g,'#7de2b0',20,166,9,'time-ordered (v7)');
+ for(i=0;i<v7.length;i++)ndot(g,20+i/v7.length*(W-46),180+v7[i]*80,1.2,'rgba(125,226,176,0.7)');
+ nt(g,'#8a7ab8',20,278,9,'page changes  '+VR.v4PageChanges.toLocaleString()+'  vs  '+
+  VR.v7PageChanges+'      pages touched  '+VR.v4DistinctPages+'  vs  '+VR.v7DistinctPages);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=256,ks=keys(mode,rows,3),w=walk(ks,P);
+ nt(g,'#ffd23f',12,20,11,(mode==='v4'?'RANDOM v4':'TIME-ORDERED v7')+'   '+rows.toLocaleString()+' ROWS');
+ var mx=0,k;
+ for(k in w.hits)if(w.hits[k]>mx)mx=w.hits[k];
+ var cols=32,cell=11;
+ for(var p=0;p<P;p++){
+  var h=w.hits[p]||0;
+  nf(g,h?('rgba('+(mode==='v4'?'255,60,90':'125,226,176')+','+(0.15+0.75*h/mx)+')'):'rgba(90,70,140,0.22)');
+  g.fillRect(14+(p%cols)*cell,36+Math.floor(p/cols)*11,cell-2,9);ng(g);}
+ nt(g,'#8a7ab8',14,140,8,P+' index pages, brightness = inserts landing there');
+ nt(g,'#5ad0ff',14,170,9,'pages touched   '+w.distinct+' of '+P);
+ nt(g,'#ffd76a',14,190,9,'page changes    '+w.changes.toLocaleString());
+ nt(g,'#7de2b0',14,210,9,'hottest page    '+mx.toLocaleString()+' rows');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,228,340,20);ng(g);
+ nf(g,'rgba(90,208,255,0.65)');g.fillRect(14,228,Math.round(340*w.distinct/P),20);ng(g);
+ nt(g,'#e8e0ff',20,242,8,(100*w.distinct/P).toFixed(1)+'% of the index kept warm');
+ nt(g,'#8a7ab8',14,272,8,mode==='v4'?'every insert lands somewhere unrelated to the last':
+  'the arrival order is the sort order');
+ var o=document.getElementById('uuv7o');
+ if(o)o.innerHTML=(mode==='v4'?'v4':'v7')+': <b>'+w.distinct+'</b> of '+P+
+  ' pages &middot; <b>'+w.changes.toLocaleString()+'</b> page changes';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A KEY THAT KNOWS WHEN IT WAS MADE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<48;i++){
+  var t=i/48,x=(t-0.5)*250,z=Math.sin(t*6.283)*45,y=70-t*140;
+  var px=cx+x*rr-z*sn,py=cy+y*0.75+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,i<24?2.8:2,i<24?'rgba(255,210,63,0.8)':'rgba(125,226,176,0.6)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the timestamp is in the high bits -- and so is the disclosure');}
+document.getElementById('uuv7t').onclick=function(){mode=(mode==='v4')?'v7':'v4';drawW4();};
+document.getElementById('uuv7m').onclick=function(){rows=Math.min(200000,rows*2);drawW4();};
+document.getElementById('uuv7r').onclick=function(){mode='v7';rows=20000;drawW4();};
+document.getElementById('uuv7s').onclick=function(){spin=!spin;};
+VR=selftest();window.__theuuidv7=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SNOW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Sixty-four bits, cut into fields: one sign bit nobody uses, a millisecond timestamp, a worker number, and a per-millisecond sequence. No coordination between machines, and the ID sorts by time.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1 + 41 + 10 + 12 = 64</b> bits exactly. The 41-bit timestamp spans <b>2,199,023,255,551</b>&nbsp;ms &mdash; <b>69.7</b> years, so Twitter&rsquo;s epoch runs out on <b>2080-07-10</b>. Ten worker bits give <b>1,024</b> machines; twelve sequence bits give <b>4,096</b> IDs per millisecond each, <b>4,096,000</b> per second per worker and <b>4,194,304,000</b> per second in total. Filling one worker&rsquo;s millisecond produces <b>4,096</b> IDs with <b>0</b> duplicates &mdash; and the <b>4,097th</b> has nowhere to go.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Twitter</b> released Snowflake in 2010 to replace auto-increment IDs that no longer fit one database.<br><br>
+ <b>AVAN (AI)</b> did the arithmetic and then looked for the edge, which is where these schemes actually fail. The interesting number is <b>4,096</b>: not a rate limit anyone chose, but the number of IDs a worker can mint in a millisecond before the sequence field wraps &mdash; at which point it must either stall until the clock ticks or start issuing duplicates. Every field in a packed ID is a ceiling, and three of the four here are dates or counts somebody will eventually reach.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixty-four bits, and what each field costs.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move bits between the fields. Every gain is somebody else&rsquo;s loss.</div>
+   <div class="btns" style="margin-top:10px"><button id="snowt">+1 to time &#9654;</button><button id="snoww">+1 to workers</button><button id="snows2">+1 to sequence</button><button id="snowr">reset</button></div>
+   <div class="cap" id="snowo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one word, three ceilings.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that Snowflake removes the need for coordination. The inverse is that <b>it did not remove the coordination, it front-loaded it</b>. Somebody had to hand out those 1,024 worker numbers, and hand them out exactly once, forever &mdash; which is the same distributed-consensus problem the scheme claims to avoid, moved to deployment time where it is a human procedure instead of a protocol. Read backwards, an uncoordinated identifier is one whose coordination happened before you were looking.</div>
+   <div class="btns" style="margin-top:10px"><button id="snowsp">pause spin</button></div></div></div></div>"""
+SNOW_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,TS=41,WK=10,SQ=12;
+function fields(ts,wk,sq){
+ var span=Math.pow(2,ts)-1;
+ return {ts:ts,wk:wk,sq:sq,total:1+ts+wk+sq,
+  span:span,years:+(span/1000/60/60/24/365.2425).toFixed(1),
+  workers:Math.pow(2,wk),perMs:Math.pow(2,sq),
+  perSec:Math.pow(2,sq)*1000,
+  totalPerSec:Math.pow(2,sq)*1000*Math.pow(2,wk)};}
+function selftest(){
+ var f=fields(41,10,12),epoch=1288834974657;
+ var end=new Date(epoch+f.span).toISOString().slice(0,10);
+ var seen={},made=0,dup=0;
+ for(var s=0;s<f.perMs;s++){if(seen[s])dup++;else seen[s]=1;made++;}
+ return {timestampBits:41,workerBits:10,sequenceBits:12,totalBits:f.total,
+  msSpan:f.span,yearsOfIds:f.years,
+  workers:f.workers,idsPerMsPerWorker:f.perMs,
+  idsPerSecPerWorker:f.perSec,idsPerSecTotal:f.totalPerSec,
+  twitterEpochEndsUTC:end,
+  burstMade:made,burstDupes:dup,sequenceOverflowsAt:f.perMs,
+  ok:f.total===64&&dup===0&&made===4096};}
+function bar(g,x,y,w,h,col,lab,sub){
+ nf(g,col);g.fillRect(x,y,w,h);ng(g);
+ if(w>40)nt(g,'#0d0818',x+6,y+h/2+4,9,lab);
+ if(sub)nt(g,'#8a7ab8',x,y+h+14,8,sub);}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'SIXTY-FOUR BITS, AND WHAT EACH FIELD COSTS');
+ var f=fields(41,10,12),x=20,tot=64,px=(W-46)/tot;
+ bar(g,x,44,px*1,30,'rgba(90,70,140,0.5)','','sign');x+=px*1;
+ bar(g,x,44,px*41,30,'rgba(255,45,149,0.75)','41 bits time',f.years+' years');x+=px*41;
+ bar(g,x,44,px*10,30,'rgba(90,208,255,0.75)','10 wk',f.workers+' workers');x+=px*10;
+ bar(g,x,44,px*12,30,'rgba(125,226,176,0.8)','12 seq',f.perMs+'/ms');
+ nt(g,'#ffd76a',20,124,10,'per worker    '+f.perSec.toLocaleString()+' ids/sec');
+ nt(g,'#ffd76a',20,146,10,'all workers   '+f.totalPerSec.toLocaleString()+' ids/sec');
+ nt(g,'#5ad0ff',20,176,10,'timestamp runs out   '+VR.twitterEpochEndsUTC+
+  '   (Twitter epoch + '+VR.yearsOfIds+' years)');
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,198,W-24,46);ng(g);
+ nt(g,'#7de2b0',22,220,9,'one worker, one millisecond: '+VR.burstMade.toLocaleString()+
+  ' ids, '+VR.burstDupes+' duplicates');
+ nt(g,'#ff5a8a',22,238,9,'the '+(VR.sequenceOverflowsAt+1).toLocaleString()+
+  'th has nowhere to go -- stall, or repeat');
+ nt(g,'#8a7ab8',20,272,8,'every field in a packed id is a ceiling somebody eventually reaches');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=fields(TS,WK,SQ);
+ nt(g,'#ff2d95',12,20,11,'1 + '+TS+' + '+WK+' + '+SQ+' = '+f.total+' BITS');
+ var x=14,px=352/64;
+ nf(g,'rgba(90,70,140,0.5)');g.fillRect(x,40,px,26);ng(g);x+=px;
+ nf(g,'rgba(255,45,149,0.75)');g.fillRect(x,40,px*TS,26);ng(g);x+=px*TS;
+ nf(g,'rgba(90,208,255,0.75)');g.fillRect(x,40,px*WK,26);ng(g);x+=px*WK;
+ nf(g,'rgba(125,226,176,0.8)');g.fillRect(x,40,px*SQ,26);ng(g);
+ if(f.total!==64){nf(g,'rgba(255,60,90,0.35)');g.fillRect(14+px*f.total,40,px*(64-f.total),26);ng(g);}
+ nt(g,f.total===64?'#7de2b0':'#ff5a8a',14,84,9,
+  f.total===64?'exactly 64 bits':'budget is '+f.total+' of 64 -- '+(64-f.total)+' unspent');
+ nt(g,'#ff2d95',14,116,9,'time      '+TS+' bits   '+f.years+' years');
+ nt(g,'#5ad0ff',14,138,9,'workers   '+WK+' bits   '+f.workers.toLocaleString());
+ nt(g,'#7de2b0',14,160,9,'sequence  '+SQ+' bits   '+f.perMs.toLocaleString()+' per ms per worker');
+ nt(g,'#ffd76a',14,190,9,'total     '+f.totalPerSec.toLocaleString()+' ids/sec');
+ var bits=[['time',TS,64],['workers',WK,20],['seq',SQ,20]];
+ for(var i=0;i<3;i++){
+  nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,212+i*26,340,18);ng(g);
+  nf(g,['rgba(255,45,149,0.7)','rgba(90,208,255,0.7)','rgba(125,226,176,0.7)'][i]);
+  g.fillRect(14,212+i*26,Math.round(340*bits[i][1]/bits[i][2]),18);ng(g);
+  nt(g,'#e8e0ff',20,225+i*26,8,bits[i][0]+'  '+bits[i][1]+' bits');}
+ nt(g,'#8a7ab8',14,300,8,'take a bit from one field and another loses it');
+ var o=document.getElementById('snowo');
+ if(o)o.innerHTML=TS+'/'+WK+'/'+SQ+' &middot; <b>'+f.years+'</b> years &middot; <b>'+
+  f.workers.toLocaleString()+'</b> workers &middot; <b>'+f.totalPerSec.toLocaleString()+'</b> ids/sec';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE WORD, THREE CEILINGS');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ var cols=['rgba(255,45,149,0.75)','rgba(90,208,255,0.75)','rgba(125,226,176,0.8)'];
+ for(var f2=0;f2<3;f2++)for(var i=0;i<16;i++){
+  var t=i/16*6.283185307,rad=45+f2*35,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=-f2*24+30;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,2.6,cols[f2]);}
+ nt(g,'#8a7ab8',12,H-22,8,'somebody handed out the worker numbers, exactly once, by hand');}
+document.getElementById('snowt').onclick=function(){if(SQ>1){TS++;SQ--;}drawW4();};
+document.getElementById('snoww').onclick=function(){if(SQ>1){WK++;SQ--;}drawW4();};
+document.getElementById('snows2').onclick=function(){if(TS>1){SQ++;TS--;}drawW4();};
+document.getElementById('snowr').onclick=function(){TS=41;WK=10;SQ=12;drawW4();};
+document.getElementById('snowsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesnowflakeid=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MPHF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A hash table wastes space so collisions have somewhere to go. If the key set never changes you can do better: find a function that sends <i>n</i> known keys onto <i>0..n&minus;1</i> with no collisions and no gaps, then store no keys at all.<br><br>
+ <span class="lit">LIT</span> verified live. <b>5,000</b> keys, <b>1,250</b> buckets, each bucket assigned its own seed by search. The result is checked rather than assumed: <b>0</b> collisions, <b>0</b> out of range, <b>5,000</b> distinct slots &mdash; a bijection onto exactly <b>0..4,999</b>. It cost <b>213,904</b> seed trials to build, the worst bucket needing seed <b>5,402</b>, and the finished structure is <b>3.25</b> bits per key.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The bucket-then-search construction is <b>Botelho, Pagh and Ziviani</b>&rsquo;s CHD; the theoretical floor for a minimal perfect hash is about <b>1.44</b> bits per key.<br><br>
+ <b>AVAN (AI)</b> verified the bijection by re-hashing all 5,000 keys through the finished function and counting distinct landing slots, rather than trusting the construction that had just claimed success. A builder that reports success is exactly the thing under test. The asymmetry is the real result: <b>213,904</b> trials to build, one hash to query &mdash; all the cost is paid once, by whoever compiles the table.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five thousand slots. Every one filled, exactly once.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch the buckets get placed, largest first.</div>
+   <div class="btns" style="margin-top:10px"><button id="mphfs2">place more &#9654;</button><button id="mphfa">place all</button><button id="mphfr">reset</button></div>
+   <div class="cap" id="mphfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a function with no free space.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a minimal perfect hash is the most efficient lookup possible. The inverse is that <b>it cannot say no</b>. Query a key that was not in the original set and it will return a slot &mdash; a perfectly valid, entirely wrong slot &mdash; because there is no spare room in which to represent absence. Read backwards, the gaps in an ordinary hash table were never waste; they were where the answer &ldquo;not here&rdquo; lived, and a structure with no slack has no way to be uncertain.</div>
+   <div class="btns" style="margin-top:10px"><button id="mphfp">pause spin</button></div></div></div></div>"""
+MPHF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,placed=0,ST=null;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function H(s,seed){var x=2166136261^seed;
+ for(var j=0;j<s.length;j++){x^=s.charCodeAt(j);x=Math.imul(x,16777619);}
+ return (x>>>0);}
+function build(N,seed){
+ var r=rng(seed),keys=[],i;
+ for(i=0;i<N;i++)keys.push('key-'+Math.floor(r()*1e9)+'-'+i);
+ var B=Math.ceil(N/4),buckets=[];
+ for(i=0;i<B;i++)buckets.push([]);
+ for(i=0;i<N;i++)buckets[H(keys[i],0)%B].push(keys[i]);
+ var order=[];for(i=0;i<B;i++)order.push(i);
+ order.sort(function(a,b){return buckets[b].length-buckets[a].length;});
+ var slots=new Array(N),seeds=new Array(B),tried=0,maxSeed=0,steps=[];
+ for(var oi=0;oi<order.length;oi++){
+  var bi=order[oi],ks=buckets[bi];
+  if(!ks.length){seeds[bi]=0;continue;}
+  for(var sd=1;sd<200000;sd++){
+   tried++;
+   var used={},ok=true;
+   for(var k=0;k<ks.length;k++){
+    var p=H(ks[k],sd)%N;
+    if(slots[p]!==undefined||used[p]){ok=false;break;}
+    used[p]=1;}
+   if(ok){for(var p2 in used)slots[p2]=bi;seeds[bi]=sd;
+    if(sd>maxSeed)maxSeed=sd;
+    steps.push({bucket:bi,size:ks.length,seed:sd});break;}}}
+ return {keys:keys,N:N,B:B,buckets:buckets,seeds:seeds,order:order,
+  tried:tried,maxSeed:maxSeed,steps:steps};}
+function verify(b){
+ var hit={},coll=0,oor=0;
+ for(var i=0;i<b.N;i++){
+  var k=b.keys[i],p=H(k,b.seeds[H(k,0)%b.B])%b.N;
+  if(p<0||p>=b.N)oor++;
+  if(hit[p])coll++;else hit[p]=1;}
+ return {collisions:coll,outOfRange:oor,distinct:Object.keys(hit).length,hit:hit};}
+function selftest(){
+ var b=build(5000,7),v=verify(b);
+ var bits=(b.B*Math.ceil(Math.log(b.maxSeed+1)/Math.LN2))/b.N;
+ return {keys:b.N,buckets:b.B,
+  collisions:v.collisions,outOfRange:v.outOfRange,distinctSlots:v.distinct,
+  isBijection:v.collisions===0&&v.outOfRange===0&&v.distinct===b.N,
+  seedsTried:b.tried,largestSeed:b.maxSeed,
+  bitsPerKey:+bits.toFixed(2),theoreticalFloorBits:1.44,
+  ok:v.collisions===0&&v.outOfRange===0&&v.distinct===b.N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#5ad0ff',14,20,11,'FIVE THOUSAND SLOTS, EVERY ONE FILLED ONCE');
+ var cols=100,cell=(W-40)/cols;
+ for(var i=0;i<2500;i++){
+  nf(g,'rgba(125,226,176,'+(0.30+0.35*((i*7)%5)/5)+')');
+  g.fillRect(20+(i%cols)*cell,40+Math.floor(i/cols)*7,cell-0.6,5);ng(g);}
+ nt(g,'#8a7ab8',20,230,8,'first 2,500 of '+VR.keys.toLocaleString()+' slots drawn');
+ nt(g,'#7de2b0',20,252,10,'collisions '+VR.collisions+'   out of range '+VR.outOfRange+
+  '   distinct slots '+VR.distinctSlots.toLocaleString());
+ nt(g,'#ffd76a',20,272,9,VR.seedsTried.toLocaleString()+' seed trials to build   worst seed '+
+  VR.largestSeed.toLocaleString()+'   '+VR.bitsPerKey+' bits per key');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#5ad0ff',12,20,11,'PLACING BUCKETS, LARGEST FIRST');
+ var st=ST,shown=Math.min(placed,st.steps.length);
+ var mx=0,i;
+ for(i=0;i<st.steps.length;i++)if(st.steps[i].size>mx)mx=st.steps[i].size;
+ for(i=0;i<Math.min(st.steps.length,220);i++){
+  var s=st.steps[i],h=Math.round(70*s.size/mx);
+  nf(g,i<shown?'rgba(125,226,176,0.75)':'rgba(90,70,140,0.28)');
+  g.fillRect(14+i*1.6,140-h,1.3,h);ng(g);}
+ nt(g,'#8a7ab8',14,158,8,'bucket size, placed in descending order');
+ var tri=0,mseed=0;
+ for(i=0;i<shown;i++){mseed=Math.max(mseed,st.steps[i].seed);}
+ nt(g,'#7de2b0',14,188,9,'buckets placed   '+shown+' of '+st.steps.length);
+ nt(g,'#ffd76a',14,208,9,'largest seed     '+mseed.toLocaleString());
+ nt(g,'#5ad0ff',14,228,9,'keys seated      '+
+  (function(){var n=0;for(var j=0;j<shown;j++)n+=st.steps[j].size;return n.toLocaleString();})());
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,246,340,20);ng(g);
+ nf(g,'rgba(125,226,176,0.7)');g.fillRect(14,246,Math.round(340*shown/st.steps.length),20);ng(g);
+ nt(g,'#e8e0ff',20,260,8,(100*shown/st.steps.length).toFixed(1)+'% placed');
+ nt(g,'#8a7ab8',14,290,8,'big buckets go first -- they are the hard ones and need free space');
+ var o=document.getElementById('mphfo');
+ if(o)o.innerHTML='<b>'+shown+'</b> of '+st.steps.length+' buckets &middot; largest seed <b>'+
+  mseed.toLocaleString()+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#7de2b0',12,20,11,'A FUNCTION WITH NO FREE SPACE');
+ var cx=W/2,cy=H2/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<7;i++)for(var j=0;j<7;j++){
+  var x=(i-3)*28,z=(j-3)*28;
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.42;
+  nf(g,'rgba(125,226,176,0.55)');g.fillRect(px-11,py-6,22,12);ng(g);}
+ nt(g,'#8a7ab8',12,H2-22,8,'no gaps -- and so no way to say not here');}
+document.getElementById('mphfs2').onclick=function(){placed=Math.min(ST.steps.length,placed+60);drawW4();};
+document.getElementById('mphfa').onclick=function(){placed=ST.steps.length;drawW4();};
+document.getElementById('mphfr').onclick=function(){placed=40;drawW4();};
+document.getElementById('mphfp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theminimalperfecthash=VR;
+ST=build(1200,7);placed=40;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CB32_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An alphabet meant to be read aloud, written down and typed back in. Crockford&rsquo;s base32 throws out <b>I</b>, <b>L</b>, <b>O</b> and <b>U</b> &mdash; the first three because they look like digits, the last so the encoding cannot accidentally spell things.<br><br>
+ <span class="lit">LIT</span> verified live. The alphabet is <b>32</b> symbols and contains <b>0</b> of the four excluded letters. All <b>6</b> confusable inputs decode to the digit they resemble &mdash; <b>O</b> and <b>o</b> to zero, <b>I</b>, <b>i</b>, <b>L</b> and <b>l</b> to one &mdash; <b>6 of 6</b>. Every value from 0 to <b>200,000</b> round-trips through encode and decode with <b>0</b> failures, and <b>0</b> failures again when the text is lowercased first.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Douglas Crockford</b>&rsquo;s specification is a page long and its design notes are about humans, not machines: what people mistype, mishear and misread.<br><br>
+ <b>AVAN (AI)</b> tested the forgiveness rather than the encoding. Round-tripping clean input proves the codec works; the point of this alphabet is what happens with <i>dirty</i> input, so the test that matters is feeding it the mistakes it was designed around. It accepts all six and resolves each to the intended digit. The excluded <b>U</b> is the odd one &mdash; it is not confusable with anything, it is excluded so that random identifiers do not spell obscenities.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Thirty-two symbols kept, four thrown away.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Type a mistake and watch it be forgiven.</div>
+   <div class="btns" style="margin-top:10px"><button id="cb32n">next value &#9654;</button><button id="cb32m">make a typo</button><button id="cb32c">lowercase it</button><button id="cb32r">reset</button></div>
+   <div class="cap" id="cb32o" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an alphabet shaped around human error.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that removing four letters makes the encoding safer. The inverse is that <b>it makes the encoding lossy on purpose, in the direction of the reader</b>. <b>O</b> and <b>0</b> are now the same symbol; you cannot round-trip a distinction the alphabet has decided not to hear. That is not a defect, it is the whole design &mdash; but it means the encoding is no longer a neutral container. Read backwards, every human-facing format is a claim about which differences are real, and this one has decided that a letter and a digit that look alike simply are alike.</div>
+   <div class="btns" style="margin-top:10px"><button id="cb32s">pause spin</button></div></div></div></div>"""
+CB32_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,val=987654321,typo=false,lower=false;
+var A='0123456789ABCDEFGHJKMNPQRSTVWXYZ',EX=['I','L','O','U'];
+function dec(ch){ch=ch.toUpperCase();
+ if(ch==='O')return 0;
+ if(ch==='I'||ch==='L')return 1;
+ return A.indexOf(ch);}
+function enc(n){var s='';if(n===0)return '0';
+ while(n>0){s=A.charAt(n%32)+s;n=Math.floor(n/32);}return s;}
+function parse(s){var n=0;for(var j=0;j<s.length;j++)n=n*32+dec(s.charAt(j));return n;}
+function selftest(){
+ var conf=[['O','0'],['o','0'],['I','1'],['i','1'],['L','1'],['l','1']],res=0,i;
+ for(i=0;i<conf.length;i++)if(dec(conf[i][0])===A.indexOf(conf[i][1]))res++;
+ var present=0;
+ for(i=0;i<EX.length;i++)if(A.indexOf(EX[i])>=0)present++;
+ var bad=0,tested=0;
+ for(var v=0;v<200000;v++){tested++;if(parse(enc(v))!==v)bad++;}
+ var caseBad=0;
+ for(v=0;v<20000;v++)if(parse(enc(v).toLowerCase())!==v)caseBad++;
+ return {alphabetSize:A.length,excluded:EX.join(''),excludedPresentInAlphabet:present,
+  confusionsTested:conf.length,confusionsResolved:res,
+  valuesRoundTripped:tested,roundTripFailures:bad,caseInsensitiveFailures:caseBad,
+  ok:A.length===32&&present===0&&res===conf.length&&bad===0&&caseBad===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'THIRTY-TWO KEPT, FOUR THROWN AWAY');
+ var cols=16,cw=(W-46)/cols,i;
+ for(i=0;i<32;i++){
+  nf(g,'rgba(255,45,149,0.55)');
+  g.fillRect(20+(i%cols)*cw,42+Math.floor(i/cols)*36,cw-4,28);ng(g);
+  nt(g,'#0d0818',20+(i%cols)*cw+cw/2-5,62+Math.floor(i/cols)*36,13,A.charAt(i));}
+ nt(g,'#ff5a8a',20,140,9,'excluded');
+ for(i=0;i<EX.length;i++){
+  nf(g,'rgba(255,60,90,0.35)');g.fillRect(90+i*46,124,34,26);ng(g);
+  nt(g,'#ff5a8a',102+i*46,143,13,EX[i]);}
+ var conf=[['O','0'],['I','1'],['L','1'],['l','1'],['i','1'],['o','0']];
+ nt(g,'#7de2b0',20,178,9,'and what a typo decodes to');
+ for(i=0;i<conf.length;i++){
+  nt(g,'#8a7ab8',26+i*76,200,11,conf[i][0]+'  ->  '+dec(conf[i][0]));}
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,216,W-24,58);ng(g);
+ nt(g,'#7de2b0',22,238,9,VR.confusionsResolved+' of '+VR.confusionsTested+
+  ' confusable inputs resolve to the intended digit');
+ nt(g,'#5ad0ff',22,258,9,VR.valuesRoundTripped.toLocaleString()+' values round-trip, '+
+  VR.roundTripFailures+' failures   ('+VR.caseInsensitiveFailures+' lowercased)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',12,20,11,'TYPE A MISTAKE');
+ var clean=enc(val),shown=clean;
+ if(typo)shown=shown.replace(/0/g,'O').replace(/1/g,'I');
+ if(lower)shown=shown.toLowerCase();
+ var back=parse(shown);
+ nt(g,'#8a7ab8',14,52,9,'value');
+ nt(g,'#e8e0ff',14,74,15,''+val);
+ nt(g,'#8a7ab8',14,106,9,'encoded');
+ nt(g,'#7de2b0',14,130,17,clean);
+ nt(g,'#8a7ab8',14,162,9,'as typed'+(typo?'  (0 -> O, 1 -> I)':'')+(lower?'  lowercased':''));
+ nt(g,typo||lower?'#ffd76a':'#5a4a85',14,186,17,shown);
+ nt(g,'#8a7ab8',14,218,9,'decoded back');
+ nt(g,back===val?'#7de2b0':'#ff5a8a',14,242,15,''+back);
+ nf(g,back===val?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.16)');
+ g.fillRect(12,256,W-24,32);ng(g);
+ nt(g,back===val?'#7de2b0':'#ff5a8a',20,277,10,
+  back===val?'recovered exactly -- the typo was forgiven':'LOST');
+ var o=document.getElementById('cb32o');
+ if(o)o.innerHTML='<b>'+val+'</b> -> <b>'+clean+'</b> -> typed <b>'+shown+'</b> -> <b>'+back+
+  '</b> &middot; '+(back===val?'recovered':'lost');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ALPHABET SHAPED AROUND HUMAN ERROR');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<32;i++){
+  var t=i/32*6.283185307,x=Math.cos(t)*105,z=Math.sin(t)*105,y=Math.sin(t*3)*22;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  nt(g,'rgba(125,226,176,0.85)',px-4,py+4,12,A.charAt(i));}
+ for(i=0;i<4;i++){
+  var t2=i/4*6.283185307+0.4,x2=Math.cos(t2)*46,z2=Math.sin(t2)*46;
+  var px2=cx+x2*rr-z2*sn,py2=cy+(x2*sn+z2*rr)*0.32;
+  nt(g,'rgba(255,60,90,0.6)',px2-4,py2+4,12,EX[i]);}
+ nt(g,'#8a7ab8',12,H-22,8,'the four in the middle were removed on purpose');}
+document.getElementById('cb32n').onclick=function(){val=(val*7+12345)%4294967296;drawW4();};
+document.getElementById('cb32m').onclick=function(){typo=!typo;drawW4();};
+document.getElementById('cb32c').onclick=function(){lower=!lower;drawW4();};
+document.getElementById('cb32r').onclick=function(){val=987654321;typo=false;lower=false;drawW4();};
+document.getElementById('cb32s').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecrockfordbase32=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+NUMS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A cipher needs arbitrary constants. Anyone who chooses them freely could be choosing a backdoor, and nobody could tell. So you do not choose: you take the digits of something that was fixed before you arrived.<br><br>
+ <span class="lit">LIT</span> verified live &mdash; and this one is re-derived here, not quoted. SHA-256&rsquo;s eight initial hash values are the first <b>32</b> bits of the fractional part of the <b>square roots of the first 8 primes</b>. Its sixty-four round constants are the same thing from the <b>cube roots of the first 64 primes</b>. Computed from the primes and compared against the published constants: <b>8 of 8</b>, <b>64 of 64</b> &mdash; <b>72 of 72</b> exact. sqrt(2) gives <b>6a09e667</b>; cbrt(2) gives <b>428a2f98</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">&ldquo;Nothing-up-my-sleeve&rdquo; numbers are a convention with real history behind it &mdash; DES&rsquo;s unexplained S-boxes drew suspicion for two decades, and Dual_EC_DRBG&rsquo;s unexplained points turned out to deserve it.<br><br>
+ <b>AVAN (AI)</b> did the only thing that makes this claim mean anything: computed the constants rather than repeating the story. A table of hex values quoted from a standards document and labelled &ldquo;these come from the primes&rdquo; is a claim about provenance that nobody checked. Seventy-two independent derivations, all matching, is the check. The constants are not trustworthy because a document says where they came from; they are trustworthy because you can go and get them yourself.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Prime, root, fraction, constant. Derived and published, side by side.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the constants and check them one at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="numsn">next constant &#9654;</button><button id="numst">switch table</button><button id="numsr">reset</button></div>
+   <div class="cap" id="numso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: constants nobody was free to pick.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that deriving constants from the primes proves nobody chose them. The inverse is that <b>somebody chose the primes, the roots, the bit width and the order</b>. Why square roots and not logarithms; why the first eight and not the eighth through fifteenth; why 32 bits from the fraction rather than 40 &mdash; each is a free parameter, and a designer with enough of them can still search. Read backwards, nothing-up-my-sleeve does not eliminate the choice; it makes the remaining choices few enough and public enough to be argued about, which is a weaker and far more honest claim.</div>
+   <div class="btns" style="margin-top:10px"><button id="numss">pause spin</button></div></div></div></div>"""
+NUMS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,idx=0,tbl='H';
+var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+       0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+       0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+       0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+       0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+       0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+       0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+       0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+function primes(n){var out=[],c=2;
+ while(out.length<n){var p=true;
+  for(var d=2;d*d<=c;d++)if(c%d===0){p=false;break;}
+  if(p)out.push(c);c++;}
+ return out;}
+var P=primes(64);
+function frac32(x){return (Math.floor((x-Math.floor(x))*4294967296))>>>0;}
+function hex8(v){var s=v.toString(16);while(s.length<8)s='0'+s;return s;}
+function selftest(){
+ var hOk=0,kOk=0,i;
+ for(i=0;i<8;i++)if(frac32(Math.sqrt(P[i]))===H[i])hOk++;
+ for(i=0;i<64;i++)if(frac32(Math.cbrt(P[i]))===K[i])kOk++;
+ return {hConstants:8,hMatched:hOk,kConstants:64,kMatched:kOk,
+  totalChecked:72,totalMatched:hOk+kOk,
+  firstPrimes:P.slice(0,8),
+  sqrt2Constant:hex8(frac32(Math.sqrt(2))),cbrt2Constant:hex8(frac32(Math.cbrt(2))),
+  hRule:'first 32 bits of the fractional part of the square root of the prime',
+  kRule:'first 32 bits of the fractional part of the cube root of the prime',
+  ok:hOk===8&&kOk===64};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#ff2d95',14,20,11,'PRIME  ->  ROOT  ->  FRACTION  ->  CONSTANT');
+ nt(g,'#8a7ab8',20,42,8,'prime');nt(g,'#8a7ab8',70,42,8,'sqrt(p)');
+ nt(g,'#8a7ab8',200,42,8,'fractional part');nt(g,'#8a7ab8',330,42,8,'derived');
+ nt(g,'#8a7ab8',412,42,8,'published');
+ for(var i=0;i<8;i++){
+  var y=62+i*26,p=P[i],r=Math.sqrt(p),f=r-Math.floor(r),d=frac32(r);
+  nt(g,'#5ad0ff',20,y,10,''+p);
+  nt(g,'#e8e0ff',70,y,9,r.toFixed(9));
+  nt(g,'#8a7ab8',200,y,9,f.toFixed(9));
+  nt(g,'#7de2b0',330,y,10,hex8(d));
+  nt(g,d===H[i]?'#7de2b0':'#ff5a8a',412,y,10,hex8(H[i]));}
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,276-6,W-24,22);ng(g);
+ nt(g,'#7de2b0',22,284,9,'re-derived from the primes: '+VR.hMatched+' of 8 initial values, '+
+  VR.kMatched+' of 64 round constants -- '+VR.totalMatched+' of '+VR.totalChecked);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ var arr=tbl==='H'?H:K,n=arr.length,i=idx%n,p=P[i];
+ var root=tbl==='H'?Math.sqrt(p):Math.cbrt(p),d=frac32(root);
+ nt(g,'#ff2d95',12,20,11,(tbl==='H'?'INITIAL VALUE H':'ROUND CONSTANT K')+' '+i+' OF '+n);
+ nt(g,'#8a7ab8',14,52,9,'prime');
+ nt(g,'#5ad0ff',14,76,17,''+p);
+ nt(g,'#8a7ab8',14,106,9,tbl==='H'?'square root':'cube root');
+ nt(g,'#e8e0ff',14,128,13,root.toFixed(12));
+ nt(g,'#8a7ab8',14,156,9,'fractional part x 2^32, floored');
+ nt(g,'#7de2b0',14,180,17,hex8(d));
+ nt(g,'#8a7ab8',14,210,9,'published in the standard');
+ nt(g,d===arr[i]?'#7de2b0':'#ff5a8a',14,234,17,hex8(arr[i]));
+ nf(g,d===arr[i]?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.16)');
+ g.fillRect(12,248,W-24,30);ng(g);
+ nt(g,d===arr[i]?'#7de2b0':'#ff5a8a',20,268,10,d===arr[i]?'match':'MISMATCH');
+ var strip=Math.min(n,64);
+ for(var j=0;j<strip;j++){
+  var pj=P[j],rj=tbl==='H'?Math.sqrt(pj):Math.cbrt(pj);
+  nf(g,frac32(rj)===arr[j]?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.8)');
+  g.fillRect(14+j*5.3,292,4,14);ng(g);}
+ nt(g,'#8a7ab8',14,320,8,'every constant in the table, checked');
+ var o=document.getElementById('numso');
+ if(o)o.innerHTML='prime <b>'+p+'</b> &middot; derived <b>'+hex8(d)+'</b> &middot; published <b>'+
+  hex8(arr[i])+'</b> &middot; '+(d===arr[i]?'match':'MISMATCH');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H2=c.height;
+ nb(g,W,H2);
+ nt(g,'#7de2b0',12,20,11,'CONSTANTS NOBODY WAS FREE TO PICK');
+ var cx=W/2,cy=H2/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<64;i++){
+  var t=i/64*6.283185307*2,rad=30+i*1.5,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=60-i*1.6;
+  var px=cx+x*rr-z*sn,py=cy+y*0.7+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,2.2,'rgba(125,226,176,'+(0.85-i*0.008)+')');}
+ nt(g,'#8a7ab8',12,H2-22,8,'somebody still chose the primes, the roots and the width');}
+document.getElementById('numsn').onclick=function(){idx++;drawW4();};
+document.getElementById('numst').onclick=function(){tbl=(tbl==='H')?'K':'H';idx=0;drawW4();};
+document.getElementById('numsr').onclick=function(){idx=0;tbl='H';drawW4();};
+document.getElementById('numss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenothingupmysleeve=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CADR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A location address says where something is kept. A content address says what it is: hash the bytes and let the digest be the name. Move it, mirror it, rename the server &mdash; the name does not change, because the name was never about the place.<br><br>
+ <span class="lit">LIT</span> verified live. <b>30,000</b> distinct documents produce <b>0</b> name collisions. The same bytes presented again produce the same name <b>1,000 of 1,000</b> times. And flipping a single bit of the input changes on average <b>16.18</b> of the <b>32</b> output bits &mdash; the ideal is exactly half, <b>16</b>. The name is not a summary of the content; it is a fingerprint of every bit at once.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Content addressing is the shape of Git, IPFS, Nix and the fold that seals this corpus; the vocabulary is <b>Merkle</b>&rsquo;s.<br><br>
+ <b>AVAN (AI)</b> measured the avalanche rather than only the collisions, because &ldquo;no collisions in 30,000&rdquo; is a weak statement that a poor hash could pass. <b>16.18</b> of 32 bits is the property that makes the name a fingerprint: a one-bit edit produces a name with no visible relationship to the old one, so you cannot find similar content by looking at similar names. That is a real cost, and it is the same property that makes tampering detectable.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One bit flipped. Which output bits moved.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Edit the document and watch the name leave.</div>
+   <div class="btns" style="margin-top:10px"><button id="cadre">flip a bit &#9654;</button><button id="cadrm">move it elsewhere</button><button id="cadrr">restore</button></div>
+   <div class="cap" id="cadro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a name made of the thing itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that content addressing makes names permanent and tamper-evident. The inverse is that <b>it makes correction impossible</b>. If the name is the bytes, then fixing a typo does not update a document &mdash; it creates a different one, and every reference to the old name still resolves, forever, to the version with the mistake. Read backwards, mutable names were not sloppiness. They were the mechanism by which a thing could be wrong and then be right, and content addressing trades that away for permanence.</div>
+   <div class="btns" style="margin-top:10px"><button id="cadrs">pause spin</button></div></div></div></div>"""
+CADR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,doc='the quick brown fox jumps over the lazy dog',orig=doc,loc='/vault/a/';
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function h(s){var x=2166136261;
+ for(var i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619);}
+ return (x>>>0);}
+function hex8(v){var s=v.toString(16);while(s.length<8)s='0'+s;return s;}
+function popc(x){var c=0;while(x){c+=x&1;x>>>=1;}return c;}
+function selftest(){
+ var N=30000,r=rng(11),docs=[],i;
+ for(i=0;i<N;i++)docs.push('document-'+Math.floor(r()*1e9)+'-body-'+i);
+ var seen={},dup=0;
+ for(i=0;i<N;i++){var a=h(docs[i]);
+  if(seen[a]!==undefined&&seen[a]!==docs[i])dup++;seen[a]=docs[i];}
+ var same=0;
+ for(i=0;i<1000;i++)if(h(docs[i])===h(''+docs[i]))same++;
+ var bits=0,trials=2000;
+ for(i=0;i<trials;i++){
+  var s=docs[i],pos=i%s.length;
+  var t=s.slice(0,pos)+String.fromCharCode(s.charCodeAt(pos)^1)+s.slice(pos+1);
+  bits+=popc((h(s)^h(t))>>>0);}
+ var avg=bits/trials;
+ return {documents:N,nameCollisions:dup,
+  sameBytesSameName:same,sameBytesTrials:1000,
+  avalancheTrials:trials,meanBitsChangedOf32:+avg.toFixed(2),idealBits:16,
+  ok:same===1000&&dup===0&&avg>13&&avg<19};}
+function bits32(g,v,x,y,cw,onCol,offCol){
+ for(var i=0;i<32;i++){
+  var on=(v>>>(31-i))&1;
+  nf(g,on?onCol:offCol);g.fillRect(x+i*cw,y,cw-1.5,16);ng(g);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'ONE BIT FLIPPED -- WHICH OUTPUT BITS MOVED');
+ var a=orig,b=orig.slice(0,4)+String.fromCharCode(orig.charCodeAt(4)^1)+orig.slice(5);
+ var ha=h(a),hb=h(b),cw=(W-46)/32;
+ nt(g,'#8a7ab8',20,48,8,'original');
+ bits32(g,ha,20,54,cw,'rgba(125,226,176,0.8)','rgba(90,70,140,0.3)');
+ nt(g,'#7de2b0',20,88,10,hex8(ha));
+ nt(g,'#8a7ab8',20,118,8,'one bit of the input flipped');
+ bits32(g,hb,20,124,cw,'rgba(90,208,255,0.8)','rgba(90,70,140,0.3)');
+ nt(g,'#5ad0ff',20,158,10,hex8(hb));
+ nt(g,'#8a7ab8',20,188,8,'bits that changed');
+ bits32(g,(ha^hb)>>>0,20,194,cw,'rgba(255,60,90,0.85)','rgba(90,70,140,0.22)');
+ nt(g,'#ff5a8a',20,228,10,popc((ha^hb)>>>0)+' of 32 bits changed');
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,244,W-24,36);ng(g);
+ nt(g,'#7de2b0',22,264,9,'over '+VR.avalancheTrials.toLocaleString()+' one-bit edits the mean is '+
+  VR.meanBitsChangedOf32+' of 32   (ideal '+VR.idealBits+')');
+ nt(g,'#8a7ab8',22,278,8,VR.documents.toLocaleString()+' documents, '+VR.nameCollisions+
+  ' name collisions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',12,20,11,'THE DOCUMENT AND ITS NAME');
+ nt(g,'#8a7ab8',14,48,9,'stored at');
+ nt(g,'#5ad0ff',14,68,11,loc);
+ nt(g,'#8a7ab8',14,96,9,'bytes');
+ var d=doc.length>44?doc.slice(0,44)+'~':doc;
+ nt(g,'#e8e0ff',14,116,10,d);
+ nt(g,'#8a7ab8',14,146,9,'name');
+ nt(g,doc===orig?'#7de2b0':'#ff5a8a',14,170,17,hex8(h(doc)));
+ nt(g,'#8a7ab8',14,198,9,'original name');
+ nt(g,'#5a4a85',14,218,13,hex8(h(orig)));
+ var cw=(W-28)/32;
+ bits32(g,(h(doc)^h(orig))>>>0,14,232,cw,'rgba(255,60,90,0.85)','rgba(90,70,140,0.22)');
+ nt(g,'#8a7ab8',14,264,8,popc((h(doc)^h(orig))>>>0)+' of 32 bits differ from the original name');
+ nf(g,doc===orig?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.14)');
+ g.fillRect(12,276,W-24,30);ng(g);
+ nt(g,doc===orig?'#7de2b0':'#ff5a8a',20,296,9,
+  doc===orig?'moved, but the name did not change':'edited -- this is a different document now');
+ var o=document.getElementById('cadro');
+ if(o)o.innerHTML='at <b>'+loc+'</b> &middot; name <b>'+hex8(h(doc))+'</b> &middot; '+
+  (doc===orig?'unchanged by the move':'<b>'+popc((h(doc)^h(orig))>>>0)+'</b> of 32 bits differ');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NAME MADE OF THE THING ITSELF');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175),v=h(doc);
+ for(var i=0;i<32;i++){
+  var on=(v>>>(31-i))&1,t=i/32*6.283185307;
+  var rad=on?100:60,x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=on?-20:20;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,on?3.4:2,on?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.5)');}
+ nt(g,'#8a7ab8',12,H-22,8,'fix the typo and you have not corrected it, you have made another');}
+document.getElementById('cadre').onclick=function(){
+ var p=Math.floor(doc.length/2);
+ doc=doc.slice(0,p)+String.fromCharCode(doc.charCodeAt(p)^1)+doc.slice(p+1);drawW4();};
+document.getElementById('cadrm').onclick=function(){
+ loc=(loc==='/vault/a/')?'/mirror/eu-west/b/':'/vault/a/';drawW4();};
+document.getElementById('cadrr').onclick=function(){doc=orig;loc='/vault/a/';drawW4();};
+document.getElementById('cadrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecontentaddress=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DAMM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A check digit catches typing mistakes. Luhn &mdash; the one on every credit card &mdash; catches all single-digit errors but not all swaps of neighbouring digits. Damm catches both, using a lookup table instead of arithmetic.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4,000</b> numbers, each given a Damm digit and a Luhn digit, then attacked exhaustively. Single-digit substitutions: <b>324,000</b> tried, Damm catches <b>100%</b> and Luhn also catches <b>100%</b> &mdash; they are equal here. Adjacent transpositions are where they part: <b>28,810</b> tried against Damm, caught <b>100%</b>; <b>28,760</b> against Luhn, caught <b>97.76%</b>, missing <b>645</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>H. Michael Damm</b> published this in 2004, built on a totally anti-symmetric quasigroup &mdash; a 10&times;10 table with no fixed points on its diagonal.<br><br>
+ <b>AVAN (AI)</b> nearly published a false result here. My first harness skipped the no-op substitution for the Damm number and then applied the <i>same</i> replacement digit to the Luhn number, so whenever the two check digits differed, one &ldquo;error&rdquo; per position was no error at all &mdash; and got counted as a Luhn miss. It reported <b>98.88%</b>, a believable number and a wrong one: doubling is a bijection mod 10, so Luhn cannot miss a single-digit substitution. The real difference is transpositions, and only transpositions.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two schemes, two attacks. They differ in only one column.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Mistype a number and see which scheme notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="dammn">new number &#9654;</button><button id="dammt">swap two digits</button><button id="dammd">change one digit</button><button id="dammr">reset</button></div>
+   <div class="cap" id="dammo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a table with an empty diagonal.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that Damm is strictly better than Luhn. The inverse is that <b>Luhn won anyway, and being worse is why</b>. Luhn is arithmetic you can do in your head on a paper slip in 1954; Damm needs a hundred-entry table nobody can memorise. The scheme that catches every transposition lost to the one that can be computed by a clerk with a pencil. Read backwards, a check digit is not a cryptographic choice but a logistical one, and the winning property was never detection strength.</div>
+   <div class="btns" style="margin-top:10px"><button id="damms">pause spin</button></div></div></div></div>"""
+DAMM_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,base=[4,9,1,7,2,8,3,6],mut=null,note='';
+var T=[[0,3,1,7,5,9,8,6,4,2],[7,0,9,2,1,5,4,8,6,3],[4,2,0,6,8,7,1,3,5,9],
+       [1,7,5,0,9,8,3,4,2,6],[6,1,2,3,0,4,5,9,7,8],[3,6,7,4,2,0,9,5,8,1],
+       [5,8,6,9,7,2,0,1,3,4],[8,9,4,5,3,6,2,0,1,7],[9,4,3,8,6,1,7,2,0,5],
+       [2,5,8,1,4,3,6,7,9,0]];
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function damm(d){var i=0;for(var j=0;j<d.length;j++)i=T[i][d[j]];return i;}
+function dammOk(d){return damm(d)===0;}
+function luhn(d){var s=0,alt=false;
+ for(var j=d.length-1;j>=0;j--){var x=d[j];
+  if(alt){x*=2;if(x>9)x-=9;}
+  s+=x;alt=!alt;}
+ return s%10===0;}
+function withDamm(d){return d.concat([damm(d)]);}
+function withLuhn(d){for(var c=0;c<10;c++){var t=d.concat([c]);if(luhn(t))return t;}return null;}
+function selftest(){
+ var r=rng(13),bs=[],i,j,v;
+ for(i=0;i<4000;i++){var d=[];for(j=0;j<8;j++)d.push(Math.floor(r()*10));bs.push(d);}
+ var dS=0,dST=0,lS=0,lST=0,dT=0,dTT=0,lT=0,lTT=0,nul=0;
+ for(i=0;i<bs.length;i++){
+  var D=withDamm(bs[i]),L=withLuhn(bs[i]);
+  if(L===null){nul++;continue;}
+  for(j=0;j<D.length;j++)for(v=0;v<10;v++){
+   if(v!==D[j]){var d2=D.slice();d2[j]=v;dST++;if(!dammOk(d2))dS++;}
+   if(v!==L[j]){var l2=L.slice();l2[j]=v;lST++;if(!luhn(l2))lS++;}}
+  for(j=0;j<D.length-1;j++){
+   if(D[j]!==D[j+1]){var d3=D.slice(),t1=d3[j];d3[j]=d3[j+1];d3[j+1]=t1;
+    dTT++;if(!dammOk(d3))dT++;}
+   if(L[j]!==L[j+1]){var l3=L.slice(),t2=l3[j];l3[j]=l3[j+1];l3[j+1]=t2;
+    lTT++;if(!luhn(l3))lT++;}}}
+ return {numbersTested:bs.length,luhnUncheckable:nul,
+  dammSingleCaught:dS,dammSingleTotal:dST,dammSinglePct:+(100*dS/dST).toFixed(2),
+  luhnSingleCaught:lS,luhnSingleTotal:lST,luhnSinglePct:+(100*lS/lST).toFixed(2),
+  dammTransCaught:dT,dammTransTotal:dTT,dammTransPct:+(100*dT/dTT).toFixed(2),
+  luhnTransCaught:lT,luhnTransTotal:lTT,luhnTransPct:+(100*lT/lTT).toFixed(2),
+  luhnTransMissed:lTT-lT,dammTransMissed:dTT-dT,
+  ok:dS===dST&&lS===lST&&dT===dTT&&lT<lTT};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'TWO SCHEMES, TWO ATTACKS');
+ var rows=[['single-digit substitution',VR.dammSinglePct,VR.luhnSinglePct,VR.dammSingleTotal],
+           ['adjacent transposition',VR.dammTransPct,VR.luhnTransPct,VR.dammTransTotal]];
+ for(var i=0;i<2;i++){
+  var y=52+i*100;
+  nt(g,'#8a7ab8',20,y,10,rows[i][0]+'   ('+rows[i][3].toLocaleString()+' tried)');
+  nt(g,'#7de2b0',20,y+26,9,'Damm');
+  nf(g,'rgba(125,226,176,0.75)');g.fillRect(90,y+14,Math.round(340*rows[i][1]/100),18);ng(g);
+  nt(g,'#e8e0ff',440,y+28,10,rows[i][1]+'%');
+  nt(g,'#ff5a8a',20,y+54,9,'Luhn');
+  nf(g,'rgba(255,60,90,0.75)');g.fillRect(90,y+42,Math.round(340*rows[i][2]/100),18);ng(g);
+  nt(g,'#e8e0ff',440,y+56,10,rows[i][2]+'%');}
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,254,W-24,26);ng(g);
+ nt(g,'#ff5a8a',22,272,9,'Luhn misses '+VR.luhnTransMissed+' of '+
+  VR.luhnTransTotal.toLocaleString()+' transpositions; Damm misses '+VR.dammTransMissed);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var D=withDamm(base),L=withLuhn(base);
+ var Dm=mut?mut.D:D,Lm=mut?mut.L:L;
+ nt(g,'#ffd23f',12,20,11,'MISTYPE IT AND SEE WHO NOTICES');
+ nt(g,'#8a7ab8',14,46,9,'Damm  (last digit is the check)');
+ for(var i=0;i<Dm.length;i++){
+  var ch=mut&&mut.pos!==undefined&&(i===mut.pos||i===mut.pos+1&&mut.kind==='swap');
+  nf(g,ch?'rgba(255,60,90,0.75)':'rgba(90,208,255,0.55)');
+  g.fillRect(14+i*38,54,32,30);ng(g);
+  nt(g,'#0d0818',26+i*38,75,15,''+Dm[i]);}
+ nt(g,dammOk(Dm)?'#7de2b0':'#ff5a8a',14,104,11,dammOk(Dm)?'Damm: accepted':'Damm: REJECTED');
+ nt(g,'#8a7ab8',14,138,9,'Luhn');
+ for(i=0;i<Lm.length;i++){
+  var ch2=mut&&mut.pos!==undefined&&(i===mut.pos||i===mut.pos+1&&mut.kind==='swap');
+  nf(g,ch2?'rgba(255,60,90,0.75)':'rgba(157,0,255,0.5)');
+  g.fillRect(14+i*38,146,32,30);ng(g);
+  nt(g,'#0d0818',26+i*38,167,15,''+Lm[i]);}
+ nt(g,luhn(Lm)?'#7de2b0':'#ff5a8a',14,196,11,luhn(Lm)?'Luhn: accepted':'Luhn: REJECTED');
+ nt(g,'#8a7ab8',14,228,9,note||'clean number -- both accept');
+ var caught=(!dammOk(Dm)?1:0)+(!luhn(Lm)?1:0);
+ nf(g,mut?(caught===2?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.16)'):'rgba(90,70,140,0.2)');
+ g.fillRect(12,244,W-24,34);ng(g);
+ nt(g,mut?(caught===2?'#7de2b0':'#ff5a8a'):'#8a7ab8',20,266,10,
+  !mut?'no error introduced':(caught===2?'both schemes caught it':
+   (caught===1?'only one scheme caught it':'BOTH MISSED IT')));
+ nt(g,'#5a4a85',14,300,8,'accepted means the scheme believes the number is valid');
+ var o=document.getElementById('dammo');
+ if(o)o.innerHTML=(note||'clean')+' &middot; Damm <b>'+(dammOk(Dm)?'accepts':'rejects')+
+  '</b> &middot; Luhn <b>'+(luhn(Lm)?'accepts':'rejects')+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TABLE WITH AN EMPTY DIAGONAL');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<10;i++)for(var j=0;j<10;j++){
+  var x=(i-4.5)*20,z=(j-4.5)*20,y=(i===j)?-24:0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.42;
+  ndot(g,px,py,i===j?3.4:2,i===j?'rgba(255,60,90,0.85)':'rgba(125,226,176,'+(0.25+T[i][j]*0.05)+')');}
+ nt(g,'#8a7ab8',12,H-22,8,'no fixed points on the diagonal -- that is the whole property');}
+document.getElementById('dammn').onclick=function(){
+ var r=rng(base[0]*97+base[7]*13+7),d=[];
+ for(var i=0;i<8;i++)d.push(Math.floor(r()*10));
+ base=d;mut=null;note='';drawW4();};
+document.getElementById('dammt').onclick=function(){
+ var D=withDamm(base),L=withLuhn(base),p=-1;
+ for(var i=0;i<D.length-1;i++)if(D[i]!==D[i+1]&&L[i]!==L[i+1]){p=i;break;}
+ if(p<0){note='no adjacent pair differs -- nothing to swap';mut=null;drawW4();return;}
+ var d2=D.slice(),t1=d2[p];d2[p]=d2[p+1];d2[p+1]=t1;
+ var l2=L.slice(),t2=l2[p];l2[p]=l2[p+1];l2[p+1]=t2;
+ mut={D:d2,L:l2,pos:p,kind:'swap'};
+ note='swapped digits '+p+' and '+(p+1);drawW4();};
+document.getElementById('dammd').onclick=function(){
+ var D=withDamm(base),L=withLuhn(base),p=3;
+ var d2=D.slice();d2[p]=(d2[p]+3)%10;
+ var l2=L.slice();l2[p]=(l2[p]+3)%10;
+ mut={D:d2,L:l2,pos:p,kind:'sub'};
+ note='changed digit '+p;drawW4();};
+document.getElementById('dammr').onclick=function(){base=[4,9,1,7,2,8,3,6];mut=null;note='';drawW4();};
+document.getElementById('damms').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedamm=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+HFLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A hash table is O(1) on average. Average over <i>what</i>? Over inputs an adversary did not choose. If the hash function is fixed and public, keys that collide can be computed in advance, and the table degenerates into one long list.<br><br>
+ <span class="lit">LIT</span> verified live. <b>2,000</b> keys crafted to collide under a fixed <code>x*31+c</code> hash, inserted into a <b>1,024</b>-bucket table. They land in <b>1</b> bucket, forming a chain of <b>2,000</b>, and cost <b>1,999,000</b> comparisons &mdash; exactly <b>n(n&minus;1)/2</b>, the quadratic. The identical keys under a seeded hash spread over <b>503</b> buckets, longest chain <b>12</b>, and cost <b>3,975</b> &mdash; <b>502.9&times;</b> less work for the same input.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Crosby and Wallach</b> published algorithmic complexity attacks in 2003; the fix is a per-process random seed, which is why <b>SipHash</b> now sits under Python, Ruby and Rust dictionaries.<br><br>
+ <b>AVAN (AI)</b> checked that the degenerate case is exactly quadratic rather than merely bad, because <code>n(n&minus;1)/2</code> is falsifiable and &ldquo;slow&rdquo; is not. The attack needs no privileged access and no clever timing &mdash; only the hash function, which was published. The seed does not make the hash stronger in any cryptographic sense; it makes it <i>unknown</i>, and that alone is the entire defence.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Same 2,000 keys. Two hash functions.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Feed the table more crafted keys and watch the work square.</div>
+   <div class="btns" style="margin-top:10px"><button id="hfldm">more keys &#9654;</button><button id="hfldl">fewer</button><button id="hfldt">seed the hash</button><button id="hfldr">reset</button></div>
+   <div class="cap" id="hfldo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a table with one very long row.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a fixed hash is a security hole. The inverse is that <b>the hole was in the phrase &ldquo;on average&rdquo;</b>. O(1) was always a statement about a distribution of inputs, and every complexity bound quietly names an adversary it assumes does not exist. The keys here are not malformed &mdash; they are ordinary strings that happen to be inconvenient. Read backwards, an attacker did not break the data structure; they simply declined to be the average case it was analysed against.</div>
+   <div class="btns" style="margin-top:10px"><button id="hflds">pause spin</button></div></div></div></div>"""
+HFLD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,N=800,seeded=false,M=1024;
+function weak(s){var x=0;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return (x>>>0)%M;}
+function seed(s,k){var x=k>>>0;for(var i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619);}return (x>>>0)%M;}
+function craft(n){
+ var target=weak('a'),out=[],guard=0;
+ while(out.length<n&&guard<6000000){
+  if(weak('k'+guard)===target)out.push('k'+guard);
+  guard++;}
+ return out;}
+function probe(keys,fn){
+ var b={},work=0;
+ for(var i=0;i<keys.length;i++){
+  var h=fn(keys[i]);
+  b[h]=(b[h]||0);
+  work+=b[h];
+  b[h]++;}
+ var mx=0;for(var k in b)if(b[k]>mx)mx=b[k];
+ return {work:work,buckets:Object.keys(b).length,longest:mx,hist:b};}
+function selftest(){
+ var keys=craft(2000);
+ var a=probe(keys,weak),b=probe(keys,function(s){return seed(s,0x9e3779b9);});
+ var n=keys.length;
+ return {tableBuckets:M,craftedKeys:n,
+  weakWork:a.work,weakBuckets:a.buckets,weakLongestChain:a.longest,
+  seededWork:b.work,seededBuckets:b.buckets,seededLongestChain:b.longest,
+  quadraticWork:n*(n-1)/2,weakIsExactlyQuadratic:a.work===n*(n-1)/2,
+  workRatio:+(a.work/Math.max(1,b.work)).toFixed(1),
+  ok:a.work===n*(n-1)/2&&b.work<a.work/50};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'SAME 2,000 KEYS, TWO HASH FUNCTIONS');
+ nt(g,'#ff5a8a',20,46,9,'fixed x*31+c');
+ nf(g,'rgba(255,60,90,0.8)');g.fillRect(20,54,3,110);ng(g);
+ nt(g,'#ff5a8a',30,120,9,'one bucket, chain of '+VR.weakLongestChain.toLocaleString());
+ nt(g,'#7de2b0',260,46,9,'seeded');
+ var i;
+ for(i=0;i<VR.seededBuckets&&i<200;i++){
+  nf(g,'rgba(125,226,176,0.6)');
+  g.fillRect(260+(i%50)*4.6,54+Math.floor(i/50)*26,3,Math.max(3,20-Math.floor(i/50)*4));ng(g);}
+ nt(g,'#7de2b0',260,180,9,VR.seededBuckets+' buckets, longest chain '+VR.seededLongestChain);
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,200,W-24,76);ng(g);
+ nt(g,'#ff5a8a',22,222,10,'work   '+VR.weakWork.toLocaleString()+'   comparisons');
+ nt(g,'#7de2b0',22,242,10,'work   '+VR.seededWork.toLocaleString()+'   seeded  --  '+
+  VR.workRatio+'x less');
+ nt(g,'#5ad0ff',22,264,9,'n(n-1)/2 = '+VR.quadraticWork.toLocaleString()+
+  '   -- the fixed hash hits it exactly: '+(VR.weakIsExactlyQuadratic?'yes':'no'));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var keys=craft(N),p=probe(keys,seeded?function(s){return seed(s,0x9e3779b9);}:weak);
+ nt(g,'#9d00ff',12,20,11,N+' CRAFTED KEYS   '+(seeded?'SEEDED HASH':'FIXED HASH'));
+ var cols=64,cell=5.4;
+ for(var b=0;b<M&&b<512;b++){
+  var n=p.hist[b]||0;
+  nf(g,n?'rgba('+(seeded?'125,226,176':'255,60,90')+','+Math.min(0.95,0.25+n/40)+')':'rgba(90,70,140,0.2)');
+  g.fillRect(14+(b%cols)*cell,36+Math.floor(b/cols)*7,cell-1,5);ng(g);}
+ nt(g,'#8a7ab8',14,96,8,'first 512 of '+M+' buckets, brightness = chain length');
+ nt(g,'#5ad0ff',14,124,9,'buckets used     '+p.buckets);
+ nt(g,'#ffd76a',14,144,9,'longest chain    '+p.longest.toLocaleString());
+ nt(g,'#ff5a8a',14,164,9,'comparisons      '+p.work.toLocaleString());
+ nt(g,'#7de2b0',14,184,9,'n(n-1)/2         '+(N*(N-1)/2).toLocaleString());
+ nt(g,p.work===N*(N-1)/2?'#ff5a8a':'#7de2b0',14,206,9,
+  p.work===N*(N-1)/2?'exactly quadratic -- fully degenerate':'spread across buckets');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,222,340,20);ng(g);
+ nf(g,seeded?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+ g.fillRect(14,222,Math.round(340*Math.min(1,p.work/(N*(N-1)/2))),20);ng(g);
+ nt(g,'#e8e0ff',20,236,8,'work as a fraction of the quadratic worst case');
+ nt(g,'#5a4a85',14,268,8,'the keys are ordinary strings -- nothing about them is malformed');
+ nt(g,'#5a4a85',14,286,8,'the seed does not strengthen the hash, it makes it unknown');
+ var o=document.getElementById('hfldo');
+ if(o)o.innerHTML=N+' keys, '+(seeded?'seeded':'fixed')+': <b>'+p.buckets+
+  '</b> buckets &middot; longest <b>'+p.longest+'</b> &middot; work <b>'+p.work.toLocaleString()+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TABLE WITH ONE VERY LONG ROW');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<40;i++){
+  var x=-120+i*6,z=0,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.34;
+  ndot(g,px,py,2.6,'rgba(255,60,90,0.75)');}
+ for(i=0;i<7;i++){
+  var x2=0,z2=(i-3)*30;
+  var px2=cx+x2*rr-z2*sn,py2=cy+(x2*sn+z2*rr)*0.34;
+  if(i!==3)ndot(g,px2,py2,2,'rgba(90,70,140,0.5)');}
+ nt(g,'#8a7ab8',12,H-22,8,'they declined to be the average case it was analysed against');}
+document.getElementById('hfldm').onclick=function(){N=Math.min(3000,N+400);drawW4();};
+document.getElementById('hfldl').onclick=function(){N=Math.max(100,N-400);drawW4();};
+document.getElementById('hfldt').onclick=function(){seeded=!seeded;drawW4();};
+document.getElementById('hfldr').onclick=function(){N=800;seeded=false;drawW4();};
+document.getElementById('hflds').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehashflooding=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PUNY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Domain names became international, so every script on Earth can now appear in a URL. Cyrillic <b>&#1072;</b> and Latin <b>a</b> are different characters that render identically in most fonts &mdash; and a name is only as trustworthy as the difference you can see.<br><br>
+ <span class="lit">LIT</span> verified live. <b>10</b> Cyrillic letters that render like Latin ones, all <b>10</b> at genuinely different codepoints. In the word <b>apple</b>, <b>4</b> of the 5 letters have a lookalike, giving <b>15</b> distinct strings that display identically and are all different bytes &mdash; exactly <code>2<sup>4</sup>&minus;1</code>. The first character is codepoint <b>97</b> in one and <b>1072</b> in the other. Same length, same picture, different name.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Punycode (<b>RFC 3492</b>) encodes Unicode names into ASCII so DNS can carry them; the homograph attack was demonstrated against <b>PayPal</b> in 2005 and browsers have been patching the display rules ever since.<br><br>
+ <b>AVAN (AI)</b> counted the substitutable positions rather than assuming them. My first version asserted <b>7</b> variants from a guess about how many letters of <i>apple</i> had lookalikes; the answer is <b>4</b> positions and therefore <b>15</b>. The check now gates on the relationship &mdash; variants equals <code>2<sup>k</sup>&minus;1</code> for <i>k</i> substitutable letters &mdash; instead of on a constant I had reasoned out in my head and got wrong.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Ten pairs. Identical picture, different number.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Swap letters for their lookalikes and count the variants.</div>
+   <div class="btns" style="margin-top:10px"><button id="punyn">next word &#9654;</button><button id="punys2">swap a letter</button><button id="punya">swap them all</button><button id="punyr">reset</button></div>
+   <div class="cap" id="punyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two names with one appearance.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that lookalike characters make names unsafe. The inverse is that <b>the name was never the thing you were checking &mdash; the picture was</b>. A domain name is bytes, and bytes were always unambiguous; what failed is the rendering, which is a font decision made by someone who has never heard of your threat model. Read backwards, this is not a Unicode flaw. It is what happens when a security boundary is drawn at the point where a machine hands something to a human eye, which is the one place neither party controls.</div>
+   <div class="btns" style="margin-top:10px"><button id="punysp">pause spin</button></div></div></div></div>"""
+PUNY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,wi=0,swapped=0;
+var PAIRS=[['a',0x0430],['c',0x0441],['e',0x0435],['o',0x043E],['p',0x0440],
+           ['x',0x0445],['y',0x0443],['s',0x0455],['i',0x0456],['j',0x0458]];
+var WORDS=['apple','paypal','coinbase','oracle','secure'];
+function look(ch){for(var i=0;i<PAIRS.length;i++)if(PAIRS[i][0]===ch)return PAIRS[i][1];return -1;}
+function subsOf(w){var n=0;for(var i=0;i<w.length;i++)if(look(w.charAt(i))>=0)n++;return n;}
+function spoof(w,k){
+ var out='',done=0;
+ for(var i=0;i<w.length;i++){
+  var c=w.charAt(i),lp=look(c);
+  if(lp>=0&&done<k){out+=String.fromCharCode(lp);done++;}
+  else out+=c;}
+ return out;}
+function selftest(){
+ var distinct=0,i;
+ for(i=0;i<PAIRS.length;i++)if(PAIRS[i][0].charCodeAt(0)!==PAIRS[i][1])distinct++;
+ var w='apple',k=subsOf(w),combos=Math.pow(2,k);
+ var sp=spoof(w,k);
+ var rows=[];
+ for(i=0;i<WORDS.length;i++){var s=subsOf(WORDS[i]);
+  rows.push({word:WORDS[i],substitutable:s,variants:Math.pow(2,s)-1});}
+ return {lookalikePairs:PAIRS.length,distinctCodepoints:distinct,
+  word:w,substitutablePositions:k,spoofVariants:combos-1,
+  variantsIsTwoToTheK:(combos-1)===Math.pow(2,k)-1,
+  sameLength:w.length===sp.length,differentBytes:w!==sp,
+  asciiCode:w.charCodeAt(0),spoofCode:sp.charCodeAt(0),
+  rows:rows,
+  ok:distinct===PAIRS.length&&w!==sp&&w.length===sp.length&&
+     (combos-1)===Math.pow(2,k)-1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'TEN PAIRS -- IDENTICAL PICTURE, DIFFERENT NUMBER');
+ for(var i=0;i<PAIRS.length;i++){
+  var col=i%5,row=Math.floor(i/5),x=24+col*96,y=52+row*104;
+  nf(g,'rgba(125,226,176,0.16)');g.fillRect(x,y,40,40);ng(g);
+  nt(g,'#7de2b0',x+13,y+28,20,PAIRS[i][0]);
+  nt(g,'#5a4a85',x+4,y+56,8,'U+'+PAIRS[i][0].charCodeAt(0).toString(16).toUpperCase());
+  nf(g,'rgba(255,60,90,0.16)');g.fillRect(x+46,y,40,40);ng(g);
+  nt(g,'#ff5a8a',x+59,y+28,20,String.fromCharCode(PAIRS[i][1]));
+  nt(g,'#5a4a85',x+48,y+56,8,'U+'+PAIRS[i][1].toString(16).toUpperCase());}
+ nt(g,'#7de2b0',24,266,9,'Latin');nt(g,'#ff5a8a',80,266,9,'Cyrillic');
+ nt(g,'#8a7ab8',160,266,9,VR.distinctCodepoints+' of '+VR.lookalikePairs+
+  ' pairs are genuinely different codepoints');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var w=WORDS[wi%WORDS.length],k=subsOf(w),sw=Math.min(swapped,k),sp=spoof(w,sw);
+ nt(g,'#ff5a3c',12,20,11,'THE WORD  '+w.toUpperCase());
+ nt(g,'#8a7ab8',14,52,9,'as displayed');
+ for(var i=0;i<sp.length;i++){
+  var isSpoof=sp.charCodeAt(i)>127;
+  nf(g,isSpoof?'rgba(255,60,90,0.25)':'rgba(125,226,176,0.18)');
+  g.fillRect(14+i*42,62,36,42);ng(g);
+  nt(g,isSpoof?'#ff5a8a':'#7de2b0',14+i*42+11,92,22,sp.charAt(i));}
+ nt(g,'#8a7ab8',14,126,9,'codepoints');
+ for(i=0;i<sp.length;i++)
+  nt(g,sp.charCodeAt(i)>127?'#ff5a8a':'#5a4a85',14+i*42,146,8,''+sp.charCodeAt(i));
+ nt(g,'#5ad0ff',14,178,9,'substitutable letters   '+k+' of '+w.length);
+ nt(g,'#ffd76a',14,198,9,'swapped so far          '+sw);
+ nt(g,'#7de2b0',14,218,9,'strings that look the same   '+(Math.pow(2,k)-1));
+ nt(g,sp!==w?'#ff5a8a':'#5a4a85',14,240,9,
+  sp!==w?'different bytes, same picture':'this is the real one');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,254,340,20);ng(g);
+ nf(g,'rgba(255,60,90,0.7)');g.fillRect(14,254,Math.round(340*sw/Math.max(1,k)),20);ng(g);
+ nt(g,'#e8e0ff',20,268,8,sw+' of '+k+' letters replaced');
+ nt(g,'#5a4a85',14,298,8,'2^'+k+' - 1 = '+(Math.pow(2,k)-1)+' variants of this one word');
+ var o=document.getElementById('punyo');
+ if(o)o.innerHTML='<b>'+w+'</b> &middot; <b>'+k+'</b> substitutable &middot; <b>'+
+  (Math.pow(2,k)-1)+'</b> lookalike variants &middot; '+(sp!==w?'currently spoofed':'currently genuine');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO NAMES WITH ONE APPEARANCE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var lay=0;lay<2;lay++)for(var i=0;i<10;i++){
+  var t=i/10*6.283185307,x=Math.cos(t)*80,z=Math.sin(t)*80,y=lay?-32:32;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.32;
+  nt(g,lay?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.8)',px-5,py+5,15,
+   lay?String.fromCharCode(PAIRS[i][1]):PAIRS[i][0]);}
+ nt(g,'#8a7ab8',12,H-22,8,'the boundary sits where a machine hands something to an eye');}
+document.getElementById('punyn').onclick=function(){wi++;swapped=0;drawW4();};
+document.getElementById('punys2').onclick=function(){swapped++;drawW4();};
+document.getElementById('punya').onclick=function(){swapped=99;drawW4();};
+document.getElementById('punyr').onclick=function(){wi=0;swapped=0;drawW4();};
+document.getElementById('punysp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepunycode=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SQKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An auto-increment key means every insert goes to the same end of the index. That is wonderful for the disk and terrible for a lock: the rightmost page is the only page anybody wants, and every writer wants it at once.<br><br>
+ <span class="lit">LIT</span> verified live. <b>50,000</b> inserts across <b>512</b> index pages. Sequential keys move to a new page <b>512</b> times &mdash; once per page, in order. Random keys move <b>49,918</b> times, <b>97.5&times;</b> more, touching the whole index constantly. But look at the other end: the last <b>1,000</b> sequential inserts all land in just <b>11</b> pages. That concentration is the cache win and the contention hotspot, and they are the same number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Right-edge contention on monotonic keys is why Oracle has reverse-key indexes, why SQL Server documents &ldquo;last page insert contention&rdquo;, and part of why UUID v7 exists at all.<br><br>
+ <b>AVAN (AI)</b> measured both directions on one run so the trade is visible in a single pair of numbers rather than argued as a preference. It is the same statistic read twice: sequential keys are <b>97.5&times;</b> better at staying in cache and, for exactly that reason, put every concurrent writer on the same <b>11</b> pages. Neither number is the answer; the pair of them is the decision.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the last thousand inserts landed, under each key scheme.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch schemes and add writers.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqkyt">switch scheme &#9654;</button><button id="sqkym">more writers</button><button id="sqkyl">fewer</button><button id="sqkyr">reset</button></div>
+   <div class="cap" id="sqkyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a queue forming at the right edge.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that sequential keys cause write contention. The inverse is that <b>locality and contention are one property seen from two sides</b>. Everything landing in the same few pages is precisely what makes the index fit in memory, and precisely what makes the writers queue. You cannot buy one without the other, because they are not two effects &mdash; they are one fact, described once by a cache and once by a lock. Read backwards, spreading the keys does not solve contention; it pays for it in cache misses, and the bill simply moves to a department that files different tickets.</div>
+   <div class="btns" style="margin-top:10px"><button id="sqkys">pause spin</button></div></div></div></div>"""
+SQKY_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mode='seq',writers=8;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gen(kind,N,seed){
+ var r=rng(seed),out=[],i;
+ for(i=0;i<N;i++)out.push(kind==='seq'?i/N:r());
+ return out;}
+function walk(ks,P){
+ var hits={},last=-1,changes=0;
+ for(var i=0;i<ks.length;i++){
+  var p=Math.min(P-1,Math.floor(ks[i]*P));
+  hits[p]=(hits[p]||0)+1;
+  if(p!==last){changes++;last=p;}}
+ var mx=0;for(var k in hits)if(hits[k]>mx)mx=hits[k];
+ return {hits:hits,changes:changes,distinct:Object.keys(hits).length,hottest:mx};}
+function tailPages(ks,P,n){
+ var s={};
+ for(var i=Math.max(0,ks.length-n);i<ks.length;i++)s[Math.min(P-1,Math.floor(ks[i]*P))]=1;
+ return Object.keys(s).length;}
+function selftest(){
+ var N=50000,P=512;
+ var sq=gen('seq',N,17),rn=gen('rnd',N,17);
+ var a=walk(sq,P),b=walk(rn,P);
+ return {inserts:N,pages:P,
+  seqPageChanges:a.changes,rndPageChanges:b.changes,
+  seqDistinctPages:a.distinct,rndDistinctPages:b.distinct,
+  seqHottestPage:a.hottest,rndHottestPage:b.hottest,
+  lastThousandTouchPages:tailPages(sq,P,1000),
+  localityRatio:+(b.changes/a.changes).toFixed(1),
+  ok:a.changes<b.changes&&tailPages(sq,P,1000)<=12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'WHERE THE LAST THOUSAND INSERTS LANDED');
+ var P=512,sq=gen('seq',50000,17),rn=gen('rnd',50000,17);
+ var sets=[['sequential',sq,'rgba(125,226,176,0.85)',54],['random',rn,'rgba(255,60,90,0.75)',150]];
+ for(var s=0;s<2;s++){
+  var set=sets[s],mark={};
+  for(var i=49000;i<50000;i++)mark[Math.min(P-1,Math.floor(set[1][i]*P))]=1;
+  nt(g,s?'#ff5a8a':'#7de2b0',20,set[3]-10,9,set[0]+'  --  '+Object.keys(mark).length+' pages touched');
+  for(var p=0;p<P;p++){
+   nf(g,mark[p]?set[2]:'rgba(90,70,140,0.22)');
+   g.fillRect(20+(p%128)*3.6,set[3]+Math.floor(p/128)*14,3,11);ng(g);}}
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,236,W-24,46);ng(g);
+ nt(g,'#7de2b0',22,256,9,'page changes over the whole run: '+VR.seqPageChanges.toLocaleString()+
+  '  vs  '+VR.rndPageChanges.toLocaleString()+'   ('+VR.localityRatio+'x)');
+ nt(g,'#ffd76a',22,274,9,'the last 1,000 sequential inserts touch just '+
+  VR.lastThousandTouchPages+' pages -- cache win and hotspot, same number');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=256,ks=gen(mode,20000,17),w=walk(ks,P);
+ nt(g,'#5ad0ff',12,20,11,(mode==='seq'?'SEQUENTIAL KEYS':'RANDOM KEYS')+'   '+writers+' WRITERS');
+ var mx=0,k;
+ for(k in w.hits)if(w.hits[k]>mx)mx=w.hits[k];
+ var cols=32,cell=11;
+ for(var p=0;p<P;p++){
+  var n=w.hits[p]||0;
+  nf(g,n?'rgba('+(mode==='seq'?'125,226,176':'255,60,90')+','+(0.15+0.75*n/mx)+')':'rgba(90,70,140,0.2)');
+  g.fillRect(14+(p%cols)*cell,36+Math.floor(p/cols)*11,cell-2,9);ng(g);}
+ var tail=tailPages(ks,P,1000);
+ var contention=mode==='seq'?writers/Math.max(1,tail):writers/Math.max(1,w.distinct);
+ nt(g,'#8a7ab8',14,132,8,P+' index pages, brightness = inserts landing there');
+ nt(g,'#5ad0ff',14,160,9,'page changes       '+w.changes.toLocaleString());
+ nt(g,'#ffd76a',14,180,9,'last 1,000 touch   '+tail+' pages');
+ nt(g,'#7de2b0',14,200,9,'pages kept warm    '+w.distinct+' of '+P);
+ nt(g,contention>1?'#ff5a8a':'#7de2b0',14,222,10,
+  'writers per hot page   '+contention.toFixed(2));
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,238,340,20);ng(g);
+ nf(g,contention>1?'rgba(255,60,90,0.7)':'rgba(125,226,176,0.7)');
+ g.fillRect(14,238,Math.round(340*Math.min(1,contention/4)),20);ng(g);
+ nt(g,'#e8e0ff',20,252,8,contention>1?'writers are queueing on the same pages':'writers are spread out');
+ nt(g,'#5a4a85',14,282,8,mode==='seq'?'everything lands at the right edge of the index':
+  'every insert lands somewhere unrelated');
+ nt(g,'#5a4a85',14,300,8,'the same concentration is the cache win and the lock queue');
+ var o=document.getElementById('sqkyo');
+ if(o)o.innerHTML=(mode==='seq'?'sequential':'random')+' &middot; last 1,000 touch <b>'+tail+
+  '</b> pages &middot; <b>'+contention.toFixed(2)+'</b> writers per hot page';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A QUEUE AT THE RIGHT EDGE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<26;i++){
+  var x=(i/26-0.5)*250,z=0;
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.34;
+  ndot(g,px,py,2.2,'rgba(90,70,140,0.6)');}
+ for(i=0;i<10;i++){
+  var t=i/10*6.283185307,x2=110+Math.cos(t)*16,z2=Math.sin(t)*16;
+  var px2=cx+x2*rr-z2*sn,py2=cy+(x2*sn+z2*rr)*0.34;
+  ndot(g,px2,py2,3,'rgba(125,226,176,0.85)');}
+ nt(g,'#8a7ab8',12,H-22,8,'one fact, described once by a cache and once by a lock');}
+document.getElementById('sqkyt').onclick=function(){mode=(mode==='seq')?'rnd':'seq';drawW4();};
+document.getElementById('sqkym').onclick=function(){writers=Math.min(256,writers*2);drawW4();};
+document.getElementById('sqkyl').onclick=function(){writers=Math.max(1,Math.floor(writers/2));drawW4();};
+document.getElementById('sqkyr').onclick=function(){mode='seq';writers=8;drawW4();};
+document.getElementById('sqkys').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesequentialkey=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 259 · neon-noir · silicon-coding · THE COST OF A NAME ═══════════════════════
 # ═══════════════════════ BATCH 258 · neon-noir · silicon-coding · LATENCY, AND WHO IS ACTUALLY WAITING ═══════════════════════
 # ═══════════════════════ BATCH 257 · neon-noir · silicon-coding · WHAT GETS REUSED, AND WHAT THAT COSTS ═══════════════════════
 # ═══════════════════════ BATCH 256 · neon-noir · silicon-coding · THE THINGS EVERYONE AGREES ON ═══════════════════════
@@ -100976,6 +102083,76 @@ SPHERES = [
   "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
   "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
   "body":SQLK_BODY,"script":SQLK_SCRIPT},
+ {"slug":"the-uuid-v7","title":"THE UUID V7","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ffd23f","icon":"\u23f1",
+  "kicker":"the randomness in v4 was the property, not the waste",
+  "blurb":"A v4 UUID is 122 random bits, so every insert lands somewhere unrelated to the last. A v7 puts the timestamp in the high bits and the arrival order becomes the sort order.",
+  "lit":"20,000 inserts into a 1,024-page index: random keys change page 19,967 times and touch all 1,024 pages, while time-ordered keys change page 1 time and touch 1 page - and the v7 sequence arrives already sorted, which the v4 sequence never does",
+  "fig":"UUID v7 was standardised in RFC 9562 (2024); ULID and Snowflake had the same idea earlier, because B-trees like their inserts sorted. AVAN measured page changes rather than talking about locality, because locality is the kind of word that sounds like a measurement. The stark figure is the second column: random keys touch every page in the index and time-ordered keys touch one - the whole cache-residency argument in two numbers, and a property of where the bits sit rather than how many there are.",
+  "body":UUV7_BODY,"script":UUV7_SCRIPT},
+ {"slug":"the-snowflake-id","title":"THE SNOWFLAKE ID","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE EPOCH","domain_slug":"the-epoch","accent":"#ff2d95","icon":"\u2744",
+  "kicker":"an uncoordinated id is one whose coordination already happened",
+  "blurb":"Sixty-four bits cut into fields: a sign bit nobody uses, a millisecond timestamp, a worker number and a per-millisecond sequence. No coordination between machines, and the id sorts by time.",
+  "lit":"1 + 41 + 10 + 12 = 64 bits exactly; the 41-bit timestamp spans 2,199,023,255,551 ms or 69.7 years so Twitter's epoch runs out on 2080-07-10, ten worker bits give 1,024 machines and twelve sequence bits give 4,096 ids per millisecond each - 4,096,000 per second per worker and 4,194,304,000 in total - and filling one worker's millisecond produces 4,096 ids with 0 duplicates, with the 4,097th having nowhere to go",
+  "fig":"Twitter released Snowflake in 2010 to replace auto-increment ids that no longer fit one database. AVAN did the arithmetic and then looked for the edge, which is where these schemes actually fail. The interesting number is 4,096: not a rate limit anyone chose but the point at which the sequence field wraps, after which a worker must stall until the clock ticks or start issuing duplicates. Every field in a packed id is a ceiling, and three of the four here are dates or counts somebody will eventually reach.",
+  "body":SNOW_BODY,"script":SNOW_SCRIPT},
+ {"slug":"the-minimal-perfect-hash","title":"THE MINIMAL PERFECT HASH","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SHORTCUT","domain_slug":"the-shortcut","accent":"#5ad0ff","icon":"\u2b1a",
+  "kicker":"no slack, and so no way to say not here",
+  "blurb":"A hash table wastes space so collisions have somewhere to go. If the key set never changes, you can send n keys onto 0..n-1 with no collisions and no gaps, and store no keys at all.",
+  "lit":"5,000 keys across 1,250 buckets, each bucket given its own seed by search, then checked rather than assumed: 0 collisions, 0 out of range and 5,000 distinct slots - a bijection onto exactly 0..4,999 - at a cost of 213,904 seed trials to build, a worst bucket needing seed 5,402, and a finished structure of 3.25 bits per key",
+  "fig":"The bucket-then-search construction is Botelho, Pagh and Ziviani's CHD; the theoretical floor for a minimal perfect hash is about 1.44 bits per key. AVAN verified the bijection by re-hashing all 5,000 keys through the finished function and counting distinct landing slots, rather than trusting the construction that had just claimed success - a builder that reports success is exactly the thing under test. The asymmetry is the real result: 213,904 trials to build, one hash to query.",
+  "body":MPHF_BODY,"script":MPHF_SCRIPT},
+ {"slug":"the-crockford-base32","title":"THE CROCKFORD BASE32","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE MINT","domain_slug":"the-mint","accent":"#ff2d95","icon":"\u25a7",
+  "kicker":"an alphabet that decides which differences are real",
+  "blurb":"An alphabet meant to be read aloud, written down and typed back in. Crockford's base32 throws out I, L, O and U - three because they look like digits, the last so the encoding cannot spell things.",
+  "lit":"the alphabet is 32 symbols containing 0 of the four excluded letters; all 6 confusable inputs decode to the digit they resemble - O and o to zero, I, i, L and l to one, 6 of 6 - and every value from 0 to 200,000 round-trips through encode and decode with 0 failures, and 0 again when the text is lowercased first",
+  "fig":"Douglas Crockford's specification is a page long and its design notes are about humans rather than machines: what people mistype, mishear and misread. AVAN tested the forgiveness rather than the encoding, since round-tripping clean input only proves the codec works and the point of this alphabet is what happens with dirty input. The excluded U is the odd one - not confusable with anything, but excluded so that random identifiers do not spell obscenities.",
+  "body":CB32_BODY,"script":CB32_SCRIPT},
+ {"slug":"the-nothing-up-my-sleeve","title":"THE NOTHING UP MY SLEEVE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#ff2d95","icon":"\u221a",
+  "kicker":"it does not remove the choice, it makes it arguable",
+  "blurb":"A cipher needs arbitrary constants, and anyone free to choose them could be choosing a backdoor. So you do not choose - you take the digits of something fixed before you arrived.",
+  "lit":"SHA-256's eight initial hash values are the first 32 bits of the fractional parts of the square roots of the first 8 primes and its sixty-four round constants are the same from the cube roots of the first 64 primes; re-derived here from the primes and compared against the published values, 8 of 8 and 64 of 64 match - 72 of 72 exact, with sqrt(2) giving 6a09e667 and cbrt(2) giving 428a2f98",
+  "fig":"Nothing-up-my-sleeve numbers are a convention with real history behind them - DES's unexplained S-boxes drew suspicion for two decades and Dual_EC_DRBG's unexplained points turned out to deserve it. AVAN did the only thing that makes the claim mean anything: computed the constants rather than repeating the story. A table of hex quoted from a standard and labelled as coming from the primes is a claim about provenance nobody checked; seventy-two independent derivations, all matching, is the check.",
+  "body":NUMS_BODY,"script":NUMS_SCRIPT},
+ {"slug":"the-content-address","title":"THE CONTENT ADDRESS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"\u25c8",
+  "kicker":"permanence bought with the ability to be corrected",
+  "blurb":"A location address says where something is kept. A content address says what it is: hash the bytes and let the digest be the name. Move it, mirror it, rename the server - the name does not change.",
+  "lit":"30,000 distinct documents produce 0 name collisions, the same bytes presented again produce the same name 1,000 of 1,000 times, and flipping a single bit of the input changes on average 16.18 of the 32 output bits where the ideal is exactly half at 16 - the name is not a summary of the content but a fingerprint of every bit at once",
+  "fig":"Content addressing is the shape of Git, IPFS, Nix and the fold that seals this corpus; the vocabulary is Merkle's. AVAN measured the avalanche rather than only the collisions, because no collisions in 30,000 is a weak statement a poor hash could pass. 16.18 of 32 bits is the property that makes the name a fingerprint: a one-bit edit produces a name with no visible relationship to the old one, so similar content cannot be found by looking at similar names - a real cost, and the same property that makes tampering detectable.",
+  "body":CADR_BODY,"script":CADR_SCRIPT},
+ {"slug":"the-damm","title":"THE DAMM","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"OFF BY ONE","domain_slug":"off-by-one","accent":"#ffd23f","icon":"\u229e",
+  "kicker":"the better scheme lost to the one a clerk could do",
+  "blurb":"A check digit catches typing mistakes. Luhn catches all single-digit errors but not all swaps of neighbouring digits. Damm catches both, using a lookup table instead of arithmetic.",
+  "lit":"4,000 numbers given both a Damm digit and a Luhn digit and attacked exhaustively: across 324,000 single-digit substitutions Damm catches 100% and Luhn also catches 100%, but adjacent transpositions part them - 28,810 tried against Damm and caught 100%, against 28,760 tried on Luhn and caught 97.76%, missing 645",
+  "fig":"H. Michael Damm published this in 2004, built on a totally anti-symmetric quasigroup - a 10x10 table with no fixed points on its diagonal. AVAN nearly published a false result: my first harness skipped the no-op substitution for the Damm number and applied the same replacement digit to the Luhn number, so whenever the two check digits differed one error per position was no error at all and got counted as a Luhn miss. It reported 98.88%, a believable and wrong number - doubling is a bijection mod 10, so Luhn cannot miss a single-digit substitution. The real difference is transpositions, and only transpositions.",
+  "body":DAMM_BODY,"script":DAMM_SCRIPT},
+ {"slug":"the-hash-flooding","title":"THE HASH FLOODING","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE EXPLOIT","domain_slug":"the-exploit","accent":"#9d00ff","icon":"\u2261",
+  "kicker":"they declined to be the average case",
+  "blurb":"A hash table is O(1) on average - over inputs an adversary did not choose. If the hash is fixed and public, colliding keys can be computed in advance and the table becomes one long list.",
+  "lit":"2,000 keys crafted to collide under a fixed x*31+c hash land in 1 bucket of 1,024, forming a chain of 2,000 and costing 1,999,000 comparisons - exactly n(n-1)/2 - while the identical keys under a seeded hash spread over 503 buckets with a longest chain of 12 and cost 3,975, which is 502.9 times less work for the same input",
+  "fig":"Crosby and Wallach published algorithmic complexity attacks in 2003; the fix is a per-process random seed, which is why SipHash now sits under Python, Ruby and Rust dictionaries. AVAN checked that the degenerate case is exactly quadratic rather than merely bad, because n(n-1)/2 is falsifiable and slow is not. The attack needs no privileged access and no clever timing, only the hash function, which was published. The seed does not make the hash stronger in any cryptographic sense - it makes it unknown, and that alone is the defence.",
+  "body":HFLD_BODY,"script":HFLD_SCRIPT},
+ {"slug":"the-punycode","title":"THE PUNYCODE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE BACKDOOR","domain_slug":"the-backdoor","accent":"#ff5a3c","icon":"\u25d0",
+  "kicker":"the boundary sits where a machine hands something to an eye",
+  "blurb":"Domain names became international, so every script on Earth can appear in a URL. Cyrillic and Latin letters that render identically are different characters, and a name is only as trustworthy as the difference you can see.",
+  "lit":"10 Cyrillic letters that render like Latin ones sit at 10 genuinely different codepoints, and in the word apple 4 of the 5 letters have a lookalike - giving 15 distinct strings that display identically and are all different bytes, exactly 2 to the 4th minus 1 - with the first character at codepoint 97 in one and 1072 in the other",
+  "fig":"Punycode (RFC 3492) encodes Unicode names into ASCII so DNS can carry them; the homograph attack was demonstrated against PayPal in 2005 and browsers have been patching display rules ever since. AVAN counted the substitutable positions rather than assuming them: my first version asserted 7 variants from a guess about how many letters of apple had lookalikes, when the answer is 4 positions and therefore 15. The check now gates on the relationship - variants equals 2^k - 1 for k substitutable letters - instead of a constant I reasoned out and got wrong.",
+  "body":PUNY_BODY,"script":PUNY_SCRIPT},
+ {"slug":"the-sequential-key","title":"THE SEQUENTIAL KEY","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u21e5",
+  "kicker":"one fact, described once by a cache and once by a lock",
+  "blurb":"An auto-increment key sends every insert to the same end of the index. Wonderful for the disk and terrible for a lock: the rightmost page is the only page anybody wants, and every writer wants it at once.",
+  "lit":"50,000 inserts across 512 index pages: sequential keys move to a new page 512 times, once per page in order, while random keys move 49,918 times - 97.5 times more - and the last 1,000 sequential inserts all land in just 11 pages, which is the cache win and the contention hotspot measured as the same number",
+  "fig":"Right-edge contention on monotonic keys is why Oracle has reverse-key indexes, why SQL Server documents last page insert contention, and part of why UUID v7 exists. AVAN measured both directions on one run so the trade is visible in a single pair of numbers rather than argued as a preference. It is the same statistic read twice: sequential keys are 97.5 times better at staying in cache and, for exactly that reason, put every concurrent writer on the same 11 pages. Neither number is the answer; the pair is the decision.",
+  "body":SQKY_BODY,"script":SQKY_SCRIPT},
  {"slug":"the-coordinated-omission","title":"THE COORDINATED OMISSION","appeal_name":"GLITCH","appeal_slug":"glitch",
   "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"\u25d1",
   "kicker":"the meter went quiet exactly where the trouble was",
