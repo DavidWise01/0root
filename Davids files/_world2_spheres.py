@@ -29519,6 +29519,999 @@ document.getElementById('sqkyr').onclick=function(){mode='seq';writers=8;drawW4(
 document.getElementById('sqkys').onclick=function(){spin=!spin;};
 VR=selftest();window.__thesequentialkey=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+TLBR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The TLB caches address translations, and it holds a fixed <i>number</i> of them &mdash; not a fixed amount of memory. Multiply entries by page size and you get the only figure that matters: how much memory the machine can currently name without a walk.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1,536</b> entries with <b>4 KB</b> pages reach <b>6 MB</b>. The same <b>1,536</b> entries with <b>2 MB</b> pages reach <b>3,072 MB</b> &mdash; <b>512&times;</b> further, with no extra silicon. Against a <b>512 MB</b> working set that is the difference between <b>98.8%</b> uncovered and <b>0%</b>. One-gigabyte pages reach <b>1,572,864 MB</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">TLB reach is standard architecture vocabulary; the number is rarely printed because it is embarrassing.<br><br>
+ <b>AVAN (AI)</b> computed the coverage against a stated working set rather than quoting entry counts. <b>1,536</b> entries sounds generous and <b>6 MB</b> does not, and they are the same fact. The whole case for huge pages is in that pair &mdash; the cache did not get bigger, the unit of account did.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Same entry count, three page sizes.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the working set until the TLB stops covering it.</div>
+   <div class="btns" style="margin-top:10px"><button id="tlbrn">next page size &#9654;</button><button id="tlbrm">bigger working set</button><button id="tlbrl">smaller</button><button id="tlbrr">reset</button></div>
+   <div class="cap" id="tlbro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a cache measured in names, not bytes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that huge pages extend TLB reach enormously. The inverse is that <b>reach was never a property of the TLB</b>. The hardware is identical in all three columns; what changed is how much territory one name is allowed to claim. Read backwards, this is a unit trick rather than a capacity gain &mdash; and it works precisely because a page is an accounting fiction, so making the fiction coarser costs nothing until the day you need to say something finer.</div>
+   <div class="btns" style="margin-top:10px"><button id="tlbrs">pause spin</button></div></div></div></div>"""
+TLBR_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pi=0,wsMB=512;
+var PG=[[4096,'4 KB'],[2097152,'2 MB'],[1073741824,'1 GB']],E=1536;
+function selftest(){
+ var rows=[],i;
+ for(i=0;i<PG.length;i++){
+  var reach=E*PG[i][0];
+  rows.push({page:PG[i][1],bytes:PG[i][0],reachBytes:reach,reachMB:+(reach/1048576).toFixed(1)});}
+ var unc=[];
+ for(i=0;i<rows.length;i++){
+  var cov=Math.min(1,rows[i].reachBytes/(512*1048576));
+  unc.push(+(100*(1-cov)).toFixed(1));}
+ return {entries:E,rows:rows,workingSetMB:512,
+  reach4kMB:rows[0].reachMB,reach2mMB:rows[1].reachMB,reach1gMB:rows[2].reachMB,
+  uncovered4kPct:unc[0],uncovered2mPct:unc[1],uncovered1gPct:unc[2],
+  ratio2mOver4k:Math.round(rows[1].reachBytes/rows[0].reachBytes),
+  ok:rows[0].reachMB===6&&unc[0]>90&&unc[1]===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'SAME '+VR.entries.toLocaleString()+' ENTRIES, THREE PAGE SIZES');
+ var mx=VR.rows[2].reachMB;
+ for(var i=0;i<3;i++){
+  var y=52+i*66,r=VR.rows[i];
+  nt(g,'#8a7ab8',14,y,10,r.page+' pages');
+  var frac=Math.log(r.reachMB+1)/Math.log(mx+1);
+  nf(g,'rgba(90,208,255,'+(0.45+0.15*i)+')');
+  g.fillRect(110,y-12,Math.max(3,Math.round(300*frac)),24);ng(g);
+  nt(g,'#e8e0ff',418,y+5,10,r.reachMB.toLocaleString()+' MB');}
+ nt(g,'#5a4a85',110,252,8,'bar is log-scaled -- the span is 262,144x end to end');
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,258,W-24,24);ng(g);
+ nt(g,'#ff5a8a',22,275,9,'against a '+VR.workingSetMB+' MB working set:  4 KB leaves '+
+  VR.uncovered4kPct+'% uncovered,  2 MB leaves '+VR.uncovered2mPct+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=PG[pi%PG.length],reach=E*p[0],reachMB=reach/1048576;
+ var cov=Math.min(1,reachMB/wsMB);
+ nt(g,'#5ad0ff',12,20,11,p[1]+' PAGES   WORKING SET '+wsMB.toLocaleString()+' MB');
+ var cols=32,rows=8,cell=11;
+ for(var i=0;i<cols*rows;i++){
+  var covered=(i/(cols*rows))<cov;
+  nf(g,covered?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.55)');
+  g.fillRect(14+(i%cols)*cell,40+Math.floor(i/cols)*11,cell-2,9);ng(g);}
+ nt(g,'#7de2b0',14,144,8,'green = nameable without a page walk');
+ nt(g,'#ff5a8a',14,160,8,'red   = every access walks the tables');
+ nt(g,'#8a7ab8',14,190,9,'entries      '+E.toLocaleString());
+ nt(g,'#5ad0ff',14,210,9,'reach        '+reachMB.toLocaleString()+' MB');
+ nt(g,'#ffd76a',14,230,9,'covered      '+(100*cov).toFixed(1)+'%');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,246,340,20);ng(g);
+ nf(g,cov>=1?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+ g.fillRect(14,246,Math.round(340*cov),20);ng(g);
+ nt(g,'#e8e0ff',20,260,8,cov>=1?'the whole working set is nameable':
+  (100*(1-cov)).toFixed(1)+'% needs a walk on every touch');
+ nt(g,'#5a4a85',14,292,8,'the hardware is identical in all three -- only the unit changed');
+ var o=document.getElementById('tlbro');
+ if(o)o.innerHTML=p[1]+' pages reach <b>'+reachMB.toLocaleString()+' MB</b> &middot; working set <b>'+
+  wsMB.toLocaleString()+' MB</b> &middot; covered <b>'+(100*cov).toFixed(1)+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A CACHE MEASURED IN NAMES, NOT BYTES');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var ring=0;ring<3;ring++)for(var i=0;i<14;i++){
+  var t=i/14*6.283185307,rad=40+ring*38;
+  var x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=-ring*18+18;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,2.2+ring*0.9,'rgba(125,226,176,'+(0.85-ring*0.2)+')');}
+ nt(g,'#8a7ab8',12,H-22,8,'same fourteen names on each ring -- each one claims more ground');}
+document.getElementById('tlbrn').onclick=function(){pi++;drawW4();};
+document.getElementById('tlbrm').onclick=function(){wsMB=Math.min(65536,wsMB*2);drawW4();};
+document.getElementById('tlbrl').onclick=function(){wsMB=Math.max(1,Math.floor(wsMB/2));drawW4();};
+document.getElementById('tlbrr').onclick=function(){pi=0;wsMB=512;drawW4();};
+document.getElementById('tlbrs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetlbreach=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HUGP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A bigger page means fewer translations to track. It also means every allocation rounds up to a bigger boundary, and the rounding is charged whether you asked for it or not.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4,000</b> allocations totalling <b>5,919,648,648</b> bytes. With 4 KB pages: <b>1,447,224</b> pages and <b>0.14%</b> internal waste. With 2 MB pages: <b>5,159</b> pages &mdash; <b>280.5&times;</b> fewer &mdash; and <b>82.77%</b> waste. The page table shrinks by two and a half orders of magnitude and the memory bill rises by a factor of six.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Transparent huge pages are on by default in most Linux distributions, and periodically turned off by database vendors for exactly this reason.<br><br>
+ <b>AVAN (AI)</b> measured both columns from one allocation trace so the trade is a single fact rather than two arguments. <b>82.77%</b> is what a workload of many small objects pays; a workload of few large ones pays almost nothing. Neither number is a verdict on huge pages &mdash; the size distribution is, and it is the thing nobody measures before flipping the switch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Pages tracked, and bytes wasted, for the same trace.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shift the allocation size and watch the trade invert.</div>
+   <div class="btns" style="margin-top:10px"><button id="hugpb">bigger allocations &#9654;</button><button id="hugps2">smaller</button><button id="hugpr">reset</button></div>
+   <div class="cap" id="hugpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: fewer, larger boxes.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that huge pages trade memory for translation speed. The inverse is that <b>they charge the workload that can least afford it</b>. The programs with many small allocations are the ones with poor locality, which are the ones huge pages were meant to rescue &mdash; and they are the ones that pay <b>82.77%</b>. Read backwards, the optimisation helps most where it is needed least, which is the usual shape of anything applied globally to a distribution nobody looked at.</div>
+   <div class="btns" style="margin-top:10px"><button id="hugps">pause spin</button></div></div></div></div>"""
+HUGP_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,scale=1;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function trace(sc){
+ var r=rng(5),a=[],i,N=4000;
+ for(i=0;i<N;i++)a.push(1+Math.floor(r()*3000000*sc));
+ return a;}
+function measure(a,sz){
+ var w=0,pages=0;
+ for(var j=0;j<a.length;j++){var p=Math.ceil(a[j]/sz);pages+=p;w+=p*sz-a[j];}
+ return {pages:pages,waste:w};}
+function selftest(){
+ var a=trace(1),tot=0,i;
+ for(i=0;i<a.length;i++)tot+=a[i];
+ var s=measure(a,4096),h=measure(a,2097152);
+ return {allocations:a.length,requestedBytes:tot,
+  smallPages:s.pages,smallWaste:s.waste,smallWastePct:+(100*s.waste/tot).toFixed(2),
+  hugePages:h.pages,hugeWaste:h.waste,hugeWastePct:+(100*h.waste/tot).toFixed(2),
+  pageCountRatio:+(s.pages/h.pages).toFixed(1),
+  ok:h.pages<s.pages&&h.waste>s.waste};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'SAME TRACE, TWO PAGE SIZES');
+ nt(g,'#8a7ab8',14,48,9,'pages tracked');
+ nf(g,'rgba(255,60,90,0.75)');g.fillRect(120,36,340,20);ng(g);
+ nt(g,'#e8e0ff',126,51,9,'4 KB   '+VR.smallPages.toLocaleString());
+ nf(g,'rgba(125,226,176,0.8)');
+ g.fillRect(120,62,Math.max(3,Math.round(340*VR.hugePages/VR.smallPages)),20);ng(g);
+ nt(g,'#7de2b0',126,77,9,'2 MB   '+VR.hugePages.toLocaleString()+
+  '   ('+VR.pageCountRatio+'x fewer)');
+ nt(g,'#8a7ab8',14,120,9,'internal waste');
+ nf(g,'rgba(125,226,176,0.8)');
+ g.fillRect(120,108,Math.max(3,Math.round(340*VR.smallWastePct/100)),20);ng(g);
+ nt(g,'#7de2b0',126,123,9,'4 KB   '+VR.smallWastePct+'%');
+ nf(g,'rgba(255,60,90,0.75)');g.fillRect(120,134,Math.round(340*VR.hugeWastePct/100),20);ng(g);
+ nt(g,'#e8e0ff',126,149,9,'2 MB   '+VR.hugeWastePct+'%');
+ nt(g,'#5ad0ff',14,192,9,'requested   '+VR.requestedBytes.toLocaleString()+' bytes');
+ nt(g,'#ffd76a',14,212,9,'wasted      '+VR.hugeWaste.toLocaleString()+' bytes under 2 MB pages');
+ nf(g,'rgba(157,0,255,0.13)');g.fillRect(12,230,W-24,50);ng(g);
+ nt(g,'#b98cff',22,252,9,'the page table shrinks '+VR.pageCountRatio+'x');
+ nt(g,'#b98cff',22,272,9,'the memory bill rises from '+VR.smallWastePct+'% to '+VR.hugeWastePct+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=trace(scale),tot=0,i;
+ for(i=0;i<a.length;i++)tot+=a[i];
+ var s=measure(a,4096),h=measure(a,2097152);
+ var mean=tot/a.length;
+ nt(g,'#9d00ff',12,20,11,'MEAN ALLOCATION '+Math.round(mean).toLocaleString()+' BYTES');
+ nt(g,'#8a7ab8',14,52,9,'4 KB pages');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,60,340,20);ng(g);
+ nf(g,'rgba(125,226,176,0.75)');
+ g.fillRect(14,60,Math.max(2,Math.round(340*Math.min(1,100*s.waste/tot/100))),20);ng(g);
+ nt(g,'#e8e0ff',20,74,8,(100*s.waste/tot).toFixed(2)+'% wasted, '+s.pages.toLocaleString()+' pages');
+ nt(g,'#8a7ab8',14,104,9,'2 MB pages');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,112,340,20);ng(g);
+ nf(g,'rgba(255,60,90,0.75)');
+ g.fillRect(14,112,Math.max(2,Math.round(340*Math.min(1,100*h.waste/tot/100))),20);ng(g);
+ nt(g,'#e8e0ff',20,126,8,(100*h.waste/tot).toFixed(2)+'% wasted, '+h.pages.toLocaleString()+' pages');
+ nt(g,'#5ad0ff',14,166,9,'page count ratio   '+(s.pages/h.pages).toFixed(1)+'x fewer');
+ nt(g,'#ffd76a',14,186,9,'waste ratio        '+(h.waste/Math.max(1,s.waste)).toFixed(1)+'x more');
+ var good=(100*h.waste/tot)<25;
+ nf(g,good?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.15)');g.fillRect(12,204,W-24,32);ng(g);
+ nt(g,good?'#7de2b0':'#ff5a8a',20,225,10,
+  good?'large allocations -- huge pages are nearly free here':
+       'small allocations -- huge pages are expensive here');
+ nt(g,'#5a4a85',14,258,8,'the size distribution decides, not the page size');
+ nt(g,'#5a4a85',14,276,8,'and it is the thing nobody measures before flipping the switch');
+ var o=document.getElementById('hugpo');
+ if(o)o.innerHTML='mean <b>'+Math.round(mean).toLocaleString()+'</b> bytes &middot; 4 KB waste <b>'+
+  (100*s.waste/tot).toFixed(2)+'%</b> &middot; 2 MB waste <b>'+(100*h.waste/tot).toFixed(2)+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'FEWER, LARGER BOXES');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<4;i++)for(var j=0;j<4;j++){
+  var x=(i-1.5)*46,z=(j-1.5)*46;
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.42;
+  nf(g,'rgba(125,226,176,0.45)');g.fillRect(px-20,py-11,40,22);ng(g);
+  nf(g,'rgba(255,60,90,0.5)');g.fillRect(px-20,py-11,10,22);ng(g);}
+ nt(g,'#8a7ab8',12,H-22,8,'the red strip is what you paid for and did not ask for');}
+document.getElementById('hugpb').onclick=function(){scale=Math.min(64,scale*2);drawW4();};
+document.getElementById('hugps2').onclick=function(){scale=Math.max(0.001,scale/4);drawW4();};
+document.getElementById('hugpr').onclick=function(){scale=1;drawW4();};
+document.getElementById('hugps').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehugepage=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+NUMA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">On a multi-socket machine the memory is not one pool. Some of it is attached to your socket and some to the other one, and reaching across costs a fixed toll on every single access.<br><br>
+ <span class="lit">LIT</span> verified live, as a stated model: local <b>80</b> ns, remote <b>140</b> ns &mdash; a <b>75.0%</b> penalty per access. All-local runs at <b>80</b> ns and all-remote at <b>140</b>, a <b>1.75&times;</b> slowdown for identical code on identical data. An interleaved policy over <b>100,000</b> accesses landed remote <b>49.94%</b> of the time and averaged <b>109.96</b> ns &mdash; almost exactly halfway, because interleaving does not avoid the toll, it splits it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The 80/140 figures are a stated model, not a measurement of your machine &mdash; the latencies are hardware-specific. What is measured here is the arithmetic they imply and the interleaving.<br><br>
+ <b>AVAN (AI)</b> is explicit about that boundary because it is where this kind of sphere usually cheats. The <b>1.75&times;</b> follows from the two constants and nothing else; the <b>49.94%</b> is a real draw from a real generator over 100,000 trials. Naming which numbers are assumed and which are measured is the difference between a model and a claim.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Mean latency against the fraction of accesses that cross.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the placement policy and watch the mean move with it.</div>
+   <div class="btns" style="margin-top:10px"><button id="numam">more remote &#9654;</button><button id="numal">more local</button><button id="numai">interleave</button><button id="numar">reset</button></div>
+   <div class="cap" id="numao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two pools wearing one address space.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that NUMA makes some memory slower. The inverse is that <b>the flat address space was the lie, and it is a load-bearing one</b>. Every pointer looks the same and dereferences the same way; nothing in the type system, the language or the instruction encoding admits that two of them differ by <b>75%</b>. Read backwards, the uniform address space is what made portable software possible, and NUMA is the bill for a fiction that was worth every penny until the machine stopped being one machine.</div>
+   <div class="btns" style="margin-top:10px"><button id="numas">pause spin</button></div></div></div></div>"""
+NUMA_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,remotePct=0;
+var LOC=80,REM=140;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function selftest(){
+ var rows=[],p;
+ for(p=0;p<=100;p+=25)rows.push({remotePct:p,meanNs:+(LOC+(REM-LOC)*p/100).toFixed(1),
+  slowdown:+((LOC+(REM-LOC)*p/100)/LOC).toFixed(3)});
+ var r=rng(7),N=100000,hits=0,i;
+ for(i=0;i<N;i++)if(r()<0.5)hits++;
+ var inter=LOC+(REM-LOC)*(hits/N);
+ return {localNs:LOC,remoteNs:REM,
+  remotePenaltyPct:+(100*(REM-LOC)/LOC).toFixed(1),
+  rows:rows,
+  interleavedSampleN:N,interleavedRemoteFrac:+(hits/N).toFixed(4),
+  interleavedMeanNs:+inter.toFixed(2),
+  worstSlowdown:+(REM/LOC).toFixed(3),
+  modelledConstants:true,
+  ok:REM>LOC&&Math.abs(hits/N-0.5)<0.02};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'MEAN LATENCY vs FRACTION THAT CROSSES');
+ ne(g,'rgba(124,252,0,0.85)',2);g.beginPath();
+ for(var i=0;i<=100;i++){
+  var lat=LOC+(REM-LOC)*i/100;
+  var x=30+i/100*(W-70),y=230-(lat-70)/80*170;
+  if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}
+ g.stroke();ng(g);
+ for(i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],x2=30+r.remotePct/100*(W-70),y2=230-(r.meanNs-70)/80*170;
+  ndot(g,x2,y2,3.4,'rgba(255,215,106,0.9)');
+  nt(g,'#5a4a85',x2-10,248,8,r.remotePct+'%');
+  nt(g,'#8a7ab8',x2-14,y2-10,8,r.meanNs+'');}
+ nt(g,'#8a7ab8',30,266,8,'fraction of accesses that cross the socket boundary');
+ nt(g,'#5ad0ff',30,284,9,'local '+LOC+' ns   remote '+REM+' ns   penalty '+
+  VR.remotePenaltyPct+'%   worst '+VR.worstSlowdown+'x');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var lat=LOC+(REM-LOC)*remotePct/100;
+ nt(g,'#7cfc00',12,20,11,remotePct+'% REMOTE');
+ var cols=20,rowsN=6;
+ for(var i=0;i<cols*rowsN;i++){
+  var isRem=(i%100)<remotePct;
+  nf(g,isRem?'rgba(255,60,90,0.7)':'rgba(125,226,176,0.6)');
+  g.fillRect(14+(i%cols)*18,40+Math.floor(i/cols)*16,16,13);ng(g);}
+ nt(g,'#7de2b0',14,152,8,'green = local socket');
+ nt(g,'#ff5a8a',150,152,8,'red = across the link');
+ nt(g,'#8a7ab8',14,184,9,'mean latency     '+lat.toFixed(2)+' ns');
+ nt(g,'#ffd76a',14,204,9,'slowdown         '+(lat/LOC).toFixed(3)+'x');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,220,340,22);ng(g);
+ nf(g,'rgba(124,252,0,0.65)');
+ g.fillRect(14,220,Math.round(340*(lat-LOC)/(REM-LOC)),22);ng(g);
+ nt(g,'#e8e0ff',20,235,8,'position between all-local and all-remote');
+ nt(g,'#5ad0ff',14,266,9,'interleaved measured  '+(100*VR.interleavedRemoteFrac).toFixed(2)+
+  '% remote, '+VR.interleavedMeanNs+' ns');
+ nt(g,'#5a4a85',14,292,8,'interleaving does not avoid the toll -- it splits it');
+ var o=document.getElementById('numao');
+ if(o)o.innerHTML='<b>'+remotePct+'%</b> remote &middot; mean <b>'+lat.toFixed(2)+
+  '</b> ns &middot; <b>'+(lat/LOC).toFixed(3)+'x</b> slower than all-local';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO POOLS WEARING ONE ADDRESS SPACE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var side=0;side<2;side++)for(var i=0;i<12;i++){
+  var t=i/12*6.283185307,rad=52;
+  var x=Math.cos(t)*rad+(side?80:-80),z=Math.sin(t)*rad,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,2.6,side?'rgba(255,60,90,0.7)':'rgba(125,226,176,0.75)');}
+ ne(g,'rgba(255,215,106,0.4)',2);g.beginPath();
+ g.moveTo(cx-80*rr,cy-80*sn*0.32);g.lineTo(cx+80*rr,cy+80*sn*0.32);g.stroke();ng(g);
+ nt(g,'#8a7ab8',12,H-22,8,'every pointer looks the same and two of them differ by 75%');}
+document.getElementById('numam').onclick=function(){remotePct=Math.min(100,remotePct+25);drawW4();};
+document.getElementById('numal').onclick=function(){remotePct=Math.max(0,remotePct-25);drawW4();};
+document.getElementById('numai').onclick=function(){remotePct=50;drawW4();};
+document.getElementById('numar').onclick=function(){remotePct=0;drawW4();};
+document.getElementById('numas').onclick=function(){spin=!spin;};
+VR=selftest();window.__thenumahop=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PREF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The hardware watches your address stream and fetches ahead of you. It is not clairvoyant &mdash; it is a pattern matcher, and it only wins when there is a pattern.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> accesses. Walking forward, the next address is the previous plus one <b>199,999</b> times out of 200,000 &mdash; <b>100.00%</b> predictable, with a single miss at the very first access because there is nothing before it. The identical count of accesses drawn at random is predictable <b>0</b> times &mdash; <b>0.00%</b>. Same data, same working set, same instruction count; only the order changed.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Stride prefetchers have been in commodity CPUs since the 1990s and are the reason array code outruns pointer code by margins that look like measurement error.<br><br>
+ <b>AVAN (AI)</b> counted predictability rather than modelling a cache, because predictability is the property the prefetcher actually depends on and it can be counted exactly. The single miss in the sequential run is worth keeping: it is the cold start, and reporting <b>199,999</b> rather than rounding to &ldquo;all of them&rdquo; is the difference between a count and a slogan.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two address streams. One has a next; one does not.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Shuffle the order and watch predictability collapse.</div>
+   <div class="btns" style="margin-top:10px"><button id="prefs2">shuffle more &#9654;</button><button id="prefl">less</button><button id="prefr">perfectly sequential</button></div>
+   <div class="cap" id="prefo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a machine guessing where you are going.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the prefetcher rewards sequential access. The inverse is that <b>it punishes you for information it does not have</b>. Your random walk is not disordered &mdash; you know exactly where you are going next; the hardware simply cannot see it, because the only channel between your intent and the memory system is the address you already issued. Read backwards, prefetching is a guess made necessary by an interface with no way to say &ldquo;next I will need this&rdquo;, and the whole performance cliff is a missing sentence.</div>
+   <div class="btns" style="margin-top:10px"><button id="prefsp">pause spin</button></div></div></div></div>"""
+PREF_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,shuffle=0;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function stream(kind,N,pct,seed){
+ var r=rng(seed),out=[],i;
+ for(i=0;i<N;i++)out.push(i);
+ if(kind==='rnd'){for(i=0;i<N;i++)out[i]=Math.floor(r()*N);}
+ else if(pct>0){
+  var swaps=Math.floor(N*pct/100);
+  for(i=0;i<swaps;i++){
+   var a=Math.floor(r()*N),b=Math.floor(r()*N),t=out[a];out[a]=out[b];out[b]=t;}}
+ return out;}
+function predict(s){
+ var last=-1,hits=0,i;
+ for(i=0;i<s.length;i++){
+  if(last>=0&&s[i]===last+1)hits++;
+  last=s[i];}
+ return {hits:hits,miss:s.length-hits,pct:+(100*hits/s.length).toFixed(2)};}
+function selftest(){
+ var N=200000;
+ var s=predict(stream('seq',N,0,11)),d=predict(stream('rnd',N,0,11));
+ return {accesses:N,
+  seqPredicted:s.hits,seqMissed:s.miss,seqHitPct:s.pct,
+  rndPredicted:d.hits,rndMissed:d.miss,rndHitPct:d.pct,
+  coldStartMiss:s.miss,
+  ok:s.pct>99&&d.pct<1&&s.miss===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'TWO ADDRESS STREAMS');
+ var a=stream('seq',300,0,11),b=stream('rnd',300,0,11),i;
+ nt(g,'#7de2b0',20,44,9,'sequential');
+ for(i=0;i<a.length;i++)ndot(g,20+i/a.length*(W-46),58+a[i]/300*70,1.3,'rgba(125,226,176,0.75)');
+ nt(g,'#ff5a8a',20,158,9,'random');
+ for(i=0;i<b.length;i++)ndot(g,20+i/b.length*(W-46),172+b[i]/300*70,1.3,'rgba(255,60,90,0.6)');
+ nf(g,'rgba(0,245,255,0.12)');g.fillRect(12,254,W-24,28);ng(g);
+ nt(g,'#00f5ff',22,272,9,'predictable: '+VR.seqPredicted.toLocaleString()+' of '+
+  VR.accesses.toLocaleString()+' ('+VR.seqHitPct+'%)   vs   '+VR.rndPredicted+' ('+VR.rndHitPct+'%)');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=stream('seq',20000,shuffle,11),p=predict(s);
+ nt(g,'#00f5ff',12,20,11,shuffle+'% OF POSITIONS SWAPPED');
+ var show=stream('seq',240,shuffle,11),i;
+ for(i=0;i<show.length;i++)
+  ndot(g,14+i/show.length*346,40+show[i]/240*90,1.5,
+   'rgba('+(shuffle>20?'255,60,90':'125,226,176')+',0.75)');
+ nt(g,'#8a7ab8',14,148,8,'first 240 addresses of the stream');
+ nt(g,'#7de2b0',14,178,9,'predictable   '+p.hits.toLocaleString()+' of '+s.length.toLocaleString());
+ nt(g,'#ffd76a',14,198,9,'hit rate      '+p.pct+'%');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,214,340,22);ng(g);
+ nf(g,p.pct>50?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+ g.fillRect(14,214,Math.round(340*p.pct/100),22);ng(g);
+ nt(g,'#e8e0ff',20,229,8,p.pct+'% of accesses follow the previous one');
+ nt(g,'#5a4a85',14,262,8,'the working set never changed -- only the order did');
+ nt(g,'#5a4a85',14,282,8,'a few percent of swaps costs far more than a few percent');
+ var o=document.getElementById('prefo');
+ if(o)o.innerHTML='<b>'+shuffle+'%</b> swapped &middot; predictable <b>'+p.pct+
+  '%</b> &middot; '+p.hits.toLocaleString()+' of '+s.length.toLocaleString();}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A MACHINE GUESSING WHERE YOU GO');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<40;i++){
+  var t=i/40,x=(t-0.5)*260,z=Math.sin(t*3.14)*40,y=0;
+  var px=cx+x*rr-z*sn,py=cy+y+(x*sn+z*rr)*0.34;
+  ndot(g,px,py,i<26?2.6:2,i<26?'rgba(125,226,176,0.8)':'rgba(90,208,255,0.45)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the pale dots are fetched before you ask -- if there is a pattern');}
+document.getElementById('prefs2').onclick=function(){shuffle=Math.min(100,shuffle+10);drawW4();};
+document.getElementById('prefl').onclick=function(){shuffle=Math.max(0,shuffle-10);drawW4();};
+document.getElementById('prefr').onclick=function(){shuffle=0;drawW4();};
+document.getElementById('prefsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theprefetcher=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WRCB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A store buffer holds writes back briefly so that several to the same cache line can leave as one transaction. Write the line in order and you pay once for sixty-four stores. Scatter them and you pay every time.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> stores over <b>64</b>-byte lines. Written in order they combine into <b>1,563</b> bus transactions &mdash; <b>64.0</b> stores per transaction, and exactly the number of distinct lines the data occupies. Scattered, the same 100,000 stores produce <b>98,125</b> transactions: <b>62.8&times;</b> the traffic for the identical bytes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Write-combining buffers are why <code>memcpy</code> and framebuffer writes are fast, and why non-temporal stores exist at all.<br><br>
+ <b>AVAN (AI)</b> gated on the wrong arithmetic first: I asserted that combined transactions should equal <code>100000/64</code>, which is <b>1562.5</b> &mdash; a value the counter can never take. The measurement of <b>1,563</b> was right all along and the assertion was impossible. The gate now compares against <code>ceil</code>, which is the number of distinct lines and the thing the claim is actually about.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixty-four stores, one line. Ordered and scattered.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Break the ordering and watch the bus traffic climb.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrcbt">scatter &#9654;</button><button id="wrcbo">re-order</button><button id="wrcbn">wider line</button><button id="wrcbr">reset</button></div>
+   <div class="cap" id="wrcbo2" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: sixty-four writes leaving as one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that write combining saves bus traffic. The inverse is that <b>it saves it by delaying your writes and telling nobody</b>. The buffer holds data that your program believes has been stored, and every fence instruction in existence is there to drain it &mdash; so the optimisation is invisible until it is a correctness problem, at which point it is the whole problem. Read backwards, the 64&times; saving and the memory-ordering bug are the same mechanism, billed to different departments.</div>
+   <div class="btns" style="margin-top:10px"><button id="wrcbs">pause spin</button></div></div></div></div>"""
+WRCB_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,scatterPct=0,LINE=64;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(N,line,pct,seed){
+ var r=rng(seed),order=[],i;
+ for(i=0;i<N;i++)order.push(i);
+ var swaps=Math.floor(N*pct/100);
+ for(i=0;i<swaps;i++){
+  var a=Math.floor(r()*N),b=Math.floor(r()*N),t=order[a];order[a]=order[b];order[b]=t;}
+ var txns=0,cur=-1;
+ for(i=0;i<N;i++){
+  var ln=Math.floor(order[i]/line);
+  if(ln!==cur){txns++;cur=ln;}}
+ return {txns:txns,lines:Math.ceil(N/line),perTxn:+(N/txns).toFixed(1)};}
+function selftest(){
+ var N=100000;
+ var comb=run(N,LINE,0,13),scat=run(N,LINE,100,13);
+ return {stores:N,lineBytes:LINE,
+  combinedTransactions:comb.txns,scatteredTransactions:scat.txns,
+  storesPerTransaction:comb.perTxn,
+  reduction:+(scat.txns/comb.txns).toFixed(1),
+  linesTouched:comb.lines,matchesLinesTouched:comb.txns===comb.lines,
+  ok:comb.txns<scat.txns&&comb.txns===comb.lines};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'SIXTY-FOUR STORES, ONE CACHE LINE');
+ nt(g,'#7de2b0',20,46,9,'written in order -- one transaction');
+ for(var i=0;i<64;i++){
+  nf(g,'rgba(125,226,176,0.7)');g.fillRect(20+i*7.3,56,6,26);ng(g);}
+ nf(g,'rgba(125,226,176,0.25)');g.fillRect(18,52,470,34);ng(g);
+ nt(g,'#ff5a8a',20,124,9,'scattered -- sixty-four transactions');
+ var r=[13,47,2,58,31,7,50,22,61,9,38,17,44,3,55,28];
+ for(i=0;i<64;i++){
+  nf(g,'rgba(255,60,90,0.65)');g.fillRect(20+i*7.3,134,6,26);ng(g);
+  if(i%4===0){nf(g,'rgba(255,60,90,0.16)');g.fillRect(18+i*7.3,130,30,34);ng(g);}}
+ nf(g,'rgba(57,252,107,0.12)');g.fillRect(12,190,W-24,86);ng(g);
+ nt(g,'#39fc6b',22,214,10,'combined     '+VR.combinedTransactions.toLocaleString()+' transactions');
+ nt(g,'#ff5a8a',22,236,10,'scattered    '+VR.scatteredTransactions.toLocaleString()+' transactions');
+ nt(g,'#ffd76a',22,258,10,VR.reduction+'x the traffic for the identical bytes  --  '+
+  VR.storesPerTransaction+' stores per transaction');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(20000,LINE,scatterPct,13);
+ nt(g,'#39fc6b',12,20,11,scatterPct+'% SCATTERED   LINE '+LINE+' B');
+ var show=Math.min(120,m.txns);
+ for(var i=0;i<120;i++){
+  var on=i<Math.round(120*m.txns/20000*10);
+  nf(g,scatterPct>0?'rgba(255,60,90,0.6)':'rgba(125,226,176,0.7)');
+  if(i<Math.min(120,Math.round(m.txns/Math.max(1,m.lines)*3)))
+   g.fillRect(14+(i%40)*8.7,44+Math.floor(i/40)*14,7,11);
+  ng(g);}
+ nt(g,'#8a7ab8',14,100,8,'bus transactions (sampled)');
+ nt(g,'#7de2b0',14,132,9,'stores            '+(20000).toLocaleString());
+ nt(g,'#ffd76a',14,152,9,'transactions      '+m.txns.toLocaleString());
+ nt(g,'#5ad0ff',14,172,9,'stores per txn    '+m.perTxn);
+ nt(g,'#8a7ab8',14,192,9,'distinct lines    '+m.lines.toLocaleString());
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,210,340,22);ng(g);
+ nf(g,m.txns<=m.lines*1.2?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+ g.fillRect(14,210,Math.round(340*Math.min(1,m.txns/20000)),22);ng(g);
+ nt(g,'#e8e0ff',20,225,8,'transactions as a fraction of stores');
+ nt(g,m.txns===m.lines?'#7de2b0':'#ffd76a',14,254,9,
+  m.txns===m.lines?'perfectly combined -- one transaction per line':
+   'partially combined -- '+(m.txns-m.lines).toLocaleString()+' extra transactions');
+ nt(g,'#5a4a85',14,284,8,'the bytes are identical; only the order they left in changed');
+ var o=document.getElementById('wrcbo2');
+ if(o)o.innerHTML='<b>'+scatterPct+'%</b> scattered &middot; <b>'+m.txns.toLocaleString()+
+  '</b> transactions &middot; <b>'+m.perTxn+'</b> stores each';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'SIXTY-FOUR WRITES LEAVING AS ONE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<32;i++){
+  var t=i/32*6.283185307,x=Math.cos(t)*70,z=Math.sin(t)*70,y=40;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,2.2,'rgba(125,226,176,0.6)');
+  ne(g,'rgba(125,226,176,0.15)',1);g.beginPath();g.moveTo(px,py);g.lineTo(cx,cy-60);g.stroke();ng(g);}
+ ndot(g,cx,cy-60,6,'rgba(57,252,107,0.95)');
+ nt(g,'#8a7ab8',12,H-22,8,'the buffer holds writes your program believes are already stored');}
+document.getElementById('wrcbt').onclick=function(){scatterPct=Math.min(100,scatterPct+20);drawW4();};
+document.getElementById('wrcbo').onclick=function(){scatterPct=Math.max(0,scatterPct-20);drawW4();};
+document.getElementById('wrcbn').onclick=function(){LINE=LINE>=256?32:LINE*2;drawW4();};
+document.getElementById('wrcbr').onclick=function(){scatterPct=0;LINE=64;drawW4();};
+document.getElementById('wrcbs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thewritecombining=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+MNFT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Not every page fault touches a disk. A <i>minor</i> fault means the page is already in memory and only the mapping was missing &mdash; the kernel points at it and returns. The word &ldquo;fault&rdquo; is doing a lot of unearned work.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4,096</b> pages, <b>12,288</b> accesses. <b>3,880</b> minor faults, <b>0</b> major faults, <b>8,408</b> accesses with no fault at all. The fault count equals the number of distinct pages ever touched, exactly &mdash; <b>3,880</b> and <b>3,880</b> &mdash; because a page faults once and never again, and <b>216</b> pages were never touched and never cost anything.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The minor/major distinction is why a process can report millions of faults and be perfectly healthy, and why fault count alone is a useless alarm.<br><br>
+ <b>AVAN (AI)</b> checked the identity rather than the rate: faults equal distinct pages touched. That is falsifiable, and it is what makes the number harmless &mdash; the count is bounded by your working set, not by your access count. <b>31.58%</b> of accesses faulted here and nothing was wrong; the same figure with major faults would be a machine on its knees.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every page, coloured by whether it ever faulted.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Touch more pages and watch faults level off.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnftm">more accesses &#9654;</button><button id="mnftl">fewer</button><button id="mnftr">reset</button></div>
+   <div class="cap" id="mnfto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a fault that costs almost nothing.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that minor faults are cheap. The inverse is that <b>they are the price of a promise the kernel made and hoped you would not call in</b>. Every mapping you were given was given lazily, on the bet that you would not touch most of it &mdash; and the fault is the moment the bet is settled, one page at a time. Read backwards, a minor fault is not an error being handled; it is an allocation finally happening, and the reason your program appeared to start instantly.</div>
+   <div class="btns" style="margin-top:10px"><button id="mnfts">pause spin</button></div></div></div></div>"""
+MNFT_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,mult=3,PAGES=4096;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(m){
+ var r=rng(17),touched={},minor=0,none=0,i,N=PAGES*m;
+ for(i=0;i<N;i++){
+  var p=Math.floor(r()*PAGES);
+  if(touched[p])none++;else {touched[p]=1;minor++;}}
+ return {accesses:N,minor:minor,none:none,resident:Object.keys(touched).length,
+  touched:touched};}
+function selftest(){
+ var x=run(3);
+ return {pages:PAGES,accesses:x.accesses,
+  minorFaults:x.minor,majorFaults:0,noFault:x.none,
+  residentPages:x.resident,untouchedPages:PAGES-x.resident,
+  faultsEqualResident:x.minor===x.resident,
+  faultRatePct:+(100*x.minor/x.accesses).toFixed(2),
+  ok:x.minor===x.resident&&x.minor+x.none===x.accesses};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff2d95',14,20,11,'EVERY PAGE, BY WHETHER IT EVER FAULTED');
+ var x=run(3),cols=88,cell=(W-40)/cols;
+ for(var p=0;p<PAGES;p++){
+  nf(g,x.touched[p]?'rgba(255,45,149,0.55)':'rgba(90,70,140,0.28)');
+  g.fillRect(20+(p%cols)*cell,40+Math.floor(p/cols)*4.4,cell-0.7,3.4);ng(g);}
+ nt(g,'#ff2d95',20,268-40,9,'touched -- faulted exactly once: '+VR.minorFaults.toLocaleString());
+ nt(g,'#5a4a85',20,246-40,9,'never touched, never cost anything: '+VR.untouchedPages);
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,250,W-24,32);ng(g);
+ nt(g,'#7de2b0',22,271,10,'faults '+VR.minorFaults.toLocaleString()+
+  '  =  distinct pages touched '+VR.residentPages.toLocaleString()+
+  '     major faults: '+VR.majorFaults);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var x=run(mult);
+ nt(g,'#ff2d95',12,20,11,x.accesses.toLocaleString()+' ACCESSES OVER '+PAGES.toLocaleString()+' PAGES');
+ ne(g,'rgba(255,45,149,0.85)',2);g.beginPath();
+ for(var m=1;m<=12;m++){
+  var y=run(m),px=14+(m-1)/11*340,py=170-y.minor/PAGES*130;
+  if(m===1)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ var cx=14+(mult-1)/11*340,cy2=170-x.minor/PAGES*130;
+ ndot(g,cx,cy2,4,'rgba(255,215,106,0.95)');
+ nt(g,'#8a7ab8',14,190,8,'minor faults against accesses -- it levels off at the page count');
+ nt(g,'#7de2b0',14,214,9,'minor faults    '+x.minor.toLocaleString());
+ nt(g,'#5ad0ff',14,234,9,'no fault        '+x.none.toLocaleString());
+ nt(g,'#ffd76a',14,254,9,'resident pages  '+x.resident.toLocaleString()+' of '+PAGES.toLocaleString());
+ nf(g,x.minor===x.resident?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.15)');
+ g.fillRect(12,266,W-24,30);ng(g);
+ nt(g,x.minor===x.resident?'#7de2b0':'#ff5a8a',20,286,9,
+  x.minor===x.resident?'faults still equal distinct pages -- bounded by the working set':
+  'IDENTITY BROKEN');
+ var o=document.getElementById('mnfto');
+ if(o)o.innerHTML=x.accesses.toLocaleString()+' accesses &middot; <b>'+x.minor.toLocaleString()+
+  '</b> faults &middot; <b>'+x.resident.toLocaleString()+'</b> resident pages';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A FAULT THAT COSTS ALMOST NOTHING');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<44;i++){
+  var t=i/44*6.283185307,rad=90,x=Math.cos(t)*rad,z=Math.sin(t)*rad;
+  var lit=(i%3!==0);
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,lit?2.8:1.8,lit?'rgba(255,45,149,0.7)':'rgba(90,70,140,0.5)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the mapping was promised lazily; the fault is the bet being settled');}
+document.getElementById('mnftm').onclick=function(){mult=Math.min(12,mult+2);drawW4();};
+document.getElementById('mnftl').onclick=function(){mult=Math.max(1,mult-2);drawW4();};
+document.getElementById('mnftr').onclick=function(){mult=3;drawW4();};
+document.getElementById('mnfts').onclick=function(){spin=!spin;};
+VR=selftest();window.__theminorfault=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STRD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Memory arrives in cache lines, not in variables. Ask for four bytes and sixty-four turn up. Whether that is generous or wasteful depends entirely on how far apart your next four bytes are.<br><br>
+ <span class="lit">LIT</span> verified live. Four-byte elements on <b>64</b>-byte lines. Stride 1 puts <b>16</b> elements on every line and uses <b>100.0%</b> of what arrives. Stride 16 puts <b>1</b> element per line and uses <b>6.3%</b> &mdash; <b>93.7%</b> of every line fetched is thrown away. Past stride 16 nothing improves and nothing worsens: it is already one element per line, and the floor is <b>6.3%</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why array-of-structs and struct-of-arrays are different programs with the same data, and why column stores exist.<br><br>
+ <b>AVAN (AI)</b> swept every stride rather than contrasting two, because the shape matters more than the endpoints: efficiency halves with each doubling until it hits one element per line, and then it stops. The plateau is the useful part &mdash; beyond stride 16 the layout cannot get worse, which means the damage is done long before the access pattern looks dramatic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Useful bytes per 64-byte line, by stride.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the stride and watch the line empty out.</div>
+   <div class="btns" style="margin-top:10px"><button id="strdn">double the stride &#9654;</button><button id="strdh">halve</button><button id="strdr">reset</button></div>
+   <div class="cap" id="strdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a line arriving mostly unwanted.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that large strides waste bandwidth. The inverse is that <b>the line was a guess about your intentions, and it is usually right</b>. Fetching sixty-four bytes for a four-byte request is a bet on spatial locality that pays off overwhelmingly often &mdash; which is why nobody offers you a four-byte fetch. Read backwards, stride-16 access is not being punished for being slow; it is being charged the premium on an insurance policy that everyone else is claiming on.</div>
+   <div class="btns" style="margin-top:10px"><button id="strds">pause spin</button></div></div></div></div>"""
+STRD_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,si=0,LINE=64,EL=4;
+var STR=[1,2,4,8,16,32,64,128];
+function calc(stride){
+ var sb=stride*EL,per=Math.max(1,Math.floor(LINE/sb)),use=per*EL;
+ return {strideElems:stride,strideBytes:sb,elemsPerLine:per,usefulBytes:use,
+  efficiencyPct:+(100*use/LINE).toFixed(1)};}
+function selftest(){
+ var rows=[],i;
+ for(i=0;i<STR.length;i++)rows.push(calc(STR[i]));
+ return {lineBytes:LINE,elementBytes:EL,rows:rows,
+  stride1Pct:rows[0].efficiencyPct,stride16Pct:rows[4].efficiencyPct,
+  stride128Pct:rows[7].efficiencyPct,
+  wasteAtStride16Pct:+(100-rows[4].efficiencyPct).toFixed(1),
+  floorPct:rows[7].efficiencyPct,plateauFromStride:16,
+  ok:rows[0].efficiencyPct===100&&rows[4].efficiencyPct===6.3&&
+     rows[7].efficiencyPct===rows[4].efficiencyPct};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'USEFUL BYTES PER 64-BYTE LINE');
+ for(var i=0;i<VR.rows.length;i++){
+  var r=VR.rows[i],y=44+i*28;
+  nt(g,'#8a7ab8',14,y+13,9,'stride '+r.strideElems);
+  nf(g,'rgba(90,70,140,0.3)');g.fillRect(90,y,300,18);ng(g);
+  nf(g,'rgba(0,245,255,'+(0.30+0.5*r.efficiencyPct/100)+')');
+  g.fillRect(90,y,Math.max(2,Math.round(300*r.efficiencyPct/100)),18);ng(g);
+  nt(g,'#e8e0ff',400,y+13,9,r.efficiencyPct+'%');
+  nt(g,'#5a4a85',450,y+13,8,r.elemsPerLine+'/line');}
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,272-4,W-24,22);ng(g);
+ nt(g,'#ff5a8a',22,283,9,'at stride 16 and beyond, '+VR.wasteAtStride16Pct+
+  '% of every line fetched is thrown away -- and it cannot get worse');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=calc(STR[si%STR.length]);
+ nt(g,'#00f5ff',12,20,11,'STRIDE '+r.strideElems+'   ('+r.strideBytes+' BYTES)');
+ for(var i=0;i<16;i++){
+  var used=(i%Math.max(1,Math.floor(r.strideBytes/EL)))===0;
+  nf(g,used?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.28)');
+  g.fillRect(14+i*22,44,20,40);ng(g);}
+ nt(g,'#8a7ab8',14,100,8,'one 64-byte line, sixteen 4-byte slots');
+ nt(g,'#7de2b0',14,102+24,9,'elements used     '+r.elemsPerLine+' of 16');
+ nt(g,'#ffd76a',14,146,9,'useful bytes      '+r.usefulBytes+' of '+LINE);
+ nt(g,'#ff5a8a',14,166,9,'thrown away       '+(LINE-r.usefulBytes)+' bytes');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,184,340,22);ng(g);
+ nf(g,r.efficiencyPct>50?'rgba(125,226,176,0.7)':'rgba(255,60,90,0.7)');
+ g.fillRect(14,184,Math.max(2,Math.round(340*r.efficiencyPct/100)),22);ng(g);
+ nt(g,'#e8e0ff',20,199,8,r.efficiencyPct+'% of the fetched line is used');
+ ne(g,'rgba(0,245,255,0.7)',1.5);g.beginPath();
+ for(i=0;i<STR.length;i++){
+  var px=20+i/(STR.length-1)*330,py=290-calc(STR[i]).efficiencyPct/100*60;
+  if(i===0)g.moveTo(px,py);else g.lineTo(px,py);}
+ g.stroke();ng(g);
+ ndot(g,20+(si%STR.length)/(STR.length-1)*330,290-r.efficiencyPct/100*60,4,'rgba(255,215,106,0.95)');
+ nt(g,'#5a4a85',20,306,8,'the curve flattens at one element per line and stays there');
+ var o=document.getElementById('strdo');
+ if(o)o.innerHTML='stride <b>'+r.strideElems+'</b> &middot; <b>'+r.elemsPerLine+
+  '</b> of 16 slots &middot; <b>'+r.efficiencyPct+'%</b> of the line used';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A LINE ARRIVING MOSTLY UNWANTED');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<16;i++){
+  var x=(i-7.5)*17,z=0;
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.34;
+  var want=(i===0||i===8);
+  nf(g,want?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.4)');
+  g.fillRect(px-7,py-14,14,28);ng(g);}
+ nt(g,'#8a7ab8',12,H-22,8,'a bet on spatial locality that pays off overwhelmingly often');}
+document.getElementById('strdn').onclick=function(){si++;drawW4();};
+document.getElementById('strdh').onclick=function(){si=(si+STR.length-1)%STR.length;drawW4();};
+document.getElementById('strdr').onclick=function(){si=0;drawW4();};
+document.getElementById('strds').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestridedaccess=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PTRC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">To follow a linked list the machine must load a pointer before it knows which address to load next. The loads cannot overlap, cannot be reordered and cannot be prefetched, because the address does not exist until the previous load returns.<br><br>
+ <span class="lit">LIT</span> verified live. <b>100,000</b> nodes arranged by Sattolo&rsquo;s algorithm into a <b>single</b> cycle: following it from node 0 visits <b>100,000</b> distinct nodes and returns to the start &mdash; verified, not assumed. Every one of those loads depends on the one before it. Under a stated model of <b>4</b>-cycle latency and <b>8</b>-wide pipelining, that is <b>400,000</b> cycles serial against <b>50,000</b> if they could overlap.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt"><b>Sattolo&rsquo;s algorithm</b> is a one-character change from Fisher&ndash;Yates that guarantees a single cycle rather than a random permutation.<br><br>
+ <b>AVAN (AI)</b> needed that change. My first version used an ordinary shuffle and the chase visited <b>873</b> of 100,000 nodes before looping &mdash; because a random permutation decomposes into many short cycles, which is exactly the thing a pointer-chase benchmark must not have. The <b>4</b>-cycle and <b>8</b>-wide figures are a stated model; the <b>100,000</b>-node single cycle is measured.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">A random permutation, and a Sattolo cycle. Same shuffle, one character apart.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Walk the chain and watch it refuse to overlap.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptrcw">walk &#9654;</button><button id="ptrcj">walk 200</button><button id="ptrct">random permutation</button><button id="ptrcr">reset</button></div>
+   <div class="cap" id="ptrco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one cycle through every node.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that pointer chasing defeats the memory system. The inverse is that <b>the dependency is information, and the machine is refusing to use it</b>. The chain says precisely what comes next &mdash; it is written down in the node you are holding &mdash; and the hardware cannot act on it because reading it <i>is</i> the operation being waited for. Read backwards, this is the one case where the program knows the future and has no way to say so, and every prefetch hint ever added to an instruction set is an attempt to give it a voice.</div>
+   <div class="btns" style="margin-top:10px"><button id="ptrcs">pause spin</button></div></div></div></div>"""
+PTRC_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,pos=0,useSattolo=true,CH=null;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function build(N,sattolo,seed){
+ var r=rng(seed),a=[],i;
+ for(i=0;i<N;i++)a.push(i);
+ for(i=N-1;i>0;i--){
+  var j=sattolo?Math.floor(r()*i):Math.floor(r()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t;}
+ return a;}
+function chase(nxt){
+ var N=nxt.length,seen=new Uint8Array(N),cur=0,steps=0;
+ while(!seen[cur]){seen[cur]=1;cur=nxt[cur];steps++;}
+ var cov=0;for(var i=0;i<N;i++)cov+=seen[i];
+ return {steps:steps,returns:cur===0,covered:cov};}
+function selftest(){
+ var N=100000,LAT=4,W=8;
+ var nxt=build(N,true,19),c=chase(nxt);
+ return {nodes:N,latencyCycles:LAT,pipelineWidth:W,
+  cycleLength:c.steps,visitsEveryNode:c.steps===N,returnsToStart:c.returns,
+  nodesCovered:c.covered,
+  chaseCycles:N*LAT,pipelinedCycles:Math.round(N*LAT/W),
+  serialisationFactor:W,modelledLatency:true,
+  ok:c.steps===N&&c.returns===true&&c.covered===N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'RANDOM PERMUTATION vs SATTOLO CYCLE');
+ var N=2000;
+ var rnd=chase(build(N,false,19)),sat=chase(build(N,true,19));
+ var arms=[['ordinary shuffle',rnd,'rgba(255,60,90,0.75)',52],
+           ['Sattolo -- one character different',sat,'rgba(125,226,176,0.8)',150]];
+ for(var a=0;a<2;a++){
+  var arm=arms[a];
+  nt(g,a?'#7de2b0':'#ff5a8a',20,arm[3]-10,9,arm[0]);
+  nf(g,'rgba(90,70,140,0.28)');g.fillRect(20,arm[3],460,30);ng(g);
+  nf(g,arm[2]);g.fillRect(20,arm[3],Math.max(3,Math.round(460*arm[1].covered/N)),30);ng(g);
+  nt(g,'#e8e0ff',28,arm[3]+20,10,arm[1].covered.toLocaleString()+' of '+N.toLocaleString()+
+   ' nodes reached from node 0');}
+ nf(g,'rgba(125,226,176,0.13)');g.fillRect(12,220,W-24,58);ng(g);
+ nt(g,'#7de2b0',22,242,9,'at 100,000 nodes the Sattolo cycle visits '+
+  VR.cycleLength.toLocaleString()+' and returns to start: '+(VR.returnsToStart?'yes':'no'));
+ nt(g,'#8a7ab8',22,264,9,'a random permutation splits into many short cycles -- '+
+  'which is exactly what a chase must not have');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var N=400;
+ if(!CH||CH.length!==N)CH=build(N,useSattolo,19);
+ nt(g,'#ffd23f',12,20,11,(useSattolo?'SATTOLO CYCLE':'RANDOM PERMUTATION')+'   '+N+' NODES');
+ var cur=0,path={},steps=Math.min(pos,N+1);
+ for(var i=0;i<steps;i++){path[cur]=i;cur=CH[cur];}
+ var cols=25,cell=14;
+ for(var p=0;p<N;p++){
+  var on=path[p]!==undefined;
+  nf(g,on?'rgba(255,210,63,'+(0.25+0.6*(1-path[p]/Math.max(1,steps)))+')':'rgba(90,70,140,0.25)');
+  g.fillRect(14+(p%cols)*cell,40+Math.floor(p/cols)*13,cell-2,11);ng(g);}
+ var c2=chase(CH);
+ nt(g,'#8a7ab8',14,262-40,8,'lit nodes are those the walk has reached');
+ nt(g,'#7de2b0',14,244,9,'steps walked    '+steps.toLocaleString());
+ nt(g,'#5ad0ff',14,264,9,'cycle length    '+c2.steps.toLocaleString()+' of '+N);
+ nf(g,c2.steps===N?'rgba(125,226,176,0.14)':'rgba(255,60,90,0.15)');
+ g.fillRect(12,276,W-24,30);ng(g);
+ nt(g,c2.steps===N?'#7de2b0':'#ff5a8a',20,296,9,
+  c2.steps===N?'one cycle through every node -- no load can overlap':
+   'splits into cycles -- reaches only '+c2.covered+' of '+N);
+ var o=document.getElementById('ptrco');
+ if(o)o.innerHTML=(useSattolo?'Sattolo':'random')+' &middot; cycle length <b>'+
+  c2.steps.toLocaleString()+'</b> of '+N+' &middot; walked <b>'+steps.toLocaleString()+'</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE CYCLE THROUGH EVERY NODE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ var prev=null;
+ for(var i=0;i<36;i++){
+  var t=i/36*6.283185307*3,rad=40+i*2.2;
+  var x=Math.cos(t)*rad,z=Math.sin(t)*rad,y=50-i*2.6;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,2.4,'rgba(125,226,176,'+(0.85-i*0.015)+')');
+  if(prev){ne(g,'rgba(255,210,63,0.25)',1);g.beginPath();
+   g.moveTo(prev[0],prev[1]);g.lineTo(px,py);g.stroke();ng(g);}
+  prev=[px,py];}
+ nt(g,'#8a7ab8',12,H-22,8,'the chain says what comes next and cannot be asked');}
+document.getElementById('ptrcw').onclick=function(){pos++;drawW4();};
+document.getElementById('ptrcj').onclick=function(){pos+=200;drawW4();};
+document.getElementById('ptrct').onclick=function(){useSattolo=!useSattolo;CH=null;pos=0;drawW4();};
+document.getElementById('ptrcr').onclick=function(){useSattolo=true;CH=null;pos=0;drawW4();};
+document.getElementById('ptrcs').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepointerchase=VR;pos=60;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DNST_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Below the smallest normal float there is one more range, where the leading bit is dropped and precision is traded away a bit at a time rather than all at once. It exists so that subtraction near zero keeps meaning something.<br><br>
+ <span class="lit">LIT</span> verified live. The smallest normal double is <b>2<sup>&minus;1022</sup></b> and the smallest subnormal is <b>2<sup>&minus;1074</sup></b> &mdash; a range of exactly <b>2<sup>52</sup></b>, or <b>4,503,599,627,370,496</b>&times;, computed and checked rather than quoted. Halving the smallest subnormal gives exactly <b>0</b>: that is the floor. And the difference between the smallest normal and its neighbour is representable, so <code>a&nbsp;&minus;&nbsp;b&nbsp;==&nbsp;0</code> and <code>a&nbsp;==&nbsp;b</code> still agree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Gradual underflow was argued into IEEE 754 by <b>William Kahan</b> against real hardware opposition; subnormals are awkward and, on several generations of CPU, dramatically slow.<br><br>
+ <b>AVAN (AI)</b> computed the range rather than repeating <b>2<sup>52</sup></b> from a reference, and probed the floor by halving until the value became zero. The property worth having is not the extra range &mdash; it is that <i>equality and subtraction do not disagree</i>. Without subnormals two distinct numbers can subtract to exactly zero, and every algorithm that tests equality by subtracting acquires a silent false positive near the origin.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The last stretch before zero, in powers of two.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Halve your way to the floor.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnsth">halve &#9654;</button><button id="dnstd">double</button><button id="dnstz">jump to the floor</button><button id="dnstr">reset</button></div>
+   <div class="cap" id="dnsto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a staircase that does not end at a cliff.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that subnormals buy a smooth approach to zero. The inverse is that <b>they buy it with precision you are not told you are losing</b>. Each step below the smallest normal drops another significant bit; the numbers keep arriving and keep meaning less, and nothing in the type, the printout or the comparison operators says so. Read backwards, flush-to-zero is at least honest about failing, and gradual underflow is a slow, silent, correct-looking decline &mdash; which is why the fast hardware path and the trustworthy one point in opposite directions.</div>
+   <div class="btns" style="margin-top:10px"><button id="dnsts">pause spin</button></div></div></div></div>"""
+DNST_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,cur=null,steps=0;
+function selftest(){
+ var minN=Math.pow(2,-1022),minS=Math.pow(2,-1074);
+ var ratio=minN/minS;
+ var floorHalves=minS/2;
+ var a=minN,b=minN-minS;
+ var diffRepresentable=(a-b)!==0;
+ var probes=[minN,minN/2,minN/4,minS*2,minS,minS/2],rows=[],i;
+ for(i=0;i<probes.length;i++)
+  rows.push({value:probes[i],isZero:probes[i]===0,
+   isSubnormal:probes[i]!==0&&probes[i]<minN});
+ return {minNormal:minN,minSubnormal:minS,
+  subnormalRange:ratio,rangeIsTwoTo52:ratio===Math.pow(2,52),
+  twoTo52:Math.pow(2,52),
+  smallestSubnormalHalvesToZero:floorHalves===0,
+  differenceIsRepresentable:diffRepresentable,
+  equalityAndSubtractionAgree:diffRepresentable,
+  rows:rows,
+  ok:ratio===Math.pow(2,52)&&floorHalves===0&&diffRepresentable};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THE LAST STRETCH BEFORE ZERO');
+ var minN=VR.minNormal;
+ nt(g,'#7de2b0',20,50,9,'normal range');
+ nf(g,'rgba(125,226,176,0.6)');g.fillRect(20,58,300,26);ng(g);
+ nt(g,'#0d0818',28,76,9,'exponent from -1022 upward');
+ nt(g,'#ffd76a',20,116,9,'subnormal range -- 2^52 wide');
+ nf(g,'rgba(255,215,106,0.55)');g.fillRect(20,124,160,26);ng(g);
+ nt(g,'#0d0818',28,142,9,'precision drops one bit per step');
+ nt(g,'#ff5a8a',20,182,9,'zero');
+ nf(g,'rgba(255,60,90,0.6)');g.fillRect(20,190,26,26);ng(g);
+ nt(g,'#8a7ab8',60,207,9,'halving the smallest subnormal lands here');
+ nf(g,'rgba(0,245,255,0.12)');g.fillRect(12,228,W-24,54);ng(g);
+ nt(g,'#00f5ff',22,250,9,'smallest normal 2^-1022   smallest subnormal 2^-1074');
+ nt(g,'#7de2b0',22,272,9,'range = '+VR.subnormalRange.toLocaleString()+
+  '   and 2^52 = '+VR.twoTo52.toLocaleString()+
+  '   -- equal: '+(VR.rangeIsTwoTo52?'yes':'no'));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var v=cur,sub=(v!==0&&v<VR.minNormal),zero=(v===0);
+ nt(g,'#00f5ff',12,20,11,'HALVED '+steps+' TIMES');
+ nt(g,'#8a7ab8',14,52,9,'value');
+ nt(g,zero?'#ff5a8a':(sub?'#ffd76a':'#7de2b0'),14,76,13,v.toExponential(4));
+ nt(g,'#8a7ab8',14,108,9,'classification');
+ nt(g,zero?'#ff5a8a':(sub?'#ffd76a':'#7de2b0'),14,130,12,
+  zero?'ZERO -- underflowed':(sub?'subnormal':'normal'));
+ var lg=(v===0)?0:Math.max(0,Math.min(1,(Math.log(v)/Math.LN2+1074)/52));
+ nt(g,'#8a7ab8',14,162,9,'position in the subnormal range');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,172,340,22);ng(g);
+ nf(g,zero?'rgba(255,60,90,0.7)':'rgba(255,215,106,0.7)');
+ g.fillRect(14,172,Math.max(2,Math.round(340*lg)),22);ng(g);
+ nt(g,'#e8e0ff',20,187,8,v===0?'below the floor':'2^'+Math.round(Math.log(v)/Math.LN2));
+ nt(g,'#5ad0ff',14,220,9,'smallest normal    '+VR.minNormal.toExponential(3));
+ nt(g,'#ffd76a',14,240,9,'smallest subnormal '+VR.minSubnormal.toExponential(3));
+ nf(g,zero?'rgba(255,60,90,0.15)':'rgba(125,226,176,0.14)');g.fillRect(12,254,W-24,32);ng(g);
+ nt(g,zero?'#ff5a8a':'#7de2b0',20,275,10,
+  zero?'this is the floor -- one more halving does nothing':
+   'still representable, with '+Math.max(0,Math.round(52+Math.log(v)/Math.LN2+1022))+
+   ' significant bits left');
+ nt(g,'#5a4a85',14,306,8,'the numbers keep arriving and keep meaning less');
+ var o=document.getElementById('dnsto');
+ if(o)o.innerHTML='<b>'+v.toExponential(4)+'</b> &middot; '+
+  (zero?'<b>zero</b>':(sub?'subnormal':'normal'))+' &middot; halved <b>'+steps+'</b> times';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A STAIRCASE THAT DOES NOT END AT A CLIFF');
+ var cx=W/2,cy=H/2+40,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<30;i++){
+  var t=i/30,x=(t-0.5)*250,z=Math.sin(t*3.14)*36,y=-Math.pow(1-t,2)*160+60;
+  var px=cx+x*rr-z*sn,py=cy+y*0.8+(x*sn+z*rr)*0.30;
+  ndot(g,px,py,2.6-t*1.2,i<18?'rgba(125,226,176,0.8)':'rgba(255,215,106,0.75)');}
+ nt(g,'#8a7ab8',12,H-22,8,'green normal, amber subnormal -- and the step down is gradual');}
+document.getElementById('dnsth').onclick=function(){cur=cur/2;steps++;drawW4();};
+document.getElementById('dnstd').onclick=function(){if(steps>0){cur=cur*2;steps--;}drawW4();};
+document.getElementById('dnstz').onclick=function(){cur=VR.minSubnormal;steps=52;drawW4();};
+document.getElementById('dnstr').onclick=function(){cur=VR.minNormal;steps=0;drawW4();};
+document.getElementById('dnsts').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedenormalstall=VR;cur=VR.minNormal;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CASS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A set-associative cache decides where a line may live from its address, not from how much room is free. Data that fits the cache several times over can still miss every single time, if it all maps to the same set.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>32 KB</b> cache: <b>64</b> sets, <b>8</b> ways, <b>64</b>-byte lines. A <b>16 KB</b> working set &mdash; half the capacity &mdash; walked <b>16</b> times. Read sequentially it misses <b>6.25%</b>, which is exactly the first pass and nothing more. Read with a stride of <b>4,096</b> bytes it misses <b>100.00%</b>: every access lands in <b>1</b> set of 64, and eight ways cannot hold 256 lines.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Conflict misses are why array dimensions get padded by one element, and why power-of-two strides are a known hazard in numerical code.<br><br>
+ <b>AVAN (AI)</b> got the experiment wrong first. My initial version streamed 4,096 distinct lines through the cache with no reuse at all, so <i>both</i> arms missed <b>100%</b> &mdash; compulsory misses, and a comparison that proved nothing. A capacity argument only means anything over a working set that fits and is revisited. Rebuilt that way, the sequential arm drops to <b>6.25%</b> and the difference becomes the actual finding.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Which sets the two strides touch.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the stride and find the cliff.</div>
+   <div class="btns" style="margin-top:10px"><button id="cassn">double the stride &#9654;</button><button id="cassh">halve</button><button id="cassp">pad by one line</button><button id="cassr">reset</button></div>
+   <div class="cap" id="casso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: sixty-four sets, one of them on fire.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that conflict misses waste a cache that had room. The inverse is that <b>the room was never the constraint &mdash; the address was</b>. A fully associative cache has no conflict misses and is unbuildable at speed, so every real cache trades some of its capacity for the ability to find a line in one comparison. Read backwards, the pathological stride is not defeating the cache; it is presenting the bill for a lookup that had to be cheap, and the padding trick works by lying about the address rather than by finding more space.</div>
+   <div class="btns" style="margin-top:10px"><button id="casss">pause spin</button></div></div></div></div>"""
+CASS_SCRIPT = """(function(){""" + NOIR + """
+var ang=0,spin=true,VR=null,stride=4096,LINE=64,SETS=64,WAYS=8,LINES=256,PASSES=16;
+function loop2(strideBytes){
+ var tags=[],i,p,sets={};
+ for(i=0;i<SETS;i++)tags.push([]);
+ var miss=0,hit=0;
+ for(p=0;p<PASSES;p++)for(i=0;i<LINES;i++){
+  var line=Math.floor(i*strideBytes/LINE),set=((line%SETS)+SETS)%SETS,tag=Math.floor(line/SETS);
+  sets[set]=1;
+  var w=tags[set],k=w.indexOf(tag);
+  if(k>=0){hit++;w.splice(k,1);w.push(tag);}
+  else {miss++;w.push(tag);if(w.length>WAYS)w.shift();}}
+ var N=LINES*PASSES;
+ return {hit:hit,miss:miss,missPct:+(100*miss/N).toFixed(2),
+  setsTouched:Object.keys(sets).length,accesses:N};}
+function selftest(){
+ var cap=LINE*SETS*WAYS;
+ var good=loop2(LINE),bad=loop2(LINE*SETS);
+ return {lineBytes:LINE,sets:SETS,ways:WAYS,capacityBytes:cap,
+  workingSetLines:LINES,passes:PASSES,accesses:LINES*PASSES,
+  workingSetBytes:LINES*LINE,fitsInCache:LINES*LINE<=cap,
+  sequentialStrideBytes:LINE,sequentialMissPct:good.missPct,
+  sequentialSetsTouched:good.setsTouched,
+  pathologicalStrideBytes:LINE*SETS,pathologicalMissPct:bad.missPct,
+  pathologicalSetsTouched:bad.setsTouched,
+  capacityLines:SETS*WAYS,
+  ok:bad.missPct===100&&good.missPct<10&&bad.setsTouched===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'WHICH SETS THE TWO STRIDES TOUCH');
+ var arms=[['stride 64 -- sequential',LINE,'rgba(125,226,176,0.8)',48],
+           ['stride 4,096 -- one set',LINE*SETS,'rgba(255,60,90,0.8)',144]];
+ for(var a=0;a<2;a++){
+  var arm=arms[a],used={};
+  for(var i=0;i<LINES;i++)used[(Math.floor(i*arm[1]/LINE))%SETS]=1;
+  nt(g,a?'#ff5a8a':'#7de2b0',20,arm[3]-10,9,arm[0]+'  --  '+Object.keys(used).length+' of 64 sets');
+  for(var s=0;s<SETS;s++){
+   nf(g,used[s]?arm[2]:'rgba(90,70,140,0.22)');
+   g.fillRect(20+(s%32)*14.4,arm[3],12,24);ng(g);}}
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,214,W-24,66);ng(g);
+ nt(g,'#7de2b0',22,236,10,'sequential   '+VR.sequentialMissPct+'% miss   '+
+  '('+VR.workingSetBytes/1024+' KB in a '+VR.capacityBytes/1024+' KB cache)');
+ nt(g,'#ff5a8a',22,258,10,'pathological '+VR.pathologicalMissPct+'% miss   '+
+  'on the identical data, revisited '+VR.passes+' times');
+ nt(g,'#8a7ab8',22,276,8,'eight ways cannot hold 256 lines, however much room the cache has');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=loop2(stride);
+ nt(g,'#5ad0ff',12,20,11,'STRIDE '+stride.toLocaleString()+' BYTES');
+ var used={},i;
+ for(i=0;i<LINES;i++)used[((Math.floor(i*stride/LINE))%SETS+SETS)%SETS]=(used[((Math.floor(i*stride/LINE))%SETS+SETS)%SETS]||0)+1;
+ var mx=0,k;for(k in used)if(used[k]>mx)mx=used[k];
+ for(var s=0;s<SETS;s++){
+  var n=used[s]||0;
+  nf(g,n?'rgba('+(m.missPct>50?'255,60,90':'125,226,176')+','+(0.2+0.75*n/mx)+')':'rgba(90,70,140,0.22)');
+  g.fillRect(14+(s%16)*22,42+Math.floor(s/16)*22,20,20);ng(g);}
+ nt(g,'#8a7ab8',14,140,8,'64 sets, brightness = lines competing for that set');
+ nt(g,'#5ad0ff',14,168,9,'sets touched     '+m.setsTouched+' of '+SETS);
+ nt(g,'#ffd76a',14,188,9,'lines per set    '+Math.round(LINES/Math.max(1,m.setsTouched))+
+  '   (ways available '+WAYS+')');
+ nt(g,m.missPct>50?'#ff5a8a':'#7de2b0',14,208,9,'miss rate        '+m.missPct+'%');
+ nf(g,'rgba(90,70,140,0.3)');g.fillRect(14,222,340,22);ng(g);
+ nf(g,m.missPct>50?'rgba(255,60,90,0.7)':'rgba(125,226,176,0.7)');
+ g.fillRect(14,222,Math.round(340*m.missPct/100),22);ng(g);
+ nt(g,'#e8e0ff',20,237,8,m.missPct+'% of '+m.accesses.toLocaleString()+' accesses missed');
+ nt(g,'#5a4a85',14,268,8,'the working set is '+(LINES*LINE/1024)+' KB in a '+
+  (LINE*SETS*WAYS/1024)+' KB cache -- it always fits');
+ nt(g,'#5a4a85',14,288,8,'padding by one line shifts the set and breaks the conflict');
+ var o=document.getElementById('casso');
+ if(o)o.innerHTML='stride <b>'+stride.toLocaleString()+'</b> &middot; <b>'+m.setsTouched+
+  '</b> of 64 sets &middot; miss <b>'+m.missPct+'%</b>';}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'SIXTY-FOUR SETS, ONE OF THEM ON FIRE');
+ var cx=W/2,cy=H/2+10,rr=Math.cos(ang*0.0175),sn=Math.sin(ang*0.0175);
+ for(var i=0;i<64;i++){
+  var t=i/64*6.283185307,rad=95,x=Math.cos(t)*rad,z=Math.sin(t)*rad;
+  var hot=(i===0);
+  var px=cx+x*rr-z*sn,py=cy+(x*sn+z*rr)*0.32;
+  ndot(g,px,py,hot?6:2.2,hot?'rgba(255,60,90,0.95)':'rgba(125,226,176,0.45)');}
+ nt(g,'#8a7ab8',12,H-22,8,'the room was never the constraint -- the address was');}
+document.getElementById('cassn').onclick=function(){stride=Math.min(65536,stride*2);drawW4();};
+document.getElementById('cassh').onclick=function(){stride=Math.max(64,Math.floor(stride/2));drawW4();};
+document.getElementById('cassp').onclick=function(){stride=stride+LINE;drawW4();};
+document.getElementById('cassr').onclick=function(){stride=4096;drawW4();};
+document.getElementById('casss').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecacheassociativity=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 260 · neon-noir · silicon-coding · THE LIE OF THE FLAT ADDRESS ═══════════════════════
 # ═══════════════════════ BATCH 259 · neon-noir · silicon-coding · THE COST OF A NAME ═══════════════════════
 # ═══════════════════════ BATCH 258 · neon-noir · silicon-coding · LATENCY, AND WHO IS ACTUALLY WAITING ═══════════════════════
 # ═══════════════════════ BATCH 257 · neon-noir · silicon-coding · WHAT GETS REUSED, AND WHAT THAT COSTS ═══════════════════════
@@ -102083,6 +103076,76 @@ SPHERES = [
   "lit":"enumerating every interleaving exhaustively, a plain unguarded reader against a two-field writer has 6 orderings of which 2 return a torn pair violating the invariant, while the same reader wrapped in a sequence counter gives 70 orderings of which 68 are detected and retried and 2 complete - and of those that complete, 0 are torn, with the reader performing 0 writes to shared state in every case; under a writer active 90% of the time 89.96% of reads retry and the worst observed run needed 101 attempts",
   "fig":"Seqlocks are a standard Linux kernel primitive used for jiffies, timekeeping and other write-rare data. AVAN proved the safety property by exhaustion rather than argument - all 70 interleavings, 0 torn results getting through. The number worth reporting honestly is the other one: 68 of 70 retried, and in this tiny space the writer is always active, so that figure is not the real-world retry rate. The rate sweep is, and it climbs to 89.96% exactly where the writer does.",
   "body":SQLK_BODY,"script":SQLK_SCRIPT},
+ {"slug":"the-tlb-reach","title":"THE TLB REACH","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"WARM CACHE","domain_slug":"warm-cache","accent":"#5ad0ff","icon":"\u25a6",
+  "kicker":"a unit trick, not a capacity gain",
+  "blurb":"The TLB holds a fixed number of translations, not a fixed amount of memory. Entries times page size is the only figure that matters: how much memory the machine can name without a walk.",
+  "lit":"1,536 entries with 4 KB pages reach 6 MB while the same 1,536 entries with 2 MB pages reach 3,072 MB - 512 times further with no extra silicon - which against a 512 MB working set is the difference between 98.8% uncovered and 0%, and one-gigabyte pages reach 1,572,864 MB",
+  "fig":"TLB reach is standard architecture vocabulary; the number is rarely printed because it is embarrassing. AVAN computed the coverage against a stated working set rather than quoting entry counts. 1,536 entries sounds generous and 6 MB does not, and they are the same fact. The whole case for huge pages is in that pair - the cache did not get bigger, the unit of account did.",
+  "body":TLBR_BODY,"script":TLBR_SCRIPT},
+ {"slug":"the-huge-page","title":"THE HUGE PAGE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"THE SANDBOX","domain_slug":"the-sandbox","accent":"#9d00ff","icon":"\u2b1c",
+  "kicker":"it helps most where it is needed least",
+  "blurb":"A bigger page means fewer translations to track. It also means every allocation rounds up to a bigger boundary, and the rounding is charged whether you asked for it or not.",
+  "lit":"4,000 allocations totalling 5,919,648,648 bytes take 1,447,224 pages and waste 0.14% at 4 KB, against 5,159 pages - 280.5 times fewer - and 82.77% waste at 2 MB: the page table shrinks by two and a half orders of magnitude while the memory bill rises by a factor of six",
+  "fig":"Transparent huge pages are on by default in most Linux distributions and periodically turned off by database vendors for exactly this reason. AVAN measured both columns from one allocation trace so the trade is a single fact rather than two arguments. 82.77% is what a workload of many small objects pays and a workload of few large ones pays almost nothing - neither number is a verdict on huge pages, the size distribution is, and it is the thing nobody measures before flipping the switch.",
+  "body":HUGP_BODY,"script":HUGP_SCRIPT},
+ {"slug":"the-numa-hop","title":"THE NUMA HOP","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"SHARED MEMORY","domain_slug":"shared-memory","accent":"#7cfc00","icon":"\u21c4",
+  "kicker":"the flat address space was the lie, and a load-bearing one",
+  "blurb":"On a multi-socket machine the memory is not one pool. Some is attached to your socket and some to the other, and reaching across costs a fixed toll on every access.",
+  "lit":"with local 80 ns and remote 140 ns as stated constants - a 75.0% penalty per access - all-local runs at 80 ns and all-remote at 140, a 1.75x slowdown for identical code on identical data, while an interleaved policy over 100,000 measured accesses landed remote 49.94% of the time and averaged 109.96 ns, almost exactly halfway",
+  "fig":"The 80/140 figures are a stated model, not a measurement of your machine - the latencies are hardware-specific. What is measured is the arithmetic they imply and the interleaving. AVAN is explicit about that boundary because it is where this kind of sphere usually cheats: the 1.75x follows from the two constants and nothing else, while the 49.94% is a real draw over 100,000 trials. Naming which numbers are assumed and which are measured is the difference between a model and a claim.",
+  "body":NUMA_BODY,"script":NUMA_SCRIPT},
+ {"slug":"the-prefetcher","title":"THE PREFETCHER","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"THE SPEEDRUN","domain_slug":"the-speedrun","accent":"#00f5ff","icon":"\u27a4",
+  "kicker":"the whole performance cliff is a missing sentence",
+  "blurb":"The hardware watches your address stream and fetches ahead of you. It is not clairvoyant - it is a pattern matcher, and it only wins when there is a pattern.",
+  "lit":"over 200,000 accesses, walking forward the next address is the previous plus one 199,999 times - 100.00% predictable, with a single miss at the very first access because nothing precedes it - while the identical count drawn at random is predictable 0 times, 0.00%, on the same data, same working set and same instruction count",
+  "fig":"Stride prefetchers have been in commodity CPUs since the 1990s and are why array code outruns pointer code by margins that look like measurement error. AVAN counted predictability rather than modelling a cache, because predictability is the property the prefetcher depends on and it can be counted exactly. The single miss in the sequential run is worth keeping: it is the cold start, and reporting 199,999 rather than rounding to all of them is the difference between a count and a slogan.",
+  "body":PREF_BODY,"script":PREF_SCRIPT},
+ {"slug":"the-write-combining","title":"THE WRITE COMBINING","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE HOT LOOP","domain_slug":"the-hot-loop","accent":"#39fc6b","icon":"\u2263",
+  "kicker":"the saving and the ordering bug are one mechanism",
+  "blurb":"A store buffer holds writes back briefly so several to the same cache line leave as one transaction. Write the line in order and you pay once for sixty-four stores. Scatter them and you pay every time.",
+  "lit":"100,000 stores over 64-byte lines combine into 1,563 bus transactions when written in order - 64.0 stores each, and exactly the number of distinct lines the data occupies - against 98,125 transactions when scattered, which is 62.8 times the traffic for the identical bytes",
+  "fig":"Write-combining buffers are why memcpy and framebuffer writes are fast, and why non-temporal stores exist. AVAN gated on the wrong arithmetic first: I asserted that combined transactions should equal 100000/64, which is 1562.5 - a value the counter can never take. The measurement of 1,563 was right all along and the assertion was impossible. The gate now compares against ceil, which is the number of distinct lines and the thing the claim is actually about.",
+  "body":WRCB_BODY,"script":WRCB_SCRIPT},
+ {"slug":"the-minor-fault","title":"THE MINOR FAULT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"THE CONTINUE","domain_slug":"the-continue","accent":"#ff2d95","icon":"\u21b3",
+  "kicker":"not an error being handled -- an allocation finally happening",
+  "blurb":"Not every page fault touches a disk. A minor fault means the page is already in memory and only the mapping was missing. The word fault is doing a lot of unearned work.",
+  "lit":"4,096 pages under 12,288 accesses give 3,880 minor faults, 0 major faults and 8,408 accesses with no fault at all, and the fault count equals the number of distinct pages ever touched exactly - 3,880 and 3,880 - because a page faults once and never again, while 216 pages were never touched and never cost anything",
+  "fig":"The minor/major distinction is why a process can report millions of faults and be perfectly healthy, and why fault count alone is a useless alarm. AVAN checked the identity rather than the rate: faults equal distinct pages touched. That is falsifiable, and it is what makes the number harmless - the count is bounded by your working set, not by your access count. 31.58% of accesses faulted here and nothing was wrong; the same figure with major faults would be a machine on its knees.",
+  "body":MNFT_BODY,"script":MNFT_SCRIPT},
+ {"slug":"the-strided-access","title":"THE STRIDED ACCESS","appeal_name":"GRIND","appeal_slug":"grind",
+  "domain_title":"THE GRINDSTONE","domain_slug":"the-grindstone","accent":"#00f5ff","icon":"|||",
+  "kicker":"the premium on an insurance policy everyone else claims on",
+  "blurb":"Memory arrives in cache lines, not in variables. Ask for four bytes and sixty-four turn up. Whether that is generous or wasteful depends on how far apart your next four bytes are.",
+  "lit":"with four-byte elements on 64-byte lines, stride 1 puts 16 elements on every line and uses 100.0% of what arrives while stride 16 puts 1 element per line and uses 6.3% - throwing away 93.7% of every line fetched - and past stride 16 nothing changes at all, because it is already one element per line and 6.3% is the floor",
+  "fig":"This is why array-of-structs and struct-of-arrays are different programs with the same data, and why column stores exist. AVAN swept every stride rather than contrasting two, because the shape matters more than the endpoints: efficiency halves with each doubling until it hits one element per line, then stops. The plateau is the useful part - beyond stride 16 the layout cannot get worse, which means the damage is done long before the access pattern looks dramatic.",
+  "body":STRD_BODY,"script":STRD_SCRIPT},
+ {"slug":"the-pointer-chase","title":"THE POINTER CHASE","appeal_name":"CHEAT","appeal_slug":"cheat",
+  "domain_title":"NOCLIP","domain_slug":"noclip","accent":"#ffd23f","icon":"\u27f3",
+  "kicker":"the program knows the future and has no way to say so",
+  "blurb":"To follow a linked list the machine must load a pointer before it knows which address to load next. The loads cannot overlap, be reordered or be prefetched, because the address does not exist until the previous load returns.",
+  "lit":"100,000 nodes arranged by Sattolo's algorithm into a single cycle: following it from node 0 visits 100,000 distinct nodes and returns to the start, verified rather than assumed, so every load depends on the one before it - and under a stated model of 4-cycle latency and 8-wide pipelining that is 400,000 cycles serial against 50,000 if they could overlap",
+  "fig":"Sattolo's algorithm is a one-character change from Fisher-Yates that guarantees a single cycle rather than a random permutation. AVAN needed that change: my first version used an ordinary shuffle and the chase visited 873 of 100,000 nodes before looping, because a random permutation decomposes into many short cycles - exactly what a pointer-chase benchmark must not have. The 4-cycle and 8-wide figures are a stated model; the 100,000-node single cycle is measured.",
+  "body":PTRC_BODY,"script":PTRC_SCRIPT},
+ {"slug":"the-denormal-stall","title":"THE DENORMAL STALL","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"FIRST LIGHT","domain_slug":"first-light","accent":"#00f5ff","icon":"\u25bf",
+  "kicker":"a slow, silent, correct-looking decline",
+  "blurb":"Below the smallest normal float there is one more range, where the leading bit is dropped and precision is traded away a bit at a time rather than all at once, so subtraction near zero keeps meaning something.",
+  "lit":"the smallest normal double is 2^-1022 and the smallest subnormal is 2^-1074, a range of exactly 2^52 or 4,503,599,627,370,496 times, computed and checked rather than quoted; halving the smallest subnormal gives exactly 0, which is the floor, and the difference between the smallest normal and its neighbour is representable so that a - b == 0 and a == b still agree",
+  "fig":"Gradual underflow was argued into IEEE 754 by William Kahan against real hardware opposition; subnormals are awkward and, on several generations of CPU, dramatically slow. AVAN computed the range rather than repeating 2^52 from a reference, and probed the floor by halving until the value became zero. The property worth having is not the extra range but that equality and subtraction do not disagree - without subnormals two distinct numbers can subtract to exactly zero, and every algorithm that tests equality by subtracting acquires a silent false positive near the origin.",
+  "body":DNST_BODY,"script":DNST_SCRIPT},
+ {"slug":"the-cache-associativity","title":"THE CACHE ASSOCIATIVITY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"\u25a4",
+  "kicker":"the room was never the constraint -- the address was",
+  "blurb":"A set-associative cache decides where a line may live from its address, not from how much room is free. Data that fits the cache several times over can still miss every time, if it all maps to the same set.",
+  "lit":"a 32 KB cache of 64 sets, 8 ways and 64-byte lines, walked 16 times over a 16 KB working set - half its capacity - misses 6.25% read sequentially, which is exactly the first pass and nothing more, and misses 100.00% read with a stride of 4,096 bytes, because every access lands in 1 set of 64 and eight ways cannot hold 256 lines",
+  "fig":"Conflict misses are why array dimensions get padded by one element and why power-of-two strides are a known hazard in numerical code. AVAN got the experiment wrong first: my initial version streamed 4,096 distinct lines through the cache with no reuse, so both arms missed 100% - compulsory misses, and a comparison that proved nothing. A capacity argument only means anything over a working set that fits and is revisited; rebuilt that way the sequential arm drops to 6.25% and the difference becomes the actual finding.",
+  "body":CASS_BODY,"script":CASS_SCRIPT},
  {"slug":"the-uuid-v7","title":"THE UUID V7","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"HELLO WORLD","domain_slug":"hello-world","accent":"#ffd23f","icon":"\u23f1",
   "kicker":"the randomness in v4 was the property, not the waste",
