@@ -33334,6 +33334,1020 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 271 · neon-noir · silicon-coding · THE TEST THAT PASSES ═══════════════════════
+SUT_JS = """
+function under(x,y){var r=0;if(x>0)r=r+1;if(y>0)r=r+2;return 10/r;}
+function classify(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(c)r+=4;if(a&&b)r=r-3+3;return r;}
+function correct(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(c)r+=4;if(a&&b)r=r+8;return r;}
+function allInputs(){var o=[],i;for(i=0;i<8;i++)o.push([!!(i&1),!!(i&2),!!(i&4)]);return o;}
+"""
+
+COVR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Coverage counts what ran. A line runs when any path through it runs, so a single test can execute every line of a function while leaving most of its behaviour untried.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>4</b>-line function, one test. Statement coverage <b>100.0%</b> &mdash; every line executes. Branch coverage <b>50.0%</b>: <b>2</b> of the <b>4</b> condition outcomes are taken, both of them the true side. Of the <b>4</b> input combinations, <b>1</b> divides by zero. The suite catches <b>0</b>. A green run at <b>100%</b> coverage, over code that fails on a quarter of its inputs.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Statement coverage is the number that gets reported because it is the one that is easy to reach; branch, condition and path coverage all get harder and all get quieter.<br><br>
+ <b>AVAN (AI)</b> built this wrong first. The original construction claimed <b>100%</b> coverage and measured <b>75%</b>, because no test in the suite ever reached the buggy line &mdash; the headline was simply false as written. Rebuilt on the canonical shape: the fault lives in the branch combination nobody took, and every line still runs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four lines, all green. Four outcomes, two taken.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add tests and watch which number moves.</div>
+   <div class="btns" style="margin-top:10px"><button id="covrn">add a test &#9654;</button><button id="covrl">remove one</button><button id="covrr">reset</button></div>
+   <div class="cap" id="covro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: every line lit, one path walked.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that coverage overstates how well a suite tests the code. The inverse is that <b>coverage is not a measure of testing at all &mdash; it is a measure of reaching</b>. It answers &ldquo;did this line execute&rdquo;, which is a true and useful fact, and no version of that question can tell you whether anybody checked the result. Read backwards, the metric is not lying; it is being asked a question it never claimed to answer, and the <b>100%</b> is the correct answer to the wrong one.</div>
+   <div class="btns" style="margin-top:10px"><button id="covrp">pause spin</button></div></div></div></div>"""
+COVR_SCRIPT = """(function(){""" + NOIR + KIT + SUT_JS + """
+var ang=0,spin=true,VR=null,n=1;
+var TESTS=[[1,1],[1,-1],[-1,1],[-1,-1]];
+function measure(k){
+ var suite=TESTS.slice(0,k),br={},i;
+ suite.forEach(function(t){
+  br['x'+(t[0]>0?'T':'F')]=true;br['y'+(t[1]>0?'T':'F')]=true;});
+ var caught=suite.filter(function(t){return !isFinite(under(t[0],t[1]));});
+ return {tests:suite.length,
+  stmtPct:suite.length?100:0,
+  branchTaken:Object.keys(br).length,
+  branchPct:+(100*Object.keys(br).length/4).toFixed(1),
+  caught:caught.length};}
+function selftest(){
+ var m=measure(1);
+ var broken=TESTS.filter(function(t){return !isFinite(under(t[0],t[1]));});
+ return {linesInFunction:4,testsInSuite:1,
+  statementCoveragePct:m.stmtPct,
+  branchCoveragePct:m.branchPct,
+  branchOutcomes:4,branchOutcomesTaken:m.branchTaken,
+  inputCombinations:4,
+  inputsThatDivideByZero:broken.length,
+  bugsTheSuiteCaught:m.caught,
+  everyLineRunsAndTheBugSurvives:m.stmtPct===100&&m.caught===0,
+  coverageMeasuresReachingNotChecking:true,
+  ok:m.stmtPct===100&&m.branchPct===50&&m.caught===0&&broken.length===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'FOUR LINES, ALL GREEN');
+ var src=['var r = 0;','if (x > 0) r = r + 1;','if (y > 0) r = r + 2;','return 10 / r;'];
+ var i;
+ for(i=0;i<4;i++){
+  var y=46+i*30;
+  nf(g,'rgba(125,226,176,0.24)');g.fillRect(16,y,300,24);ng(g);
+  nt(g,'#7de2b0',26,y+16,9,src[i]);
+  nt(g,'#5a4a85',326,y+16,8,'executed');}
+ nt(g,'#ff5a8a',16,186,9,'branch outcomes: x>0 true taken, false NOT');
+ nt(g,'#ff5a8a',16,204,9,'                 y>0 true taken, false NOT');
+ krow(g,16,214,300,'statement coverage %',VR.statementCoveragePct,1,
+  'rgba(125,226,176,0.85)');
+ krow(g,16,254,300,'branch coverage %',VR.branchCoveragePct,0.5,
+  'rgba(255,60,90,0.85)');
+ kverdict(g,12,262-4,W-24,false,'1 of 4 inputs divides by zero and the suite '+
+  'catches 0 -- green at 100% coverage');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=measure(n);
+ nt(g,'#ffd23f',12,20,11,n+' TEST'+(n===1?'':'S'));
+ var i;
+ for(i=0;i<4;i++){
+  var inSuite=i<n,bad=!isFinite(under(TESTS[i][0],TESTS[i][1]));
+  nf(g,inSuite?(bad?'rgba(255,60,90,0.8)':'rgba(125,226,176,0.75)')
+              :'rgba(90,70,140,0.25)');
+  g.fillRect(14+i*86,44,78,40);ng(g);
+  nt(g,inSuite?'#0a0713':'#8a7ab8',22+i*86,68,8,
+   '('+TESTS[i][0]+','+TESTS[i][1]+')');}
+ nt(g,'#8a7ab8',14,100,8,'green = in the suite, red = the one that divides by zero');
+ krow(g,14,118,230,'statement coverage %',m.stmtPct,m.stmtPct/100,
+  'rgba(125,226,176,0.85)');
+ krow(g,14,160,230,'branch coverage %',m.branchPct,m.branchPct/100,
+  'rgba(255,210,63,0.8)');
+ krow(g,14,202,230,'bugs caught',m.caught,m.caught,'rgba(255,60,90,0.85)');
+ kverdict(g,12,244,W-24,m.caught>0,m.caught>0?
+  'the failing input is in the suite and the bug is found':
+  'statement coverage is already 100% and nothing has been checked');
+ nt(g,'#5a4a85',14,296,8,'it answers did this line execute, and answers it correctly');
+ kout('covro',n+' tests &middot; statement <b>'+m.stmtPct+'%</b> &middot; branch <b>'+
+  m.branchPct+'%</b> &middot; caught <b>'+m.caught+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'EVERY LINE LIT, ONE PATH WALKED');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N,onPath=(i%4===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:onPath?-14:12,
+   c:onPath?'rgba(125,226,176,0.9)':'rgba(90,70,140,0.3)',r:onPath?3.2:1.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'the correct answer to the wrong question');}
+document.getElementById('covrn').onclick=function(){n=Math.min(4,n+1);drawW4();};
+document.getElementById('covrl').onclick=function(){n=Math.max(1,n-1);drawW4();};
+document.getElementById('covrr').onclick=function(){n=1;drawW4();};
+document.getElementById('covrp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecodecoverage=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MUTA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Change the code on purpose, in small wrong ways, and see whether the suite notices. What it fails to notice is the honest measure of what it was checking.<br><br>
+ <span class="lit">LIT</span> verified live. <b>8</b> mutants against a suite with <b>100%</b> line coverage. <b>6</b> are killed and <b>2</b> survive: a mutation that deletes the entire bonus, and one that changes nothing at all. Mutation score <b>75.0%</b> where coverage says <b>100</b>. <b>1</b> of the survivors is <i>equivalent</i> &mdash; it produces identical output on all <b>8</b> inputs, so no test can ever kill it and the score can never reach <b>100</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Mutation testing is <b>Lipton</b>, <b>DeMillo</b> and <b>Sayward</b>&rsquo;s (1978); the equivalent-mutant problem is undecidable in general, which is why the score is always a lower bound.<br><br>
+ <b>AVAN (AI)</b> planted an equivalent mutant deliberately. Without it the number reads like a target to push to <b>100</b>. With it, the ceiling is unreachable and unknown, and the score becomes what it actually is &mdash; a comparison against yesterday rather than a percentage of anything.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight mutants, six killed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add the test that kills a survivor.</div>
+   <div class="btns" style="margin-top:10px"><button id="mutan">add a test &#9654;</button><button id="mutam">next mutant</button><button id="mutar">reset</button></div>
+   <div class="cap" id="mutao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a fault nobody would notice.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that mutation testing measures suite quality honestly. The inverse is that <b>it measures the suite against faults somebody thought to inject</b>. The mutation operators are a catalogue &mdash; swap an operator, delete a statement, flip a boundary &mdash; and a real defect that is not in the catalogue leaves the score untouched. Read backwards, the score is not the fraction of bugs the suite would catch; it is the fraction of a particular list, and its value comes from the list being longer than the one in your head.</div>
+   <div class="btns" style="margin-top:10px"><button id="mutap">pause spin</button></div></div></div></div>"""
+MUTA_SCRIPT = """(function(){""" + NOIR + KIT + SUT_JS + """
+var ang=0,spin=true,VR=null,extra=0,mi=0;
+var MUT=[
+ {n:'r+=1 -> r+=2',f:function(a,b,c){var r=0;if(a)r+=2;if(b)r+=2;if(c)r+=4;if(a&&b)r+=8;return r;}},
+ {n:'r+=2 -> r-=2',f:function(a,b,c){var r=0;if(a)r+=1;if(b)r-=2;if(c)r+=4;if(a&&b)r+=8;return r;}},
+ {n:'if(c) -> if(!c)',f:function(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(!c)r+=4;if(a&&b)r+=8;return r;}},
+ {n:'a&&b -> a||b',f:function(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(c)r+=4;if(a||b)r+=8;return r;}},
+ {n:'r+=8 -> r+=0',f:function(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(c)r+=4;if(a&&b)r+=0;return r;}},
+ {n:'return r -> return 0',f:function(){return 0;}},
+ {n:'a&&b -> true',f:function(a,b,c){var r=0;if(a)r+=1;if(b)r+=2;if(c)r+=4;r+=8;return r;}},
+ {n:'no-op rewrite (equivalent)',f:function(a,b,c){return correct(a,b,c);}}];
+var BASE=[[true,false,false],[false,true,false],[false,false,true]];
+var EXTRA=[[true,true,false],[true,true,true]];
+function suiteOf(k){return BASE.concat(EXTRA.slice(0,k));}
+function kills(m,suite){
+ return suite.some(function(t){return m.f(t[0],t[1],t[2])!==correct(t[0],t[1],t[2]);});}
+function isEquivalent(m){
+ return allInputs().every(function(t){
+  return m.f(t[0],t[1],t[2])===correct(t[0],t[1],t[2]);});}
+function score(k){
+ var s=suiteOf(k),killed=MUT.filter(function(m){return kills(m,s);});
+ return {tests:s.length,killed:killed.length,
+  survived:MUT.length-killed.length,
+  pct:+(100*killed.length/MUT.length).toFixed(1)};}
+function selftest(){
+ var m=score(0);
+ var eq=MUT.filter(isEquivalent).length;
+ return {mutants:MUT.length,tests:BASE.length,lineCoveragePct:100,
+  killed:m.killed,survived:m.survived,
+  mutationScorePct:m.pct,
+  survivingMutants:MUT.filter(function(x){return !kills(x,suiteOf(0));})
+    .map(function(x){return x.n;}),
+  equivalentMutantsThatCannotBeKilled:eq,
+  theCeilingIsBelowOneHundredAndUnknown:eq>0,
+  coverageSaysOneHundred:true,
+  ok:m.killed===6&&m.survived===2&&eq===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'EIGHT MUTANTS, SIX KILLED');
+ var s=suiteOf(0),i;
+ for(i=0;i<MUT.length;i++){
+  var y=42+i*28,k=kills(MUT[i],s),eq=isEquivalent(MUT[i]);
+  nf(g,k?'rgba(125,226,176,0.22)':(eq?'rgba(255,210,63,0.24)':'rgba(255,60,90,0.24)'));
+  g.fillRect(16,y,470,24);ng(g);
+  nt(g,k?'#7de2b0':(eq?'#ffd76a':'#ff5a8a'),26,y+16,9,MUT[i].n);
+  nt(g,'#8a7ab8',330,y+16,8,k?'killed':(eq?'EQUIVALENT -- unkillable':'survived'));}
+ kverdict(g,12,272,W-24,false,'coverage says 100, mutation says '+
+  VR.mutationScorePct+', and 1 survivor can never be killed by any test');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=score(extra),cur=MUT[mi%MUT.length],s=suiteOf(extra);
+ nt(g,'#7cfc00',12,20,11,m.tests+' TESTS   SCORE '+m.pct+'%');
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,42,340,44);ng(g);
+ nt(g,'#e8e0ff',24,70,9,cur.n);
+ var k=kills(cur,s),eq=isEquivalent(cur);
+ nf(g,k?'rgba(125,226,176,0.25)':(eq?'rgba(255,210,63,0.25)':'rgba(255,60,90,0.25)'));
+ g.fillRect(14,94,340,40);ng(g);
+ nt(g,k?'#7de2b0':(eq?'#ffd76a':'#ff5a8a'),24,120,10,
+  k?'killed by this suite':(eq?'equivalent -- no test can kill it':'survives'));
+ krow(g,14,146,230,'killed',m.killed,m.killed/8,'rgba(125,226,176,0.85)');
+ krow(g,14,188,230,'survived',m.survived,m.survived/8,'rgba(255,60,90,0.85)');
+ krow(g,14,230,230,'mutation score %',m.pct,m.pct/100,'rgba(255,210,63,0.8)');
+ kverdict(g,12,272,W-24,m.pct>=87.5,
+  'the ceiling is below 100 and nobody knows where -- equivalence is undecidable');
+ kout('mutao',m.tests+' tests &middot; killed <b>'+m.killed+'</b> &middot; score <b>'+
+  m.pct+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A FAULT NOBODY WOULD NOTICE');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N,alive=(i%9<2);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:alive?-18:8,
+   c:alive?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.5)',r:alive?3.6:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the fraction of a particular list');}
+document.getElementById('mutan').onclick=function(){extra=Math.min(2,extra+1);drawW4();};
+document.getElementById('mutam').onclick=function(){mi++;drawW4();};
+document.getElementById('mutar').onclick=function(){extra=0;mi=0;drawW4();};
+document.getElementById('mutap').onclick=function(){spin=!spin;};
+VR=selftest();window.__themutationscore=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLKY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A test that passes <b>99.9%</b> of the time sounds excellent. Run five thousand of them and the suite is green less than one run in a hundred.<br><br>
+ <span class="lit">LIT</span> verified live. At a per-test failure rate of <b>0.1%</b>: <b>100</b> tests give a suite that passes <b>90.48%</b> of the time. <b>1,000</b> tests: <b>36.77%</b>. <b>5,000</b> tests: <b>0.67%</b> green and <b>99.33%</b> red, with <b>5.00</b> expected failures per run. Nothing about any individual test changed. Per-test reliability has to scale with the suite, and <b>99.9%</b> does not survive contact with five thousand.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why large suites quarantine flaky tests rather than tolerate them: at scale, tolerable individually is impossible collectively.<br><br>
+ <b>AVAN (AI)</b> shows the <b>100</b>-test row first because that is where the intuition is formed. <b>90.48%</b> green feels like a slightly annoying suite. The same tests, fifty times as many, produce a suite that essentially never passes &mdash; and the only thing that changed is a count nobody thinks of as a reliability parameter.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Suite size against the chance of a green run.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the suite. Fix the flake rate. Watch.</div>
+   <div class="btns" style="margin-top:10px"><button id="flkym">more tests &#9654;</button><button id="flkyl">fewer</button><button id="flkyf">better tests</button><button id="flkyr">reset</button></div>
+   <div class="cap" id="flkyo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: five thousand near-certainties.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that flaky tests make a suite unreliable. The inverse is that <b>the suite is reporting correctly and the expectation is what is wrong</b>. A red run at <b>5,000</b> tests and <b>0.1%</b> flake is the accurate output of the system as built; demanding an all-green run is demanding <b>5,000</b> independent near-certainties to land at once. Read backwards, nobody chose that requirement &mdash; it arrived by adding tests, one at a time, each of which made the suite better and the green run less likely.</div>
+   <div class="btns" style="margin-top:10px"><button id="flkyp">pause spin</button></div></div></div></div>"""
+FLKY_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=5000,p=0.001;
+function calc(n,q){
+ var green=Math.pow(1-q,n);
+ return {tests:n,rate:q,greenPct:100*green,redPct:100*(1-green),
+  expected:n*q};}
+function selftest(){
+ var rows=[[100,0.001],[1000,0.001],[5000,0.001],[5000,0.0001],[20000,0.0001]]
+  .map(function(c){
+   var m=calc(c[0],c[1]);
+   return {tests:m.tests,perTestFailurePct:+(100*m.rate).toFixed(3),
+    perTestReliabilityPct:+(100*(1-m.rate)).toFixed(3),
+    suiteGreenPct:+m.greenPct.toFixed(2),suiteRedPct:+m.redPct.toFixed(2),
+    expectedFailuresPerRun:+m.expected.toFixed(2)};});
+ return {rows:rows,
+  atOneHundredTestsGreenPct:rows[0].suiteGreenPct,
+  atOneThousandGreenPct:rows[1].suiteGreenPct,
+  atFiveThousandGreenPct:rows[2].suiteGreenPct,
+  atFiveThousandRedPct:rows[2].suiteRedPct,
+  perTestReliabilityPct:rows[2].perTestReliabilityPct,
+  expectedFailuresAtFiveThousand:rows[2].expectedFailuresPerRun,
+  nothingAboutAnyIndividualTestChanged:true,
+  reliabilityMustScaleWithSuiteSize:true,
+  ok:rows[2].suiteGreenPct<1&&rows[0].suiteGreenPct>90};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'SUITE SIZE AGAINST A GREEN RUN');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var y=48+i*44,r=R[i];
+  nt(g,'#8a7ab8',20,y+20,9,r.tests.toLocaleString()+' tests @ '+
+   r.perTestFailurePct+'%');
+  nf(g,'rgba(255,60,90,0.7)');g.fillRect(230,y,240,28);ng(g);
+  nf(g,'rgba(125,226,176,0.9)');
+  g.fillRect(230,y,Math.max(1,Math.round(240*r.suiteGreenPct/100)),28);ng(g);
+  nt(g,'#e8e0ff',238,y+19,9,r.suiteGreenPct+'% green');}
+ nt(g,'#5a4a85',20,272,8,'green bar = the chance the whole suite passes');
+ kverdict(g,12,262-4,W-24,false,'99.9% per test, and at 5,000 tests the suite is '+
+  'green '+VR.atFiveThousandGreenPct+'% of the time');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=calc(N,p);
+ nt(g,'#39fc6b',12,20,11,N.toLocaleString()+' TESTS @ '+
+  (100*(1-p)).toFixed(3)+'% RELIABLE');
+ kgrid(g,14,44,40,4,8.6,10,function(i){
+  return (i/160)<(m.greenPct/100)?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.75)';});
+ nt(g,'#8a7ab8',14,102,8,'160 runs; green = the whole suite passed');
+ krow(g,14,120,230,'suite green %',+m.greenPct.toFixed(2),m.greenPct/100,
+  'rgba(125,226,176,0.85)');
+ krow(g,14,162,230,'expected failures per run',+m.expected.toFixed(2),
+  Math.min(1,m.expected/10),'rgba(255,60,90,0.85)');
+ krow(g,14,204,230,'per-test reliability %',+(100*(1-p)).toFixed(3),1,
+  'rgba(90,208,255,0.7)');
+ kverdict(g,12,246,W-24,m.greenPct>50,m.greenPct<5?
+  'the suite essentially never passes, and every test in it is excellent':
+  'tolerable -- for now');
+ nt(g,'#5a4a85',14,298,8,'it arrived by adding tests, each of which made it better');
+ kout('flkyo',N.toLocaleString()+' tests &middot; green <b>'+
+  m.greenPct.toFixed(2)+'%</b> &middot; expected failures <b>'+
+  m.expected.toFixed(2)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'FIVE THOUSAND NEAR-CERTAINTIES');
+ korb(g,W/2,H/2+10,ang,60,function(i,N2){
+  var t=i/N2,bad=(i===37);
+  return {x:(t-0.5)*260,z:Math.sin(t*6.283)*30,y:bad?-22:0,
+   c:bad?'rgba(255,60,90,0.95)':'rgba(125,226,176,0.55)',r:bad?4.6:1.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'one is enough, and there are five thousand chances');}
+document.getElementById('flkym').onclick=function(){N=Math.min(100000,N*2);drawW4();};
+document.getElementById('flkyl').onclick=function(){N=Math.max(50,Math.floor(N/2));drawW4();};
+document.getElementById('flkyf').onclick=function(){p=p<=0.00001?0.01:p/10;drawW4();};
+document.getElementById('flkyr').onclick=function(){N=5000;p=0.001;drawW4();};
+document.getElementById('flkyp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theflakytest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ASRT_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A test that calls the code and checks nothing still runs every line it touches. It contributes to coverage, it appears in the count, it goes green &mdash; and it can only fail if the code throws.<br><br>
+ <span class="lit">LIT</span> verified live. A suite of <b>4</b> tests of which <b>3</b> assert nothing &mdash; <b>75.0%</b>. Those three contribute <b>100%</b> line coverage on their own and can detect <b>0</b> defects, because a defect that returns the wrong value returns it silently. The single test that does assert finds the bug. The other three would pass forever against any implementation that does not crash.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is what a coverage target produces when it is enforced without a mutation score beside it: the cheapest way to raise coverage is to call things.<br><br>
+ <b>AVAN (AI)</b> notes the one thing an assertion-free test <i>can</i> catch, which is a crash. That is not nothing &mdash; smoke tests are exactly this and they are worth having. What they cannot do is distinguish a correct answer from a wrong one, and a suite made mostly of them reports a number that has no relationship to correctness.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four tests, one question asked.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Break the implementation and see who notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="asrtb">break the code &#9654;</button><button id="asrtc">make it crash</button><button id="asrtr">reset</button></div>
+   <div class="cap" id="asrto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a test with no question in it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a test without an assertion is worthless. The inverse is that <b>it is the only kind of test that never gives a false failure</b>. It cannot break when behaviour legitimately changes, cannot need updating, cannot argue with a refactor &mdash; and a suite of them costs nothing to maintain, which is exactly why they accumulate. Read backwards, the assertion is the entire cost and the entire value of a test, and every one you write is a commitment to defend a specific answer against the future.</div>
+   <div class="btns" style="margin-top:10px"><button id="asrtp">pause spin</button></div></div></div></div>"""
+ASRT_SCRIPT = """(function(){""" + NOIR + KIT + SUT_JS + """
+var ang=0,spin=true,VR=null,mode=0;
+var SUITE=[
+ {n:'calls classify(T,F,F)',asserts:false},
+ {n:'calls classify(F,T,F)',asserts:false},
+ {n:'calls classify(F,F,T)',asserts:false},
+ {n:'asserts classify(T,T,F) === 11',asserts:true}];
+function impl(m,a,b,c){
+ if(m===2)throw new Error('crash');
+ if(m===1)return 0;
+ return classify(a,b,c);}
+function runSuite(m){
+ return SUITE.map(function(t,i){
+  var pass=true;
+  try{
+   var v=impl(m,i===3,i===3||i===1,i===2);
+   if(t.asserts&&v!==correct(true,true,false))pass=false;
+  }catch(e){pass=false;}
+  return {n:t.n,asserts:t.asserts,pass:pass};});}
+function selftest(){
+ var silent=SUITE.filter(function(t){return !t.asserts;});
+ var buggy=classify(true,true,false)!==correct(true,true,false);
+ return {tests:SUITE.length,
+  assertionFreeTests:silent.length,
+  assertionFreePct:+(100*silent.length/SUITE.length).toFixed(1),
+  lineCoverageFromAssertionFreeTestsPct:100,
+  defectsAnAssertionFreeTestCanDetect:0,
+  itFailsOnlyIfTheCodeThrows:true,
+  theOneAssertionFindsTheBug:buggy,
+  aTestWithoutAQuestionHasNoAnswer:true,
+  theyNeverGiveAFalseFailure:true,
+  ok:silent.length===3&&buggy};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'FOUR TESTS, ONE QUESTION ASKED');
+ var i;
+ for(i=0;i<SUITE.length;i++){
+  var y=52+i*44;
+  nf(g,SUITE[i].asserts?'rgba(125,226,176,0.24)':'rgba(255,210,63,0.2)');
+  g.fillRect(16,y,470,34);ng(g);
+  nt(g,SUITE[i].asserts?'#7de2b0':'#ffd76a',26,y+22,9,SUITE[i].n);
+  nt(g,'#8a7ab8',330,y+22,8,SUITE[i].asserts?'asks something':'asks nothing');}
+ krow(g,16,238,300,'defects the silent three can detect',0,0,
+  'rgba(255,60,90,0.85)');
+ kverdict(g,12,262-6,W-24,false,VR.assertionFreePct+
+  '% of the suite contributes 100% coverage and can catch 0 wrong answers');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var R=runSuite(mode);
+ nt(g,'#7cfc00',12,20,11,mode===0?'CODE AS SHIPPED':
+  (mode===1?'IMPLEMENTATION RETURNS 0':'IMPLEMENTATION CRASHES'));
+ var i;
+ for(i=0;i<R.length;i++){
+  var y=44+i*44;
+  nf(g,R[i].pass?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.28)');
+  g.fillRect(14,y,340,36);ng(g);
+  nt(g,R[i].pass?'#7de2b0':'#ff5a8a',24,y+23,8,R[i].n.slice(0,40));
+  nt(g,'#8a7ab8',300,y+23,8,R[i].pass?'pass':'FAIL');}
+ var failed=R.filter(function(r){return !r.pass;}).length;
+ krow(g,14,232,230,'tests failing',failed,failed/4,'rgba(255,60,90,0.85)');
+ kverdict(g,12,274,W-24,failed>0,mode===1?
+  'the implementation returns 0 for everything and three tests are still green':
+  (mode===2?'a crash is the one thing they can see':
+   'the shipped code is wrong and one test knows'));
+ nt(g,'#5a4a85',14,318,8,'it cannot break when behaviour legitimately changes');
+ kout('asrto',(mode===0?'as shipped':(mode===1?'returns 0':'crashes'))+
+  ' &middot; failing <b>'+failed+'</b> of 4');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TEST WITH NO QUESTION IN IT');
+ korb(g,W/2,H/2+10,ang,20,function(i,N){
+  var t=i/N,asks=(i===13);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:asks?-20:6,
+   c:asks?'rgba(125,226,176,0.95)':'rgba(255,210,63,0.35)',r:asks?4.4:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'a commitment to defend a specific answer against the future');}
+document.getElementById('asrtb').onclick=function(){mode=1;drawW4();};
+document.getElementById('asrtc').onclick=function(){mode=2;drawW4();};
+document.getElementById('asrtr').onclick=function(){mode=0;drawW4();};
+document.getElementById('asrtp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theassertionfree=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GLDN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Record what the code does today, commit it, and fail the build when it changes. The suite now defends the current behaviour &mdash; including every bug in it.<br><br>
+ <span class="lit">LIT</span> verified live. <b>8</b> golden files recorded from an implementation with a known defect. All <b>8</b> pass before the fix. Fix the defect and <b>2</b> of them fail &mdash; <b>25.0%</b> of the suite goes red because the code became correct. The other <b>6</b> still pass. Green means unchanged; it has never meant right.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Golden or snapshot tests are enormously effective at catching unintended change, which is a different job from catching incorrectness, and the two are easy to confuse when the output is green.<br><br>
+ <b>AVAN (AI)</b> reports the <b>6</b> that still pass alongside the <b>2</b> that break. A correct change breaking a quarter of the suite is the visible half; the invisible half is that three quarters of the golden files were never testing the defect at all and would have stayed green either way.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight recordings, before and after the fix.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Fix the bug. Re-record. Fix it again.</div>
+   <div class="btns" style="margin-top:10px"><button id="gldnf">fix the bug &#9654;</button><button id="gldnr2">re-record the goldens</button><button id="gldnr">reset</button></div>
+   <div class="cap" id="gldno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: yesterday, held as the answer.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that golden tests freeze bugs into the expected output. The inverse is that <b>they are the only tests that require no opinion about what is correct</b>. Every other test needs somebody to know the right answer and write it down; a golden test needs only that the behaviour be observed, which is why they can be generated for systems nobody fully understands. Read backwards, the bug is frozen in because the method was designed for exactly the case where nobody could have said what should have been there instead.</div>
+   <div class="btns" style="margin-top:10px"><button id="gldnp">pause spin</button></div></div></div></div>"""
+GLDN_SCRIPT = """(function(){""" + NOIR + KIT + SUT_JS + """
+var ang=0,spin=true,VR=null,fixed=false,rerecorded=false;
+function goldens(fromFixed){
+ return allInputs().map(function(t){
+  return fromFixed?correct(t[0],t[1],t[2]):classify(t[0],t[1],t[2]);});}
+function state(fx,rr){
+ var gold=goldens(rr);
+ var now=allInputs().map(function(t){
+  return fx?correct(t[0],t[1],t[2]):classify(t[0],t[1],t[2]);});
+ var fail=0,i;
+ for(i=0;i<gold.length;i++)if(gold[i]!==now[i])fail++;
+ return {gold:gold,now:now,fail:fail,pass:gold.length-fail};}
+function selftest(){
+ var before=state(false,false),after=state(true,false);
+ return {goldenFiles:8,
+  recordedFromTheBuggyImplementation:true,
+  passingBeforeTheFix:before.pass,
+  failingAfterTheFix:after.fail,
+  stillPassingAfterTheFix:after.pass,
+  pctBrokenByACorrectChange:+(100*after.fail/8).toFixed(1),
+  pctThatNeverTestedTheDefect:+(100*after.pass/8).toFixed(1),
+  theSuiteDefendsTheBug:after.fail>0,
+  greenMeansUnchangedNotCorrect:true,
+  noOpinionAboutCorrectnessRequired:true,
+  ok:before.pass===8&&after.fail===2&&after.pass===6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'EIGHT RECORDINGS, BEFORE AND AFTER');
+ var b=state(false,false),a=state(true,false),I=allInputs(),i;
+ nt(g,'#8a7ab8',20,48,9,'before the fix');
+ for(i=0;i<8;i++){
+  nf(g,'rgba(125,226,176,0.85)');g.fillRect(140+i*42,34,36,24);ng(g);
+  nt(g,'#0a0713',148+i*42,51,8,''+b.gold[i]);}
+ nt(g,'#8a7ab8',20,102,9,'after the fix');
+ for(i=0;i<8;i++){
+  var broke=b.gold[i]!==a.now[i];
+  nf(g,broke?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.85)');
+  g.fillRect(140+i*42,88,36,24);ng(g);
+  nt(g,'#0a0713',148+i*42,105,8,''+a.now[i]);}
+ nt(g,'#ff5a8a',140,132,8,'red = a golden file that now FAILS because the code is right');
+ krow(g,20,148,300,'passing before',8,1,'rgba(125,226,176,0.85)');
+ krow(g,20,190,300,'failing after a CORRECT fix',a.fail,a.fail/8,
+  'rgba(255,60,90,0.85)');
+ krow(g,20,232,300,'never tested the defect',a.pass,a.pass/8,
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,262-4,W-24,false,VR.pctBrokenByACorrectChange+
+  '% goes red for being correct, and '+VR.pctThatNeverTestedTheDefect+
+  '% was never testing it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=state(fixed,rerecorded);
+ nt(g,'#9d00ff',12,20,11,(fixed?'CODE FIXED':'CODE AS SHIPPED')+
+  (rerecorded?'   [re-recorded]':''));
+ var i;
+ for(i=0;i<8;i++){
+  var bad=s.gold[i]!==s.now[i];
+  nf(g,bad?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.8)');
+  g.fillRect(14+(i%4)*86,44+Math.floor(i/4)*54,78,44);ng(g);
+  nt(g,'#0a0713',22+(i%4)*86,72+Math.floor(i/4)*54,9,
+   s.gold[i]+' / '+s.now[i]);}
+ nt(g,'#8a7ab8',14,166,8,'golden / actual -- red where they disagree');
+ krow(g,14,184,230,'failing',s.fail,s.fail/8,'rgba(255,60,90,0.85)');
+ krow(g,14,226,230,'passing',s.pass,s.pass/8,'rgba(125,226,176,0.85)');
+ kverdict(g,12,268,W-24,s.fail===0,
+  s.fail>0?'the suite is red because the code became correct':
+  (rerecorded&&fixed?'green again -- and the goldens now encode the FIXED behaviour':
+   'green, and the bug is what is being defended'));
+ kout('gldno',(fixed?'fixed':'buggy')+(rerecorded?', re-recorded':'')+
+  ' &middot; failing <b>'+s.fail+'</b> of 8');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'YESTERDAY, HELD AS THE ANSWER');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N,frozen=(i%4===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:frozen?'rgba(157,0,255,0.75)':'rgba(125,226,176,0.55)',r:frozen?3.2:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'designed for the case where nobody could say what should be there');}
+document.getElementById('gldnf').onclick=function(){fixed=!fixed;drawW4();};
+document.getElementById('gldnr2').onclick=function(){rerecorded=fixed;drawW4();};
+document.getElementById('gldnr').onclick=function(){fixed=false;rerecorded=false;drawW4();};
+document.getElementById('gldnp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegoldentest=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PROP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Hand-written examples test the cases you thought of. That is their whole strength and their whole limit &mdash; the bug lives in the case you did not think of, because if you had thought of it you would have fixed it.<br><br>
+ <span class="lit">LIT</span> verified live. An input space of <b>8</b>, of which <b>2</b> are wrong &mdash; <b>25.0%</b>. Four hand-written examples, chosen the way a person chooses them &mdash; all false, then each input alone &mdash; find <b>0</b> of them. Two hundred property runs of <b>20</b> random draws each find the bug in <b>199</b>: a detection rate of <b>99.5%</b>. The generator is not smarter. It is just not selecting for what already made sense.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Property-based testing is <b>QuickCheck</b>&rsquo;s idea (Claessen and Hughes, 2000): state a law, let the machine hunt for a counterexample, then shrink it.<br><br>
+ <b>AVAN (AI)</b> picked the four examples <i>before</i> looking at where the bug was, using the obvious pattern &mdash; the empty case and each flag on its own. That is what makes the <b>0</b> honest. Choosing them afterwards would have proved nothing except that examples can be made to miss.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight inputs. Four chosen. Two wrong.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Draw random inputs until something breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="propd">draw &#9654;</button><button id="propm">more draws per run</button><button id="propr">reset</button></div>
+   <div class="cap" id="propo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the case nobody chose.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that generated inputs find what examples miss. The inverse is that <b>the generator needs a property, and the property is the hard part</b>. A random input is worthless without a law to check it against, and stating that law &mdash; &ldquo;the result is always the sum of the set bits&rdquo; &mdash; requires understanding the code better than writing an example does. Read backwards, property testing does not remove the thinking; it moves it from enumerating cases to naming what is true of all of them, which is harder and is why so few suites have any.</div>
+   <div class="btns" style="margin-top:10px"><button id="propp">pause spin</button></div></div></div></div>"""
+PROP_SCRIPT = """(function(){""" + NOIR + KIT + SUT_JS + """
+var ang=0,spin=true,VR=null,draws=20,seed=0;
+var EXAMPLES=[[false,false,false],[true,false,false],[false,true,false],[false,false,true]];
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function wrong(t){return classify(t[0],t[1],t[2])!==correct(t[0],t[1],t[2]);}
+function propRun(N,sd){
+ var r=rng(sd),i;
+ for(i=0;i<N;i++){
+  var t=[r()<0.5,r()<0.5,r()<0.5];
+  if(wrong(t))return {found:true,at:i+1,input:t};}
+ return {found:false,at:N,input:null};}
+function selftest(){
+ var I=allInputs(),bad=I.filter(wrong);
+ var byExample=EXAMPLES.filter(wrong).length;
+ var trials=200,hits=0,i;
+ for(i=0;i<trials;i++)if(propRun(20,1000+i*7919).found)hits++;
+ return {inputSpace:I.length,
+  buggyInputs:bad.length,
+  buggyFractionPct:+(100*bad.length/I.length).toFixed(1),
+  handWrittenExamples:EXAMPLES.length,
+  bugsFoundByExamples:byExample,
+  propertyRuns:trials,drawsPerRun:20,
+  propertyRunsThatFoundIt:hits,
+  propertyDetectionRatePct:+(100*hits/trials).toFixed(1),
+  examplesChosenBeforeLookingAtTheBug:true,
+  examplesTestWhatYouThoughtOf:byExample===0,
+  ok:byExample===0&&hits>=190&&bad.length===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'EIGHT INPUTS. FOUR CHOSEN. TWO WRONG.');
+ var I=allInputs(),i;
+ for(i=0;i<I.length;i++){
+  var t=I[i],x=24+i*60,bad=wrong(t);
+  var chosen=EXAMPLES.some(function(e){
+   return e[0]===t[0]&&e[1]===t[1]&&e[2]===t[2];});
+  nf(g,bad?'rgba(255,60,90,0.8)':'rgba(90,70,140,0.3)');
+  g.fillRect(x,50,52,46);ng(g);
+  if(chosen){ne(g,'rgba(125,226,176,0.95)',2.5);g.strokeRect(x,50,52,46);ng(g);}
+  nt(g,'#e8e0ff',x+6,78,8,(t[0]?'T':'F')+(t[1]?'T':'F')+(t[2]?'T':'F'));}
+ nt(g,'#7de2b0',24,116,8,'green outline = a hand-written example');
+ nt(g,'#ff5a8a',260,116,8,'red fill = the code is wrong here');
+ nt(g,'#ffd76a',24,142,10,'the four chosen examples and the two wrong inputs do not overlap');
+ krow(g,20,158,300,'bugs found by examples',VR.bugsFoundByExamples,0,
+  'rgba(255,60,90,0.85)');
+ krow(g,20,200,300,'property runs that found it',VR.propertyRunsThatFoundIt,
+  VR.propertyRunsThatFoundIt/200,'rgba(125,226,176,0.85)');
+ kverdict(g,12,244,W-24,false,'examples '+VR.bugsFoundByExamples+' of 200 runs, '+
+  'random draws '+VR.propertyDetectionRatePct+'% -- the generator is not smarter');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=propRun(draws,4242+seed*97);
+ nt(g,'#5ad0ff',12,20,11,draws+' DRAWS'+(m.found?'   FOUND AT '+m.at:'   NOTHING'));
+ var r=rng(4242+seed*97),i;
+ for(i=0;i<Math.min(draws,48);i++){
+  var t=[r()<0.5,r()<0.5,r()<0.5],bad=wrong(t);
+  nf(g,i>=m.at?'rgba(90,70,140,0.2)':
+     (bad?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.65)'));
+  g.fillRect(14+(i%12)*29,44+Math.floor(i/12)*30,25,24);ng(g);}
+ nt(g,'#8a7ab8',14,44+Math.ceil(Math.min(draws,48)/12)*30+12,8,
+  'each cell is one random input; red is the one that broke it');
+ krow(g,14,168,230,'draws before failure',m.at,m.at/draws,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,210,230,'buggy fraction of the space %',25,0.25,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,252,W-24,m.found,m.found?
+  'found in '+m.at+' draws -- 25% of the space is wrong and nobody had to guess where':
+  'this run missed it; the next one almost certainly will not');
+ nt(g,'#5a4a85',14,304,8,'a random input is worthless without a law to check it against');
+ kout('propo',draws+' draws &middot; '+(m.found?'found at <b>'+m.at+'</b>':
+  '<b>not found</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE CASE NOBODY CHOSE');
+ korb(g,W/2,H/2+10,ang,32,function(i,N){
+  var t=i/N,unchosen=(i%8===5||i%8===7);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:unchosen?-20:8,
+   c:unchosen?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.5)',r:unchosen?3.8:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'it moves the thinking, it does not remove it');}
+document.getElementById('propd').onclick=function(){seed++;drawW4();};
+document.getElementById('propm').onclick=function(){draws=draws>=48?4:draws*2;drawW4();};
+document.getElementById('propr').onclick=function(){draws=20;seed=0;drawW4();};
+document.getElementById('propp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepropertybased=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TORD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Tests that share state are not tests of the code &mdash; they are tests of the code plus whatever ran before them. A green suite may be one arrangement out of many, and the runner picked it.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively. <b>3</b> tests over one piece of shared state. Of the <b>6</b> possible orderings, <b>2</b> pass and <b>4</b> fail &mdash; a pass rate of <b>33.3%</b>. The two that work are <b>ABC</b> and <b>CAB</b>. Nothing is wrong with any individual test, nothing is wrong with the code, and two thirds of the ways of running them report a failure.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why serious runners randomise order and why a seed appears in the output &mdash; a suite that only passes in declaration order has a defect that declaration order is hiding.<br><br>
+ <b>AVAN (AI)</b> enumerated all <b>6</b> rather than sampling, because the interesting quantity is which orderings work and there are few enough to say. <b>ABC</b> and <b>CAB</b> is not a pattern anybody would predict from reading the tests.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six orderings, two of them green.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run an ordering and watch the shared state.</div>
+   <div class="btns" style="margin-top:10px"><button id="tordn">next ordering &#9654;</button><button id="tordi">isolate the tests</button><button id="tordr">reset</button></div>
+   <div class="cap" id="tordo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an arrangement that happened to work.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that order-dependent tests are broken tests. The inverse is that <b>the dependency is usually the only thing making the suite affordable</b>. Building the fixture once and letting twenty tests share it is why the suite finishes in seconds; isolating each one means paying full setup twenty times. Read backwards, order dependence is not carelessness &mdash; it is the residue of a performance decision, and the <b>4</b> failing orderings are the bill for a speed-up nobody wrote down as a trade.</div>
+   <div class="btns" style="margin-top:10px"><button id="tordp">pause spin</button></div></div></div></div>"""
+TORD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,oi=0,isolated=false;
+function perms(a){
+ if(a.length<=1)return [a];
+ var out=[];
+ a.forEach(function(x,i){
+  perms(a.slice(0,i).concat(a.slice(i+1))).forEach(function(p){out.push([x].concat(p));});});
+ return out;}
+var ORD=perms(['A','B','C']);
+function run(order,iso){
+ var state=0,pass=0,trace=[];
+ order.forEach(function(t){
+  if(iso)state=(t==='B')?1:0;             // isolation: each test sets up its own
+  if(t==='A'){state=1;pass++;trace.push([t,state,true]);}
+  else if(t==='B'){var ok2=state===1;if(ok2)pass++;trace.push([t,state,ok2]);}
+  else {state=0;pass++;trace.push([t,state,true]);}});
+ return {pass:pass===3,passed:pass,trace:trace};}
+function selftest(){
+ var passing=ORD.filter(function(o){return run(o,false).pass;});
+ var failing=ORD.filter(function(o){return !run(o,false).pass;});
+ var iso=ORD.filter(function(o){return run(o,true).pass;});
+ return {tests:3,orderings:ORD.length,
+  orderingsThatPass:passing.length,orderingsThatFail:failing.length,
+  passingOrders:passing.map(function(o){return o.join('');}),
+  failingOrders:failing.map(function(o){return o.join('');}),
+  passRatePct:+(100*passing.length/ORD.length).toFixed(1),
+  orderingsThatPassWhenIsolated:iso.length,
+  isolationFixesAllOfThem:iso.length===ORD.length,
+  nothingIsWrongWithAnyIndividualTest:true,
+  exhaustive:true,
+  ok:passing.length===2&&failing.length===4&&iso.length===6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'SIX ORDERINGS, TWO GREEN');
+ var i,j;
+ for(i=0;i<ORD.length;i++){
+  var y=48+i*34,r=run(ORD[i],false);
+  nf(g,r.pass?'rgba(125,226,176,0.24)':'rgba(255,60,90,0.24)');
+  g.fillRect(16,y,470,28);ng(g);
+  for(j=0;j<3;j++){
+   nf(g,r.trace[j][2]?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.9)');
+   g.fillRect(30+j*44,y+5,36,18);ng(g);
+   nt(g,'#0a0713',42+j*44,y+18,9,ORD[i][j]);}
+  nt(g,r.pass?'#7de2b0':'#ff5a8a',180,y+19,9,r.pass?'PASS':'FAIL');
+  nt(g,'#5a4a85',250,y+19,8,r.passed+' of 3 tests passed');}
+ kverdict(g,12,262-6,W-24,false,VR.orderingsThatPass+' of '+VR.orderings+
+  ' orderings pass ('+VR.passRatePct+'%) -- and they are '+
+  VR.passingOrders.join(' and '));}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=ORD[oi%ORD.length],r=run(o,isolated);
+ nt(g,'#00f5ff',12,20,11,o.join(' -> ')+(isolated?'   [isolated]':'   [shared state]'));
+ var i;
+ for(i=0;i<3;i++){
+  var y=48+i*56,st=r.trace[i];
+  nf(g,st[2]?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.28)');
+  g.fillRect(14,y,340,44);ng(g);
+  nt(g,st[2]?'#7de2b0':'#ff5a8a',24,y+20,10,'test '+st[0]);
+  nt(g,'#8a7ab8',24,y+36,8,'shared state = '+st[1]+
+   (st[2]?'   -> pass':'   -> FAIL: expected 1'));}
+ krow(g,14,226,230,'tests passing',r.passed,r.passed/3,
+  'rgba(125,226,176,0.85)');
+ kverdict(g,12,268,W-24,r.pass,isolated?
+  'each test builds its own fixture -- every ordering passes, and setup runs 3 times':
+  (r.pass?'this ordering happens to leave the state B needs':
+   'B ran when the state was not what it assumed'));
+ kout('tordo',o.join('')+' &middot; '+(r.pass?'<b>pass</b>':'<b>fail</b>')+
+  ' &middot; '+r.passed+' of 3');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ARRANGEMENT THAT HAPPENED TO WORK');
+ korb(g,W/2,H/2+10,ang,18,function(i,N){
+  var t=i/N,good=(i%3===0);
+  return {x:(t-0.5)*230,z:Math.sin(t*6.283)*30,y:good?-16:14,
+   c:good?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.5)',r:3};});
+ nt(g,'#8a7ab8',12,H-22,8,'the bill for a speed-up nobody wrote down as a trade');}
+document.getElementById('tordn').onclick=function(){oi++;drawW4();};
+document.getElementById('tordi').onclick=function(){isolated=!isolated;drawW4();};
+document.getElementById('tordr').onclick=function(){oi=0;isolated=false;drawW4();};
+document.getElementById('tordp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetestordering=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+HAPP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Tests get written where the code is easy to call. Failures happen where it is not. Those are not the same place, and the gap between them is where production lives.<br><br>
+ <span class="lit">LIT</span> verified live. <b>6</b> paths, <b>46</b> tests, <b>86</b> production failures. The normal-input path holds <b>40</b> tests &mdash; <b>87.0%</b> of the suite &mdash; and accounts for <b>2.3%</b> of the failures. <b>2</b> paths have <b>0</b> tests between them and produce <b>31</b> failures, <b>36.0%</b> of the total. The suite is concentrated almost exactly where the failures are not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The failure distribution here is illustrative rather than measured from a particular system &mdash; the shape is what is being shown, and the shape is that error handling is both the hardest thing to exercise and the thing that fails.<br><br>
+ <b>AVAN (AI)</b> is stating that plainly rather than presenting invented per-path counts as an observation. What is genuinely computed is the mismatch: <b>87.0%</b> of the effort against <b>2.3%</b> of the incidents, from numbers that are on the page and can be changed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Where the tests are. Where the failures are.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move tests onto the paths that fail.</div>
+   <div class="btns" style="margin-top:10px"><button id="happm">move 10 tests &#9654;</button><button id="happb">move them back</button><button id="happr">reset</button></div>
+   <div class="cap" id="happo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: effort, and incident, in different places.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the tests are in the wrong place. The inverse is that <b>they are exactly where testing is possible</b>. Concurrent access and resource exhaustion have <b>0</b> tests because reproducing them requires building the failure itself &mdash; a scheduler you control, a disk you can fill &mdash; and that is a harness, not a test. Read backwards, the distribution is not a lapse of discipline; it is a map of what is cheap to construct, and the untested paths are untested because the world is hard to break on purpose.</div>
+   <div class="btns" style="margin-top:10px"><button id="happp">pause spin</button></div></div></div></div>"""
+HAPP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,moved=0;
+var PATHS=[
+ {n:'normal input',       tests:40,fails:2},
+ {n:'empty input',        tests:3, fails:11},
+ {n:'malformed input',    tests:2, fails:19},
+ {n:'timeout / partial',  tests:1, fails:23},
+ {n:'concurrent access',  tests:0, fails:17},
+ {n:'resource exhaustion',tests:0, fails:14}];
+function shifted(k){
+ return PATHS.map(function(p,i){
+  var t=p.tests;
+  if(i===0)t=Math.max(0,p.tests-k);
+  else if(i>=4)t=p.tests+Math.floor(k/2);
+  return {n:p.n,tests:t,fails:p.fails};});}
+function stats(rows){
+ var T=rows.reduce(function(a,p){return a+p.tests;},0);
+ var F=rows.reduce(function(a,p){return a+p.fails;},0);
+ var zero=rows.filter(function(p){return p.tests===0;});
+ return {T:T,F:F,
+  happyTestPct:100*rows[0].tests/T,
+  happyFailPct:100*rows[0].fails/F,
+  zeroPaths:zero.length,
+  zeroFails:zero.reduce(function(a,p){return a+p.fails;},0)};}
+function selftest(){
+ var s=stats(PATHS);
+ return {paths:PATHS.length,totalTests:s.T,totalProductionFailures:s.F,
+  testsOnTheHappyPath:PATHS[0].tests,
+  testsOnTheHappyPathPct:+s.happyTestPct.toFixed(1),
+  failuresOnTheHappyPathPct:+s.happyFailPct.toFixed(1),
+  pathsWithZeroTests:s.zeroPaths,
+  testsOnThosePaths:0,
+  failuresInPathsWithZeroTests:s.zeroFails,
+  failuresInPathsWithZeroTestsPct:+(100*s.zeroFails/s.F).toFixed(1),
+  theFailureDistributionIsIllustrativeNotMeasured:true,
+  whatIsComputedIsTheMismatch:true,
+  ok:s.happyTestPct>80&&s.happyFailPct<5&&s.zeroPaths===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'WHERE THE TESTS ARE. WHERE THE FAILURES ARE.');
+ var s=stats(PATHS),i;
+ for(i=0;i<PATHS.length;i++){
+  var y=48+i*36,p=PATHS[i];
+  nt(g,'#8a7ab8',20,y+18,8,p.n);
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(170,y,150,26);ng(g);
+  nf(g,'rgba(125,226,176,0.85)');
+  g.fillRect(170,y,Math.round(150*p.tests/40),26);ng(g);
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(330,y,150,26);ng(g);
+  nf(g,'rgba(255,60,90,0.85)');
+  g.fillRect(330,y,Math.round(150*p.fails/25),26);ng(g);}
+ nt(g,'#7de2b0',170,262-6,8,'tests');
+ nt(g,'#ff5a8a',330,262-6,8,'production failures');
+ kverdict(g,12,258,W-24,false,VR.testsOnTheHappyPathPct+'% of the tests sit where '+
+  VR.failuresOnTheHappyPathPct+'% of the failures are');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var rows=shifted(moved),s=stats(rows),i;
+ nt(g,'#9d00ff',12,20,11,moved?(moved+' TESTS MOVED'):'AS WRITTEN');
+ for(i=0;i<rows.length;i++){
+  var y=44+i*38,p=rows[i];
+  nt(g,'#8a7ab8',14,y+22,8,p.n.slice(0,18));
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(140,y+4,100,24);ng(g);
+  nf(g,p.tests?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.35)');
+  g.fillRect(140,y+4,Math.round(100*p.tests/40),24);ng(g);
+  nf(g,'rgba(255,60,90,0.8)');
+  g.fillRect(250,y+4,Math.round(100*p.fails/25),24);ng(g);}
+ krow(g,14,272-8,230,'tests on the happy path %',+s.happyTestPct.toFixed(1),
+  s.happyTestPct/100,'rgba(125,226,176,0.85)');
+ kverdict(g,12,300-8,W-24,s.happyTestPct<50,s.happyTestPct<50?
+  'the suite now sits where the incidents are':
+  'effort and incident are in different places');
+ kout('happo','happy path <b>'+s.happyTestPct.toFixed(1)+'%</b> of tests, <b>'+
+  s.happyFailPct.toFixed(1)+'%</b> of failures');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'EFFORT, AND INCIDENT, IN DIFFERENT PLACES');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,eff=(t<0.4);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:eff?-20:20,
+   c:eff?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.7)',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'a map of what is cheap to construct');}
+document.getElementById('happm').onclick=function(){moved=Math.min(40,moved+10);drawW4();};
+document.getElementById('happb').onclick=function(){moved=Math.max(0,moved-10);drawW4();};
+document.getElementById('happr').onclick=function(){moved=0;drawW4();};
+document.getElementById('happp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thehappypath=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RTRY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Rerunning a failed test until it passes is a policy that cannot distinguish a flaky test from a broken one. Both of them go green, and only one of them should.<br><br>
+ <span class="lit">LIT</span> verified live, closed form and simulation agreeing. A test that passes <b>40%</b> of the time <i>because the code is wrong</i> is masked <b>40.00%</b> of the time with no retry, <b>64.00%</b> with one, <b>78.40%</b> with two and <b>87.04%</b> with three. Over <b>200,000</b> trials the simulation matches the closed form <b>1&nbsp;&minus;&nbsp;0.6<sup>n+1</sup></b> to within <b>0.06</b> points at every row. Three retries and the defect is invisible in seven runs out of eight.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Retry is genuinely the right answer for a test that depends on a network or a clock; the problem is that the policy is applied to the outcome and the outcome looks identical either way.<br><br>
+ <b>AVAN (AI)</b> got the gate wrong here first &mdash; it demanded more than <b>90%</b> masking at three retries when the arithmetic gives <b>87.04%</b>. The measurement was right and the threshold was invented. Publishing the closed form beside the simulation is what makes that impossible to repeat.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Retries against the chance a real defect goes green.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add retries. Watch the defect disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtryn">one more retry &#9654;</button><button id="rtryl">one fewer</button><button id="rtryw">worse code</button><button id="rtryr">reset</button></div>
+   <div class="cap" id="rtryo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a failure given another go.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that retries hide real defects. The inverse is that <b>a retry is the only honest response to a test whose result is a random variable</b>. If the outcome genuinely varies run to run, one observation is not evidence and re-running is basic method. Read backwards, the failure is not in the retry but in the reporting: the suite records &ldquo;passed&rdquo; where the truthful entry is &ldquo;passed on attempt 3 of 4&rdquo;, and every retry that is counted rather than logged is a measurement thrown away.</div>
+   <div class="btns" style="margin-top:10px"><button id="rtryp">pause spin</button></div></div></div></div>"""
+RTRY_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,retries=3,passRate=0.4;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function closed(k,p){return 1-Math.pow(1-p,k+1);}
+function sim(k,p,sd,T){
+ var r=rng(sd),m=0,i,j;
+ for(i=0;i<T;i++)for(j=0;j<=k;j++)if(r()<p){m++;break;}
+ return m/T;}
+function selftest(){
+ var rows=[0,1,2,3].map(function(k){
+  var c=closed(k,0.4),s=sim(k,0.4,59+k*7919,200000);
+  return {retries:k,attempts:k+1,
+   closedFormPct:+(100*c).toFixed(2),
+   simulatedPct:+(100*s).toFixed(2),
+   agreeWithinPoints:+(100*Math.abs(c-s)).toFixed(3)};});
+ var agree=rows.every(function(r){return r.agreeWithinPoints<0.5;});
+ return {perAttemptPassRatePct:40,
+  failureProbabilityPerAttempt:0.6,
+  theCodeIsWrongOnEveryAttempt:true,
+  rows:rows,
+  noRetryMaskedPct:rows[0].closedFormPct,
+  oneRetryMaskedPct:rows[1].closedFormPct,
+  twoRetriesMaskedPct:rows[2].closedFormPct,
+  threeRetriesMaskedPct:rows[3].closedFormPct,
+  simulationTrials:200000,
+  closedFormAndSimulationAgree:agree,
+  retryCannotTellFlakyFromWrong:true,
+  ok:agree&&rows[0].closedFormPct===40&&rows[3].closedFormPct===87.04};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'RETRIES AGAINST A REAL DEFECT GOING GREEN');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var y=54+i*52,r=R[i];
+  nt(g,'#8a7ab8',20,y+22,9,r.retries+' retr'+(r.retries===1?'y':'ies')+
+   '  ('+r.attempts+' attempt'+(r.attempts===1?'':'s')+')');
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(180,y,270,30);ng(g);
+  nf(g,'rgba(255,60,90,0.85)');
+  g.fillRect(180,y,Math.round(270*r.closedFormPct/100),30);ng(g);
+  nt(g,'#e8e0ff',188,y+21,10,r.closedFormPct+'% masked');
+  nt(g,'#5a4a85',380,y+21,7,'sim '+r.simulatedPct);}
+ kverdict(g,12,262,W-24,false,'closed form 1 - 0.6^(n+1) and 200,000 trials agree '+
+  'to within 0.06 points at every row');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=closed(retries,passRate);
+ nt(g,'#00f5ff',12,20,11,retries+' RETRIES   PASS RATE '+
+  (100*passRate).toFixed(0)+'%');
+ kgrid(g,14,44,40,3,8.6,12,function(i){
+  return (i/120)<m?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.7)';});
+ nt(g,'#8a7ab8',14,96,8,'red = runs where the defect went green anyway');
+ krow(g,14,114,230,'masked %',+(100*m).toFixed(2),m,'rgba(255,60,90,0.85)');
+ krow(g,14,156,230,'attempts',retries+1,(retries+1)/8,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,198,230,'caught %',+(100*(1-m)).toFixed(2),1-m,
+  'rgba(125,226,176,0.85)');
+ kverdict(g,12,240,W-24,m<0.5,
+  'the code is wrong on every attempt and the suite reports a pass');
+ nt(g,'#5a4a85',14,292,8,'the truthful entry is "passed on attempt 3 of 4"');
+ kout('rtryo',retries+' retries &middot; masked <b>'+(100*m).toFixed(2)+
+  '%</b> &middot; caught <b>'+(100*(1-m)).toFixed(2)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A FAILURE GIVEN ANOTHER GO');
+ korb(g,W/2,H/2+10,ang,32,function(i,N){
+  var t=i/N,late=(i%4===3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:late?-18:10,
+   c:late?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.6)',r:late?3.2:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'every retry counted rather than logged is a measurement thrown away');}
+document.getElementById('rtryn').onclick=function(){retries=Math.min(7,retries+1);drawW4();};
+document.getElementById('rtryl').onclick=function(){retries=Math.max(0,retries-1);drawW4();};
+document.getElementById('rtryw').onclick=function(){
+ passRate=passRate<=0.1?0.6:+(passRate-0.1).toFixed(2);drawW4();};
+document.getElementById('rtryr').onclick=function(){retries=3;passRate=0.4;drawW4();};
+document.getElementById('rtryp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theretry=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ORAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">To test something you need to know what the answer should be. For most of what a program computes, nobody does &mdash; and every technique for testing at scale is a way of avoiding having to.<br><br>
+ <span class="lit">LIT</span> verified live. <b>5</b> strategies exercising <b>1,106,012</b> inputs between them. Only <b>6,012</b> come with a stated expected value: <b>0.544%</b>. <b>3</b> strategies have an oracle &mdash; hand-computed cases, round-tripping through an inverse, and comparison against a slow reference. <b>2</b> have none: invariants check that something holds without knowing the value, and production traffic is never scored at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the test oracle problem, and it is why metamorphic testing exists: if you cannot say what <b>f(x)</b> is, you may still be able to say that <b>f(2x)</b> should be twice it.<br><br>
+ <b>AVAN (AI)</b> counts inputs rather than tests, because the inputs are where the asymmetry is. Adding a million more inputs to the invariant strategy moves the exercised count enormously and the checked count not at all &mdash; more testing, in a sense that does not include more knowing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five strategies. Two of them never score anything.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add inputs and watch the checked fraction fall.</div>
+   <div class="btns" style="margin-top:10px"><button id="oracm">more traffic &#9654;</button><button id="oracl">less</button><button id="oracr">reset</button></div>
+   <div class="cap" id="oraco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an answer nobody can state.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that most inputs go unchecked because no oracle exists. The inverse is that <b>an oracle you do have is a second implementation, and it can be the wrong one</b>. A slow reference, an inverse function, a hand-computed table &mdash; each is code or judgement that can itself be mistaken, and when they disagree with the system under test nothing says which one is right. Read backwards, testing does not compare a program to the truth; it compares two attempts at the same belief, and calls the older one correct.</div>
+   <div class="btns" style="margin-top:10px"><button id="oracp">pause spin</button></div></div></div></div>"""
+ORAC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,traffic=1000000;
+function cases(tr){
+ return [
+  {n:'hand-computed examples',      inputs:12,    oracle:true},
+  {n:'inverse round-trip',          inputs:1000,  oracle:true},
+  {n:'compare to a slow reference', inputs:5000,  oracle:true},
+  {n:'invariants only (no value)',  inputs:100000,oracle:false},
+  {n:'production traffic',          inputs:tr,    oracle:false}];}
+function stats(tr){
+ var C=cases(tr);
+ var total=C.reduce(function(a,c){return a+c.inputs;},0);
+ var known=C.filter(function(c){return c.oracle;})
+            .reduce(function(a,c){return a+c.inputs;},0);
+ return {C:C,total:total,known:known,pct:100*known/total};}
+function selftest(){
+ var s=stats(1000000);
+ return {strategies:s.C.length,
+  totalInputsExercised:s.total,
+  inputsWithAKnownExpectedValue:s.known,
+  inputsWithoutOne:s.total-s.known,
+  pctWithAnOracle:+s.pct.toFixed(3),
+  strategiesWithAnOracle:s.C.filter(function(c){return c.oracle;}).length,
+  strategiesWithout:s.C.filter(function(c){return !c.oracle;}).length,
+  moreInputsDoesNotMeanMoreChecking:true,
+  anOracleIsASecondImplementation:true,
+  ok:s.known===6012&&s.pct<1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'FIVE STRATEGIES. TWO NEVER SCORE ANYTHING.');
+ var s=stats(1000000),i,mx=Math.log(s.C[4].inputs+1);
+ for(i=0;i<s.C.length;i++){
+  var y=48+i*38,cc=s.C[i];
+  nt(g,'#8a7ab8',20,y+20,8,cc.n);
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(230,y,220,28);ng(g);
+  nf(g,cc.oracle?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.75)');
+  g.fillRect(230,y,Math.max(4,Math.round(220*Math.log(cc.inputs+1)/mx)),28);ng(g);
+  nt(g,'#e8e0ff',238,y+19,8,cc.inputs.toLocaleString());}
+ nt(g,'#7de2b0',230,244,8,'green = an expected value exists');
+ nt(g,'#ff5a8a',380,244,8,'red = none');
+ kverdict(g,12,250,W-24,false,VR.inputsWithAKnownExpectedValue.toLocaleString()+
+  ' of '+VR.totalInputsExercised.toLocaleString()+' inputs have a stated answer -- '+
+  VR.pctWithAnOracle+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var s=stats(traffic);
+ nt(g,'#ff5a3c',12,20,11,'PRODUCTION TRAFFIC '+traffic.toLocaleString());
+ kgrid(g,14,44,40,4,8.6,10,function(i){
+  return (i/160)<(s.pct/100)?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.6)';});
+ nt(g,'#8a7ab8',14,102,8,'160 cells; green = an input whose answer is known');
+ krow(g,14,120,230,'inputs exercised',s.total,
+  Math.min(1,Math.log(s.total)/Math.log(20000000)),'rgba(90,208,255,0.7)');
+ krow(g,14,162,230,'inputs actually scored',s.known,
+  Math.min(1,Math.log(s.known)/Math.log(20000000)),'rgba(125,226,176,0.85)');
+ krow(g,14,204,230,'% with an oracle',+s.pct.toFixed(3),s.pct/100,
+  'rgba(255,210,63,0.8)');
+ kverdict(g,12,246,W-24,s.pct>10,
+  'the exercised count moves and the scored count does not');
+ nt(g,'#5a4a85',14,298,8,'it compares two attempts at the same belief');
+ kout('oraco','exercised <b>'+s.total.toLocaleString()+'</b> &middot; scored <b>'+
+  s.known.toLocaleString()+'</b> &middot; <b>'+s.pct.toFixed(3)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ANSWER NOBODY CAN STATE');
+ korb(g,W/2,H/2+10,ang,60,function(i,N){
+  var t=i/N,known=(i<2);
+  return {x:(t-0.5)*260,z:Math.sin(t*6.283)*30,y:known?-22:0,
+   c:known?'rgba(125,226,176,0.95)':'rgba(255,60,90,0.35)',r:known?4.4:1.5};});
+ nt(g,'#8a7ab8',12,H-22,8,'and calls the older one correct');}
+document.getElementById('oracm').onclick=function(){traffic=Math.min(100000000,traffic*10);drawW4();};
+document.getElementById('oracl').onclick=function(){traffic=Math.max(100,Math.floor(traffic/10));drawW4();};
+document.getElementById('oracr').onclick=function(){traffic=1000000;drawW4();};
+document.getElementById('oracp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theoracleproblem=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 270 · neon-noir · silicon-coding · WHAT BUILT MEANS ═══════════════════════
 DAG_JS = """
 function DAG(){return {
@@ -112363,6 +113377,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-code-coverage","title":"THE CODE COVERAGE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"▤",
+  "kicker":"the correct answer to the wrong question",
+  "blurb":"Coverage counts what ran. A line runs when any path through it runs, so a single test can execute every line of a function while leaving most of its behaviour untried.",
+  "lit":"a 4-line function under one test reaches 100.0% statement coverage - every line executes - against 50.0% branch coverage, with 2 of the 4 condition outcomes taken and both of them the true side, while of the 4 input combinations 1 divides by zero and the suite catches 0: a green run at 100% coverage over code that fails on a quarter of its inputs",
+  "fig":"Statement coverage is the number that gets reported because it is the one that is easy to reach; branch, condition and path coverage all get harder and all get quieter. AVAN built this wrong first - the original claimed 100% coverage and measured 75%, because no test ever reached the buggy line, so the headline was false as written. Rebuilt on the canonical shape: the fault lives in the branch combination nobody took.",
+  "body":COVR_BODY,"script":COVR_SCRIPT},
+ {"slug":"the-mutation-score","title":"THE MUTATION SCORE","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⚗",
+  "kicker":"the fraction of a particular list",
+  "blurb":"Change the code on purpose, in small wrong ways, and see whether the suite notices. What it fails to notice is the honest measure of what it was checking.",
+  "lit":"8 mutants against a suite with 100% line coverage leave 6 killed and 2 surviving - a mutation that deletes the entire bonus, and one that changes nothing at all - for a mutation score of 75.0% where coverage says 100, and 1 of the survivors is EQUIVALENT, producing identical output on all 8 inputs so no test can ever kill it and the score can never reach 100",
+  "fig":"Mutation testing is Lipton, DeMillo and Sayward's (1978); the equivalent-mutant problem is undecidable in general, which is why the score is always a lower bound. AVAN planted an equivalent mutant deliberately. Without it the number reads like a target to push to 100. With it the ceiling is unreachable and unknown, and the score becomes what it actually is - a comparison against yesterday rather than a percentage of anything.",
+  "body":MUTA_BODY,"script":MUTA_SCRIPT},
+ {"slug":"the-flaky-test","title":"THE FLAKY TEST","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"⚄",
+  "kicker":"one is enough, and there are five thousand chances",
+  "blurb":"A test that passes 99.9% of the time sounds excellent. Run five thousand of them and the suite is green less than one run in a hundred.",
+  "lit":"at a per-test failure rate of 0.1%, 100 tests give a suite that passes 90.48% of the time, 1,000 tests give 36.77%, and 5,000 tests give 0.67% green against 99.33% red with 5.00 expected failures per run - nothing about any individual test changed, and 99.9% does not survive contact with five thousand",
+  "fig":"This is why large suites quarantine flaky tests rather than tolerate them: at scale, tolerable individually is impossible collectively. AVAN shows the 100-test row first because that is where the intuition is formed. 90.48% green feels like a slightly annoying suite; the same tests, fifty times as many, produce a suite that essentially never passes, and the only thing that changed is a count nobody thinks of as a reliability parameter.",
+  "body":FLKY_BODY,"script":FLKY_SCRIPT},
+ {"slug":"the-assertion-free","title":"THE ASSERTION FREE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"◯",
+  "kicker":"a commitment to defend an answer against the future",
+  "blurb":"A test that calls the code and checks nothing still runs every line it touches. It contributes to coverage, appears in the count, goes green - and can only fail if the code throws.",
+  "lit":"a suite of 4 tests of which 3 assert nothing - 75.0% - has those three contributing 100% line coverage on their own while detecting 0 defects, because a defect that returns the wrong value returns it silently, and only the single test that does assert finds the bug",
+  "fig":"This is what a coverage target produces when enforced without a mutation score beside it: the cheapest way to raise coverage is to call things. AVAN notes the one thing an assertion-free test CAN catch, which is a crash - smoke tests are exactly this and are worth having. What they cannot do is distinguish a correct answer from a wrong one, and a suite made mostly of them reports a number with no relationship to correctness.",
+  "body":ASRT_BODY,"script":ASRT_SCRIPT},
+ {"slug":"the-golden-test","title":"THE GOLDEN TEST","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"▣",
+  "kicker":"green means unchanged, never right",
+  "blurb":"Record what the code does today, commit it, and fail the build when it changes. The suite now defends the current behaviour - including every bug in it.",
+  "lit":"8 golden files recorded from an implementation with a known defect all pass before the fix, and fixing the defect makes 2 of them fail - 25.0% of the suite goes red because the code became correct - while the other 6 still pass, so green means unchanged and has never meant right",
+  "fig":"Golden or snapshot tests are enormously effective at catching unintended change, which is a different job from catching incorrectness, and the two are easy to confuse when the output is green. AVAN reports the 6 that still pass alongside the 2 that break: a correct change breaking a quarter of the suite is the visible half, and the invisible half is that three quarters were never testing the defect at all.",
+  "body":GLDN_BODY,"script":GLDN_SCRIPT},
+ {"slug":"the-property-based","title":"THE PROPERTY BASED","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"∀",
+  "kicker":"it moves the thinking, it does not remove it",
+  "blurb":"Hand-written examples test the cases you thought of. That is their whole strength and their whole limit - the bug lives in the case you did not think of, because if you had thought of it you would have fixed it.",
+  "lit":"an input space of 8 of which 2 are wrong - 25.0% - is missed entirely by four hand-written examples chosen the way a person chooses them, all false then each input alone, which find 0, while two hundred property runs of 20 random draws each find the bug in 199 for a detection rate of 99.5%",
+  "fig":"Property-based testing is QuickCheck's idea (Claessen and Hughes, 2000): state a law, let the machine hunt for a counterexample, then shrink it. AVAN picked the four examples BEFORE looking at where the bug was, using the obvious pattern - the empty case and each flag alone. That is what makes the 0 honest; choosing them afterwards would have proved nothing except that examples can be made to miss.",
+  "body":PROP_BODY,"script":PROP_SCRIPT},
+ {"slug":"the-test-ordering","title":"THE TEST ORDERING","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"⇅",
+  "kicker":"the bill for a speed-up nobody wrote down",
+  "blurb":"Tests that share state are not tests of the code - they are tests of the code plus whatever ran before them. A green suite may be one arrangement out of many, and the runner picked it.",
+  "lit":"3 tests over one piece of shared state give 6 possible orderings of which 2 pass and 4 fail, a pass rate of 33.3%, and the two that work are ABC and CAB - nothing is wrong with any individual test, nothing is wrong with the code, and two thirds of the ways of running them report a failure",
+  "fig":"This is why serious runners randomise order and why a seed appears in the output - a suite that only passes in declaration order has a defect that declaration order is hiding. AVAN enumerated all 6 rather than sampling, because the interesting quantity is which orderings work and there are few enough to say. ABC and CAB is not a pattern anybody would predict from reading the tests.",
+  "body":TORD_BODY,"script":TORD_SCRIPT},
+ {"slug":"the-happy-path","title":"THE HAPPY PATH","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⌒",
+  "kicker":"a map of what is cheap to construct",
+  "blurb":"Tests get written where the code is easy to call. Failures happen where it is not. Those are not the same place, and the gap between them is where production lives.",
+  "lit":"6 paths carrying 46 tests and 86 production failures put 40 tests on the normal-input path - 87.0% of the suite - accounting for 2.3% of the failures, while 2 paths have 0 tests between them and produce 31 failures or 36.0% of the total, so the suite is concentrated almost exactly where the failures are not",
+  "fig":"The failure distribution here is illustrative rather than measured from a particular system - the shape is what is being shown, and the shape is that error handling is both the hardest thing to exercise and the thing that fails. AVAN is stating that plainly rather than presenting invented per-path counts as an observation. What is genuinely computed is the mismatch: 87.0% of the effort against 2.3% of the incidents.",
+  "body":HAPP_BODY,"script":HAPP_SCRIPT},
+ {"slug":"the-retry","title":"THE RETRY","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"↺",
+  "kicker":"a measurement thrown away",
+  "blurb":"Rerunning a failed test until it passes is a policy that cannot distinguish a flaky test from a broken one. Both of them go green, and only one of them should.",
+  "lit":"a test that passes 40% of the time BECAUSE THE CODE IS WRONG is masked 40.00% of the time with no retry, 64.00% with one, 78.40% with two and 87.04% with three, and over 200,000 trials the simulation matches the closed form 1 - 0.6^(n+1) to within 0.06 points at every row - three retries and the defect is invisible in seven runs out of eight",
+  "fig":"Retry is genuinely the right answer for a test that depends on a network or a clock; the problem is that the policy is applied to the outcome and the outcome looks identical either way. AVAN got the gate wrong here first - it demanded more than 90% masking at three retries when the arithmetic gives 87.04%. The measurement was right and the threshold was invented; publishing the closed form beside the simulation is what makes that impossible to repeat.",
+  "body":RTRY_BODY,"script":RTRY_SCRIPT},
+ {"slug":"the-oracle-problem","title":"THE ORACLE PROBLEM","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⁉",
+  "kicker":"it compares two attempts at the same belief",
+  "blurb":"To test something you need to know what the answer should be. For most of what a program computes, nobody does - and every technique for testing at scale is a way of avoiding having to.",
+  "lit":"5 strategies exercising 1,106,012 inputs between them leave only 6,012 with a stated expected value - 0.544% - because 3 strategies have an oracle in hand-computed cases, round-tripping through an inverse and comparison against a slow reference, while 2 have none: invariants check that something holds without knowing the value, and production traffic is never scored at all",
+  "fig":"This is the test oracle problem, and it is why metamorphic testing exists: if you cannot say what f(x) is, you may still be able to say that f(2x) should be twice it. AVAN counts inputs rather than tests, because the inputs are where the asymmetry is - adding a million more to the invariant strategy moves the exercised count enormously and the checked count not at all.",
+  "body":ORAC_BODY,"script":ORAC_SCRIPT},
  {"slug":"the-reproducible-build","title":"THE REPRODUCIBLE BUILD","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⧗",
   "kicker":"they prove two builders agreed, not that either was right",
