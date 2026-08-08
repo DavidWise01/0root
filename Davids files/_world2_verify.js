@@ -41,7 +41,13 @@ function numsIn(s) {
     // ...and the same on the LEFT: "C/2" is a denominator under a symbol,
     // not a measurement. "10 / 20" has digits both sides and stays.
     if (/[A-Za-z]\s*\/\s*$/.test(s.slice(0, m.index))) continue;
-    const n = Number(m[0].replace(/[,\s\/]/g, ''));
+    // A comma is a thousands separator ONLY when exactly three digits follow.
+    // "[1,3]" is a version range and "1,3" is not thirteen -- stripping every
+    // comma turned the ranges [1,3] and [2,4] into 13 and 24 and failed a
+    // sphere whose numbers were all present.
+    const tok = m[0].replace(/,(?=\d{3}(?!\d))/g, '');
+    if (/,/.test(tok)) continue;          // a list or a range, not one number
+    const n = Number(tok.replace(/[\s\/]/g, ''));
     if (Number.isNaN(n)) continue;
     // a unit suffix immediately after turns the token into a magnitude
     const after = s.slice(m.index + m[0].length).match(/^\s?([KMG]i?B?)(?![A-Za-z])/);

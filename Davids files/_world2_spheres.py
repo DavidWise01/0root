@@ -33334,6 +33334,998 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 270 · neon-noir · silicon-coding · WHAT BUILT MEANS ═══════════════════════
+DAG_JS = """
+function DAG(){return {
+ 'main.o':['main.c','config.h','util.h'],
+ 'util.o':['util.c','util.h'],
+ 'net.o':['net.c','util.h','config.h'],
+ 'parse.o':['parse.c','config.h'],
+ 'app':['main.o','util.o','net.o','parse.o'],
+ 'tests':['app','test.c'],
+ 'docs':['app']};}
+function reverseClosure(t){
+ var g=DAG(),out={},ch=true;
+ out[t]=true;
+ while(ch){ch=false;
+  Object.keys(g).forEach(function(n){
+   if(out[n])return;
+   if(g[n].some(function(d){return out[d];})){out[n]=true;ch=true;}});}
+ delete out[t];
+ return Object.keys(out);}
+"""
+
+RPRO_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Build the same source twice and get the same bytes. It sounds like the default and it is not &mdash; a build is a program with the clock, the filesystem and the scheduler as hidden inputs.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively. <b>4</b> sources of nondeterminism, every one of the <b>16</b> combinations tested. Only <b>2</b> produce byte-identical output and <b>14</b> differ. <b>3</b> of the factors break reproducibility &mdash; an embedded timestamp, an absolute build path, hash-map iteration order &mdash; and <b>1</b> does not: parallel job scheduling, because the link step does not care what order it was handed things.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Reproducible builds are how you tell whether a binary corresponds to the source it claims; Debian and Bazel both treat it as a correctness property rather than a nicety.<br><br>
+ <b>AVAN (AI)</b> included a factor that does <i>not</i> break it. <b>2</b> identical configurations rather than <b>1</b> is the whole finding: nondeterminism in the process is not the same as nondeterminism in the output, and telling those apart is the actual work.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixteen configurations, two of them reproducible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Switch each factor on and off.</div>
+   <div class="btns" style="margin-top:10px"><button id="rpron">toggle a factor &#9654;</button><button id="rprom">next factor</button><button id="rpror">reset</button></div>
+   <div class="cap" id="rproo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same source, twice.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that reproducible builds prove the binary matches the source. The inverse is that <b>they prove no such thing on their own &mdash; they prove two builders agreed</b>. A compiler with a backdoor reproduces perfectly; every rebuild returns the same compromised bytes, and the check passes. Read backwards, reproducibility does not establish that a binary is trustworthy, only that trusting it is a decision you have to make once rather than every time, which is a smaller and more honest claim than the one usually made for it.</div>
+   <div class="btns" style="margin-top:10px"><button id="rprop">pause spin</button></div></div></div></div>"""
+RPRO_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,state=[false,false,false,false],cur=0;
+var FACTORS=[
+ {name:'embedded timestamp',breaks:true},
+ {name:'absolute build path',breaks:true},
+ {name:'hash-map iteration order',breaks:true},
+ {name:'parallel job scheduling',breaks:false}];
+function identical(st){
+ for(var i=0;i<FACTORS.length;i++)if(st[i]&&FACTORS[i].breaks)return false;
+ return true;}
+function selftest(){
+ var total=1<<FACTORS.length,ident=0,m,i;
+ for(m=0;m<total;m++){
+  var st=[];
+  for(i=0;i<FACTORS.length;i++)st.push(!!((m>>i)&1));
+  if(identical(st))ident++;}
+ return {nondeterminismFactors:FACTORS.length,
+  configurationsTested:total,
+  byteIdenticalConfigurations:ident,
+  differingConfigurations:total-ident,
+  factorsThatBreakIt:FACTORS.filter(function(f){return f.breaks;}).length,
+  factorsThatDoNot:FACTORS.filter(function(f){return !f.breaks;}).length,
+  factors:FACTORS.map(function(f){return f.name+(f.breaks?' -- breaks':' -- harmless');}),
+  processNondeterminismIsNotOutputNondeterminism:true,
+  exhaustive:true,
+  ok:ident===2&&total===16};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'SIXTEEN CONFIGURATIONS');
+ var m,i;
+ for(m=0;m<16;m++){
+  var st=[];
+  for(i=0;i<4;i++)st.push(!!((m>>i)&1));
+  var ok2=identical(st);
+  var x=24+(m%8)*60,y=46+Math.floor(m/8)*84;
+  nf(g,ok2?'rgba(125,226,176,0.3)':'rgba(255,60,90,0.22)');
+  g.fillRect(x,y,52,64);ng(g);
+  for(i=0;i<4;i++){
+   nf(g,st[i]?(FACTORS[i].breaks?'rgba(255,60,90,0.9)':'rgba(255,210,63,0.85)')
+             :'rgba(90,70,140,0.4)');
+   g.fillRect(x+6,y+6+i*14,40,10);ng(g);}
+  if(ok2)nt(g,'#7de2b0',x+14,y+78,8,'same');}
+ nt(g,'#ff5a8a',24,232,8,'red bar = a factor that breaks it');
+ nt(g,'#ffd76a',230,232,8,'gold = present but harmless');
+ kverdict(g,12,244,W-24,false,VR.byteIdenticalConfigurations+' of '+
+  VR.configurationsTested+' reproduce -- identical only when all '+
+  VR.factorsThatBreakIt+' breaking factors are absent');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ok2=identical(state);
+ nt(g,'#7cfc00',12,20,11,ok2?'BYTE IDENTICAL':'OUTPUT DIFFERS');
+ var i;
+ for(i=0;i<FACTORS.length;i++){
+  var y=44+i*44;
+  nf(g,state[i]?(FACTORS[i].breaks?'rgba(255,60,90,0.3)':'rgba(255,210,63,0.28)')
+               :'rgba(90,70,140,0.2)');
+  g.fillRect(14,y,340,34);ng(g);
+  if(i===cur){ne(g,'rgba(232,224,255,0.9)',2);g.strokeRect(14,y,340,34);ng(g);}
+  nt(g,state[i]?(FACTORS[i].breaks?'#ff5a8a':'#ffd76a'):'#5a4a85',24,y+22,9,
+   FACTORS[i].name);
+  nt(g,'#8a7ab8',300,y+22,8,state[i]?'on':'off');}
+ nf(g,ok2?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.25)');
+ g.fillRect(14,226,340,44);ng(g);
+ nt(g,ok2?'#7de2b0':'#ff5a8a',24,253,10,
+  ok2?'two builds, the same bytes':'two builds, different bytes');
+ kverdict(g,12,280,W-24,ok2,
+  'nondeterminism in the process is not nondeterminism in the output');
+ kout('rproo',(ok2?'identical':'differs')+' &middot; '+
+  state.filter(function(s){return s;}).length+' factor(s) on');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE SAME SOURCE, TWICE');
+ kring(g,W/2-44,H/2+10,ang,14,50,0,'rgba(125,226,176,0.85)',3);
+ kring(g,W/2+44,H/2+10,ang,14,50,0,'rgba(125,226,176,0.85)',3);
+ nt(g,'#8a7ab8',12,H-22,8,'they prove two builders agreed, not that either was right');}
+document.getElementById('rpron').onclick=function(){state[cur]=!state[cur];drawW4();};
+document.getElementById('rprom').onclick=function(){cur=(cur+1)%FACTORS.length;drawW4();};
+document.getElementById('rpror').onclick=function(){state=[false,false,false,false];cur=0;drawW4();};
+document.getElementById('rprop').onclick=function(){spin=!spin;};
+VR=selftest();window.__thereproduciblebuild=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INCR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Rebuild only what depends on what changed. The saving is real, and it is not evenly distributed &mdash; some files cost almost nothing to edit and others cost nearly the whole project.<br><br>
+ <span class="lit">LIT</span> verified live on a <b>7</b>-target graph. Changing <b>test.c</b> rebuilds <b>1</b> target &mdash; <b>14.3%</b>. Changing <b>parse.c</b> rebuilds <b>4</b>. Changing <b>util.h</b> or <b>config.h</b> rebuilds <b>6</b> &mdash; <b>85.7%</b> of everything, from editing one header. The ratio between the worst edit and the best is <b>6.00</b>, and nothing about the files themselves says which is which.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The rebuild set is the reverse reachability closure of the changed node; that is all an incremental build is, and everything else is deciding when a node counts as changed.<br><br>
+ <b>AVAN (AI)</b> reports the spread rather than an average. A mean rebuild cost across the project is a number nobody experiences &mdash; what people experience is the header, and the header is <b>6&times;</b> the cheapest edit in a graph this small.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four edits, four very different bills.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Touch a file and watch the graph light up.</div>
+   <div class="btns" style="margin-top:10px"><button id="incrn">next file &#9654;</button><button id="incrr">reset</button></div>
+   <div class="cap" id="incro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one edit, and what follows it.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that incremental builds save time by rebuilding less. The inverse is that <b>they make the cost of an edit a property of the architecture rather than of the edit</b>. Changing one line in <b>config.h</b> and one line in <b>test.c</b> are the same act, and the graph charges <b>6&times;</b> more for one of them. Read backwards, the dependency graph is a pricing schedule nobody wrote deliberately, and every header included &ldquo;just in case&rdquo; sets a rate that gets paid on every future edit.</div>
+   <div class="btns" style="margin-top:10px"><button id="incrp">pause spin</button></div></div></div></div>"""
+INCR_SCRIPT = """(function(){""" + NOIR + KIT + DAG_JS + """
+var ang=0,spin=true,VR=null,fi=0;
+var FILES=['util.h','config.h','parse.c','test.c','main.c','util.c','net.c'];
+function selftest(){
+ var all=Object.keys(DAG()).length;
+ var rows=['util.h','config.h','parse.c','test.c'].map(function(f){
+  var s=reverseClosure(f);
+  return {changed:f,rebuilt:s.length,rebuiltNames:s,
+   pctOfFullBuild:+(100*s.length/all).toFixed(1)};});
+ var worst=rows.reduce(function(a,b){return b.rebuilt>a.rebuilt?b:a;});
+ var best=rows.reduce(function(a,b){return b.rebuilt<a.rebuilt?b:a;});
+ return {targets:all,rows:rows,
+  worstChange:worst.changed,worstRebuilt:worst.rebuilt,
+  bestChange:best.changed,bestRebuilt:best.rebuilt,
+  ratioWorstToBest:+(worst.rebuilt/best.rebuilt).toFixed(2),
+  theRebuildSetIsAReverseReachabilityClosure:true,
+  nothingAboutTheFilesSaysWhichIsWhich:true,
+  ok:worst.rebuilt===6&&best.rebuilt===1&&all===7};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'FOUR EDITS, FOUR VERY DIFFERENT BILLS');
+ var i;
+ for(i=0;i<VR.rows.length;i++){
+  var y=52+i*54,r=VR.rows[i];
+  nt(g,'#8a7ab8',20,y+20,10,'edit '+r.changed);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(160,y,290,30);ng(g);
+  nf(g,r.rebuilt>=6?'rgba(255,60,90,0.85)':
+      (r.rebuilt>=4?'rgba(255,210,63,0.8)':'rgba(125,226,176,0.85)'));
+  g.fillRect(160,y,Math.round(290*r.rebuilt/VR.targets),30);ng(g);
+  nt(g,'#e8e0ff',168,y+20,9,r.rebuilt+' of '+VR.targets+'   ('+r.pctOfFullBuild+'%)');}
+ kverdict(g,12,282-8,W-24,false,'the worst edit costs '+VR.ratioWorstToBest+
+  'x the best, and nothing about the files says which is which');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=FILES[fi],set=reverseClosure(f),all=Object.keys(DAG());
+ nt(g,'#9d00ff',12,20,11,'EDIT  '+f);
+ var pos={'main.o':[20,50],'util.o':[130,50],'net.o':[240,50],'parse.o':[20,120],
+          'app':[130,120],'tests':[240,120],'docs':[130,190]};
+ Object.keys(pos).forEach(function(n){
+  var p=pos[n],hot=set.indexOf(n)>=0;
+  nf(g,hot?'rgba(255,60,90,0.7)':'rgba(90,70,140,0.25)');
+  g.fillRect(p[0],p[1],100,44);ng(g);
+  nt(g,hot?'#0a0713':'#8a7ab8',p[0]+8,p[1]+27,9,n);});
+ nt(g,'#8a7ab8',14,254,8,'red = must be rebuilt');
+ krow(g,14,268,230,'rebuilt',set.length,set.length/all.length,
+  'rgba(255,60,90,0.85)');
+ kverdict(g,12,306-4,W-24,set.length<=2,
+  set.length+' of '+all.length+' targets -- '+
+  (100*set.length/all.length).toFixed(1)+'% of a full build from one file');
+ kout('incro','edit <b>'+f+'</b> &middot; rebuild <b>'+set.length+'</b> of '+
+  all.length);}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE EDIT, AND WHAT FOLLOWS IT');
+ ndot(g,W/2-100,H/2+10,8,'rgba(125,226,176,0.95)');
+ korb(g,W/2+20,H/2+10,ang,18,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*80,z:Math.sin(t)*54,y:0,
+   c:'rgba(255,60,90,'+(0.3+0.5*Math.abs(Math.cos(t)))+')',r:3};});
+ nt(g,'#8a7ab8',12,H-22,8,'a pricing schedule nobody wrote deliberately');}
+document.getElementById('incrn').onclick=function(){fi=(fi+1)%FILES.length;drawW4();};
+document.getElementById('incrr').onclick=function(){fi=0;drawW4();};
+document.getElementById('incrp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theincrementalbuild=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BCAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A build cache is a lookup keyed on everything that affects the answer. Leave something out and it returns the wrong artifact. Put something extra in and it never returns anything.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200</b> builds over three keys. The correct key &mdash; source, flags, toolchain &mdash; gives <b>155</b> hits, <b>77.5%</b>, and <b>0</b> wrong. Dropping the toolchain gives <b>176</b> hits, more than correct, of which <b>90</b> are <b>wrong artifacts served as if fresh</b>. Adding the hostname gives <b>9</b> hits, <b>4.5%</b>, and <b>191</b> cache entries for <b>200</b> builds.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Bazel, ccache and Nix all live or die on this: the key is the definition of &ldquo;the same build&rdquo;, and it is the only thing that is.<br><br>
+ <b>AVAN (AI)</b> put the too-coarse key&rsquo;s hit rate <i>above</i> the correct one on purpose. <b>176</b> beats <b>155</b>, and a dashboard reporting cache hit rate would show the broken configuration winning. The failure is invisible in the metric you would naturally watch.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Three keys, and what each one returns.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add and remove fields from the key.</div>
+   <div class="btns" style="margin-top:10px"><button id="bcacs">toggle source &#9654;</button><button id="bcact">toggle toolchain</button><button id="bcach">toggle hostname</button><button id="bcacr">reset</button></div>
+   <div class="cap" id="bcaco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a key that is the whole definition.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the cache key must include everything that affects the output. The inverse is that <b>nobody knows what that is</b>. The key is a hypothesis about which parts of the world matter, written by someone who cannot enumerate the world; every wrong hit is that hypothesis being falsified silently, months later, in a way that looks like a compiler bug. Read backwards, a build cache does not store builds &mdash; it stores a claim about what a build depends on, and serves that claim as an artifact.</div>
+   <div class="btns" style="margin-top:10px"><button id="bcacp">pause spin</button></div></div></div></div>"""
+BCAC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,useSrc=true,useTool=true,useHost=false;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function builds(){
+ var r=rng(41),b=[],i;
+ for(i=0;i<200;i++)b.push({src:Math.floor(r()*8),flags:Math.floor(r()*3),
+  hostname:Math.floor(r()*50),toolchain:Math.floor(r()*2)});
+ return b;}
+function run(keyOf){
+ var B=builds(),cache={},hits=0,wrong=0;
+ B.forEach(function(b){
+  var k=keyOf(b),truth=b.src+'|'+b.flags+'|'+b.toolchain;
+  if(cache[k]!==undefined){hits++;if(cache[k]!==truth)wrong++;}
+  else cache[k]=truth;});
+ return {hits:hits,wrong:wrong,entries:Object.keys(cache).length,n:B.length};}
+function selftest(){
+ var ok2=run(function(b){return b.src+'|'+b.flags+'|'+b.toolchain;});
+ var coarse=run(function(b){return b.src+'|'+b.flags;});
+ var fine=run(function(b){return b.src+'|'+b.flags+'|'+b.toolchain+'|'+b.hostname;});
+ return {builds:200,
+  correctKeyHits:ok2.hits,correctKeyWrong:ok2.wrong,
+  correctHitRatePct:+(100*ok2.hits/200).toFixed(1),
+  tooCoarseHits:coarse.hits,tooCoarseWrongHits:coarse.wrong,
+  tooFineHits:fine.hits,tooFineEntries:fine.entries,
+  tooFineHitRatePct:+(100*fine.hits/200).toFixed(1),
+  theBrokenKeyHasTheHIGHERHitRate:coarse.hits>ok2.hits,
+  aWrongHitIsWorseThanAMiss:coarse.wrong>0,
+  ok:ok2.wrong===0&&coarse.wrong>0&&coarse.hits>ok2.hits&&fine.hits<ok2.hits};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THREE KEYS, AND WHAT EACH RETURNS');
+ var rows=[['correct  (src, flags, toolchain)',VR.correctKeyHits,VR.correctKeyWrong],
+  ['too coarse  (toolchain dropped)',VR.tooCoarseHits,VR.tooCoarseWrongHits],
+  ['too fine  (hostname added)',VR.tooFineHits,0]];
+ var i;
+ for(i=0;i<3;i++){
+  var y=52+i*66;
+  nt(g,'#8a7ab8',20,y+16,9,rows[i][0]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(20,y+24,440,26);ng(g);
+  nf(g,'rgba(125,226,176,0.8)');
+  g.fillRect(20,y+24,Math.round(440*(rows[i][1]-rows[i][2])/200),26);ng(g);
+  if(rows[i][2]>0){nf(g,'rgba(255,60,90,0.9)');
+   g.fillRect(20+Math.round(440*(rows[i][1]-rows[i][2])/200),y+24,
+    Math.round(440*rows[i][2]/200),26);ng(g);}
+  nt(g,'#e8e0ff',28,y+42,9,rows[i][1]+' hits'+
+   (rows[i][2]?('   ('+rows[i][2]+' WRONG)'):''));}
+ kverdict(g,12,262-8,W-24,false,'the broken key has the HIGHER hit rate -- '+
+  VR.tooCoarseHits+' against '+VR.correctKeyHits);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(function(b){
+  var k='';
+  if(useSrc)k+=b.src+'|';
+  k+=b.flags+'|';
+  if(useTool)k+=b.toolchain+'|';
+  if(useHost)k+=b.hostname;
+  return k;});
+ nt(g,'#00f5ff',12,20,11,'KEY: flags'+(useSrc?' + src':'')+
+  (useTool?' + toolchain':'')+(useHost?' + hostname':''));
+ krow(g,14,44,230,'hits',m.hits,m.hits/200,'rgba(125,226,176,0.8)');
+ krow(g,14,86,230,'WRONG artifacts served',m.wrong,m.wrong/200,
+  'rgba(255,60,90,0.9)');
+ krow(g,14,128,230,'cache entries',m.entries,m.entries/200,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,170,230,'hit rate %',+(100*m.hits/200).toFixed(1),m.hits/200,
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,212,W-24,m.wrong===0,m.wrong>0?
+  m.wrong+' builds got somebody else\\u2019s output and called it a hit':
+  (m.hits<40?'correct, and the key is so specific nothing is ever reused':
+   'correct: every hit is the artifact that build would have produced'));
+ nt(g,'#5a4a85',14,266,8,'the key is a hypothesis about which parts of the world');
+ nt(g,'#5a4a85',14,284,8,'matter, written by someone who cannot enumerate it');
+ kout('bcaco','hits <b>'+m.hits+'</b> &middot; wrong <b>'+m.wrong+
+  '</b> &middot; entries <b>'+m.entries+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A KEY THAT IS THE WHOLE DEFINITION');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var t=i/N,wrong=(i%9===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:wrong?-18:6,
+   c:wrong?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.7)',r:wrong?3.6:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'it stores a claim about what a build depends on');}
+document.getElementById('bcacs').onclick=function(){useSrc=!useSrc;drawW4();};
+document.getElementById('bcact').onclick=function(){useTool=!useTool;drawW4();};
+document.getElementById('bcach').onclick=function(){useHost=!useHost;drawW4();};
+document.getElementById('bcacr').onclick=function(){useSrc=true;useTool=true;useHost=false;drawW4();};
+document.getElementById('bcacp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebuildcache=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNDC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A build reads whatever it reads. The dependency graph contains whatever somebody wrote down. Where those two differ, nothing is watching &mdash; and a change there produces no rebuild at all.<br><br>
+ <span class="lit">LIT</span> verified live. <b>3</b> inputs declared, <b>7</b> actually read: coverage <b>42.9%</b>. The <b>4</b> undeclared ones are a timezone file, a dotfile in the home directory, a generated header and a system include. A change to any of them triggers <b>0</b> rebuilds. The build is not wrong; the graph is incomplete, and the graph is what the build system can see.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is what sandboxed builds are for: run the action with only the declared inputs visible, and an undeclared read fails immediately instead of silently succeeding.<br><br>
+ <b>AVAN (AI)</b> lists what is missed rather than only the count, because the four are different kinds of failure. A system include is stable and almost never bites. A generated header is the one that will.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Declared against actually read.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change a file and see whether anything notices.</div>
+   <div class="btns" style="margin-top:10px"><button id="undcn">change the next file &#9654;</button><button id="undcs">sandbox it</button><button id="undcr">reset</button></div>
+   <div class="cap" id="undco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an input nobody is watching.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that undeclared inputs make builds unreliable. The inverse is that <b>the undeclared inputs are what makes the build work at all today</b>. Nobody declares the compiler, the kernel, the C library or the CPU; every build depends on hundreds of things it does not name and succeeds because they happen not to change. Read backwards, the line between a declared dependency and an assumed one is not drawn by correctness &mdash; it is drawn wherever somebody has previously been burned.</div>
+   <div class="btns" style="margin-top:10px"><button id="undcp">pause spin</button></div></div></div></div>"""
+UNDC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,fi=0,sandbox=false;
+var DECLARED=['main.c','config.h','util.h'];
+var READ=['main.c','config.h','util.h','/etc/localtime','$HOME/.cfg',
+          'version.h','/usr/include/stdio.h'];
+function selftest(){
+ var und=READ.filter(function(f){return DECLARED.indexOf(f)<0;});
+ return {declaredInputs:DECLARED.length,actuallyRead:READ.length,
+  undeclared:und.length,undeclaredNames:und,
+  changesThatTriggerNothing:und.length,
+  rebuildsTriggeredByAnUndeclaredChange:0,
+  coveragePct:+(100*DECLARED.length/READ.length).toFixed(1),
+  theBuildIsCorrectAndTheGraphIsIncomplete:true,
+  aSandboxTurnsSilenceIntoAnError:true,
+  ok:und.length===4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'DECLARED AGAINST ACTUALLY READ');
+ var i;
+ for(i=0;i<READ.length;i++){
+  var y=46+i*32,d=DECLARED.indexOf(READ[i])>=0;
+  nf(g,d?'rgba(125,226,176,0.24)':'rgba(255,60,90,0.24)');
+  g.fillRect(16,y,470,26);ng(g);
+  nt(g,d?'#7de2b0':'#ff5a8a',26,y+18,9,READ[i]);
+  nt(g,'#8a7ab8',280,y+18,8,d?'declared -- watched':'undeclared -- invisible');}
+ kverdict(g,12,282-8,W-24,false,VR.declaredInputs+' declared of '+
+  VR.actuallyRead+' read ('+VR.coveragePct+'%); '+VR.changesThatTriggerNothing+
+  ' files whose change triggers nothing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=READ[fi],d=DECLARED.indexOf(f)>=0;
+ nt(g,'#7cfc00',12,20,11,'CHANGE  '+f);
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,42,340,44);ng(g);
+ nt(g,'#e8e0ff',24,70,9,d?'this file is in the dependency graph':
+  'this file is not in the graph');
+ var notices=d||sandbox;
+ nf(g,notices?'rgba(125,226,176,0.26)':'rgba(255,60,90,0.26)');
+ g.fillRect(14,100,340,52);ng(g);
+ nt(g,notices?'#7de2b0':'#ff5a8a',24,124,10,
+  d?'REBUILD triggered':(sandbox?'BUILD FAILS -- undeclared read':
+   'nothing happens'));
+ nt(g,'#8a7ab8',24,144,8,d?'the graph knew about it':
+  (sandbox?'the sandbox turned silence into an error':
+   'the artifact is now stale and looks fresh'));
+ krow(g,14,166,230,'declared inputs',DECLARED.length,DECLARED.length/7,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,208,230,'inputs actually read',READ.length,1,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,250,230,'silent changes possible',sandbox?0:4,sandbox?0:4/7,
+  'rgba(255,60,90,0.85)');
+ kverdict(g,12,292,W-24,notices,sandbox?
+  'only the declared inputs are visible, so an undeclared read cannot succeed':
+  'nobody declares the compiler, the kernel or the CPU either');
+ kout('undco',f+' &middot; '+(d?'rebuild':(sandbox?'<b>build fails</b>':
+  '<b>nothing happens</b>')));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN INPUT NOBODY IS WATCHING');
+ korb(g,W/2,H/2+10,ang,28,function(i,N){
+  var t=i/N,seen=(i%7<3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:seen?-12:16,
+   c:seen?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.3)',r:seen?2.8:1.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'drawn wherever somebody has previously been burned');}
+document.getElementById('undcn').onclick=function(){fi=(fi+1)%READ.length;drawW4();};
+document.getElementById('undcs').onclick=function(){sandbox=!sandbox;drawW4();};
+document.getElementById('undcr').onclick=function(){fi=0;sandbox=false;drawW4();};
+document.getElementById('undcp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theundeclaredinput=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RCAC_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A cache shared between machines only helps where the machines agree on what a build is. Every field added to the key to make it safer is a field that can differ, and each one splits the population.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4</b> machines. Keyed on OS and compiler: <b>2</b> groups, the largest sharing <b>3</b> machines. Add the build path: <b>3</b> groups, largest <b>2</b>. Add the core count as well: <b>4</b> groups, largest <b>1</b> &mdash; every machine in its own group, and the shared cache is doing nothing at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why remote-caching build systems go to such lengths to make actions path-independent and to normalise the environment &mdash; the sharing is the product, and the key is what destroys it.<br><br>
+ <b>AVAN (AI)</b> included the core count, which cannot affect a correct build&rsquo;s output. It is in the key of many real systems anyway, put there defensively, and it costs everything: <b>3</b> machines sharing becomes <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four machines, three keys, less and less sharing.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a field to the key and watch the groups split.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcacp2">add path &#9654;</button><button id="rcacc">add cores</button><button id="rcacr">reset</button></div>
+   <div class="cap" id="rcaco" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a population splitting.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a precise key makes remote caching safe. The inverse is that <b>a perfectly precise key makes it useless</b>. The limit of adding fields is a key that identifies the machine, at which point every entry has exactly one possible reader and the cache is a local cache with extra network. Read backwards, remote caching is not a storage problem &mdash; it is an agreement problem, and the useful key is deliberately less precise than the truth, by exactly as much as everyone can be persuaded to tolerate.</div>
+   <div class="btns" style="margin-top:10px"><button id="rcacx">pause spin</button></div></div></div></div>"""
+RCAC_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,usePath=false,useCores=false;
+var MACH=[
+ {id:'ci-1', os:'linux',cc:'gcc-13',path:'/build', cores:32},
+ {id:'ci-2', os:'linux',cc:'gcc-13',path:'/build', cores:8},
+ {id:'dev-1',os:'linux',cc:'gcc-13',path:'/home/a',cores:8},
+ {id:'dev-2',os:'macos',cc:'gcc-13',path:'/home/b',cores:8}];
+function group(p,c){
+ var g={};
+ MACH.forEach(function(m){
+  var k=m.os+'|'+m.cc+(p?('|'+m.path):'')+(c?('|'+m.cores):'');
+  (g[k]=g[k]||[]).push(m.id);});
+ var vals=Object.keys(g).map(function(k){return g[k];});
+ return {groups:vals.length,
+  largest:Math.max.apply(null,vals.map(function(v){return v.length;})),
+  sets:vals};}
+function selftest(){
+ var a=group(false,false),b=group(true,false),c=group(true,true);
+ return {machines:MACH.length,
+  keyOsAndCompilerGroups:a.groups,keyOsAndCompilerLargestShare:a.largest,
+  keyWithPathGroups:b.groups,keyWithPathLargestShare:b.largest,
+  keyWithCoresGroups:c.groups,keyWithCoresLargestShare:c.largest,
+  everyExtraFieldSplitsThePopulation:c.groups>b.groups&&b.groups>a.groups,
+  coreCountCannotAffectACorrectBuild:true,
+  aPerfectlyPreciseKeyIsUseless:c.largest===1,
+  ok:a.largest===3&&c.largest===1&&c.groups===4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'FOUR MACHINES, THREE KEYS');
+ var confs=[['os + compiler',false,false],['+ build path',true,false],
+            ['+ core count',true,true]];
+ var PAL=['rgba(125,226,176,0.85)','rgba(90,208,255,0.85)',
+          'rgba(255,210,63,0.85)','rgba(255,60,90,0.8)'];
+ var i,j,k;
+ for(i=0;i<3;i++){
+  var y=52+i*70,gr=group(confs[i][1],confs[i][2]);
+  nt(g,'#8a7ab8',20,y+18,9,confs[i][0]);
+  for(j=0;j<gr.sets.length;j++)for(k=0;k<gr.sets[j].length;k++){
+   var idx=MACH.map(function(m){return m.id;}).indexOf(gr.sets[j][k]);
+   nf(g,PAL[j%4]);g.fillRect(160+idx*80,y,70,34);ng(g);
+   nt(g,'#0a0713',168+idx*80,y+22,9,gr.sets[j][k]);}
+  nt(g,'#e8e0ff',460,y+22,9,gr.groups+'');}
+ nt(g,'#5a4a85',20,254,8,'same colour = same cache key = they can share');
+ kverdict(g,12,258,W-24,false,'largest sharing group falls from '+
+  VR.keyOsAndCompilerLargestShare+' to '+VR.keyWithCoresLargestShare);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var gr=group(usePath,useCores);
+ var PAL=['rgba(125,226,176,0.85)','rgba(90,208,255,0.85)',
+          'rgba(255,210,63,0.85)','rgba(255,60,90,0.8)'];
+ nt(g,'#00f5ff',12,20,11,'os + compiler'+(usePath?' + path':'')+
+  (useCores?' + cores':''));
+ var i,j;
+ for(i=0;i<gr.sets.length;i++)for(j=0;j<gr.sets[i].length;j++){
+  var idx=MACH.map(function(m){return m.id;}).indexOf(gr.sets[i][j]);
+  nf(g,PAL[i%4]);g.fillRect(14+idx*86,44,78,46);ng(g);
+  nt(g,'#0a0713',22+idx*86,72,9,gr.sets[i][j]);}
+ nt(g,'#8a7ab8',14,108,8,'same colour = can reuse each other\\u2019s artifacts');
+ krow(g,14,126,230,'distinct cache groups',gr.groups,gr.groups/4,
+  'rgba(255,60,90,0.8)');
+ krow(g,14,168,230,'largest sharing group',gr.largest,gr.largest/4,
+  'rgba(125,226,176,0.85)');
+ kverdict(g,12,210,W-24,gr.largest>1,gr.largest===1?
+  'every machine alone -- a local cache with extra network':
+  gr.largest+' machines can reuse one build');
+ nt(g,'#5a4a85',14,262,8,'the useful key is deliberately less precise than');
+ nt(g,'#5a4a85',14,280,8,'the truth, by as much as everyone will tolerate');
+ kout('rcaco','groups <b>'+gr.groups+'</b> &middot; largest share <b>'+
+  gr.largest+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A POPULATION SPLITTING');
+ korb(g,W/2,H/2+10,ang,16,function(i,N){
+  var t=i/N,grp=Math.floor(t*4);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:(grp-1.5)*16,
+   c:['rgba(125,226,176,0.85)','rgba(90,208,255,0.8)','rgba(255,210,63,0.8)',
+      'rgba(255,60,90,0.75)'][grp%4],r:3.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'an agreement problem, not a storage problem');}
+document.getElementById('rcacp2').onclick=function(){usePath=!usePath;drawW4();};
+document.getElementById('rcacc').onclick=function(){useCores=!useCores;drawW4();};
+document.getElementById('rcacr').onclick=function(){usePath=false;useCores=false;drawW4();};
+document.getElementById('rcacx').onclick=function(){spin=!spin;};
+VR=selftest();window.__theremotecache=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+MTIM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Modification time is a stand-in for &ldquo;has this changed?&rdquo; and it is wrong in both directions at once: it moves when nothing changed, and it fails to move when something did.<br><br>
+ <span class="lit">LIT</span> verified live. <b>6</b> events at one-second timestamp granularity: <b>5</b> real edits and <b>1</b> touch with no content change. Modification time detects <b>3</b>, misses <b>2</b> that shared a second with an earlier edit, and triggers <b>1</b> rebuild for a file that did not change. A content hash detects all <b>5</b> and triggers <b>0</b> false rebuilds.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Make uses mtime because it is one <code>stat</code> call; hashing every input is correct and costs a read of every file on every build, which is the whole trade.<br><br>
+ <b>AVAN (AI)</b> reports the two failure directions separately because they are not symmetric. A false rebuild costs time. A missed rebuild ships an artifact built from source that no longer exists, and the only symptom is that something is subtly wrong later.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six events, and what each signal makes of them.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the granularity and watch edits vanish.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtimc">coarser clock &#9654;</button><button id="mtimf">finer</button><button id="mtimh">use a content hash</button><button id="mtimr">reset</button></div>
+   <div class="cap" id="mtimo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a clock standing in for a comparison.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that content hashing is more correct than modification time. The inverse is that <b>mtime answers a question hashing cannot</b>. A hash tells you whether two files differ; it cannot tell you which came first. Build systems need an order, not just a difference, and the timestamp is the only thing on a filesystem that carries one. Read backwards, mtime is not a cheap approximation of content comparison &mdash; it is a different measurement that happens to be usable as one, and the failures are what that substitution costs.</div>
+   <div class="btns" style="margin-top:10px"><button id="mtimp">pause spin</button></div></div></div></div>"""
+MTIM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,gran=1,useHash=false;
+var EVENTS=[{t:1.10,ch:true},{t:1.40,ch:true},{t:1.90,ch:true},
+            {t:2.30,ch:true},{t:5.00,ch:false},{t:7.20,ch:true}];
+function run(G,hash){
+ if(hash)return {detected:EVENTS.filter(function(e){return e.ch;}).length,
+  missed:0,falseRebuilds:0};
+ var seen=-1,det=0,miss=0,fals=0;
+ EVENTS.forEach(function(e){
+  var s=Math.floor(e.t/G);
+  if(e.ch){ if(s===seen)miss++; else {det++;seen=s;} }
+  else fals++;});
+ return {detected:det,missed:miss,falseRebuilds:fals};}
+function selftest(){
+ var m=run(1,false),h=run(1,true);
+ return {events:EVENTS.length,granularitySeconds:1,
+  realChanges:EVENTS.filter(function(e){return e.ch;}).length,
+  touchesWithNoChange:EVENTS.filter(function(e){return !e.ch;}).length,
+  mtimeDetected:m.detected,
+  mtimeMissedBySharingASecond:m.missed,
+  mtimeFalseRebuilds:m.falseRebuilds,
+  contentHashDetected:h.detected,contentHashFalseRebuilds:h.falseRebuilds,
+  wrongInBothDirections:m.missed>0&&m.falseRebuilds>0,
+  aMissedRebuildShipsTheWrongArtifact:true,
+  ok:m.missed===2&&m.falseRebuilds===1&&h.detected===5};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'SIX EVENTS, TWO SIGNALS');
+ var i,seen=-1;
+ for(i=0;i<EVENTS.length;i++){
+  var e=EVENTS[i],x=24+e.t*58,s=Math.floor(e.t);
+  var missed=e.ch&&s===seen;
+  if(e.ch&&!missed)seen=s;
+  nf(g,!e.ch?'rgba(255,210,63,0.85)':(missed?'rgba(255,60,90,0.9)':
+   'rgba(125,226,176,0.85)'));
+  g.fillRect(x,60,16,44);ng(g);
+  nt(g,'#5a4a85',x-2,118,7,'t='+e.t.toFixed(1));}
+ for(i=0;i<9;i++){
+  ne(g,'rgba(138,122,184,0.35)',1);g.beginPath();
+  g.moveTo(24+i*58,50);g.lineTo(24+i*58,112);g.stroke();ng(g);}
+ nt(g,'#8a7ab8',24,140,8,'vertical lines are one-second boundaries');
+ nt(g,'#7de2b0',24,158,8,'green = detected');
+ nt(g,'#ff5a8a',150,158,8,'red = missed, shared a second');
+ nt(g,'#ffd76a',330,158,8,'gold = false rebuild');
+ krow(g,20,174,300,'mtime detected',VR.mtimeDetected,VR.mtimeDetected/5,
+  'rgba(125,226,176,0.8)');
+ krow(g,20,216,300,'content hash detected',VR.contentHashDetected,1,
+  'rgba(90,208,255,0.8)');
+ kverdict(g,12,258,W-24,false,'mtime misses '+VR.mtimeMissedBySharingASecond+
+  ' and invents '+VR.mtimeFalseRebuilds+' -- wrong in both directions');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(gran,useHash);
+ nt(g,'#39fc6b',12,20,11,useHash?'CONTENT HASH':'MTIME, GRANULARITY '+gran+'s');
+ var i,seen=-1;
+ for(i=0;i<EVENTS.length;i++){
+  var e=EVENTS[i],s=Math.floor(e.t/gran);
+  var missed=!useHash&&e.ch&&s===seen;
+  if(e.ch&&!missed)seen=s;
+  nf(g,!e.ch?(useHash?'rgba(90,70,140,0.4)':'rgba(255,210,63,0.85)'):
+   (missed?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.85)'));
+  g.fillRect(14+i*58,44,48,40);ng(g);
+  nt(g,'#5a4a85',18+i*58,98,7,'t='+e.t.toFixed(1));}
+ krow(g,14,116,230,'detected',m.detected,m.detected/5,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,158,230,'MISSED',m.missed,m.missed/5,'rgba(255,60,90,0.9)');
+ krow(g,14,200,230,'false rebuilds',m.falseRebuilds,m.falseRebuilds,
+  'rgba(255,210,63,0.8)');
+ kverdict(g,12,242,W-24,m.missed===0,m.missed===0?
+  (useHash?'every real change seen, nothing invented':'granularity fine enough'):
+  m.missed+' edits are invisible: they share a tick with an earlier one');
+ nt(g,'#5a4a85',14,294,8,'a hash says whether two files differ, not which came first');
+ kout('mtimo',(useHash?'hash':'mtime @'+gran+'s')+' &middot; detected <b>'+
+  m.detected+'</b> &middot; missed <b>'+m.missed+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A CLOCK STANDING IN FOR A COMPARISON');
+ kring(g,W/2,H/2+10,ang,12,84,0,'rgba(125,226,176,0.75)',3);
+ ndot(g,W/2,H/2+10,7,'rgba(255,210,63,0.9)');
+ nt(g,'#8a7ab8',12,H-22,8,'a different measurement, usable as one');}
+document.getElementById('mtimc').onclick=function(){useHash=false;gran=Math.min(8,gran*2);drawW4();};
+document.getElementById('mtimf').onclick=function(){useHash=false;gran=Math.max(0.125,gran/2);drawW4();};
+document.getElementById('mtimh').onclick=function(){useHash=!useHash;drawW4();};
+document.getElementById('mtimr').onclick=function(){gran=1;useHash=false;drawW4();};
+document.getElementById('mtimp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetimestamp=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DIAM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Your program needs two libraries; they each need a third, at versions that do not overlap. Nobody made a mistake and there is no version that satisfies both.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4</b> requirements over two shared packages. <b>libC</b> is wanted at exactly <b>1</b> by one path and exactly <b>2</b> by another: the intersection is empty &mdash; lower bound <b>2</b> above upper bound <b>1</b> &mdash; and it is a hard conflict. <b>libE</b> is wanted in <b>[1,3]</b> and <b>[2,4]</b>, which overlap at <b>[2,3]</b>, leaving <b>2</b> valid choices. <b>1</b> of the <b>2</b> packages resolves.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Version resolution is NP-hard in general; the diamond is the smallest shape where the difficulty appears, and the two escape routes are duplication or failure.<br><br>
+ <b>AVAN (AI)</b> shows the arithmetic rather than the outcome: a conflict is <i>lower bound above upper bound</i>, which is a two-line check. What is hard is not detecting the conflict but that npm can install both copies, Maven picks the nearest, and Cargo refuses &mdash; three ecosystems, three different answers to the same arithmetic.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two shared packages, one of them impossible.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Widen a range until the intersection appears.</div>
+   <div class="btns" style="margin-top:10px"><button id="diamw">widen a range &#9654;</button><button id="diamn">narrow it</button><button id="diamr">reset</button></div>
+   <div class="cap" id="diamo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two paths to one name.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a diamond conflict is a dependency problem. The inverse is that <b>it is a naming problem</b>. Nothing prevents both versions existing at once except the assumption that <b>libC</b> means one thing in a program; ecosystems that let a name be scoped per-dependent have no diamond conflicts and get two copies instead. Read backwards, the conflict is not between the versions but between the versions and the wish for a single global answer, and every resolver is a policy about which of those to give up.</div>
+   <div class="btns" style="margin-top:10px"><button id="diamp">pause spin</button></div></div></div></div>"""
+DIAM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,widen=0;
+function reqs(w){
+ return [{pkg:'libC',via:'libA',lo:1,hi:1+w},
+         {pkg:'libC',via:'libB',lo:2,hi:2},
+         {pkg:'libE',via:'libD',lo:1,hi:3},
+         {pkg:'libE',via:'libF',lo:2,hi:4}];}
+function resolve(pkg,w){
+ var rs=reqs(w).filter(function(r){return r.pkg===pkg;});
+ var lo=Math.max.apply(null,rs.map(function(r){return r.lo;}));
+ var hi=Math.min.apply(null,rs.map(function(r){return r.hi;}));
+ return {pkg:pkg,requirements:rs.length,lo:lo,hi:hi,
+  satisfiable:lo<=hi,choices:lo<=hi?(hi-lo+1):0,ranges:rs};}
+function selftest(){
+ var C=resolve('libC',0),E=resolve('libE',0);
+ return {requirements:4,
+  libCLowerBound:C.lo,libCUpperBound:C.hi,libCSatisfiable:C.satisfiable,
+  libCChoices:C.choices,
+  libELowerBound:E.lo,libEUpperBound:E.hi,libESatisfiable:E.satisfiable,
+  libEChoices:E.choices,
+  conflicts:[C,E].filter(function(x){return !x.satisfiable;}).length,
+  resolvable:[C,E].filter(function(x){return x.satisfiable;}).length,
+  aConflictIsLowerBoundAboveUpperBound:C.lo>C.hi,
+  duplicationOrFailureAreTheOnlyOptions:true,
+  ok:!C.satisfiable&&E.satisfiable&&E.choices===2};}
+function bar(g,x,y,w,lo,hi,col,maxV){
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(x,y,w,20);ng(g);
+ if(hi>=lo){nf(g,col);
+  g.fillRect(x+Math.round(w*(lo-1)/maxV),y,
+   Math.max(3,Math.round(w*(hi-lo+1)/maxV)),20);ng(g);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'TWO SHARED PACKAGES');
+ var C=resolve('libC',0),E=resolve('libE',0),i;
+ nt(g,'#ff5a8a',20,48,10,'libC');
+ for(i=0;i<C.ranges.length;i++){
+  nt(g,'#8a7ab8',70,66+i*26,8,'via '+C.ranges[i].via);
+  bar(g,150,54+i*26,300,C.ranges[i].lo,C.ranges[i].hi,'rgba(255,60,90,0.7)',5);}
+ nt(g,'#ff5a8a',150,124,9,'lower bound '+C.lo+' is ABOVE upper bound '+C.hi+
+  ' -- no version exists');
+ nt(g,'#7de2b0',20,158,10,'libE');
+ for(i=0;i<E.ranges.length;i++){
+  nt(g,'#8a7ab8',70,176+i*26,8,'via '+E.ranges[i].via);
+  bar(g,150,164+i*26,300,E.ranges[i].lo,E.ranges[i].hi,'rgba(125,226,176,0.7)',5);}
+ nt(g,'#7de2b0',150,234,9,'overlap ['+E.lo+','+E.hi+'] -- '+E.choices+' choices');
+ kverdict(g,12,244,W-24,false,VR.resolvable+' of 2 resolve; a conflict is '+
+  'lower bound above upper bound, which is a two-line check');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var C=resolve('libC',widen);
+ nt(g,'#9d00ff',12,20,11,'libC, first range widened by '+widen);
+ var i;
+ for(i=0;i<C.ranges.length;i++){
+  nt(g,'#8a7ab8',14,64+i*34,9,'via '+C.ranges[i].via+'  ['+C.ranges[i].lo+
+   ','+C.ranges[i].hi+']');
+  bar(g,120,50+i*34,230,C.ranges[i].lo,C.ranges[i].hi,
+   C.satisfiable?'rgba(125,226,176,0.75)':'rgba(255,60,90,0.7)',6);}
+ nf(g,C.satisfiable?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.25)');
+ g.fillRect(14,124,340,46);ng(g);
+ nt(g,C.satisfiable?'#7de2b0':'#ff5a8a',24,152,10,
+  C.satisfiable?('resolves at ['+C.lo+','+C.hi+'] -- '+C.choices+' choices'):
+  ('lower bound '+C.lo+' above upper bound '+C.hi+' -- impossible'));
+ krow(g,14,182,230,'valid versions',C.choices,C.choices/5,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,224,W-24,C.satisfiable,
+  'npm installs both, Maven picks the nearest, Cargo refuses -- same arithmetic');
+ nt(g,'#5a4a85',14,278,8,'nothing prevents both versions existing except the');
+ nt(g,'#5a4a85',14,296,8,'assumption that libC means one thing in a program');
+ kout('diamo','widen <b>'+widen+'</b> &middot; '+(C.satisfiable?
+  '<b>'+C.choices+'</b> choices':'<b>conflict</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO PATHS TO ONE NAME');
+ ndot(g,W/2,H/2-60,8,'rgba(125,226,176,0.9)');
+ ndot(g,W/2-80,H/2+10,7,'rgba(90,208,255,0.8)');
+ ndot(g,W/2+80,H/2+10,7,'rgba(255,210,63,0.8)');
+ ndot(g,W/2,H/2+80,9,'rgba(255,60,90,0.9)');
+ kring(g,W/2,H/2+10,ang,10,60,0,'rgba(157,0,255,0.4)',2);
+ nt(g,'#8a7ab8',12,H-22,8,'a policy about which wish to give up');}
+document.getElementById('diamw').onclick=function(){widen=Math.min(4,widen+1);drawW4();};
+document.getElementById('diamn').onclick=function(){widen=Math.max(0,widen-1);drawW4();};
+document.getElementById('diamr').onclick=function(){widen=0;drawW4();};
+document.getElementById('diamp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thediamonddependency=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Without a lockfile, &ldquo;install the dependencies&rdquo; is a question with many correct answers and the resolver picks one each time. A lockfile does not make the answer right; it makes it the same.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4</b> direct dependencies admitting <b>3</b>, <b>4</b>, <b>2</b> and <b>5</b> compatible versions give <b>120</b> distinct resolutions &mdash; that product is exact. On the <i>stated assumption</i> that one transitive layer has the same fan-out, that becomes <b>14,400</b>. Locked, there is exactly <b>1</b>. Every machine then gets the same answer, including when it is the wrong one.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Lockfiles are why a build from six months ago still resolves, and why a security patch does not arrive until somebody regenerates one.<br><br>
+ <b>AVAN (AI)</b> is marking which figure is derived and which is assumed. <b>120</b> is the product of the version counts and is exact. <b>14,400</b> is <b>120&times;120</b> under a stated model of the transitive layer &mdash; it is illustrative, and saying so is cheaper than defending it later.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four dependencies, one hundred and twenty answers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a dependency and watch the space multiply.</div>
+   <div class="btns" style="margin-top:10px"><button id="lockm">add a dependency &#9654;</button><button id="lockl">remove one</button><button id="lockk">lock it</button><button id="lockr">reset</button></div>
+   <div class="cap" id="locko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many answers collapsed to one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a lockfile makes builds reproducible. The inverse is that <b>it freezes a decision made by whoever ran the resolver first, on the day they ran it</b>. Nothing about that moment was special; the versions it captured were simply the newest that existed then, and the file now carries them forward with the full authority of a checked-in artifact. Read backwards, the lockfile does not record what the project needs &mdash; it records an accident, and then defends it.</div>
+   <div class="btns" style="margin-top:10px"><button id="lockp">pause spin</button></div></div></div></div>"""
+LOCK_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,deps=[3,4,2,5],locked=false;
+function product(d){return d.reduce(function(a,b){return a*b;},1);}
+function selftest(){
+ var direct=product([3,4,2,5]);
+ return {directDependencies:4,versionsEach:[3,4,2,5],
+  distinctResolutionsUnlocked:direct,
+  withOneTransitiveLayerStatedModel:direct*direct,
+  transitiveFigureIsAStatedModelNotADerivation:true,
+  distinctResolutionsLocked:1,
+  aLockfileMakesItIdenticalNotCorrect:true,
+  everyMachineGetsTheSameAnswerIncludingTheWrongOne:true,
+  ok:direct===120&&direct*direct===14400};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'FOUR DEPENDENCIES, 120 ANSWERS');
+ var names=['A','B','C','D'],vs=[3,4,2,5],i,j;
+ for(i=0;i<4;i++){
+  var y=50+i*46;
+  nt(g,'#8a7ab8',20,y+20,10,names[i]);
+  for(j=0;j<vs[i];j++){
+   nf(g,'rgba(255,90,60,'+(0.35+0.1*j)+')');
+   g.fillRect(60+j*64,y,56,30);ng(g);
+   nt(g,'#e8e0ff',72+j*64,y+20,8,'v'+(j+1));}}
+ nf(g,'rgba(125,226,176,0.15)');g.fillRect(12,236,W-24,34);ng(g);
+ nt(g,'#7de2b0',22,258,10,'3 x 4 x 2 x 5  =  '+
+  VR.distinctResolutionsUnlocked+' distinct resolutions, exactly');
+ kverdict(g,12,262,W-24,false,'locked there is 1; the 14,400 figure assumes a '+
+  'transitive layer with the same fan-out and is illustrative');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=locked?1:product(deps);
+ nt(g,'#ff5a3c',12,20,11,deps.length+' DEPENDENCIES'+(locked?'   [LOCKED]':''));
+ var i,j;
+ for(i=0;i<deps.length&&i<6;i++){
+  var y=44+i*38;
+  nt(g,'#8a7ab8',14,y+20,9,String.fromCharCode(65+i));
+  for(j=0;j<deps[i]&&j<6;j++){
+   var chosen=locked&&j===0;
+   nf(g,chosen?'rgba(125,226,176,0.9)':'rgba(255,90,60,0.4)');
+   g.fillRect(44+j*48,y,42,26);ng(g);}}
+ krow(g,14,262-4,230,'distinct resolutions',p,
+  Math.min(1,Math.log(p+1)/Math.log(4000)),
+  locked?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.8)');
+ kverdict(g,12,296-4,W-24,locked,locked?
+  'one answer, on every machine, forever -- including if it is the wrong one':
+  p.toLocaleString()+' resolutions are all equally valid to the resolver');
+ kout('locko',deps.length+' deps &middot; <b>'+p.toLocaleString()+
+  '</b> resolution'+(p===1?'':'s'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'MANY ANSWERS COLLAPSED TO ONE');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,one=(i===20);
+  return {x:one?0:(t-0.5)*250,z:one?0:Math.sin(t*6.283)*30,y:one?-20:0,
+   c:one?'rgba(125,226,176,0.95)':'rgba(255,90,60,0.3)',r:one?6:1.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'it records an accident, and then defends it');}
+document.getElementById('lockm').onclick=function(){
+ if(deps.length<6)deps.push(2+deps.length%4);locked=false;drawW4();};
+document.getElementById('lockl').onclick=function(){
+ if(deps.length>1)deps.pop();locked=false;drawW4();};
+document.getElementById('lockk').onclick=function(){locked=!locked;drawW4();};
+document.getElementById('lockr').onclick=function(){deps=[3,4,2,5];locked=false;drawW4();};
+document.getElementById('lockp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelockfile=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RSET_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">The cost of touching a file is not its size or its complexity. It is how many things sit above it in the graph, and that number varies enormously between files that look identical from the outside.<br><br>
+ <span class="lit">LIT</span> verified live over <b>7</b> leaf files and <b>7</b> targets. Editing <b>test.c</b> rebuilds <b>1</b> target. Editing <b>main.c</b>, <b>util.c</b>, <b>net.c</b> or <b>parse.c</b> rebuilds <b>4</b>. Editing <b>config.h</b> or <b>util.h</b> rebuilds <b>6</b>. The mean is <b>4.14</b> and the spread is <b>5</b> &mdash; nothing visible in the source distinguishes the cheapest edit from the dearest.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the same reverse closure <b>THE INCREMENTAL BUILD</b> computes, sorted by cost rather than by file, because the ordering is the finding.<br><br>
+ <b>AVAN (AI)</b> reports the mean and immediately the spread, because on this distribution the mean describes no file at all. Two files cost <b>6</b>, four cost <b>4</b>, one costs <b>1</b>, and <b>4.14</b> is a number nobody ever pays.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven files, sorted by what they cost.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Compare two files side by side.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsetn">next file &#9654;</button><button id="rsetb">back</button><button id="rsetr">reset</button></div>
+   <div class="cap" id="rseto" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the weight above a file.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that some files are expensive to change. The inverse is that <b>expense is the visible form of usefulness</b>. <b>config.h</b> costs <b>6</b> rebuilds because six things depend on it, which is another way of saying six things needed what it provides. Read backwards, the rebuild cost is not a defect in the architecture but a direct measurement of how much a file is relied upon, and the only way to make every edit cheap is to build something where nothing depends on anything.</div>
+   <div class="btns" style="margin-top:10px"><button id="rsetp">pause spin</button></div></div></div></div>"""
+RSET_SCRIPT = """(function(){""" + NOIR + KIT + DAG_JS + """
+var ang=0,spin=true,VR=null,fi=0;
+var LEAVES=['main.c','config.h','util.h','util.c','net.c','parse.c','test.c'];
+function rows(){
+ var all=Object.keys(DAG()).length;
+ var r=LEAVES.map(function(f){
+  var s=reverseClosure(f);
+  return {file:f,rebuilds:s.length,names:s,
+   pct:+(100*s.length/all).toFixed(1)};});
+ r.sort(function(a,b){return b.rebuilds-a.rebuilds;});
+ return r;}
+function selftest(){
+ var R=rows(),all=Object.keys(DAG()).length;
+ var total=R.reduce(function(a,r){return a+r.rebuilds;},0);
+ return {targets:all,leafFiles:LEAVES.length,
+  rows:R.map(function(r){return {file:r.file,rebuilds:r.rebuilds,pct:r.pct};}),
+  worstFile:R[0].file,worstRebuilds:R[0].rebuilds,
+  bestFile:R[R.length-1].file,bestRebuilds:R[R.length-1].rebuilds,
+  meanRebuilds:+(total/R.length).toFixed(2),
+  spread:R[0].rebuilds-R[R.length-1].rebuilds,
+  theMeanDescribesNoFile:true,
+  costIsHowMuchAFileIsReliedUpon:true,
+  ok:R[0].rebuilds===6&&R[R.length-1].rebuilds===1&&all===7};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'SEVEN FILES, SORTED BY WHAT THEY COST');
+ var R=rows(),i;
+ for(i=0;i<R.length;i++){
+  var y=44+i*30;
+  nt(g,'#8a7ab8',20,y+16,9,R[i].file);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(120,y,330,22);ng(g);
+  nf(g,R[i].rebuilds>=6?'rgba(255,60,90,0.85)':
+     (R[i].rebuilds>=4?'rgba(255,210,63,0.8)':'rgba(125,226,176,0.85)'));
+  g.fillRect(120,y,Math.round(330*R[i].rebuilds/7),22);ng(g);
+  nt(g,'#e8e0ff',458,y+16,9,''+R[i].rebuilds);}
+ ne(g,'rgba(232,224,255,0.7)',1.5);g.beginPath();
+ g.moveTo(120+330*VR.meanRebuilds/7,40);
+ g.lineTo(120+330*VR.meanRebuilds/7,256);g.stroke();ng(g);
+ nt(g,'#e8e0ff',120+330*VR.meanRebuilds/7+4,272,8,'mean '+VR.meanRebuilds);
+ kverdict(g,12,262-6,W-24,false,'spread of '+VR.spread+
+  ' -- two files cost 6, four cost 4, one costs 1, and the mean is paid by nobody');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var f=LEAVES[fi],set=reverseClosure(f),all=Object.keys(DAG());
+ nt(g,'#5ad0ff',12,20,11,'EDIT  '+f+'   ->   '+set.length+' REBUILD'+
+  (set.length===1?'':'S'));
+ var i;
+ for(i=0;i<all.length;i++){
+  var hot=set.indexOf(all[i])>=0;
+  nf(g,hot?'rgba(255,60,90,0.8)':'rgba(90,70,140,0.25)');
+  g.fillRect(14+(i%4)*86,44+Math.floor(i/4)*46,78,38);ng(g);
+  nt(g,hot?'#0a0713':'#8a7ab8',20+(i%4)*86,68+Math.floor(i/4)*46,8,all[i]);}
+ krow(g,14,150,230,'rebuilt',set.length,set.length/7,'rgba(255,60,90,0.85)');
+ krow(g,14,192,230,'mean across all files',VR.meanRebuilds,
+  VR.meanRebuilds/7,'rgba(232,224,255,0.6)');
+ krow(g,14,234,230,'cheapest file costs',VR.bestRebuilds,
+  VR.bestRebuilds/7,'rgba(125,226,176,0.8)');
+ kverdict(g,12,276,W-24,set.length<=2,
+  set.length+' of 7 -- six things depend on it is another way of saying');
+ nt(g,'#5a4a85',14,318,8,'six things needed what it provides');
+ kout('rseto',f+' &middot; <b>'+set.length+'</b> of '+all.length);}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE WEIGHT ABOVE A FILE');
+ ndot(g,W/2,H/2+80,9,'rgba(125,226,176,0.95)');
+ korb(g,W/2,H/2-10,ang,18,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*220,z:Math.sin(t*6.283)*30,y:-20-t*30,
+   c:'rgba(255,60,90,'+(0.3+0.5*t)+')',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'a measurement of how much a file is relied upon');}
+document.getElementById('rsetn').onclick=function(){fi=(fi+1)%LEAVES.length;drawW4();};
+document.getElementById('rsetb').onclick=function(){fi=(fi+LEAVES.length-1)%LEAVES.length;drawW4();};
+document.getElementById('rsetr').onclick=function(){fi=0;drawW4();};
+document.getElementById('rsetp').onclick=function(){spin=!spin;};
+VR=selftest();window.__therebuildset=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CLEA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Deleting everything and starting over fixes builds that nothing else will. It works because the incremental build can only reason about files it knows should exist &mdash; and the problems are all files it does not.<br><br>
+ <span class="lit">LIT</span> verified live. <b>6</b> artifacts in a build directory after a series of edits. <b>4</b> are stale in a way no incremental build will resolve: an object file from a source that was deleted, a renamed object sitting beside its replacement, a generated header from a schema that changed, and a binary linked against something no longer referenced. After a clean build, <b>0</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Every one of the four is an <i>absence</i> the graph cannot represent: the build system knows what should be rebuilt, not what should no longer be there.<br><br>
+ <b>AVAN (AI)</b> is naming what &ldquo;have you tried a clean build&rdquo; actually means. It is not a diagnostic step and it does not identify anything &mdash; it discards the state in which the question could have been answered, which is why it works and why nobody learns anything from it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Six artifacts, four of them unreachable by any rebuild.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Try an incremental rebuild, then a clean one.</div>
+   <div class="btns" style="margin-top:10px"><button id="cleai">rebuild &#9654;</button><button id="cleac">clean, then build</button><button id="clear">reset</button></div>
+   <div class="cap" id="cleao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: what a graph cannot delete.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a clean build fixes stale state. The inverse is that <b>it is the one operation that admits the build system does not know what it produced</b>. If the graph could enumerate its own outputs it could delete exactly the wrong ones, and clean would be unnecessary; the command exists because that enumeration is incomplete. Read backwards, <code>make clean</code> is not part of the build system &mdash; it is the escape hatch under it, and reaching for it is the moment you stop trusting the model and start trusting the filesystem.</div>
+   <div class="btns" style="margin-top:10px"><button id="cleap">pause spin</button></div></div></div></div>"""
+CLEA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,mode=0;
+var ART=[
+ {n:'main.o  (source deleted)',      stale:true},
+ {n:'util_v2.o  (renamed, both kept)',stale:true},
+ {n:'schema.h  (old schema)',        stale:true},
+ {n:'app  (links a removed object)', stale:true},
+ {n:'main.o  (current)',             stale:false},
+ {n:'util.o  (current)',             stale:false}];
+function after(m){
+ if(m===2)return ART.map(function(a){return {n:a.n,stale:false,gone:a.stale};});
+ return ART.map(function(a){return {n:a.n,stale:a.stale,gone:false};});}
+function selftest(){
+ var inc=after(1),cln=after(2);
+ return {artifacts:ART.length,
+  staleAfterIncremental:inc.filter(function(a){return a.stale;}).length,
+  staleAfterClean:cln.filter(function(a){return a.stale;}).length,
+  staleNames:ART.filter(function(a){return a.stale;}).map(function(a){return a.n;}),
+  eachIsAnAbsenceTheGraphCannotRepresent:true,
+  theBuildKnowsWhatToRebuildNotWhatShouldNotBeThere:true,
+  cleanDiscardsTheStateThatHeldTheAnswer:true,
+  ok:inc.filter(function(a){return a.stale;}).length===4&&
+     cln.filter(function(a){return a.stale;}).length===0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'SIX ARTIFACTS, FOUR UNREACHABLE');
+ var i;
+ for(i=0;i<ART.length;i++){
+  var y=48+i*36;
+  nf(g,ART[i].stale?'rgba(255,60,90,0.24)':'rgba(125,226,176,0.22)');
+  g.fillRect(16,y,470,30);ng(g);
+  nt(g,ART[i].stale?'#ff5a8a':'#7de2b0',26,y+20,9,ART[i].n);
+  nt(g,'#8a7ab8',330,y+20,8,ART[i].stale?'no rebuild reaches it':'current');}
+ kverdict(g,12,282-8,W-24,false,VR.staleAfterIncremental+
+  ' stale after any incremental build, '+VR.staleAfterClean+' after a clean one');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var st=after(mode);
+ nt(g,'#9d00ff',12,20,11,mode===0?'BEFORE':(mode===1?'AFTER REBUILD':'AFTER CLEAN + BUILD'));
+ var i;
+ for(i=0;i<st.length;i++){
+  var y=44+i*38;
+  nf(g,st[i].gone?'rgba(90,70,140,0.2)':
+     (st[i].stale?'rgba(255,60,90,0.3)':'rgba(125,226,176,0.25)'));
+  g.fillRect(14,y,340,30);ng(g);
+  nt(g,st[i].gone?'#5a4a85':(st[i].stale?'#ff5a8a':'#7de2b0'),24,y+20,8,
+   st[i].n+(st[i].gone?'   (deleted)':''));}
+ krow(g,14,254,230,'still stale',st.filter(function(a){return a.stale;}).length,
+  st.filter(function(a){return a.stale;}).length/6,'rgba(255,60,90,0.85)');
+ kverdict(g,12,296-4,W-24,mode===2,mode===1?
+  'the rebuild touched everything the graph knows about, and nothing changed':
+  (mode===2?'gone -- along with any evidence of what went wrong':
+   'four artifacts the graph has no rule for'));
+ kout('cleao',(mode===0?'before':(mode===1?'after rebuild':'after clean'))+
+  ' &middot; stale <b>'+st.filter(function(a){return a.stale;}).length+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'WHAT A GRAPH CANNOT DELETE');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N,orphan=(i%6<2);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:orphan?20:-10,
+   c:orphan?'rgba(255,60,90,0.7)':'rgba(125,226,176,0.75)',r:orphan?3:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'you stop trusting the model and start trusting the filesystem');}
+document.getElementById('cleai').onclick=function(){mode=1;drawW4();};
+document.getElementById('cleac').onclick=function(){mode=2;drawW4();};
+document.getElementById('clear').onclick=function(){mode=0;drawW4();};
+document.getElementById('cleap').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecleanbuild=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 269 · neon-noir · silicon-coding · THE CODE YOU DID NOT WRITE ═══════════════════════
 DEAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">Work backwards from what the program actually returns and mark everything that contributes. Whatever is left was computed for nobody, and the compiler deletes it without asking.<br><br>
@@ -111371,6 +112363,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-reproducible-build","title":"THE REPRODUCIBLE BUILD","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⧗",
+  "kicker":"they prove two builders agreed, not that either was right",
+  "blurb":"Build the same source twice and get the same bytes. It sounds like the default and it is not - a build is a program with the clock, the filesystem and the scheduler as hidden inputs.",
+  "lit":"4 sources of nondeterminism across all 16 combinations leave only 2 producing byte-identical output and 14 differing, because 3 of the factors break reproducibility - an embedded timestamp, an absolute build path, hash-map iteration order - and 1 does not: parallel job scheduling, since the link step does not care what order it was handed things",
+  "fig":"Reproducible builds are how you tell whether a binary corresponds to the source it claims; Debian and Bazel both treat it as a correctness property rather than a nicety. AVAN included a factor that does NOT break it. 2 identical configurations rather than 1 is the whole finding: nondeterminism in the process is not the same as nondeterminism in the output, and telling those apart is the actual work.",
+  "body":RPRO_BODY,"script":RPRO_SCRIPT},
+ {"slug":"the-incremental-build","title":"THE INCREMENTAL BUILD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"⤴",
+  "kicker":"a pricing schedule nobody wrote deliberately",
+  "blurb":"Rebuild only what depends on what changed. The saving is real, and it is not evenly distributed - some files cost almost nothing to edit and others cost nearly the whole project.",
+  "lit":"on a 7-target graph, changing test.c rebuilds 1 target which is 14.3%, changing parse.c rebuilds 4, and changing util.h or config.h rebuilds 6 - 85.7% of everything, from editing one header - so the ratio between the worst edit and the best is 6.00 and nothing about the files themselves says which is which",
+  "fig":"The rebuild set is the reverse reachability closure of the changed node; that is all an incremental build is, and everything else is deciding when a node counts as changed. AVAN reports the spread rather than an average, because a mean rebuild cost across the project is a number nobody experiences - what people experience is the header, and the header is 6 times the cheapest edit in a graph this small.",
+  "body":INCR_BODY,"script":INCR_SCRIPT},
+ {"slug":"the-build-cache","title":"THE BUILD CACHE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"⚿",
+  "kicker":"it stores a claim about what a build depends on",
+  "blurb":"A build cache is a lookup keyed on everything that affects the answer. Leave something out and it returns the wrong artifact. Put something extra in and it never returns anything.",
+  "lit":"200 builds over three keys give the correct key - source, flags, toolchain - 155 hits at 77.5% with 0 wrong, while dropping the toolchain gives 176 hits, MORE than correct, of which 90 are wrong artifacts served as if fresh, and adding the hostname gives 9 hits at 4.5% across 191 cache entries",
+  "fig":"Bazel, ccache and Nix all live or die on this: the key is the definition of the same build, and it is the only thing that is. AVAN put the too-coarse key's hit rate ABOVE the correct one on purpose. 176 beats 155, and a dashboard reporting cache hit rate would show the broken configuration winning - the failure is invisible in the metric you would naturally watch.",
+  "body":BCAC_BODY,"script":BCAC_SCRIPT},
+ {"slug":"the-undeclared-input","title":"THE UNDECLARED INPUT","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"◌",
+  "kicker":"drawn wherever somebody has previously been burned",
+  "blurb":"A build reads whatever it reads. The dependency graph contains whatever somebody wrote down. Where those two differ, nothing is watching.",
+  "lit":"3 inputs declared against 7 actually read is a coverage of 42.9%, and the 4 undeclared ones - a timezone file, a dotfile in the home directory, a generated header and a system include - each trigger 0 rebuilds when they change, so the build is not wrong but the graph is incomplete and the graph is what the build system can see",
+  "fig":"This is what sandboxed builds are for: run the action with only the declared inputs visible, and an undeclared read fails immediately instead of silently succeeding. AVAN lists what is missed rather than only the count, because the four are different kinds of failure. A system include is stable and almost never bites. A generated header is the one that will.",
+  "body":UNDC_BODY,"script":UNDC_SCRIPT},
+ {"slug":"the-remote-cache","title":"THE REMOTE CACHE","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"⇋",
+  "kicker":"an agreement problem, not a storage problem",
+  "blurb":"A cache shared between machines only helps where the machines agree on what a build is. Every field added to the key to make it safer is a field that can differ, and each one splits the population.",
+  "lit":"4 machines keyed on OS and compiler form 2 groups with the largest sharing 3 machines, adding the build path gives 3 groups with a largest of 2, and adding the core count as well gives 4 groups with a largest of 1 - every machine in its own group, and the shared cache doing nothing at all",
+  "fig":"This is why remote-caching build systems go to such lengths to make actions path-independent and to normalise the environment - the sharing is the product, and the key is what destroys it. AVAN included the core count, which cannot affect a correct build's output. It is in the key of many real systems anyway, put there defensively, and it costs everything: 3 machines sharing becomes 1.",
+  "body":RCAC_BODY,"script":RCAC_SCRIPT},
+ {"slug":"the-timestamp","title":"THE TIMESTAMP","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"⏲",
+  "kicker":"a different measurement, usable as one",
+  "blurb":"Modification time is a stand-in for has this changed, and it is wrong in both directions at once: it moves when nothing changed, and it fails to move when something did.",
+  "lit":"6 events at one-second timestamp granularity - 5 real edits and 1 touch with no content change - are detected by modification time only 3 times, missing 2 that shared a second with an earlier edit and triggering 1 rebuild for a file that did not change, while a content hash detects all 5 and triggers 0 false rebuilds",
+  "fig":"Make uses mtime because it is one stat call; hashing every input is correct and costs a read of every file on every build, which is the whole trade. AVAN reports the two failure directions separately because they are not symmetric. A false rebuild costs time. A missed rebuild ships an artifact built from source that no longer exists, and the only symptom is that something is subtly wrong later.",
+  "body":MTIM_BODY,"script":MTIM_SCRIPT},
+ {"slug":"the-diamond-dependency","title":"THE DIAMOND DEPENDENCY","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"◈",
+  "kicker":"a policy about which wish to give up",
+  "blurb":"Your program needs two libraries; they each need a third, at versions that do not overlap. Nobody made a mistake and there is no version that satisfies both.",
+  "lit":"4 requirements over two shared packages leave libC wanted at exactly 1 by one path and exactly 2 by another, so the intersection is empty with a lower bound of 2 above an upper bound of 1 and it is a hard conflict, while libE wanted in [1,3] and [2,4] overlaps at [2,3] for 2 valid choices - 1 of the 2 packages resolves",
+  "fig":"Version resolution is NP-hard in general; the diamond is the smallest shape where the difficulty appears, and the two escape routes are duplication or failure. AVAN shows the arithmetic rather than the outcome: a conflict is lower bound above upper bound, a two-line check. What is hard is that npm can install both copies, Maven picks the nearest and Cargo refuses - three ecosystems, three answers to the same arithmetic.",
+  "body":DIAM_BODY,"script":DIAM_SCRIPT},
+ {"slug":"the-lockfile","title":"THE LOCKFILE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⚿",
+  "kicker":"it records an accident, and then defends it",
+  "blurb":"Without a lockfile, install the dependencies is a question with many correct answers and the resolver picks one each time. A lockfile does not make the answer right; it makes it the same.",
+  "lit":"4 direct dependencies admitting 3, 4, 2 and 5 compatible versions give 120 distinct resolutions - that product is exact - and on the STATED ASSUMPTION that one transitive layer has the same fan-out that becomes 14,400, against exactly 1 when locked, so every machine then gets the same answer including when it is the wrong one",
+  "fig":"Lockfiles are why a build from six months ago still resolves, and why a security patch does not arrive until somebody regenerates one. AVAN is marking which figure is derived and which is assumed: 120 is the product of the version counts and is exact, while 14,400 is 120x120 under a stated model of the transitive layer - it is illustrative, and saying so is cheaper than defending it later.",
+  "body":LOCK_BODY,"script":LOCK_SCRIPT},
+ {"slug":"the-rebuild-set","title":"THE REBUILD SET","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⇞",
+  "kicker":"expense is the visible form of usefulness",
+  "blurb":"The cost of touching a file is not its size or its complexity. It is how many things sit above it in the graph, and that varies enormously between files that look identical from the outside.",
+  "lit":"over 7 leaf files and 7 targets, editing test.c rebuilds 1 target, editing main.c or util.c or net.c or parse.c rebuilds 4, and editing config.h or util.h rebuilds 6 - a mean of 4.14 and a spread of 5, with nothing visible in the source distinguishing the cheapest edit from the dearest",
+  "fig":"This is the same reverse closure THE INCREMENTAL BUILD computes, sorted by cost rather than by file, because the ordering is the finding. AVAN reports the mean and immediately the spread, because on this distribution the mean describes no file at all: two files cost 6, four cost 4, one costs 1, and 4.14 is a number nobody ever pays.",
+  "body":RSET_BODY,"script":RSET_SCRIPT},
+ {"slug":"the-clean-build","title":"THE CLEAN BUILD","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"⌧",
+  "kicker":"the escape hatch under the build system",
+  "blurb":"Deleting everything and starting over fixes builds that nothing else will. It works because the incremental build can only reason about files it knows should exist - and the problems are all files it does not.",
+  "lit":"6 artifacts in a build directory after a series of edits leave 4 stale in a way no incremental build will resolve - an object file from a deleted source, a renamed object sitting beside its replacement, a generated header from a changed schema, and a binary linked against something no longer referenced - and after a clean build, 0",
+  "fig":"Every one of the four is an absence the graph cannot represent: the build system knows what should be rebuilt, not what should no longer be there. AVAN is naming what have you tried a clean build actually means. It is not a diagnostic step and it does not identify anything - it discards the state in which the question could have been answered, which is why it works and why nobody learns anything from it.",
+  "body":CLEA_BODY,"script":CLEA_SCRIPT},
  {"slug":"the-dead-code-elimination","title":"THE DEAD CODE ELIMINATION","appeal_name":"RESPAWN","appeal_slug":"respawn",
   "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7cfc00","icon":"⌦",
   "kicker":"nothing in the model could tell, and the model is a choice",
