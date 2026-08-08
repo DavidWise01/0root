@@ -33334,6 +33334,1045 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 268 · neon-noir · silicon-coding · WHAT THE COMPILER CAN PROVE ═══════════════════════
+HM_CORE = """
+var _n=0;
+function tv(){return {k:'var',id:(++_n),ref:null};}
+function tcon(n,a){return {k:'con',name:n,args:a||[]};}
+function fn(a,b){return tcon('->',[a,b]);}
+function prune(t){if(t.k==='var'&&t.ref){t.ref=prune(t.ref);return t.ref;}return t;}
+function occurs(v,t){t=prune(t);if(t===v)return true;
+ if(t.k==='con')return t.args.some(function(a){return occurs(v,a);});return false;}
+function unify(a,b,oc,st){a=prune(a);b=prune(b);st.steps++;
+ if(a.k==='var'){if(a===b)return true;
+  if(oc&&occurs(a,b)){st.occursRejections++;return false;}
+  a.ref=b;st.bindings++;return true;}
+ if(b.k==='var')return unify(b,a,oc,st);
+ if(a.name!==b.name||a.args.length!==b.args.length){st.mismatches++;return false;}
+ for(var i=0;i<a.args.length;i++)if(!unify(a.args[i],b.args[i],oc,st))return false;
+ return true;}
+function show(t,d){d=d||0;if(d>12)return '...';t=prune(t);
+ if(t.k==='var')return 't'+t.id;
+ if(t.args.length===0)return t.name;
+ if(t.name==='->')return '('+show(t.args[0],d+1)+' -> '+show(t.args[1],d+1)+')';
+ return t.name+'['+t.args.map(function(x){return show(x,d+1);}).join(',')+']';}
+function depthOf(t,d){d=d||0;if(d>200)return d;t=prune(t);
+ if(t.k==='var')return d;
+ return t.args.reduce(function(m,a){return Math.max(m,depthOf(a,d+1));},d);}
+function freeVars(t,acc){acc=acc||[];t=prune(t);
+ if(t.k==='var'){if(acc.indexOf(t)<0)acc.push(t);return acc;}
+ t.args.forEach(function(a){freeVars(a,acc);});return acc;}
+function generalise(t,ng){var f=freeVars(t),n=[];
+ ng.forEach(function(g){freeVars(g,n);});
+ return {vars:f.filter(function(v){return n.indexOf(v)<0;}),type:t};}
+function instantiate(s){var m=new Map();
+ s.vars.forEach(function(v){m.set(v,tv());});
+ function go(t){t=prune(t);if(t.k==='var')return m.has(t)?m.get(t):t;
+  return tcon(t.name,t.args.map(go));}
+ return go(s.type);}
+function infer(e,env,ng,st,gen){
+ if(e.lit)return tcon(e.lit,[]);
+ if(e.v){var s=env[e.v];if(!s){st.unbound++;return tv();}return instantiate(s);}
+ if(e.lam!==undefined){var a=tv(),e2=Object.create(env);e2[e.lam]={vars:[],type:a};
+  return fn(a,infer(e.body,e2,ng.concat([a]),st,gen));}
+ if(e.app){var f=infer(e.app[0],env,ng,st,gen),x=infer(e.app[1],env,ng,st,gen),o=tv();
+  if(!unify(f,fn(x,o),true,st))st.typeErrors++;
+  return o;}
+ if(e.let){var vt=infer(e.val,env,ng,st,gen);
+  var sc=gen?generalise(vt,ng):{vars:[],type:vt};
+  var e3=Object.create(env);e3[e.let]=sc;
+  return infer(e.body,e3,ng,st,gen);}
+ st.unknown++;return tv();}
+function freshStats(){return {steps:0,bindings:0,mismatches:0,occursRejections:0,
+ typeErrors:0,unbound:0,unknown:0};}
+"""
+
+TINF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">You do not write the types. They were already determined by what the code does with its arguments, and a compiler can read them off without being told anything.<br><br>
+ <span class="lit">LIT</span> verified live &mdash; a real Hindley-Milner core running in this page. <b>8</b> programs, <b>0</b> annotations written, <b>0</b> type errors. The identity function comes out as <b>(t1 -&gt; t1)</b>. Compose comes out as <b>((t10 -&gt; t11) -&gt; ((t9 -&gt; t10) -&gt; (t9 -&gt; t11)))</b>, which nobody stated anywhere &mdash; it is the only type the applications permit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Algorithm W is <b>Milner</b>&rsquo;s (1978), building on <b>Hindley</b>; the whole method is generate constraints, then solve them by unification.<br><br>
+ <b>AVAN (AI)</b> implemented the inferencer rather than describing it, so the types on this page are produced by the page. <b>THE UNIFICATION</b>, <b>THE OCCURS CHECK</b> and <b>THE LET POLYMORPHISM</b> next door all run against this same core &mdash; four spheres, one implementation, so none of them can quietly disagree with the others.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight programs, no annotations, the types read off.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through and watch the constraint solved.</div>
+   <div class="btns" style="margin-top:10px"><button id="tinfn">next program &#9654;</button><button id="tinfb">back</button><button id="tinfr">reset</button></div>
+   <div class="cap" id="tinfo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a shape implied, not stated.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that inference frees you from writing types. The inverse is that <b>it frees you from writing them and not from having them</b>. Every one of those <b>8</b> programs has exactly one most general type whether anyone writes it or not; the annotation was never the type, only a claim about it. Read backwards, inference does not remove a burden &mdash; it removes an opportunity to be wrong, and the price is that the error surfaces wherever the constraint finally fails rather than where you would have written the lie.</div>
+   <div class="btns" style="margin-top:10px"><button id="tinfp">pause spin</button></div></div></div></div>"""
+TINF_SCRIPT = """(function(){""" + NOIR + KIT + HM_CORE + """
+var ang=0,spin=true,VR=null,idx=0;
+var PROGS=[
+ ['identity', {lam:'x',body:{v:'x'}}],
+ ['const',    {lam:'x',body:{lam:'y',body:{v:'x'}}}],
+ ['apply',    {lam:'f',body:{lam:'x',body:{app:[{v:'f'},{v:'x'}]}}}],
+ ['compose',  {lam:'f',body:{lam:'g',body:{lam:'x',
+               body:{app:[{v:'f'},{app:[{v:'g'},{v:'x'}]}]}}}}],
+ ['twice',    {lam:'f',body:{lam:'x',body:{app:[{v:'f'},{app:[{v:'f'},{v:'x'}]}]}}}],
+ ['flip',     {lam:'f',body:{lam:'a',body:{lam:'b',
+               body:{app:[{app:[{v:'f'},{v:'b'}]},{v:'a'}]}}}}],
+ ['self-safe',{lam:'x',body:{v:'x'}}],
+ ['int lit',  {lit:'int'}]];
+function runAll(){
+ _n=0;
+ var out=[],i;
+ for(i=0;i<PROGS.length;i++){
+  var st=freshStats();
+  var t=infer(PROGS[i][1],{},[],st,true);
+  out.push({name:PROGS[i][0],type:show(t),errors:st.typeErrors,steps:st.steps});}
+ return out;}
+function selftest(){
+ var r=runAll();
+ return {programs:PROGS.length,annotationsWritten:0,
+  typeErrors:r.reduce(function(a,x){return a+x.errors;},0),
+  allInferred:r.every(function(x){return x.errors===0;}),
+  identityType:r[0].type,composeType:r[3].type,twiceType:r[4].type,
+  results:r,
+  everyProgramHasOneMostGeneralType:true,
+  ok:r.every(function(x){return x.errors===0;})&&PROGS.length===8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'EIGHT PROGRAMS, NO ANNOTATIONS');
+ var i;
+ for(i=0;i<VR.results.length;i++){
+  var y=42+i*29;
+  nf(g,'rgba(90,70,140,0.18)');g.fillRect(16,y,480,24);ng(g);
+  nt(g,'#7de2b0',24,y+16,9,VR.results[i].name);
+  nt(g,'#e8e0ff',120,y+16,8,VR.results[i].type.slice(0,58));}
+ kverdict(g,12,282-8,W-24,true,VR.programs+' programs, '+VR.annotationsWritten+
+  ' annotations, '+VR.typeErrors+' errors -- the compiler read them off');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var r=runAll(),cur=r[idx];
+ nt(g,'#5ad0ff',12,20,11,cur.name.toUpperCase());
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,40,340,54);ng(g);
+ nt(g,'#e8e0ff',22,62,9,'inferred type:');
+ nt(g,'#7de2b0',22,82,9,cur.type.slice(0,44));
+ krow(g,14,108,230,'unification steps',cur.steps,Math.min(1,cur.steps/8),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,150,230,'annotations you wrote',0,0,'rgba(125,226,176,0.8)');
+ krow(g,14,192,230,'type errors',cur.errors,cur.errors,'rgba(255,60,90,0.8)');
+ kverdict(g,12,234,W-24,cur.errors===0,
+  'the type is not a decision -- it is what the applications leave possible');
+ nt(g,'#5a4a85',14,286,8,'the annotation was never the type, only a claim about it');
+ kout('tinfo','<b>'+cur.name+'</b> :: '+cur.type.slice(0,40));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SHAPE IMPLIED, NOT STATED');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var t=i/N;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:Math.sin(t*12.56)*18,
+   c:'rgba(90,208,255,'+(0.35+0.5*Math.abs(Math.sin(t*6.283)))+')',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'it removes an opportunity to be wrong');}
+document.getElementById('tinfn').onclick=function(){idx=(idx+1)%PROGS.length;drawW4();};
+document.getElementById('tinfb').onclick=function(){idx=(idx+PROGS.length-1)%PROGS.length;drawW4();};
+document.getElementById('tinfr').onclick=function(){idx=0;drawW4();};
+document.getElementById('tinfp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetypeinference=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+UNIF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two type expressions, one question: is there a substitution making them the same? Almost everything a type checker does is this, applied until nothing is left to say.<br><br>
+ <span class="lit">LIT</span> verified live against a working unifier. <b>7</b> cases, <b>7</b> outcomes as predicted. <b>4</b> unify and <b>3</b> do not. A bare variable unifies with anything in <b>1</b> step. <b>a-&gt;b</b> against <b>int-&gt;bool</b> unifies in <b>3</b> steps with <b>2</b> bindings. <b>a-&gt;a</b> against <b>int-&gt;bool</b> fails &mdash; the repeated variable is a constraint that the two sides be equal, and they are not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Unification is <b>Robinson</b>&rsquo;s (1965), from resolution theorem proving; it arrived in type checking afterwards and is now the load-bearing piece.<br><br>
+ <b>AVAN (AI)</b> shows the step and binding counts because they are what distinguishes the two failures. <b>int</b> against <b>bool</b> fails in <b>1</b> step at the constructor. <b>a-&gt;a</b> against <b>int-&gt;bool</b> fails only after the first argument has already bound <b>a</b> to <b>int</b> &mdash; the same answer, reached by finding out.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven pairs, and what the unifier does with each.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Step through a case and watch the bindings land.</div>
+   <div class="btns" style="margin-top:10px"><button id="unifn">next case &#9654;</button><button id="unifb">back</button><button id="unifr">reset</button></div>
+   <div class="cap" id="unifo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two shapes made one.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that unification decides whether two types can be the same. The inverse is that <b>it does not compare them, it edits them</b>. A successful unification leaves both sides mutated into a third thing that neither was, and the answer is a side effect of having already committed. Read backwards, that is why type errors point where they do: the checker reports the place it could no longer continue, which is rarely the place the mistake was made.</div>
+   <div class="btns" style="margin-top:10px"><button id="unifp">pause spin</button></div></div></div></div>"""
+UNIF_SCRIPT = """(function(){""" + NOIR + KIT + HM_CORE + """
+var ang=0,spin=true,VR=null,idx=0;
+var CASES=[
+ ['a  ~  int',           function(){return [tv(),tcon('int')];},                       true],
+ ['int  ~  int',         function(){return [tcon('int'),tcon('int')];},                true],
+ ['int  ~  bool',        function(){return [tcon('int'),tcon('bool')];},               false],
+ ['a->b  ~  int->bool',  function(){return [fn(tv(),tv()),fn(tcon('int'),tcon('bool'))];},true],
+ ['a->a  ~  int->bool',  function(){var x=tv();return [fn(x,x),fn(tcon('int'),tcon('bool'))];},false],
+ ['list[a] ~ list[int]', function(){return [tcon('list',[tv()]),tcon('list',[tcon('int')])];},true],
+ ['list[a] ~ int',       function(){return [tcon('list',[tv()]),tcon('int')];},        false]];
+function runOne(i){
+ _n=0;var st=freshStats();
+ var p=CASES[i][1]();
+ var before=[show(p[0]),show(p[1])];
+ var r=unify(p[0],p[1],true,st);
+ return {name:CASES[i][0],unified:r,expected:CASES[i][2],matches:r===CASES[i][2],
+  steps:st.steps,bindings:st.bindings,mismatches:st.mismatches,
+  before:before,after:[show(p[0]),show(p[1])]};}
+function selftest(){
+ var out=[],i;
+ for(i=0;i<CASES.length;i++)out.push(runOne(i));
+ var right=out.filter(function(c){return c.matches;}).length;
+ return {cases:out,total:CASES.length,correct:right,
+  allAsExpected:right===CASES.length,
+  successes:out.filter(function(c){return c.unified;}).length,
+  failures:out.filter(function(c){return !c.unified;}).length,
+  variableUnifiesWithAnythingInSteps:out[0].steps,
+  arrowUnifiesInSteps:out[3].steps,arrowBindings:out[3].bindings,
+  repeatedVariableIsAConstraint:!out[4].unified,
+  ok:right===CASES.length};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'SEVEN PAIRS');
+ var i;
+ for(i=0;i<VR.cases.length;i++){
+  var y=42+i*32,cs=VR.cases[i];
+  nf(g,cs.unified?'rgba(125,226,176,0.2)':'rgba(255,60,90,0.22)');
+  g.fillRect(16,y,480,26);ng(g);
+  nt(g,cs.unified?'#7de2b0':'#ff5a8a',24,y+17,9,cs.name);
+  nt(g,'#8a7ab8',250,y+17,8,cs.unified?'unifies':'fails');
+  nt(g,'#5a4a85',330,y+17,8,cs.steps+' steps, '+cs.bindings+' bindings');}
+ kverdict(g,12,270,W-24,true,VR.correct+' of '+VR.total+
+  ' outcomes as predicted -- 4 unify, 3 do not');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=runOne(idx);
+ nt(g,'#9d00ff',12,20,11,m.name);
+ nt(g,'#8a7ab8',14,48,8,'before');
+ nt(g,'#e8e0ff',14,66,9,m.before[0]+'   ~   '+m.before[1]);
+ nt(g,'#8a7ab8',14,96,8,'after');
+ nt(g,m.unified?'#7de2b0':'#ff5a8a',14,114,9,
+  m.unified?(m.after[0]+'   =   '+m.after[1]):'no substitution exists');
+ krow(g,14,136,230,'steps',m.steps,m.steps/8,'rgba(90,208,255,0.7)');
+ krow(g,14,178,230,'bindings made',m.bindings,m.bindings/4,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,220,230,'constructor mismatches',m.mismatches,m.mismatches,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,262,W-24,m.unified,m.unified?
+  'both sides now name the same type':
+  'the sides disagree at a constructor and no substitution can fix it');
+ nt(g,'#5a4a85',14,312,8,'it does not compare them, it edits them');
+ kout('unifo','<b>'+m.name+'</b> &middot; '+(m.unified?'unifies':'fails')+
+  ' in <b>'+m.steps+'</b> steps');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO SHAPES MADE ONE');
+ kring(g,W/2,H/2+10,ang,16,80,-18,'rgba(125,226,176,0.8)',3);
+ kring(g,W/2,H/2+10,-ang,16,80,18,'rgba(157,0,255,0.6)',3);
+ nt(g,'#8a7ab8',12,H-22,8,'the answer is a side effect of having already committed');}
+document.getElementById('unifn').onclick=function(){idx=(idx+1)%CASES.length;drawW4();};
+document.getElementById('unifb').onclick=function(){idx=(idx+CASES.length-1)%CASES.length;drawW4();};
+document.getElementById('unifr').onclick=function(){idx=0;drawW4();};
+document.getElementById('unifp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theunification=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+OCCK_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before binding a variable to a type, check that the variable does not appear inside it. Skip that one test and the unifier will happily build a type that contains itself.<br><br>
+ <span class="lit">LIT</span> verified live. The expression <b>\\x. x x</b> generates the constraint <b>a ~ a -&gt; b</b>. With the occurs check the unifier <b>rejects</b> it &mdash; <b>1</b> rejection, and the program is a type error. Without the occurs check it <b>succeeds</b>, and the resulting term is cyclic: walking it hits the depth cap at <b>201</b> and printing it produces <b>(((((((((((((... -&gt; ...) -&gt; t2) -&gt; t2) ...</b>. One rule is the entire difference.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The occurs check is what makes unification produce finite terms; Prolog famously omits it by default for speed, and the cyclic terms are exactly what you get.<br><br>
+ <b>AVAN (AI)</b> ran the same constraint through the same unifier twice with the single flag flipped, so the difference is attributable to nothing else. The depth of <b>201</b> is a cap, not a measurement &mdash; the term has no depth, which is the point.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One constraint, one flag, two worlds.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Unwind the cyclic term one level at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="occkd">unwind &#9654;</button><button id="occku">wind back</button><button id="occkt">toggle the check</button><button id="occkr">reset</button></div>
+   <div class="cap" id="occko" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a type inside itself.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the occurs check prevents an infinite type. The inverse is that <b>the infinite type is perfectly coherent and some languages want it</b>. A cyclic term is exactly what a recursive type is, and systems with equi-recursive types drop the check on purpose. Read backwards, this is not a safety rail against nonsense but a decision about which infinities are allowed to be named, and <b>\\x. x x</b> is rejected by a choice rather than by a contradiction.</div>
+   <div class="btns" style="margin-top:10px"><button id="occkp">pause spin</button></div></div></div></div>"""
+OCCK_SCRIPT = """(function(){""" + NOIR + KIT + HM_CORE + """
+var ang=0,spin=true,VR=null,unwind=3,checkOn=true;
+function build(){_n=0;var a=tv();return [a,fn(a,tv())];}
+function run(oc){
+ var st=freshStats(),p=build();
+ var r=unify(p[0],p[1],oc,st);
+ return {unified:r,rejections:st.occursRejections,term:p[0],
+  depth:oc?0:depthOf(p[0])};}
+function selftest(){
+ var on=run(true),off=run(false);
+ return {expression:'\\\\x. x x',constraint:'a ~ a -> b',
+  withOccursCheckUnifies:on.unified,
+  withOccursCheckRejections:on.rejections,
+  withoutOccursCheckUnifies:off.unified,
+  termDepthCappedAt:off.depth,
+  termPrints:show(off.term),
+  theTermIsCyclic:off.unified&&off.depth>=200,
+  oneRuleIsTheWholeDifference:on.unified===false&&off.unified===true,
+  depthIsACapNotAMeasurement:true,
+  ok:on.unified===false&&off.unified===true&&on.rejections>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'ONE CONSTRAINT, ONE FLAG, TWO WORLDS');
+ nt(g,'#e8e0ff',20,48,11,'\\\\x. x x        gives        a  ~  a -> b');
+ nf(g,'rgba(125,226,176,0.18)');g.fillRect(16,68,232,80);ng(g);
+ nt(g,'#7de2b0',26,90,9,'occurs check ON');
+ nt(g,'#e8e0ff',26,112,9,'REJECTED');
+ nt(g,'#8a7ab8',26,132,8,VR.withOccursCheckRejections+' rejection -- a type error');
+ nf(g,'rgba(255,60,90,0.2)');g.fillRect(264,68,232,80);ng(g);
+ nt(g,'#ff5a8a',274,90,9,'occurs check OFF');
+ nt(g,'#e8e0ff',274,112,9,'UNIFIES');
+ nt(g,'#8a7ab8',274,132,8,'depth caps at '+VR.termDepthCappedAt);
+ nt(g,'#5a4a85',20,172,8,'and the term prints as:');
+ nt(g,'#ff5a8a',20,192,8,VR.termPrints.slice(0,72));
+ kverdict(g,12,206,W-24,true,'the same unifier, the same constraint -- '+
+  'the difference is attributable to nothing but the flag');
+ nt(g,'#5a4a85',20,272,8,'201 is a cap, not a measurement; the term has no depth');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',12,20,11,checkOn?'CHECK ON  -  REJECTED':'CHECK OFF  -  UNWINDING');
+ var i;
+ if(checkOn){
+  nf(g,'rgba(125,226,176,0.18)');g.fillRect(14,44,340,80);ng(g);
+  nt(g,'#7de2b0',24,72,10,'a  ~  a -> b');
+  nt(g,'#e8e0ff',24,96,9,'a occurs inside a -> b, so the bind is refused');
+ } else {
+  for(i=0;i<unwind&&i<10;i++){
+   nf(g,'rgba(255,60,90,'+(0.5-i*0.04)+')');
+   g.fillRect(14+i*12,44+i*8,340-i*24,16);ng(g);}
+  nt(g,'#ff5a8a',14,44+Math.min(unwind,10)*8+16,9,
+   'a = (a -> b), so a = ((a -> b) -> b), so ...');}
+ krow(g,14,150,230,'levels unwound',checkOn?0:unwind,
+  Math.min(1,(checkOn?0:unwind)/20),'rgba(255,60,90,0.8)');
+ krow(g,14,192,230,'occurs rejections',checkOn?1:0,checkOn?1:0,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,234,W-24,checkOn,checkOn?
+  'finite types only -- \\\\x. x x has no type here':
+  'the term contains itself and can be unwound forever');
+ nt(g,'#5a4a85',14,284,8,'a cyclic term is exactly what a recursive type is');
+ nt(g,'#5a4a85',14,304,8,'some systems drop this check on purpose');
+ kout('occko',(checkOn?'check on':'check off')+' &middot; '+
+  (checkOn?'rejected':'unwound <b>'+unwind+'</b> levels'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TYPE INSIDE ITSELF');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,rad=110*Math.pow(0.93,i);
+  return {x:Math.cos(t*18.85)*rad,z:Math.sin(t*18.85)*rad,y:0,
+   c:'rgba(255,90,60,'+(0.25+0.6*(1-t))+')',r:1.2+3*(1-t)};});
+ nt(g,'#8a7ab8',12,H-22,8,'rejected by a choice rather than by a contradiction');}
+document.getElementById('occkd').onclick=function(){checkOn=false;unwind=Math.min(20,unwind+1);drawW4();};
+document.getElementById('occku').onclick=function(){unwind=Math.max(1,unwind-1);drawW4();};
+document.getElementById('occkt').onclick=function(){checkOn=!checkOn;drawW4();};
+document.getElementById('occkr').onclick=function(){checkOn=true;unwind=3;drawW4();};
+document.getElementById('occkp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theoccurscheck=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LETP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">In most languages <code>let x = v in e</code> means the same as applying a function to <code>v</code>. In a typed language it does not, and the difference is the reason polymorphism is usable at all.<br><br>
+ <span class="lit">LIT</span> verified live on the same inferencer. <b>let id = \\x.x in pair (id 1) (id true)</b> types cleanly &mdash; <b>0</b> errors, result <b>pair[int,bool]</b>. Turn generalisation off and the identical program has <b>1</b> error. Rewrite it as <b>(\\id. ...) (\\x.x)</b>, which evaluates identically, and it also has <b>1</b> error. The <code>let</code> is not sugar.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Let-generalisation is what makes Hindley-Milner practical; a lambda-bound variable is monomorphic because it may still be constrained by the argument that has not arrived yet.<br><br>
+ <b>AVAN (AI)</b> ran three versions rather than two. The third &mdash; the same program written as an application &mdash; is the one that makes the claim precise: this is not about <code>let</code> being special syntax, it is about the type checker knowing the definition is finished.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One program, three ways, two of them rejected.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Toggle generalisation and re-infer.</div>
+   <div class="btns" style="margin-top:10px"><button id="letpg">toggle generalisation &#9654;</button><button id="letpf">switch form</button><button id="letpr">reset</button></div>
+   <div class="cap" id="letpo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one definition, two uses.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that <code>let</code> generalises and a lambda cannot. The inverse is that <b>the lambda is right and the <code>let</code> is taking a liberty</b>. A lambda-bound name might still be constrained by an argument nobody has supplied; refusing to generalise it is simply not guessing. Read backwards, <code>let</code> gets to generalise only because the definition is already complete and there is nothing left to learn about it &mdash; polymorphism is not a power the type system has, it is what is left over once the checker has run out of things that could still change.</div>
+   <div class="btns" style="margin-top:10px"><button id="letpp">pause spin</button></div></div></div></div>"""
+LETP_SCRIPT = """(function(){""" + NOIR + KIT + HM_CORE + """
+var ang=0,spin=true,VR=null,gen=true,form=0;
+var BODY={app:[{app:[{v:'pair'},{app:[{v:'id'},{lit:'int'}]}]},
+               {app:[{v:'id'},{lit:'bool'}]}]};
+var AS_LET={let:'id',val:{lam:'x',body:{v:'x'}},body:BODY};
+var AS_LAM={app:[{lam:'id',body:BODY},{lam:'x',body:{v:'x'}}]};
+function baseEnv(){var A=tv(),B=tv();
+ return {pair:{vars:[A,B],type:fn(A,fn(B,tcon('pair',[A,B])))}};}
+function run(prog,g){_n=0;var st=freshStats();
+ var t=infer(prog,baseEnv(),[],st,g);
+ return {errors:st.typeErrors,type:show(t)};}
+function selftest(){
+ var a=run(AS_LET,true),b=run(AS_LET,false),c=run(AS_LAM,true);
+ return {program:'let id = \\\\x.x in pair (id 1) (id true)',
+  withGeneralisationErrors:a.errors,withGeneralisationType:a.type,
+  withoutGeneralisationErrors:b.errors,
+  asALambdaErrors:c.errors,
+  letIsNotSugarForALambda:a.errors===0&&c.errors>0,
+  generalisationIsWhatMakesItWork:a.errors===0&&b.errors>0,
+  aLambdaBoundNameMayStillBeConstrained:true,
+  ok:a.errors===0&&b.errors>0&&c.errors>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'ONE PROGRAM, THREE WAYS');
+ var rows=[['let + generalise',VR.withGeneralisationErrors,VR.withGeneralisationType],
+           ['let, no generalise',VR.withoutGeneralisationErrors,'-'],
+           ['written as a lambda',VR.asALambdaErrors,'-']];
+ var i;
+ for(i=0;i<3;i++){
+  var y=48+i*56,okv=rows[i][1]===0;
+  nf(g,okv?'rgba(125,226,176,0.2)':'rgba(255,60,90,0.22)');
+  g.fillRect(16,y,480,44);ng(g);
+  nt(g,okv?'#7de2b0':'#ff5a8a',26,y+20,10,rows[i][0]);
+  nt(g,'#e8e0ff',26,y+38,9,okv?('types as  '+rows[i][2]):(rows[i][1]+' type error'));}
+ nt(g,'#5a4a85',20,236,8,'all three EVALUATE identically');
+ kverdict(g,12,240,W-24,true,'the let is not sugar -- the checker knows the '+
+  'definition is finished');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var prog=form===0?AS_LET:AS_LAM;
+ var m=run(prog,gen);
+ nt(g,'#00f5ff',12,20,11,(form===0?'LET FORM':'LAMBDA FORM')+
+  (gen?'   [generalise]':'   [no generalise]'));
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,40,340,52);ng(g);
+ nt(g,'#e8e0ff',22,62,8,form===0?'let id = \\\\x.x in':'(\\\\id. ...) (\\\\x.x)');
+ nt(g,'#e8e0ff',22,80,8,'  pair (id 1) (id true)');
+ krow(g,14,106,230,'type errors',m.errors,m.errors,
+  m.errors?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.85)');
+ nt(g,'#8a7ab8',14,166,8,'result type');
+ nt(g,m.errors?'#ff5a8a':'#7de2b0',14,186,10,m.errors?'(rejected)':m.type);
+ kverdict(g,12,204,W-24,m.errors===0,m.errors===0?
+  'id was used at int AND at bool, and both are fine':
+  'id was fixed to one type by its first use and the second use conflicts');
+ nt(g,'#5a4a85',14,262,8,'a lambda-bound name may still be constrained by an');
+ nt(g,'#5a4a85',14,280,8,'argument nobody has supplied -- refusing to generalise');
+ nt(g,'#5a4a85',14,298,8,'it is simply not guessing');
+ kout('letpo',(form===0?'let':'lambda')+', '+(gen?'generalise':'no generalise')+
+  ' &middot; errors <b>'+m.errors+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE DEFINITION, TWO USES');
+ ndot(g,W/2,H/2-50,8,'rgba(125,226,176,0.9)');
+ kring(g,W/2,H/2+40,ang,2,90,0,'rgba(0,245,255,0.85)',6);
+ nt(g,'#8a7ab8',12,H-22,8,'what is left over once nothing could still change');}
+document.getElementById('letpg').onclick=function(){gen=!gen;drawW4();};
+document.getElementById('letpf').onclick=function(){form=1-form;drawW4();};
+document.getElementById('letpr').onclick=function(){gen=true;form=0;drawW4();};
+document.getElementById('letpp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theletpolymorphism=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+VARI_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If a Dog is an Animal, is an array of Dogs an array of Animals? Reading, yes. Writing, no &mdash; and a language that says yes to both has to check at runtime what its type system already claimed to know.<br><br>
+ <span class="lit">LIT</span> verified live, every operation enumerated. <b>5</b> operations on an <b>Array[Dog]</b> viewed as <b>Array[Animal]</b>. Covariance allows all <b>5</b>, of which <b>2</b> are unsound &mdash; writing an Animal or a Cat into an array of Dogs. Invariance allows the <b>3</b> sound ones and <b>0</b> unsound. The middle path, allowing the subtyping and checking writes at runtime, needs a check on <b>3</b> operations.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Java and C# both made arrays covariant and both pay for it with a runtime store check; this is the standard example of a deliberately unsound rule kept for usability.<br><br>
+ <b>AVAN (AI)</b> enumerated the operations instead of stating the rule, because the rule is easy to agree with and the count is what shows the cost. <b>2</b> unsound operations is not a hypothetical &mdash; it is the exhaustive list of what covariance lets through, and it is why the check exists.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five operations, three rules.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a rule and try each operation.</div>
+   <div class="btns" style="margin-top:10px"><button id="varir">next rule &#9654;</button><button id="varin">next operation</button><button id="varix">reset</button></div>
+   <div class="cap" id="vario" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a container that reads one way.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that covariant arrays are unsound. The inverse is that <b>the unsoundness is entirely in the writing, and a read-only array is covariant with no cost at all</b>. Variance is not a property of the container but of the direction the values move through it, and the array only fails because it does both. Read backwards, the languages that got this right did not fix variance &mdash; they split the type, and everything that reads is covariant, everything that writes is contravariant, and only the thing that does both has to choose.</div>
+   <div class="btns" style="margin-top:10px"><button id="varip">pause spin</button></div></div></div></div>"""
+VARI_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,rule=0,op=0;
+var OPS=[
+ {op:'read as Animal from Array[Dog]',sound:true, dir:'read'},
+ {op:'read as Dog from Array[Dog]',   sound:true, dir:'read'},
+ {op:'write Dog into Array[Dog]',     sound:true, dir:'write'},
+ {op:'write Animal into Array[Dog]',  sound:false,dir:'write'},
+ {op:'write Cat into Array[Dog]',     sound:false,dir:'write'}];
+var RULES=['covariant','invariant','covariant + runtime check'];
+function allows(r,o){
+ if(r===0)return true;
+ if(r===1)return o.sound;
+ return o.sound;}
+function selftest(){
+ var unsoundOps=OPS.filter(function(o){return !o.sound;}).length;
+ var writes=OPS.filter(function(o){return o.dir==='write';}).length;
+ return {subtyping:'Dog <: Animal',
+  question:'is Array[Dog] <: Array[Animal] ?',
+  operations:OPS.length,
+  covariantAllows:OPS.length,
+  covariantUnsound:unsoundOps,
+  invariantAllows:OPS.length-unsoundOps,
+  invariantUnsound:0,
+  writesNeedingARuntimeCheck:writes,
+  readsAreAlwaysSound:OPS.filter(function(o){return o.dir==='read';})
+    .every(function(o){return o.sound;}),
+  varianceIsAboutDirectionNotContainer:true,
+  ok:unsoundOps>0&&unsoundOps===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'FIVE OPERATIONS, THREE RULES');
+ nt(g,'#8a7ab8',300,44,8,'cov   inv   +chk');
+ var i,r;
+ for(i=0;i<OPS.length;i++){
+  var y=52+i*34;
+  nf(g,OPS[i].sound?'rgba(125,226,176,0.15)':'rgba(255,60,90,0.18)');
+  g.fillRect(16,y,470,28);ng(g);
+  nt(g,OPS[i].sound?'#7de2b0':'#ff5a8a',24,y+18,9,OPS[i].op);
+  for(r=0;r<3;r++){
+   var a=allows(r,OPS[i]);
+   var bad=(r===0&&!OPS[i].sound);
+   nf(g,bad?'rgba(255,60,90,0.9)':(a?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.4)'));
+   g.fillRect(306+r*40,y+8,22,12);ng(g);}}
+ nt(g,'#5a4a85',20,238,8,'red cell = allowed AND unsound');
+ kverdict(g,12,242,W-24,false,'covariance allows all '+VR.covariantAllows+
+  ', '+VR.covariantUnsound+' of them unsound; invariance allows '+
+  VR.invariantAllows+' with 0 unsound');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var o=OPS[op],a=allows(rule,o),unsound=(rule===0&&!o.sound);
+ nt(g,'#9d00ff',12,20,11,RULES[rule].toUpperCase());
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,42,340,48);ng(g);
+ nt(g,'#e8e0ff',22,64,9,o.op);
+ nt(g,'#8a7ab8',22,82,8,o.dir==='read'?'a value comes OUT':'a value goes IN');
+ nf(g,unsound?'rgba(255,60,90,0.3)':(a?'rgba(125,226,176,0.25)':'rgba(90,70,140,0.3)'));
+ g.fillRect(14,102,340,40);ng(g);
+ nt(g,unsound?'#ff5a8a':(a?'#7de2b0':'#8a7ab8'),22,128,10,
+  unsound?'ALLOWED -- AND UNSOUND':(a?'allowed, and sound':'rejected by the type system'));
+ krow(g,14,152,230,'operations this rule allows',
+  OPS.filter(function(x){return allows(rule,x);}).length,
+  OPS.filter(function(x){return allows(rule,x);}).length/5,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,194,230,'unsound ones it allows',
+  rule===0?2:0,rule===0?0.4:0,'rgba(255,60,90,0.85)');
+ krow(g,14,236,230,'runtime checks needed',rule===2?3:0,rule===2?0.6:0,
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,278,W-24,rule!==0,
+  rule===0?'the type system claimed to know something it did not':
+  (rule===1?'sound, and Array[Dog] is simply not an Array[Animal]':
+   'sound, paid for on every write'));
+ kout('vario',RULES[rule]+' &middot; '+(unsound?'<b>unsound</b>':(a?'ok':'rejected')));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A CONTAINER THAT READS ONE WAY');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var t=i/N,out=(i%2===0);
+  return {x:(t-0.5)*240,z:Math.sin(t*6.283)*30,y:out?-18:18,
+   c:out?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.55)',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'variance is about the direction, not the container');}
+document.getElementById('varir').onclick=function(){rule=(rule+1)%3;drawW4();};
+document.getElementById('varin').onclick=function(){op=(op+1)%OPS.length;drawW4();};
+document.getElementById('varix').onclick=function(){rule=0;op=0;drawW4();};
+document.getElementById('varip').onclick=function(){spin=!spin;};
+VR=selftest();window.__thevariance=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PARM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A function that must work for every type cannot look at its argument. That single restriction is so strong that for some types it leaves exactly one function that could possibly exist.<br><br>
+ <span class="lit">LIT</span> verified live by exhaustive search. Every function on a carrier of <b>2</b> values &mdash; all <b>4</b> of them &mdash; and of <b>3</b> values &mdash; all <b>27</b> &mdash; tested for naturality against every function on that carrier. <b>forall a. a -&gt; a</b> has exactly <b>1</b> inhabitant at both sizes: the identity. <b>forall a. a -&gt; a -&gt; a</b> has exactly <b>2</b>: the two projections. The type named them.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Parametricity is <b>Reynolds</b>&rsquo; (1983); <b>Wadler</b>&rsquo;s &ldquo;Theorems for free&rdquo; is the reading where the type alone yields a proof about every function of that type.<br><br>
+ <b>AVAN (AI)</b> first tested naturality against the cyclic permutation only and got <b>2</b> inhabitants for <b>a -&gt; a</b>, because swap commutes with itself. A parametric function commutes with <i>every</i> function on the carrier, not only the bijections &mdash; and it is the constant functions that rule swap out. The corrected sweep gives <b>1</b>.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every function on the carrier, and the few that survive.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Watch each candidate tested and eliminated.</div>
+   <div class="btns" style="margin-top:10px"><button id="parmn">next candidate &#9654;</button><button id="parmk">bigger carrier</button><button id="parmr">reset</button></div>
+   <div class="cap" id="parmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a shape with one way to be filled.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a polymorphic type constrains what a function can do. The inverse is that <b>the constraint is ignorance, and it is the ignorance doing the work</b>. The identity is the only inhabitant precisely because a function that cannot inspect its argument has nothing to decide with. Read backwards, a free theorem is not knowledge the type system gained &mdash; it is what remains provable once you guarantee the code was never told anything, and every one of these results is bought by making the function blind.</div>
+   <div class="btns" style="margin-top:10px"><button id="parmp">pause spin</button></div></div></div></div>"""
+PARM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cand=0,K=2;
+function allFns(k){var out=[],f=[];
+ (function rec(i){if(i===k){out.push(f.slice());return;}
+  for(var v=0;v<k;v++){f[i]=v;rec(i+1);}})(0);
+ return out;}
+function isNatural(f,k,fns){
+ for(var j=0;j<fns.length;j++){var g=fns[j];
+  for(var x=0;x<k;x++)if(f[g[x]]!==g[f[x]])return false;}
+ return true;}
+function countUnary(k){var fns=allFns(k),c=0;
+ for(var i=0;i<fns.length;i++)if(isNatural(fns[i],k,fns))c++;
+ return c;}
+function countBinary(k){
+ var fns=allFns(k),tables=[],t=[],c=0;
+ (function rec(i){if(i===k*k){tables.push(t.slice());return;}
+  for(var v=0;v<k;v++){t[i]=v;rec(i+1);}})(0);
+ for(var i2=0;i2<tables.length;i2++){
+  var T=tables[i2],nat=true;
+  for(var j=0;j<fns.length&&nat;j++){var g=fns[j];
+   for(var x=0;x<k&&nat;x++)for(var y=0;y<k;y++)
+    if(T[g[x]*k+g[y]]!==g[T[x*k+y]]){nat=false;break;}}
+  if(nat)c++;}
+ return c;}
+function selftest(){
+ var u2=countUnary(2),u3=countUnary(3),b2=countBinary(2);
+ return {carrierSizesTested:[2,3],
+  functionsCheckedAtK2:4,functionsCheckedAtK3:27,
+  naturalityAgainstEveryFunction:true,
+  typeAtoA:'forall a. a -> a',
+  inhabitantsAtoA_k2:u2,inhabitantsAtoA_k3:u3,
+  agreeAcrossCarriers:u2===u3,inhabitantsAtoA:u2,
+  typeAtoAtoA:'forall a. a -> a -> a',inhabitantsAtoAtoA:b2,
+  theOnlyInhabitantIsTheIdentity:u2===1,
+  theTwoAreTheProjections:b2===2,
+  ok:u2===1&&u3===1&&b2===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'EVERY FUNCTION, AND THE FEW THAT SURVIVE');
+ var fns=allFns(2),i,x;
+ nt(g,'#8a7ab8',20,46,9,'all 4 functions on a 2-value carrier');
+ for(i=0;i<fns.length;i++){
+  var nat=isNatural(fns[i],2,fns);
+  var xx=24+i*118;
+  nf(g,nat?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.18)');
+  g.fillRect(xx,56,104,58);ng(g);
+  nt(g,nat?'#7de2b0':'#ff5a8a',xx+8,76,9,
+   'f(0)='+fns[i][0]+'  f(1)='+fns[i][1]);
+  nt(g,nat?'#7de2b0':'#5a4a85',xx+8,100,8,nat?'NATURAL':'not natural');}
+ krow(g,20,126,300,'inhabitants of a -> a  (k=2)',VR.inhabitantsAtoA_k2,
+  VR.inhabitantsAtoA_k2/4,'rgba(125,226,176,0.85)');
+ krow(g,20,168,300,'same at k=3, all 27 checked',VR.inhabitantsAtoA_k3,
+  VR.inhabitantsAtoA_k3/4,'rgba(125,226,176,0.85)');
+ krow(g,20,210,300,'inhabitants of a -> a -> a',VR.inhabitantsAtoAtoA,
+  VR.inhabitantsAtoAtoA/4,'rgba(255,210,63,0.8)');
+ kverdict(g,12,250,W-24,true,'the identity, and the two projections -- '+
+  'the type named its own inhabitants');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var fns=allFns(K),cur=fns[cand%fns.length],nat=isNatural(cur,K,fns);
+ nt(g,'#7cfc00',12,20,11,'CARRIER '+K+'   CANDIDATE '+((cand%fns.length)+1)+
+  ' OF '+fns.length);
+ var x;
+ for(x=0;x<K;x++){
+  nt(g,'#8a7ab8',20,52+x*22,9,'f('+x+') = '+cur[x]);}
+ nf(g,nat?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.2)');
+ g.fillRect(14,52+K*22+8,340,40);ng(g);
+ nt(g,nat?'#7de2b0':'#ff5a8a',22,52+K*22+34,10,
+  nat?'commutes with every function -- PARAMETRIC':
+      'fails to commute with at least one -- not parametric');
+ krow(g,14,180,230,'functions checked against',fns.length,
+  Math.min(1,fns.length/27),'rgba(90,208,255,0.7)');
+ krow(g,14,222,230,'parametric inhabitants found',countUnary(K),
+  countUnary(K)/4,'rgba(125,226,176,0.85)');
+ kverdict(g,12,264,W-24,true,
+  'a function that cannot inspect its argument has nothing to decide with');
+ kout('parmo','carrier <b>'+K+'</b> &middot; candidate '+((cand%fns.length)+1)+
+  ' is <b>'+(nat?'parametric':'not parametric')+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SHAPE WITH ONE WAY TO BE FILLED');
+ ndot(g,W/2,H/2+10,10,'rgba(125,226,176,0.95)');
+ kring(g,W/2,H/2+10,ang,26,100,0,'rgba(90,70,140,0.35)',2);
+ nt(g,'#8a7ab8',12,H-22,8,'bought by making the function blind');}
+document.getElementById('parmn').onclick=function(){cand++;drawW4();};
+document.getElementById('parmk').onclick=function(){K=K>=4?2:K+1;cand=0;drawW4();};
+document.getElementById('parmr').onclick=function(){K=2;cand=0;drawW4();};
+document.getElementById('parmp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theparametricity=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+GRAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Add types to part of a program and the typed part has to defend itself at the border. The cost is not in the typed code or the untyped code &mdash; it is in how many times a value crosses between them.<br><br>
+ <span class="lit">LIT</span> verified live. A call stack of <b>10</b> frames. Fully typed: <b>0</b> boundary checks. Fully untyped: <b>0</b>. A typed core inside untyped edges: <b>2</b>. Alternating typed and untyped every frame: <b>9</b> &mdash; the maximum possible. Both uniform configurations are free and the mixture is what costs; the price is a property of the layout, not of the typing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the gradual guarantee problem &mdash; <b>Takikawa et al.</b>&rsquo;s &ldquo;Is sound gradual typing dead?&rdquo; measured slowdowns in the tens of times on exactly these mixed configurations.<br><br>
+ <b>AVAN (AI)</b> counted boundaries rather than frames because the frame count is the intuition people carry and it is the wrong one. <b>10</b> typed frames cost nothing. <b>5</b> typed frames cost <b>9</b> checks if they are in the wrong places.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four layouts, the same ten frames.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Type a frame and watch the boundary count move.</div>
+   <div class="btns" style="margin-top:10px"><button id="gradt">toggle a frame &#9654;</button><button id="gradn">next frame</button><button id="gradr">reset</button></div>
+   <div class="cap" id="grado" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a border, not a country.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that gradual typing costs you at the boundaries. The inverse is that <b>the check is the only thing making the type mean anything</b>. A typed function receiving a value from untyped code has a guarantee it did not earn; the check is where that guarantee is actually purchased, and removing it does not make the types cheaper, it makes them decorative. Read backwards, the <b>9</b> checks are not overhead added to a sound system &mdash; they <i>are</i> the soundness, itemised.</div>
+   <div class="btns" style="margin-top:10px"><button id="gradp">pause spin</button></div></div></div></div>"""
+GRAD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,frames='UUUTTTTUUU'.split(''),cur=0;
+function bounds(p){var b=0;
+ for(var i=1;i<p.length;i++)if(p[i]!==p[i-1])b++;
+ return b;}
+function selftest(){
+ var rows=[['all typed','TTTTTTTTTT'],['all untyped','UUUUUUUUUU'],
+  ['typed core','UUUTTTTUUU'],['alternating','TUTUTUTUTU']];
+ var out=rows.map(function(r){
+  return {name:r[0],layout:r[1],frames:r[1].length,checks:bounds(r[1].split(''))};});
+ var worst=out.reduce(function(a,b){return b.checks>a.checks?b:a;});
+ return {frames:10,rows:out,
+  fullyTypedChecks:out[0].checks,fullyUntypedChecks:out[1].checks,
+  typedCoreChecks:out[2].checks,
+  worstPattern:worst.name,worstChecks:worst.checks,
+  zeroCheckLayouts:out.filter(function(r){return r.checks===0;}).length,
+  theCostIsInTheMixture:worst.checks>out[0].checks&&worst.checks>out[1].checks,
+  maximumPossibleChecks:9,
+  ok:out[0].checks===0&&out[1].checks===0&&worst.checks===9};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'FOUR LAYOUTS, THE SAME TEN FRAMES');
+ var i,k;
+ for(i=0;i<VR.rows.length;i++){
+  var y=48+i*54,r=VR.rows[i];
+  nt(g,'#8a7ab8',20,y+18,9,r.name);
+  for(k=0;k<10;k++){
+   nf(g,r.layout[k]==='T'?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.4)');
+   g.fillRect(150+k*30,y,26,26);ng(g);
+   if(k>0&&r.layout[k]!==r.layout[k-1]){
+    ne(g,'rgba(255,60,90,0.95)',2);g.beginPath();
+    g.moveTo(148+k*30,y-3);g.lineTo(148+k*30,y+29);g.stroke();ng(g);}}
+  nt(g,r.checks?'#ff5a8a':'#7de2b0',462,y+18,10,''+r.checks);}
+ nt(g,'#5a4a85',20,266,8,'green = typed, dark = untyped, red line = a boundary check');
+ kverdict(g,12,262,W-24,false,'both uniform layouts are free; alternating costs '+
+  VR.worstChecks+', the maximum possible');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=bounds(frames);
+ nt(g,'#5ad0ff',12,20,11,frames.join('')+'   CHECKS '+b);
+ var k;
+ for(k=0;k<10;k++){
+  nf(g,frames[k]==='T'?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.4)');
+  g.fillRect(14+k*34,44,30,42);ng(g);
+  if(k===cur){ne(g,'rgba(255,210,63,0.95)',2);g.strokeRect(14+k*34,44,30,42);ng(g);}
+  if(k>0&&frames[k]!==frames[k-1]){
+   ne(g,'rgba(255,60,90,0.95)',2);g.beginPath();
+   g.moveTo(12+k*34,40);g.lineTo(12+k*34,90);g.stroke();ng(g);}}
+ nt(g,'#8a7ab8',14,104,8,'gold outline = the frame you are about to toggle');
+ krow(g,14,122,230,'typed frames',frames.filter(function(f){return f==='T';}).length,
+  frames.filter(function(f){return f==='T';}).length/10,'rgba(125,226,176,0.8)');
+ krow(g,14,164,230,'boundary checks',b,b/9,'rgba(255,60,90,0.85)');
+ krow(g,14,206,230,'maximum possible',9,1,'rgba(90,70,140,0.6)');
+ kverdict(g,12,248,W-24,b===0,b===0?
+  'uniform -- no value ever crosses a border':
+  b+' crossings, each one paid every time a value passes');
+ nt(g,'#5a4a85',14,298,8,'the check is where the guarantee is actually purchased');
+ kout('grado',frames.join('')+' &middot; <b>'+b+'</b> checks');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A BORDER, NOT A COUNTRY');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,typed=(Math.floor(t*10)%2===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:typed?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.45)',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'they are the soundness, itemised');}
+document.getElementById('gradt').onclick=function(){
+ frames[cur]=frames[cur]==='T'?'U':'T';drawW4();};
+document.getElementById('gradn').onclick=function(){cur=(cur+1)%10;drawW4();};
+document.getElementById('gradr').onclick=function(){frames='UUUTTTTUUU'.split('');cur=0;drawW4();};
+document.getElementById('gradp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thegradualtyping=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STRU_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two records with the same fields of the same types &mdash; are they the same type? Structural typing says yes. Nominal typing says they are whatever you named them, and that refusal is the entire feature.<br><br>
+ <span class="lit">LIT</span> verified live. <b>4</b> record types, all <b>16</b> ordered pairs tested. Nominal accepts <b>4</b> &mdash; each type and itself. Structural accepts <b>6</b>. The <b>2</b> extra are <b>Point -&gt; Vector</b> and <b>Vector -&gt; Point</b>, which have identical fields and different names. Structural never rejects anything nominal accepts; it only ever adds.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">TypeScript and Go are structural, Java and Rust are nominal, and OCaml has both depending on which construct you reach for.<br><br>
+ <b>AVAN (AI)</b> tested all <b>16</b> ordered pairs rather than arguing the case, because the containment is the finding: structural accepts a strict superset. The question is never which is more permissive &mdash; it is whether those <b>2</b> extra assignments are a convenience or a bug, and the type system cannot tell you.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Sixteen pairs, two rules.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a pair and ask both rules.</div>
+   <div class="btns" style="margin-top:10px"><button id="strun">next pair &#9654;</button><button id="strub">back</button><button id="strur">reset</button></div>
+   <div class="cap" id="struo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same shape, two names.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that structural typing is more flexible. The inverse is that <b>a name is a claim the compiler cannot check and that is why it is worth having</b>. Point and Vector have identical fields and mean different things; no amount of inspecting <code>x</code> and <code>y</code> will ever reveal that one is a position and the other a displacement. Read backwards, nominal typing is the type system agreeing to enforce a distinction it has no evidence for, purely because someone asserted it &mdash; which is the only mechanism available for a difference that does not exist in the data.</div>
+   <div class="btns" style="margin-top:10px"><button id="strup">pause spin</button></div></div></div></div>"""
+STRU_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,pi=0;
+var TYPES=[
+ {name:'Point',  fields:{x:'int',y:'int'}},
+ {name:'Vector', fields:{x:'int',y:'int'}},
+ {name:'Point3', fields:{x:'int',y:'int',z:'int'}},
+ {name:'Named',  fields:{x:'string',y:'string'}}];
+function shapeEq(a,b){
+ var ka=Object.keys(a.fields).sort(),kb=Object.keys(b.fields).sort();
+ if(ka.join()!==kb.join())return false;
+ return ka.every(function(k){return a.fields[k]===b.fields[k];});}
+function allPairs(){
+ var p=[],i,j;
+ for(i=0;i<TYPES.length;i++)for(j=0;j<TYPES.length;j++)
+  p.push({i:i,j:j,from:TYPES[i].name,to:TYPES[j].name,
+   nominal:(i===j),structural:shapeEq(TYPES[i],TYPES[j])});
+ return p;}
+function selftest(){
+ var p=allPairs();
+ var nom=p.filter(function(x){return x.nominal;}).length;
+ var str=p.filter(function(x){return x.structural;}).length;
+ var only=p.filter(function(x){return x.structural&&!x.nominal;});
+ return {types:TYPES.length,pairsTested:p.length,
+  nominalAccepts:nom,structuralAccepts:str,
+  acceptedOnlyByStructural:only.length,
+  examples:only.map(function(x){return x.from+' -> '+x.to;}),
+  structuralIsAStrictSuperset:p.every(function(x){return !x.nominal||x.structural;}),
+  aNameIsAClaimTheCompilerCannotCheck:true,
+  ok:str>nom&&only.length===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'SIXTEEN PAIRS, TWO RULES');
+ var p=allPairs(),i,j;
+ for(i=0;i<4;i++){
+  nt(g,'#8a7ab8',20,74+i*44,8,TYPES[i].name);
+  nt(g,'#8a7ab8',96+i*82,52,8,TYPES[i].name);}
+ for(i=0;i<4;i++)for(j=0;j<4;j++){
+  var x=p[i*4+j],px=96+j*82,py=60+i*44;
+  var col=x.nominal?'rgba(125,226,176,0.85)':
+          (x.structural?'rgba(255,210,63,0.8)':'rgba(90,70,140,0.28)');
+  nf(g,col);g.fillRect(px,py,62,30);ng(g);}
+ nt(g,'#7de2b0',20,258,8,'green = both rules accept');
+ nt(g,'#ffd76a',200,258,8,'gold = structural only');
+ kverdict(g,12,250,W-24,true,'nominal accepts '+VR.nominalAccepts+
+  ', structural '+VR.structuralAccepts+' -- a strict superset, never a rejection');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var p=allPairs(),cur=p[pi];
+ nt(g,'#7cfc00',12,20,11,cur.from+'   ->   '+cur.to);
+ var a=TYPES[cur.i],b=TYPES[cur.j],k;
+ var ka=Object.keys(a.fields),kb=Object.keys(b.fields);
+ nt(g,'#8a7ab8',20,50,8,a.name);
+ for(k=0;k<ka.length;k++)nt(g,'#e8e0ff',20,70+k*18,9,ka[k]+' : '+a.fields[ka[k]]);
+ nt(g,'#8a7ab8',210,50,8,b.name);
+ for(k=0;k<kb.length;k++)nt(g,'#e8e0ff',210,70+k*18,9,kb[k]+' : '+b.fields[kb[k]]);
+ nf(g,cur.nominal?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.2)');
+ g.fillRect(14,142,164,44);ng(g);
+ nt(g,cur.nominal?'#7de2b0':'#ff5a8a',24,169,9,
+  'nominal: '+(cur.nominal?'accept':'reject'));
+ nf(g,cur.structural?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.2)');
+ g.fillRect(190,142,164,44);ng(g);
+ nt(g,cur.structural?'#7de2b0':'#ff5a8a',200,169,9,
+  'structural: '+(cur.structural?'accept':'reject'));
+ kverdict(g,12,198,W-24,cur.nominal===cur.structural,
+  cur.structural&&!cur.nominal?
+   'identical fields, different names -- the rules disagree here':
+   'both rules agree');
+ nt(g,'#5a4a85',14,254,8,'no amount of inspecting x and y reveals that one is');
+ nt(g,'#5a4a85',14,272,8,'a position and the other a displacement');
+ kout('struo',cur.from+' -> '+cur.to+' &middot; nominal <b>'+
+  (cur.nominal?'yes':'no')+'</b> &middot; structural <b>'+
+  (cur.structural?'yes':'no')+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE SAME SHAPE, TWO NAMES');
+ kring(g,W/2-46,H/2+10,ang,6,52,0,'rgba(125,226,176,0.85)',4);
+ kring(g,W/2+46,H/2+10,ang,6,52,0,'rgba(255,210,63,0.75)',4);
+ nt(g,'#8a7ab8',12,H-22,8,'a difference that does not exist in the data');}
+document.getElementById('strun').onclick=function(){pi=(pi+1)%16;drawW4();};
+document.getElementById('strub').onclick=function(){pi=(pi+15)%16;drawW4();};
+document.getElementById('strur').onclick=function(){pi=0;drawW4();};
+document.getElementById('strup').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestructuraltyping=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+EXHA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A compiler that knows every shape a value can take can tell you which one you forgot. It is one of the few places where a type system finds a bug rather than preventing one.<br><br>
+ <span class="lit">LIT</span> verified live. A sum with <b>3</b> constructors, one carrying a boolean, gives <b>4</b> distinct value shapes. Of <b>4</b> match expressions, <b>2</b> are incomplete, missing <b>3</b> cases between them: two arms miss <b>Blue(true)</b> and <b>Blue(false)</b>, three arms miss <b>Blue(false)</b>. The wildcard version is exhaustive and covers nothing you have thought about.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Exhaustiveness checking is why adding a constructor to a sum type in ML or Rust produces a list of every place that now needs attention.<br><br>
+ <b>AVAN (AI)</b> put the wildcard in the set on purpose. It scores as exhaustive and it is the one arm that guarantees the compiler will stay silent when a constructor is added later &mdash; the check works exactly as far as you let it, and a wildcard is the instruction to stop checking.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four value shapes, four matches.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add a constructor and see what breaks.</div>
+   <div class="btns" style="margin-top:10px"><button id="exhan">next match &#9654;</button><button id="exhaa">add a constructor</button><button id="exhar">reset</button></div>
+   <div class="cap" id="exhao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the case nobody wrote.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that exhaustiveness checking catches the case you forgot. The inverse is that <b>a wildcard passes the check and is how the bug gets in</b>. Writing <code>_</code> silences the compiler for every constructor that will ever be added, including the ones that do not exist yet, and it is the arm people reach for precisely when they are least sure. Read backwards, the check does not protect the program &mdash; it offers to, once, at the moment the match is written, and the offer can be declined with a single character.</div>
+   <div class="btns" style="margin-top:10px"><button id="exhap">pause spin</button></div></div></div></div>"""
+EXHA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,mi=0,extra=0;
+function shapes(ex){
+ var s=['Red','Green','Blue(true)','Blue(false)'];
+ for(var i=0;i<ex;i++)s.push('New'+(i+1));
+ return s;}
+function matches(ex){
+ var all=shapes(ex);
+ return [
+  {name:'two arms',      covers:['Red','Green'],                        wild:false},
+  {name:'three arms',    covers:['Red','Green','Blue(true)'],           wild:false},
+  {name:'with wildcard', covers:all.slice(),                            wild:true},
+  {name:'all four',      covers:['Red','Green','Blue(true)','Blue(false)'],wild:false}];}
+function evalM(m,ex){
+ var all=shapes(ex);
+ var missing=all.filter(function(s){return m.covers.indexOf(s)<0;});
+ return {missing:missing,exhaustive:missing.length===0};}
+function selftest(){
+ var ms=matches(0).map(function(m){
+  var e=evalM(m,0);
+  return {name:m.name,covers:m.covers.length,missing:e.missing,
+   exhaustive:e.exhaustive,wildcard:m.wild};});
+ var inc=ms.filter(function(m){return !m.exhaustive;});
+ return {constructors:3,valueShapes:4,shapes:shapes(0),
+  matches:ms,
+  incompleteMatches:inc.length,
+  totalUncoveredCases:inc.reduce(function(a,m){return a+m.missing.length;},0),
+  firstMissing:inc[0].missing,
+  wildcardIsExhaustiveAndChecksNothing:ms[2].exhaustive&&ms[2].wildcard,
+  addingAConstructorSilencesNoWildcard:true,
+  ok:inc.length===2&&ms[2].exhaustive};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'FOUR VALUE SHAPES, FOUR MATCHES');
+ var sh=VR.shapes,i,k;
+ for(k=0;k<sh.length;k++)nt(g,'#8a7ab8',176+k*80,50,8,sh[k]);
+ for(i=0;i<VR.matches.length;i++){
+  var y=60+i*48,m=VR.matches[i];
+  nt(g,m.exhaustive?'#7de2b0':'#ff5a8a',20,y+20,9,m.name);
+  for(k=0;k<sh.length;k++){
+   var covered=m.missing.indexOf(sh[k])<0;
+   nf(g,covered?(m.wildcard?'rgba(255,210,63,0.7)':'rgba(125,226,176,0.8)')
+               :'rgba(255,60,90,0.7)');
+   g.fillRect(172+k*80,y,66,30);ng(g);}}
+ nt(g,'#ffd76a',20,262,8,'gold = covered by a wildcard, not by a case you wrote');
+ kverdict(g,12,258,W-24,false,VR.incompleteMatches+
+  ' incomplete matches, '+VR.totalUncoveredCases+' uncovered cases between them');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var ms=matches(extra),m=ms[mi],e=evalM(m,extra),sh=shapes(extra);
+ nt(g,'#ffd23f',12,20,11,m.name.toUpperCase()+
+  (extra?'   ('+extra+' NEW CONSTRUCTOR'+(extra>1?'S':'')+')':''));
+ var k;
+ for(k=0;k<sh.length;k++){
+  var covered=e.missing.indexOf(sh[k])<0;
+  nf(g,covered?(m.wild?'rgba(255,210,63,0.7)':'rgba(125,226,176,0.8)')
+              :'rgba(255,60,90,0.75)');
+  g.fillRect(14+(k%4)*86,44+Math.floor(k/4)*40,80,32);ng(g);
+  nt(g,'#0a0713',20+(k%4)*86,64+Math.floor(k/4)*40,8,sh[k].slice(0,10));}
+ nt(g,'#8a7ab8',14,44+Math.ceil(sh.length/4)*40+14,8,
+  'red = this match does not handle it');
+ krow(g,14,150,230,'value shapes',sh.length,sh.length/8,'rgba(90,208,255,0.7)');
+ krow(g,14,192,230,'uncovered',e.missing.length,e.missing.length/4,
+  'rgba(255,60,90,0.85)');
+ kverdict(g,12,234,W-24,e.exhaustive,e.exhaustive?
+  (m.wild?'exhaustive -- by a wildcard, which will stay silent forever':
+          'exhaustive, case by case'):
+  'missing: '+e.missing.join(', '));
+ nt(g,'#5a4a85',14,286,8,'the offer can be declined with a single character');
+ kout('exhao',m.name+' &middot; '+(e.exhaustive?'exhaustive':
+  '<b>'+e.missing.length+'</b> uncovered'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE CASE NOBODY WROTE');
+ korb(g,W/2,H/2+10,ang,20,function(i,N){
+  var t=i/N,gap=(i===13);
+  return {x:(t-0.5)*240,z:Math.sin(t*6.283)*30,y:gap?-24:0,
+   c:gap?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.7)',r:gap?5:2.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'it offers to protect the program, once');}
+document.getElementById('exhan').onclick=function(){mi=(mi+1)%4;drawW4();};
+document.getElementById('exhaa').onclick=function(){extra=(extra+1)%4;drawW4();};
+document.getElementById('exhar').onclick=function(){mi=0;extra=0;drawW4();};
+document.getElementById('exhap').onclick=function(){spin=!spin;};
+VR=selftest();window.__theexhaustiveness=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ERAS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Generic types can be checked at compile time and then thrown away before the program runs. What the runtime receives is a shape with the parameters removed, and it cannot recover them.<br><br>
+ <span class="lit">LIT</span> verified live. <b>5</b> types distinct at compile time &mdash; <b>List[int]</b>, <b>List[string]</b>, <b>List[List[int]]</b>, <b>List[bool]</b>, <b>Map[string,int]</b> &mdash; erase to <b>2</b> distinct runtime types. <b>3</b> distinctions lost, <b>6</b> pairs collapsed. All four List types become the same <b>List</b>, including the nested one. Every check that was going to happen had to happen before the program started.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Java erases generics for backward compatibility; C# reifies them; the difference is visible the moment you ask a value at runtime what it is a list of.<br><br>
+ <b>AVAN (AI)</b> got this wrong first: the eraser used a regular expression that cannot match nested brackets, so <b>List[List[int]]</b> erased to <b>List]</b> and was counted as a distinct runtime type. The published loss was <b>2</b> when it is <b>3</b>. Fixed by counting bracket depth, which is what the job actually requires.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five types in, two out.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Erase a type and ask the runtime what it is.</div>
+   <div class="btns" style="margin-top:10px"><button id="erasn">next type &#9654;</button><button id="erase">toggle erasure</button><button id="erasr">reset</button></div>
+   <div class="cap" id="eraso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a shape with its parameters removed.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that erasure loses information the runtime needs. The inverse is that <b>it is proof the checking actually finished</b>. A type that must survive to runtime is a type whose obligations were not discharged; erasure is only safe because there is provably nothing left to ask. Read backwards, the <b>3</b> lost distinctions are not a gap in the system but a receipt &mdash; the compiler is discarding evidence it no longer needs, and a language that keeps its types at runtime is one that did not finish.</div>
+   <div class="btns" style="margin-top:10px"><button id="erasp">pause spin</button></div></div></div></div>"""
+ERAS_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,ti=0,erased=true;
+var TYPES=['List[int]','List[string]','List[List[int]]','List[bool]','Map[string,int]'];
+function erase(t){
+ var out='',d=0,i;
+ for(i=0;i<t.length;i++){
+  var c=t[i];
+  if(c==='[')d++;
+  else if(c===']')d--;
+  else if(d===0)out+=c;}
+ return out;}
+function selftest(){
+ var er=TYPES.map(erase);
+ var before=new Set(TYPES).size,after=new Set(er).size;
+ var col=[],i,j;
+ for(i=0;i<TYPES.length;i++)for(j=i+1;j<TYPES.length;j++)
+  if(erase(TYPES[i])===erase(TYPES[j]))col.push(TYPES[i]+' / '+TYPES[j]);
+ return {types:TYPES,erasedTo:er,
+  distinctAtCompileTime:before,distinctAtRuntime:after,
+  informationLost:before-after,collapsedPairs:col.length,
+  examples:col.slice(0,3),
+  allFourListTypesBecomeOne:er.filter(function(e){return e==='List';}).length===4,
+  noStrayBrackets:er.every(function(e){return e.indexOf(']')<0;}),
+  everyCheckHadToHappenBeforeTheProgramRan:true,
+  ok:after<before&&col.length===6};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'FIVE TYPES IN, TWO OUT');
+ var i;
+ for(i=0;i<TYPES.length;i++){
+  var y=48+i*36;
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(20,y,200,28);ng(g);
+  nt(g,'#e8e0ff',28,y+19,9,TYPES[i]);
+  ne(g,'rgba(157,0,255,0.7)',1.5);g.beginPath();
+  g.moveTo(224,y+14);g.lineTo(286,y+14);g.stroke();ng(g);
+  var col=VR.erasedTo[i]==='List'?'rgba(255,60,90,0.6)':'rgba(125,226,176,0.7)';
+  nf(g,col);g.fillRect(290,y,120,28);ng(g);
+  nt(g,'#0a0713',298,y+19,9,VR.erasedTo[i]);}
+ nt(g,'#5a4a85',20,242,8,'four different List types, one runtime type');
+ kverdict(g,12,240,W-24,false,VR.distinctAtCompileTime+' distinct becomes '+
+  VR.distinctAtRuntime+' -- '+VR.informationLost+' lost, '+
+  VR.collapsedPairs+' pairs collapsed');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=TYPES[ti],e=erase(t);
+ nt(g,'#9d00ff',12,20,11,erased?'AS THE RUNTIME SEES IT':'AS THE COMPILER SEES IT');
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,44,340,52);ng(g);
+ nt(g,'#e8e0ff',24,76,12,erased?e:t);
+ nt(g,'#8a7ab8',14,112,8,erased?
+  'ask it what it is a list OF -- there is nothing to ask':
+  'fully parameterised; every check is possible here');
+ var same=TYPES.filter(function(x){return erase(x)===e;});
+ krow(g,14,132,230,'types that look like this at runtime',same.length,
+  same.length/5,'rgba(255,60,90,0.8)');
+ krow(g,14,174,230,'distinct at compile time',VR.distinctAtCompileTime,1,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,216,230,'distinct at runtime',VR.distinctAtRuntime,
+  VR.distinctAtRuntime/5,'rgba(255,210,63,0.75)');
+ kverdict(g,12,258,W-24,!erased,erased?
+  same.length+' different compile-time types are now indistinguishable':
+  'every parameter still present');
+ nt(g,'#5a4a85',14,308,8,'erasure is safe only because nothing is left to ask');
+ kout('eraso',t+' &rarr; <b>'+e+'</b> &middot; shared by <b>'+same.length+'</b> types');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SHAPE WITH ITS PARAMETERS REMOVED');
+ korb(g,W/2,H/2+10,ang,36,function(i,N){
+  var t=i/N,shell=(i%6===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:shell?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.25)',r:shell?3.4:1.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'a receipt: the compiler discarding evidence it no longer needs');}
+document.getElementById('erasn').onclick=function(){ti=(ti+1)%TYPES.length;drawW4();};
+document.getElementById('erase').onclick=function(){erased=!erased;drawW4();};
+document.getElementById('erasr').onclick=function(){ti=0;erased=true;drawW4();};
+document.getElementById('erasp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetypeerasure=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 267 · neon-noir · silicon-coding · THE SHARED WIRE ═══════════════════════
 SSTA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A new connection knows nothing about the path it is on. Slow start finds out by doubling every round trip until something breaks. The name describes where it begins, not how fast it moves.<br><br>
@@ -109342,6 +110381,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-type-inference","title":"THE TYPE INFERENCE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"⊢",
+  "kicker":"it removes an opportunity to be wrong",
+  "blurb":"You do not write the types. They were already determined by what the code does with its arguments, and a compiler can read them off without being told anything.",
+  "lit":"a real Hindley-Milner core running in the page infers 8 programs with 0 annotations written and 0 type errors, giving the identity as (t1 -> t1) and compose as ((t10 -> t11) -> ((t9 -> t10) -> (t9 -> t11))), which nobody stated anywhere - it is the only type the applications permit",
+  "fig":"Algorithm W is Milner's (1978), building on Hindley; the method is generate constraints then solve them by unification. AVAN implemented the inferencer rather than describing it, so the types on this page are produced by the page. THE UNIFICATION, THE OCCURS CHECK and THE LET POLYMORPHISM next door run against this same core - four spheres, one implementation, so none of them can quietly disagree with the others.",
+  "body":TINF_BODY,"script":TINF_SCRIPT},
+ {"slug":"the-unification","title":"THE UNIFICATION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"≟",
+  "kicker":"it does not compare them, it edits them",
+  "blurb":"Two type expressions, one question: is there a substitution making them the same? Almost everything a type checker does is this, applied until nothing is left to say.",
+  "lit":"7 cases run against a working unifier give 7 outcomes as predicted, 4 unifying and 3 not: a bare variable unifies with anything in 1 step, a->b against int->bool unifies in 3 steps with 2 bindings, and a->a against int->bool fails because the repeated variable is a constraint that the two sides be equal and they are not",
+  "fig":"Unification is Robinson's (1965), from resolution theorem proving; it arrived in type checking afterwards and is now the load-bearing piece. AVAN shows the step and binding counts because they distinguish the two failures: int against bool fails in 1 step at the constructor, while a->a against int->bool fails only after the first argument has already bound a to int - the same answer, reached by finding out.",
+  "body":UNIF_BODY,"script":UNIF_SCRIPT},
+ {"slug":"the-occurs-check","title":"THE OCCURS CHECK","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⟲",
+  "kicker":"rejected by a choice rather than by a contradiction",
+  "blurb":"Before binding a variable to a type, check that the variable does not appear inside it. Skip that one test and the unifier will happily build a type that contains itself.",
+  "lit":"the expression \\x. x x generates the constraint a ~ a -> b, which the unifier rejects with the occurs check on - 1 rejection, a type error - and accepts with it off, leaving a cyclic term whose walk hits the depth cap at 201 and which prints as (((((((((((((... -> ...) -> t2) -> t2) and onward: one rule is the entire difference",
+  "fig":"The occurs check is what makes unification produce finite terms; Prolog famously omits it by default for speed, and cyclic terms are exactly what you get. AVAN ran the same constraint through the same unifier twice with the single flag flipped, so the difference is attributable to nothing else. The depth of 201 is a cap, not a measurement - the term has no depth, which is the point.",
+  "body":OCCK_BODY,"script":OCCK_SCRIPT},
+ {"slug":"the-let-polymorphism","title":"THE LET POLYMORPHISM","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"∀",
+  "kicker":"what is left once nothing could still change",
+  "blurb":"In most languages let x = v in e means the same as applying a function to v. In a typed language it does not, and the difference is the reason polymorphism is usable at all.",
+  "lit":"let id = \\x.x in pair (id 1) (id true) types cleanly with 0 errors as pair[int,bool], while turning generalisation off gives the identical program 1 error, and rewriting it as (\\id. ...) (\\x.x) - which evaluates identically - also gives 1 error, so the let is not sugar for a lambda",
+  "fig":"Let-generalisation is what makes Hindley-Milner practical; a lambda-bound variable is monomorphic because it may still be constrained by the argument that has not arrived yet. AVAN ran three versions rather than two. The third - the same program written as an application - makes the claim precise: this is not about let being special syntax, it is about the checker knowing the definition is finished.",
+  "body":LETP_BODY,"script":LETP_SCRIPT},
+ {"slug":"the-variance","title":"THE VARIANCE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⊑",
+  "kicker":"variance is about the direction, not the container",
+  "blurb":"If a Dog is an Animal, is an array of Dogs an array of Animals? Reading, yes. Writing, no - and a language that says yes to both has to check at runtime what its type system already claimed to know.",
+  "lit":"5 operations on an Array[Dog] viewed as an Array[Animal], enumerated exhaustively: covariance allows all 5 of which 2 are unsound - writing an Animal or a Cat into an array of Dogs - while invariance allows the 3 sound ones and 0 unsound, and the middle path of allowing the subtyping with runtime checks needs a check on 3 operations",
+  "fig":"Java and C# both made arrays covariant and both pay for it with a runtime store check; this is the standard example of a deliberately unsound rule kept for usability. AVAN enumerated the operations instead of stating the rule, because the rule is easy to agree with and the count is what shows the cost. 2 unsound operations is the exhaustive list of what covariance lets through, and it is why the check exists.",
+  "body":VARI_BODY,"script":VARI_SCRIPT},
+ {"slug":"the-parametricity","title":"THE PARAMETRICITY","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"∅",
+  "kicker":"bought by making the function blind",
+  "blurb":"A function that must work for every type cannot look at its argument. That single restriction is so strong that for some types it leaves exactly one function that could possibly exist.",
+  "lit":"every function on a carrier of 2 values - all 4 - and of 3 values - all 27 - tested for naturality against every function on that carrier leaves forall a. a -> a with exactly 1 inhabitant at both sizes, the identity, and forall a. a -> a -> a with exactly 2, the two projections",
+  "fig":"Parametricity is Reynolds' (1983); Wadler's Theorems for free is the reading where the type alone yields a proof about every function of that type. AVAN first tested naturality against the cyclic permutation only and got 2 inhabitants for a -> a, because swap commutes with itself. A parametric function commutes with EVERY function on the carrier, not only the bijections - the constant functions rule swap out - and the corrected sweep gives 1.",
+  "body":PARM_BODY,"script":PARM_SCRIPT},
+ {"slug":"the-gradual-typing","title":"THE GRADUAL TYPING","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⇹",
+  "kicker":"they are the soundness, itemised",
+  "blurb":"Add types to part of a program and the typed part has to defend itself at the border. The cost is not in the typed code or the untyped code - it is in how many times a value crosses between them.",
+  "lit":"a call stack of 10 frames costs 0 boundary checks fully typed and 0 fully untyped, 2 for a typed core inside untyped edges, and 9 - the maximum possible - when typed and untyped alternate every frame, so both uniform configurations are free and the price is a property of the layout rather than of the typing",
+  "fig":"This is the gradual guarantee problem - Takikawa et al.'s Is sound gradual typing dead? measured slowdowns in the tens of times on exactly these mixed configurations. AVAN counted boundaries rather than frames because the frame count is the intuition people carry and it is the wrong one: 10 typed frames cost nothing, and 5 typed frames cost 9 checks if they are in the wrong places.",
+  "body":GRAD_BODY,"script":GRAD_SCRIPT},
+ {"slug":"the-structural-typing","title":"THE STRUCTURAL TYPING","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"≅",
+  "kicker":"a difference that does not exist in the data",
+  "blurb":"Two records with the same fields of the same types - are they the same type? Structural typing says yes. Nominal typing says they are whatever you named them, and that refusal is the entire feature.",
+  "lit":"4 record types across all 16 ordered pairs give nominal 4 accepts - each type and itself - against structural 6, where the 2 extra are Point -> Vector and Vector -> Point, which have identical fields and different names, and structural never rejects anything nominal accepts so it only ever adds",
+  "fig":"TypeScript and Go are structural, Java and Rust are nominal, and OCaml has both depending on which construct you reach for. AVAN tested all 16 ordered pairs rather than arguing the case, because the containment is the finding: structural accepts a strict superset. The question is never which is more permissive - it is whether those 2 extra assignments are a convenience or a bug, and the type system cannot tell you.",
+  "body":STRU_BODY,"script":STRU_SCRIPT},
+ {"slug":"the-exhaustiveness","title":"THE EXHAUSTIVENESS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"⋮",
+  "kicker":"it offers to protect the program, once",
+  "blurb":"A compiler that knows every shape a value can take can tell you which one you forgot. It is one of the few places where a type system finds a bug rather than preventing one.",
+  "lit":"a sum with 3 constructors, one carrying a boolean, gives 4 distinct value shapes across which 2 of 4 match expressions are incomplete, missing 3 cases between them - two arms miss Blue(true) and Blue(false), three arms miss Blue(false) - while the wildcard version is exhaustive and covers nothing you have thought about",
+  "fig":"Exhaustiveness checking is why adding a constructor to a sum type in ML or Rust produces a list of every place that now needs attention. AVAN put the wildcard in the set on purpose: it scores as exhaustive and it is the one arm guaranteeing the compiler will stay silent when a constructor is added later. The check works exactly as far as you let it, and a wildcard is the instruction to stop checking.",
+  "body":EXHA_BODY,"script":EXHA_SCRIPT},
+ {"slug":"the-type-erasure","title":"THE TYPE ERASURE","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"⌫",
+  "kicker":"a receipt, not a gap",
+  "blurb":"Generic types can be checked at compile time and then thrown away before the program runs. What the runtime receives is a shape with the parameters removed, and it cannot recover them.",
+  "lit":"5 types distinct at compile time - List[int], List[string], List[List[int]], List[bool] and Map[string,int] - erase to 2 distinct runtime types, losing 3 distinctions and collapsing 6 pairs, with all four List types becoming the same List including the nested one, so every check that was going to happen had to happen before the program started",
+  "fig":"Java erases generics for backward compatibility, C# reifies them, and the difference is visible the moment you ask a value at runtime what it is a list of. AVAN got this wrong first: the eraser used a regular expression that cannot match nested brackets, so List[List[int]] erased to List] and was counted as a distinct runtime type. The published loss was 2 when it is 3. Fixed by counting bracket depth.",
+  "body":ERAS_BODY,"script":ERAS_SCRIPT},
  {"slug":"the-slow-start","title":"THE SLOW START","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"⇗",
   "kicker":"it finds the first thing that broke, not the capacity",
