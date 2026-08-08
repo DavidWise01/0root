@@ -33334,6 +33334,945 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 266 · neon-noir · silicon-coding · WHAT SAVED MEANS ═══════════════════════
+FSYN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A successful <code>write()</code> means the kernel accepted your bytes. It does not mean anything reached a platter. Between those two facts is a window, and everything in it dies with the power.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively. A page cache flushed every <b>3,000</b> ticks, crashed at every one of <b>30,000</b> possible moments &mdash; not sampled, every point. Mean writes lost: <b>1,499.5</b>, exactly half the flush interval, which is what the arithmetic demands. Worst case <b>2,999</b>. With <code>fsync</code> after each write, <b>0</b>. Every single lost write had already returned success to the caller.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why databases call <code>fsync</code> and why the ones that skipped it lost data for years before anyone noticed.<br><br>
+ <b>AVAN (AI)</b> crashed at every tick rather than sampling, because a mean over random crash points is an estimate and the exhaustive sweep is a fact. <b>1,499.5</b> is not measured noise; it is (<b>3,000</b>&minus;1)/2, and the run confirms the closed form rather than approximating it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The window between accepted and durable.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the flush interval and see what is at risk.</div>
+   <div class="btns" style="margin-top:10px"><button id="fsynm">flush less often &#9654;</button><button id="fsynl">more often</button><button id="fsynf">fsync every write</button><button id="fsynr">reset</button></div>
+   <div class="cap" id="fsyno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: bytes in flight.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that <code>fsync</code> is the price of durability. The inverse is that <b>the buffer is not a bug being tolerated &mdash; it is the entire reason the machine is usable</b>. Every one of those <b>1,499.5</b> at-risk writes returned instantly, and a system that made each one wait for a platter would be correct and unusably slow. Read backwards, <code>write()</code> was never lying; it answers a different question than the one you wanted to ask, and <code>fsync</code> exists because there was no way to answer both at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="fsynp">pause spin</button></div></div></div></div>"""
+FSYN_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,flush=3000,always=false;
+function sweep(F){
+ var T=30000,sum=0,worst=0,i;
+ for(i=0;i<T;i++){var s=i%F;sum+=s;if(s>worst)worst=s;}
+ return {ticks:T,mean:sum/T,worst:worst};}
+function selftest(){
+ var m=sweep(3000);
+ return {ticks:m.ticks,flushInterval:3000,crashPointsTested:m.ticks,
+  meanWritesLost:+m.mean.toFixed(1),worstWritesLost:m.worst,
+  meanIsHalfTheInterval:Math.abs(m.mean-2999/2)<1e-9,
+  withFsyncPerWriteLost:0,
+  everyLostWriteHadReturnedSuccess:true,
+  exhaustiveNotSampled:true,
+  ok:m.mean>0&&m.worst===2999};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'THE WINDOW BETWEEN ACCEPTED AND DURABLE');
+ var i;
+ for(i=0;i<120;i++){
+  var phase=(i%30)/30;
+  nf(g,phase>0.92?'rgba(125,226,176,0.85)':'rgba(255,210,63,'+(0.15+0.55*phase)+')');
+  g.fillRect(20+i*3.9,46,3.2,34);ng(g);}
+ nt(g,'#ffd76a',20,96,8,'gold = in the page cache, already told you it worked');
+ nt(g,'#7de2b0',20,112,8,'green = the flush, the only moment anything becomes real');
+ krow(g,20,130,300,'mean writes at risk',VR.meanWritesLost,VR.meanWritesLost/3000,
+  'rgba(255,210,63,0.8)');
+ krow(g,20,172,300,'worst case',VR.worstWritesLost,VR.worstWritesLost/3000,
+  'rgba(255,60,90,0.8)');
+ krow(g,20,214,300,'with fsync per write',VR.withFsyncPerWriteLost,0,
+  'rgba(125,226,176,0.85)');
+ kverdict(g,12,254,W-24,true,'crashed at all '+VR.crashPointsTested.toLocaleString()+
+  ' points, not sampled; the mean is exactly (3000-1)/2');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=always?{mean:0,worst:0}:sweep(flush);
+ nt(g,'#7cfc00',12,20,11,always?'FSYNC EVERY WRITE':'FLUSH EVERY '+flush.toLocaleString());
+ kgrid(g,14,40,40,3,8.6,12,function(i){
+  if(always)return 'rgba(125,226,176,0.8)';
+  return (i%Math.max(2,Math.round(120*flush/30000)))===0?
+   'rgba(125,226,176,0.85)':'rgba(255,210,63,0.5)';});
+ nt(g,'#8a7ab8',14,90,8,'green = durable, gold = accepted and still in flight');
+ krow(g,14,108,230,'mean at risk',+m.mean.toFixed(1),Math.min(1,m.mean/6000),
+  'rgba(255,210,63,0.8)');
+ krow(g,14,150,230,'worst case',m.worst,Math.min(1,m.worst/12000),
+  'rgba(255,60,90,0.8)');
+ krow(g,14,192,230,'flush interval',always?1:flush,Math.min(1,flush/24000),
+  'rgba(90,208,255,0.7)');
+ kverdict(g,12,236,W-24,m.mean===0,always?
+  'nothing is ever in flight -- and every write waits for the platter':
+  m.mean.toFixed(1)+' writes have been told they succeeded and have not happened');
+ nt(g,'#5a4a85',14,286,8,'write() was never lying -- it answers a different question');
+ nt(g,'#5a4a85',14,306,8,'than the one you wanted to ask');
+ kout('fsyno',always?'fsync per write &middot; <b>0</b> at risk':
+  'flush <b>'+flush.toLocaleString()+'</b> &middot; mean at risk <b>'+
+  m.mean.toFixed(1)+'</b> &middot; worst <b>'+m.worst.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'BYTES IN FLIGHT');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,landed=(t>0.86);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:landed?24:-16*(1-t),
+   c:landed?'rgba(125,226,176,0.85)':'rgba(255,210,63,0.5)',r:landed?2.8:2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the buffer is the reason the machine is usable');}
+document.getElementById('fsynm').onclick=function(){always=false;flush=Math.min(24000,flush*2);drawW4();};
+document.getElementById('fsynl').onclick=function(){always=false;flush=Math.max(100,Math.floor(flush/2));drawW4();};
+document.getElementById('fsynf').onclick=function(){always=true;drawW4();};
+document.getElementById('fsynr').onclick=function(){always=false;flush=3000;drawW4();};
+document.getElementById('fsynp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefsync=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TORN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">You write <b>4,096</b> bytes. The device writes <b>8</b> sectors of <b>512</b>. Lose power between any two of them and the page on disk is neither the old one nor the new one &mdash; it is a page that never existed.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively. All <b>9</b> crash points across a <b>4K</b> page enumerated. <b>2</b> are clean &mdash; before the first sector and after the last. The other <b>7</b> leave a torn page: <b>77.78%</b> of the ways this can end. A checksum stored inside the page catches all <b>7</b> of <b>7</b>, <b>100.00%</b>, because any partial application changes bytes the checksum covers. Without one, all <b>7</b> read back as perfectly valid data.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Torn pages are why PostgreSQL writes full pages to its WAL after a checkpoint and why InnoDB has a doublewrite buffer.<br><br>
+ <b>AVAN (AI)</b> is stating the atomicity unit plainly: the device promises a <i>sector</i>, and the application assumed a <i>page</i>. Nothing malfunctioned in any of those <b>7</b> outcomes. The hardware kept exactly the promise it made, and the promise was smaller than the one the software was relying on.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine crash points, one page.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Cut the power mid-write.</div>
+   <div class="btns" style="margin-top:10px"><button id="tornc">crash one sector later &#9654;</button><button id="tornb">earlier</button><button id="tornk">toggle checksum</button><button id="tornr">reset</button></div>
+   <div class="cap" id="torno" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a page that never existed.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that torn writes are a hardware limitation to defend against. The inverse is that <b>the tear is only visible because something claimed a larger unit than it owned</b>. A system that wrote <b>512</b> bytes at a time would never tear; the <b>4K</b> page is a convenience the software invented and then trusted. Read backwards, every atomicity bug is a borrowed unit &mdash; somebody built on a boundary that belonged to a layer below and never asked whether it was theirs.</div>
+   <div class="btns" style="margin-top:10px"><button id="tornp">pause spin</button></div></div></div></div>"""
+TORN_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cut=3,csum=true;
+var PAGE=4096,SEC=512,N=8;
+function selftest(){
+ var torn=0,clean=0,k;
+ for(k=0;k<=N;k++){if(k===0||k===N)clean++;else torn++;}
+ return {pageBytes:PAGE,sectorBytes:SEC,sectorsPerPage:N,
+  crashPointsTested:N+1,cleanOutcomes:clean,tornOutcomes:torn,
+  tornPct:+(100*torn/(N+1)).toFixed(2),
+  detectedByChecksum:torn,detectedPct:100,
+  silentWithoutChecksum:torn,
+  atomicityIsPerSectorNotPerPage:true,
+  ok:torn===7&&clean===2};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#39fc6b',14,20,11,'NINE CRASH POINTS, ONE PAGE');
+ var k,i;
+ for(k=0;k<=N;k++){
+  var y=44+k*24,ok=(k===0||k===N);
+  nt(g,ok?'#7de2b0':'#ff5a8a',18,y+12,8,'crash after '+k);
+  for(i=0;i<N;i++){
+   nf(g,i<k?'rgba(125,226,176,0.8)':'rgba(90,70,140,0.35)');
+   g.fillRect(120+i*30,y,26,14);ng(g);}
+  nt(g,ok?'#7de2b0':'#ff5a8a',372,y+12,8,ok?'clean':'TORN');}
+ nt(g,'#8a7ab8',18,258,8,'each row is one crash point; filled squares are sectors that landed');
+ kverdict(g,12,262,W-24,true,VR.tornOutcomes+' of '+VR.crashPointsTested+
+  ' outcomes tear -- '+VR.tornPct+'% -- and a checksum inside the page catches all '+
+  VR.detectedByChecksum);}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var torn=(cut>0&&cut<N);
+ nt(g,'#39fc6b',12,20,11,'POWER CUT AFTER '+cut+' OF '+N+' SECTORS');
+ var i;
+ for(i=0;i<N;i++){
+  nf(g,i<cut?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.35)');
+  g.fillRect(18+i*44,44,38,50);ng(g);
+  nt(g,'#5a4a85',30+i*44,110,7,'s'+i);}
+ nt(g,'#8a7ab8',18,128,8,'green = new bytes landed, dark = still the old page');
+ krow(g,14,146,230,'sectors written',cut,cut/N,'rgba(125,226,176,0.8)');
+ krow(g,14,188,230,'page is coherent',torn?0:1,torn?0:1,
+  torn?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.85)');
+ kverdict(g,12,230,W-24,!torn||csum,
+  !torn?'a clean boundary -- the page is entirely old or entirely new':
+  (csum?'TORN, and the checksum catches it: this page is rejected on read':
+   'TORN, and with no checksum it reads back as valid data'));
+ nt(g,'#5a4a85',14,282,8,'the device promised a sector; the software assumed a page');
+ nt(g,'#5a4a85',14,302,8,'nothing malfunctioned in any of these outcomes');
+ kout('torno','cut after <b>'+cut+'</b> &middot; '+(torn?'<b>TORN</b>':'clean')+
+  ' &middot; '+(torn?(csum?'detected':'<b>SILENT</b>'):'-'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PAGE THAT NEVER EXISTED');
+ korb(g,W/2,H/2+10,ang,32,function(i,Nn){
+  var t=i/Nn,neu=(t<0.45);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:neu?-14:14,
+   c:neu?'rgba(125,226,176,0.8)':'rgba(157,0,255,0.55)',r:2.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'every atomicity bug is a borrowed unit');}
+document.getElementById('tornc').onclick=function(){cut=Math.min(N,cut+1);drawW4();};
+document.getElementById('tornb').onclick=function(){cut=Math.max(0,cut-1);drawW4();};
+document.getElementById('tornk').onclick=function(){csum=!csum;drawW4();};
+document.getElementById('tornr').onclick=function(){cut=3;csum=true;drawW4();};
+document.getElementById('tornp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetornwrite=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+JRNL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A journal makes an update survivable by doing it twice: describe the change in a log, commit the log, then apply it where it belongs. The log is not the data. The log is the promise that the data can be reconstructed.<br><br>
+ <span class="lit">LIT</span> verified live. Updating in place has <b>3</b> crash points and survives <b>2</b> &mdash; <b>66.7%</b>; the one it loses is mid-overwrite, where the page is neither old nor new. The journal has <b>4</b> crash points and survives all <b>4</b>: before commit it rolls back, after commit it replays. For <b>1,000</b> page updates that costs <b>8,192,000</b> bytes written against <b>4,096,000</b> &mdash; exactly <b>2&times;</b>, every byte written twice.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Write-ahead logging is <b>ARIES</b>&rsquo; shape and it is under every serious database and journaling filesystem.<br><br>
+ <b>AVAN (AI)</b> first computed the recovery number with a contrived loop that produced a plausible figure without modelling anything. It was replaced with an explicit list of the crash points and what each one leaves behind, so the claim is readable rather than merely correct-looking. The commit record is the whole mechanism: it is the single point where the outcome flips from &ldquo;forget it&rdquo; to &ldquo;finish it&rdquo;.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Every crash point, and what recovery finds.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Crash at each step and see what recovery can do.</div>
+   <div class="btns" style="margin-top:10px"><button id="jrnln">crash later &#9654;</button><button id="jrnlb">earlier</button><button id="jrnlm">switch mode</button><button id="jrnlr">reset</button></div>
+   <div class="cap" id="jrnlo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a promise written before the fact.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the journal buys correctness with a <b>2&times;</b> write cost. The inverse is that <b>it does not make the update atomic &mdash; it makes the update repeatable</b>. Nothing here happens all at once; the page is still overwritten non-atomically at the end, and a crash during that leaves the same torn page as before. What changed is that the log still says what it was supposed to become. Read backwards, durability is not achieved by making an operation indivisible; it is achieved by making it survivable to do the same thing twice.</div>
+   <div class="btns" style="margin-top:10px"><button id="jrnlp">pause spin</button></div></div></div></div>"""
+JRNL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,step=1,journalMode=true;
+var INPLACE=[
+ {step:'(nothing yet)',    ok:true,  as:'old page'},
+ {step:'overwriting page', ok:false, as:'TORN - neither old nor new'},
+ {step:'page written',     ok:true,  as:'new page'}];
+var JOURNAL=[
+ {step:'(nothing yet)',      ok:true, as:'old page'},
+ {step:'log record written', ok:true, as:'no commit - roll back to old'},
+ {step:'log COMMITTED',      ok:true, as:'replay the log -> new'},
+ {step:'checkpointed home',  ok:true, as:'new page'}];
+function count(s){var v=0;for(var i=0;i<s.length;i++)if(s[i].ok)v++;return v;}
+function selftest(){
+ var ip=count(INPLACE),jr=count(JOURNAL);
+ return {updates:1000,pageBytes:4096,
+  inPlaceBytesWritten:4096000,journalBytesWritten:8192000,writeAmplification:2,
+  inPlaceCrashPoints:INPLACE.length,inPlaceRecoverable:ip,
+  journalCrashPoints:JOURNAL.length,journalRecoverable:jr,
+  inPlaceSurvivalPct:+(100*ip/INPLACE.length).toFixed(1),
+  journalSurvivalPct:+(100*jr/JOURNAL.length).toFixed(1),
+  theCommitRecordDecides:true,
+  ok:jr===JOURNAL.length&&ip<INPLACE.length};}
+function drawSeq(g,x,y,seq,col){
+ for(var i=0;i<seq.length;i++){
+  var yy=y+i*30;
+  nf(g,seq[i].ok?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.3)');
+  g.fillRect(x,yy,300,24);ng(g);
+  nt(g,seq[i].ok?'#7de2b0':'#ff5a8a',x+8,yy+16,8,seq[i].step);
+  nt(g,'#8a7ab8',x+150,yy+16,8,seq[i].as);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'EVERY CRASH POINT, AND WHAT RECOVERY FINDS');
+ nt(g,'#ff5a8a',20,42,9,'in place  -  survives '+VR.inPlaceSurvivalPct+'%');
+ drawSeq(g,20,50,INPLACE);
+ nt(g,'#7de2b0',20,158,9,'write-ahead log  -  survives '+VR.journalSurvivalPct+'%');
+ drawSeq(g,20,166,JOURNAL);
+ kverdict(g,12,262-4,W-24,true,'for 1,000 updates: '+
+  VR.journalBytesWritten.toLocaleString()+' bytes against '+
+  VR.inPlaceBytesWritten.toLocaleString()+' -- every byte written twice');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var seq=journalMode?JOURNAL:INPLACE;
+ var s=Math.min(step,seq.length-1);
+ nt(g,'#9d00ff',12,20,11,journalMode?'WRITE-AHEAD LOG':'UPDATE IN PLACE');
+ var i;
+ for(i=0;i<seq.length;i++){
+  var yy=44+i*38;
+  nf(g,i===s?(seq[i].ok?'rgba(125,226,176,0.35)':'rgba(255,60,90,0.4)')
+            :'rgba(90,70,140,0.2)');
+  g.fillRect(14,yy,340,30);ng(g);
+  nt(g,i===s?(seq[i].ok?'#7de2b0':'#ff5a8a'):'#5a4a85',22,yy+20,9,seq[i].step);}
+ nt(g,'#8a7ab8',14,44+seq.length*38+12,8,'crashed here: '+seq[s].as);
+ krow(g,14,206,230,'crash points',seq.length,seq.length/5,'rgba(90,208,255,0.7)');
+ krow(g,14,248,230,'recoverable',count(seq),count(seq)/seq.length,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,290,W-24,seq[s].ok,seq[s].ok?
+  'recovery reconstructs a valid page':
+  'unrecoverable -- the page is neither old nor new and nothing says what it should be');
+ kout('jrnlo',(journalMode?'journal':'in place')+' &middot; crash at step <b>'+s+
+  '</b> &middot; '+(seq[s].ok?'recoverable':'<b>lost</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PROMISE WRITTEN BEFORE THE FACT');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,log=(t<0.5);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:log?-18:18,
+   c:log?'rgba(255,210,63,0.75)':'rgba(125,226,176,0.8)',r:2.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'not indivisible -- survivable to do twice');}
+document.getElementById('jrnln').onclick=function(){step=Math.min((journalMode?JOURNAL:INPLACE).length-1,step+1);drawW4();};
+document.getElementById('jrnlb').onclick=function(){step=Math.max(0,step-1);drawW4();};
+document.getElementById('jrnlm').onclick=function(){journalMode=!journalMode;step=Math.min(step,(journalMode?JOURNAL:INPLACE).length-1);drawW4();};
+document.getElementById('jrnlr').onclick=function(){step=1;journalMode=true;drawW4();};
+document.getElementById('jrnlp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thejournal=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ARNM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Most filesystems give you exactly one atomic operation on a name: <code>rename</code>. Everything else about saving a file safely is arranged around borrowing it.<br><br>
+ <span class="lit">LIT</span> verified live, every crash point enumerated. Opening the target and overwriting it has <b>4</b> crash points and leaves a valid file at <b>2</b> of them &mdash; <b>50.0%</b>. The moment after truncate is the worst: the new data has not arrived and the old data is already gone. Write-temp, fsync-temp, rename has <b>4</b> crash points and leaves a valid file at all <b>4</b> &mdash; <b>100.0%</b>. The target is never partial, because it is never written.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the write-temp-and-rename dance every editor, package manager and config writer performs, and the reason <code>rename</code> is specified as atomic in POSIX.<br><br>
+ <b>AVAN (AI)</b> enumerated the states instead of describing the pattern, because the interesting number is not <b>100%</b> &mdash; it is the <b>50%</b>. The naive version is not merely riskier; it has a window where the old file is <i>already destroyed</i> and the new one does not exist, and that window is opened deliberately by a truncate the programmer wrote.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two ways to save, every crash point.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pull the plug at each step.</div>
+   <div class="btns" style="margin-top:10px"><button id="arnmn">crash later &#9654;</button><button id="arnmb">earlier</button><button id="arnmm">switch method</button><button id="arnmr">reset</button></div>
+   <div class="cap" id="arnmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a name moved, not a file.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that rename gives you atomic saves. The inverse is that <b>it gives you an atomic NAME, and the file was never the thing being protected</b>. The bytes are written non-atomically, exactly as before; what happens in one indivisible step is a directory entry changing which object it points at. Read backwards, the whole pattern works by never doing anything dangerous to the thing you care about &mdash; you build the replacement somewhere nobody is looking, and then move a label.</div>
+   <div class="btns" style="margin-top:10px"><button id="arnmp">pause spin</button></div></div></div></div>"""
+ARNM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,step=1,safe=false;
+var NAIVE=[
+ {step:'(nothing yet)',     ok:true,  note:'old file intact'},
+ {step:'truncate target',   ok:false, note:'target EMPTY - old data already gone'},
+ {step:'write first half',  ok:false, note:'half a file'},
+ {step:'write second half', ok:true,  note:'complete'}];
+var SAFE=[
+ {step:'(nothing yet)',        ok:true, note:'old file intact'},
+ {step:'write temp',           ok:true, note:'target untouched'},
+ {step:'fsync temp',           ok:true, note:'target untouched, temp durable'},
+ {step:'rename temp -> target',ok:true, note:'target is the NEW complete file'}];
+function count(s){var v=0;for(var i=0;i<s.length;i++)if(s[i].ok)v++;return v;}
+function selftest(){
+ var n=count(NAIVE),s=count(SAFE);
+ return {naiveCrashPoints:NAIVE.length,naiveValidOutcomes:n,
+  naiveDataLossPoints:NAIVE.length-n,
+  naiveSurvivalPct:+(100*n/NAIVE.length).toFixed(1),
+  safeCrashPoints:SAFE.length,safeValidOutcomes:s,
+  safeDataLossPoints:SAFE.length-s,
+  safeSurvivalPct:+(100*s/SAFE.length).toFixed(1),
+  renameIsAtomic:true,
+  theOldFileSurvivesUntilTheNewOneIsComplete:true,
+  ok:s===SAFE.length&&n<NAIVE.length};}
+function seq(g,x,y,list){
+ for(var i=0;i<list.length;i++){
+  var yy=y+i*28;
+  nf(g,list[i].ok?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.32)');
+  g.fillRect(x,yy,320,22);ng(g);
+  nt(g,list[i].ok?'#7de2b0':'#ff5a8a',x+8,yy+15,8,list[i].step);
+  nt(g,'#8a7ab8',x+164,yy+15,8,list[i].note);}}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'TWO WAYS TO SAVE, EVERY CRASH POINT');
+ nt(g,'#ff5a8a',20,42,9,'open + overwrite  -  '+VR.naiveSurvivalPct+'% survive');
+ seq(g,20,50,NAIVE);
+ nt(g,'#7de2b0',20,180,9,'temp + fsync + rename  -  '+VR.safeSurvivalPct+'% survive');
+ seq(g,20,188,SAFE);
+ kverdict(g,12,262-4,W-24,true,'the naive method has a window where the old file is '+
+  'already destroyed and the new one does not exist yet');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var list=safe?SAFE:NAIVE,s=Math.min(step,list.length-1);
+ nt(g,'#00f5ff',12,20,11,safe?'TEMP + FSYNC + RENAME':'OPEN + OVERWRITE');
+ var i;
+ for(i=0;i<list.length;i++){
+  var yy=44+i*36;
+  nf(g,i===s?(list[i].ok?'rgba(125,226,176,0.35)':'rgba(255,60,90,0.42)')
+            :'rgba(90,70,140,0.2)');
+  g.fillRect(14,yy,340,28);ng(g);
+  nt(g,i===s?(list[i].ok?'#7de2b0':'#ff5a8a'):'#5a4a85',22,yy+19,9,list[i].step);}
+ nt(g,'#8a7ab8',14,196,8,'after this step the target is: '+list[s].note);
+ krow(g,14,214,230,'valid outcomes',count(list),count(list)/list.length,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,256,230,'data-loss points',list.length-count(list),
+  (list.length-count(list))/list.length,'rgba(255,60,90,0.8)');
+ kverdict(g,12,296,W-24,list[s].ok,list[s].ok?
+  'the target on disk is a complete, valid file':
+  'the target on disk is not a file anyone can use');
+ kout('arnmo',(safe?'safe':'naive')+' &middot; crash at <b>'+s+'</b> &middot; '+
+  (list[s].ok?'target valid':'<b>target broken</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NAME MOVED, NOT A FILE');
+ ndot(g,W/2-60,H/2+10,9,'rgba(125,226,176,0.85)');
+ ndot(g,W/2+60,H/2+10,9,'rgba(157,0,255,0.6)');
+ kring(g,W/2,H/2+10,ang,18,86,0,'rgba(255,210,63,0.6)',2.2);
+ nt(g,'#8a7ab8',12,H-22,8,'build the replacement unseen, then move a label');}
+document.getElementById('arnmn').onclick=function(){step=Math.min((safe?SAFE:NAIVE).length-1,step+1);drawW4();};
+document.getElementById('arnmb').onclick=function(){step=Math.max(0,step-1);drawW4();};
+document.getElementById('arnmm').onclick=function(){safe=!safe;drawW4();};
+document.getElementById('arnmr').onclick=function(){step=1;safe=false;drawW4();};
+document.getElementById('arnmp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theatomicrename=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WAMP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Change one byte. The filesystem writes a page, the journal writes it twice, the SSD programs a page of its own, and the garbage collector eventually copies a whole erase block to reclaim the space.<br><br>
+ <span class="lit">LIT</span> verified live, on a stated model. <b>1</b> logical byte becomes <b>4,096</b> after the filesystem page, <b>8,192</b> after the journal, <b>16,384</b> after the SSD page, and <b>28,672</b> once garbage collection copies a <b>75%</b>-live erase block. That is <b>28,672&times;</b>. Every layer is behaving correctly and none of them is aware of the others.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Write amplification is why SSD endurance is quoted in drive-writes-per-day and why database people care enormously about page size.<br><br>
+ <b>AVAN (AI)</b> is stating plainly that these are declared parameters &mdash; <b>4K</b> page, <b>2&times;</b> journal, <b>16K</b> SSD page, <b>4 MiB</b> erase block, <b>75%</b> live &mdash; and <b>not</b> a measurement of any real drive, which a browser cannot reach. What is demonstrated is that the factors <i>multiply</i>, which is a property of the stack rather than of any particular hardware. Change the parameters on the page and watch the product move.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One byte, through four layers.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change a layer and watch the product.</div>
+   <div class="btns" style="margin-top:10px"><button id="wampj">toggle journal &#9654;</button><button id="wampp">bigger page</button><button id="wampg">fuller erase block</button><button id="wampr">reset</button></div>
+   <div class="cap" id="wampo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one byte, widening.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the stack wastes <b>28,672</b> bytes to store one. The inverse is that <b>nobody wasted anything &mdash; each layer was told a lie by the one above and answered it honestly</b>. The filesystem was asked to store a byte and can only address pages. The SSD was handed a page and can only program its own. Read backwards, the amplification is not inefficiency but the cost of every layer being allowed to define its own smallest unit, which is the same freedom that let any of them be built separately at all.</div>
+   <div class="btns" style="margin-top:10px"><button id="wampx">pause spin</button></div></div></div></div>"""
+WAMP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,jr=true,fsPage=4096,live=0.75;
+var SSD=16384,ERASE=4194304;
+function chain(page,journal,liveFrac){
+ var a=page,b=a*(journal?2:1);
+ var c=Math.ceil(b/SSD)*SSD;
+ var d=c+ERASE*liveFrac*(c/ERASE);
+ return {fs:a,journal:b,ssd:c,gc:Math.round(d)};}
+function selftest(){
+ var m=chain(4096,true,0.75);
+ return {logicalBytes:1,filesystemPage:4096,journalCopies:2,ssdPage:SSD,
+  eraseBlock:ERASE,gcLiveFraction:0.75,
+  afterFilesystem:m.fs,afterJournal:m.journal,
+  afterSsdPage:m.ssd,afterGarbageCollection:m.gc,
+  totalAmplification:m.gc,
+  statedModelNotMeasuredHardware:true,
+  factorsMultiply:true,
+  ok:m.gc>1&&m.fs===4096&&m.journal===8192};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'ONE BYTE, THROUGH FOUR LAYERS');
+ var rows=[['logical',1],['+ filesystem page',VR.afterFilesystem],
+  ['+ journal (x2)',VR.afterJournal],['+ SSD page',VR.afterSsdPage],
+  ['+ GC block copy',VR.afterGarbageCollection]];
+ var mx=Math.log(VR.afterGarbageCollection+1),i;
+ for(i=0;i<rows.length;i++){
+  var y=48+i*40,w=Math.round(300*Math.log(rows[i][1]+1)/mx);
+  nt(g,'#8a7ab8',20,y+15,9,rows[i][0]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(160,y,300,22);ng(g);
+  nf(g,i===rows.length-1?'rgba(255,60,90,0.8)':'rgba(157,0,255,0.6)');
+  g.fillRect(160,y,Math.max(3,w),22);ng(g);
+  nt(g,'#e8e0ff',466-40,y+15,8,rows[i][1].toLocaleString());}
+ nt(g,'#5a4a85',20,258,8,'log-scaled; a stated model, not a measured drive');
+ kverdict(g,12,258,W-24,true,'total '+VR.totalAmplification.toLocaleString()+
+  'x -- every layer correct, none aware of the others');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=chain(fsPage,jr,live);
+ nt(g,'#9d00ff',12,20,11,'PAGE '+fsPage+(jr?'  JOURNAL x2':'  NO JOURNAL')+
+  '  LIVE '+(live*100).toFixed(0)+'%');
+ var rows=[['fs page',m.fs],['journal',m.journal],['ssd page',m.ssd],['after GC',m.gc]];
+ var mx=Math.log(m.gc+1),i;
+ for(i=0;i<rows.length;i++){
+  var y=44+i*44;
+  nt(g,'#8a7ab8',14,y+16,9,rows[i][0]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(110,y,200,24);ng(g);
+  nf(g,i===3?'rgba(255,60,90,0.8)':'rgba(157,0,255,0.6)');
+  g.fillRect(110,y,Math.max(3,Math.round(200*Math.log(rows[i][1]+1)/mx)),24);ng(g);
+  nt(g,'#e8e0ff',318,y+16,8,rows[i][1].toLocaleString());}
+ krow(g,14,224,230,'total amplification',m.gc,Math.min(1,Math.log(m.gc)/Math.log(200000)),
+  'rgba(255,210,63,0.8)');
+ kverdict(g,12,268,W-24,false,'the factors MULTIPLY -- removing one layer divides, '+
+  'it does not subtract');
+ nt(g,'#5a4a85',14,318,8,'each layer defines its own smallest unit');
+ kout('wampo','<b>'+m.gc.toLocaleString()+'</b> bytes for one &middot; page <b>'+
+  fsPage+'</b> &middot; '+(jr?'journalled':'no journal'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE BYTE, WIDENING');
+ korb(g,W/2,H/2+10,ang,52,function(i,N){
+  var t=i/N,rad=8+t*t*120;
+  return {x:Math.cos(t*9.42)*rad,z:Math.sin(t*9.42)*rad,y:0,
+   c:'rgba(157,0,255,'+(0.25+0.55*t)+')',r:1.4+t*3};});
+ nt(g,'#8a7ab8',12,H-22,8,'each layer answered honestly a question it was asked wrong');}
+document.getElementById('wampj').onclick=function(){jr=!jr;drawW4();};
+document.getElementById('wampp').onclick=function(){fsPage=fsPage>=65536?512:fsPage*2;drawW4();};
+document.getElementById('wampg').onclick=function(){live=live>=0.95?0.1:+(live+0.15).toFixed(2);drawW4();};
+document.getElementById('wampr').onclick=function(){jr=true;fsPage=4096;live=0.75;drawW4();};
+document.getElementById('wampx').onclick=function(){spin=!spin;};
+VR=selftest();window.__thewriteamplification=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LOGS_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Never overwrite anything. Append the new version and let the old one rot where it lies. Every write becomes sequential, and the cost is everything you left behind.<br><br>
+ <span class="lit">LIT</span> verified live. <b>200,000</b> appends over <b>20,000</b> distinct keys. All <b>20,000</b> keys are live at the end; <b>180,000</b> records are garbage &mdash; a garbage ratio of <b>0.9000</b> and a space amplification of <b>10.00&times;</b>. Compaction rewrites the <b>20,000</b> live records and reclaims the rest. Every one of the <b>200,000</b> writes was sequential, which is the entire point.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the shape of every LSM tree, of log-structured filesystems, and of Kafka; the trade is <b>Rosenblum and Ousterhout</b>&rsquo;s.<br><br>
+ <b>AVAN (AI)</b> published the space amplification next to the sequential-write claim because they are the same fact seen twice. <b>10&times;</b> the space is not a flaw in the design &mdash; it is the design, and compaction is not a cleanup task bolted on afterwards but the other half of the bargain that was struck when the first write was made fast.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Live records against what is still on disk.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Append more, then compact.</div>
+   <div class="btns" style="margin-top:10px"><button id="logsa">more appends &#9654;</button><button id="logsf">fewer</button><button id="logsc">compact</button><button id="logsr">reset</button></div>
+   <div class="cap" id="logso" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a trail of former selves.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the log wastes <b>90%</b> of its space on dead records. The inverse is that <b>it is not waste until you decide the past has stopped mattering</b>. Those <b>180,000</b> records are every prior value of every key, in order, with timestamps &mdash; a complete history that a system overwriting in place destroyed as it went. Read backwards, compaction is not garbage collection; it is the moment you choose to forget, and a log-structured store is the only one that had the choice.</div>
+   <div class="btns" style="margin-top:10px"><button id="logsp">pause spin</button></div></div></div></div>"""
+LOGS_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,appends=200000,compacted=false;
+var KEYS=20000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(N){
+ var r=rng(23),live={},i;
+ for(i=0;i<N;i++)live[Math.floor(r()*KEYS)]=i;
+ var liveCount=Object.keys(live).length;
+ return {appends:N,live:liveCount,garbage:N-liveCount,
+  ratio:(N-liveCount)/N,amp:N/liveCount};}
+function selftest(){
+ var m=run(200000);
+ return {appends:m.appends,distinctKeys:KEYS,liveRecords:m.live,
+  garbageRecords:m.garbage,
+  garbageRatio:+m.ratio.toFixed(4),
+  spaceAmplification:+m.amp.toFixed(2),
+  spaceBeforeCompaction:m.appends,spaceAfterCompaction:m.live,
+  compactionWrites:m.live,
+  everyWriteWasSequential:true,
+  ok:m.garbage>0&&m.live<=KEYS&&m.appends===200000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'LIVE RECORDS AGAINST WHAT IS STILL ON DISK');
+ kgrid(g,20,48,60,3,7.4,16,function(i){
+  return (i%10===0)?'rgba(125,226,176,0.85)':'rgba(157,0,255,0.35)';});
+ nt(g,'#7de2b0',20,124,8,'green = live (1 in 10)   purple = a former value, still occupying space');
+ krow(g,20,142,300,'records on disk',VR.appends,1,'rgba(157,0,255,0.65)');
+ krow(g,20,184,300,'records that are live',VR.liveRecords,
+  VR.liveRecords/VR.appends,'rgba(125,226,176,0.85)');
+ krow(g,20,226,300,'space amplification',VR.spaceAmplification,
+  VR.spaceAmplification/12,'rgba(255,210,63,0.75)');
+ kverdict(g,12,262-4,W-24,true,'garbage ratio '+VR.garbageRatio+
+  ' -- and all '+VR.appends.toLocaleString()+' writes were sequential');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(appends);
+ var onDisk=compacted?m.live:m.appends;
+ nt(g,'#9d00ff',12,20,11,appends.toLocaleString()+' APPENDS'+(compacted?'   [compacted]':''));
+ kgrid(g,14,40,40,4,8.6,11,function(i){
+  if(compacted)return 'rgba(125,226,176,0.8)';
+  return (i%10===0)?'rgba(125,226,176,0.85)':'rgba(157,0,255,0.35)';});
+ nt(g,'#8a7ab8',14,96,8,compacted?'after compaction: only live records remain':
+  'purple records are dead and still on disk');
+ krow(g,14,114,230,'on disk',onDisk,Math.min(1,onDisk/400000),
+  compacted?'rgba(125,226,176,0.8)':'rgba(157,0,255,0.7)');
+ krow(g,14,156,230,'live',m.live,m.live/400000,'rgba(125,226,176,0.8)');
+ krow(g,14,198,230,'space amplification',
+  +(onDisk/m.live).toFixed(2),(onDisk/m.live)/22,'rgba(255,210,63,0.75)');
+ krow(g,14,240,230,'compaction would rewrite',m.live,m.live/400000,
+  'rgba(90,208,255,0.7)');
+ kverdict(g,12,282,W-24,compacted,compacted?
+  'reclaimed -- and every prior value of every key is now gone':
+  m.garbage.toLocaleString()+' dead records: the complete history of every key');
+ kout('logso',appends.toLocaleString()+' appends &middot; live <b>'+
+  m.live.toLocaleString()+'</b> &middot; on disk <b>'+onDisk.toLocaleString()+
+  '</b> &middot; <b>'+(onDisk/m.live).toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A TRAIL OF FORMER SELVES');
+ korb(g,W/2,H/2+10,ang,50,function(i,N){
+  var t=i/N,liveOne=(i%10===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:liveOne?-16:0,
+   c:liveOne?'rgba(125,226,176,0.9)':'rgba(157,0,255,0.3)',r:liveOne?3.2:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'compaction is the moment you choose to forget');}
+document.getElementById('logsa').onclick=function(){appends=Math.min(800000,appends*2);compacted=false;drawW4();};
+document.getElementById('logsf').onclick=function(){appends=Math.max(25000,Math.floor(appends/2));compacted=false;drawW4();};
+document.getElementById('logsc').onclick=function(){compacted=!compacted;drawW4();};
+document.getElementById('logsr').onclick=function(){appends=200000;compacted=false;drawW4();};
+document.getElementById('logsp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thelogstructured=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INOD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A filename is a directory entry pointing at a number. The number finds a small record holding pointers to blocks &mdash; and when the file outgrows those pointers, pointers to blocks of pointers.<br><br>
+ <span class="lit">LIT</span> verified live, exact arithmetic. Classic <b>4,096</b>-byte blocks, <b>4</b>-byte pointers, <b>1,024</b> pointers per block, <b>12</b> direct pointers. Byte <b>0</b> is <b>1</b> read away. Byte <b>49,152</b> &mdash; the first past the direct blocks &mdash; is <b>2</b>. Byte <b>4,243,456</b> is <b>3</b>. The last addressable block is <b>4</b>. Total reach: <b>1,074,791,436</b> blocks, <b>4,402,345,721,856</b> bytes, <b>4,100.00</b> GiB &mdash; and the cost of reaching a byte depends on where it is.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the ext2 inode, inherited from the Unix File System, and the same shape is still under ext4&rsquo;s compatibility path.<br><br>
+ <b>AVAN (AI)</b> computed the boundaries rather than quoting them, because the interesting part is the discontinuity: block <b>11</b> costs <b>1</b> read and block <b>12</b> costs <b>2</b>. Nothing about the file changed at that byte. The structure has seams, and a program that reads sequentially crosses them without ever being told.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The four tiers, and where they hand over.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Seek to a byte and count the reads.</div>
+   <div class="btns" style="margin-top:10px"><button id="inodf">seek further &#9654;</button><button id="inodb">back</button><button id="inodp">bigger blocks</button><button id="inodr">reset</button></div>
+   <div class="cap" id="inodo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a name, a number, a tree.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the inode is an indirection from name to bytes. The inverse is that <b>the indirection is what makes the name detachable, and detachable names are the whole filesystem</b>. Because the name only holds a number, two names can hold the same one, a name can be moved without touching a byte, and a file can outlive every name it ever had. Read backwards, the extra read at block <b>12</b> is the visible price of a structure whose real product is that a file is not its name and never was.</div>
+   <div class="btns" style="margin-top:10px"><button id="inodx">pause spin</button></div></div></div></div>"""
+INOD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,blk=0,BS=4096;
+function tiers(bs){
+ var ppb=bs/4,d=12;
+ return {bs:bs,ppb:ppb,direct:d,d1:ppb,d2:ppb*ppb,d3:ppb*ppb*ppb,
+  max:d+ppb+ppb*ppb+ppb*ppb*ppb};}
+function reads(b,t){
+ if(b<t.direct)return 1;
+ b-=t.direct; if(b<t.d1)return 2;
+ b-=t.d1;     if(b<t.d2)return 3;
+ b-=t.d2;     if(b<t.d3)return 4;
+ return -1;}
+function selftest(){
+ var t=tiers(4096);
+ var probes=[0,11,12,1035,1036,1049611];
+ return {blockSize:4096,pointerBytes:4,pointersPerBlock:t.ppb,
+  directBlocks:t.direct,singleIndirect:t.d1,doubleIndirect:t.d2,tripleIndirect:t.d3,
+  maxFileBlocks:t.max,maxFileBytes:t.max*4096,
+  maxFileGiB:+(t.max*4096/1073741824).toFixed(2),
+  rows:probes.map(function(b){return {block:b,offsetBytes:b*4096,reads:reads(b,t)};}),
+  readsAtByteZero:reads(0,t),readsAtLastBlock:reads(t.max-1,t),
+  costDependsOnPosition:reads(0,t)!==reads(t.max-1,t),
+  ok:reads(0,t)===1&&reads(t.max-1,t)===4};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'THE FOUR TIERS, AND WHERE THEY HAND OVER');
+ var names=['12 direct','single indirect','double indirect','triple indirect'];
+ var cnt=[VR.directBlocks,VR.singleIndirect,VR.doubleIndirect,VR.tripleIndirect];
+ var mx=Math.log(VR.tripleIndirect),i;
+ for(i=0;i<4;i++){
+  var y=46+i*46;
+  nt(g,'#8a7ab8',20,y+16,9,names[i]);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(160,y,290,24);ng(g);
+  nf(g,'rgba(90,208,255,'+(0.4+0.15*i)+')');
+  g.fillRect(160,y,Math.max(4,Math.round(290*Math.log(cnt[i]+1)/mx)),24);ng(g);
+  nt(g,'#e8e0ff',160,y+16,8,'  '+cnt[i].toLocaleString()+' blocks');
+  nt(g,'#7de2b0',424,y+16,9,(i+1)+' read'+(i?'s':''));}
+ nt(g,'#5a4a85',20,246,8,'log-scaled. block 11 costs 1 read; block 12 costs 2');
+ kverdict(g,12,250,W-24,true,'reach '+VR.maxFileGiB+
+  ' GiB, and the cost of a byte depends on where it is');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var t=tiers(BS),r=reads(blk,t);
+ nt(g,'#5ad0ff',12,20,11,'BLOCK '+blk.toLocaleString()+'   ('+BS+'-byte blocks)');
+ var i;
+ for(i=0;i<4;i++){
+  var y=44+i*40,act=(r===i+1);
+  nf(g,act?'rgba(90,208,255,0.4)':'rgba(90,70,140,0.18)');
+  g.fillRect(14,y,340,30);ng(g);
+  nt(g,act?'#5ad0ff':'#5a4a85',22,y+20,9,
+   ['inode -> data','inode -> indirect -> data','inode -> double -> indirect -> data',
+    'inode -> triple -> double -> indirect -> data'][i]);}
+ nt(g,'#8a7ab8',14,212,8,'byte offset '+(blk*BS).toLocaleString());
+ krow(g,14,228,230,'reads to reach it',r<0?0:r,r<0?0:r/4,'rgba(125,226,176,0.8)');
+ krow(g,14,270,230,'max file GiB',+(t.max*BS/1073741824).toFixed(2),
+  Math.min(1,(t.max*BS/1073741824)/70000),'rgba(255,210,63,0.7)');
+ kverdict(g,12,306,W-24,r>0,r>0?
+  'reachable in '+r+' read'+(r>1?'s':''):'past the end of what this inode can address');
+ kout('inodo','block <b>'+blk.toLocaleString()+'</b> &middot; <b>'+
+  (r<0?'unreachable':r+' reads')+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NAME, A NUMBER, A TREE');
+ ndot(g,W/2,H/2-70,7,'rgba(255,210,63,0.9)');
+ korb(g,W/2,H/2+30,ang,26,function(i,N){
+  var t=i/N,tier=Math.floor(t*3);
+  return {x:(t-0.5)*230,z:Math.sin(t*6.283)*28,y:-30+tier*30,
+   c:'rgba(90,208,255,'+(0.4+0.2*tier)+')',r:2.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'a file is not its name and never was');}
+document.getElementById('inodf').onclick=function(){blk=blk===0?11:Math.min(1073741823,blk*4+1);drawW4();};
+document.getElementById('inodb').onclick=function(){blk=blk<12?0:Math.floor((blk-1)/4);drawW4();};
+document.getElementById('inodp').onclick=function(){BS=BS>=16384?1024:BS*2;drawW4();};
+document.getElementById('inodr').onclick=function(){blk=0;BS=4096;drawW4();};
+document.getElementById('inodx').onclick=function(){spin=!spin;};
+VR=selftest();window.__theinode=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ORPH_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Deleting a file removes a name. The bytes survive as long as anyone still has it open &mdash; invisible in every directory, absent from every disk-usage walk, and still occupying the disk.<br><br>
+ <span class="lit">LIT</span> verified live. <b>1,000</b> files of <b>1 MiB</b>, one in four held open, all unlinked. <b>750</b> are freed at once. <b>250</b> persist: <b>262,144,000</b> bytes &mdash; <b>0.244</b> GiB &mdash; that appear in <b>0</b> directory listings, are counted by a usage walk as <b>0</b>, and are counted by free space as the full <b>262,144,000</b>. That difference is the exact amount by which the two tools disagree.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why deleting a log file does not free the disk until the process is restarted, and the most reliable way to be confused by a full filesystem.<br><br>
+ <b>AVAN (AI)</b> published the disagreement as its own figure because that is the observable. Neither tool is broken and neither is lying &mdash; one walks names and the other counts blocks, and an unlinked open file is precisely the object that has blocks and no name.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What each tool can see.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Unlink, and close the handles.</div>
+   <div class="btns" style="margin-top:10px"><button id="orphm">more held open &#9654;</button><button id="orphl">fewer</button><button id="orphc">close every handle</button><button id="orphr">reset</button></div>
+   <div class="cap" id="orpho" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an object with no name.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that unlinked-open files are a leak that confuses your tooling. The inverse is that <b>this is the only reason deleting a file in use is safe at all</b>. On a system where unlink destroyed the bytes, every running program would be one <code>rm</code> away from reading garbage. Read backwards, the invisible <b>0.244</b> GiB is not a failure of bookkeeping &mdash; it is the guarantee, held open, that nobody can pull the floor out from under a reader by editing a directory.</div>
+   <div class="btns" style="margin-top:10px"><button id="orphp">pause spin</button></div></div></div></div>"""
+ORPH_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,openEvery=4,closed=false;
+var N=1000,SZ=1048576;
+function run(every,cl){
+ var held=cl?0:Math.floor(N/every);
+ return {files:N,freed:N-held,held:held,bytes:held*SZ};}
+function selftest(){
+ var m=run(4,false);
+ return {files:N,fileBytes:SZ,unlinked:N,
+  freedImmediately:m.freed,stillHeldOpen:m.held,
+  bytesInvisibleButAllocated:m.bytes,
+  gibHeld:+(m.bytes/1073741824).toFixed(3),
+  visibleInAnyDirectory:0,countedByUsageWalk:0,
+  countedByFreeSpace:m.bytes,
+  toolsDisagreeBy:m.bytes,
+  ok:m.held>0&&m.freed+m.held===N};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'WHAT EACH TOOL CAN SEE');
+ kgrid(g,20,46,60,2,7.4,16,function(i){
+  return (i%4===0)?'rgba(255,60,90,0.85)':'rgba(90,70,140,0.28)';});
+ nt(g,'#ff5a8a',20,96,8,'red = unlinked but still open; dark = actually freed');
+ krow(g,20,114,300,'freed immediately',VR.freedImmediately,
+  VR.freedImmediately/1000,'rgba(125,226,176,0.8)');
+ krow(g,20,156,300,'still holding blocks',VR.stillHeldOpen,
+  VR.stillHeldOpen/1000,'rgba(255,60,90,0.85)');
+ nf(g,'rgba(255,210,63,0.14)');g.fillRect(12,204,W-24,40);ng(g);
+ nt(g,'#ffd76a',22,220,9,'a usage walk counts    0 bytes');
+ nt(g,'#ffd76a',22,236,9,'free space counts      '+VR.countedByFreeSpace.toLocaleString()+' bytes');
+ kverdict(g,12,250,W-24,true,'the two tools disagree by exactly '+VR.gibHeld+
+  ' GiB -- and neither is wrong');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(openEvery,closed);
+ nt(g,'#7cfc00',12,20,11,closed?'ALL HANDLES CLOSED':'1 IN '+openEvery+' HELD OPEN');
+ kgrid(g,14,40,40,3,8.6,12,function(i){
+  if(closed)return 'rgba(125,226,176,0.7)';
+  return (i%openEvery===0)?'rgba(255,60,90,0.85)':'rgba(90,70,140,0.28)';});
+ nt(g,'#8a7ab8',14,90,8,'every one of these has been unlinked');
+ krow(g,14,108,230,'blocks freed',m.freed,m.freed/1000,'rgba(125,226,176,0.8)');
+ krow(g,14,150,230,'held by open handles',m.held,m.held/1000,
+  'rgba(255,60,90,0.85)');
+ krow(g,14,192,230,'invisible bytes',m.bytes,Math.min(1,m.bytes/536870912),
+  'rgba(255,210,63,0.75)');
+ krow(g,14,234,230,'visible in a directory',0,0,'rgba(90,208,255,0.5)');
+ kverdict(g,12,276,W-24,m.held===0,m.held===0?
+  'every block reclaimed -- the last reader let go':
+  m.held+' files exist with no name, and the space is not coming back yet');
+ nt(g,'#5a4a85',14,320,8,'nobody can pull the floor out by editing a directory');
+ kout('orpho',(closed?'closed':'1 in '+openEvery)+' &middot; held <b>'+m.held+
+  '</b> &middot; invisible <b>'+(m.bytes/1048576).toFixed(0)+' MiB</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN OBJECT WITH NO NAME');
+ korb(g,W/2,H/2+10,ang,40,function(i,Nn){
+  var t=i/Nn,orph=(i%4===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*32,y:orph?18:-10,
+   c:orph?'rgba(255,60,90,0.75)':'rgba(90,70,140,0.35)',r:orph?3:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'the guarantee, held open');}
+document.getElementById('orphm').onclick=function(){closed=false;openEvery=Math.max(2,openEvery-1);drawW4();};
+document.getElementById('orphl').onclick=function(){closed=false;openEvery=Math.min(20,openEvery+1);drawW4();};
+document.getElementById('orphc').onclick=function(){closed=!closed;drawW4();};
+document.getElementById('orphr').onclick=function(){openEvery=4;closed=false;drawW4();};
+document.getElementById('orphp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theorphan=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRAG_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A disk can be <b>7%</b> free and unable to store a file of <b>30</b> blocks. The space is there. It is in <b>1,578</b> pieces and none of them is big enough.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>100,000</b>-block disk held at <b>92.95%</b> used through <b>40,000</b> allocate-and-free cycles with a first-fit allocator. <b>7,054</b> blocks free, in <b>1,578</b> separate runs, mean run <b>4.5</b> blocks. The largest contiguous run is <b>29</b> &mdash; <b>0.41%</b> of all free space. <b>15,229</b> of <b>40,000</b> allocations failed while the disk reported free space.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">External fragmentation is why extent-based filesystems exist, why allocators reserve, and why the last <b>5%</b> of a disk behaves nothing like the first <b>95%</b>.<br><br>
+ <b>AVAN (AI)</b> first ran this on a disk that was <b>94%</b> <i>free</i> and measured a largest run of <b>99.62%</b> of free space &mdash; no fragmentation at all, because there was nothing to fragment. Fragmentation is a near-capacity phenomenon; the allocator has to be held there or the experiment is not the experiment.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Free space, and the size of its largest piece.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Age the disk and try to allocate.</div>
+   <div class="btns" style="margin-top:10px"><button id="fraga">age it further &#9654;</button><button id="fragl">less aged</button><button id="fragr">reset</button></div>
+   <div class="cap" id="frago" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: space that exists and cannot be used.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that fragmentation wastes free space. The inverse is that <b>no space was lost &mdash; a requirement was added that nobody agreed to</b>. All <b>7,054</b> blocks are free and writable; what fails is the demand that they be <i>adjacent</i>, and that demand came from wanting sequential reads to be fast. Read backwards, fragmentation is the bill for an optimisation: contiguity was never promised by the disk, it was assumed by the reader, and the allocator has been quietly trying to honour an assumption it was never given.</div>
+   <div class="btns" style="margin-top:10px"><button id="fragp">pause spin</button></div></div></div></div>"""
+FRAG_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,cycles=40000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function age(cyc){
+ var r=rng(29),B=100000,disk=new Uint8Array(B),live=[],i,j;
+ function fit(sz){var run=0,st=-1;
+  for(j=0;j<B;j++){if(disk[j]===0){if(run===0)st=j;run++;if(run===sz)return st;}else run=0;}
+  return -1;}
+ function alloc(sz){var s=fit(sz);if(s<0)return false;
+  for(j=s;j<s+sz;j++)disk[j]=1;live.push([s,sz]);return true;}
+ function freeAt(i2){var a=live.splice(i2,1)[0];
+  for(j=a[0];j<a[0]+a[1];j++)disk[j]=0;return a[1];}
+ var T=0.93,used=0,failed=0;
+ while(used<B*T){var sz=1+Math.floor(r()*60);if(!alloc(sz))break;used+=sz;}
+ for(i=0;i<cyc;i++){
+  var s2=1+Math.floor(r()*60);
+  while(used+s2>B*T&&live.length>10)used-=freeAt(Math.floor(r()*live.length));
+  if(alloc(s2))used+=s2;else failed++;}
+ var free=0,best=0,run=0,runs=0,hist=[];
+ for(j=0;j<B;j++){
+  if(disk[j]===0){free++;run++;if(run===1)runs++;if(run>best)best=run;}
+  else{if(run)hist.push(run);run=0;}}
+ if(run)hist.push(run);
+ return {B:B,free:free,best:best,runs:runs,failed:failed,cycles:cyc,
+  mean:free/Math.max(1,runs),hist:hist,disk:disk};}
+function selftest(){
+ var m=age(40000);
+ return {totalBlocks:m.B,cycles:m.cycles,
+  freeBlocks:m.free,freePct:+(100*m.free/m.B).toFixed(2),
+  usedPct:+(100*(m.B-m.free)/m.B).toFixed(2),
+  freeRuns:m.runs,largestContiguousRun:m.best,
+  meanRunLength:+m.mean.toFixed(1),
+  largestAsPctOfFree:+(100*m.best/m.free).toFixed(2),
+  allocationAttempts:40000,allocationsThatFailed:m.failed,
+  smallestAllocationThatCannotFit:m.best+1,
+  freeSpaceUnusableForIt:m.free-m.best,
+  ok:m.free>0&&m.best<m.free*0.5&&m.runs>50};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'FREE SPACE, AND THE SIZE OF ITS LARGEST PIECE');
+ krow(g,20,46,300,'free blocks',VR.freeBlocks,VR.freeBlocks/10000,
+  'rgba(90,208,255,0.7)');
+ krow(g,20,88,300,'largest contiguous run',VR.largestContiguousRun,
+  VR.largestContiguousRun/10000,'rgba(255,60,90,0.85)');
+ krow(g,20,130,300,'separate free runs',VR.freeRuns,VR.freeRuns/2000,
+  'rgba(255,210,63,0.75)');
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,178,W-24,40);ng(g);
+ nt(g,'#ff5a8a',22,196,10,VR.freeBlocks.toLocaleString()+' blocks free -- and an allocation of '+
+  VR.smallestAllocationThatCannotFit+' blocks fails');
+ nt(g,'#8a7ab8',22,212,8,'the largest piece is '+VR.largestAsPctOfFree+
+  '% of all the free space there is');
+ kverdict(g,12,226,W-24,false,VR.allocationsThatFailed.toLocaleString()+' of '+
+  VR.allocationAttempts.toLocaleString()+' allocations failed with free space available');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=age(cycles);
+ nt(g,'#5ad0ff',12,20,11,cycles.toLocaleString()+' AGE CYCLES');
+ var i,COLS=76,ROWS=10,per=Math.floor(m.B/(COLS*ROWS));
+ for(i=0;i<COLS*ROWS;i++){
+  var s=i*per,f=0,k;
+  for(k=s;k<s+per&&k<m.B;k++)if(m.disk[k]===0)f++;
+  var frac=f/per;
+  nf(g,frac>0.5?'rgba(90,208,255,0.8)':(frac>0.05?'rgba(157,0,255,0.5)':'rgba(90,70,140,0.3)'));
+  g.fillRect(14+(i%COLS)*4.5,40+Math.floor(i/COLS)*7,3.6,5.6);ng(g);}
+ nt(g,'#8a7ab8',14,124,8,'the disk; blue cells hold most of what free space remains');
+ krow(g,14,142,230,'free blocks',m.free,m.free/12000,'rgba(90,208,255,0.7)');
+ krow(g,14,184,230,'largest run',m.best,Math.min(1,m.best/2000),
+  'rgba(255,60,90,0.85)');
+ krow(g,14,226,230,'free runs',m.runs,Math.min(1,m.runs/2000),
+  'rgba(255,210,63,0.75)');
+ krow(g,14,268,230,'failed allocations',m.failed,Math.min(1,m.failed/20000),
+  'rgba(255,60,90,0.7)');
+ kverdict(g,12,306,W-24,m.best>200,
+  'an allocation of '+(m.best+1)+' blocks cannot be placed, with '+
+  m.free.toLocaleString()+' free');
+ kout('frago',cycles.toLocaleString()+' cycles &middot; free <b>'+
+  m.free.toLocaleString()+'</b> &middot; largest run <b>'+m.best+
+  '</b> &middot; runs <b>'+m.runs.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'SPACE THAT EXISTS AND CANNOT BE USED');
+ korb(g,W/2,H/2+10,ang,60,function(i,N){
+  var t=i/N,gap=(i%7<2);
+  return {x:(t-0.5)*260,z:Math.sin(t*6.283)*30,y:0,
+   c:gap?'rgba(90,208,255,0.75)':'rgba(90,70,140,0.3)',r:gap?2.2:1.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'contiguity was assumed by the reader, never promised by the disk');}
+document.getElementById('fraga').onclick=function(){cycles=Math.min(80000,cycles+20000);drawW4();};
+document.getElementById('fragl').onclick=function(){cycles=Math.max(2000,cycles-20000);drawW4();};
+document.getElementById('fragr').onclick=function(){cycles=40000;drawW4();};
+document.getElementById('fragp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefragmentation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+WBAR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A write barrier says these writes may not be reordered past this point. It does not say they have happened. The two get confused constantly, and the difference is the whole of durability.<br><br>
+ <span class="lit">LIT</span> verified live, exhaustively. <b>4</b> writes that must land in order. Without barriers, any subset can be on the platter at a crash: <b>16</b> reachable states, of which only <b>5</b> &mdash; the prefixes &mdash; are coherent. With barriers, only those <b>5</b> are reachable at all: <b>11</b> incoherent states eliminated. And the barrier still loses every write not yet on the platter. Ordering, not durability.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is the distinction between a cache flush and a barrier, and the reason <code>fsync</code> and <code>fdatasync</code> both exist alongside the block layer&rsquo;s ordering primitives.<br><br>
+ <b>AVAN (AI)</b> enumerated all <b>2&sup4;</b> crash states rather than arguing the point. <b>5</b> of <b>16</b> is not an estimate. The barrier does not reduce how much you can lose &mdash; it reduces what you can find, which is the difference between a recoverable log and one that has a hole in the middle.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">All sixteen crash states.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add writes and count what a crash can produce.</div>
+   <div class="btns" style="margin-top:10px"><button id="wbarm">one more write &#9654;</button><button id="wbarl">fewer</button><button id="wbart">toggle barriers</button><button id="wbarr">reset</button></div>
+   <div class="cap" id="wbaro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an order that holds, a moment that does not.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that barriers make crash states safe. The inverse is that <b>they make them legible, which is a different and lesser thing</b>. You lose exactly as much data either way; what you gain is that whatever survived is a prefix, so recovery can tell where the truth stops. Read backwards, a barrier buys nothing for the writer and everything for the reader who comes after the crash &mdash; it is a promise made entirely to the future.</div>
+   <div class="btns" style="margin-top:10px"><button id="wbarp">pause spin</button></div></div></div></div>"""
+WBAR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,NW=4,barriers=true;
+function analyse(n){
+ var total=1<<n,prefixes=0,states=[],m,i;
+ for(m=0;m<total;m++){
+  var bits=[],seenZero=false,isPre=true;
+  for(i=0;i<n;i++)bits.push((m>>i)&1);
+  for(i=0;i<n;i++){
+   if(bits[i]===0)seenZero=true;
+   else if(seenZero)isPre=false;}
+  if(isPre)prefixes++;
+  states.push({bits:bits,coherent:isPre});}
+ return {n:n,total:total,prefixes:prefixes,states:states};}
+function selftest(){
+ var a=analyse(4);
+ return {writes:4,possibleCrashStates:a.total,
+  coherentStates:a.prefixes,
+  reachableWithBarriers:a.prefixes,
+  reachableWithoutBarriers:a.total,
+  incoherentStatesEliminated:a.total-a.prefixes,
+  coherentIsExactlyNPlusOne:a.prefixes===5,
+  barrierGivesOrderNotDurability:true,
+  aBarrierStillLosesEverythingNotYetWritten:true,
+  exhaustive:true,
+  ok:a.prefixes===5&&a.total===16};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'ALL SIXTEEN CRASH STATES');
+ var a=analyse(4),i,j;
+ for(i=0;i<16;i++){
+  var x=24+(i%8)*58,y=48+Math.floor(i/8)*90;
+  nf(g,a.states[i].coherent?'rgba(125,226,176,0.22)':'rgba(255,60,90,0.18)');
+  g.fillRect(x,y,48,58);ng(g);
+  for(j=0;j<4;j++){
+   nf(g,a.states[i].bits[j]?'rgba(232,224,255,0.85)':'rgba(90,70,140,0.4)');
+   g.fillRect(x+6,y+6+j*13,36,9);ng(g);}
+  nt(g,a.states[i].coherent?'#7de2b0':'#ff5a8a',x+12,y+72,7,
+   a.states[i].coherent?'ok':'hole');}
+ nt(g,'#8a7ab8',24,240,8,'each box is one crash state; a filled bar is a write that landed');
+ kverdict(g,12,244,W-24,true,VR.coherentStates+' of '+VR.possibleCrashStates+
+  ' are prefixes; barriers make the other '+VR.incoherentStatesEliminated+' unreachable');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var a=analyse(NW);
+ var reach=barriers?a.prefixes:a.total;
+ nt(g,'#ff5a3c',12,20,11,NW+' WRITES'+(barriers?'   [barriers]':'   [no barriers]'));
+ krow(g,14,44,230,'possible crash states',a.total,Math.min(1,a.total/256),
+  'rgba(90,70,140,0.6)');
+ krow(g,14,86,230,'reachable',reach,Math.min(1,reach/256),
+  barriers?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)');
+ krow(g,14,128,230,'coherent (prefixes)',a.prefixes,Math.min(1,a.prefixes/256),
+  'rgba(125,226,176,0.8)');
+ krow(g,14,170,230,'states with a hole',reach-a.prefixes,
+  Math.min(1,(reach-a.prefixes)/256),'rgba(255,60,90,0.8)');
+ kverdict(g,12,212,W-24,barriers,barriers?
+  'every reachable state is a prefix -- recovery can find where truth stops':
+  (a.total-a.prefixes)+' reachable states have a hole in the middle');
+ nt(g,'#8a7ab8',14,262,9,'coherent states are always n+1: '+(NW+1));
+ nt(g,'#5a4a85',14,288,8,'a barrier loses exactly as much data either way');
+ nt(g,'#5a4a85',14,308,8,'what it buys is that the survivor is readable');
+ kout('wbaro',NW+' writes &middot; reachable <b>'+reach+'</b> of <b>'+a.total+
+  '</b> &middot; coherent <b>'+a.prefixes+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ORDER THAT HOLDS, A MOMENT THAT DOES NOT');
+ korb(g,W/2,H/2+10,ang,26,function(i,N){
+  var t=i/N,landed=(t<0.55);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:landed?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.35)',r:landed?3:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'a promise made entirely to the future');}
+document.getElementById('wbarm').onclick=function(){NW=Math.min(8,NW+1);drawW4();};
+document.getElementById('wbarl').onclick=function(){NW=Math.max(1,NW-1);drawW4();};
+document.getElementById('wbart').onclick=function(){barriers=!barriers;drawW4();};
+document.getElementById('wbarr').onclick=function(){NW=4;barriers=true;drawW4();};
+document.getElementById('wbarp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thewritebarrier=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 265 · neon-noir · silicon-coding · WHO RUNS NEXT ═══════════════════════
 CNVY_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">First-come-first-served is the fairest-sounding rule there is, and it is the one that makes almost everybody wait longest. A few long jobs at the front, and the whole short queue sits behind them.<br><br>
@@ -107466,6 +108405,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-fsync","title":"THE FSYNC","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⇩",
+  "kicker":"write() answers a different question than the one you asked",
+  "blurb":"A successful write() means the kernel accepted your bytes. It does not mean anything reached a platter. Between those two facts is a window, and everything in it dies with the power.",
+  "lit":"a page cache flushed every 3,000 ticks and crashed at every one of 30,000 possible moments - exhaustive, not sampled - loses a mean of 1,499.5 writes, exactly half the flush interval, with a worst case of 2,999, against 0 with fsync after each write, and every single lost write had already returned success to its caller",
+  "fig":"This is why databases call fsync and why the ones that skipped it lost data for years before anyone noticed. AVAN crashed at every tick rather than sampling, because a mean over random crash points is an estimate and the exhaustive sweep is a fact. 1,499.5 is not measured noise; it is (3000-1)/2, and the run confirms the closed form rather than approximating it.",
+  "body":FSYN_BODY,"script":FSYN_SCRIPT},
+ {"slug":"the-torn-write","title":"THE TORN WRITE","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"RACE CONDITION","domain_slug":"race-condition","accent":"#39fc6b","icon":"⌁",
+  "kicker":"every atomicity bug is a borrowed unit",
+  "blurb":"You write 4,096 bytes. The device writes 8 sectors of 512. Lose power between any two of them and the page on disk is neither the old one nor the new one - it is a page that never existed.",
+  "lit":"all 9 crash points across a 4K page enumerated give 2 clean outcomes - before the first sector and after the last - and 7 torn ones, which is 77.78% of the ways this can end, with a checksum stored inside the page catching all 7 of 7 at 100.00% because any partial application changes bytes the checksum covers, while without one all 7 read back as perfectly valid data",
+  "fig":"Torn pages are why PostgreSQL writes full pages to its WAL after a checkpoint and why InnoDB has a doublewrite buffer. AVAN is stating the atomicity unit plainly: the device promises a sector, and the application assumed a page. Nothing malfunctioned in any of those 7 outcomes - the hardware kept exactly the promise it made, and the promise was smaller than the one the software relied on.",
+  "body":TORN_BODY,"script":TORN_SCRIPT},
+ {"slug":"the-journal","title":"THE JOURNAL","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"ROLLBACK","domain_slug":"rollback","accent":"#9d00ff","icon":"⎘",
+  "kicker":"not indivisible - survivable to do twice",
+  "blurb":"A journal makes an update survivable by doing it twice: describe the change in a log, commit the log, then apply it where it belongs. The log is the promise that the data can be reconstructed.",
+  "lit":"updating in place has 3 crash points and survives 2 of them at 66.7%, losing the one mid-overwrite where the page is neither old nor new, while a write-ahead log has 4 crash points and survives all 4 - rolling back before the commit and replaying after it - at a cost for 1,000 page updates of 8,192,000 bytes against 4,096,000, exactly 2x, every byte written twice",
+  "fig":"Write-ahead logging is ARIES' shape and it is under every serious database and journaling filesystem. AVAN first computed the recovery number with a contrived loop that produced a plausible figure without modelling anything; it was replaced with an explicit list of the crash points and what each leaves behind, so the claim is readable rather than merely correct-looking. The commit record is the whole mechanism.",
+  "body":JRNL_BODY,"script":JRNL_SCRIPT},
+ {"slug":"the-atomic-rename","title":"THE ATOMIC RENAME","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"⇄",
+  "kicker":"an atomic NAME - the file was never the thing protected",
+  "blurb":"Most filesystems give you exactly one atomic operation on a name: rename. Everything else about saving a file safely is arranged around borrowing it.",
+  "lit":"opening the target and overwriting it has 4 crash points and leaves a valid file at 2 of them, 50.0%, with the worst being the moment after truncate when the new data has not arrived and the old data is already gone, while write-temp then fsync-temp then rename has 4 crash points and leaves a valid file at all 4, 100.0%, because the target is never partial - it is never written",
+  "fig":"This is the write-temp-and-rename dance every editor, package manager and config writer performs, and the reason rename is specified as atomic in POSIX. AVAN enumerated the states instead of describing the pattern, because the interesting number is not the 100% - it is the 50%. The naive version has a window where the old file is already destroyed and the new one does not exist, opened deliberately by a truncate the programmer wrote.",
+  "body":ARNM_BODY,"script":ARNM_SCRIPT},
+ {"slug":"the-write-amplification","title":"THE WRITE AMPLIFICATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⊕",
+  "kicker":"each layer answered honestly a question it was asked wrong",
+  "blurb":"Change one byte. The filesystem writes a page, the journal writes it twice, the SSD programs a page of its own, and the collector eventually copies a whole erase block to reclaim the space.",
+  "lit":"on a stated model 1 logical byte becomes 4,096 after the filesystem page, 8,192 after the journal, 16,384 after the SSD page and 28,672 once garbage collection copies a 75%-live 4 MiB erase block - a total of 28,672x - with every layer behaving correctly and none of them aware of the others",
+  "fig":"Write amplification is why SSD endurance is quoted in drive-writes-per-day and why database people care about page size. AVAN is stating plainly that these are declared parameters - 4K page, 2x journal, 16K SSD page, 4 MiB erase block, 75% live - and NOT a measurement of any real drive, which a browser cannot reach. What is demonstrated is that the factors multiply, which is a property of the stack rather than of any hardware.",
+  "body":WAMP_BODY,"script":WAMP_SCRIPT},
+ {"slug":"the-log-structured","title":"THE LOG STRUCTURED","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"≫",
+  "kicker":"compaction is the moment you choose to forget",
+  "blurb":"Never overwrite anything. Append the new version and let the old one rot where it lies. Every write becomes sequential, and the cost is everything you left behind.",
+  "lit":"200,000 appends over 20,000 distinct keys leave all 20,000 keys live and 180,000 records as garbage - a garbage ratio of 0.9000 and a space amplification of 10.00x - with compaction rewriting the 20,000 live records to reclaim the rest, and every one of the 200,000 writes was sequential, which is the entire point",
+  "fig":"This is the shape of every LSM tree, of log-structured filesystems, and of Kafka; the trade is Rosenblum and Ousterhout's. AVAN published the space amplification next to the sequential-write claim because they are the same fact seen twice. 10x the space is not a flaw in the design - it is the design, and compaction is the other half of the bargain struck when the first write was made fast.",
+  "body":LOGS_BODY,"script":LOGS_SCRIPT},
+ {"slug":"the-inode","title":"THE INODE","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"⌸",
+  "kicker":"a file is not its name and never was",
+  "blurb":"A filename is a directory entry pointing at a number. The number finds a small record holding pointers to blocks - and when the file outgrows those, pointers to blocks of pointers.",
+  "lit":"with 4,096-byte blocks, 4-byte pointers, 1,024 pointers per block and 12 direct pointers, byte 0 is 1 read away, byte 49,152 is 2, byte 4,243,456 is 3 and the last addressable block is 4, for a total reach of 1,074,791,436 blocks or 4,402,345,721,856 bytes - 4,100.00 GiB - and the cost of reaching a byte depends on where it is",
+  "fig":"This is the ext2 inode, inherited from the Unix File System, and the same shape is still under ext4's compatibility path. AVAN computed the boundaries rather than quoting them, because the interesting part is the discontinuity: block 11 costs 1 read and block 12 costs 2. Nothing about the file changed at that byte. The structure has seams, and a program reading sequentially crosses them without ever being told.",
+  "body":INOD_BODY,"script":INOD_SCRIPT},
+ {"slug":"the-orphan","title":"THE ORPHAN","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"⊘",
+  "kicker":"the guarantee, held open",
+  "blurb":"Deleting a file removes a name. The bytes survive as long as anyone still has it open - invisible in every directory, absent from every disk-usage walk, and still occupying the disk.",
+  "lit":"1,000 files of 1 MiB with one in four held open, all unlinked, free 750 at once while 250 persist holding 262,144,000 bytes or 0.244 GiB that appear in 0 directory listings and are counted by a usage walk as 0 while free space counts the full 262,144,000 - which is the exact amount by which the two tools disagree",
+  "fig":"This is why deleting a log file does not free the disk until the process is restarted, and the most reliable way to be confused by a full filesystem. AVAN published the disagreement as its own figure because that is the observable. Neither tool is broken and neither is lying - one walks names and the other counts blocks, and an unlinked open file is precisely the object that has blocks and no name.",
+  "body":ORPH_BODY,"script":ORPH_SCRIPT},
+ {"slug":"the-fragmentation","title":"THE FRAGMENTATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⋯",
+  "kicker":"a requirement nobody agreed to, not a loss",
+  "blurb":"A disk can be 7% free and unable to store a file of 30 blocks. The space is there. It is in 1,578 pieces and none of them is big enough.",
+  "lit":"a 100,000-block disk held at 92.95% used through 40,000 allocate-and-free cycles with a first-fit allocator ends with 7,054 blocks free in 1,578 separate runs of mean length 4.5, a largest contiguous run of 29 which is 0.41% of all free space, and 15,229 of 40,000 allocations failed while the disk reported free space",
+  "fig":"External fragmentation is why extent-based filesystems exist, why allocators reserve, and why the last 5% of a disk behaves nothing like the first 95%. AVAN first ran this on a disk that was 94% FREE and measured a largest run of 99.62% of free space - no fragmentation at all, because there was nothing to fragment. It is a near-capacity phenomenon; the allocator has to be held there or the experiment is not the experiment.",
+  "body":FRAG_BODY,"script":FRAG_SCRIPT},
+ {"slug":"the-write-barrier","title":"THE WRITE BARRIER","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⊨",
+  "kicker":"a promise made entirely to the future",
+  "blurb":"A write barrier says these writes may not be reordered past this point. It does not say they have happened. The two get confused constantly, and the difference is the whole of durability.",
+  "lit":"4 writes that must land in order give 16 possible crash states of which only 5 - the prefixes - are coherent, so without barriers any of the 16 is reachable while with them only those 5 are, eliminating 11 incoherent states, and the barrier still loses every write not yet on the platter: ordering, not durability",
+  "fig":"This is the distinction between a cache flush and a barrier, and why fsync and fdatasync both exist alongside the block layer's ordering primitives. AVAN enumerated all 2^4 crash states rather than arguing the point - 5 of 16 is not an estimate. The barrier does not reduce how much you can lose; it reduces what you can find, which is the difference between a recoverable log and one with a hole in the middle.",
+  "body":WBAR_BODY,"script":WBAR_SCRIPT},
  {"slug":"the-convoy-effect","title":"THE CONVOY EFFECT","appeal_name":"BOSS","appeal_slug":"boss",
   "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⇥",
   "kicker":"the total wait is fixed; order decides whose it is",

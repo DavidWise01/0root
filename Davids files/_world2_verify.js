@@ -20,16 +20,35 @@ const W2 = path.join(__dirname, 'ud0', 'world2');
 // The convention every sphere follows: window.__ + the slug with dashes removed.
 const globalFor = (slug) => '__' + slug.replace(/-/g, '');
 
+// "4K page" and "1 MiB" are magnitudes written in shorthand. Read literally the
+// checker looked for 4 and 1, found neither, and failed two spheres whose real
+// values (4096, 1048576) were both present. Resolving the suffix is not a
+// loosening -- it is a STRONGER check: a page called "4K" whose object says 8192
+// now fails, where before neither form was tested at all.
+const UNIT = { k: 1024, kb: 1024, kib: 1024,
+               m: 1048576, mb: 1048576, mib: 1048576,
+               g: 1073741824, gb: 1073741824, gib: 1073741824 };
+
 function numsIn(s) {
   // A hyphen inside a NAME ("CRC-8", "UTF-8") is not a minus sign, and a number
   // over a NON-number is a formula ("1/sqrt(N)"), not a measurement. "10 / 20"
   // is digits both sides and stays.
   const raw = [...s.matchAll(
     /(?<![A-Za-z])(?<![A-Za-z]-)-?\d[\d,]*\.?\d*(?:e-?\d+)?(\s*\/\s*)?/gi)];
-  return raw
-    .filter(m => !(m[1] && !/^\s*\d/.test(s.slice(m.index + m[0].length))))
-    .map(m => m[0].replace(/[,\s\/]/g, ''))
-    .map(Number).filter(n => !Number.isNaN(n));
+  const out = [];
+  for (const m of raw) {
+    if (m[1] && !/^\s*\d/.test(s.slice(m.index + m[0].length))) continue;
+    const n = Number(m[0].replace(/[,\s\/]/g, ''));
+    if (Number.isNaN(n)) continue;
+    // a unit suffix immediately after turns the token into a magnitude
+    const after = s.slice(m.index + m[0].length).match(/^\s?([KMG]i?B?)(?![A-Za-z])/);
+    if (after) {
+      const mult = UNIT[after[1].toLowerCase()];
+      if (mult) { out.push(n * mult); continue; }
+    }
+    out.push(n);
+  }
+  return out;
 }
 
 function flat(o, out) {
