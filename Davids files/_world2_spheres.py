@@ -33334,6 +33334,943 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 267 · neon-noir · silicon-coding · THE SHARED WIRE ═══════════════════════
+SSTA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A new connection knows nothing about the path it is on. Slow start finds out by doubling every round trip until something breaks. The name describes where it begins, not how fast it moves.<br><br>
+ <span class="lit">LIT</span> verified live. A pipe holding <b>1,000</b> packets is filled in <b>10</b> round trips by doubling; probing one packet at a time would take <b>1,000</b> &mdash; <b>100.0&times;</b> longer. The window at exit is <b>1,024</b>, so the last doubling overshoots the pipe by <b>24</b> packets, <b>2.4%</b>. Finding the limit cost <b>1,023</b> packets sent, which is one less than the window it arrived at.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Slow start is <b>Van Jacobson</b>&rsquo;s, from the 1988 response to the NSFNET congestion collapses.<br><br>
+ <b>AVAN (AI)</b> published the overshoot next to the speed because they are the same mechanism. Doubling cannot find a limit without crossing it &mdash; the algorithm learns the capacity by exceeding it once, and every connection you open pays that <b>2.4%</b> to discover a number the network already knew.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Doubling against probing, to the same pipe.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the pipe and count the round trips.</div>
+   <div class="btns" style="margin-top:10px"><button id="sstam">bigger pipe &#9654;</button><button id="sstal">smaller</button><button id="sstar">reset</button></div>
+   <div class="cap" id="sstao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a doubling that has to overshoot.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that slow start finds the capacity quickly. The inverse is that <b>it never finds the capacity at all &mdash; it finds the first thing that broke</b>. Loss is the only signal, so what the algorithm learns is the location of a boundary, not its size, and a link that drops for any other reason teaches it a number that was never about congestion. Read backwards, every connection begins by asking a question it can only get one kind of answer to, and then treats that answer as the truth about the path.</div>
+   <div class="btns" style="margin-top:10px"><button id="sstap">pause spin</button></div></div></div></div>"""
+SSTA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,bdp=1000;
+function probe(B){
+ var cwnd=1,rtts=0,sent=0,trace=[];
+ while(cwnd<B&&rtts<64){trace.push(cwnd);sent+=cwnd;cwnd*=2;rtts++;}
+ return {rtts:rtts,exit:cwnd,sent:sent,trace:trace,over:cwnd-B};}
+function selftest(){
+ var m=probe(1000);
+ return {bdpPackets:1000,
+  slowStartRtts:m.rtts,linearProbeRtts:1000,
+  speedup:+(1000/m.rtts).toFixed(1),
+  cwndAtExit:m.exit,
+  overshootPackets:m.over,
+  overshootPct:+(100*m.over/1000).toFixed(1),
+  packetsSentDuringProbe:m.sent,
+  doublingCannotFindALimitWithoutCrossingIt:true,
+  ok:m.rtts<1000&&m.exit>=1000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'DOUBLING AGAINST PROBING');
+ var t=VR,i;
+ for(i=0;i<t.slowStartRtts;i++){
+  var h=Math.round(150*Math.log(Math.pow(2,i)+1)/Math.log(1025));
+  nf(g,'rgba(90,208,255,0.75)');g.fillRect(30+i*44,196-h,32,h);ng(g);
+  nt(g,'#5a4a85',36+i*44,212,7,'r'+i);}
+ ne(g,'rgba(255,210,63,0.9)',2);g.beginPath();
+ var yb=196-Math.round(150*Math.log(1001)/Math.log(1025));
+ g.moveTo(24,yb);g.lineTo(478,yb);g.stroke();ng(g);
+ nt(g,'#ffd76a',400,yb-6,8,'the pipe: 1,000');
+ nt(g,'#8a7ab8',30,232,8,'log-scaled window, one bar per round trip');
+ nt(g,'#7de2b0',30,250,9,VR.slowStartRtts+' round trips, against '+
+  VR.linearProbeRtts.toLocaleString()+' for one-at-a-time');
+ kverdict(g,12,254,W-24,true,'exits at '+VR.cwndAtExit.toLocaleString()+
+  ' -- overshooting by '+VR.overshootPackets+' packets, '+VR.overshootPct+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=probe(bdp);
+ nt(g,'#5ad0ff',12,20,11,'PIPE '+bdp.toLocaleString()+' PACKETS');
+ kcurve(g,14,40,340,90,Math.max(1,m.trace.length-1),function(x){
+  return Math.log(m.trace[Math.round(x*(m.trace.length-1))]+1);},
+  'rgba(90,208,255,0.9)',2.5);
+ nt(g,'#8a7ab8',14,146,8,'the congestion window, doubling each round trip');
+ krow(g,14,164,230,'round trips',m.rtts,m.rtts/24,'rgba(125,226,176,0.8)');
+ krow(g,14,206,230,'window at exit',m.exit,Math.min(1,m.exit/70000),
+  'rgba(90,208,255,0.75)');
+ krow(g,14,248,230,'overshoot %',+(100*m.over/bdp).toFixed(1),
+  (m.over/bdp),'rgba(255,60,90,0.8)');
+ kverdict(g,12,290,W-24,false,'the limit is learned by crossing it -- '+
+  m.over.toLocaleString()+' packets past the pipe');
+ kout('sstao','pipe <b>'+bdp.toLocaleString()+'</b> &middot; <b>'+m.rtts+
+  '</b> RTTs &middot; overshoot <b>'+m.over.toLocaleString()+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A DOUBLING THAT HAS TO OVERSHOOT');
+ korb(g,W/2,H/2+10,ang,40,function(i,N){
+  var t=i/N,past=(t>0.86);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:-40*t*t,
+   c:past?'rgba(255,60,90,0.85)':'rgba(90,208,255,0.7)',r:1.6+t*3};});
+ nt(g,'#8a7ab8',12,H-22,8,'it finds the first thing that broke, not the capacity');}
+document.getElementById('sstam').onclick=function(){bdp=Math.min(1000000,bdp*4);drawW4();};
+document.getElementById('sstal').onclick=function(){bdp=Math.max(4,Math.floor(bdp/4));drawW4();};
+document.getElementById('sstar').onclick=function(){bdp=1000;drawW4();};
+document.getElementById('sstap').onclick=function(){spin=!spin;};
+VR=selftest();window.__theslowstart=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+AIMD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Add one on success, halve on loss. That asymmetry is not a tuning choice &mdash; it is the only combination that converges to a fair share from any starting point, and it costs a quarter of the link to get there.<br><br>
+ <span class="lit">LIT</span> verified live. Capacity <b>100</b>, run over <b>4,000</b> ticks, <b>77</b> sawtooth cycles. The mean window is <b>74.49</b>: utilisation <b>0.7449</b> against the <b>0.75</b> the geometry predicts, since a sawtooth between <b>C/2</b> and <b>C</b> averages three quarters of <b>C</b>. The idle quarter is not waste &mdash; it is the room the next flow needs in order to be able to arrive.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The convergence result is <b>Chiu and Jain</b> (1989): additive-increase multiplicative-decrease moves any pair of flows toward the fair line, and no other combination of linear rules does.<br><br>
+ <b>AVAN (AI)</b> measured the utilisation and compared it to the closed form rather than reporting one or the other. <b>0.7449</b> against <b>0.75</b> is the sawtooth confirming its own geometry, which is a stronger statement than either number alone.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">The sawtooth, and the quarter it leaves.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the rules and watch the shape.</div>
+   <div class="btns" style="margin-top:10px"><button id="aimdd">gentler decrease &#9654;</button><button id="aimdh">harsher</button><button id="aimdi">faster increase</button><button id="aimdr">reset</button></div>
+   <div class="cap" id="aimdo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a saw that cuts toward fairness.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that AIMD converges to fairness. The inverse is that <b>it converges to fairness between flows that are running it</b>. The whole result assumes every participant obeys the same rule, and nothing on the wire enforces that &mdash; a flow that halves less, or does not halve, simply wins. Read backwards, the fairness of the internet is not a property of the network; it is a convention held voluntarily by the endpoints, and it has always been one implementation away from ending.</div>
+   <div class="btns" style="margin-top:10px"><button id="aimdp">pause spin</button></div></div></div></div>"""
+AIMD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,dec=0.5,inc=1;
+function run(d,a){
+ var C=100,w=10,T=4000,sum=0,peaks=0,trace=[],t;
+ for(t=0;t<T;t++){
+  if(w>=C){peaks++;w=w*d;}
+  else w+=a;
+  sum+=Math.min(w,C);
+  if(t%20===0)trace.push(Math.min(w,C));}
+ return {C:C,T:T,mean:sum/T,util:sum/T/C,peaks:peaks,trace:trace};}
+function selftest(){
+ var m=run(0.5,1);
+ return {capacity:m.C,ticks:m.T,sawtoothCycles:m.peaks,
+  meanWindow:+m.mean.toFixed(2),
+  utilisation:+m.util.toFixed(4),
+  predictedByGeometry:0.75,
+  matchesGeometry:Math.abs(m.util-0.75)<0.02,
+  theIdleQuarterIsRoomForTheNextFlow:true,
+  ok:m.util>0.7&&m.util<0.8&&m.peaks>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'THE SAWTOOTH, AND THE QUARTER IT LEAVES');
+ var m=run(0.5,1);
+ nf(g,'rgba(255,210,63,0.12)');g.fillRect(20,44,460,150);ng(g);
+ kcurve(g,20,44,460,150,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))];},'rgba(0,245,255,0.9)',2);
+ ne(g,'rgba(255,60,90,0.8)',1.5);g.beginPath();
+ g.moveTo(20,44);g.lineTo(480,44);g.stroke();ng(g);
+ nt(g,'#ff5a8a',400,40,8,'capacity 100');
+ ne(g,'rgba(125,226,176,0.7)',1.5);g.beginPath();
+ g.moveTo(20,44+150*0.2551);g.lineTo(480,44+150*0.2551);g.stroke();ng(g);
+ nt(g,'#7de2b0',380,44+150*0.2551-5,8,'mean '+VR.meanWindow);
+ krow(g,20,206,300,'utilisation',VR.utilisation,VR.utilisation,
+  'rgba(0,245,255,0.8)');
+ kverdict(g,12,250,W-24,true,'measured '+VR.utilisation+' against the '+
+  VR.predictedByGeometry+' a C/2-to-C sawtooth predicts');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(dec,inc);
+ nt(g,'#00f5ff',12,20,11,'x'+dec.toFixed(2)+' ON LOSS   +'+inc+' PER RTT');
+ kcurve(g,14,40,340,110,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))];},'rgba(0,245,255,0.9)',2);
+ nt(g,'#8a7ab8',14,166,8,'the window over time');
+ krow(g,14,184,230,'utilisation',+m.util.toFixed(4),m.util,
+  'rgba(0,245,255,0.8)');
+ krow(g,14,226,230,'sawtooth cycles',m.peaks,Math.min(1,m.peaks/400),
+  'rgba(255,210,63,0.7)');
+ krow(g,14,268,230,'mean window',+m.mean.toFixed(2),m.mean/100,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,306,W-24,Math.abs(dec-0.5)<0.01,
+  dec>0.7?'a gentler decrease uses more of the link -- and yields less to anyone else':
+  (dec<0.4?'harsh: fast to yield, poor utilisation':
+   'the standard rule: converges to a fair share from any start'));
+ kout('aimdo','x'+dec.toFixed(2)+' / +'+inc+' &middot; utilisation <b>'+
+  m.util.toFixed(4)+'</b> &middot; cycles <b>'+m.peaks+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SAW THAT CUTS TOWARD FAIRNESS');
+ korb(g,W/2,H/2+10,ang,60,function(i,N){
+  var t=i/N,ph=(i%12)/12;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:-40*ph+20,
+   c:ph>0.9?'rgba(255,60,90,0.8)':'rgba(0,245,255,0.6)',r:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'a convention held voluntarily by the endpoints');}
+document.getElementById('aimdd').onclick=function(){dec=Math.min(0.95,+(dec+0.1).toFixed(2));drawW4();};
+document.getElementById('aimdh').onclick=function(){dec=Math.max(0.1,+(dec-0.1).toFixed(2));drawW4();};
+document.getElementById('aimdi').onclick=function(){inc=inc>=8?1:inc*2;drawW4();};
+document.getElementById('aimdr').onclick=function(){dec=0.5;inc=1;drawW4();};
+document.getElementById('aimdp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theaimd=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+RTTB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two flows run the identical algorithm on the identical link and do not get the identical share. The one with the shorter round trip increases its window more often, and the rule that is fair in steps is not fair in time.<br><br>
+ <span class="lit">LIT</span> verified live. Loss rate <b>0.01</b>, one flow at <b>10</b> ms and one at <b>100</b> ms &mdash; an RTT ratio of <b>10</b>. The closed form predicts a throughput ratio of <b>10.00</b>; simulating both flows on a shared link of capacity <b>200</b> over <b>200,000</b> ticks gives <b>9.91</b>. The near flow takes <b>90.83%</b> of the link and the far flow <b>9.17%</b>, with neither breaking a rule.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">RTT unfairness follows from the square-root throughput law &mdash; rate is inversely proportional to RTT &mdash; and it is why a distant user loses to a nearby one on a congested path.<br><br>
+ <b>AVAN (AI)</b> ran the simulation <i>and</i> the closed form so that neither has to be taken on faith. <b>9.91</b> against <b>10.00</b> is the model and the mechanism agreeing, which is worth more than either printed on its own.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Same rule, same link, different distance.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the far flow further away.</div>
+   <div class="btns" style="margin-top:10px"><button id="rttbf">further &#9654;</button><button id="rttbn">nearer</button><button id="rttbr">reset</button></div>
+   <div class="cap" id="rttbo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same rule, two distances.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that RTT bias is an unfairness in the algorithm. The inverse is that <b>the algorithm has no concept of time and cannot be unfair in it</b>. AIMD is defined per round trip, and a round trip is the only clock it has; measured in its own units the two flows are treated identically. Read backwards, the bias is what appears when a rule written in one frame is judged in another, and the near flow is not cheating &mdash; it is simply being asked more often.</div>
+   <div class="btns" style="margin-top:10px"><button id="rttbp">pause spin</button></div></div></div></div>"""
+RTTB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,far=100;
+var NEAR=10;
+function sim(nr,fr){
+ var C=200,w1=10,w2=10,T=200000,s1=0,s2=0,t;
+ for(t=0;t<T;t++){
+  if(t%nr===0)w1+=1;
+  if(t%fr===0)w2+=1;
+  if(w1+w2>C){w1*=0.5;w2*=0.5;}
+  s1+=w1;s2+=w2;}
+ return {s1:s1,s2:s2,ratio:s1/s2};}
+function selftest(){
+ var m=sim(10,100);
+ var predicted=(1/(10*Math.sqrt(0.01)))/(1/(100*Math.sqrt(0.01)));
+ return {lossRate:0.01,nearRttMs:10,farRttMs:100,rttRatio:10,
+  sharedLinkCapacity:200,ticks:200000,
+  predictedThroughputRatio:+predicted.toFixed(2),
+  simulatedThroughputRatio:+m.ratio.toFixed(2),
+  nearFlowSharePct:+(100*m.s1/(m.s1+m.s2)).toFixed(2),
+  farFlowSharePct:+(100*m.s2/(m.s1+m.s2)).toFixed(2),
+  bothRunTheSameAlgorithm:true,
+  modelAndMechanismAgree:Math.abs(predicted-m.ratio)<0.5,
+  ok:predicted>1&&m.ratio>1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'SAME RULE, SAME LINK, DIFFERENT DISTANCE');
+ nt(g,'#7de2b0',20,48,9,'near flow  -  10 ms round trip');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(20,56,440,28);ng(g);
+ nf(g,'rgba(125,226,176,0.85)');
+ g.fillRect(20,56,Math.round(440*VR.nearFlowSharePct/100),28);ng(g);
+ nt(g,'#e8e0ff',28,75,10,VR.nearFlowSharePct+'%');
+ nt(g,'#ff5a8a',20,112,9,'far flow  -  100 ms round trip');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(20,120,440,28);ng(g);
+ nf(g,'rgba(255,60,90,0.85)');
+ g.fillRect(20,120,Math.round(440*VR.farFlowSharePct/100),28);ng(g);
+ nt(g,'#e8e0ff',28,139,10,VR.farFlowSharePct+'%');
+ krow(g,20,166,300,'simulated ratio',VR.simulatedThroughputRatio,
+  VR.simulatedThroughputRatio/12,'rgba(255,210,63,0.8)');
+ krow(g,20,208,300,'closed form predicts',VR.predictedThroughputRatio,
+  VR.predictedThroughputRatio/12,'rgba(90,208,255,0.7)');
+ kverdict(g,12,250,W-24,true,'the model and the mechanism agree, and neither flow '+
+  'broke a rule');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=sim(NEAR,far);
+ var np=100*m.s1/(m.s1+m.s2);
+ nt(g,'#ffd23f',12,20,11,'10 ms  AGAINST  '+far+' ms');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(14,44,340,34);ng(g);
+ nf(g,'rgba(125,226,176,0.85)');g.fillRect(14,44,Math.round(340*np/100),34);ng(g);
+ nt(g,'#0a0713',22,66,11,np.toFixed(1)+'%');
+ nt(g,'#ff5a8a',300,66,10,(100-np).toFixed(1)+'%');
+ nt(g,'#8a7ab8',14,94,8,'green = the near flow, red = the far one');
+ krow(g,14,112,230,'RTT ratio',far/NEAR,Math.min(1,(far/NEAR)/60),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,154,230,'throughput ratio',+m.ratio.toFixed(2),
+  Math.min(1,m.ratio/60),'rgba(255,210,63,0.8)');
+ krow(g,14,196,230,'far flow share %',+(100-np).toFixed(2),(100-np)/100,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,238,W-24,Math.abs(np-50)<5,
+  Math.abs(np-50)<5?'roughly equal -- the paths are the same length':
+  'the distant flow gets '+(100-np).toFixed(1)+'% while obeying every rule');
+ nt(g,'#5a4a85',14,288,8,'AIMD is defined per round trip -- that is its only clock');
+ nt(g,'#5a4a85',14,308,8,'the near flow is simply asked more often');
+ kout('rttbo',far+' ms &middot; ratio <b>'+m.ratio.toFixed(2)+
+  '</b> &middot; far flow <b>'+(100-np).toFixed(2)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE SAME RULE, TWO DISTANCES');
+ kring(g,W/2,H/2+10,ang*3,10,46,-20,'rgba(125,226,176,0.85)',3.4);
+ kring(g,W/2,H/2+10,ang*0.3,10,100,20,'rgba(255,60,90,0.6)',2.6);
+ nt(g,'#8a7ab8',12,H-22,8,'a rule written in one frame, judged in another');}
+document.getElementById('rttbf').onclick=function(){far=Math.min(600,far+50);drawW4();};
+document.getElementById('rttbn').onclick=function(){far=Math.max(10,far-50);drawW4();};
+document.getElementById('rttbr').onclick=function(){far=100;drawW4();};
+document.getElementById('rttbp').onclick=function(){spin=!spin;};
+VR=selftest();window.__therttbias=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+INCA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">One request fans out to many servers and they all answer at once. The replies meet at a single switch port with a small buffer, and past a certain number of senders the answers stop arriving faster the more of them there are.<br><br>
+ <span class="lit">LIT</span> verified live. A buffer of <b>64</b> packets, each sender contributing <b>8</b>. Up to <b>8</b> senders everything is delivered. At <b>16</b> senders <b>128</b> packets are offered and <b>64</b> dropped &mdash; goodput <b>50.0%</b>. At <b>64</b> senders, <b>512</b> offered, <b>448</b> dropped, and still exactly <b>64</b> delivered: goodput <b>12.5%</b>. Delivered is pinned at the buffer while offered grows without limit.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">TCP incast is the pathology of partition-aggregate workloads &mdash; distributed storage, search fan-out, MapReduce shuffles &mdash; and it is why datacentre TCP variants exist at all.<br><br>
+ <b>AVAN (AI)</b> shows the delivered column staying flat because that is the whole shape of the failure. Adding servers adds offered load and adds nothing to what arrives; the parallelism is real and the delivery is capped by a buffer that has no idea a fan-out is happening.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Senders against what actually arrives.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add senders, or add buffer.</div>
+   <div class="btns" style="margin-top:10px"><button id="incam">more senders &#9654;</button><button id="incal">fewer</button><button id="incab">bigger buffer</button><button id="incar">reset</button></div>
+   <div class="cap" id="incao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: many answers, one door.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that incast is a buffer being overwhelmed. The inverse is that <b>the synchronisation is the cause, and the synchronisation is what you asked for</b>. These senders all reply at once because they were all asked at once, which is the entire benefit of the fan-out. Read backwards, incast is not a flaw in the network but the shadow of a design decision made above it &mdash; parallelism converted into simultaneity, arriving somewhere that can only do one thing at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="incap">pause spin</button></div></div></div></div>"""
+INCA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,senders=16,buf=64;
+var S=8;
+function calc(N,B){
+ var offered=N*S,dropped=Math.max(0,offered-B),delivered=offered-dropped;
+ return {senders:N,offered:offered,dropped:dropped,delivered:delivered,
+  goodput:100*delivered/offered};}
+function selftest(){
+ var rows=[],N;
+ for(N=1;N<=64;N*=2)rows.push(calc(N,64));
+ var first=rows.filter(function(r){return r.dropped>0;})[0];
+ var worst=rows[rows.length-1];
+ return {bufferPackets:64,packetsPerSender:S,
+  rows:rows.map(function(r){return {senders:r.senders,offered:r.offered,
+   dropped:r.dropped,delivered:r.delivered,goodputPct:+r.goodput.toFixed(1)};}),
+  firstCollapseAtSenders:first.senders,
+  goodputAtFirstCollapsePct:+first.goodput.toFixed(1),
+  worstSenders:worst.senders,worstOffered:worst.offered,
+  worstDropped:worst.dropped,worstDelivered:worst.delivered,
+  worstGoodputPct:+worst.goodput.toFixed(1),
+  deliveredIsPinnedAtTheBuffer:worst.delivered===64,
+  ok:worst.goodput<100&&worst.delivered===64};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'SENDERS AGAINST WHAT ACTUALLY ARRIVES');
+ var R=VR.rows,i,mx=R[R.length-1].offered;
+ for(i=0;i<R.length;i++){
+  var x=34+i*66,ho=Math.round(160*R[i].offered/mx),
+      hd=Math.round(160*R[i].delivered/mx);
+  nf(g,'rgba(255,60,90,0.45)');g.fillRect(x,200-ho,24,ho);ng(g);
+  nf(g,'rgba(125,226,176,0.9)');g.fillRect(x+26,200-hd,24,hd);ng(g);
+  nt(g,'#5a4a85',x+6,216,7,''+R[i].senders);}
+ nt(g,'#ff5a8a',34,236,8,'red = offered');
+ nt(g,'#7de2b0',140,236,8,'green = delivered (flat from 8 senders on)');
+ kverdict(g,12,246,W-24,false,'at '+VR.worstSenders+' senders: '+VR.worstOffered+
+  ' offered, '+VR.worstDropped+' dropped, '+VR.worstDelivered+
+  ' delivered -- goodput '+VR.worstGoodputPct+'%');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=calc(senders,buf);
+ nt(g,'#5ad0ff',12,20,11,senders+' SENDERS   BUFFER '+buf);
+ var i,show=Math.min(senders,32);
+ for(i=0;i<show;i++){
+  var col=i%8,row=Math.floor(i/8);
+  nf(g,'rgba(90,208,255,0.7)');
+  g.fillRect(14+col*42,40+row*22,34,16);ng(g);}
+ nt(g,'#8a7ab8',14,40+Math.ceil(show/8)*22+12,8,
+  'each block is a sender answering at the same moment');
+ krow(g,14,130,230,'offered',m.offered,Math.min(1,m.offered/600),
+  'rgba(255,60,90,0.75)');
+ krow(g,14,172,230,'delivered',m.delivered,Math.min(1,m.delivered/600),
+  'rgba(125,226,176,0.85)');
+ krow(g,14,214,230,'dropped',m.dropped,Math.min(1,m.dropped/600),
+  'rgba(255,60,90,0.85)');
+ krow(g,14,256,230,'goodput %',+m.goodput.toFixed(1),m.goodput/100,
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,298,W-24,m.dropped===0,m.dropped===0?
+  'everything fits':'delivered is pinned at the buffer; more senders add only loss');
+ kout('incao',senders+' senders &middot; offered <b>'+m.offered+
+  '</b> &middot; delivered <b>'+m.delivered+'</b> &middot; goodput <b>'+
+  m.goodput.toFixed(1)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'MANY ANSWERS, ONE DOOR');
+ ndot(g,W/2,H/2+40,8,'rgba(255,210,63,0.9)');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*110,z:Math.sin(t)*70,y:-40,
+   c:'rgba(90,208,255,0.75)',r:3};});
+ nt(g,'#8a7ab8',12,H-22,8,'parallelism converted into simultaneity');}
+document.getElementById('incam').onclick=function(){senders=Math.min(512,senders*2);drawW4();};
+document.getElementById('incal').onclick=function(){senders=Math.max(1,Math.floor(senders/2));drawW4();};
+document.getElementById('incab').onclick=function(){buf=buf>=1024?32:buf*2;drawW4();};
+document.getElementById('incar').onclick=function(){senders=16;buf=64;drawW4();};
+document.getElementById('incap').onclick=function(){spin=!spin;};
+VR=selftest();window.__theincast=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FRTX_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">When a packet is lost the receiver keeps acknowledging the last thing it got in order. Three of those duplicates are enough to act on &mdash; without them the sender waits out a timeout sized for the worst case.<br><br>
+ <span class="lit">LIT</span> verified live. <b>10,000</b> packets at <b>1%</b> loss give <b>109</b> losses. With a round trip of <b>100</b> ms and a timeout of <b>300</b> ms, waiting for the timeout every time costs <b>32,700</b> ms of stall. Acting on three duplicate acknowledgements costs <b>10,900</b> ms &mdash; <b>21,800</b> ms saved, a factor of <b>3.00</b>. It needs three more packets to arrive, which at the end of a transfer never happens.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Fast retransmit and fast recovery are Jacobson&rsquo;s too, and the <b>3</b> is a threshold chosen to distinguish loss from mere reordering.<br><br>
+ <b>AVAN (AI)</b> published the precondition next to the saving because the saving is conditional on it. The mechanism is <b>3.00&times;</b> faster exactly when there is more data behind the loss, and worth nothing at all for the last packets of a flow &mdash; which is where a short transfer spends most of its life.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two ways to notice the same loss.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the loss rate and the timeout.</div>
+   <div class="btns" style="margin-top:10px"><button id="frtxm">more loss &#9654;</button><button id="frtxl">less</button><button id="frtxt">longer timeout</button><button id="frtxr">reset</button></div>
+   <div class="cap" id="frtxo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: three echoes of the same gap.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that duplicate acknowledgements are a faster loss signal. The inverse is that <b>they are the receiver saying the same true thing repeatedly, and the meaning is entirely in the repetition</b>. Each duplicate carries no new information &mdash; it reports the identical sequence number the sender already had. Read backwards, the signal is not in any message but in the fact that there are three of them, which is the only kind of signal available to a receiver with nothing new to report.</div>
+   <div class="btns" style="margin-top:10px"><button id="frtxp">pause spin</button></div></div></div></div>"""
+FRTX_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,loss=0.01,rto=300;
+var RTT=100,PKTS=10000;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(p,timeout){
+ var r=rng(31),lost=0,i;
+ for(i=0;i<PKTS;i++)if(r()<p)lost++;
+ return {lost:lost,timeoutMs:lost*timeout,fastMs:lost*RTT};}
+function selftest(){
+ var m=run(0.01,300);
+ return {packets:PKTS,lossRate:0.01,lostPackets:m.lost,
+  rttMs:RTT,rtoMs:300,
+  timeoutOnlyStallMs:m.timeoutMs,fastRetransmitStallMs:m.fastMs,
+  savedMs:m.timeoutMs-m.fastMs,
+  speedup:+(m.timeoutMs/m.fastMs).toFixed(2),
+  needsThreeMorePacketsToArrive:true,
+  worthlessAtTheEndOfAFlow:true,
+  ok:m.fastMs<m.timeoutMs&&m.lost>0};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'TWO WAYS TO NOTICE THE SAME LOSS');
+ nt(g,'#ff5a8a',20,46,9,'wait for the timeout  -  300 ms each');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(20,54,440,26);ng(g);
+ nf(g,'rgba(255,60,90,0.8)');g.fillRect(20,54,440,26);ng(g);
+ nt(g,'#e8e0ff',28,72,9,VR.timeoutOnlyStallMs.toLocaleString()+' ms');
+ nt(g,'#7de2b0',20,108,9,'three duplicate acks  -  100 ms each');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(20,116,440,26);ng(g);
+ nf(g,'rgba(125,226,176,0.85)');
+ g.fillRect(20,116,Math.round(440*VR.fastRetransmitStallMs/VR.timeoutOnlyStallMs),26);ng(g);
+ nt(g,'#e8e0ff',28,134,9,VR.fastRetransmitStallMs.toLocaleString()+' ms');
+ krow(g,20,158,300,'ms saved',VR.savedMs,VR.savedMs/34000,
+  'rgba(255,210,63,0.8)');
+ krow(g,20,200,300,'losses in 10,000 packets',VR.lostPackets,
+  VR.lostPackets/200,'rgba(90,208,255,0.7)');
+ kverdict(g,12,244,W-24,true,VR.speedup+'x faster -- and it needs three more '+
+  'packets to arrive, which at the end of a transfer never happens');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(loss,rto);
+ nt(g,'#00f5ff',12,20,11,'LOSS '+(loss*100).toFixed(1)+'%   RTO '+rto+' ms');
+ var i;
+ for(i=0;i<80;i++){
+  var isLoss=(i%Math.max(2,Math.round(1/loss/12))===0);
+  nf(g,isLoss?'rgba(255,60,90,0.85)':'rgba(125,226,176,0.55)');
+  g.fillRect(14+i*4.3,44,3.4,26);ng(g);}
+ nt(g,'#8a7ab8',14,86,8,'red = a lost packet');
+ krow(g,14,104,230,'lost packets',m.lost,Math.min(1,m.lost/1200),
+  'rgba(255,60,90,0.8)');
+ krow(g,14,146,230,'timeout stall ms',m.timeoutMs,Math.min(1,m.timeoutMs/400000),
+  'rgba(255,60,90,0.75)');
+ krow(g,14,188,230,'fast retransmit ms',m.fastMs,Math.min(1,m.fastMs/400000),
+  'rgba(125,226,176,0.8)');
+ krow(g,14,230,230,'speedup',+(m.timeoutMs/m.fastMs).toFixed(2),
+  Math.min(1,(m.timeoutMs/m.fastMs)/12),'rgba(255,210,63,0.75)');
+ kverdict(g,12,272,W-24,true,'a longer timeout does not change the loss -- '+
+  'only how long you sit not knowing');
+ kout('frtxo','loss <b>'+(loss*100).toFixed(1)+'%</b> &middot; saved <b>'+
+  (m.timeoutMs-m.fastMs).toLocaleString()+' ms</b> &middot; <b>'+
+  (m.timeoutMs/m.fastMs).toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THREE ECHOES OF THE SAME GAP');
+ korb(g,W/2,H/2+10,ang,30,function(i,N){
+  var t=i/N,dup=(i>=10&&i<=12);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:dup?-22:0,
+   c:dup?'rgba(255,210,63,0.9)':'rgba(125,226,176,0.6)',r:dup?4:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'the signal is not in any message but in there being three');}
+document.getElementById('frtxm').onclick=function(){loss=Math.min(0.2,+(loss*2).toFixed(4));drawW4();};
+document.getElementById('frtxl').onclick=function(){loss=Math.max(0.001,+(loss/2).toFixed(4));drawW4();};
+document.getElementById('frtxt').onclick=function(){rto=rto>=2400?150:rto*2;drawW4();};
+document.getElementById('frtxr').onclick=function(){loss=0.01;rto=300;drawW4();};
+document.getElementById('frtxp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thefastretransmit=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SLYW_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Send one byte and the wire carries forty-one. The headers are a fixed toll, and below a certain payload the message is a rounding error on its own envelope.<br><br>
+ <span class="lit">LIT</span> verified live. With <b>40</b> bytes of TCP and IP header, a <b>1</b>-byte payload puts <b>41</b> bytes on the wire &mdash; efficiency <b>2.44%</b>, an amplification of <b>41&times;</b>. A full <b>1,460</b>-byte segment puts <b>1,500</b> on the wire at <b>97.33%</b>. That is <b>39.9&times;</b> the efficiency for the same link, the same protocol and the same headers, decided entirely by how much you waited before sending.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Silly window syndrome is why Nagle&rsquo;s algorithm and Clark&rsquo;s receiver-side fix both exist; the sphere <b>THE NAGLE / DELAYED ACK</b> next door is the pathology those two create together.<br><br>
+ <b>AVAN (AI)</b> published the wire bytes rather than only the percentage. <b>2.44%</b> sounds like inefficiency; <b>41</b> bytes to move <b>1</b> is the same fact in a form that shows what is actually being spent.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Payload against what the wire carries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Grow the payload and watch the envelope shrink.</div>
+   <div class="btns" style="margin-top:10px"><button id="slywm">bigger payload &#9654;</button><button id="slywl">smaller</button><button id="slywr">reset</button></div>
+   <div class="cap" id="slywo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: an envelope larger than its letter.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that small segments waste the link. The inverse is that <b>the fix is to wait, and waiting is the one thing an interactive user notices</b>. Every byte of that <b>97.33%</b> efficiency is bought with delay &mdash; you get it by not sending yet. Read backwards, silly window is not a bug to be eliminated but a dial between throughput and latency, and a keystroke that travels alone at <b>2.44%</b> efficiency is the dial set correctly.</div>
+   <div class="btns" style="margin-top:10px"><button id="slywp">pause spin</button></div></div></div></div>"""
+SLYW_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,payload=1;
+var HDR=40;
+function eff(p){return {payload:p,wire:p+HDR,pct:100*p/(p+HDR)};}
+function selftest(){
+ var rows=[],p;
+ for(p=1;p<=1024;p*=2)rows.push(eff(p));
+ rows.push(eff(1460));
+ var one=eff(1),full=eff(1460);
+ return {headerBytes:HDR,
+  rows:rows.map(function(r){return {payloadBytes:r.payload,wireBytes:r.wire,
+   efficiencyPct:+r.pct.toFixed(2)};}),
+  oneBytePayloadWireBytes:one.wire,
+  oneBytePayloadEfficiencyPct:+one.pct.toFixed(2),
+  fullSegmentPayload:1460,fullSegmentWireBytes:full.wire,
+  fullSegmentEfficiencyPct:+full.pct.toFixed(2),
+  efficiencyRatio:+(full.pct/one.pct).toFixed(1),
+  amplificationForOneByte:one.wire,
+  ok:one.pct<5&&full.pct>95};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'PAYLOAD AGAINST WHAT THE WIRE CARRIES');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var x=26+i*40,h=Math.round(150*R[i].efficiencyPct/100);
+  nf(g,'rgba(90,70,140,0.28)');g.fillRect(x,46,28,150);ng(g);
+  nf(g,R[i].efficiencyPct>90?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.7)');
+  g.fillRect(x,196-h,28,h);ng(g);
+  nt(g,'#5a4a85',x+2,212,7,''+R[i].payloadBytes);}
+ nt(g,'#8a7ab8',26,230,8,'bar height is payload as a fraction of what goes on the wire');
+ nt(g,'#ff5a8a',26,250,9,'1 byte -> '+VR.oneBytePayloadWireBytes+
+  ' on the wire ('+VR.oneBytePayloadEfficiencyPct+'%)');
+ kverdict(g,12,254,W-24,true,VR.efficiencyRatio+'x the efficiency for the same link, '+
+  'the same protocol and the same headers');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=eff(payload);
+ nt(g,'#7cfc00',12,20,11,'PAYLOAD '+payload+' BYTES');
+ var totalW=340,hw=Math.max(6,Math.round(totalW*HDR/m.wire));
+ nf(g,'rgba(255,60,90,0.75)');g.fillRect(14,44,hw,40);ng(g);
+ nf(g,'rgba(125,226,176,0.85)');g.fillRect(14+hw,44,totalW-hw,40);ng(g);
+ nt(g,'#8a7ab8',14,100,8,'red = 40 bytes of header, green = your payload');
+ krow(g,14,118,230,'wire bytes',m.wire,Math.min(1,m.wire/1600),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,160,230,'efficiency %',+m.pct.toFixed(2),m.pct/100,
+  m.pct>90?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.8)');
+ krow(g,14,202,230,'bytes on the wire per payload byte',
+  +(m.wire/m.payload).toFixed(2),Math.min(1,(m.wire/m.payload)/42),
+  'rgba(255,210,63,0.75)');
+ kverdict(g,12,244,W-24,m.pct>90,m.pct>90?
+  'the envelope is now a rounding error on the letter':
+  'the letter is a rounding error on the envelope');
+ nt(g,'#5a4a85',14,294,8,'every point of efficiency is bought with delay');
+ nt(g,'#5a4a85',14,314,8,'you get it by not sending yet');
+ kout('slywo','payload <b>'+payload+'</b> &middot; wire <b>'+m.wire+
+  '</b> &middot; <b>'+m.pct.toFixed(2)+'%</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'AN ENVELOPE LARGER THAN ITS LETTER');
+ korb(g,W/2,H/2+10,ang,42,function(i,N){
+  var t=i/N,letter=(i%14===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:letter?-16:0,
+   c:letter?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.4)',r:letter?3.4:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'a dial between throughput and latency');}
+document.getElementById('slywm').onclick=function(){payload=Math.min(1460,payload*2);drawW4();};
+document.getElementById('slywl').onclick=function(){payload=Math.max(1,Math.floor(payload/2));drawW4();};
+document.getElementById('slywr').onclick=function(){payload=1;drawW4();};
+document.getElementById('slywp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thesillywindow=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ECNM_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A congested router has two ways to say so: throw the packet away, or set a bit in it and let it through. The message is identical. What differs is whether the sender has to send the data again.<br><br>
+ <span class="lit">LIT</span> verified live, both arms on the identical event sequence. <b>20,000</b> ticks at a <b>5%</b> congestion rate produce <b>915</b> signals in both runs. Dropping delivers <b>19,085</b> packets and costs <b>91,500</b> ms of retransmission stall. Marking delivers all <b>20,000</b> and costs <b>0</b>. <b>915</b> packets that had already crossed the network survive to be useful.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Explicit Congestion Notification is <b>RFC 3168</b>, and its deployment problem is that it needs the sender, the receiver, and every hop between them to cooperate.<br><br>
+ <b>AVAN (AI)</b> first ran the two arms from a single random generator, so the drop run and the mark run saw different congestion events &mdash; <b>915</b> against <b>1,012</b> &mdash; and the comparison was between two different networks. Each arm now reseeds. Same class of error as an earlier sphere that compared interleaved draws; a controlled experiment has to control the thing being held fixed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">One signal, two deliveries.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the congestion rate.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecnmm">more congestion &#9654;</button><button id="ecnml">less</button><button id="ecnmt">toggle marking</button><button id="ecnmr">reset</button></div>
+   <div class="cap" id="ecnmo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a message that survives its own warning.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that marking is strictly better than dropping. The inverse is that <b>dropping needs the agreement of nobody</b>. A router can drop a packet with no cooperation from anything; marking requires the sender to set a bit, every hop to preserve it, and the receiver to echo it back. Read backwards, loss survived as the congestion signal not because it is good but because it is the only one that works when no one has agreed on anything &mdash; and the internet is mostly made of parties who have not.</div>
+   <div class="btns" style="margin-top:10px"><button id="ecnmp">pause spin</button></div></div></div></div>"""
+ECNM_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,rate=0.05,mark=true;
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function run(useMark,p){
+ var r=rng(37),T=20000,sig=0,del=0,stall=0,t;
+ for(t=0;t<T;t++){
+  if(r()<p){sig++;if(useMark)del++;else stall+=100;}
+  else del++;}
+ return {signals:sig,delivered:del,stall:stall,T:T};}
+function selftest(){
+ var d=run(false,0.05),e=run(true,0.05);
+ return {ticks:20000,congestionRate:0.05,
+  dropSignals:d.signals,ecnSignals:e.signals,
+  identicalCongestionEvents:d.signals===e.signals,
+  dropDelivered:d.delivered,ecnDelivered:e.delivered,
+  packetsSavedFromRetransmit:e.delivered-d.delivered,
+  dropStallMs:d.stall,ecnStallMs:e.stall,
+  stallMsSaved:d.stall-e.stall,
+  sameSignalTwoDeliveries:true,
+  needsSenderReceiverAndEveryHop:true,
+  ok:d.signals===e.signals&&e.delivered>d.delivered};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'ONE SIGNAL, TWO DELIVERIES');
+ nt(g,'#ff5a8a',20,46,9,'drop the packet');
+ kgrid(g,20,54,60,1,7.4,26,function(i){
+  return (i%20===0)?'rgba(255,60,90,0.9)':'rgba(125,226,176,0.5)';});
+ nt(g,'#8a7ab8',20,98,8,VR.dropDelivered.toLocaleString()+' delivered, '+
+  VR.dropStallMs.toLocaleString()+' ms of stall');
+ nt(g,'#7de2b0',20,130,9,'mark the packet and let it through');
+ kgrid(g,20,138,60,1,7.4,26,function(i){
+  return (i%20===0)?'rgba(255,210,63,0.9)':'rgba(125,226,176,0.5)';});
+ nt(g,'#8a7ab8',20,182,8,VR.ecnDelivered.toLocaleString()+' delivered, '+
+  VR.ecnStallMs+' ms of stall');
+ nf(g,'rgba(90,208,255,0.12)');g.fillRect(12,198,W-24,32);ng(g);
+ nt(g,'#5ad0ff',22,218,9,'both runs saw exactly '+VR.dropSignals+
+  ' congestion events -- the same network, twice');
+ kverdict(g,12,238,W-24,true,VR.packetsSavedFromRetransmit+
+  ' packets that had already crossed the network survive to be useful');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(mark,rate);
+ nt(g,'#9d00ff',12,20,11,(rate*100).toFixed(1)+'% CONGESTED'+
+  (mark?'   [mark]':'   [drop]'));
+ kgrid(g,14,40,40,3,8.6,12,function(i){
+  var every=Math.max(2,Math.round(1/rate/8));
+  if(i%every===0)return mark?'rgba(255,210,63,0.9)':'rgba(255,60,90,0.9)';
+  return 'rgba(125,226,176,0.5)';});
+ nt(g,'#8a7ab8',14,90,8,mark?'gold = marked and delivered':'red = dropped');
+ krow(g,14,108,230,'congestion signals',m.signals,Math.min(1,m.signals/4000),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,150,230,'delivered',m.delivered,m.delivered/20000,
+  'rgba(125,226,176,0.85)');
+ krow(g,14,192,230,'retransmit stall ms',m.stall,Math.min(1,m.stall/400000),
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,234,W-24,mark,mark?
+  'every packet arrives; the warning rides along with the data':
+  m.signals+' packets crossed the network and were thrown away at the last hop');
+ nt(g,'#5a4a85',14,284,8,'a router can drop with nobody agreeing to anything');
+ nt(g,'#5a4a85',14,304,8,'marking needs the sender, the receiver and every hop');
+ kout('ecnmo',(mark?'mark':'drop')+' &middot; signals <b>'+m.signals+
+  '</b> &middot; delivered <b>'+m.delivered.toLocaleString()+'</b> &middot; stall <b>'+
+  m.stall.toLocaleString()+' ms</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A MESSAGE THAT SURVIVES ITS OWN WARNING');
+ korb(g,W/2,H/2+10,ang,44,function(i,N){
+  var t=i/N,marked=(i%9===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:marked?'rgba(255,210,63,0.9)':'rgba(125,226,176,0.65)',r:marked?3.2:2.2};});
+ nt(g,'#8a7ab8',12,H-22,8,'loss works when nobody has agreed on anything');}
+document.getElementById('ecnmm').onclick=function(){rate=Math.min(0.5,+(rate*2).toFixed(4));drawW4();};
+document.getElementById('ecnml').onclick=function(){rate=Math.max(0.002,+(rate/2).toFixed(4));drawW4();};
+document.getElementById('ecnmt').onclick=function(){mark=!mark;drawW4();};
+document.getElementById('ecnmr').onclick=function(){rate=0.05;mark=true;drawW4();};
+document.getElementById('ecnmp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theecn=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+BDPR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A fast link over a long distance holds an enormous amount of data in flight. If the sender&rsquo;s window is smaller than what the path can hold, the link is idle no matter how fast it is.<br><br>
+ <span class="lit">LIT</span> verified live. A <b>10,000</b> Mbps link at a <b>100</b> ms round trip holds <b>125,000,000</b> bytes in flight &mdash; <b>122,070.3</b> KiB. With the classic <b>64</b> KiB window the achievable throughput is <b>5.24</b> Mbps, which is <b>0.05%</b> of the link. Nothing is congested, nothing is lost, and the wire is almost entirely empty because the sender has run out of permission to speak.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why TCP window scaling exists at all, and why the <b>64</b> KiB ceiling of the original header became a hard limit on long fat networks.<br><br>
+ <b>AVAN (AI)</b> computed the achievable rate rather than the shortfall, because a percentage hides the shape. <b>5.24</b> Mbps on a <b>10</b> Gbps link is the same number at every distance-limited point: with a fixed window, throughput depends only on the round trip and not on the link at all.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">What the path holds, against what a window allows.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the link, the distance, and the window.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdprb">faster link &#9654;</button><button id="bdprd">further</button><button id="bdprw">bigger window</button><button id="bdprr">reset</button></div>
+   <div class="cap" id="bdpro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a pipe mostly empty.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a small window wastes a fast link. The inverse is that <b>the window is not a limit on sending, it is the amount of loss you are willing to have caused before you find out</b>. Everything in flight is unacknowledged, which means everything in flight may already be gone. Read backwards, <b>122,070.3</b> KiB of window is <b>122,070.3</b> KiB of exposure, and the number that makes the link fast is the same number that decides how much you can be wrong about at once.</div>
+   <div class="btns" style="margin-top:10px"><button id="bdprp">pause spin</button></div></div></div></div>"""
+BDPR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,mbps=10000,rtt=100,win=65536;
+function bdp(m,r){return (m*1e6/8)*(r/1000);}
+function thru(w,r){return (w*8)/(r/1000)/1e6;}
+function selftest(){
+ var cases=[[1,1],[10,1],[100,1],[1000,1],[1000,100],[10000,100]];
+ var rows=cases.map(function(c){
+  var b=bdp(c[0],c[1]);
+  return {mbps:c[0],rttMs:c[1],bdpBytes:Math.round(b),
+   bdpKiB:+(b/1024).toFixed(1),
+   fitsIn64KiB:b<=65536,
+   with64KiBMbps:+thru(65536,c[1]).toFixed(2)};});
+ var big=rows[5];
+ return {rows:rows,
+  linkMbps:10000,rttMs:100,
+  bdpBytes:big.bdpBytes,bdpKiB:big.bdpKiB,
+  classicWindowKiB:64,
+  achievableMbps:big.with64KiBMbps,
+  pctOfLink:+(100*big.with64KiBMbps/10000).toFixed(2),
+  nothingIsLostNothingIsCongested:true,
+  withAFixedWindowThroughputDependsOnlyOnRtt:true,
+  ok:big.bdpKiB>65&&big.with64KiBMbps<10000};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'WHAT THE PATH HOLDS, AGAINST WHAT A WINDOW ALLOWS');
+ var R=VR.rows,i,mx=Math.log(R[5].bdpBytes);
+ for(i=0;i<R.length;i++){
+  var y=46+i*32;
+  nt(g,'#8a7ab8',20,y+14,8,R[i].mbps+' Mbps @ '+R[i].rttMs+' ms');
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(160,y,250,20);ng(g);
+  nf(g,R[i].fitsIn64KiB?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.8)');
+  g.fillRect(160,y,Math.max(3,Math.round(250*Math.log(R[i].bdpBytes+1)/mx)),20);ng(g);
+  nt(g,'#e8e0ff',418,y+14,8,R[i].bdpKiB+' KiB');}
+ ne(g,'rgba(255,210,63,0.9)',2);g.beginPath();
+ var xw=160+Math.round(250*Math.log(65537)/mx);
+ g.moveTo(xw,40);g.lineTo(xw,240);g.stroke();ng(g);
+ nt(g,'#ffd76a',xw+4,254,8,'64 KiB window');
+ kverdict(g,12,250,W-24,false,'a 10 Gbps link at 100 ms gives '+VR.achievableMbps+
+  ' Mbps with a 64 KiB window -- '+VR.pctOfLink+'% of the link');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var b=bdp(mbps,rtt),t=Math.min(mbps,thru(win,rtt));
+ nt(g,'#9d00ff',12,20,11,mbps+' Mbps  @  '+rtt+' ms  win '+(win/1024)+' KiB');
+ var fill=Math.min(1,win/b);
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(14,44,340,44);ng(g);
+ nf(g,'rgba(90,208,255,0.8)');g.fillRect(14,44,Math.round(340*fill),44);ng(g);
+ nt(g,'#8a7ab8',14,104,8,'blue = the part of the pipe your window can keep full');
+ krow(g,14,122,230,'pipe holds (KiB)',+(b/1024).toFixed(1),
+  Math.min(1,(b/1024)/130000),'rgba(255,210,63,0.75)');
+ krow(g,14,164,230,'window (KiB)',win/1024,Math.min(1,(win/1024)/130000),
+  'rgba(90,208,255,0.7)');
+ krow(g,14,206,230,'achievable Mbps',+t.toFixed(2),Math.min(1,t/mbps),
+  'rgba(125,226,176,0.8)');
+ krow(g,14,248,230,'% of the link',+(100*t/mbps).toFixed(2),t/mbps,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,290,W-24,fill>=1,fill>=1?
+  'the window can fill the pipe':
+  'the link is idle and nothing is wrong with it');
+ kout('bdpro','pipe <b>'+(b/1024).toFixed(1)+' KiB</b> &middot; window <b>'+
+  (win/1024)+' KiB</b> &middot; <b>'+t.toFixed(2)+' Mbps</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A PIPE MOSTLY EMPTY');
+ korb(g,W/2,H/2+10,ang,50,function(i,N){
+  var t=i/N,inflight=(t<0.12);
+  return {x:(t-0.5)*260,z:Math.sin(t*6.283)*30,y:0,
+   c:inflight?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.25)',r:inflight?3:1.4};});
+ nt(g,'#8a7ab8',12,H-22,8,'the window is how much you can be wrong about at once');}
+document.getElementById('bdprb').onclick=function(){mbps=mbps>=100000?1:mbps*10;drawW4();};
+document.getElementById('bdprd').onclick=function(){rtt=rtt>=400?1:rtt*2;drawW4();};
+document.getElementById('bdprw').onclick=function(){win=win>=134217728?65536:win*8;drawW4();};
+document.getElementById('bdprr').onclick=function(){mbps=10000;rtt=100;win=65536;drawW4();};
+document.getElementById('bdprp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thebandwidthdelayproduct=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+DLYB_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A delay-based flow watches the queue and yields when it starts to grow. A loss-based flow keeps pushing until the buffer overflows. Put them on the same link and the polite one is punished for its manners.<br><br>
+ <span class="lit">LIT</span> verified live. Capacity <b>100</b>, buffer <b>200</b>, <b>100,000</b> ticks. The delay-based flow takes <b>10.24%</b> of the link and the loss-based flow <b>89.76%</b> &mdash; a ratio of <b>8.77</b>. The delay-based flow is doing the better thing: it keeps the queue short, which is what everybody&rsquo;s latency depends on. It loses anyway, and it loses because it is the only one looking.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">This is why TCP Vegas never displaced Reno despite being better on an empty network, and the problem every delay-based design since &mdash; including BBR &mdash; has had to answer.<br><br>
+ <b>AVAN (AI)</b> ran both flows on one link rather than measuring each alone, because alone the delay-based flow wins on every metric that matters. The result only appears in competition, and competition is the only condition that has ever existed.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Two strategies, one link.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the buffer and watch who wins.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlybb">bigger buffer &#9654;</button><button id="dlybs">smaller</button><button id="dlybr">reset</button></div>
+   <div class="cap" id="dlybo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the one that yields.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that delay-based control loses to loss-based control. The inverse is that <b>it does not lose a race, it declines one</b>. Yielding when the queue grows is not a weaker strategy for taking bandwidth &mdash; it is a refusal to take bandwidth by the only means available, which is to make everyone else wait. Read backwards, the <b>8.77</b> is not a measure of which algorithm is better; it is the price of the externality, and it is paid entirely by whoever decided not to impose one.</div>
+   <div class="btns" style="margin-top:10px"><button id="dlybp">pause spin</button></div></div></div></div>"""
+DLYB_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,buf=200;
+function run(B){
+ var C=100,q=0,wD=10,wL=10,T=100000,sD=0,sL=0,t,trace=[];
+ for(t=0;t<T;t++){
+  q=Math.max(0,q+(wD+wL)-C);
+  if(q>B){q=B;wL*=0.7;wD*=0.7;}
+  else{
+   wL+=0.01;
+   if(q>20)wD=Math.max(1,wD-0.02);else wD+=0.01;}
+  sD+=wD;sL+=wL;
+  if(t%1000===0)trace.push([wD,wL]);}
+ return {sD:sD,sL:sL,trace:trace,
+  dShare:100*sD/(sD+sL),lShare:100*sL/(sD+sL),ratio:sL/sD};}
+function selftest(){
+ var m=run(200);
+ return {capacity:100,bufferPackets:200,ticks:100000,
+  delayBasedSharePct:+m.dShare.toFixed(2),
+  lossBasedSharePct:+m.lShare.toFixed(2),
+  ratio:+m.ratio.toFixed(2),
+  delayBasedKeepsTheQueueShort:true,
+  itIsPunishedForDoingSo:m.sL>m.sD,
+  theResultOnlyAppearsInCompetition:true,
+  ok:m.sL>m.sD};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'TWO STRATEGIES, ONE LINK');
+ var m=run(200);
+ kcurve(g,20,44,460,110,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))][1];},'rgba(255,60,90,0.9)',2);
+ kcurve(g,20,44,460,110,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))][0];},'rgba(125,226,176,0.9)',2);
+ nt(g,'#ff5a8a',20,170,8,'red = loss-based, pushing until the buffer overflows');
+ nt(g,'#7de2b0',20,186,8,'green = delay-based, yielding when the queue grows');
+ krow(g,20,202,300,'loss-based share %',VR.lossBasedSharePct,
+  VR.lossBasedSharePct/100,'rgba(255,60,90,0.8)');
+ krow(g,20,244,300,'delay-based share %',VR.delayBasedSharePct,
+  VR.delayBasedSharePct/100,'rgba(125,226,176,0.8)');
+ kverdict(g,12,262-4,W-24,false,'ratio '+VR.ratio+
+  ' -- the flow keeping the queue short loses because it is the only one looking');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(buf);
+ nt(g,'#ff5a3c',12,20,11,'BUFFER '+buf+' PACKETS');
+ nf(g,'rgba(90,70,140,0.25)');g.fillRect(14,44,340,36);ng(g);
+ nf(g,'rgba(125,226,176,0.85)');
+ g.fillRect(14,44,Math.round(340*m.dShare/100),36);ng(g);
+ nt(g,'#0a0713',22,67,10,m.dShare.toFixed(1)+'%');
+ nt(g,'#ff5a8a',300,67,10,m.lShare.toFixed(1)+'%');
+ nt(g,'#8a7ab8',14,96,8,'green = delay-based, red = loss-based');
+ kcurve(g,14,110,340,70,m.trace.length-1,function(t){
+  return m.trace[Math.round(t*(m.trace.length-1))][0];},'rgba(125,226,176,0.9)',2);
+ nt(g,'#8a7ab8',14,196,8,'the delay-based window over time');
+ krow(g,14,214,230,'ratio',+m.ratio.toFixed(2),Math.min(1,m.ratio/20),
+  'rgba(255,210,63,0.75)');
+ krow(g,14,256,230,'delay-based share %',+m.dShare.toFixed(2),m.dShare/100,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,296,W-24,m.dShare>40,
+  buf>400?'a deeper buffer punishes the polite flow harder -- more room to be greedy in':
+  'yielding when the queue grows is a refusal, not a weakness');
+ kout('dlybo','buffer <b>'+buf+'</b> &middot; delay-based <b>'+
+  m.dShare.toFixed(2)+'%</b> &middot; ratio <b>'+m.ratio.toFixed(2)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE ONE THAT YIELDS');
+ kring(g,W/2,H/2+10,ang,24,96,10,'rgba(255,60,90,0.55)',2.6);
+ kring(g,W/2,H/2+10,ang*0.5,10,44,-18,'rgba(125,226,176,0.9)',3.4);
+ nt(g,'#8a7ab8',12,H-22,8,'the price of the externality, paid by whoever declined it');}
+document.getElementById('dlybb').onclick=function(){buf=Math.min(2000,buf*2);drawW4();};
+document.getElementById('dlybs').onclick=function(){buf=Math.max(25,Math.floor(buf/2));drawW4();};
+document.getElementById('dlybr').onclick=function(){buf=200;drawW4();};
+document.getElementById('dlybp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedelaybased=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FLFR_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Jain&rsquo;s fairness index turns a whole allocation into one number between zero and one. It is a genuinely good summary, and there is exactly one thing it cannot tell you.<br><br>
+ <span class="lit">LIT</span> verified live. Four flows sharing <b>100</b>. Perfectly equal <b>25/25/25/25</b> scores <b>1.0000</b>. One starved, <b>33/33/33/1</b>, scores <b>0.7650</b>. One hogging, <b>97/1/1/1</b>, scores <b>0.2656</b>. Split evenly in two, <b>45/45/5/5</b>, scores <b>0.6098</b>. And <b>50/50/0/0</b> and <b>0/0/50/50</b> both score exactly <b>0.5000</b> &mdash; opposite victims, identical number.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">The index is <b>Jain, Chiu and Hawe</b>&rsquo;s (1984), and its properties &mdash; scale independence, bounded, continuous &mdash; are why it is still the standard.<br><br>
+ <b>AVAN (AI)</b> constructed the two allocations that collide rather than describing the limitation. <b>0.5000</b> for both is not an approximation or an edge case; it is exact, and it is the index correctly reporting that it does not know or care which flows were the ones left with nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four allocations, four scores.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the shares and watch the index.</div>
+   <div class="btns" style="margin-top:10px"><button id="flfrh">concentrate &#9654;</button><button id="flfre">even out</button><button id="flfrs">swap the victims</button><button id="flfrr">reset</button></div>
+   <div class="cap" id="flfro" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: one number over four lives.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that the index summarises fairness in one number. The inverse is that <b>a summary is a decision about what is allowed to matter</b>. Scale independence means it does not care how much there was; symmetry means it does not care who; a single instant means it does not care how long. Read backwards, <b>0.5000</b> for both allocations is not a blind spot in the metric &mdash; it is the metric stating its terms honestly, and the failure would be in a reader who took the number for the situation.</div>
+   <div class="btns" style="margin-top:10px"><button id="flfrp">pause spin</button></div></div></div></div>"""
+FLFR_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,shares=[25,25,25,25];
+function jain(x){
+ var s=0,ss=0,i;
+ for(i=0;i<x.length;i++){s+=x[i];ss+=x[i]*x[i];}
+ return (s*s)/(x.length*ss);}
+function selftest(){
+ var cases=[['perfectly equal',[25,25,25,25]],['one starved',[33,33,33,1]],
+  ['one hogs',[97,1,1,1]],['two and two',[45,45,5,5]]];
+ var a=jain([50,50,0,0]),b=jain([0,0,50,50]);
+ return {rows:cases.map(function(c){
+   return {name:c[0],shares:c[1],jain:+jain(c[1]).toFixed(4)};}),
+  equalIndex:+jain([25,25,25,25]).toFixed(4),
+  starvedIndex:+jain([33,33,33,1]).toFixed(4),
+  hogIndex:+jain([97,1,1,1]).toFixed(4),
+  twoAndTwoIndex:+jain([45,45,5,5]).toFixed(4),
+  firstPair:[50,50,0,0],secondPair:[0,0,50,50],
+  firstPairIndex:+a.toFixed(4),secondPairIndex:+b.toFixed(4),
+  oppositeVictimsIdenticalIndex:Math.abs(a-b)<1e-12,
+  scaleIndependentSymmetricInstantaneous:true,
+  ok:jain([25,25,25,25])===1&&jain([97,1,1,1])<0.5&&Math.abs(a-b)<1e-12};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'FOUR ALLOCATIONS, FOUR SCORES');
+ var R=VR.rows,i,k;
+ for(i=0;i<R.length;i++){
+  var y=44+i*46;
+  nt(g,'#8a7ab8',20,y+16,8,R[i].name);
+  for(k=0;k<4;k++){
+   var w=Math.round(180*R[i].shares[k]/100);
+   nf(g,'rgba(90,70,140,0.25)');g.fillRect(150+k*70,y,64,22);ng(g);
+   nf(g,'rgba(125,226,176,0.8)');
+   g.fillRect(150+k*70,y,Math.max(2,Math.round(64*R[i].shares[k]/100)),22);ng(g);}
+  nt(g,'#ffd76a',438,y+16,10,R[i].jain.toFixed(4));}
+ nf(g,'rgba(255,60,90,0.13)');g.fillRect(12,232,W-24,34);ng(g);
+ nt(g,'#ff5a8a',22,246,9,'50/50/0/0  and  0/0/50/50  both score '+
+  VR.firstPairIndex.toFixed(4));
+ nt(g,'#8a7ab8',22,260,8,'opposite victims, identical number');
+ kverdict(g,12,262,W-24,true,'exact, not an edge case -- the index does not know '+
+  'or care which flows got nothing');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var j=jain(shares),i;
+ nt(g,'#7cfc00',12,20,11,'JAIN INDEX  '+j.toFixed(4));
+ for(i=0;i<4;i++){
+  var x=22+i*88,h=Math.round(150*shares[i]/100);
+  nf(g,'rgba(90,70,140,0.25)');g.fillRect(x,44,64,150);ng(g);
+  nf(g,'rgba(125,226,176,0.85)');g.fillRect(x,194-h,64,h);ng(g);
+  nt(g,'#e8e0ff',x+16,210,9,shares[i].toFixed(0));}
+ nt(g,'#8a7ab8',22,228,8,'four flows sharing 100');
+ krow(g,14,244,230,'Jain index',+j.toFixed(4),j,
+  j>0.9?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.8)');
+ kverdict(g,12,286,W-24,j>0.9,j>0.9?'close to equal':
+  'unequal -- and the number says nothing about which flow lost');
+ kout('flfro',shares.map(function(x){return x.toFixed(0);}).join(' / ')+
+  ' &middot; index <b>'+j.toFixed(4)+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONE NUMBER OVER FOUR LIVES');
+ ndot(g,W/2,H/2-60,8,'rgba(255,210,63,0.9)');
+ korb(g,W/2,H/2+30,ang,4,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*100,z:Math.sin(t)*66,y:0,
+   c:'rgba(125,226,176,0.8)',r:6};});
+ nt(g,'#8a7ab8',12,H-22,8,'a summary is a decision about what is allowed to matter');}
+document.getElementById('flfrh').onclick=function(){
+ shares=[Math.min(97,shares[0]+12),Math.max(1,shares[1]-4),
+         Math.max(1,shares[2]-4),Math.max(1,shares[3]-4)];drawW4();};
+document.getElementById('flfre').onclick=function(){
+ var m=(shares[0]+shares[1]+shares[2]+shares[3])/4;
+ shares=shares.map(function(x){return x+(m-x)*0.5;});drawW4();};
+document.getElementById('flfrs').onclick=function(){shares=shares.slice().reverse();drawW4();};
+document.getElementById('flfrr').onclick=function(){shares=[25,25,25,25];drawW4();};
+document.getElementById('flfrp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theflowfairness=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 266 · neon-noir · silicon-coding · WHAT SAVED MEANS ═══════════════════════
 FSYN_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
  <div class="wintxt">A successful <code>write()</code> means the kernel accepted your bytes. It does not mean anything reached a platter. Between those two facts is a window, and everything in it dies with the power.<br><br>
@@ -108405,6 +109342,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-slow-start","title":"THE SLOW START","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"⇗",
+  "kicker":"it finds the first thing that broke, not the capacity",
+  "blurb":"A new connection knows nothing about the path it is on. Slow start finds out by doubling every round trip until something breaks. The name describes where it begins, not how fast it moves.",
+  "lit":"a pipe holding 1,000 packets is filled in 10 round trips by doubling against 1,000 for one-at-a-time probing, which is 100.0 times longer, and the window at exit is 1,024 so the last doubling overshoots by 24 packets or 2.4%, having sent 1,023 packets to find a limit it could only locate by crossing it",
+  "fig":"Slow start is Van Jacobson's, from the 1988 response to the NSFNET congestion collapses. AVAN published the overshoot next to the speed because they are the same mechanism. Doubling cannot find a limit without crossing it - the algorithm learns the capacity by exceeding it once, and every connection you open pays that 2.4% to discover a number the network already knew.",
+  "body":SSTA_BODY,"script":SSTA_SCRIPT},
+ {"slug":"the-aimd","title":"THE AIMD","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"⋀",
+  "kicker":"a convention held voluntarily by the endpoints",
+  "blurb":"Add one on success, halve on loss. That asymmetry is not a tuning choice - it is the only combination that converges to a fair share from any starting point, and it costs a quarter of the link.",
+  "lit":"a capacity of 100 run over 4,000 ticks through 77 sawtooth cycles gives a mean window of 74.49, a utilisation of 0.7449 against the 0.75 the geometry predicts, since a sawtooth between C/2 and C averages three quarters of C - and the idle quarter is the room the next flow needs in order to arrive",
+  "fig":"The convergence result is Chiu and Jain (1989): additive-increase multiplicative-decrease moves any pair of flows toward the fair line, and no other combination of linear rules does. AVAN measured the utilisation and compared it to the closed form rather than reporting one or the other. 0.7449 against 0.75 is the sawtooth confirming its own geometry, which is stronger than either number alone.",
+  "body":AIMD_BODY,"script":AIMD_SCRIPT},
+ {"slug":"the-rtt-bias","title":"THE RTT BIAS","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"⇹",
+  "kicker":"a rule written in one frame, judged in another",
+  "blurb":"Two flows run the identical algorithm on the identical link and do not get the identical share. The one with the shorter round trip increases its window more often.",
+  "lit":"at a loss rate of 0.01 with one flow at 10 ms and one at 100 ms - an RTT ratio of 10 - the closed form predicts a throughput ratio of 10.00 while simulating both on a shared link of capacity 200 over 200,000 ticks gives 9.91, with the near flow taking 90.83% of the link and the far flow 9.17%, neither having broken a rule",
+  "fig":"RTT unfairness follows from the square-root throughput law - rate is inversely proportional to RTT - and it is why a distant user loses to a nearby one on a congested path. AVAN ran the simulation AND the closed form so neither has to be taken on faith. 9.91 against 10.00 is the model and the mechanism agreeing, which is worth more than either printed alone.",
+  "body":RTTB_BODY,"script":RTTB_SCRIPT},
+ {"slug":"the-incast","title":"THE INCAST","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"⋔",
+  "kicker":"parallelism converted into simultaneity",
+  "blurb":"One request fans out to many servers and they all answer at once. The replies meet at a single switch port with a small buffer, and past a certain number of senders the answers stop arriving faster.",
+  "lit":"a buffer of 64 packets with each sender contributing 8 delivers everything up to 8 senders, then at 16 senders offers 128 and drops 64 for a goodput of 50.0%, and at 64 senders offers 512 and drops 448 while still delivering exactly 64 - a goodput of 12.5% - because delivered is pinned at the buffer while offered grows without limit",
+  "fig":"TCP incast is the pathology of partition-aggregate workloads - distributed storage, search fan-out, MapReduce shuffles - and why datacentre TCP variants exist. AVAN shows the delivered column staying flat because that is the whole shape of the failure. Adding servers adds offered load and adds nothing to what arrives; the delivery is capped by a buffer with no idea a fan-out is happening.",
+  "body":INCA_BODY,"script":INCA_SCRIPT},
+ {"slug":"the-fast-retransmit","title":"THE FAST RETRANSMIT","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"⋯",
+  "kicker":"the signal is not in any message but in there being three",
+  "blurb":"When a packet is lost the receiver keeps acknowledging the last thing it got in order. Three of those duplicates are enough to act on - without them the sender waits out a timeout sized for the worst case.",
+  "lit":"10,000 packets at 1% loss give 109 losses, and with a round trip of 100 ms and a timeout of 300 ms, waiting for the timeout every time costs 32,700 ms of stall against 10,900 ms for acting on three duplicate acknowledgements - 21,800 ms saved, a factor of 3.00 - but it needs three more packets to arrive, which at the end of a transfer never happens",
+  "fig":"Fast retransmit and fast recovery are Jacobson's too, and the 3 is a threshold chosen to distinguish loss from mere reordering. AVAN published the precondition next to the saving because the saving is conditional on it. The mechanism is 3.00 times faster exactly when there is more data behind the loss, and worth nothing for the last packets of a flow - which is where a short transfer spends most of its life.",
+  "body":FRTX_BODY,"script":FRTX_SCRIPT},
+ {"slug":"the-silly-window","title":"THE SILLY WINDOW","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"✉",
+  "kicker":"a dial between throughput and latency",
+  "blurb":"Send one byte and the wire carries forty-one. The headers are a fixed toll, and below a certain payload the message is a rounding error on its own envelope.",
+  "lit":"with 40 bytes of TCP and IP header a 1-byte payload puts 41 bytes on the wire for an efficiency of 2.44% and an amplification of 41, while a full 1,460-byte segment puts 1,500 on the wire at 97.33% - 39.9 times the efficiency for the same link, the same protocol and the same headers, decided entirely by how long you waited before sending",
+  "fig":"Silly window syndrome is why Nagle's algorithm and Clark's receiver-side fix both exist; the sphere THE NAGLE / DELAYED ACK next door is the pathology those two create together. AVAN published the wire bytes rather than only the percentage - 2.44% sounds like inefficiency, while 41 bytes to move 1 is the same fact in a form that shows what is actually being spent.",
+  "body":SLYW_BODY,"script":SLYW_SCRIPT},
+ {"slug":"the-ecn","title":"THE ECN","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"⚑",
+  "kicker":"loss works when nobody has agreed on anything",
+  "blurb":"A congested router has two ways to say so: throw the packet away, or set a bit in it and let it through. The message is identical. What differs is whether the sender has to send the data again.",
+  "lit":"20,000 ticks at a 5% congestion rate produce 915 signals in both arms run on the identical event sequence, where dropping delivers 19,085 packets and costs 91,500 ms of retransmission stall while marking delivers all 20,000 and costs 0 - so 915 packets that had already crossed the network survive to be useful",
+  "fig":"Explicit Congestion Notification is RFC 3168, and its deployment problem is that it needs the sender, the receiver and every hop between them to cooperate. AVAN first ran the two arms from a single random generator, so the drop run and the mark run saw different congestion events - 915 against 1,012 - and the comparison was between two different networks. Each arm now reseeds; a controlled experiment has to control the thing being held fixed.",
+  "body":ECNM_BODY,"script":ECNM_SCRIPT},
+ {"slug":"the-bandwidth-delay-product","title":"THE BANDWIDTH DELAY PRODUCT","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE WALL","domain_slug":"the-wall","accent":"#9d00ff","icon":"⟺",
+  "kicker":"how much you can be wrong about at once",
+  "blurb":"A fast link over a long distance holds an enormous amount of data in flight. If the sender's window is smaller than what the path can hold, the link is idle no matter how fast it is.",
+  "lit":"a 10,000 Mbps link at a 100 ms round trip holds 125,000,000 bytes in flight, which is 122,070.3 KiB, so with the classic 64 KiB window the achievable throughput is 5.24 Mbps or 0.05% of the link - nothing congested, nothing lost, and the wire almost entirely empty because the sender has run out of permission to speak",
+  "fig":"This is why TCP window scaling exists at all, and why the 64 KiB ceiling of the original header became a hard limit on long fat networks. AVAN computed the achievable rate rather than the shortfall, because a percentage hides the shape. 5.24 Mbps on a 10 Gbps link is the same number at every distance-limited point: with a fixed window, throughput depends only on the round trip and not on the link at all.",
+  "body":BDPR_BODY,"script":BDPR_SCRIPT},
+ {"slug":"the-delay-based","title":"THE DELAY BASED","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"⇣",
+  "kicker":"it does not lose a race, it declines one",
+  "blurb":"A delay-based flow watches the queue and yields when it starts to grow. A loss-based flow keeps pushing until the buffer overflows. Put them on the same link and the polite one is punished for its manners.",
+  "lit":"with a capacity of 100, a buffer of 200 and 100,000 ticks the delay-based flow takes 10.24% of the link and the loss-based flow 89.76%, a ratio of 8.77, and the delay-based flow is doing the better thing - it keeps the queue short, which is what everybody's latency depends on - yet it loses anyway, and it loses because it is the only one looking",
+  "fig":"This is why TCP Vegas never displaced Reno despite being better on an empty network, and the problem every delay-based design since - including BBR - has had to answer. AVAN ran both flows on one link rather than measuring each alone, because alone the delay-based flow wins on every metric that matters. The result only appears in competition, and competition is the only condition that has ever existed.",
+  "body":DLYB_BODY,"script":DLYB_SCRIPT},
+ {"slug":"the-flow-fairness","title":"THE FLOW FAIRNESS","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⚖",
+  "kicker":"a summary is a decision about what is allowed to matter",
+  "blurb":"Jain's fairness index turns a whole allocation into one number between zero and one. It is a genuinely good summary, and there is exactly one thing it cannot tell you.",
+  "lit":"four flows sharing 100 score 1.0000 when perfectly equal at 25/25/25/25, 0.7650 with one starved at 33/33/33/1, 0.2656 with one hogging at 97/1/1/1 and 0.6098 split two and two at 45/45/5/5 - while 50/50/0/0 and 0/0/50/50 both score exactly 0.5000, opposite victims with an identical number",
+  "fig":"The index is Jain, Chiu and Hawe's (1984), and its properties - scale independence, bounded, continuous - are why it is still the standard. AVAN constructed the two allocations that collide rather than describing the limitation. 0.5000 for both is not an approximation or an edge case; it is exact, and it is the index correctly reporting that it does not know or care which flows were left with nothing.",
+  "body":FLFR_BODY,"script":FLFR_SCRIPT},
  {"slug":"the-fsync","title":"THE FSYNC","appeal_name":"LOOT","appeal_slug":"loot",
   "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"⇩",
   "kicker":"write() answers a different question than the one you asked",

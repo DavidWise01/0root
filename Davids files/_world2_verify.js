@@ -38,6 +38,9 @@ function numsIn(s) {
   const out = [];
   for (const m of raw) {
     if (m[1] && !/^\s*\d/.test(s.slice(m.index + m[0].length))) continue;
+    // ...and the same on the LEFT: "C/2" is a denominator under a symbol,
+    // not a measurement. "10 / 20" has digits both sides and stays.
+    if (/[A-Za-z]\s*\/\s*$/.test(s.slice(0, m.index))) continue;
     const n = Number(m[0].replace(/[,\s\/]/g, ''));
     if (Number.isNaN(n)) continue;
     // a unit suffix immediately after turns the token into a magnitude
