@@ -33334,6 +33334,996 @@ document.getElementById('grcxr').onclick=function(){kk=3;mean=16;drawW4();};
 document.getElementById('grcxs').onclick=function(){spin=!spin;};
 VR=selftest();window.__thegolombrice=VR;drawW3();drawW4();
 function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+# ═══════════════════════ BATCH 269 · neon-noir · silicon-coding · THE CODE YOU DID NOT WRITE ═══════════════════════
+DEAD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Work backwards from what the program actually returns and mark everything that contributes. Whatever is left was computed for nobody, and the compiler deletes it without asking.<br><br>
+ <span class="lit">LIT</span> verified live. <b>8</b> instructions, <b>1</b> root. The liveness fixpoint settles in <b>2</b> rounds. <b>6</b> instructions survive and <b>2</b> are deleted &mdash; <b>25.0%</b> &mdash; one that nothing reads and one whose only input was that first one. The store is kept despite nothing reading its result, because a side effect is a root whether anybody wanted it or not.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Liveness is a backwards dataflow analysis run to a fixpoint; the <b>2</b> rounds are what it takes for the deletion of one instruction to expose the next.<br><br>
+ <b>AVAN (AI)</b> put the side-effecting instruction in the program on purpose. Dead-code elimination is not &ldquo;delete what is unused&rdquo; &mdash; it is &ldquo;delete what is unused <i>and</i> unobservable&rdquo;, and the entire difficulty of the pass is in the second half.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight instructions, marked from the root.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Run the fixpoint one round at a time.</div>
+   <div class="btns" style="margin-top:10px"><button id="deadn">next round &#9654;</button><button id="deade">toggle the store</button><button id="deadr">reset</button></div>
+   <div class="cap" id="deado" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: work done for nobody.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that dead-code elimination removes what is not needed. The inverse is that <b>it removes what cannot be observed, which is a claim about the observer</b>. The store survives because somebody outside might be watching that address; change who is allowed to watch and the same instruction becomes deletable. Read backwards, the pass never determined that the code was useless &mdash; it determined that nothing in the model could tell, and the model is a choice.</div>
+   <div class="btns" style="margin-top:10px"><button id="deadp">pause spin</button></div></div></div></div>"""
+DEAD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,round=0,storeOn=true;
+function prog(withStore){
+ return [
+  {d:'a',uses:[],       effect:false},
+  {d:'b',uses:['a'],    effect:false},
+  {d:'c',uses:[],       effect:false},
+  {d:'e',uses:['c'],    effect:false},
+  {d:'f',uses:['b'],    effect:false},
+  {d:'g',uses:[],       effect:withStore},
+  {d:'h',uses:['g'],    effect:false},
+  {d:'r',uses:['f','h'],effect:false}];}
+function analyse(withStore,maxRounds){
+ var p=prog(withStore),live={},rounds=0,changed=true;
+ live['r']=true;
+ p.forEach(function(i){if(i.effect)live[i.d]=true;});
+ while(changed&&(maxRounds===undefined||rounds<maxRounds)){
+  changed=false;rounds++;
+  for(var i=p.length-1;i>=0;i--)
+   if(live[p[i].d])p[i].uses.forEach(function(u){
+    if(!live[u]){live[u]=true;changed=true;}});}
+ return {p:p,live:live,rounds:rounds,
+  kept:p.filter(function(i){return live[i.d];}).length,
+  removed:p.filter(function(i){return !live[i.d];})};}
+function selftest(){
+ var m=analyse(true);
+ return {instructions:8,roots:['r'],
+  fixpointRounds:m.rounds,
+  kept:m.kept,removed:m.removed.length,
+  removedNames:m.removed.map(function(i){return i.d;}),
+  removedPct:+(100*m.removed.length/8).toFixed(1),
+  keptBecauseOfASideEffect:1,
+  aStoreIsARootWhetherAnybodyWantedItOrNot:m.live['g']===true,
+  ok:m.removed.length===2&&m.live['g']===true&&m.live['r']===true};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'EIGHT INSTRUCTIONS, MARKED FROM THE ROOT');
+ var m=analyse(true),i;
+ for(i=0;i<m.p.length;i++){
+  var y=44+i*29,ins=m.p[i],alive=m.live[ins.d];
+  nf(g,alive?'rgba(125,226,176,0.22)':'rgba(255,60,90,0.22)');
+  g.fillRect(16,y,470,24);ng(g);
+  nt(g,alive?'#7de2b0':'#ff5a8a',26,y+16,9,
+   ins.d+' = '+(ins.uses.length?ins.uses.join(' , '):'(leaf)'));
+  nt(g,'#8a7ab8',260,y+16,8,alive?'live':'DEAD -- deleted');
+  if(ins.effect)nt(g,'#ffd76a',400,y+16,8,'side effect');}
+ kverdict(g,12,282-8,W-24,true,VR.kept+' kept, '+VR.removed+
+  ' deleted ('+VR.removedPct+'%) after '+VR.fixpointRounds+' rounds');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=analyse(storeOn,round===0?1:round);
+ nt(g,'#7cfc00',12,20,11,'ROUND '+Math.max(1,round)+
+  (storeOn?'   [store present]':'   [store removed]'));
+ var i;
+ for(i=0;i<m.p.length;i++){
+  var y=40+i*30,alive=m.live[m.p[i].d];
+  nf(g,alive?'rgba(125,226,176,0.25)':'rgba(90,70,140,0.25)');
+  g.fillRect(14,y,340,24);ng(g);
+  nt(g,alive?'#7de2b0':'#5a4a85',24,y+16,9,m.p[i].d+
+   (m.p[i].effect?'   (side effect)':''));}
+ krow(g,14,290-8,230,'still live',m.kept,m.kept/8,'rgba(125,226,176,0.8)');
+ kverdict(g,12,244,W-24,true,storeOn?
+  'the store is live because somebody outside might be watching':
+  'with nothing observable, the whole chain below it goes');
+ kout('deado','round <b>'+Math.max(1,round)+'</b> &middot; live <b>'+m.kept+
+  '</b> of 8');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'WORK DONE FOR NOBODY');
+ korb(g,W/2,H/2+10,ang,28,function(i,N){
+  var t=i/N,dead=(i%7===2||i%7===3);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:dead?22:-8,
+   c:dead?'rgba(255,60,90,0.4)':'rgba(125,226,176,0.85)',r:dead?1.6:2.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'nothing in the model could tell, and the model is a choice');}
+document.getElementById('deadn').onclick=function(){round=round>=3?0:round+1;drawW4();};
+document.getElementById('deade').onclick=function(){storeOn=!storeOn;drawW4();};
+document.getElementById('deadr').onclick=function(){round=0;storeOn=true;drawW4();};
+document.getElementById('deadp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thedeadcodeelimination=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+STRE_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">A multiply by a constant can sometimes be replaced by shifts and adds. Sometimes. Whether it is worth doing depends entirely on the bit pattern of that constant, and most constants are not worth it.<br><br>
+ <span class="lit">LIT</span> verified live. With a multiply costing <b>5</b> and a shift or add costing <b>1</b>, <b>9</b> constants tested: only <b>4</b> reduce to something cheaper and <b>5</b> keep the multiply, saving <b>14</b> cost units in total. <b>10</b> has two set bits and costs <b>3</b>. <b>7</b> has three and costs exactly <b>5</b> &mdash; a wash. <b>255</b> has eight, and the multiply stays.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Strength reduction is the oldest trick in the peephole toolkit and the one most often over-remembered as always-a-win.<br><br>
+ <b>AVAN (AI)</b> dropped <b>1</b> from the test set after running it. <b>x&nbsp;*&nbsp;1</b> needs no instruction at all, and scoring it as a one-cycle shift would have counted a free operation as a saving and inflated the win rate. The honest result is that fewer than half the constants tested are worth reducing.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Nine constants, and which ones are worth it.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Pick a constant and see its bits decide.</div>
+   <div class="btns" style="margin-top:10px"><button id="stren">next constant &#9654;</button><button id="strem">costlier multiply</button><button id="strer">reset</button></div>
+   <div class="cap" id="streo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a number&rsquo;s bits deciding its cost.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that strength reduction makes multiplication cheaper. The inverse is that <b>it makes the cost of your code depend on the value of a literal</b>. Change a <b>10</b> to a <b>7</b> in the source and the instruction count changes, though nothing about the program&rsquo;s meaning did. Read backwards, the optimisation smuggles the machine&rsquo;s arithmetic up into the source text, and a constant that used to be a number is now also a decision about the shape of the emitted code.</div>
+   <div class="btns" style="margin-top:10px"><button id="strep">pause spin</button></div></div></div></div>"""
+STRE_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,idx=0,mulCost=5;
+var KS=[2,4,8,7,10,100,255,1023,12345];
+function bitsOf(k){var b=[],n=k,i=0;while(n){if(n&1)b.push(i);n>>>=1;i++;}return b;}
+function reduce(k,mc){
+ var b=bitsOf(k);
+ if(b.length===1)return {cost:1,ops:1,note:'power of two -- one shift'};
+ if(b.length<=3)return {cost:b.length+(b.length-1),ops:b.length+(b.length-1),
+  note:b.length+' set bits -- '+b.length+' shifts, '+(b.length-1)+' adds'};
+ return {cost:mc,ops:1,note:b.length+' set bits -- keep the multiply'};}
+function selftest(){
+ var rows=KS.map(function(k){
+  var r=reduce(k,5);
+  return {k:k,setBits:bitsOf(k).length,multiplyCost:5,reducedCost:r.cost,
+   cheaper:r.cost<5,note:r.note};});
+ var win=rows.filter(function(r){return r.cheaper;}).length;
+ var saved=rows.reduce(function(a,r){return a+Math.max(0,5-r.reducedCost);},0);
+ return {multiplyCost:5,shiftCost:1,addCost:1,
+  constantsTested:KS.length,rows:rows,
+  reducedCheaper:win,keptAsMultiply:KS.length-win,
+  totalCostSaved:saved,
+  oneWasExcludedBecauseItIsFree:true,
+  costDependsOnTheBitPattern:true,
+  fewerThanHalfAreWorthReducing:win<KS.length/2,
+  ok:win===4&&KS.length-win===5&&saved===14};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ffd23f',14,20,11,'NINE CONSTANTS, AND WHICH ARE WORTH IT');
+ var i;
+ for(i=0;i<VR.rows.length;i++){
+  var y=42+i*26,r=VR.rows[i];
+  nf(g,r.cheaper?'rgba(125,226,176,0.2)':'rgba(255,60,90,0.18)');
+  g.fillRect(16,y,470,22);ng(g);
+  nt(g,r.cheaper?'#7de2b0':'#ff5a8a',26,y+15,9,'x * '+r.k);
+  nt(g,'#8a7ab8',110,y+15,8,r.setBits+' set bits');
+  nt(g,'#e8e0ff',200,y+15,8,'cost '+r.reducedCost+' vs '+r.multiplyCost);
+  nt(g,'#5a4a85',310,y+15,8,r.note.slice(0,34));}
+ kverdict(g,12,282-6,W-24,false,VR.reducedCheaper+' cheaper, '+
+  VR.keptAsMultiply+' keep the multiply, '+VR.totalCostSaved+' cost units saved');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var k=KS[idx],b=bitsOf(k),r=reduce(k,mulCost);
+ nt(g,'#ffd23f',12,20,11,'x * '+k+'   (multiply costs '+mulCost+')');
+ var i,bin=k.toString(2);
+ for(i=0;i<bin.length&&i<24;i++){
+  nf(g,bin[i]==='1'?'rgba(255,210,63,0.9)':'rgba(90,70,140,0.35)');
+  g.fillRect(14+i*14,44,11,24);ng(g);}
+ nt(g,'#8a7ab8',14,84,8,bin.length+' bits, '+b.length+' of them set');
+ krow(g,14,102,230,'multiply cost',mulCost,mulCost/12,'rgba(255,60,90,0.75)');
+ krow(g,14,144,230,'reduced cost',r.cost,r.cost/12,
+  r.cost<mulCost?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.8)');
+ krow(g,14,186,230,'saving',Math.max(0,mulCost-r.cost),
+  Math.max(0,mulCost-r.cost)/12,'rgba(255,210,63,0.75)');
+ kverdict(g,12,228,W-24,r.cost<mulCost,r.note);
+ nt(g,'#5a4a85',14,280,8,'change a 10 to a 7 and the instruction count changes,');
+ nt(g,'#5a4a85',14,298,8,'though nothing about the meaning did');
+ kout('streo','x * <b>'+k+'</b> &middot; cost <b>'+r.cost+'</b> vs <b>'+mulCost+
+  '</b> &middot; '+(r.cost<mulCost?'reduce':'keep the multiply'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A NUMBER\\u2019S BITS DECIDING ITS COST');
+ korb(g,W/2,H/2+10,ang,32,function(i,N){
+  var t=i/N,set=((i*2654435761)>>>0)%3===0;
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:set?-18:12,
+   c:set?'rgba(255,210,63,0.9)':'rgba(90,70,140,0.35)',r:set?3:1.6};});
+ nt(g,'#8a7ab8',12,H-22,8,'a constant that was a number is now a decision');}
+document.getElementById('stren').onclick=function(){idx=(idx+1)%KS.length;drawW4();};
+document.getElementById('strem').onclick=function(){mulCost=mulCost>=20?2:mulCost+3;drawW4();};
+document.getElementById('strer').onclick=function(){idx=0;mulCost=5;drawW4();};
+document.getElementById('strep').onclick=function(){spin=!spin;};
+VR=selftest();window.__thestrengthreduction=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+REGA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Two values that are alive at the same moment cannot share a register. Draw that as a graph and the question becomes exactly graph colouring &mdash; and when the colours run out, something goes to memory.<br><br>
+ <span class="lit">LIT</span> verified live. <b>7</b> variables with overlapping live ranges give <b>8</b> interference edges and a maximum degree of <b>4</b>. At most <b>3</b> are ever live at once. With <b>1</b> register there are <b>4</b> spills; with <b>2</b>, <b>1</b> spill; with <b>3</b>, none. The register count that suffices equals the maximum simultaneously live &mdash; here the greedy colouring finds the bound rather than merely approaching it.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Register allocation as graph colouring is <b>Chaitin</b>&rsquo;s (1981); colouring is NP-complete in general, which is why real allocators are heuristics with a spill path.<br><br>
+ <b>AVAN (AI)</b> computed the maximum simultaneously live separately from the colouring, so the two can be compared. They agree at <b>3</b>. That agreement is not guaranteed &mdash; greedy colouring can need more than the clique number &mdash; and reporting them apart is the only way to see whether it did.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Seven live ranges, and where they collide.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Take registers away and watch the spills appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="regam">more registers &#9654;</button><button id="regal">fewer</button><button id="regar">reset</button></div>
+   <div class="cap" id="regao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: overlapping lives, finite seats.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that register allocation assigns variables to registers. The inverse is that <b>a spill is a memory access appearing in a program that never wrote one</b>. The source contains no load and no store; the allocator inserts them because it ran out of seats, and their cost is invisible in the code you are reading. Read backwards, the fastest thing a compiler can do for you is arithmetic you never see, and the slowest thing it can do to you is memory traffic you never wrote.</div>
+   <div class="btns" style="margin-top:10px"><button id="regap">pause spin</button></div></div></div></div>"""
+REGA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,K=3;
+var VARS=[['a',0,4],['b',1,3],['c',2,7],['d',5,9],['e',6,8],['f',8,11],['g',10,12]];
+function overlaps(x,y){return x[1]<y[2]&&y[1]<x[2];}
+function graph(){
+ var n=VARS.length,adj=[],i,j,edges=0;
+ for(i=0;i<n;i++)adj.push([]);
+ for(i=0;i<n;i++)for(j=i+1;j<n;j++)
+  if(overlaps(VARS[i],VARS[j])){adj[i].push(j);adj[j].push(i);edges++;}
+ return {adj:adj,edges:edges};}
+function colour(K2){
+ var G=graph(),n=VARS.length,col=new Array(n),spills=0,i,k;
+ for(i=0;i<n;i++)col[i]=-1;
+ for(i=0;i<n;i++){
+  var used={};
+  for(k=0;k<G.adj[i].length;k++)if(col[G.adj[i][k]]>=0)used[col[G.adj[i][k]]]=true;
+  var c=-1;
+  for(k=0;k<K2;k++)if(!used[k]){c=k;break;}
+  if(c<0)spills++;else col[i]=c;}
+ return {col:col,spills:spills};}
+function maxLive(){
+ var m=0,t,c;
+ for(t=0;t<13;t++){
+  c=VARS.filter(function(v){return v[1]<=t&&t<v[2];}).length;
+  if(c>m)m=c;}
+ return m;}
+function selftest(){
+ var G=graph(),rows=[1,2,3,4].map(function(k){
+  var r=colour(k);
+  return {registers:k,spills:r.spills,coloured:VARS.length-r.spills};});
+ var first=rows.filter(function(r){return r.spills===0;})[0];
+ var deg=Math.max.apply(null,G.adj.map(function(a){return a.length;}));
+ return {variables:VARS.length,interferenceEdges:G.edges,maxDegree:deg,
+  maxSimultaneouslyLive:maxLive(),
+  rows:rows,
+  registersForZeroSpills:first.registers,
+  spillsWithOneRegister:rows[0].spills,
+  spillsWithTwoRegisters:rows[1].spills,
+  greedyMatchesTheLowerBound:first.registers===maxLive(),
+  aSpillIsMemoryTheProgrammerNeverWrote:true,
+  ok:first.registers===3&&rows[0].spills>0&&G.edges===8};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'SEVEN LIVE RANGES');
+ var i;
+ for(i=0;i<VARS.length;i++){
+  var y=44+i*26,v=VARS[i];
+  nt(g,'#8a7ab8',20,y+14,9,v[0]);
+  nf(g,'rgba(90,70,140,0.2)');g.fillRect(46,y,432,20);ng(g);
+  nf(g,'rgba(90,208,255,0.75)');
+  g.fillRect(46+v[1]*36,y,(v[2]-v[1])*36,20);ng(g);}
+ nt(g,'#8a7ab8',46,238,8,'time ->   overlapping bars cannot share a register');
+ krow(g,20,246,300,'interference edges',VR.interferenceEdges,
+  VR.interferenceEdges/12,'rgba(157,0,255,0.7)');
+ kverdict(g,12,262-8,W-24,true,'max '+VR.maxSimultaneouslyLive+
+  ' live at once; greedy colouring needs '+VR.registersForZeroSpills+
+  ' -- it found the bound');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=colour(K),PAL=['rgba(125,226,176,0.85)','rgba(90,208,255,0.85)',
+  'rgba(255,210,63,0.85)','rgba(157,0,255,0.8)'];
+ nt(g,'#5ad0ff',12,20,11,K+' REGISTER'+(K>1?'S':'')+'   '+m.spills+' SPILL'+
+  (m.spills===1?'':'S'));
+ var i;
+ for(i=0;i<VARS.length;i++){
+  var y=44+i*28,v=VARS[i],col=m.col[i];
+  nt(g,'#8a7ab8',14,y+15,9,v[0]);
+  nf(g,'rgba(90,70,140,0.2)');g.fillRect(36,y,300,22);ng(g);
+  nf(g,col>=0?PAL[col%4]:'rgba(255,60,90,0.8)');
+  g.fillRect(36+v[1]*25,y,(v[2]-v[1])*25,22);ng(g);
+  nt(g,col>=0?'#0a0713':'#e8e0ff',40+v[1]*25,y+15,8,
+   col>=0?('r'+col):'SPILL');}
+ krow(g,14,248,230,'spills',m.spills,m.spills/5,'rgba(255,60,90,0.85)');
+ kverdict(g,12,290,W-24,m.spills===0,m.spills===0?
+  'every variable has a seat':
+  m.spills+' variable'+(m.spills===1?'':'s')+
+  ' go to memory -- loads and stores the source never contained');
+ kout('regao','<b>'+K+'</b> registers &middot; <b>'+m.spills+'</b> spills');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'OVERLAPPING LIVES, FINITE SEATS');
+ korb(g,W/2,H/2+10,ang,7,function(i,N){
+  var t=i/N*6.283185307;
+  return {x:Math.cos(t)*100,z:Math.sin(t)*66,y:0,
+   c:i<3?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.5)',r:5};});
+ nt(g,'#8a7ab8',12,H-22,8,'memory traffic you never wrote');}
+document.getElementById('regam').onclick=function(){K=Math.min(6,K+1);drawW4();};
+document.getElementById('regal').onclick=function(){K=Math.max(1,K-1);drawW4();};
+document.getElementById('regar').onclick=function(){K=3;drawW4();};
+document.getElementById('regap').onclick=function(){spin=!spin;};
+VR=selftest();window.__theregisterallocation=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+ALIA_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Before a compiler can move a load past a store it has to know the two do not touch the same address. When it cannot prove they are different, it must assume they are the same &mdash; and almost everything it wanted to do stops.<br><br>
+ <span class="lit">LIT</span> verified live. <b>7</b> pointers give <b>21</b> ordered-independent pairs. Only <b>4</b> can be proven distinct &mdash; <b>19.0%</b> &mdash; those coming from two provably separate allocations. The other <b>17</b> may alias, which blocks <b>17</b> reorderings. Every pointer from a parameter or a global is unknown, and unknown is answered as yes.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Alias analysis is undecidable in general, so every real analysis is a conservative approximation and the conservative direction is always &ldquo;these might be the same&rdquo;.<br><br>
+ <b>AVAN (AI)</b> reports the default answer as its own figure. <b>17</b> of <b>21</b> pairs block optimisation not because anything was proven about them but because nothing was &mdash; the cost of the analysis is paid in what it fails to establish, and that is the number that decides how fast the code runs.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Twenty-one pairs, four of them settled.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Give the analysis more to work with.</div>
+   <div class="btns" style="margin-top:10px"><button id="alian">next pair &#9654;</button><button id="aliaa">more allocations</button><button id="aliar">reset</button></div>
+   <div class="cap" id="aliao" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two names, one possible address.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that alias analysis proves pointers distinct so the compiler can optimise. The inverse is that <b>it spends all its effort on the pairs it will never settle</b>. The <b>4</b> proven pairs were easy &mdash; two allocations, obviously different. The <b>17</b> unresolved ones are where the work went and where nothing was learned. Read backwards, a conservative analysis is not one that makes safe conclusions; it is one that has agreed in advance which way to be wrong, and every optimisation you did not get is that agreement being honoured.</div>
+   <div class="btns" style="margin-top:10px"><button id="aliap">pause spin</button></div></div></div></div>"""
+ALIA_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,pi=0,extraAlloc=0;
+function ptrs(extra){
+ var p=[{n:'p',from:'allocA'},{n:'q',from:'allocA'},
+        {n:'r',from:'allocB'},{n:'s',from:'allocB'},
+        {n:'t',from:'param'},{n:'u',from:'param'},{n:'v',from:'global'}];
+ for(var i=0;i<extra;i++){
+  p[4+i%3].from='allocC'+i;}
+ return p;}
+function pairsOf(extra){
+ var P=ptrs(extra),out=[],i,j;
+ for(i=0;i<P.length;i++)for(j=i+1;j<P.length;j++){
+  var a=P[i],b=P[j];
+  var pd=(a.from!==b.from)&&a.from.indexOf('alloc')===0&&b.from.indexOf('alloc')===0;
+  out.push({a:a.n,b:b.n,fromA:a.from,fromB:b.from,provenDistinct:pd,mayAlias:!pd});}
+ return out;}
+function selftest(){
+ var P=pairsOf(0);
+ var d=P.filter(function(x){return x.provenDistinct;}).length;
+ return {pointers:7,pairs:P.length,
+  provenDistinct:d,mayAlias:P.length-d,
+  provenDistinctPct:+(100*d/P.length).toFixed(1),
+  reorderingsBlocked:P.length-d,
+  unknownIsAnsweredAsYes:true,
+  theDefaultAnswerIsTheExpensiveOne:(P.length-d)>d,
+  ok:d===4&&P.length===21};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'TWENTY-ONE PAIRS, FOUR SETTLED');
+ var P=pairsOf(0),i;
+ for(i=0;i<P.length;i++){
+  var x=24+(i%7)*68,y=48+Math.floor(i/7)*44;
+  nf(g,P[i].provenDistinct?'rgba(125,226,176,0.8)':'rgba(255,60,90,0.35)');
+  g.fillRect(x,y,60,34);ng(g);
+  nt(g,P[i].provenDistinct?'#0a0713':'#e8e0ff',x+8,y+22,9,P[i].a+' '+P[i].b);}
+ nt(g,'#7de2b0',24,196,8,'green = proven distinct');
+ nt(g,'#ff5a8a',200,196,8,'red = may alias, and the compiler must assume it does');
+ krow(g,20,208,300,'reorderings blocked',VR.reorderingsBlocked,
+  VR.reorderingsBlocked/21,'rgba(255,60,90,0.8)');
+ kverdict(g,12,250,W-24,false,'only '+VR.provenDistinctPct+
+  '% settled -- the rest block optimisation because nothing was proven');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var P=pairsOf(extraAlloc),cur=P[pi%P.length];
+ var d=P.filter(function(x){return x.provenDistinct;}).length;
+ nt(g,'#7cfc00',12,20,11,cur.a+'   and   '+cur.b);
+ nf(g,'rgba(90,70,140,0.22)');g.fillRect(14,42,340,56);ng(g);
+ nt(g,'#e8e0ff',24,64,9,cur.a+' comes from '+cur.fromA);
+ nt(g,'#e8e0ff',24,84,9,cur.b+' comes from '+cur.fromB);
+ nf(g,cur.provenDistinct?'rgba(125,226,176,0.25)':'rgba(255,60,90,0.22)');
+ g.fillRect(14,108,340,42);ng(g);
+ nt(g,cur.provenDistinct?'#7de2b0':'#ff5a8a',24,134,10,
+  cur.provenDistinct?'PROVEN DISTINCT -- reordering is legal':
+  'MAY ALIAS -- assume the same address');
+ krow(g,14,162,230,'pairs proven distinct',d,d/P.length,
+  'rgba(125,226,176,0.8)');
+ krow(g,14,204,230,'pairs that block work',P.length-d,(P.length-d)/P.length,
+  'rgba(255,60,90,0.8)');
+ kverdict(g,12,246,W-24,cur.provenDistinct,
+  'unknown is answered as yes, every time');
+ nt(g,'#5a4a85',14,296,8,'it has agreed in advance which way to be wrong');
+ kout('aliao',cur.a+'/'+cur.b+' &middot; <b>'+
+  (cur.provenDistinct?'distinct':'may alias')+'</b> &middot; settled <b>'+d+
+  '</b> of '+P.length);}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO NAMES, ONE POSSIBLE ADDRESS');
+ ndot(g,W/2,H/2+10,9,'rgba(255,210,63,0.9)');
+ kring(g,W/2,H/2+10,ang,2,90,0,'rgba(125,226,176,0.85)',5);
+ nt(g,'#8a7ab8',12,H-22,8,'every optimisation you did not get is that agreement honoured');}
+document.getElementById('alian').onclick=function(){pi++;drawW4();};
+document.getElementById('aliaa').onclick=function(){extraAlloc=(extraAlloc+1)%4;drawW4();};
+document.getElementById('aliar').onclick=function(){pi=0;extraAlloc=0;drawW4();};
+document.getElementById('aliap').onclick=function(){spin=!spin;};
+VR=selftest();window.__thealiasanalysis=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+CSEL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If the same expression appears twice and nothing it depends on has changed between them, the second one is a lookup. Finding them is easy; the condition attached to the sentence is the whole problem.<br><br>
+ <span class="lit">LIT</span> verified live. <b>8</b> expressions containing <b>4</b> distinct ones. <b>4</b> evaluations are removed &mdash; <b>50.0%</b>. Three expressions repeat: <b>a+b</b> three times, <b>c*d</b> twice, <b>e-f</b> twice. The removal is valid only where no assignment to <b>a</b>, <b>b</b>, <b>c</b>, <b>d</b>, <b>e</b> or <b>f</b> occurs between the occurrences.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Common-subexpression elimination is usually done on a value-numbered DAG, where identical subtrees become the same node by construction rather than by search.<br><br>
+ <b>AVAN (AI)</b> is being explicit that the <b>50.0%</b> is the upper bound. This counts syntactic repetition; it is what the pass could remove if nothing intervenes. Every intervening assignment takes one back, and in real code the availability analysis is where the pass spends its time &mdash; not in finding the duplicates.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight expressions, four distinct.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Insert an assignment and watch a saving disappear.</div>
+   <div class="btns" style="margin-top:10px"><button id="cseln">move the assignment &#9654;</button><button id="cselo2">remove it</button><button id="cselr">reset</button></div>
+   <div class="cap" id="cselo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: the same thing said once.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that eliminating a common subexpression saves an evaluation. The inverse is that <b>it replaces a computation with a live value, and live values need registers</b>. The saved multiply becomes a variable that must stay alive from the first use to the last, lengthening a live range and pushing the allocator toward a spill. Read backwards, this pass does not remove work &mdash; it converts arithmetic into pressure on the register file, and the trade is only a win while there are seats left.</div>
+   <div class="btns" style="margin-top:10px"><button id="cselp">pause spin</button></div></div></div></div>"""
+CSEL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,assignAt=-1;
+var EXPRS=['a+b','c*d','a+b','e-f','c*d','a+b','g/h','e-f'];
+function analyse(killAt){
+ var seen={},removed=0,marks=[],i;
+ for(i=0;i<EXPRS.length;i++){
+  if(killAt===i){ seen={}; marks.push('kill'); continue; }
+  if(seen[EXPRS[i]]){ removed++; marks.push('reuse'); }
+  else { seen[EXPRS[i]]=true; marks.push('compute'); }}
+ return {removed:removed,marks:marks,
+  distinct:EXPRS.length-removed};}
+function selftest(){
+ var m=analyse(-1),counts={},i;
+ for(i=0;i<EXPRS.length;i++)counts[EXPRS[i]]=(counts[EXPRS[i]]||0)+1;
+ var rep=Object.keys(counts).filter(function(e){return counts[e]>1;});
+ return {expressions:EXPRS.length,
+  distinctExpressions:m.distinct,
+  evaluationsRemoved:m.removed,
+  reductionPct:+(100*m.removed/EXPRS.length).toFixed(1),
+  repeatedExpressions:rep.length,
+  repeats:rep.map(function(e){return e+' x'+counts[e];}),
+  thisIsTheUpperBound:true,
+  validOnlyIfNoOperandChanged:true,
+  ok:m.removed===4&&m.distinct===4&&rep.length===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#9d00ff',14,20,11,'EIGHT EXPRESSIONS, FOUR DISTINCT');
+ var m=analyse(-1),i;
+ for(i=0;i<EXPRS.length;i++){
+  var y=48+i*26,reuse=m.marks[i]==='reuse';
+  nf(g,reuse?'rgba(255,210,63,0.25)':'rgba(125,226,176,0.2)');
+  g.fillRect(16,y,470,22);ng(g);
+  nt(g,reuse?'#ffd76a':'#7de2b0',26,y+15,9,EXPRS[i]);
+  nt(g,'#8a7ab8',120,y+15,8,reuse?'reuse the earlier value':'compute');}
+ nt(g,'#5a4a85',20,266,8,'gold = an evaluation the pass can remove');
+ kverdict(g,12,262,W-24,true,VR.evaluationsRemoved+' of '+VR.expressions+
+  ' removed ('+VR.reductionPct+'%) -- and that is the upper bound');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=analyse(assignAt);
+ nt(g,'#9d00ff',12,20,11,assignAt<0?'NO INTERVENING ASSIGNMENT':
+  'ASSIGNMENT AT POSITION '+assignAt);
+ var i;
+ for(i=0;i<EXPRS.length;i++){
+  var y=40+i*29,mk=m.marks[i];
+  var col=mk==='kill'?'rgba(255,60,90,0.35)':
+          (mk==='reuse'?'rgba(255,210,63,0.28)':'rgba(125,226,176,0.22)');
+  nf(g,col);g.fillRect(14,y,340,24);ng(g);
+  nt(g,mk==='kill'?'#ff5a8a':(mk==='reuse'?'#ffd76a':'#7de2b0'),24,y+16,9,
+   mk==='kill'?'a = ...   (kills everything known)':EXPRS[i]);}
+ krow(g,14,282-8,230,'evaluations removed',m.removed,m.removed/5,
+  'rgba(255,210,63,0.8)');
+ kverdict(g,12,240,W-24,m.removed>=4,
+  assignAt<0?'nothing changed, so every repeat is a lookup':
+  'the assignment invalidates what was known and the savings below it are gone');
+ nt(g,'#5a4a85',14,296,8,'it converts arithmetic into pressure on the register file');
+ kout('cselo',(assignAt<0?'no assignment':'assignment at '+assignAt)+
+  ' &middot; removed <b>'+m.removed+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'THE SAME THING SAID ONCE');
+ korb(g,W/2,H/2+10,ang,24,function(i,N){
+  var t=i/N,first=(i%6===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:first?-18:6,
+   c:first?'rgba(125,226,176,0.9)':'rgba(255,210,63,0.45)',r:first?3.6:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'a win only while there are seats left');}
+document.getElementById('cseln').onclick=function(){
+ assignAt=assignAt>=EXPRS.length-1?0:assignAt+1;drawW4();};
+document.getElementById('cselo2').onclick=function(){assignAt=-1;drawW4();};
+document.getElementById('cselr').onclick=function(){assignAt=-1;drawW4();};
+document.getElementById('cselp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thecommonsubexpression=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+TCAL_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">If the very last thing a function does is call another one, the caller&rsquo;s frame has nothing left to do. Reuse it instead of stacking a new one, and recursion stops being bounded by memory.<br><br>
+ <span class="lit">LIT</span> verified live. A stack limited to <b>10,000</b> frames. Without the transformation, <b>100</b> calls use <b>100</b> frames and <b>1,000</b> use <b>1,000</b>; the first overflow is at <b>10,000</b> calls, and <b>3</b> of the <b>5</b> sizes tested fail. With it, every size completes and the frame count is <b>1</b> &mdash; at a hundred calls or a million. It is a jump, not a call.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Proper tail calls are required by the Scheme standard and are the reason recursion is the ordinary loop there; most mainstream languages do not guarantee them.<br><br>
+ <b>AVAN (AI)</b> reports the frame count as flat rather than as a reduction, because a reduction implies a smaller version of the same quantity. It is not smaller &mdash; it stops being a function of the input at all, and that change in kind is what makes a recursive algorithm safe to write.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Calls against frames, with and without.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Add calls until the stack gives out.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcaln">more calls &#9654;</button><button id="tcall">fewer</button><button id="tcalt">toggle tail calls</button><button id="tcalr">reset</button></div>
+   <div class="cap" id="tcalo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a frame reused forever.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that tail calls make deep recursion safe. The inverse is that <b>they do it by destroying the evidence</b>. Each reused frame overwrites the one before, so the stack trace that would have told you how you got here no longer exists &mdash; the crash reports the last frame and nothing about the million that led to it. Read backwards, the optimisation trades a record of the past for the ability to have a future, and every language that guarantees tail calls has quietly decided which of those two the programmer needs more.</div>
+   <div class="btns" style="margin-top:10px"><button id="tcalp">pause spin</button></div></div></div></div>"""
+TCAL_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,calls=1000,tco=false;
+var LIMIT=10000;
+function frames(n,useTco){
+ if(useTco)return {frames:1,done:true};
+ return {frames:Math.min(n,LIMIT),done:n<LIMIT};}
+function selftest(){
+ var sizes=[100,1000,10000,100000,1000000];
+ var rows=sizes.map(function(n){
+  var a=frames(n,false),b=frames(n,true);
+  return {calls:n,framesWithout:a.frames,completedWithout:a.done,
+   framesWith:b.frames,completedWith:b.done};});
+ var failed=rows.filter(function(r){return !r.completedWithout;});
+ return {stackLimitFrames:LIMIT,sizesTested:sizes.length,rows:rows,
+  firstOverflowAtCalls:failed[0].calls,
+  sizesThatOverflowWithout:failed.length,
+  sizesThatOverflowWith:0,
+  framesWithTailCallsAtAnyDepth:1,
+  frameCountStopsBeingAFunctionOfTheInput:true,
+  itIsAJumpNotACall:true,
+  ok:failed.length===3&&rows.every(function(r){return r.framesWith===1;})};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'CALLS AGAINST FRAMES');
+ var R=VR.rows,i;
+ for(i=0;i<R.length;i++){
+  var y=52+i*44,r=R[i];
+  nt(g,'#8a7ab8',20,y+18,9,r.calls.toLocaleString()+' calls');
+  nf(g,'rgba(90,70,140,0.22)');g.fillRect(150,y,250,26);ng(g);
+  nf(g,r.completedWithout?'rgba(255,60,90,0.6)':'rgba(255,60,90,0.9)');
+  g.fillRect(150,y,Math.round(250*r.framesWithout/LIMIT),26);ng(g);
+  nf(g,'rgba(125,226,176,0.95)');g.fillRect(150,y,4,26);ng(g);
+  nt(g,r.completedWithout?'#8a7ab8':'#ff5a8a',410,y+18,8,
+   r.completedWithout?'completes':'OVERFLOW');}
+ nt(g,'#7de2b0',150,268,8,'the thin green sliver at the left is the tail-call version: 1 frame');
+ kverdict(g,12,262,W-24,false,'first overflow at '+
+  VR.firstOverflowAtCalls.toLocaleString()+' calls; '+
+  VR.sizesThatOverflowWithout+' of '+VR.sizesTested+' sizes fail without it');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=frames(calls,tco);
+ nt(g,'#00f5ff',12,20,11,calls.toLocaleString()+' CALLS'+
+  (tco?'   [tail calls]':'   [ordinary calls]'));
+ var i,show=Math.min(40,Math.ceil(m.frames/Math.max(1,m.frames/40)));
+ for(i=0;i<40;i++){
+  var filled=tco?(i===0):(i<Math.round(40*m.frames/LIMIT));
+  nf(g,filled?(tco?'rgba(125,226,176,0.9)':'rgba(255,60,90,0.75)')
+             :'rgba(90,70,140,0.25)');
+  g.fillRect(14+i*8.5,44,7,40);ng(g);}
+ nt(g,'#8a7ab8',14,100,8,'the stack, 40 cells standing for '+LIMIT.toLocaleString()+' frames');
+ krow(g,14,118,230,'frames used',m.frames,m.frames/LIMIT,
+  tco?'rgba(125,226,176,0.85)':'rgba(255,60,90,0.8)');
+ krow(g,14,160,230,'stack limit',LIMIT,1,'rgba(90,70,140,0.6)');
+ kverdict(g,12,202,W-24,m.done,m.done?
+  (tco?'one frame, at any depth -- the count does not depend on the input':
+       'fits, for now'):
+  'stack overflow at '+calls.toLocaleString()+' calls');
+ nt(g,'#5a4a85',14,254,8,'each reused frame overwrites the one before');
+ nt(g,'#5a4a85',14,272,8,'the trace that would say how you got here is gone');
+ kout('tcalo',calls.toLocaleString()+' calls &middot; <b>'+m.frames.toLocaleString()+
+  '</b> frames &middot; '+(m.done?'completes':'<b>overflow</b>'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A FRAME REUSED FOREVER');
+ ndot(g,W/2,H/2+10,11,'rgba(125,226,176,0.9)');
+ kring(g,W/2,H/2+10,ang*2,18,74,0,'rgba(0,245,255,0.4)',2);
+ nt(g,'#8a7ab8',12,H-22,8,'a record of the past traded for the ability to have a future');}
+document.getElementById('tcaln').onclick=function(){calls=Math.min(1000000,calls*10);drawW4();};
+document.getElementById('tcall').onclick=function(){calls=Math.max(10,Math.floor(calls/10));drawW4();};
+document.getElementById('tcalt').onclick=function(){tco=!tco;drawW4();};
+document.getElementById('tcalr').onclick=function(){calls=1000;tco=false;drawW4();};
+document.getElementById('tcalp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thetailcall=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+FOLD_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Arithmetic on values the compiler already knows can be done at compile time, and the answer substituted. What stops it is not difficulty &mdash; it is one input the compiler cannot see.<br><br>
+ <span class="lit">LIT</span> verified live. <b>8</b> instructions, <b>2</b> of them declared constants. <b>4</b> operations fold away &mdash; <b>66.7%</b> &mdash; producing <b>c=5</b>, <b>e=10</b>, <b>h=15</b> and <b>i=25</b> before the program runs. <b>2</b> remain: the load, and the one addition that takes the load as an input. A single unknown makes everything downstream of it unknown too.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Constant folding and constant propagation run together and to a fixpoint; sparse conditional constant propagation folds across branches as well.<br><br>
+ <b>AVAN (AI)</b> put the load in the middle rather than at the end. Placed there it poisons exactly one successor and leaves the rest foldable, which shows the shape: the boundary is not where the unknown appears but wherever its value flows, and the <b>4</b> that folded did so only because nothing carried the load forward into them.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Eight instructions, four of them answered early.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Move the unknown and watch the folding stop.</div>
+   <div class="btns" style="margin-top:10px"><button id="foldn">move the load &#9654;</button><button id="foldb">back</button><button id="foldr">reset</button></div>
+   <div class="cap" id="foldo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: arithmetic that never runs.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that constant folding computes what it can ahead of time. The inverse is that <b>it is the compiler running your program, with the parts it is allowed to see</b>. The distinction between compile time and run time is not a property of the code but of what is known when, and folding moves the line by knowing more. Read backwards, a fully known program has no run time at all &mdash; it is a constant &mdash; and every instruction that survives is there because something was withheld.</div>
+   <div class="btns" style="margin-top:10px"><button id="foldp">pause spin</button></div></div></div></div>"""
+FOLD_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,loadAt=4;
+function prog(la){
+ var p=[
+  {d:'a',op:'const',v:2},{d:'b',op:'const',v:3},
+  {d:'c',op:'add',x:'a',y:'b'},{d:'e',op:'mul',x:'c',y:'a'},
+  {d:'f',op:'add',x:'c',y:'b'},{d:'g',op:'add',x:'e',y:'f'},
+  {d:'h',op:'mul',x:'c',y:'b'},{d:'i',op:'add',x:'h',y:'e'}];
+ if(la>=2&&la<p.length)p[la]={d:p[la].d,op:'load'};
+ return p;}
+function run(la){
+ var p=prog(la),known={},folded=0,runtime=0,marks=[];
+ p.forEach(function(ins){
+  if(ins.op==='const'){known[ins.d]=ins.v;marks.push('const');return;}
+  if(ins.op==='load'){runtime++;marks.push('load');return;}
+  var x=known[ins.x],y=known[ins.y];
+  if(x!==undefined&&y!==undefined){
+   known[ins.d]=ins.op==='add'?(x+y):(x*y);folded++;marks.push('fold');
+  } else {runtime++;marks.push('runtime');}});
+ return {p:p,known:known,folded:folded,runtime:runtime,marks:marks};}
+function selftest(){
+ var m=run(4);
+ return {instructions:8,constantsDeclared:2,
+  operationsFolded:m.folded,operationsLeftAtRuntime:m.runtime,
+  foldedPct:+(100*m.folded/(m.folded+m.runtime)).toFixed(1),
+  foldedValues:['c=5','e=10','h=15','i=25'],
+  cIs:m.known['c'],eIs:m.known['e'],hIs:m.known['h'],iIs:m.known['i'],
+  oneUnknownPoisonsWhatFlowsFromIt:m.known['g']===undefined,
+  everySurvivingInstructionIsSomethingWithheld:true,
+  ok:m.folded===4&&m.runtime===2&&m.known['c']===5&&m.known['i']===25};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#5ad0ff',14,20,11,'EIGHT INSTRUCTIONS, FOUR ANSWERED EARLY');
+ var m=run(4),i;
+ for(i=0;i<m.p.length;i++){
+  var y=44+i*29,mk=m.marks[i],ins=m.p[i];
+  var col=mk==='fold'?'rgba(125,226,176,0.24)':
+          (mk==='const'?'rgba(90,208,255,0.22)':'rgba(255,60,90,0.22)');
+  nf(g,col);g.fillRect(16,y,470,24);ng(g);
+  var lbl=ins.op==='const'?(ins.d+' = '+ins.v):
+          (ins.op==='load'?(ins.d+' = load(...)'):
+           (ins.d+' = '+ins.x+' '+(ins.op==='add'?'+':'*')+' '+ins.y));
+  nt(g,mk==='fold'?'#7de2b0':(mk==='const'?'#5ad0ff':'#ff5a8a'),26,y+16,9,lbl);
+  nt(g,'#8a7ab8',260,y+16,8,
+   mk==='fold'?('folded to '+m.known[ins.d]):
+   (mk==='const'?'known':'stays at runtime'));}
+ kverdict(g,12,282-8,W-24,true,VR.operationsFolded+' folded, '+
+  VR.operationsLeftAtRuntime+' left ('+VR.foldedPct+'%) -- c=5, e=10, h=15, i=25');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=run(loadAt);
+ nt(g,'#5ad0ff',12,20,11,'THE UNKNOWN AT POSITION '+loadAt);
+ var i;
+ for(i=0;i<m.p.length;i++){
+  var y=40+i*30,mk=m.marks[i];
+  var col=mk==='fold'?'rgba(125,226,176,0.25)':
+          (mk==='const'?'rgba(90,208,255,0.22)':'rgba(255,60,90,0.25)');
+  nf(g,col);g.fillRect(14,y,340,25);ng(g);
+  nt(g,mk==='fold'?'#7de2b0':(mk==='const'?'#5ad0ff':'#ff5a8a'),24,y+17,9,
+   m.p[i].d+(mk==='load'?'  = load(...)':''));}
+ krow(g,14,286-6,230,'folded',m.folded,m.folded/6,'rgba(125,226,176,0.85)');
+ kverdict(g,12,240,W-24,m.folded>=4,
+  'the boundary is not where the unknown appears but wherever its value flows');
+ nt(g,'#5a4a85',14,296,8,'a fully known program has no run time at all');
+ kout('foldo','load at <b>'+loadAt+'</b> &middot; folded <b>'+m.folded+
+  '</b> &middot; runtime <b>'+m.runtime+'</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ARITHMETIC THAT NEVER RUNS');
+ korb(g,W/2,H/2+10,ang,28,function(i,N){
+  var t=i/N,gone=(t<0.66);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:gone?-14:10,
+   c:gone?'rgba(125,226,176,0.35)':'rgba(255,60,90,0.8)',r:gone?1.6:3};});
+ nt(g,'#8a7ab8',12,H-22,8,'every instruction that survives is something withheld');}
+document.getElementById('foldn').onclick=function(){loadAt=loadAt>=7?2:loadAt+1;drawW4();};
+document.getElementById('foldb').onclick=function(){loadAt=loadAt<=2?7:loadAt-1;drawW4();};
+document.getElementById('foldr').onclick=function(){loadAt=4;drawW4();};
+document.getElementById('foldp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theconstantfolding=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+LINV_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">An expression inside a loop that does not depend on the loop can be computed once outside it. The saving is not a percentage of the work &mdash; it is a factor of the iteration count.<br><br>
+ <span class="lit">LIT</span> verified live. A body of <b>5</b> expressions over <b>1,000,000</b> iterations, <b>3</b> of them invariant. Before hoisting: <b>5,000,000</b> evaluations. After: <b>2,000,003</b>. That is <b>2,999,997</b> saved, a <b>60.00%</b> reduction and a <b>2.50&times;</b> speedup on the body &mdash; and the three that were hoisted now run <b>once</b>, including when the loop runs zero times.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Loop-invariant code motion needs the expression to be both invariant and safe to speculate; an invariant division by a variable cannot be hoisted above the guard that proves it non-zero.<br><br>
+ <b>AVAN (AI)</b> reports the zero-iteration case because it is where the optimisation changes behaviour rather than speed. Hoisting runs the expression whether the loop body ever executes or not, which is free for arithmetic and a bug for anything that can fault.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Five expressions, three of them hoisted.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Change the trip count and the invariant fraction.</div>
+   <div class="btns" style="margin-top:10px"><button id="linvn">more iterations &#9654;</button><button id="linvl">fewer</button><button id="linvi">more invariant</button><button id="linvr">reset</button></div>
+   <div class="cap" id="linvo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: once instead of a million times.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that hoisting saves a million evaluations. The inverse is that <b>it also runs the expression when the loop would not have</b>. At zero iterations the unoptimised code evaluates the invariant zero times and the hoisted code evaluates it once, so the transformation is not merely faster &mdash; it is a different program on the empty input. Read backwards, every safe optimisation is one where nobody could tell the difference, and the whole discipline is the work of establishing that nobody can.</div>
+   <div class="btns" style="margin-top:10px"><button id="linvp">pause spin</button></div></div></div></div>"""
+LINV_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,N=1000000,inv=3;
+var BODY=5;
+function calc(n,invCount){
+ var varying=BODY-invCount;
+ var before=BODY*n,after=varying*n+invCount;
+ return {before:before,after:after,saved:before-after,
+  pct:before?100*(before-after)/before:0,
+  speedup:after?before/after:0};}
+function selftest(){
+ var m=calc(1000000,3);
+ var zero=calc(0,3);
+ return {iterations:1000000,expressionsInBody:BODY,
+  invariant:3,varying:2,
+  evaluationsBefore:m.before,evaluationsAfter:m.after,
+  evaluationsSaved:m.saved,
+  reductionPct:+m.pct.toFixed(2),
+  speedupOnTheBody:+m.speedup.toFixed(2),
+  atZeroIterationsBefore:zero.before,atZeroIterationsAfter:zero.after,
+  hoistingRunsItEvenAtZeroIterations:zero.after>zero.before,
+  aDifferentProgramOnTheEmptyInput:true,
+  ok:m.after<m.before&&m.saved===2999997&&zero.after===3};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#00f5ff',14,20,11,'FIVE EXPRESSIONS, THREE HOISTED');
+ var names=['x*y  (invariant)','a[i]','len(s)  (invariant)','i*2',
+  'base+off  (invariant)'];
+ var i;
+ for(i=0;i<5;i++){
+  var y=46+i*30,invv=(i===0||i===2||i===4);
+  nf(g,invv?'rgba(125,226,176,0.22)':'rgba(90,70,140,0.22)');
+  g.fillRect(16,y,300,25);ng(g);
+  nt(g,invv?'#7de2b0':'#8a7ab8',26,y+17,9,names[i]);
+  nt(g,invv?'#7de2b0':'#5a4a85',330,y+17,8,invv?'hoist: 1 time':'1,000,000 times');}
+ krow(g,20,204,300,'evaluations before',VR.evaluationsBefore,1,
+  'rgba(255,60,90,0.75)');
+ krow(g,20,244,300,'after hoisting',VR.evaluationsAfter,
+  VR.evaluationsAfter/VR.evaluationsBefore,'rgba(125,226,176,0.85)');
+ kverdict(g,12,262-6,W-24,true,VR.evaluationsSaved.toLocaleString()+
+  ' saved -- '+VR.reductionPct+'%, a '+VR.speedupOnTheBody+'x speedup on the body');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=calc(N,inv);
+ nt(g,'#00f5ff',12,20,11,N.toLocaleString()+' ITERATIONS, '+inv+' INVARIANT');
+ var i;
+ for(i=0;i<BODY;i++){
+  nf(g,i<inv?'rgba(125,226,176,0.85)':'rgba(90,70,140,0.4)');
+  g.fillRect(14+i*68,44,60,34);ng(g);
+  nt(g,i<inv?'#0a0713':'#8a7ab8',22+i*68,66,8,i<inv?'hoist':'stay');}
+ nt(g,'#8a7ab8',14,94,8,'green = invariant, lifted out of the loop');
+ krow(g,14,112,230,'before',m.before,1,'rgba(255,60,90,0.75)');
+ krow(g,14,154,230,'after',m.after,m.before?m.after/m.before:0,
+  'rgba(125,226,176,0.85)');
+ krow(g,14,196,230,'speedup on the body',+m.speedup.toFixed(2),
+  Math.min(1,m.speedup/6),'rgba(255,210,63,0.8)');
+ kverdict(g,12,238,W-24,N>0,N===0?
+  'zero iterations: the original evaluates 0 times, the hoisted version '+inv:
+  'the saving is a factor of the trip count, not a percentage of the work');
+ nt(g,'#5a4a85',14,292,8,'every safe optimisation is one where nobody could tell');
+ kout('linvo',N.toLocaleString()+' iters, '+inv+' invariant &middot; saved <b>'+
+  m.saved.toLocaleString()+'</b> &middot; <b>'+m.speedup.toFixed(2)+'x</b>');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'ONCE INSTEAD OF A MILLION TIMES');
+ ndot(g,W/2-90,H/2+10,9,'rgba(125,226,176,0.95)');
+ kring(g,W/2+30,H/2+10,ang,30,80,0,'rgba(0,245,255,0.5)',2);
+ nt(g,'#8a7ab8',12,H-22,8,'the work of establishing that nobody can');}
+document.getElementById('linvn').onclick=function(){N=N>=1000000?0:(N?N*10:1);drawW4();};
+document.getElementById('linvl').onclick=function(){N=N>=10?Math.floor(N/10):1000000;drawW4();};
+document.getElementById('linvi').onclick=function(){inv=inv>=5?0:inv+1;drawW4();};
+document.getElementById('linvr').onclick=function(){N=1000000;inv=3;drawW4();};
+document.getElementById('linvp').onclick=function(){spin=!spin;};
+VR=selftest();window.__theloopinvariant=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+SSAF_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Give every assignment its own name and the question &ldquo;which definition reaches this use?&rdquo; stops needing an answer &mdash; the name is the answer. Where two paths meet, something has to reconcile them.<br><br>
+ <span class="lit">LIT</span> verified live. A diamond control-flow graph: <b>4</b> blocks, <b>4</b> variables, <b>6</b> assignments. In SSA those become <b>6</b> distinct versions &mdash; <b>2</b> more names than variables. Exactly <b>1</b> phi node is required, for the variable assigned on both arms. The other three are assigned on one path only and need nothing.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">SSA is <b>Cytron et al.</b> (1991); phi nodes go exactly at the iterated dominance frontier, which is what makes the placement minimal rather than merely correct.<br><br>
+ <b>AVAN (AI)</b> counted the phi against the variables assigned on more than one path, which is the same answer on a diamond and not in general. This is the honest limit of the sphere: the result is exact for this graph and the dominance-frontier construction is what generalises it.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Four blocks, six versions, one phi.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Assign a variable on the other arm and watch a phi appear.</div>
+   <div class="btns" style="margin-top:10px"><button id="ssafn">assign on the other arm &#9654;</button><button id="ssafr">reset</button></div>
+   <div class="cap" id="ssafo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: two paths, one name.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that SSA makes dataflow explicit. The inverse is that <b>the phi node is not an instruction and no machine can execute one</b>. It is a note saying &ldquo;whichever way you came&rdquo;, and before code is emitted every phi must be destroyed again and turned back into copies on the incoming edges. Read backwards, SSA does not describe the program &mdash; it is a temporary fiction the compiler tells itself in order to reason, and the last pass before the machine sees anything is the one that takes it back.</div>
+   <div class="btns" style="margin-top:10px"><button id="ssafp">pause spin</button></div></div></div></div>"""
+SSAF_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,extra=0;
+function build(ex){
+ var blocks={entry:['a','b'],L:['a','c'],R:['a','d'],join:[]};
+ if(ex>=1)blocks.R.push('c');
+ if(ex>=2)blocks.L.push('d');
+ return blocks;}
+function analyse(ex){
+ var b=build(ex),defs={},k;
+ Object.keys(b).forEach(function(blk){
+  b[blk].forEach(function(v){(defs[v]=defs[v]||[]).push(blk);});});
+ var phis=Object.keys(defs).filter(function(v){
+  return defs[v].indexOf('L')>=0&&defs[v].indexOf('R')>=0;});
+ var assigns=Object.keys(b).reduce(function(a,blk){return a+b[blk].length;},0);
+ return {blocks:b,defs:defs,phis:phis,assignments:assigns,
+  variables:Object.keys(defs).length};}
+function selftest(){
+ var m=analyse(0);
+ return {blocks:4,variables:m.variables,assignments:m.assignments,
+  ssaVersions:m.assignments,
+  versionsMinusVariables:m.assignments-m.variables,
+  phiNodesNeeded:m.phis.length,phiFor:m.phis,
+  everyNameAssignedExactlyOnce:true,
+  aPhiIsNotAnInstruction:true,
+  exactForThisGraphDominanceFrontierGeneralises:true,
+  ok:m.assignments===6&&m.variables===4&&m.phis.length===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7cfc00',14,20,11,'FOUR BLOCKS, SIX VERSIONS, ONE PHI');
+ var m=analyse(0),pos={entry:[240,50],L:[110,120],R:[370,120],join:[240,196]};
+ ne(g,'rgba(138,122,184,0.6)',1.5);
+ [['entry','L'],['entry','R'],['L','join'],['R','join']].forEach(function(e){
+  g.beginPath();g.moveTo(pos[e[0]][0]+40,pos[e[0]][1]+26);
+  g.lineTo(pos[e[1]][0]+40,pos[e[1]][1]);g.stroke();});
+ ng(g);
+ Object.keys(pos).forEach(function(b){
+  var p=pos[b];
+  nf(g,b==='join'?'rgba(255,210,63,0.25)':'rgba(90,208,255,0.2)');
+  g.fillRect(p[0],p[1],80,44);ng(g);
+  nt(g,'#e8e0ff',p[0]+8,p[1]+18,9,b);
+  nt(g,'#8a7ab8',p[0]+8,p[1]+34,8,
+   b==='join'?('phi '+m.phis.join(',')):m.blocks[b].join(' '));});
+ krow(g,20,244,300,'SSA versions',VR.ssaVersions,VR.ssaVersions/8,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,262-6,W-24,true,VR.assignments+' assignments become '+
+  VR.ssaVersions+' names, '+VR.versionsMinusVariables+
+  ' more than variables, and '+VR.phiNodesNeeded+' phi');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=analyse(extra);
+ nt(g,'#7cfc00',12,20,11,'PHI NODES NEEDED: '+m.phis.length);
+ var vars=Object.keys(m.defs),i;
+ for(i=0;i<vars.length;i++){
+  var y=44+i*40,v=vars[i],needs=m.phis.indexOf(v)>=0;
+  nf(g,needs?'rgba(255,210,63,0.28)':'rgba(90,70,140,0.22)');
+  g.fillRect(14,y,340,32);ng(g);
+  nt(g,needs?'#ffd76a':'#8a7ab8',24,y+21,9,
+   v+'  assigned in  '+m.defs[v].join(', '));
+  if(needs)nt(g,'#ffd76a',300,y+21,9,'phi');}
+ krow(g,14,220,230,'assignments',m.assignments,m.assignments/10,
+  'rgba(90,208,255,0.7)');
+ krow(g,14,262,230,'phi nodes',m.phis.length,m.phis.length/4,
+  'rgba(255,210,63,0.8)');
+ kverdict(g,12,300-4,W-24,true,
+  'a variable assigned on BOTH arms needs a phi; on one arm it needs nothing');
+ kout('ssafo','assignments <b>'+m.assignments+'</b> &middot; phi <b>'+
+  m.phis.length+'</b> for '+(m.phis.join(', ')||'-'));}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'TWO PATHS, ONE NAME');
+ korb(g,W/2,H/2+10,ang,26,function(i,N){
+  var t=i/N,left=(i%2===0);
+  return {x:(t-0.5)*220,z:Math.sin(t*6.283)*28,y:left?-24:24,
+   c:left?'rgba(125,226,176,0.8)':'rgba(90,208,255,0.75)',r:2.6};});
+ ndot(g,W/2+110,H/2+10,8,'rgba(255,210,63,0.95)');
+ nt(g,'#8a7ab8',12,H-22,8,'a temporary fiction the compiler tells itself');}
+document.getElementById('ssafn').onclick=function(){extra=(extra+1)%3;drawW4();};
+document.getElementById('ssafr').onclick=function(){extra=0;drawW4();};
+document.getElementById('ssafp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thessaform=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
+PEEP_BODY = """<div class="win"><div class="winh"><span class="wn">1</span> WHAT IT IS &middot; WHAT IT DOES &middot; FACT OR FICTION</div>
+ <div class="wintxt">Slide a window a few instructions wide along the emitted code and rewrite whatever matches a pattern. No analysis, no graph, no proof &mdash; just a list of local truths applied everywhere.<br><br>
+ <span class="lit">LIT</span> verified live. <b>12</b> instructions, <b>5</b> rules, none looking at more than one instruction at a time. <b>8</b> are removed &mdash; <b>66.7%</b> &mdash; leaving <b>4</b>. And <b>1</b> adjacent pair survives that a wider window would take: a <b>push</b> immediately followed by the matching <b>pop</b>. The window size is the entire limit of the technique.</div></div>
+<div class="win"><div class="winh"><span class="wn">2</span> HOW IT WAS WEAVED &middot; AI + HUMAN</div>
+ <div class="wintxt">Peephole optimisation is <b>McKeeman</b>&rsquo;s (1965) and it is still where a surprising fraction of the final instruction count goes.<br><br>
+ <b>AVAN (AI)</b> left the push/pop pair in deliberately and counted it as a miss. A pass that removes <b>66.7%</b> of the instructions looks complete until you notice what it walked past &mdash; and what it walked past is not a bug in the rules but the shape of the window they are allowed to see through.</div></div>
+<div class="win"><div class="winh"><span class="wn">3</span> ONE DIMENSION</div>
+ <div class="wc"><canvas id="w3" width="512" height="290"></canvas>
+  <div class="wctrl"><div class="cap">Twelve instructions, five rules, one thing missed.</div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">4</span> TWO DIMENSIONS &middot; INTERACTIVE</div>
+ <div class="wc"><canvas id="w4" width="384" height="330"></canvas>
+  <div class="wctrl"><div class="cap">Widen the window and pick up the pair.</div>
+   <div class="btns" style="margin-top:10px"><button id="peepw">widen the window &#9654;</button><button id="peepn">slide it</button><button id="peepr">reset</button></div>
+   <div class="cap" id="peepo" style="margin-top:8px"></div></div></div></div>
+<div class="win"><div class="winh"><span class="wn">5</span> THREE DIMENSIONS + AVAN&rsquo;S INVERSE</div>
+ <div class="wc"><canvas id="w5" width="384" height="360"></canvas>
+  <div class="wctrl"><div class="cap">The <b>green</b> forward object: a small window, moved everywhere.</div>
+   <div class="avan"><b>AVAN&rsquo;s addition</b> (the inverse-companion): the forward reading is that a peephole pass is limited by its window. The inverse is that <b>the limit is why it is trustworthy</b>. A rule that looks at one instruction cannot be wrong about control flow, aliasing or lifetimes, because it never consults them; the narrowness that costs it the push/pop pair is the same narrowness that makes it impossible to break. Read backwards, every optimisation is a trade of reach against certainty, and this one sits at the end of the pipeline precisely because it is the one nobody has to check.</div>
+   <div class="btns" style="margin-top:10px"><button id="peepp">pause spin</button></div></div></div></div>"""
+PEEP_SCRIPT = """(function(){""" + NOIR + KIT + """
+var ang=0,spin=true,VR=null,win=1,pos=0;
+var CODE=['mov r1,r1','add r2,0','mul r3,1','push r4','pop r4','mov r5,r6',
+          'add r7,0','sub r8,0','mov r9,r9','xor r10,r10','nop','mul r11,1'];
+function single(s){
+ return /^mov (r\\d+),\\1$/.test(s)||/^add r\\d+,0$/.test(s)||
+        /^sub r\\d+,0$/.test(s)||/^mul r\\d+,1$/.test(s)||s==='nop';}
+function pairRule(a,b){
+ var m=/^push (r\\d+)$/.exec(a);
+ return !!m&&b==='pop '+m[1];}
+function apply(w){
+ var kept=[],removed=[],i=0;
+ while(i<CODE.length){
+  if(single(CODE[i])){removed.push(CODE[i]);i++;continue;}
+  if(w>=2&&i+1<CODE.length&&pairRule(CODE[i],CODE[i+1])){
+   removed.push(CODE[i]);removed.push(CODE[i+1]);i+=2;continue;}
+  kept.push(CODE[i]);i++;}
+ return {kept:kept,removed:removed};}
+function selftest(){
+ var m=apply(1),wide=apply(2);
+ var missed=0,i;
+ for(i=0;i<m.kept.length-1;i++)if(pairRule(m.kept[i],m.kept[i+1]))missed++;
+ return {instructions:CODE.length,rules:5,
+  windowSize:1,
+  removed:m.removed.length,kept:m.kept.length,
+  removedPct:+(100*m.removed.length/CODE.length).toFixed(1),
+  removedDetail:m.removed,
+  adjacentPairsAWiderWindowWouldCatch:missed,
+  removedWithAWindowOfTwo:wide.removed.length,
+  noRuleConsultsControlFlowOrAliasing:true,
+  theWindowSizeIsTheWholeLimit:true,
+  ok:m.removed.length===8&&m.kept.length===4&&missed===1};}
+function drawW3(){var c=document.getElementById('w3'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#ff5a3c',14,20,11,'TWELVE INSTRUCTIONS, FIVE RULES');
+ var m=apply(1),i;
+ for(i=0;i<CODE.length;i++){
+  var y=42+i*19,gone=m.removed.indexOf(CODE[i])>=0;
+  nf(g,gone?'rgba(255,60,90,0.22)':'rgba(125,226,176,0.2)');
+  g.fillRect(16,y,300,16);ng(g);
+  nt(g,gone?'#ff5a8a':'#7de2b0',24,y+12,8,CODE[i]);
+  if(gone)nt(g,'#5a4a85',230,y+12,7,'removed');}
+ nf(g,'rgba(255,210,63,0.2)');g.fillRect(330,42+3*19,160,38);ng(g);
+ nt(g,'#ffd76a',338,42+3*19+16,8,'push r4 / pop r4');
+ nt(g,'#ffd76a',338,42+3*19+30,8,'a wider window would take this');
+ kverdict(g,12,282-8,W-24,true,VR.removed+' removed ('+VR.removedPct+
+  '%), '+VR.kept+' kept, and '+VR.adjacentPairsAWiderWindowWouldCatch+
+  ' pair walked past');}
+function drawW4(){var c=document.getElementById('w4'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ var m=apply(win);
+ nt(g,'#ff5a3c',12,20,11,'WINDOW '+win+'   REMOVED '+m.removed.length);
+ var i;
+ for(i=0;i<CODE.length;i++){
+  var x=14+(i%6)*57,y=44+Math.floor(i/6)*40;
+  var gone=m.removed.indexOf(CODE[i])>=0;
+  var inWin=(i>=pos&&i<pos+win);
+  nf(g,gone?'rgba(255,60,90,0.35)':'rgba(125,226,176,0.28)');
+  g.fillRect(x,y,52,32);ng(g);
+  if(inWin){ne(g,'rgba(255,210,63,0.95)',2);g.strokeRect(x,y,52,32);ng(g);}
+  nt(g,gone?'#ff5a8a':'#7de2b0',x+4,y+20,7,CODE[i].slice(0,8));}
+ nt(g,'#8a7ab8',14,132,8,'gold outline = the window; it slides over everything');
+ krow(g,14,150,230,'removed',m.removed.length,m.removed.length/12,
+  'rgba(255,60,90,0.8)');
+ krow(g,14,192,230,'kept',m.kept.length,m.kept.length/12,
+  'rgba(125,226,176,0.8)');
+ kverdict(g,12,234,W-24,win>=2,win>=2?
+  'the push/pop pair is now visible and gone':
+  'a one-instruction window cannot see a pair, however obvious');
+ nt(g,'#5a4a85',14,286,8,'a rule that looks at one instruction cannot be wrong');
+ nt(g,'#5a4a85',14,304,8,'about control flow, because it never consults it');
+ kout('peepo','window <b>'+win+'</b> &middot; removed <b>'+m.removed.length+
+  '</b> of 12');}
+function drawW5(){var c=document.getElementById('w5'),g=c.getContext('2d'),W=c.width,H=c.height;
+ nb(g,W,H);
+ nt(g,'#7de2b0',12,20,11,'A SMALL WINDOW, MOVED EVERYWHERE');
+ korb(g,W/2,H/2+10,ang,34,function(i,N){
+  var t=i/N,inw=(Math.floor(t*34)%9===0);
+  return {x:(t-0.5)*250,z:Math.sin(t*6.283)*30,y:0,
+   c:inw?'rgba(255,210,63,0.9)':'rgba(125,226,176,0.5)',r:inw?3.4:1.8};});
+ nt(g,'#8a7ab8',12,H-22,8,'the one nobody has to check');}
+document.getElementById('peepw').onclick=function(){win=win>=3?1:win+1;drawW4();};
+document.getElementById('peepn').onclick=function(){pos=(pos+1)%CODE.length;drawW4();};
+document.getElementById('peepr').onclick=function(){win=1;pos=0;drawW4();};
+document.getElementById('peepp').onclick=function(){spin=!spin;};
+VR=selftest();window.__thepeephole=VR;drawW3();drawW4();
+function loop(){if(spin)ang+=0.4;drawW5();requestAnimationFrame(loop);}requestAnimationFrame(loop);})();"""
+
 # ═══════════════════════ BATCH 268 · neon-noir · silicon-coding · WHAT THE COMPILER CAN PROVE ═══════════════════════
 HM_CORE = """
 var _n=0;
@@ -110381,6 +111371,76 @@ function loop(){if(spin)ang+=0.010;drawW5();requestAnimationFrame(loop);}request
 
 
 SPHERES = [
+ {"slug":"the-dead-code-elimination","title":"THE DEAD CODE ELIMINATION","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"GARBAGE COLLECTION","domain_slug":"garbage-collection","accent":"#7cfc00","icon":"⌦",
+  "kicker":"nothing in the model could tell, and the model is a choice",
+  "blurb":"Work backwards from what the program actually returns and mark everything that contributes. Whatever is left was computed for nobody, and the compiler deletes it without asking.",
+  "lit":"8 instructions with 1 root settle their liveness fixpoint in 2 rounds, leaving 6 alive and deleting 2 - 25.0% - one that nothing reads and one whose only input was that first one, while the store is kept despite nothing reading its result because a side effect is a root whether anybody wanted it or not",
+  "fig":"Liveness is a backwards dataflow analysis run to a fixpoint; the 2 rounds are what it takes for the deletion of one instruction to expose the next. AVAN put the side-effecting instruction in the program on purpose. Dead-code elimination is not delete what is unused - it is delete what is unused AND unobservable, and the entire difficulty of the pass is in the second half.",
+  "body":DEAD_BODY,"script":DEAD_SCRIPT},
+ {"slug":"the-strength-reduction","title":"THE STRENGTH REDUCTION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GAUNTLET","domain_slug":"the-gauntlet","accent":"#ffd23f","icon":"≪",
+  "kicker":"a constant that was a number is now a decision",
+  "blurb":"A multiply by a constant can sometimes be replaced by shifts and adds. Sometimes. Whether it is worth doing depends entirely on the bit pattern of that constant, and most constants are not worth it.",
+  "lit":"with a multiply costing 5 and a shift or add costing 1, of 9 constants tested only 4 reduce to something cheaper while 5 keep the multiply, saving 14 cost units in total - 10 has two set bits and costs 3, 7 has three and costs exactly 5 which is a wash, and 255 has eight so the multiply stays",
+  "fig":"Strength reduction is the oldest trick in the peephole toolkit and the one most often over-remembered as always-a-win. AVAN dropped 1 from the test set after running it: x * 1 needs no instruction at all, and scoring it as a one-cycle shift would have counted a free operation as a saving and inflated the win rate. The honest result is that fewer than half the constants tested are worth reducing.",
+  "body":STRE_BODY,"script":STRE_SCRIPT},
+ {"slug":"the-register-allocation","title":"THE REGISTER ALLOCATION","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE CHOKE POINT","domain_slug":"the-choke-point","accent":"#5ad0ff","icon":"▦",
+  "kicker":"memory traffic you never wrote",
+  "blurb":"Two values that are alive at the same moment cannot share a register. Draw that as a graph and the question becomes exactly graph colouring - and when the colours run out, something goes to memory.",
+  "lit":"7 variables with overlapping live ranges give 8 interference edges and a maximum degree of 4 while at most 3 are ever live at once, so 1 register produces 4 spills, 2 registers 1 spill and 3 registers none - the count that suffices equals the maximum simultaneously live, meaning the greedy colouring found the bound rather than merely approaching it",
+  "fig":"Register allocation as graph colouring is Chaitin's (1981); colouring is NP-complete in general, which is why real allocators are heuristics with a spill path. AVAN computed the maximum simultaneously live separately from the colouring so the two can be compared. They agree at 3. That agreement is not guaranteed - greedy colouring can need more than the clique number - and reporting them apart is the only way to see whether it did.",
+  "body":REGA_BODY,"script":REGA_SCRIPT},
+ {"slug":"the-alias-analysis","title":"THE ALIAS ANALYSIS","appeal_name":"GLITCH","appeal_slug":"glitch",
+  "domain_title":"HEISENBUG","domain_slug":"heisenbug","accent":"#7cfc00","icon":"⇄",
+  "kicker":"it has agreed in advance which way to be wrong",
+  "blurb":"Before a compiler can move a load past a store it has to know the two do not touch the same address. When it cannot prove they are different, it must assume they are the same.",
+  "lit":"7 pointers give 21 pairs of which only 4 can be proven distinct - 19.0%, those coming from two provably separate allocations - while the other 17 may alias and block 17 reorderings, because every pointer from a parameter or a global is unknown and unknown is answered as yes",
+  "fig":"Alias analysis is undecidable in general, so every real analysis is a conservative approximation and the conservative direction is always these might be the same. AVAN reports the default answer as its own figure: 17 of 21 pairs block optimisation not because anything was proven about them but because nothing was - the cost of the analysis is paid in what it fails to establish, and that is the number that decides how fast the code runs.",
+  "body":ALIA_BODY,"script":ALIA_SCRIPT},
+ {"slug":"the-common-subexpression","title":"THE COMMON SUBEXPRESSION","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE MERGE","domain_slug":"the-merge","accent":"#9d00ff","icon":"⧉",
+  "kicker":"it converts arithmetic into pressure on the register file",
+  "blurb":"If the same expression appears twice and nothing it depends on has changed between them, the second one is a lookup. Finding them is easy; the condition attached to that sentence is the whole problem.",
+  "lit":"8 expressions containing 4 distinct ones allow 4 evaluations to be removed - 50.0% - across three repeats, a+b three times and c*d and e-f twice each, and the removal is valid only where no assignment to a, b, c, d, e or f occurs between the occurrences",
+  "fig":"Common-subexpression elimination is usually done on a value-numbered DAG, where identical subtrees become the same node by construction rather than by search. AVAN is explicit that the 50.0% is an upper bound: this counts syntactic repetition, which is what the pass could remove if nothing intervenes. Every intervening assignment takes one back, and in real code the availability analysis is where the pass spends its time.",
+  "body":CSEL_BODY,"script":CSEL_SCRIPT},
+ {"slug":"the-tail-call","title":"THE TAIL CALL","appeal_name":"RESPAWN","appeal_slug":"respawn",
+  "domain_title":"SECOND WIND","domain_slug":"second-wind","accent":"#00f5ff","icon":"↻",
+  "kicker":"a record of the past traded for a future",
+  "blurb":"If the very last thing a function does is call another one, the caller's frame has nothing left to do. Reuse it instead of stacking a new one, and recursion stops being bounded by memory.",
+  "lit":"with a stack limited to 10,000 frames, 100 calls use 100 frames and 1,000 use 1,000 without the transformation, the first overflow lands at 10,000 calls and 3 of the 5 sizes tested fail - while with it every size completes and the frame count is 1, at a hundred calls or a million",
+  "fig":"Proper tail calls are required by the Scheme standard and are the reason recursion is the ordinary loop there; most mainstream languages do not guarantee them. AVAN reports the frame count as flat rather than as a reduction, because a reduction implies a smaller version of the same quantity. It is not smaller - it stops being a function of the input at all, and that change in kind is what makes a recursive algorithm safe to write.",
+  "body":TCAL_BODY,"script":TCAL_SCRIPT},
+ {"slug":"the-constant-folding","title":"THE CONSTANT FOLDING","appeal_name":"SPAWN","appeal_slug":"spawn",
+  "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"≡",
+  "kicker":"every surviving instruction is something withheld",
+  "blurb":"Arithmetic on values the compiler already knows can be done at compile time and the answer substituted. What stops it is not difficulty - it is one input the compiler cannot see.",
+  "lit":"8 instructions of which 2 are declared constants let 4 operations fold away - 66.7% - producing c=5, e=10, h=15 and i=25 before the program runs, leaving 2: the load itself and the one addition that takes the load as an input, because a single unknown makes everything downstream of it unknown too",
+  "fig":"Constant folding and constant propagation run together and to a fixpoint; sparse conditional constant propagation folds across branches as well. AVAN put the load in the middle rather than at the end. Placed there it poisons exactly one successor and leaves the rest foldable, which shows the shape: the boundary is not where the unknown appears but wherever its value flows.",
+  "body":FOLD_BODY,"script":FOLD_SCRIPT},
+ {"slug":"the-loop-invariant","title":"THE LOOP INVARIANT","appeal_name":"CO-OP","appeal_slug":"co-op",
+  "domain_title":"THE SYNC","domain_slug":"the-sync","accent":"#00f5ff","icon":"↑",
+  "kicker":"the work of establishing that nobody can tell",
+  "blurb":"An expression inside a loop that does not depend on the loop can be computed once outside it. The saving is not a percentage of the work - it is a factor of the iteration count.",
+  "lit":"a body of 5 expressions over 1,000,000 iterations with 3 of them invariant costs 5,000,000 evaluations before hoisting and 2,000,003 after, which is 2,999,997 saved, a 60.00% reduction and a 2.50x speedup on the body - and the three hoisted ones now run once, including when the loop runs zero times",
+  "fig":"Loop-invariant code motion needs the expression to be both invariant and safe to speculate; an invariant division by a variable cannot be hoisted above the guard that proves it non-zero. AVAN reports the zero-iteration case because it is where the optimisation changes behaviour rather than speed: hoisting runs the expression whether the body ever executes or not, which is free for arithmetic and a bug for anything that can fault.",
+  "body":LINV_BODY,"script":LINV_SCRIPT},
+ {"slug":"the-ssa-form","title":"THE SSA FORM","appeal_name":"LOOT","appeal_slug":"loot",
+  "domain_title":"THE VAULT","domain_slug":"the-vault","accent":"#7cfc00","icon":"φ",
+  "kicker":"a temporary fiction the compiler tells itself",
+  "blurb":"Give every assignment its own name and the question which definition reaches this use stops needing an answer - the name is the answer. Where two paths meet, something has to reconcile them.",
+  "lit":"a diamond control-flow graph of 4 blocks, 4 variables and 6 assignments becomes 6 distinct SSA versions - 2 more names than variables - and requires exactly 1 phi node, for the variable assigned on both arms, while the other three are assigned on one path only and need nothing",
+  "fig":"SSA is Cytron et al. (1991); phi nodes go exactly at the iterated dominance frontier, which is what makes the placement minimal rather than merely correct. AVAN counted the phi against the variables assigned on more than one path, which is the same answer on a diamond and not in general. That is the honest limit of the sphere: the result is exact for this graph and the dominance-frontier construction is what generalises it.",
+  "body":SSAF_BODY,"script":SSAF_SCRIPT},
+ {"slug":"the-peephole","title":"THE PEEPHOLE","appeal_name":"BOSS","appeal_slug":"boss",
+  "domain_title":"THE GATEKEEPER","domain_slug":"the-gatekeeper","accent":"#ff5a3c","icon":"▭",
+  "kicker":"the limit is why it is trustworthy",
+  "blurb":"Slide a window a few instructions wide along the emitted code and rewrite whatever matches a pattern. No analysis, no graph, no proof - just a list of local truths applied everywhere.",
+  "lit":"12 instructions against 5 rules, none looking at more than one instruction at a time, remove 8 - 66.7% - and leave 4, while 1 adjacent pair survives that a wider window would take: a push immediately followed by the matching pop, so the window size is the entire limit of the technique",
+  "fig":"Peephole optimisation is McKeeman's (1965) and it is still where a surprising fraction of the final instruction count goes. AVAN left the push/pop pair in deliberately and counted it as a miss. A pass that removes 66.7% of the instructions looks complete until you notice what it walked past - and what it walked past is not a bug in the rules but the shape of the window they are allowed to see through.",
+  "body":PEEP_BODY,"script":PEEP_SCRIPT},
  {"slug":"the-type-inference","title":"THE TYPE INFERENCE","appeal_name":"SPAWN","appeal_slug":"spawn",
   "domain_title":"GENESIS BLOCK","domain_slug":"genesis-block","accent":"#5ad0ff","icon":"⊢",
   "kicker":"it removes an opportunity to be wrong",
