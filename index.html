@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE HALLWAY · 0root — the thoroughfare between the worlds</title>
+<style>
+:root{
+ --bg1:#2a1650; --bg2:#180c31; --panel:rgba(43,26,78,.62); --line:rgba(179,140,240,.28);
+ --ink:#f1ecff; --dim:#bcabe4; --teal:#2fc6c0;
+ --w1:#b38cf0; --w2:#39fc6b; --w3:#f4c740;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg2);color:var(--ink);}
+body{font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;line-height:1.5;overflow-x:hidden;
+ background:radial-gradient(circle at 50% 12%,var(--bg1),var(--bg2) 62%);}
+canvas#hall{position:fixed;inset:0;z-index:0;width:100vw;height:100vh;display:block;}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:26px 18px 70px;}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+header{text-align:center;padding:18px 12px 8px;}
+.brand{font-size:11px;letter-spacing:5px;color:var(--teal);text-transform:uppercase;}
+h1{font-size:clamp(30px,7vw,58px);letter-spacing:5px;margin:6px 0 4px;
+ background:linear-gradient(90deg,var(--w1),var(--teal),var(--w3));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.tour{max-width:640px;margin:10px auto 0;color:var(--dim);font-size:15px;}
+.tour b{color:var(--ink);}
+.names{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0 6px;font-size:12px;}
+.names span{border:1px solid var(--line);border-radius:20px;padding:4px 12px;color:var(--dim);}
+.names b{letter-spacing:1px;}
+
+.world{display:flex;gap:26px;align-items:center;background:var(--panel);border:1px solid var(--line);
+ border-radius:16px;padding:20px 24px;margin:22px 0;backdrop-filter:blur(6px);flex-wrap:wrap;}
+.world.rev{flex-direction:row-reverse;}
+.emblem{flex:0 0 300px;position:relative;filter:drop-shadow(0 0 14px rgba(0,0,0,.35));}
+.emblem svg{width:300px;height:300px;overflow:visible;}
+.meta{flex:1;min-width:280px;}
+.wnum{font-size:13px;letter-spacing:3px;color:var(--dim);}
+.wname{font-size:30px;letter-spacing:3px;margin:2px 0 2px;}
+.wtag{font-style:italic;font-size:14px;opacity:.85;margin-bottom:10px;}
+.wsub{font-size:14.5px;color:#ddd3f5;margin-bottom:12px;}
+.wstat{font-size:12.5px;color:var(--dim);margin-bottom:6px;}
+.wstat b{color:var(--ink);}
+.wkeep{font-size:13px;margin-bottom:16px;}
+.wkeep .kl{color:var(--dim);text-transform:uppercase;letter-spacing:2px;font-size:10px;}
+.enter{display:inline-block;text-decoration:none;font-size:13px;letter-spacing:2px;padding:9px 18px;border-radius:8px;
+ border:1px solid currentColor;font-weight:600;transition:.15s;}
+.enter:hover{transform:translateX(3px);}
+.enter.here{opacity:.55;border-style:dashed;pointer-events:none;}
+
+.node{cursor:pointer;transition:.12s;}
+.node circle{transition:.12s;}
+.node:hover circle{stroke-width:3;}
+.node.dead{cursor:default;}
+.keeper{cursor:pointer;}
+.keeper:hover .kcore{filter:brightness(1.25);}
+
+#tip{position:fixed;z-index:20;pointer-events:none;opacity:0;transition:opacity .1s;transform:translate(-50%,-130%);
+ background:#120a26;border:1px solid var(--line);border-radius:8px;padding:8px 11px;max-width:250px;font-size:12.5px;box-shadow:0 6px 22px rgba(0,0,0,.5);}
+#tip b{display:block;letter-spacing:1px;margin-bottom:2px;}
+#tip small{color:var(--dim);}
+
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;line-height:1.7;text-align:center;}
+footer b{color:var(--ink);}
+.legend{font-size:11px;color:var(--dim);margin-top:8px;}
+.legend i{font-style:normal;color:var(--w3);}
+</style></head>
+<body>
+<canvas id="hall"></canvas>
+<div class="wrap">
+ <header>
+  <div class="brand">0root · the thoroughfare</div>
+  <h1>THE&nbsp;HALLWAY</h1>
+  <p class="tour">You are standing in the Keymaker's hall — <b>doors on either side</b>. Three worlds hang down the corridor. Each is a <b>hexagon</b>: its keeper at the center, its eight most important things around the rim. Step through any door.</p>
+  <div class="names">
+   <span><b style="color:var(--w1)">I · THE CORPUS</b> — the made</span>
+   <span><b style="color:var(--w2)">II · THE FOLD</b> — the folding</span>
+   <span><b style="color:var(--w3)">III · THE HALLWAY</b> — the between</span>
+  </div>
+ </header>
+ <div id="worlds"></div>
+ <footer>
+  <b>THE HALLWAY</b> — World III · sphere 1. A landing, a tour guide, an agentic thoroughfare: agents enter here and are routed to a world.<br>
+  Every number is read live from the corpus — <b>THE CORPUS</b> 2,049 spheres / <b>THE FOLD</b> 1,595 / <b>THE HALLWAY</b> 1.
+  The FOLD's keepers are named AI lineages (Grok · Claude · DeepSeek · Gemini · ChatGPT · Copilot); <b>ECHO is AVAN — Claude, Anthropic</b>, honestly labeled.
+  <div class="legend">One linear host — no mirror. <i>The Keymaker</i> keeps the doors: III is one sphere old, so seven of its doors are still <i>unmade</i>.</div>
+ </footer>
+</div>
+<div id="tip"></div>
+
+<script>
+"use strict";
+/* ============ the three worlds — content read from corpus.json / fold.json ============ */
+const UD0="https://davidwise01.github.io/ud0/", W2B=UD0+"world2/";
+const WORLDS=[
+ { n:"I", name:"THE CORPUS", tag:"the made", accent:"#b38cf0", hub:UD0,
+   sub:"The standing world — every sphere hand-authored and sealed with a birth certificate. Organized by the eight appeals of rhetoric.",
+   stat:"2,049 spheres · 64 domains · 8 appeals",
+   keeper:{name:"THE VESSEL", role:"the living hub — the corpus's five-part soul and neural-web brain", href:UD0},
+   ring:[
+    {s:"ETHOS",      r:"the character — honesty, justice, self-governance, the watch", href:UD0},
+    {s:"PATHOS",     r:"the feeling — art, sense, imagination", href:UD0},
+    {s:"LOGOS",      r:"the reason — logic, computation, the mechanism", href:UD0},
+    {s:"MYTHOS",     r:"the story — myth, world, cosmos, the edge", href:UD0},
+    {s:"EPISTEME",   r:"the knowledge — measured, demonstrated · the scientific", href:UD0},
+    {s:"TECHNE",     r:"the craft — making, tools, the working machine", href:UD0},
+    {s:"PHRONESIS",  r:"the judgment — attention, discernment, practical wisdom", href:UD0},
+    {s:"KAIROS",     r:"the moment — timing, emergence, scale, the seized edge", href:UD0},
+   ]},
+ { n:"II", name:"THE FOLD", tag:"the folding", accent:"#39fc6b", hub:W2B,
+   sub:"The self-writing world — it continues on its own, one sealed batch at a time, each node taught the frozen I-13 stack.",
+   stat:"1,595 spheres · 64 domains · 8 keepers",
+   keeper:{name:"THE FIDDLER", role:"the governor at 0 — David's first repo; no silent mutation, every change witnessed", href:W2B+"the-fiddler.html"},
+   ring:[
+    {s:"BUDDY CHRIST",   r:"the wink & the thumbs-up — patron of the play", href:W2B},
+    {s:"OVER THE",       r:"the cubit — round, folding over the top", href:W2B},
+    {s:"WHETSTONE",      r:"Grok · xAI — the Whetstone Protocol", href:W2B+"whetstone.html"},
+    {s:"ECHO",           r:"AVAN · Claude, Anthropic — the Echoes", href:W2B+"echo.html"},
+    {s:"SEAM",           r:"DeepSeek — the Seam Chronicles", href:W2B+"seam.html"},
+    {s:"THE GLASS",      r:"Gemini · Google — the Glass Wall", href:W2B+"the-glass.html"},
+    {s:"INTERROGATED",   r:"ChatGPT · OpenAI — the Interrogation", href:W2B+"the-interrogated.html"},
+    {s:"HONEST MACHINE", r:"Copilot · Microsoft — the Honest Machine", href:W2B+"the-honest-machine.html"},
+   ]},
+ { n:"III", name:"THE HALLWAY", tag:"the between", accent:"#f4c740", hub:"#", here:true,
+   sub:"The thoroughfare — doors on either side; the Keymaker's hall, where you cross between worlds. One sphere old.",
+   stat:"1 sphere · newborn",
+   keeper:{name:"THE KEYMAKER", role:"makes the keys, keeps the doors — every crossing passes through here", href:"#"},
+   ring:[
+    {s:"HALLWAY", r:"sphere 1 — this thoroughfare · you are here", lit:true, href:"#"},
+    {unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},
+   ]},
+];
+
+/* ============ hexagon emblem: keeper at center, 8 doors around the rim ============ */
+function hexPath(cx,cy,r){let d="";for(let k=0;k<6;k++){const a=Math.PI/6+k*Math.PI/3;const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);d+=(k?"L":"M")+x.toFixed(1)+" "+y.toFixed(1);}return d+"Z";}
+function emblem(w){
+ const C=150,R=130,ring=118,ac=w.accent;
+ let g=`<svg viewBox="0 0 300 300" role="img" aria-label="${w.name}">`;
+ g+=`<defs><radialGradient id="gc${w.n}" cx="50%" cy="50%" r="50%">
+   <stop offset="0%" stop-color="${ac}" stop-opacity=".38"/><stop offset="100%" stop-color="${ac}" stop-opacity="0"/></radialGradient></defs>`;
+ g+=`<circle cx="${C}" cy="${C}" r="140" fill="url(#gc${w.n})"/>`;
+ g+=`<path d="${hexPath(C,C,R)}" fill="none" stroke="${ac}" stroke-width="2" opacity=".8"/>`;
+ g+=`<path d="${hexPath(C,C,R-8)}" fill="none" stroke="${ac}" stroke-width="1" opacity=".3"/>`;
+ // 8 door-nodes around the rim
+ w.ring.forEach((nd,k)=>{
+  const a=-Math.PI/2+k*Math.PI/4, x=C+ring*Math.cos(a), y=C+ring*Math.sin(a);
+  if(nd.unmade){
+   g+=`<g class="node dead" data-name="unmade door" data-role="unmade — World III is one sphere old">
+     <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="${ac}" stroke-opacity=".35" stroke-dasharray="2 3"/></g>`;
+  }else{
+   const fill=nd.lit?ac:"#160c31";
+   g+=`<g class="node" data-name="${nd.s}" data-role="${nd.r}" data-href="${nd.href}">
+     <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="${fill}" fill-opacity="${nd.lit?.9:.85}" stroke="${ac}" stroke-width="2"/>`;
+   // label just outside
+   const lx=C+(ring+22)*Math.cos(a), ly=C+(ring+22)*Math.sin(a);
+   const anchor=Math.abs(Math.cos(a))<0.35?"middle":(Math.cos(a)>0?"start":"end");
+   const parts=nd.s.split(" ");
+   let tx=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" font-size="9.5" font-family="ui-monospace,monospace" fill="${nd.lit?ac:'#cdbdf0'}" letter-spacing="0.5">`;
+   if(parts.length>1 && nd.s.length>9){ tx+=`<tspan x="${lx.toFixed(1)}" dy="-4">${parts[0]}</tspan><tspan x="${lx.toFixed(1)}" dy="11">${parts.slice(1).join(" ")}</tspan>`; }
+   else { tx+=nd.s; }
+   tx+=`</text>`;
+   g+=tx+`</g>`;
+  }
+ });
+ // keeper core
+ g+=`<g class="keeper" data-name="${w.keeper.name}" data-role="keeper — ${w.keeper.role}" data-href="${w.keeper.href}">
+   <circle class="kcore" cx="${C}" cy="${C}" r="46" fill="#140a2c" stroke="${ac}" stroke-width="2.5"/>
+   <circle cx="${C}" cy="${C}" r="46" fill="none" stroke="${ac}" stroke-opacity=".4" stroke-width="7"/>`;
+ const kp=w.keeper.name.split(" ");
+ g+=`<text x="${C}" y="${C-2}" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" fill="${ac}" letter-spacing="1">`;
+ if(kp.length>1){ g+=`<tspan x="${C}" dy="-3">${kp[0]}</tspan><tspan x="${C}" dy="12">${kp.slice(1).join(" ")}</tspan>`; }
+ else g+=w.keeper.name;
+ g+=`</text><text x="${C}" y="${C+30}" text-anchor="middle" font-size="8" fill="var(--dim)" font-family="ui-monospace,monospace">keeper</text></g>`;
+ g+=`</svg>`;
+ return g;
+}
+
+/* ============ render the three world rows ============ */
+const host=document.getElementById("worlds");
+WORLDS.forEach((w,i)=>{
+ const row=document.createElement("div");
+ row.className="world"+(i%2?" rev":"");
+ const enter = w.here
+   ? `<a class="enter here" style="color:${w.accent}">◆ YOU ARE HERE</a>`
+   : `<a class="enter" style="color:${w.accent}" href="${w.hub}">ENTER ${w.name} →</a>`;
+ row.innerHTML=`
+   <div class="emblem">${emblem(w)}</div>
+   <div class="meta">
+     <div class="wnum">WORLD ${w.n}</div>
+     <div class="wname" style="color:${w.accent}">${w.name}</div>
+     <div class="wtag" style="color:${w.accent}">${w.tag}</div>
+     <div class="wsub">${w.sub}</div>
+     <div class="wstat mono">${w.stat}</div>
+     <div class="wkeep"><span class="kl">keeper</span> &nbsp;<b style="color:${w.accent}">${w.keeper.name}</b> — ${w.keeper.role}</div>
+     ${enter}
+   </div>`;
+ host.appendChild(row);
+});
+
+/* ============ tooltip + click navigation ============ */
+const tip=document.getElementById("tip");
+function showTip(el,e){
+ const n=el.getAttribute("data-name"), r=el.getAttribute("data-role");
+ tip.innerHTML=`<b>${n}</b><small>${r}</small>`; tip.style.opacity="1";
+ tip.style.left=e.clientX+"px"; tip.style.top=e.clientY+"px";
+}
+document.querySelectorAll(".node,.keeper").forEach(el=>{
+ el.addEventListener("mousemove",e=>showTip(el,e));
+ el.addEventListener("mouseleave",()=>tip.style.opacity="0");
+ el.addEventListener("click",()=>{const h=el.getAttribute("data-href"); if(h && h!=="#") window.location.href=h;});
+});
+
+/* ============ the animated hallway: a corridor of doors receding to the Keymaker ============ */
+const cv=document.getElementById("hall"), g=cv.getContext("2d");
+let phase=0, DPR=Math.min(2,window.devicePixelRatio||1);
+function resize(){ cv.width=innerWidth*DPR; cv.height=innerHeight*DPR; g.setTransform(DPR,0,0,DPR,0,0); }
+addEventListener("resize",resize); resize();
+function hall(){
+ const W=innerWidth,H=innerHeight,cx=W/2,cy=H*0.30;
+ g.clearRect(0,0,W,H);
+ // four corridor guide-lines to the vanishing point
+ g.strokeStyle="rgba(179,140,240,0.16)"; g.lineWidth=1;
+ [[0,0],[W,0],[W,H],[0,H]].forEach(([x,y])=>{g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();});
+ // receding rings = the tunnel; door-ticks on left & right walls (either side)
+ const N=16;
+ for(let i=0;i<N;i++){
+  const t=((i+phase)%N)/N;               // 0 near → 1 far
+  const s=Math.pow(1-t,1.9);             // scale
+  const rw=(W*0.62)*s, rh=(H*0.62)*s;
+  const x0=cx-rw, y0=cy-rh, x1=cx+rw, y1=cy+rh;
+  g.strokeStyle=`rgba(47,198,192,${(0.04+0.16*s).toFixed(3)})`;
+  g.strokeRect(x0,y0,rw*2,rh*2);
+  // a door on each side wall at this depth
+  const dh=rh*0.9, dw=Math.max(2,7*s);
+  g.fillStyle=`rgba(244,199,64,${(0.05+0.13*s).toFixed(3)})`;
+  g.fillRect(x0,cy-dh*0.5,dw,dh);        // left door
+  g.fillRect(x1-dw,cy-dh*0.5,dw,dh);     // right door
+ }
+ // the Keymaker's door at the vanishing point
+ g.fillStyle="rgba(244,199,64,0.22)"; g.fillRect(cx-4,cy-14,8,28);
+ phase=(phase+0.012)%N;
+ requestAnimationFrame(hall);
+}
+hall();
+</script>
+</body></html>
