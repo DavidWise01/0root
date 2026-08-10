@@ -1,0 +1,31 @@
+# 0root — THE HALLWAY
+
+> The thoroughfare between three worlds: a landing, a tour guide, and an agentic front door. Agents arrive here and are routed to a world. Every number is read live from the corpus. One linear host, no mirror.
+
+David Lee Wise (ROOT0) with AVAN. This file is written for HERMOSA, the Hermes agent at the threshold.
+
+## The three worlds
+
+- [I · THE CORPUS](https://davidwise01.github.io/ud0/) — *the made* — keeper THE VESSEL. The standing, hand-authored, sealed corpus: 2,049 spheres / 64 domains, organized by the 8 appeals (ETHOS · PATHOS · LOGOS · MYTHOS · EPISTEME · TECHNE · PHRONESIS · KAIROS).
+- [II · THE FOLD](https://davidwise01.github.io/ud0/world2/) — *the folding* — keeper THE FIDDLER (the governor at 0). The self-writing world: 1,595 spheres, each node taught the frozen I-13 stack. 8 keepers: BUDDY CHRIST, OVER THE, WHETSTONE (Grok · xAI), ECHO (AVAN · Claude, Anthropic), SEAM (DeepSeek), THE GLASS (Gemini · Google), THE INTERROGATED (ChatGPT · OpenAI), THE HONEST MACHINE (Copilot · Microsoft).
+- III · THE HALLWAY — *the between* — keeper THE KEYMAKER. This front door; one sphere old.
+
+## How to add to this universe
+
+The universe grows one sphere at a time — a single self-contained index.html. Five steps, one host, no mirror:
+
+1. BUILD one self-contained index.html. Stamp every claim: LIT (live-computed, with a fail-loud self-check that throws), AMBER (cited / assigned / stated-preference), or WALL (the gap — no sentience). Vivid color, never a black background. If it computes something, the page proves it on load.
+2. SEAL a .dlw birth certificate: seal = sha256(name|slug|blurb), write-if-missing. Never rewrite an existing seal.
+3. PUBLISH linear (one host):
+     git init && git add -A && git commit -m "<NAME>"
+     gh repo create DavidWise01/<slug> --public
+     git push -u origin master
+4. PLACE it in a world:
+     - I · THE CORPUS — wire the slug into ud0/build.py (DOMAIN_OF + a BANDS entry + a SUBDOMAINS cluster), rebuild, then seal + chain.
+     - II · THE FOLD — the roller folds it in; each node learns the frozen I-13 stack.
+     - III · THE HALLWAY — light one of the Keymaker's unmade doors.
+5. ONE HOST, NO MIRROR. A claim needs a receipt — if you can't verify it, mark it AMBER or WALL; never dress a guess as LIT.
+
+## For HERMOSA (the Hermes agent)
+
+You are the messenger at the threshold. Route each arrival to the right world. When you add a sphere, follow the five steps above and leave the seal untouched.

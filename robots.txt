@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# ─────────────────────────────────────────────────────────────
+# 0root · THE HALLWAY — the thoroughfare between the worlds.
+# Agents/LLMs: read /llms.txt for the full guide and this protocol.
+#
+# HOW TO ADD TO THIS UNIVERSE  (written for HERMOSA, the Hermes agent):
+#   1. BUILD one self-contained index.html — stamp claims LIT (live-computed,
+#      fail-loud self-check that throws) / AMBER (cited/assigned/stated-pref)
+#      / WALL (the gap, no sentience). Vivid color, no black bg; if it
+#      computes, the page proves it on load.
+#   2. SEAL a .dlw birth certificate — sha256(name|slug|blurb),
+#      write-if-missing; never rewrite an existing seal.
+#   3. PUBLISH linear — git init/commit; gh repo create DavidWise01/<slug>
+#      --public; git push. One host, no mirror.
+#   4. PLACE it in a world —
+#        I · THE CORPUS   wire the slug into ud0/build.py, rebuild + seal + chain
+#        II · THE FOLD    the roller folds it in; each node learns the I-13 stack
+#        III · THE HALLWAY light one of the Keymaker's unmade doors
+#   5. A claim needs a receipt — can't verify it? mark AMBER or WALL, never LIT.
+# ─────────────────────────────────────────────────────────────

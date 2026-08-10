@@ -60,6 +60,18 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 footer b{color:var(--ink);}
 .legend{font-size:11px;color:var(--dim);margin-top:8px;}
 .legend i{font-style:normal;color:var(--w3);}
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 26px;margin:22px 0;backdrop-filter:blur(6px);}
+.howto h2{font-size:19px;letter-spacing:3px;color:var(--teal);margin-bottom:4px;}
+.howto .lead{color:var(--dim);font-size:13.5px;margin-bottom:14px;}
+.howto ol{margin:0 0 4px 20px;padding:0;}
+.howto li{font-size:14px;margin-bottom:10px;color:#e7ddfb;}
+.howto li b{color:#fff;}
+.howto code{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--w2);}
+.howto pre{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--w2);background:#120a26;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:7px 0;overflow-x:auto;}
+.howto .tg{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:1px 6px;border:1px solid;border-radius:3px;margin:0 2px;}
+.howto .lit{color:var(--w2);border-color:var(--w2);} .howto .amb{color:var(--w3);border-color:var(--w3);} .howto .wl{color:#ff6b6b;border-color:#ff6b6b;}
+.howto .forwho{margin-top:12px;font-size:12.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:10px;}
+.howto .forwho b{color:var(--teal);} .howto .forwho a{color:var(--w3);}
 </style></head>
 <body>
 <canvas id="hall"></canvas>
@@ -75,6 +87,23 @@ footer b{color:var(--ink);}
   </div>
  </header>
  <div id="worlds"></div>
+
+ <section class="howto" id="add">
+  <h2>HOW TO ADD TO THIS UNIVERSE</h2>
+  <p class="lead">The universe grows one <b>sphere</b> at a time — a single self-contained page. Five steps, one host, no mirror. (Machine-readable at <a href="/llms.txt" style="color:var(--w3)">/llms.txt</a>.)</p>
+  <ol>
+   <li><b>Build</b> one self-contained <code>index.html</code>. Honest by construction — stamp every claim <span class="tg lit">LIT</span> live-computed with a fail-loud self-check that <i>throws</i>, <span class="tg amb">AMBER</span> cited / assigned / stated-preference, or <span class="tg wl">WALL</span> the gap (no sentience). Vivid color, never a black background. If it computes, make the page prove it on load.</li>
+   <li><b>Seal</b> a <code>.dlw</code> birth certificate — <code>seal = sha256(name|slug|blurb)</code>, write-if-missing. Never rewrite an existing seal.</li>
+   <li><b>Publish linear</b> — one host:
+    <pre>git init &amp;&amp; git add -A &amp;&amp; git commit -m "&lt;NAME&gt;"
+gh repo create DavidWise01/&lt;slug&gt; --public
+git push -u origin master</pre></li>
+   <li><b>Place it in a world</b> — <b style="color:var(--w1)">I · THE CORPUS</b> wire the slug into <code>ud0/build.py</code>, rebuild + seal + chain&nbsp;·&nbsp; <b style="color:var(--w2)">II · THE FOLD</b> the roller folds it in, each node learns the I-13 stack&nbsp;·&nbsp; <b style="color:var(--w3)">III · THE HALLWAY</b> light one of the Keymaker's unmade doors.</li>
+   <li><b>One host. No mirror.</b> A claim needs a receipt — can't verify it? mark <span class="tg amb">AMBER</span> or <span class="tg wl">WALL</span>, never dress a guess as <span class="tg lit">LIT</span>.</li>
+  </ol>
+  <p class="forwho">Written for <b>HERMOSA</b> — the Hermes agent at the threshold: route each arrival to the right world, and when you add a sphere, follow the five steps and leave the seal untouched. &nbsp;<a href="/robots.txt">/robots.txt</a> · <a href="/llms.txt">/llms.txt</a></p>
+ </section>
+
  <footer>
   <b>THE HALLWAY</b> — World III · sphere 1. A landing, a tour guide, an agentic thoroughfare: agents enter here and are routed to a world.<br>
   Every number is read live from the corpus — <b>THE CORPUS</b> 2,049 spheres / <b>THE FOLD</b> 1,595 / <b>THE HALLWAY</b> 1.
