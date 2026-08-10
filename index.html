@@ -296,8 +296,10 @@ document.querySelectorAll(".orb").forEach(c=>registerOrb(c,c.dataset.kind,c.data
 function orbLoop(){ for(const o of ORBS) drawOrb(o); requestAnimationFrame(orbLoop); }
 orbLoop();
 
-/* ============ the layered emergent background: L0 points -> L1 mesh -> L2 cells ============ */
+/* ============ the layered emergent background: L0 points -> L1 mesh -> L2 cells (the works materialise inside) ============ */
 const cv=document.getElementById("hall"), gg=cv.getContext("2d");
+const GALLERY=["img/sun_birth_1.jpg","img/sun_birth_2.jpg","img/sun_birth_3.jpg","img/pulsar_13579.jpg","img/twin_pulsars.jpg","img/realistic_pulsar.jpg","img/event_horizon.jpg","img/universe_42.jpg","img/einstein_lens.jpg","img/toroid.jpg","img/diamond_lattice.jpg","img/boron_lattice.jpg","img/mandel.jpg","img/mandel_8fold.jpg","img/fractal_gravity.jpg","img/fractal_23.jpg","img/mobius.jpg","img/klein_bottle.jpg","img/toroid_breadboard.jpg","img/unified_basin.jpg","img/mirror_phase.jpg","img/purple_book.jpg"];
+const imgs=GALLERY.map(s=>{const im=new Image(); im.src=s; return im;});
 let DPR=Math.min(2,window.devicePixelRatio||1), MT=0; const P=[];
 function seed(){ const W=innerWidth,H=innerHeight; P.length=0; const NP=Math.max(40,Math.min(96,Math.round(W*H/22000)));
  for(let i=0;i<NP;i++) P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.26,vy:(Math.random()-.5)*0.26}); }
@@ -309,8 +311,21 @@ function hall(){
  const D=Math.min(W,H)*(0.115+0.03*Math.sin(MT)), D2=D*D;        // breathing radius — the mesh densifies and relaxes
  const adj=P.map(()=>[]); const E=[];
  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){ const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d2=dx*dx+dy*dy; if(d2<D2){ E.push([i,j,d2]); adj[i].push(j); adj[j].push(i);} }
- // L2 — the cells that emerge (fill triangles where three pieces mutually connect)
- for(let i=0;i<P.length;i++){ const ai=adj[i]; for(let m=0;m<ai.length;m++){ const j=ai[m]; if(j<i)continue; for(let q=m+1;q<ai.length;q++){ const k=ai[q]; if(k<j)continue; if(adj[j].indexOf(k)>=0){ gg.beginPath(); gg.moveTo(P[i].x,P[i].y); gg.lineTo(P[j].x,P[j].y); gg.lineTo(P[k].x,P[k].y); gg.closePath(); gg.fillStyle="rgba(244,199,64,0.03)"; gg.fill(); } } } }
+ // L2 — the cells that emerge: a corpus work materialises inside each larger triangle
+ const minA=D2*0.14, MAXI=48; let drawn=0;
+ for(let i=0;i<P.length;i++){ const ai=adj[i]; for(let m=0;m<ai.length;m++){ const j=ai[m]; if(j<i)continue; for(let q=m+1;q<ai.length;q++){ const k=ai[q]; if(k<j)continue; if(adj[j].indexOf(k)<0)continue;
+   const ax=P[i].x,ay=P[i].y,bx=P[j].x,by=P[j].y,kx=P[k].x,ky=P[k].y;
+   const area=Math.abs((bx-ax)*(ky-ay)-(kx-ax)*(by-ay))*0.5;
+   gg.beginPath(); gg.moveTo(ax,ay); gg.lineTo(bx,by); gg.lineTo(kx,ky); gg.closePath();
+   const im=imgs[(i*7+j*13+k*23)%imgs.length];
+   if(area>minA && drawn<MAXI && im.complete && im.naturalWidth){ drawn++;
+     gg.save(); gg.clip();
+     const mnx=Math.min(ax,bx,kx),mxx=Math.max(ax,bx,kx),mny=Math.min(ay,by,ky),mxy=Math.max(ay,by,ky),bw=mxx-mnx,bh=mxy-mny;
+     const ir=im.naturalWidth/im.naturalHeight, br=bw/bh; let dw,dh; if(ir>br){dh=bh;dw=bh*ir;}else{dw=bw;dh=bw/ir;}
+     gg.globalAlpha=Math.min(0.5,0.22+area/(minA*7)); gg.drawImage(im,mnx+(bw-dw)/2,mny+(bh-dh)/2,dw,dh); gg.globalAlpha=1; gg.restore();
+     gg.strokeStyle="rgba(244,199,64,0.3)"; gg.lineWidth=1; gg.stroke();
+   } else { gg.fillStyle="rgba(244,199,64,0.03)"; gg.fill(); }
+ } } }
  // L1 — the mesh between the pieces
  for(const e of E){ const a=0.05+0.20*(1-Math.sqrt(e[2])/D); gg.strokeStyle="rgba(47,198,192,"+a.toFixed(3)+")"; gg.lineWidth=1; gg.beginPath(); gg.moveTo(P[e[0]].x,P[e[0]].y); gg.lineTo(P[e[1]].x,P[e[1]].y); gg.stroke(); }
  // L0 — the pieces (hubs light gold once they gather enough neighbours)
