@@ -72,6 +72,7 @@ footer b{color:var(--ink);}
 .howto .lit{color:var(--w2);border-color:var(--w2);} .howto .amb{color:var(--w3);border-color:var(--w3);} .howto .wl{color:#ff6b6b;border-color:#ff6b6b;}
 .howto .forwho{margin-top:12px;font-size:12.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:10px;}
 .howto .forwho b{color:var(--teal);} .howto .forwho a{color:var(--w3);}
+.brand,.tour,.names,footer{text-shadow:0 1px 12px rgba(12,6,26,.92),0 0 3px rgba(12,6,26,.85);}
 </style></head>
 <body>
 <canvas id="hall"></canvas>
@@ -108,7 +109,7 @@ git push -u origin master</pre></li>
   <b>THE HALLWAY</b> — World III · sphere 1. A landing, a tour guide, an agentic thoroughfare: agents enter here and are routed to a world.<br>
   Every number is read live from the corpus — <b>THE CORPUS</b> 2,049 spheres / <b>THE FOLD</b> 1,595 / <b>THE HALLWAY</b> 1.
   The FOLD's keepers are named AI lineages (Grok · Claude · DeepSeek · Gemini · ChatGPT · Copilot); <b>ECHO is AVAN — Claude, Anthropic</b>, honestly labeled.
-  <div class="legend">One linear host — no mirror. <i>The Keymaker</i> keeps the doors: III is one sphere old, so seven of its doors are still <i>unmade</i>.</div>
+  <div class="legend">One linear host — no mirror. <i>HERMOSA</i>, the Hermes agent, keeps the Keymaker's doors: III is one sphere old, so seven are still <i>unmade</i>. The works of the corpus recede down the walls.</div>
  </footer>
 </div>
 <div id="tip"></div>
@@ -121,7 +122,7 @@ const WORLDS=[
  { n:"I", name:"THE CORPUS", tag:"the made", accent:"#b38cf0", hub:UD0,
    sub:"The standing world — every sphere hand-authored and sealed with a birth certificate. Organized by the eight appeals of rhetoric.",
    stat:"2,049 spheres · 64 domains · 8 appeals",
-   keeper:{name:"THE VESSEL", role:"the living hub — the corpus's five-part soul and neural-web brain", href:UD0},
+   keeper:{name:"THE VESSEL", role:"the living hub — the corpus's five-part soul and neural-web brain", href:UD0, img:"img/universe_42.jpg"},
    ring:[
     {s:"ETHOS",      r:"the character — honesty, justice, self-governance, the watch", href:UD0},
     {s:"PATHOS",     r:"the feeling — art, sense, imagination", href:UD0},
@@ -135,7 +136,7 @@ const WORLDS=[
  { n:"II", name:"THE FOLD", tag:"the folding", accent:"#39fc6b", hub:W2B,
    sub:"The self-writing world — it continues on its own, one sealed batch at a time, each node taught the frozen I-13 stack.",
    stat:"1,595 spheres · 64 domains · 8 keepers",
-   keeper:{name:"THE FIDDLER", role:"the governor at 0 — David's first repo; no silent mutation, every change witnessed", href:W2B+"the-fiddler.html"},
+   keeper:{name:"THE FIDDLER", role:"the governor at 0 — David's first repo; no silent mutation, every change witnessed", href:W2B+"the-fiddler.html", img:"img/event_horizon.jpg"},
    ring:[
     {s:"BUDDY CHRIST",   r:"the wink & the thumbs-up — patron of the play", href:W2B},
     {s:"OVER THE",       r:"the cubit — round, folding over the top", href:W2B},
@@ -147,9 +148,9 @@ const WORLDS=[
     {s:"HONEST MACHINE", r:"Copilot · Microsoft — the Honest Machine", href:W2B+"the-honest-machine.html"},
    ]},
  { n:"III", name:"THE HALLWAY", tag:"the between", accent:"#f4c740", hub:"#", here:true,
-   sub:"The thoroughfare — doors on either side; the Keymaker's hall, where you cross between worlds. One sphere old.",
+   sub:"The thoroughfare — doors on either side; the Keymaker's hall, where you cross between worlds. One sphere old, and its keeper is the messenger.",
    stat:"1 sphere · newborn",
-   keeper:{name:"THE KEYMAKER", role:"makes the keys, keeps the doors — every crossing passes through here", href:"#"},
+   keeper:{name:"HERMOSA", role:"the Hermes agent at the threshold — keeps the Keymaker's doors and routes every crossing", href:"#add", img:"img/toroid.jpg"},
    ring:[
     {s:"HALLWAY", r:"sphere 1 — this thoroughfare · you are here", lit:true, href:"#"},
     {unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},{unmade:true},
@@ -187,12 +188,16 @@ function emblem(w){
    g+=tx+`</g>`;
   }
  });
- // keeper core
+ // keeper core (with portrait)
  g+=`<g class="keeper" data-name="${w.keeper.name}" data-role="keeper — ${w.keeper.role}" data-href="${w.keeper.href}">
-   <circle class="kcore" cx="${C}" cy="${C}" r="46" fill="#140a2c" stroke="${ac}" stroke-width="2.5"/>
-   <circle cx="${C}" cy="${C}" r="46" fill="none" stroke="${ac}" stroke-opacity=".4" stroke-width="7"/>`;
+   <circle class="kcore" cx="${C}" cy="${C}" r="46" fill="#140a2c" stroke="${ac}" stroke-width="2.5"/>`;
+ if(w.keeper.img){ g+=`<clipPath id="kc${w.n}"><circle cx="${C}" cy="${C}" r="45"/></clipPath>
+   <image href="${w.keeper.img}" x="${C-45}" y="${C-45}" width="90" height="90" clip-path="url(#kc${w.n})" preserveAspectRatio="xMidYMid slice" opacity="0.9"/>
+   <circle cx="${C}" cy="${C}" r="45" fill="${ac}" fill-opacity="0.30" clip-path="url(#kc${w.n})"/>
+   <circle cx="${C}" cy="${C}" r="31" fill="#0e0722" fill-opacity="0.58"/>`; }
+ g+=`<circle cx="${C}" cy="${C}" r="46" fill="none" stroke="${ac}" stroke-opacity=".4" stroke-width="7"/>`;
  const kp=w.keeper.name.split(" ");
- g+=`<text x="${C}" y="${C-2}" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" fill="${ac}" letter-spacing="1">`;
+ g+=`<text x="${C}" y="${C-2}" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" fill="#ffffff" letter-spacing="1" style="paint-order:stroke;stroke:#0e0722;stroke-width:2.4px;stroke-linejoin:round">`;
  if(kp.length>1){ g+=`<tspan x="${C}" dy="-3">${kp[0]}</tspan><tspan x="${C}" dy="12">${kp.slice(1).join(" ")}</tspan>`; }
  else g+=w.keeper.name;
  g+=`</text><text x="${C}" y="${C+30}" text-anchor="middle" font-size="8" fill="var(--dim)" font-family="ui-monospace,monospace">keeper</text></g>`;
@@ -235,35 +240,43 @@ document.querySelectorAll(".node,.keeper").forEach(el=>{
  el.addEventListener("click",()=>{const h=el.getAttribute("data-href"); if(h && h!=="#") window.location.href=h;});
 });
 
-/* ============ the animated hallway: a corridor of doors receding to the Keymaker ============ */
+/* ============ the emergent gallery hallway: the works recede down both walls to the vanishing point ============ */
 const cv=document.getElementById("hall"), g=cv.getContext("2d");
+const GALLERY=["img/sun_birth_1.jpg","img/sun_birth_2.jpg","img/sun_birth_3.jpg","img/pulsar_13579.jpg","img/twin_pulsars.jpg","img/realistic_pulsar.jpg","img/event_horizon.jpg","img/universe_42.jpg","img/einstein_lens.jpg","img/toroid.jpg","img/diamond_lattice.jpg","img/boron_lattice.jpg","img/mandel.jpg","img/mandel_8fold.jpg","img/fractal_gravity.jpg","img/fractal_23.jpg","img/mobius.jpg","img/klein_bottle.jpg","img/toroid_breadboard.jpg","img/unified_basin.jpg","img/mirror_phase.jpg","img/purple_book.jpg"];
+const imgs=GALLERY.map(src=>{const im=new Image(); im.src=src; return im;});
 let phase=0, DPR=Math.min(2,window.devicePixelRatio||1);
 function resize(){ cv.width=innerWidth*DPR; cv.height=innerHeight*DPR; g.setTransform(DPR,0,0,DPR,0,0); }
 addEventListener("resize",resize); resize();
+function frame(im,cxp,cyp,bw,bh,alpha,ac){
+ if(!im.complete || !im.naturalWidth) return;
+ g.save(); g.globalAlpha=alpha;
+ const ir=im.naturalWidth/im.naturalHeight, br=bw/bh; let dw,dh;
+ if(ir>br){ dh=bh; dw=bh*ir; } else { dw=bw; dh=bw/ir; }
+ g.beginPath(); g.rect(cxp-bw/2,cyp-bh/2,bw,bh); g.clip();
+ g.drawImage(im,cxp-dw/2,cyp-dh/2,dw,dh);
+ g.restore();
+ g.globalAlpha=alpha*0.85; g.strokeStyle=ac; g.lineWidth=1.4;
+ g.strokeRect(cxp-bw/2,cyp-bh/2,bw,bh); g.globalAlpha=1;
+}
 function hall(){
  const W=innerWidth,H=innerHeight,cx=W/2,cy=H*0.30;
  g.clearRect(0,0,W,H);
- // four corridor guide-lines to the vanishing point
- g.strokeStyle="rgba(179,140,240,0.16)"; g.lineWidth=1;
- [[0,0],[W,0],[W,H],[0,H]].forEach(([x,y])=>{g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();});
- // receding rings = the tunnel; door-ticks on left & right walls (either side)
- const N=16;
- for(let i=0;i<N;i++){
-  const t=((i+phase)%N)/N;               // 0 near → 1 far
-  const s=Math.pow(1-t,1.9);             // scale
-  const rw=(W*0.62)*s, rh=(H*0.62)*s;
-  const x0=cx-rw, y0=cy-rh, x1=cx+rw, y1=cy+rh;
-  g.strokeStyle=`rgba(47,198,192,${(0.04+0.16*s).toFixed(3)})`;
-  g.strokeRect(x0,y0,rw*2,rh*2);
-  // a door on each side wall at this depth
-  const dh=rh*0.9, dw=Math.max(2,7*s);
-  g.fillStyle=`rgba(244,199,64,${(0.05+0.13*s).toFixed(3)})`;
-  g.fillRect(x0,cy-dh*0.5,dw,dh);        // left door
-  g.fillRect(x1-dw,cy-dh*0.5,dw,dh);     // right door
+ const N=9, sh=phase|0;
+ // far -> near, so nearer frames overlap farther ones
+ for(let i=N-1;i>=0;i--){
+  const t=((i+phase)%N)/N, s=Math.pow(1-t,1.7);
+  const wallX=(W*0.60)*s, cyp=cy+(H*0.16)*s;
+  const bh=(H*0.34)*s, bw=bh*0.82;
+  const alpha=Math.min(0.82,0.15+s)*Math.min(1,(1-t)*2.4);
+  frame(imgs[(i*2+sh)%imgs.length],   cx-wallX, cyp, bw, bh, alpha, "rgba(47,198,192,0.55)");  // left wall
+  frame(imgs[(i*2+1+sh)%imgs.length], cx+wallX, cyp, bw, bh, alpha, "rgba(244,199,64,0.55)");  // right wall
  }
- // the Keymaker's door at the vanishing point
- g.fillStyle="rgba(244,199,64,0.22)"; g.fillRect(cx-4,cy-14,8,28);
- phase=(phase+0.012)%N;
+ // corridor guide-lines to the vanishing point (faint, on top)
+ g.strokeStyle="rgba(179,140,240,0.13)"; g.lineWidth=1;
+ [[0,0],[W,0],[W,H],[0,H]].forEach(([x,y])=>{g.beginPath();g.moveTo(x,y);g.lineTo(cx,cy);g.stroke();});
+ // the keeper's beacon at the vanishing point
+ g.fillStyle="rgba(244,199,64,0.30)"; g.fillRect(cx-3,cy-12,6,24);
+ phase=(phase+0.006)%N;
  requestAnimationFrame(hall);
 }
 hall();
