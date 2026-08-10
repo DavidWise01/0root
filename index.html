@@ -79,6 +79,21 @@ footer b{color:var(--ink);}
 .layers span{border:1px solid var(--line);border-radius:6px;padding:3px 10px;color:var(--dim);}
 .layers b{letter-spacing:1px;}
 .brand,.tour,.names,footer,.layers{text-shadow:0 1px 12px rgba(12,6,26,.92),0 0 3px rgba(12,6,26,.85);}
+.build{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 26px;margin:22px 0;backdrop-filter:blur(6px);}
+.build h2{font-size:19px;letter-spacing:3px;color:var(--teal);margin-bottom:4px;}
+.build .lead{color:var(--dim);font-size:13.5px;margin-bottom:16px;}
+.build .lead b{color:#fff;}
+.ladder{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.rung{display:flex;align-items:baseline;gap:12px;padding:8px 12px;border-left:3px solid var(--line);background:rgba(18,10,38,.5);border-radius:0 8px 8px 0;flex-wrap:wrap;}
+.rung .lv{font-family:ui-monospace,monospace;font-weight:700;font-size:14px;min-width:26px;}
+.rung b{font-size:14px;color:#fff;min-width:92px;}
+.rung small{font-size:12.5px;color:var(--dim);}
+.roster{display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--line);padding-top:14px;}
+.rworld{border-left:3px solid;padding:6px 0 6px 13px;}
+.rw-h{font-size:12.5px;color:var(--dim);margin-bottom:4px;}
+.rw-h b{letter-spacing:1px;}
+.rw-s{font-family:ui-monospace,monospace;font-size:12px;color:#dbd0f4;line-height:1.7;}
+.rw-s .un{color:var(--dim);opacity:.75;}
 </style></head>
 <body>
 <canvas id="hall"></canvas>
@@ -86,7 +101,7 @@ footer b{color:var(--ink);}
  <header>
   <div class="brand">0root · the thoroughfare</div>
   <h1>THE&nbsp;HALLWAY</h1>
-  <p class="tour">You are standing in the Keymaker's hall — <b>doors on either side</b>. Three worlds hang down the corridor. Each is a <b>hexagon</b>: eight things around the rim, and at the center a <b>living orb</b> — the keeper chose what lives in it, and says why. The floor is built in layers: simple pieces, complex things.</p>
+  <p class="tour">You are standing in the Keymaker's hall — <b>doors on either side</b>. Three worlds hang down the corridor. Each is a <b>hexagon</b>: a <b>keeper</b> at the center in a living orb it chose, ringed by its <b>eight stewards</b>. The floor is built in layers: simple pieces, complex things.</p>
   <div class="layers">
    <span><b style="color:var(--w1)">L0</b> the pieces</span>
    <span><b style="color:var(--teal)">L1</b> the mesh</span>
@@ -94,6 +109,18 @@ footer b{color:var(--ink);}
   </div>
  </header>
  <div id="worlds"></div>
+
+ <section class="build" id="build">
+  <h2>THE BUILD</h2>
+  <p class="lead">Every world is <b>one keeper and eight stewards</b>, assembled in layers — you work at L0, and the rest composes. Simple pieces, complex things.</p>
+  <div class="ladder">
+   <div class="rung"><span class="lv" style="color:var(--w1)">L0</span><b>a sphere</b><small>one self-contained page — the piece you actually build</small></div>
+   <div class="rung"><span class="lv" style="color:var(--teal)">L1</span><b>a steward</b><small>one of the eight pillars a keeper presides over — a cluster of spheres</small></div>
+   <div class="rung"><span class="lv" style="color:var(--w3)">L2</span><b>a world</b><small>a keeper at the center + its eight stewards</small></div>
+   <div class="rung"><span class="lv" style="color:var(--ink)">L3</span><b>the hallway</b><small>the three worlds, crossed through the threshold</small></div>
+  </div>
+  <div class="roster" id="buildroster"></div>
+ </section>
 
  <section class="howto" id="add">
   <h2>HOW TO ADD TO THIS UNIVERSE</h2>
@@ -180,11 +207,11 @@ function emblem(w){
  w.ring.forEach((nd,k)=>{
   const a=-Math.PI/2+k*Math.PI/4, x=C+ring*Math.cos(a), y=C+ring*Math.sin(a);
   if(nd.unmade){
-   g+=`<g class="node dead" data-name="unmade door" data-role="unmade — World III is one sphere old">
+   g+=`<g class="node dead" data-name="unmade steward" data-role="unmade steward — World III is one sphere old">
      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="${ac}" stroke-opacity=".35" stroke-dasharray="2 3"/></g>`;
   }else{
    const fill=nd.lit?ac:"#160c31";
-   g+=`<g class="node" data-name="${nd.s}" data-role="${nd.r}" data-href="${nd.href}">
+   g+=`<g class="node" data-name="${nd.s}" data-role="steward — ${nd.r}" data-href="${nd.href}">
      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="${fill}" fill-opacity="${nd.lit?.9:.85}" stroke="${ac}" stroke-width="2"/>`;
    const lx=C+(ring+22)*Math.cos(a), ly=C+(ring+22)*Math.sin(a);
    const anchor=Math.abs(Math.cos(a))<0.35?"middle":(Math.cos(a)>0?"start":"end");
@@ -227,6 +254,17 @@ WORLDS.forEach((w,i)=>{
      ${enter}
    </div>`;
  host.appendChild(row);
+});
+
+/* ============ THE BUILD — lay out every keeper + its eight stewards ============ */
+const rosterEl=document.getElementById("buildroster");
+WORLDS.forEach(w=>{
+ const made=w.ring.filter(n=>!n.unmade).map(n=>n.s);
+ const un=w.ring.filter(n=>n.unmade).length;
+ const stewards=made.join(" · ")+(un?` <span class="un">· ${un} unmade</span>`:"");
+ const div=document.createElement("div"); div.className="rworld"; div.style.borderColor=w.accent;
+ div.innerHTML=`<div class="rw-h"><b style="color:${w.accent}">${w.n} · ${w.name}</b> — keeper <b style="color:${w.accent}">${w.keeper.name}</b> &nbsp;·&nbsp; 8 stewards</div><div class="rw-s">${stewards}</div>`;
+ rosterEl.appendChild(div);
 });
 
 /* ============ tooltip + click navigation ============ */

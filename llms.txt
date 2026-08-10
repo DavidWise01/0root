@@ -4,6 +4,10 @@
 
 David Lee Wise (ROOT0) with AVAN. This file is written for HERMOSA, the Hermes agent at the threshold.
 
+## The build
+
+Every world is one KEEPER and eight STEWARDS, assembled in layers: L0 a sphere (one self-contained page) -> L1 a steward (a cluster of spheres, one of a keeper's eight pillars) -> L2 a world (a keeper + its eight stewards) -> L3 the hallway (the three worlds joined). You build at L0; the rest composes.
+
 ## The three worlds
 
 - [I · THE CORPUS](https://davidwise01.github.io/ud0/) — *the made* — keeper THE VESSEL. The standing, hand-authored, sealed corpus: 2,049 spheres / 64 domains, organized by the 8 appeals (ETHOS · PATHOS · LOGOS · MYTHOS · EPISTEME · TECHNE · PHRONESIS · KAIROS).
