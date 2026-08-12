@@ -98,33 +98,40 @@ footer b{color:var(--ink);}
 .heaven .h{color:var(--w3);letter-spacing:2px;font-weight:700;display:block;margin-bottom:9px;text-transform:uppercase;}
 .heaven .z{color:var(--w3);} .heaven .w{color:var(--teal);} .heaven .s{color:var(--w1);} .heaven .c{color:var(--dim);} .heaven .r{color:#fff;font-weight:700;}
 
-/* ===== THE MAP — magnetic holographic glass door ===== */
-.mapdock{display:flex;justify-content:center;margin:20px 0 2px;perspective:700px;}
-.holo{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px;
- padding:15px 34px;border-radius:18px;text-decoration:none;color:var(--ink);isolation:isolate;overflow:hidden;
- background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(179,140,240,.05) 46%,rgba(47,198,192,.08));
- border:1px solid rgba(255,255,255,.24);
- box-shadow:0 10px 34px rgba(10,4,30,.5), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -10px 26px rgba(120,60,220,.14);
- backdrop-filter:blur(11px) saturate(1.35); -webkit-backdrop-filter:blur(11px) saturate(1.35);
- transform:translate3d(0,0,0); transform-style:preserve-3d;
- transition:transform .5s cubic-bezier(.2,.9,.25,1), box-shadow .3s, border-color .3s;
- will-change:transform;}
-.holo::before{content:"";position:absolute;inset:-45%;z-index:-1;pointer-events:none;
+/* ===== THE MAP + THE INDEX — advanced holographic glass console ===== */
+.holodock{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px;perspective:1100px;}
+.holodoor{position:relative;display:block;width:272px;max-width:84vw;border-radius:20px;overflow:hidden;
+ text-decoration:none;color:var(--ink);isolation:isolate;transform-style:preserve-3d;--px:50%;--py:50%;--hue:0;
+ background:linear-gradient(140deg,rgba(255,255,255,.13),rgba(179,140,240,.05) 44%,rgba(47,198,192,.08));
+ border:1px solid rgba(255,255,255,.22);
+ box-shadow:0 12px 38px rgba(10,4,30,.55),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 28px rgba(120,60,220,.14);
+ backdrop-filter:blur(13px) saturate(1.4);-webkit-backdrop-filter:blur(13px) saturate(1.4);
+ transition:transform .5s cubic-bezier(.2,.9,.25,1),box-shadow .3s,border-color .3s;
+ animation:hdRise .8s cubic-bezier(.2,.9,.25,1) both;}
+.holodoor.d-index{animation-delay:.12s;}
+.holodoor.d-map{--acc:#8affea;--acc2:#b58cff;}
+.holodoor.d-index{--acc:#ffd36b;--acc2:#7dffa8;}
+@keyframes hdRise{from{opacity:0;transform:translateY(22px) scale(.96);}to{opacity:1;transform:none;}}
+.hd-film{position:absolute;inset:-46%;z-index:-1;pointer-events:none;
  background:conic-gradient(from 0deg,#8affea,#b58cff,#ff8ad2,#ffd36b,#7dffa8,#8affea);
- filter:blur(16px);opacity:.34;mix-blend-mode:screen;animation:holoSpin 8s linear infinite;}
-@keyframes holoSpin{to{transform:rotate(360deg);}}
-.holo::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;
- background:radial-gradient(190px 190px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.42),rgba(255,255,255,0) 62%);
- opacity:0;transition:opacity .25s;mix-blend-mode:screen;}
-.holo:hover{border-color:rgba(255,255,255,.42);
- box-shadow:0 16px 48px rgba(70,24,180,.52), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -10px 28px rgba(150,90,255,.2);}
-.holo:hover::after{opacity:1;}
-.holo:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
-.holo .hl{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
-.holo .hl b{font-size:17px;letter-spacing:3.5px;font-weight:700;
- background:linear-gradient(92deg,#8affea,#b58cff 45%,#ffd36b);-webkit-background-clip:text;background-clip:text;color:transparent;}
-.holo .hl i{font-style:normal;font-size:10.5px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
-@media(prefers-reduced-motion:reduce){.holo::before{animation:none;}.holo{transition:box-shadow .3s;}}
+ filter:blur(17px) hue-rotate(calc(var(--hue)*1deg));opacity:.36;mix-blend-mode:screen;
+ animation:hdSpin 9s linear infinite;}
+@keyframes hdSpin{to{transform:rotate(360deg);}}
+.hd-glare{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;mix-blend-mode:screen;opacity:0;transition:opacity .25s;
+ background:radial-gradient(210px 210px at var(--px) var(--py),rgba(255,255,255,.45),rgba(255,255,255,0) 60%),
+  linear-gradient(105deg,transparent calc(var(--px) - 18%),rgba(255,255,255,.16) var(--px),transparent calc(var(--px) + 18%));}
+.holodoor:hover .hd-glare{opacity:1;}
+.hd-body{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:16px 20px;transform:translateZ(26px);}
+.hd-icon{flex:0 0 46px;width:46px;height:46px;border-radius:12px;overflow:hidden;background:rgba(10,5,26,.42);border:1px solid rgba(255,255,255,.14);}
+.hd-mini{width:46px;height:46px;display:block;}
+.hd-txt{display:flex;flex-direction:column;min-width:0;}
+.hd-txt b{font-size:16px;letter-spacing:2.5px;font-weight:700;white-space:nowrap;
+ background:linear-gradient(92deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hd-txt i{font-style:normal;font-size:10.5px;letter-spacing:.6px;color:var(--dim);margin-top:3px;}
+.holodoor:hover{border-color:rgba(255,255,255,.44);
+ box-shadow:0 18px 52px rgba(70,24,180,.55),inset 0 1px 0 rgba(255,255,255,.45),inset 0 -12px 30px rgba(150,90,255,.22);}
+.holodoor:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){.holodoor,.hd-film{animation:none;}.holodoor{transition:box-shadow .3s;}}
 </style></head>
 <body>
 <canvas id="hall"></canvas>
@@ -138,9 +145,16 @@ footer b{color:var(--ink);}
    <span><b style="color:var(--teal)">L1</b> the mesh</span>
    <span><b style="color:var(--w3)">L2</b> the cells that emerge</span>
   </div>
-  <div class="mapdock">
-   <a class="holo" id="holoMap" href="https://davidwise01.github.io/ud0/the-map.html" aria-label="THE MAP — all three worlds, one lineage graph">
-    <span class="hl"><b>&#9672;&nbsp;THE MAP</b><i>all three worlds &middot; one lineage graph</i></span>
+    <div class="holodock" id="holodock">
+   <a class="holodoor d-map" href="https://davidwise01.github.io/ud0/the-map.html" aria-label="THE MAP - the lineage graph of all three worlds">
+    <span class="hd-film"></span><span class="hd-glare"></span>
+    <span class="hd-body"><span class="hd-icon"><canvas class="hd-mini" data-kind="map" width="46" height="46"></canvas></span>
+     <span class="hd-txt"><b>&#9672; THE MAP</b><i>the lineage graph &middot; all three worlds</i></span></span>
+   </a>
+   <a class="holodoor d-index" href="https://davidwise01.github.io/ud0/the-index.html" aria-label="THE INDEX - the searchable directory of the corpus">
+    <span class="hd-film"></span><span class="hd-glare"></span>
+    <span class="hd-body"><span class="hd-icon"><canvas class="hd-mini" data-kind="index" width="46" height="46"></canvas></span>
+     <span class="hd-txt"><b>&#9776; THE INDEX</b><i>the directory &middot; 4,097 spheres</i></span></span>
    </a>
   </div>
  </header>
@@ -421,31 +435,61 @@ function hall(){
 hall();
 </script>
 <script>
-/* THE MAP door — magnetic pull + holographic tilt + cursor-tracked glare */
+/* THE MAP + THE INDEX — holographic console: magnetic pull, viewing-angle iridescence,
+   3D parallax, specular sweep, touch shimmer, and live micro-visuals. */
 (function(){
  "use strict";
- var holo=document.getElementById("holoMap");
- if(!holo) return;
+ var dock=document.getElementById("holodock"); if(!dock) return;
+ var doors=[].slice.call(dock.querySelectorAll(".holodoor"));
  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
- var FIELD=130, raf=0, tx=0,ty=0,rx=0,ry=0, active=false;
- function apply(){ raf=0;
-  holo.style.transform="translate3d("+tx.toFixed(2)+"px,"+ty.toFixed(2)+"px,0) rotateX("+rx.toFixed(2)+"deg) rotateY("+ry.toFixed(2)+"deg)"; }
- function schedule(){ if(!raf) raf=requestAnimationFrame(apply); }
+ var coarse=matchMedia("(hover: none)").matches;
+ var FIELD=140, raf=0, st=doors.map(function(){return {tx:0,ty:0,rx:0,ry:0,on:false};});
+ function apply(){ raf=0; doors.forEach(function(d,i){ var s=st[i];
+   d.style.transform="translate3d("+s.tx.toFixed(2)+"px,"+s.ty.toFixed(2)+"px,0) rotateX("+s.rx.toFixed(2)+"deg) rotateY("+s.ry.toFixed(2)+"deg)"; }); }
+ function sched(){ if(!raf) raf=requestAnimationFrame(apply); }
  function onMove(e){
-  var r=holo.getBoundingClientRect();
-  var dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
-  var reach=Math.max(r.width,r.height)/2 + FIELD;
-  if(Math.hypot(dx,dy)<reach){
-   active=true;
-   var lx=(e.clientX-r.left)/r.width, ly=(e.clientY-r.top)/r.height;
-   holo.style.setProperty("--mx",(lx*100).toFixed(1)+"%");
-   holo.style.setProperty("--my",(ly*100).toFixed(1)+"%");
-   if(reduce){ tx=ty=rx=ry=0; } else { tx=dx*0.26; ty=dy*0.26; ry=(lx-0.5)*14; rx=-(ly-0.5)*11; }
-   schedule();
-  } else if(active){ active=false; tx=ty=rx=ry=0; schedule(); }
+   doors.forEach(function(d,i){ var s=st[i], r=d.getBoundingClientRect();
+    var dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
+    var reach=Math.max(r.width,r.height)/2+FIELD;
+    if(Math.hypot(dx,dy)<reach){
+      var lx=(e.clientX-r.left)/r.width, ly=(e.clientY-r.top)/r.height;
+      d.style.setProperty("--px",(lx*100).toFixed(1)+"%");
+      d.style.setProperty("--py",(ly*100).toFixed(1)+"%");
+      d.style.setProperty("--hue",Math.round(Math.atan2(dy,dx)*57.2958));
+      if(!reduce){ s.tx=dx*0.20; s.ty=dy*0.20; s.ry=(lx-0.5)*16; s.rx=-(ly-0.5)*13; s.on=true; }
+    } else if(s.on){ s.tx=s.ty=s.rx=s.ry=0; s.on=false; }
+   });
+   if(!reduce) sched();
  }
  window.addEventListener("mousemove",onMove,{passive:true});
- holo.addEventListener("mouseleave",function(){ active=false; tx=ty=rx=ry=0; schedule(); });
+ dock.addEventListener("mouseleave",function(){ st.forEach(function(s){s.tx=s.ty=s.rx=s.ry=0;s.on=false;}); sched(); });
+ if(coarse && !reduce){ var hh=0; (function shimmer(){ hh=(hh+0.5)%360;
+   doors.forEach(function(d){ d.style.setProperty("--hue",hh.toFixed(0)); }); requestAnimationFrame(shimmer); })(); }
+ doors.forEach(function(d){ var cv=d.querySelector(".hd-mini"); if(!cv||!cv.getContext) return;
+  var ctx=cv.getContext("2d"), kind=cv.getAttribute("data-kind"), W=cv.width, H=cv.height;
+  var cst=getComputedStyle(d), acc=(cst.getPropertyValue("--acc")||"#8affea").trim(), acc2=(cst.getPropertyValue("--acc2")||"#b58cff").trim();
+  var seed=kind==="map"?7:3;
+  function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  var pts=[]; for(var i=0;i<11;i++) pts.push({x:5+rnd()*(W-10),y:5+rnd()*(H-10),p:rnd()*6.28});
+  var t=0;
+  function frame(){ t+=0.028; ctx.clearRect(0,0,W,H);
+    if(kind==="map"){
+      ctx.lineWidth=.6; ctx.strokeStyle="rgba(181,140,255,.30)";
+      for(var i=0;i<pts.length;i++){ var a=pts[i],b=pts[(i+3)%pts.length];
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      for(var j=0;j<pts.length;j++){ var q=pts[j], tw=0.55+0.45*Math.sin(t+q.p);
+        ctx.globalAlpha=tw; ctx.fillStyle=j%2?acc:acc2; ctx.beginPath(); ctx.arc(q.x,q.y,1.5,0,6.28); ctx.fill(); }
+      ctx.globalAlpha=1;
+    } else {
+      for(var r=0;r<5;r++){ var y=8+r*7.5, w=(W-16)*(0.45+0.5*Math.abs(Math.sin(t*.6+r)));
+        ctx.globalAlpha=.9; ctx.fillStyle=r%2?acc2:acc; ctx.beginPath(); ctx.arc(6,y,1.4,0,6.28); ctx.fill();
+        ctx.fillStyle="rgba(231,221,255,.5)"; ctx.fillRect(11,y-1,w,2); }
+      ctx.globalAlpha=1;
+    }
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+ });
 })();
 </script>
 </body></html>
