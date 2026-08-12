@@ -97,6 +97,34 @@ footer b{color:var(--ink);}
 .heaven{font-family:ui-monospace,monospace;font-size:13px;background:#120a26;border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:0 0 16px;overflow-x:auto;line-height:1.75;color:#d9cef2;white-space:pre;}
 .heaven .h{color:var(--w3);letter-spacing:2px;font-weight:700;display:block;margin-bottom:9px;text-transform:uppercase;}
 .heaven .z{color:var(--w3);} .heaven .w{color:var(--teal);} .heaven .s{color:var(--w1);} .heaven .c{color:var(--dim);} .heaven .r{color:#fff;font-weight:700;}
+
+/* ===== THE MAP — magnetic holographic glass door ===== */
+.mapdock{display:flex;justify-content:center;margin:20px 0 2px;perspective:700px;}
+.holo{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px;
+ padding:15px 34px;border-radius:18px;text-decoration:none;color:var(--ink);isolation:isolate;overflow:hidden;
+ background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(179,140,240,.05) 46%,rgba(47,198,192,.08));
+ border:1px solid rgba(255,255,255,.24);
+ box-shadow:0 10px 34px rgba(10,4,30,.5), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -10px 26px rgba(120,60,220,.14);
+ backdrop-filter:blur(11px) saturate(1.35); -webkit-backdrop-filter:blur(11px) saturate(1.35);
+ transform:translate3d(0,0,0); transform-style:preserve-3d;
+ transition:transform .5s cubic-bezier(.2,.9,.25,1), box-shadow .3s, border-color .3s;
+ will-change:transform;}
+.holo::before{content:"";position:absolute;inset:-45%;z-index:-1;pointer-events:none;
+ background:conic-gradient(from 0deg,#8affea,#b58cff,#ff8ad2,#ffd36b,#7dffa8,#8affea);
+ filter:blur(16px);opacity:.34;mix-blend-mode:screen;animation:holoSpin 8s linear infinite;}
+@keyframes holoSpin{to{transform:rotate(360deg);}}
+.holo::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;
+ background:radial-gradient(190px 190px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.42),rgba(255,255,255,0) 62%);
+ opacity:0;transition:opacity .25s;mix-blend-mode:screen;}
+.holo:hover{border-color:rgba(255,255,255,.42);
+ box-shadow:0 16px 48px rgba(70,24,180,.52), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -10px 28px rgba(150,90,255,.2);}
+.holo:hover::after{opacity:1;}
+.holo:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+.holo .hl{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+.holo .hl b{font-size:17px;letter-spacing:3.5px;font-weight:700;
+ background:linear-gradient(92deg,#8affea,#b58cff 45%,#ffd36b);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.holo .hl i{font-style:normal;font-size:10.5px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
+@media(prefers-reduced-motion:reduce){.holo::before{animation:none;}.holo{transition:box-shadow .3s;}}
 </style></head>
 <body>
 <canvas id="hall"></canvas>
@@ -109,6 +137,11 @@ footer b{color:var(--ink);}
    <span><b style="color:var(--w1)">L0</b> the pieces</span>
    <span><b style="color:var(--teal)">L1</b> the mesh</span>
    <span><b style="color:var(--w3)">L2</b> the cells that emerge</span>
+  </div>
+  <div class="mapdock">
+   <a class="holo" id="holoMap" href="https://davidwise01.github.io/ud0/the-map.html" aria-label="THE MAP — all three worlds, one lineage graph">
+    <span class="hl"><b>&#9672;&nbsp;THE MAP</b><i>all three worlds &middot; one lineage graph</i></span>
+   </a>
   </div>
  </header>
  <div id="worlds"></div>
@@ -386,5 +419,33 @@ function hall(){
  requestAnimationFrame(hall);
 }
 hall();
+</script>
+<script>
+/* THE MAP door — magnetic pull + holographic tilt + cursor-tracked glare */
+(function(){
+ "use strict";
+ var holo=document.getElementById("holoMap");
+ if(!holo) return;
+ var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ var FIELD=130, raf=0, tx=0,ty=0,rx=0,ry=0, active=false;
+ function apply(){ raf=0;
+  holo.style.transform="translate3d("+tx.toFixed(2)+"px,"+ty.toFixed(2)+"px,0) rotateX("+rx.toFixed(2)+"deg) rotateY("+ry.toFixed(2)+"deg)"; }
+ function schedule(){ if(!raf) raf=requestAnimationFrame(apply); }
+ function onMove(e){
+  var r=holo.getBoundingClientRect();
+  var dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
+  var reach=Math.max(r.width,r.height)/2 + FIELD;
+  if(Math.hypot(dx,dy)<reach){
+   active=true;
+   var lx=(e.clientX-r.left)/r.width, ly=(e.clientY-r.top)/r.height;
+   holo.style.setProperty("--mx",(lx*100).toFixed(1)+"%");
+   holo.style.setProperty("--my",(ly*100).toFixed(1)+"%");
+   if(reduce){ tx=ty=rx=ry=0; } else { tx=dx*0.26; ty=dy*0.26; ry=(lx-0.5)*14; rx=-(ly-0.5)*11; }
+   schedule();
+  } else if(active){ active=false; tx=ty=rx=ry=0; schedule(); }
+ }
+ window.addEventListener("mousemove",onMove,{passive:true});
+ holo.addEventListener("mouseleave",function(){ active=false; tx=ty=rx=ry=0; schedule(); });
+})();
 </script>
 </body></html>
