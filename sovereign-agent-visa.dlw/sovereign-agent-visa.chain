@@ -1,0 +1,6 @@
+ROOT0-DLW-CHAIN-v1
+slug  : sovereign-agent-visa
+seal  : c278369db2d647ccc0c591df90900f6e31a956f39cc38a03485014a162d9b708
+status: MINTED — standalone birth-certificate; pending tether into the master dlw-chain (next _dlw_chain run assigns index/prev/link).
+
+— the seal is sha256(name|slug|blurb); it is this node's identity from birth.
