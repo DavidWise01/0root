@@ -1,0 +1,341 @@
+{
+  "benchmark": "CRISPR-E2E-STRESS-TO-FAILURE-1.0",
+  "pid": 7,
+  "scope": "synthetic computational stress only",
+  "limits": {
+    "per_case_memory_mib": 12288,
+    "per_case_timeout_seconds": 60
+  },
+  "functional_attacks": [
+    {
+      "name": "alphabet veto ''",
+      "pass": true,
+      "expected": "rejected",
+      "actual": "rejected"
+    },
+    {
+      "name": "alphabet veto 'ACGTN'",
+      "pass": true,
+      "expected": "rejected",
+      "actual": "rejected"
+    },
+    {
+      "name": "alphabet veto 'acgt'",
+      "pass": true,
+      "expected": "rejected",
+      "actual": "rejected"
+    },
+    {
+      "name": "alphabet veto 'AUGG'",
+      "pass": true,
+      "expected": "rejected",
+      "actual": "rejected"
+    },
+    {
+      "name": "minimum complete target",
+      "pass": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "one-base truncation",
+      "pass": true,
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "reverse-complement conservation",
+      "pass": true,
+      "expected": "AAAAAAAAAAAAAAAAAAAAAGG",
+      "actual": "AAAAAAAAAAAAAAAAAAAAAGG"
+    }
+  ],
+  "capability_matrix": [
+    {
+      "family": "SpCas9",
+      "material": "DNA",
+      "pam": "NGG",
+      "guide_length": 20,
+      "supported": true
+    },
+    {
+      "family": "SaCas9",
+      "material": "DNA",
+      "pam": "NNGRRT",
+      "guide_length": 21,
+      "supported": false
+    },
+    {
+      "family": "Cas12a",
+      "material": "DNA",
+      "pam": "TTTV",
+      "guide_length": 23,
+      "supported": false
+    },
+    {
+      "family": "Cas13",
+      "material": "RNA",
+      "pam": "PFS/context",
+      "guide_length": 28,
+      "supported": false
+    },
+    {
+      "family": "base editor",
+      "material": "DNA",
+      "pam": "configurable",
+      "guide_length": 20,
+      "supported": false
+    },
+    {
+      "family": "prime editor",
+      "material": "DNA/RNA",
+      "pam": "configurable",
+      "guide_length": "pegRNA",
+      "supported": false
+    }
+  ],
+  "scan_ladder": [
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 1000000,
+      "status": "PASS",
+      "seconds": 0.806372,
+      "detail": {
+        "hits": 125422,
+        "digest": "2587777d9298027a8bc5dbdbbf3df12edac60718ec0a833839ac704d04903842"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 2000000,
+      "status": "PASS",
+      "seconds": 1.553955,
+      "detail": {
+        "hits": 252001,
+        "digest": "a784d60d39caa8b8ffea3a0a0fc5023a4bd3878c582a98ab1537c581b5c50cec"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 4000000,
+      "status": "PASS",
+      "seconds": 3.059909,
+      "detail": {
+        "hits": 502063,
+        "digest": "71725ad21644886139aa18d08109a3ffe53fe1cb9ce1a20b9cd62f26cf5ab29e"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 8000000,
+      "status": "PASS",
+      "seconds": 5.804742,
+      "detail": {
+        "hits": 1006612,
+        "digest": "4cc7b75d22ec2e378cc7f08f1e8ccf0d453bd53a7163c7f980b235c615ddc35a"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 16000000,
+      "status": "PASS",
+      "seconds": 12.164525,
+      "detail": {
+        "hits": 2011233,
+        "digest": "2e2b29a3e3ebf89a4ba0c770f01a49d39008f3a492f2e8f0393ec8fd1351b4db"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 32000000,
+      "status": "PASS",
+      "seconds": 24.969464,
+      "detail": {
+        "hits": 4027530,
+        "digest": "7560ea11148585c36872cfe8e7e7d0b8dfd8d29947803f9ed6bfac04234d4b5f"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 64000000,
+      "status": "PASS",
+      "seconds": 50.363652,
+      "detail": {
+        "hits": 8045254,
+        "digest": "cb765befb2d4cce27171d306410856804bda5da97fdc351acfb02203676cf833"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "seeded-random",
+      "length": 128000000,
+      "status": "TIMEOUT",
+      "seconds": 60
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 1000000,
+      "status": "PASS",
+      "seconds": 0.947468,
+      "detail": {
+        "hits": 999978,
+        "digest": "1ca67702a8fd24b39d59f47e9f1a0a2241f83d475187badb167c5d2c38f0cdb9"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 2000000,
+      "status": "PASS",
+      "seconds": 2.192261,
+      "detail": {
+        "hits": 1999978,
+        "digest": "2d232f6083ecaeaa98b741da06eb0f22def62951fcda35034e30c4621c3ad955"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 4000000,
+      "status": "PASS",
+      "seconds": 3.808721,
+      "detail": {
+        "hits": 3999978,
+        "digest": "400e990af2f532d537eb38d50c6de1c7e5116a9fa5cc4aaf9df2e45127e2b5c4"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 8000000,
+      "status": "PASS",
+      "seconds": 8.406194,
+      "detail": {
+        "hits": 7999978,
+        "digest": "bfb923b4410000f36bb47c98d8a4a5637135763f02c637b8b0b0ffc7fa315bae"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 16000000,
+      "status": "PASS",
+      "seconds": 17.733074,
+      "detail": {
+        "hits": 15999978,
+        "digest": "8a9477058ea958cfa6e7e60e74608fe203e7eb62ac8e8246c8236eec1e9a40b5"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 32000000,
+      "status": "PASS",
+      "seconds": 34.542081,
+      "detail": {
+        "hits": 31999978,
+        "digest": "99f134bb8d8e2fa6c6c1c55f8f03546da940d7d5caf687a968091caec26a0c36"
+      }
+    },
+    {
+      "mode": "scan",
+      "pattern": "dense",
+      "length": 64000000,
+      "status": "TIMEOUT",
+      "seconds": 60
+    }
+  ],
+  "edit_distance_ladder": [
+    {
+      "mode": "edit",
+      "length": 128,
+      "status": "PASS",
+      "seconds": 0.005655,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 256,
+      "status": "PASS",
+      "seconds": 0.012576,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 512,
+      "status": "PASS",
+      "seconds": 0.052126,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 1024,
+      "status": "PASS",
+      "seconds": 0.244297,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 2048,
+      "status": "PASS",
+      "seconds": 0.995816,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 4096,
+      "status": "PASS",
+      "seconds": 3.876706,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 8192,
+      "status": "PASS",
+      "seconds": 18.046613,
+      "detail": {
+        "distance": 1
+      }
+    },
+    {
+      "mode": "edit",
+      "length": 16384,
+      "status": "TIMEOUT",
+      "seconds": 60
+    }
+  ],
+  "first_scope_failure": {
+    "class": "CAPABILITY_BOUNDARY",
+    "detail": "baseline implements only fixed-length SpCas9/NGG DNA; unsupported: SaCas9, Cas12a, Cas13, base editor, prime editor"
+  },
+  "first_runtime_failure": {
+    "mode": "scan",
+    "pattern": "seeded-random",
+    "length": 128000000,
+    "status": "TIMEOUT",
+    "seconds": 60
+  },
+  "status": "BROKEN_AS_FULL_SCOPE",
+  "baseline_regression": "PASS",
+  "result_sha256": "f3b1c3b754ee770c4c5471eb2fe90502e92438f7018ffe4eedec40be64fc6aa8"
+}

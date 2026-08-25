@@ -1,0 +1,114 @@
+{
+  "benchmark": "CRISPR-E2E-SYNTHETIC-1.0",
+  "scope": "computational software only; synthetic non-organism sequences",
+  "seed": 201,
+  "status": "PASS",
+  "checks": {
+    "passed": 11,
+    "total": 11,
+    "items": [
+      {
+        "name": "reverse-complement involution",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "invalid alphabet veto",
+        "passed": true,
+        "detail": "ACGTN rejected"
+      },
+      {
+        "name": "PAM candidate discovery",
+        "passed": true,
+        "detail": 8
+      },
+      {
+        "name": "PAM-loss mutation",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "exact Hamming",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "single DNA-bulge distance",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "exact score maximum",
+        "passed": true,
+        "detail": 1.0
+      },
+      {
+        "name": "mismatch monotonicity",
+        "passed": true,
+        "detail": 0.94
+      },
+      {
+        "name": "seed mismatch penalty",
+        "passed": true,
+        "detail": {
+          "seed": 0.88,
+          "distal": 0.94
+        }
+      },
+      {
+        "name": "deterministic output",
+        "passed": true,
+        "detail": 2446
+      },
+      {
+        "name": "stable output digest",
+        "passed": true,
+        "detail": "c95d26e177812f147b8f0f915d536eff7b528716d5d91067b30e65c91116de22"
+      }
+    ]
+  },
+  "performance": [
+    {
+      "input_bases": 10000,
+      "candidate_count": 1263,
+      "median_seconds": 0.003498,
+      "throughput_bases_per_second": 2858912,
+      "trials": [
+        0.003649,
+        0.003462,
+        0.003498
+      ]
+    },
+    {
+      "input_bases": 100000,
+      "candidate_count": 12347,
+      "median_seconds": 0.046371,
+      "throughput_bases_per_second": 2156522,
+      "trials": [
+        0.046371,
+        0.053418,
+        0.038587
+      ]
+    },
+    {
+      "input_bases": 1000000,
+      "candidate_count": 125422,
+      "median_seconds": 0.431818,
+      "throughput_bases_per_second": 2315788,
+      "trials": [
+        0.431818,
+        0.433092,
+        0.415963
+      ]
+    }
+  ],
+  "peak_rss_kib": 42324,
+  "wall_seconds": 1.831673,
+  "limitations": [
+    "No experimentally measured editing outcomes",
+    "No real reference genome or clinically meaningful target",
+    "Reference scoring oracle is deterministic, not a biological efficacy model",
+    "Results measure pipeline correctness and compute behavior, not wet-lab safety or efficacy"
+  ],
+  "result_sha256": "bcd4cf448bac518a43c1dd7a903a60ea9f3a2d5a423c2fc1092960754f8b87d8"
+}

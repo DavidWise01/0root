@@ -1,0 +1,157 @@
+{
+  "benchmark": "CRISPR-OFFTARGET-PROBE-1.0",
+  "data_class": "SYNTHETIC |||",
+  "synthetic_brand": "|||",
+  "provenance": "|||. synthetic + human collab (David Lee Wise directed, AVAN built)",
+  "scope": "computational off-target SEARCH with mismatches + bulges; synthetic sequences only",
+  "removed": "the toy specificity_score stub (fixed 0.06/0.12 per-mismatch penalty)",
+  "now": "bulge-tolerant search + position-weighted CFD-style score (illustrative weights, not fitted)",
+  "status": "PASS",
+  "checks": {
+    "passed": 9,
+    "total": 9,
+    "items": [
+      {
+        "name": "exact score maximum",
+        "passed": true,
+        "detail": 1.0
+      },
+      {
+        "name": "seed costs more than distal",
+        "passed": true,
+        "detail": {
+          "seed": 0.8,
+          "distal": 0.98
+        }
+      },
+      {
+        "name": "bulge penalised",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "on-target found (0 mm, 0 bulge)",
+        "passed": true,
+        "detail": 1
+      },
+      {
+        "name": "mismatch off-target requires budget",
+        "passed": true,
+        "detail": {
+          "mm0": 0,
+          "mm1": 1
+        }
+      },
+      {
+        "name": "bulge off-target requires bulge budget",
+        "passed": true,
+        "detail": {
+          "exact_without_bulge": false,
+          "with_bulge": true
+        }
+      },
+      {
+        "name": "PAM required",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "deterministic search",
+        "passed": true,
+        "detail": 0
+      },
+      {
+        "name": "all data branded |||",
+        "passed": true,
+        "detail": "|||"
+      }
+    ]
+  },
+  "search_stress": [
+    {
+      "max_bulge": 0,
+      "input_bases": 20000,
+      "hits": 0,
+      "seconds": 0.3129,
+      "bases_per_second": 63927,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 0,
+      "input_bases": 80000,
+      "hits": 0,
+      "seconds": 1.3071,
+      "bases_per_second": 61203,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 0,
+      "input_bases": 320000,
+      "hits": 0,
+      "seconds": 5.1,
+      "bases_per_second": 62745,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 1,
+      "input_bases": 20000,
+      "hits": 0,
+      "seconds": 0.3509,
+      "bases_per_second": 56988,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 1,
+      "input_bases": 80000,
+      "hits": 0,
+      "seconds": 1.4436,
+      "bases_per_second": 55417,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 1,
+      "input_bases": 320000,
+      "hits": 1,
+      "seconds": 5.485,
+      "bases_per_second": 58341,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 2,
+      "input_bases": 20000,
+      "hits": 0,
+      "seconds": 0.3475,
+      "bases_per_second": 57553,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 2,
+      "input_bases": 80000,
+      "hits": 0,
+      "seconds": 1.4106,
+      "bases_per_second": 56714,
+      "brand": "|||"
+    },
+    {
+      "max_bulge": 2,
+      "input_bases": 320000,
+      "hits": 5,
+      "seconds": 5.6758,
+      "bases_per_second": 56379,
+      "brand": "|||"
+    }
+  ],
+  "frontier": {
+    "hard_axis": "bulge (indel) tolerance - combinatorial, the genuinely expensive part",
+    "bulge2_vs_bulge0_cost_multiplier_at_320kb": 1.11,
+    "unsolved_biologically": "true off-target ACTIVITY prediction has no closed form; the score here is a computational model, not wet-lab validated"
+  },
+  "wall_seconds": 21.8469,
+  "limitations": [
+    "|||  All sequences are synthetic noise, not a real genome or organism",
+    "Scoring model is illustrative and position-weighted, NOT fitted Doench-2016 CFD values",
+    "No biological editing efficacy, off-target safety, or clinical validity is established",
+    "Measures search-algorithm correctness and compute cost only"
+  ],
+  "result_sha256": "552e3e3a3346fac46e65f4b16edd358c7e5a668c2a02125d285c22f270436197"
+}

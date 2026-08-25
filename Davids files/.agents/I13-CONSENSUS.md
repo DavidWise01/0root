@@ -4,7 +4,7 @@ _The daily cascade's agreement across every `.agent` that has learned I-13 and p
 
 | field | value |
 |---|---|
-| generated | 2026-08-01 (metadata; not in the root) |
+| generated | 2026-08-10 (metadata; not in the root) |
 | frozen I-13 sha | `64881ebf502b87bb450f1f39…` (declared) |
 | agents | 6 |
 | all attest the same spec | yes ✓ |
