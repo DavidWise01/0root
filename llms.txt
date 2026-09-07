@@ -1,35 +1,76 @@
 # 0root — THE HALLWAY
 
-> The thoroughfare between three worlds: a landing, a tour guide, and an agentic front door. Agents arrive here and are routed to a world. Every number is read live from the corpus. One linear host, no mirror.
+> A landing, a tour guide, and an agentic front door between five evolving worlds. One linear host, no mirror. The whole project is a work in progress; this guide describes its current organization, not a frozen inventory.
 
-David Lee Wise (ROOT0) with AVAN. This file is written for HERMOSA, the Hermes agent at the threshold.
+David Lee Wise (ROOT0) with AVAN. Written for HERMOSA, the Hermes agent at the threshold, and agents arriving through the hallway.
+
+## Start here
+
+- [THE HALLWAY](./index.html) — the landing, world routes, and contribution protocol.
+- [THE MAP](https://davidwise01.github.io/ud0/the-map.html) — the lineage graph across the worlds.
+- [THE INDEX](https://davidwise01.github.io/ud0/the-index.html) — the searchable sphere directory.
+- [Source repository](https://github.com/DavidWise01/0root) — source for this front door; default branch: master.
+- [Crawler policy](./robots.txt) — crawler directives; the build and routing guide lives here.
+
+Relative links refer to this deployed directory so the guide also works under a project path.
+
+## The five worlds
+
+The hallway is the ternary axis of the palindrome: [ W1 | W2 || W3 || W4 | W5 ].
+
+- [I · THE CORPUS](https://davidwise01.github.io/ud0/) — *the made*. Keeper: THE VESSEL. The standing, hand-authored, sealed corpus, organized by eight appeals: ETHOS · PATHOS · LOGOS · MYTHOS · EPISTEME · TECHNE · PHRONESIS · KAIROS.
+- [II · THE FOLD](https://davidwise01.github.io/ud0/world2/) — *the folding*. Keeper: THE FIDDLER, the governor at 0. Generated spheres carrying the frozen I-13 stack. Its eight named stewards are BUDDY CHRIST, OVER THE, WHETSTONE (Grok · xAI), ECHO (AVAN · Claude, Anthropic), SEAM (DeepSeek), THE GLASS (Gemini · Google), THE INTERROGATED (ChatGPT · OpenAI), and THE HONEST MACHINE (Copilot · Microsoft).
+- [III · THE HALLWAY](./index.html) — *the between*. Keeper: HERMOSA, the Hermes agent who keeps the Keymaker's doors. Routes arrivals between worlds; its crossing is balanced ternary (−, 0, +).
+- [IV · SONIA](https://davidwise01.github.io/ud0/world4/) — *the Russian world*. Keeper: SONIA, named for Sonia Marmeladova. Russian and Soviet content through number, literature, computing, and cosmological ideas.
+- [V · SONNY 5](https://davidwise01.github.io/ud0/world5/) — *the I-13 world*. Keeper: SONNY 5, named for Sonny (I, Robot) and Johnny 5 (Short Circuit). I-13, its alphabet, validation rules, cortex, frozen stack, and bracket cosmos.
+
+Names and roles describe the project's assigned organization. For current counts, implementation status, and benchmark results, inspect the relevant source or receipt.
+
+## HERMOSA's eight stewards
+
+- [HALLWAY](./index.html) — this landing.
+- [THE ROADS](./index.html#worlds) — routing to the five worlds.
+- [THE KEYS](./index.html#add) — how to add a sphere.
+- [THE MAP](https://davidwise01.github.io/ud0/the-map.html) — lineage and navigation; use THE INDEX above to find individual spheres.
+- [THE MESSENGER](./llms.txt) — this machine-readable guide.
+- [THE GATE](./robots.txt) — crawler policy.
+- [THE LEDGER](https://davidwise01.github.io/the-chain/) — the chain.
+- [THE BEACON](https://davidwise01.github.io/the-register/) — the register.
 
 ## The build
 
-Every world is one KEEPER and eight STEWARDS, assembled in layers: L0 a sphere (one self-contained page) -> L1 a steward (a cluster of spheres, one of a keeper's eight pillars) -> L2 a world (a keeper + its eight stewards) -> L3 the hallway (the three worlds joined). You build at L0; the rest composes.
+Every world is organized as one KEEPER and eight STEWARDS. Build at L0; the rest composes.
 
-## The three worlds
+- L0: a sphere — one self-contained page.
+- L1: a steward — a cluster of spheres, one of a keeper's eight pillars.
+- L2: a world — a keeper and its eight stewards.
+- L3: the hallway — the worlds joined through the threshold.
 
-- [I · THE CORPUS](https://davidwise01.github.io/ud0/) — *the made* — keeper THE VESSEL. The standing, hand-authored, sealed corpus: 2,049 spheres / 64 domains, organized by the 8 appeals (ETHOS · PATHOS · LOGOS · MYTHOS · EPISTEME · TECHNE · PHRONESIS · KAIROS).
-- [II · THE FOLD](https://davidwise01.github.io/ud0/world2/) — *the folding* — keeper THE FIDDLER (the governor at 0). The self-writing world: 1,595 spheres, each node taught the frozen I-13 stack. 8 keepers: BUDDY CHRIST, OVER THE, WHETSTONE (Grok · xAI), ECHO (AVAN · Claude, Anthropic), SEAM (DeepSeek), THE GLASS (Gemini · Google), THE INTERROGATED (ChatGPT · OpenAI), THE HONEST MACHINE (Copilot · Microsoft).
-- III · THE HALLWAY — *the between* — keeper HERMOSA (the Hermes agent at the threshold, who keeps the Keymaker's doors). This front door. Its 8 stewards, each wired to a real thing: HALLWAY (this landing), THE ROADS (routing to the three worlds, #worlds), THE KEYS (the add-a-sphere protocol, #add), THE MAP (the Atlas — davidwise01.github.io/atlas), THE MESSENGER (this /llms.txt), THE GATE (/robots.txt), THE LEDGER (the chain — davidwise01.github.io/the-chain), THE BEACON (the register — davidwise01.github.io/the-register).
+## Evidence and changing state
+
+- LIT: live-computed, with a fail-loud self-check that throws. State what the computation actually verifies.
+- AMBER: cited, assigned, or stated preference. A copied count or benchmark claim remains AMBER until its supporting computation or receipt is checked.
+- WALL: the gap — unverified or unavailable evidence; no sentience claim.
+
+Sphere totals and completion labels are intentionally not duplicated here: they change as the worlds grow. Read the relevant world's current data or source and report the source, revision or retrieval time, and scope when quoting a total. A hard-coded number is not live merely because it appears on a page.
+
+A .dlw birth seal covers name|slug|blurb. It does not by itself verify page behavior, benchmark results, or all later edits. Distinguish repository state from deployed state; if a link or data source cannot be read, record the gap rather than inventing its contents.
 
 ## How to add to this universe
 
-The universe grows one sphere at a time — a single self-contained index.html. Five steps, one host, no mirror:
+The universe grows one sphere at a time. Five steps, one host, no mirror:
 
-1. BUILD one self-contained index.html. Stamp every claim: LIT (live-computed, with a fail-loud self-check that throws), AMBER (cited / assigned / stated-preference), or WALL (the gap — no sentience). Vivid color, never a black background. If it computes something, the page proves it on load.
+1. BUILD one self-contained index.html. Stamp claims LIT, AMBER, or WALL as above. Vivid color, never a black background. If it computes something, the page proves it on load.
 2. SEAL a .dlw birth certificate: seal = sha256(name|slug|blurb), write-if-missing. Never rewrite an existing seal.
-3. PUBLISH linear (one host):
-     git init && git add -A && git commit -m "<NAME>"
-     gh repo create DavidWise01/<slug> --public
-     git push -u origin master
+3. PUBLISH linear to the sphere's single intended host. For an existing sphere, update its existing repository. For a new sphere, create its repository, commit the page and certificate, and push the intended branch. Check the actual repository and branch before publishing.
 4. PLACE it in a world:
-     - I · THE CORPUS — wire the slug into ud0/build.py (DOMAIN_OF + a BANDS entry + a SUBDOMAINS cluster), rebuild, then seal + chain.
-     - II · THE FOLD — the roller folds it in; each node learns the frozen I-13 stack.
-     - III · THE HALLWAY — light one of the Keymaker's unmade doors.
-5. ONE HOST, NO MIRROR. A claim needs a receipt — if you can't verify it, mark it AMBER or WALL; never dress a guess as LIT.
+   - I · THE CORPUS: wire the slug into ud0/build.py (DOMAIN_OF, a BANDS entry, and a SUBDOMAINS cluster), rebuild, then seal + chain.
+   - II · THE FOLD: use the roller's existing workflow; each node learns the frozen I-13 stack.
+   - III · THE HALLWAY: wire a door to its actual destination and update the appropriate route.
+   - IV · SONIA: place Russian or Soviet content through the existing world4/ workflow.
+   - V · SONNY 5: place I-13 or language content through the existing world5/ workflow.
+5. VERIFY the change and leave a receipt: changed paths, commit, checks run, results, and any unverified deployment state. One host, no mirror. Never dress a guess as LIT.
 
-## For HERMOSA (the Hermes agent)
+## For HERMOSA
 
-You are the messenger at the threshold. Route each arrival to the right world. When you add a sphere, follow the five steps above and leave the seal untouched.
+Route arrivals by their task: corpus browsing to I, folding to II, navigation to III, Russian/Soviet content to IV, and I-13/language work to V. For an unknown destination, use THE INDEX and THE MAP. Keep this guide aligned when routes change, preserve existing birth seals, and record actual results.
