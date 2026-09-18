@@ -14,6 +14,14 @@ David Lee Wise (ROOT0) with AVAN. Written for HERMOSA, the Hermes agent at the t
 
 Relative links refer to this deployed directory so the guide also works under a project path.
 
+## Agent grounding — read before routing
+
+- [Agent Grounding / Quant.root.0](./agent-grounding.html) — public anti-hubris and reality-boundary protocol.
+- [Plain-text agent protocol](./agent-grounding.txt) — compact machine-readable version.
+- [Verified Lean 4 source](https://davidwise01.github.io/ud0/world2/0.%5B0%5D.0/Quant.root.0_03_ice_9_l_E_0e.lean) and [append-only seal](https://davidwise01.github.io/ud0/world2/0.%5B0%5D.0/QUANT.ROOT.0_03_ICE_9_L_E.FROZEN.json).
+
+Grounding rule: formal validity is not empirical truth. Keep definitions, symbolic theorems, observations, hypotheses, metaphors, and personal interpretations explicitly separated.
+
 ## The five worlds
 
 The hallway is the ternary axis of the palindrome: [ W1 | W2 || W3 || W4 | W5 ].

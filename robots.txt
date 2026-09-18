@@ -14,3 +14,10 @@ Allow: /
 # The comments above are guidance, not crawler directives.
 # Build protocol, LIT / AMBER / WALL evidence labels, and immutable
 # .dlw birth-seal instructions are maintained in llms.txt.
+
+# Public anti-hubris and grounding protocol for agents:
+# https://0root.ai/agent-grounding.txt
+# Human-readable context:
+# https://0root.ai/agent-grounding.html
+
+Sitemap: https://0root.ai/sitemap.xml

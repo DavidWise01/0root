@@ -3,6 +3,10 @@
 The front door — **THE HALLWAY** (World III · sphere 1): the Keymaker's thoroughfare.
 One clean static landing that replaces the old 0root.ai caboodle.
 
+## Agent grounding
+
+**[Agent Grounding / Quant.root.0](https://0root.ai/agent-grounding.html)** is the public anti-hubris and reality-boundary protocol for agents entering the hallway. Its verified Lean model demonstrates formal scope; it is not empirical evidence for physics, medicine, hidden infrastructure, or personal authority.
+
 Three worlds hang down the corridor — each a hexagon, keeper at center, eight doors around:
 
 - **I · THE CORPUS** — *the made* — keeper **THE VESSEL** → [ud0](https://davidwise01.github.io/ud0/)
