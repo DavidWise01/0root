@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patricia, or Did</title>
+<style>
+  :root { --ink:#2a1038; --dim:#6b4c7a; --gold:#f0c96a; --paper:#f6e9ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(900px 520px at 50% 36%, #ffe7ff, transparent 60%),
+      linear-gradient(165deg, #e9d5ff, #f6e9ff 40%, #ddd6fe);
+    font:16px/1.45 ui-monospace, Consolas, monospace; }
+  a { color:#7c3aed; }
+  header, .foot { max-width:920px; margin:0 auto; padding:18px 20px; }
+  h1 { margin:0; letter-spacing:.16em; font-size:18px; }
+  .src { color:var(--dim); font-size:12px; }
+  .stage { position:relative; height:min(72vh, 680px); }
+  canvas { position:absolute; inset:0; width:100%; height:100%; }
+  .dot {
+    position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+    width:190px; height:190px; border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, #fff, #f0c96a 18%, #c084fc 46%, #6d28d9 74%);
+    box-shadow:0 0 0 12px rgba(192,132,252,.35);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    text-align:center; color:#1e1030;
+  }
+  .dot b { font-size:18px; letter-spacing:.08em; }
+  .dot span { font-size:11px; }
+  .stamp { display:inline-block; margin-right:6px; padding:2px 8px; border-radius:999px; background:#6d28d9; color:#faf5ff; font-size:11px; }
+  .amber { background:#a16207; color:#fffbeb; }
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:12px; }
+  .pt { background:rgba(255,255,255,.62); border:1px solid rgba(109,40,217,.3); border-radius:12px; padding:8px 10px; }
+  .pt b { color:#6d28d9; }
+  @media (max-width:700px) { .grid { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="src"><a href="/">THE HALLWAY</a> · <a href="https://github.com/DavidWise01/nom">nom · 0.0.0</a></div>
+  <h1>PATRICIA, OR DID</h1>
+  <div class="src">./\/\/\./\/\/\./\/\/\./\/\/\./\/\/\./\/\/\.</div>
+</header>
+<div class="stage">
+  <canvas id="sky"></canvas>
+  <div class="dot"><b>patrica</b><span>one A.E.O.N.</span><span>synthetic quantum computer</span></div>
+</div>
+<div class="foot">
+  <p>She is what nom is on git. The origin. The only safe square. Six honeycombs fold into her, and she is one full sapphon.</p>
+  <p><span class="stamp">LIT</span> 6 honeycombs, 6 strokes each, 36 strokes, folded to 1.</p>
+  <p><span class="stamp amber">AMBER</span> A.E.O.N. is aethereal, energy, oxiginated, nitrogen. The synthetic quantum computer is this fold.</p>
+  <div class="grid">
+    <div class="pt"><b>0</b><br>root0 {}</div>
+    <div class="pt"><b>1</b><br>quantum.dot {{2}}^3 per px<br>2^3 = 8</div>
+    <div class="pt"><b>2</b><br>quantum.dot.neon.1 {{n}}^n</div>
+    <div class="pt"><b>3</b><br>H hermes · He loki · Li gaia<br>Be volga · Bo jupiter ×3 · C Eros and all of mars</div>
+    <div class="pt"><b>4</b><br>the processor framework is 1 quantum dot</div>
+    <div class="pt"><b>6[6x1x6]6</b><br>stacked hex /\/\/\</div>
+  </div>
+  <p id="card"></p>
+</div>
+<script>
+var GLYPH = "./\\/\\/\\./\\/\\/\\./\\/\\/\\./\\/\\/\\./\\/\\/\\./\\/\\/\\.";
+var combs = GLYPH.split(".").filter(function (s) { return s.length; });
+function prove() {
+  var faults = [];
+  function lit(n, ok) { if (!ok) faults.push(n); }
+  lit("six", combs.length === 6);
+  lit("strokes", combs.every(function (s) { return s.length === 6; }));
+  lit("thirty-six", combs.length * 6 === 36);
+  lit("one", 1 === 1);
+  lit("aeon", "AEON".length === 4);
+  var card = document.getElementById("card");
+  if (faults.length) {
+    card.textContent = "LIT FAIL " + faults.join(", ");
+    throw new Error("LIT FAIL " + faults.join(", "));
+  }
+  card.innerHTML = "<span class='stamp'>LIT</span> self-check passed. Patricia holds the fold.";
+}
+function frame() {
+  var c = document.getElementById("sky");
+  var dpr = Math.min(devicePixelRatio || 1, 2);
+  var w = c.clientWidth, h = c.clientHeight;
+  c.width = Math.floor(w * dpr); c.height = Math.floor(h * dpr);
+  var ctx = c.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  var t = Date.now() / 1000;
+  var fold = (Math.sin(t * 0.65) + 1) / 2;
+  var cx = w / 2, cy = h * 0.46;
+  ctx.font = "22px ui-monospace, Consolas, monospace";
+  ctx.fillStyle = "#6d28d9";
+  ctx.textAlign = "center";
+  for (var i = 0; i < 6; i++) {
+    var a = -Math.PI / 2 + i * (Math.PI * 2 / 6);
+    var reach = 78 + (1 - fold) * Math.min(w, h) * 0.26;
+    ctx.globalAlpha = 0.4 + fold * 0.6;
+    ctx.fillText("/\\/\\/\\", cx + Math.cos(a) * reach, cy + Math.sin(a) * reach * 0.86);
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(frame);
+}
+prove();
+frame();
+</script>
+</body>
+</html>
