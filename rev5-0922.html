@@ -1,0 +1,438 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>rev5 · 0922</title>
+<style>
+:root{--ground:#0A1016;--rule:#1f2d3a;--ink:#DDE6EE;--dim:#7d8fa0;--hot:#E8763A;--warm:#C9A227;--cool:#5C9BD6;--ice:#9FD8EF;--lit:#6FD08C;--amber:#F2A03D;--dead:#77879a;--ret:#B98CE0}
+*{box-sizing:border-box}html,body{margin:0;background:var(--ground);color:var(--ink);font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,"DejaVu Sans Mono",monospace}
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px 40px}
+.mast{padding:12px 14px;border-bottom:1px solid var(--rule)}
+.mast pre{margin:0;font-size:10px;line-height:1.25;color:var(--ice);white-space:pre-wrap;word-break:break-word}
+.sub{font-size:10px;color:var(--dim);letter-spacing:.18em;text-transform:uppercase;margin-top:5px}
+.ret{border:1px solid var(--ret);border-radius:3px;padding:10px;margin:14px 0;background:rgba(185,140,224,.06)}
+.ret h2{margin:0 0 4px;font-size:12px;letter-spacing:.08em;color:var(--ret)}
+.circle{border:1px solid var(--rule);border-left:3px solid var(--c,#666);border-radius:3px;margin:9px 0;padding:10px 12px;background:rgba(255,255,255,.015)}
+.circle h3{margin:0 0 2px;font-size:13px;letter-spacing:.05em}
+.circle .why{color:var(--dim);font-size:10.5px;margin-bottom:6px}
+.circle.frozen{border-style:dashed;background:rgba(159,216,239,.05)}
+.hdrow{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.dnum{font-size:11px;color:var(--ice)}
+button{font:inherit;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:inherit;border:1px solid currentColor;padding:5px 8px;border-radius:2px;cursor:pointer}
+button:hover{background:rgba(255,255,255,.07)}button[disabled]{opacity:.4;cursor:progress}button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+pre.blk{margin:6px 0 0;font-size:10px;line-height:1.3;white-space:pre-wrap;word-break:break-word}
+.plain{border-left:2px solid currentColor;padding:4px 7px;margin:6px 0;font-size:10.5px;background:rgba(255,255,255,.03)}
+.plain b{font-size:9px;letter-spacing:.16em;opacity:.65;display:block}
+.k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:8px 0 3px}
+.stamp{display:inline-block;font-size:9px;padding:0 4px;border:1px solid;border-radius:2px}
+.s-lit{color:var(--lit)}.s-amber{color:var(--amber)}.s-dead{color:var(--dead)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ok{color:var(--lit)}.bad{color:var(--hot)}.wait{color:var(--dim)}
+canvas{display:block;width:100%;background:rgba(0,0,0,.3);border:1px solid var(--rule);border-radius:2px}
+table{border-collapse:collapse;width:100%;font-size:9.5px;margin-top:5px}td,th{border-bottom:1px solid var(--rule);padding:2px 4px;text-align:right}th:first-child,td:first-child{text-align:left}
+.foot{border-top:1px solid var(--rule);margin-top:20px;padding-top:10px;color:var(--dim);font-size:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="mast"><pre id="strip"></pre><div class="sub">rev5 · 0922 · vector 9 · v0+1 of rev4 (frozen) · ground GLACIER TAR · frozen at v0, append-only · title withheld</div></div>
+<div class="wrap">
+
+<div class="ret"><h2>GO DOWN AND FETCH — rwr, return WITH result</h2>
+ <div class="plain"><b>plain english</b>You do not go down there to take notes. You go down to pick something up and carry it back. At the floor there is exactly one thing to pick up: one unit, 8 atoms, the smallest address the fold contains. FETCH takes it. CLIMB carries it up through the nine circles, and at each circle it either regains the property that circle killed on the way down (digit 1) or it does not (digit 0). What arrives at the top is the object plus everything it picked up climbing. Nine ones is the only address a complete retrieval can have.</div>
+ <div class="row"><button id="bfetch">Fetch from the floor</button><button id="bclimb">Climb out carrying it</button><button id="btam">tamper: off</button><span id="clims" class="wait">empty-handed</span></div>
+ <pre class="blk" id="retout">— nothing has been fetched —</pre>
+</div>
+
+<canvas id="rail" height="150"></canvas>
+<div class="sub" id="railcap" style="letter-spacing:.06em;text-transform:none"></div>
+
+<div id="circles"></div>
+
+<div class="ret" style="border-color:var(--ice);background:rgba(159,216,239,.05)">
+ <h2 style="color:var(--ice)">THE FLOOR IS FROZEN — append-only</h2>
+ <div class="plain"><b>plain english</b>Below the ninth circle there is no smaller address: eight octal digits are spent. The kernel that computes this descent is itself frozen — the file opens with the previous build's kernel byte for byte, and the new work is appended after it.</div>
+ <pre class="blk" id="frozen"></pre>
+ <div class="row"><button id="bfz">Try a ninth digit</button><span id="fzs" class="wait">idle</span></div>
+ <pre class="blk" id="fzout"></pre>
+</div>
+
+<div class="ret" style="border-color:var(--warm);background:rgba(201,162,39,.05)">
+ <h2 style="color:var(--warm)">STAMPS AND WHAT IS STILL WRONG</h2>
+ <div id="stamps"></div>
+ <pre class="blk" id="limits"></pre>
+</div>
+
+<div class="foot" id="foot"></div>
+</div>
+<script>
+const DATA={
+ "meta": {
+  "rev": "rev5-0922",
+  "built": "2026-09-22",
+  "ground": "GLACIER TAR #0A1016",
+  "vector": 9,
+  "origin": "upgrade of the nine-cell board. vector 9 = the nine circles, frozen and append-only, with the return path the last nine-circle build did not have. subject redacted.",
+  "plain": "A descent. Nine circles, each one a size at which something about the ball stops being true, computed rather than chosen. Start at the top with a 147.65 nm ball and fall: the word \"quantum\" goes, then red, then the whole visible spectrum, then the crystal itself, and at the floor there is one unit of 8 atoms and no digits left to halve with. Then — and this is the part the last descent lacked — you climb back out carrying what each circle proved.",
+  "toddler": "Falling down nine steps. At each step the ball loses something it used to have. At the bottom it is frozen and cannot get smaller. Then you climb back up and bring the news with you."
+ },
+ "append": {
+  "prefix_identical": true,
+  "added_bytes": 254,
+  "base_bytes": 300
+ },
+ "cell": {
+  "a": 4.9133,
+  "c": 5.4053,
+  "Vcell": 113.00482818572976,
+  "Vat": 0.01255609202063664,
+  "bond": 0.2127521308207041
+ },
+ "C": 3.7281622914605594,
+ "Kc": 0.24262044174026653,
+ "Eg": 1.74,
+ "kT": 0.025851999786435535,
+ "kT4": 0.00034469333048580715,
+ "deaths": [
+  {
+   "roman": "I",
+   "what": "the word \"quantum\", cold",
+   "why": "confinement falls below kT at 4 K — liquid helium",
+   "D_nm": 207.9988626683659,
+   "R_nm": 103.99943133418294
+  },
+  {
+   "roman": "II",
+   "what": "the word \"quantum\", warm",
+   "why": "confinement falls below kT at 300 K — a room",
+   "D_nm": 24.017639870543412,
+   "R_nm": 12.008819935271706
+  },
+  {
+   "roman": "III",
+   "what": "red",
+   "why": "the reddest visible line, 700 nm, needs a ball this big",
+   "D_nm": 15.427554382423668,
+   "R_nm": 7.713777191211834
+  },
+  {
+   "roman": "IV",
+   "what": "the correction",
+   "why": "R falls under the exciton radius: the squeeze stops being a correction and becomes the whole story",
+   "D_nm": 11.122671756115535,
+   "R_nm": 5.5613358780577675
+  },
+  {
+   "roman": "V",
+   "what": "violet",
+   "why": "past the blue end, 400 nm: the colour leaves the visible",
+   "D_nm": 3.1382077309420446,
+   "R_nm": 1.5691038654710223
+  },
+  {
+   "roman": "VI",
+   "what": "the crowd",
+   "why": "under 1,000 atoms: a cluster, not a crystal",
+   "D_nm": 2.8837124726903007,
+   "R_nm": 1.4418562363451504
+  },
+  {
+   "roman": "VII",
+   "what": "the interior",
+   "why": "half the atoms are now on the surface: there is more skin than inside",
+   "D_nm": 2.062556211891326,
+   "R_nm": 1.031278105945663
+  },
+  {
+   "roman": "VIII",
+   "what": "the lattice and the law",
+   "why": "under two unit cells across. nothing repeats, and E(R) starts returning numbers it has no right to",
+   "D_nm": 0.9826599999999999,
+   "R_nm": 0.49132999999999993
+  },
+  {
+   "roman": "IX",
+   "what": "the address",
+   "why": "one unit, 8 atoms. eight octal digits are spent and there is nothing left to halve",
+   "D_nm": 0.5767424945380601,
+   "R_nm": 0.2883712472690301
+  }
+ ],
+ "levels": [
+  {
+   "n": 1,
+   "units": 8,
+   "atoms": 64,
+   "D": 1.1534849890761203,
+   "R": 0.5767424945380601,
+   "circle": 7,
+   "conf": 11.208071851656824,
+   "alive": true,
+   "lam": 98.97043078182892
+  },
+  {
+   "n": 2,
+   "units": 64,
+   "atoms": 512,
+   "D": 2.3069699781522406,
+   "R": 1.1534849890761203,
+   "circle": 6,
+   "conf": 2.802017962914206,
+   "alive": true,
+   "lam": 286.22651635419436
+  },
+  {
+   "n": 3,
+   "units": 512,
+   "atoms": 4096,
+   "D": 4.613939956304481,
+   "R": 2.3069699781522406,
+   "circle": 4,
+   "conf": 0.7005044907285515,
+   "alive": true,
+   "lam": 530.9051713516035
+  },
+  {
+   "n": 4,
+   "units": 4096,
+   "atoms": 32768,
+   "D": 9.227879912608962,
+   "R": 4.613939956304481,
+   "circle": 4,
+   "conf": 0.17512612268213787,
+   "alive": true,
+   "lam": 665.6719957292673
+  },
+  {
+   "n": 5,
+   "units": 32768,
+   "atoms": 262144,
+   "D": 18.455759825217925,
+   "R": 9.227879912608962,
+   "circle": 2,
+   "conf": 0.04378153067053447,
+   "alive": true,
+   "lam": 705.4619904746914
+  },
+  {
+   "n": 6,
+   "units": 262144,
+   "atoms": 2097152,
+   "D": 36.91151965043585,
+   "R": 18.455759825217925,
+   "circle": 1,
+   "conf": 0.010945382667633617,
+   "alive": false,
+   "lam": 713.4552102202351
+  },
+  {
+   "n": 7,
+   "units": 2097152,
+   "atoms": 16777216,
+   "D": 73.8230393008717,
+   "R": 36.91151965043585,
+   "circle": 1,
+   "conf": 0.002736345666908404,
+   "alive": false,
+   "lam": 714.1275083475762
+  },
+  {
+   "n": 8,
+   "units": 16777216,
+   "atoms": 134217728,
+   "D": 147.6460786017434,
+   "R": 73.8230393008717,
+   "circle": 1,
+   "conf": 0.000684086416727101,
+   "alive": false,
+   "lam": 713.6201891351865
+  }
+ ],
+ "floor": {
+  "D": 0.5767424945380601,
+  "atoms": 8,
+  "addr_digits": 8
+ },
+ "monotone": true,
+ "distinct": 9,
+ "cold_rescue": 8,
+ "alive_at_top": 5,
+ "i13": {
+  "dia8_node": 147.6460786017434,
+  "dia8_i13": 147.64571373405457,
+  "alive8": 0,
+  "alive5": 1,
+  "rwr": 2396745,
+  "rwr_octal": "11111111",
+  "dia_diff": 0.00036486768883037257,
+  "src": "def pow8(I n) {\n  if n < 1 -> 1\n  else -> 8 * pow8(n - 1)\n}\ndef half(I x, I n) {\n  if n < 1 -> x\n  else -> half(x / 2, n - 1)\n}\ndef cbrt(I x, I g, I k) {\n  if k < 1 -> g\n  else -> cbrt(x, (2 * g + x / (g * g)) / 3, k - 1)\n}\ndef conf(I r) {\n  -> 3760302 / 10000000 * (100 / 13 + 100 / 45) / (r * r)\n}\ndef dia(I n) {\n  -> 2 * cbrt(3 * (8 * pow8(n)) * 12556 / 1000000 / (4 * 355 / 113), 40, 20)\n}\ndef alive(I r, I kt) {\n  if conf(r) > kt -> 1\n  else -> 0\n}\ndef rwr(I depth, I carried) {\n  if depth < 1 -> carried\n  else -> rwr(depth - 1, carried * 8 + 1)\n}\n",
+  "marker": "APPEND MARKER for kernel2.i13 — v0+1, 2026-09-22.\nBytes 0..N of kernel2.i13 are byte-identical to rev3-0922/i13/kernel.i13 (checked in verify.js).\nEverything after that is the appended block: dia, alive, rwr.\nThis marker lives OUTSIDE the source because I-13 v0.12 has no comment form: every character\nin the file must lex as code. An append-only rule and a language with no comments cannot both\nbe satisfied inside one file. graveyard/01.\n"
+ },
+ "stamps": [
+  [
+   "LIT",
+   "the nine circles are SORTED by computed size; the numerals are assigned after the sort"
+  ],
+  [
+   "LIT",
+   "all nine crossing sizes are distinct: 9 of 9"
+  ],
+  [
+   "LIT",
+   "kernel2.i13 opens with rev3 kernel.i13 byte for byte; 254 bytes appended, 0 changed"
+  ],
+  [
+   "LIT",
+   "I-13 and Node agree on the level-8 diameter to 0.0004 nm (I-13 uses 355/113 for pi)"
+  ],
+  [
+   "LIT",
+   "at 4 K every one of the 8 levels beats kT: 8 of 8"
+  ],
+  [
+   "LIT",
+   "at 300 K only 5 of 8 beat kT"
+  ],
+  [
+   "AMBER",
+   "1 unit = 8 atoms, and the confinement constant is borrowed (CdSe). carried from the last build"
+  ],
+  [
+   "AMBER",
+   "\"half the atoms are on the surface\" uses one bond length as the skin thickness"
+  ],
+  [
+   "DEAD",
+   "the descent is a machine: it is a RECORD. 0% alive at the floor is the correct answer and a useless engine"
+  ],
+  [
+   "DEAD",
+   "8^8 is not a quantum dot AT ANY TEMPERATURE: at 4 K it is one. the claim needed a temperature, not a correction"
+  ]
+ ]
+};
+// shadow.js — a SHADOW evaluator for the v0.12 surface grammar as recorded
+// (def / I / <- / -> / if / else, + - * / only, compare < > <= >= == !=, unary -, f64,
+//  call depth 48, step 1,000,000). NOT his .pyz. Integer literals only: '.' is attribute syntax.
+function lex(s){const t=[];const re=/\s*(<-|->|<=|>=|==|!=|[A-Za-z_]\w*|\d+|[-+*\/<>(){},])/y;let m;re.lastIndex=0;
+ while(re.lastIndex<s.length){const i=re.lastIndex;m=re.exec(s);if(!m){if(/^\s*$/.test(s.slice(i)))break;throw Error('ReadError: illegal character at '+i+': '+JSON.stringify(s[i]))}t.push(m[1])}return t}
+function parse(src){const T=lex(src);let p=0;const pk=()=>T[p],eat=x=>{if(x&&T[p]!==x)throw Error(`want ${x} got ${T[p]} @${p}`);return T[p++]};
+ const defs={};
+ function expr(){return cmp()}
+ function cmp(){let a=add();if(['<','>','<=','>=','==','!='].includes(pk())){const o=eat();a={k:'cmp',o,a,b:add()}}return a}
+ function add(){let a=mul();while(pk()==='+'||pk()==='-'){const o=eat();a={k:'bin',o,a,b:mul()}}return a}
+ function mul(){let a=un();while(pk()==='*'||pk()==='/'){const o=eat();a={k:'bin',o,a,b:un()}}return a}
+ function un(){if(pk()==='-'){eat();return{k:'neg',a:un()}}return atom()}
+ function atom(){const t=eat();if(/^\d+$/.test(t))return{k:'num',v:+t};if(t==='('){const e=expr();eat(')');return e}
+  if(/^[A-Za-z_]/.test(t)){if(pk()==='('){eat('(');const args=[];if(pk()!==')'){args.push(expr());while(pk()===','){eat();args.push(expr())}}eat(')');return{k:'call',f:t,args}}return{k:'name',n:t}}
+  throw Error('unexpected '+t)}
+ function stmt(){if(pk()==='I'){eat();const n=eat();eat('<-');return{k:'let',n,e:expr()}}
+  if(pk()==='->'){eat();return{k:'ret',e:expr()}}
+  if(pk()==='if'){eat();const c=expr();const a=stmt();eat('else');return{k:'if',c,a,b:stmt()}}
+  throw Error('statement expected at '+pk())}
+ const top=[];
+ while(p<T.length){if(pk()==='def'){eat();const n=eat();eat('(');const ps=[];while(pk()!==')'){eat('I');ps.push(eat());if(pk()===',')eat()}eat(')');eat('{');const body=[];while(pk()!=='}')body.push(stmt());eat('}');defs[n]={ps,body}}else top.push(expr())}
+ return{defs,top}}
+function run(src,entry,env0){const {defs}=parse(src);const {top}=parse(entry);let steps=0,depth=0,maxDepth=0;
+ function ev(e,env){if(++steps>1e6)throw Error('step limit');switch(e.k){
+  case'num':return e.v;case'name':if(!(e.n in env))throw Error('FREE name '+e.n);return env[e.n];
+  case'neg':return -ev(e.a,env);
+  case'bin':{const a=ev(e.a,env),b=ev(e.b,env);return e.o==='+'?a+b:e.o==='-'?a-b:e.o==='*'?a*b:a/b}
+  case'cmp':{const a=ev(e.a,env),b=ev(e.b,env);return({'<':a<b,'>':a>b,'<=':a<=b,'>=':a>=b,'==':a===b,'!=':a!==b})[e.o]?1:0}
+  case'call':{const d=defs[e.f];if(!d)throw Error('FREE function '+e.f);if(d.ps.length!==e.args.length)throw Error('ARITY '+e.f);
+   const en={};d.ps.forEach((q,i)=>en[q]=ev(e.args[i],env));if(++depth>48)throw Error('call depth > 48');maxDepth=Math.max(maxDepth,depth);const r=body(d.body,en);depth--;return r}}}
+ function body(b,env){for(const s of b){const r=st(s,env);if(r!==undefined)return r}throw Error('function did not return')}
+ function st(s,env){if(s.k==='let'){env[s.n]=ev(s.e,env);return}if(s.k==='ret')return ev(s.e,env);if(s.k==='if')return st(ev(s.c,env)?s.a:s.b,env)}
+ const v=ev(top[0],env0||{});return{value:v,steps,maxDepth}}
+
+const EL=id=>document.getElementById(id),K=DATA.i13.src,I=(e,env)=>run(K,e,env).value;
+const fmt=n=>n.toLocaleString('en-US'),COL=['--hot','--hot','--warm','--warm','--cool','--cool','--cool','--ice','--ice'];
+/* masthead = the data: the descent as one line */
+(function(){const d=DATA.deaths;let line='';d.forEach((x,i)=>{line+=(i?' > ':'')+x.roman+' '+x.D_nm.toFixed(x.D_nm>=10?1:2)});
+ EL('strip').textContent=`VECTOR 9 · THE DESCENT (nm across, measured order)\n${line}\nhis fold: 8^8 = ${DATA.levels[7].D.toFixed(2)} nm, between circles I and II · 8^1 = ${DATA.levels[0].D.toFixed(2)} nm\nat 4 K: ${DATA.cold_rescue} of 8 levels are quantum · at 300 K: ${DATA.alive_at_top} of 8`;})();
+/* the depth rail — the one moving thing, and it measures */
+let railT=0;
+function rail(){const cv=EL('rail'),w=cv.clientWidth||600;if(cv.width!==w)cv.width=w;const x=cv.getContext('2d'),H=cv.height;
+ x.clearRect(0,0,w,H);const lo=Math.log10(0.3),hi=Math.log10(260),px=v=>w-20-(Math.log10(v)-lo)/(hi-lo)*(w-40); // big on the LEFT: a descent reads downhill
+ x.strokeStyle='#1f2d3a';x.beginPath();x.moveTo(20,H/2);x.lineTo(w-20,H/2);x.stroke();
+ DATA.deaths.forEach((d,i)=>{const X=px(d.D_nm);x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue(COL[i]).trim()||'#888';
+  x.beginPath();x.moveTo(X,H/2-26);x.lineTo(X,H/2+8);x.stroke();x.fillStyle=x.strokeStyle;x.font='9px monospace';x.fillText(d.roman,X-4,H/2-30)});
+ DATA.levels.forEach(l=>{const X=px(l.D);x.fillStyle=l.alive?'#6FD08C':'#77879a';x.beginPath();x.arc(X,H/2+18,3.5,0,7);x.fill();
+  x.fillStyle='#7d8fa0';x.font='9px monospace';x.fillText('8^'+l.n,X-7,H/2+34)});
+ const done=Object.keys(RAN).length;if(done){const X=px(DATA.deaths[done-1].D_nm);x.fillStyle='rgba(185,140,224,.9)';
+  x.beginPath();x.arc(X,H/2,4+Math.sin(railT/6)*1.2,0,7);x.fill()}
+ x.fillStyle='#7d8fa0';x.font='9px monospace';x.fillText('260 nm',6,12);x.fillText('0.3 nm',w-48,12);x.fillText('the descent runs left to right',w/2-70,H-4);railT++}
+EL('railcap').textContent='the rail is a log ruler in nanometres. bars above = the nine circles. dots below = his eight levels (green = beats kT at 300 K). ORNAMENT: only the purple marker pulses, and it marks how far the descent has actually run.';
+/* ---------- the nine circles ---------- */
+const RAN={},CARRY=[];
+const L=DATA.levels;let C=DATA.C;const Kc=DATA.Kc,Eg=DATA.Eg,hc=1239.8419843320025,Vat=DATA.cell.Vat,bond=DATA.cell.bond;
+const lam=R=>hc/(Eg+C/R**2-Kc/R), atomsOf=D=>4/3*Math.PI*(D/2)**3/Vat, surf=D=>1-(1-2*bond/D)**3;
+const CHECK={
+ 1:d=>{const n=L.filter(l=>C/l.R**2>DATA.kT4).length,m=L.filter(l=>C/l.R**2>DATA.kT).length;
+   return{txt:`kT at 4 K = ${(DATA.kT4*1000).toFixed(3)} meV, at 300 K = ${(DATA.kT*1000).toFixed(2)} meV (${(DATA.kT/DATA.kT4).toFixed(0)}x)\nlevels beating kT at   4 K : ${n} of 8   <- his 8^8 IS a quantum dot here\nlevels beating kT at 300 K : ${m} of 8\nknown-bad: if this check could not tell the two apart it would print the same number twice. it does not (${n} vs ${m}).`,ok:n===8&&m===5,carry:`${n}/8 alive cold`}},
+ 2:d=>{const m=L.filter(l=>C/l.R**2>DATA.kT).length,l8=L[7];
+   return{txt:`crossing diameter ${d.D_nm.toFixed(3)} nm : confinement = kT at 300 K\nhis 8^8 is ${l8.D.toFixed(2)} nm, which is ${(l8.D/d.D_nm).toFixed(1)}x too big\nconfinement there = ${(C/l8.R**2*1000).toFixed(3)} meV = kT / ${(DATA.kT/(C/l8.R**2)).toFixed(1)}\nlast level that survives: 8^${m}`,ok:m===5,carry:`warm line at ${d.D_nm.toFixed(1)} nm`}},
+ 3:d=>{const v=lam(d.R_nm);return{txt:`a ball ${d.D_nm.toFixed(3)} nm across emits at ${v.toFixed(1)} nm by the law in circle VIII\nbigger than this and the colour is past red: infrared, invisible\nthe bulk gap sets the floor: ${(hc/Eg).toFixed(0)} nm, so no size is redder than that`,ok:Math.abs(v-700)<0.5,carry:`red at ${d.D_nm.toFixed(2)} nm`}},
+ 4:d=>{const conf=C/d.R_nm**2,coul=Kc/d.R_nm;
+   return{txt:`exciton radius ${(d.D_nm/2).toFixed(3)} nm: the natural size of the electron-hole pair\nabove it the squeeze is a correction; below it the squeeze IS the system\nat the crossing: confinement ${(conf*1000).toFixed(1)} meV vs electron-hole pull ${(coul*1000).toFixed(1)} meV\nratio ${(conf/coul).toFixed(2)} : the two terms change places here`,ok:conf>coul,carry:`squeeze takes over`}},
+ 5:d=>{const v=lam(d.R_nm);return{txt:`${d.D_nm.toFixed(3)} nm emits at ${v.toFixed(1)} nm: the blue edge of what an eye can see\nsmaller than this and the light is ultraviolet\nthe whole visible spectrum lives between circles III and V: ${(DATA.deaths[2].D_nm-d.D_nm).toFixed(2)} nm of size, all of it`,ok:Math.abs(v-400)<0.5,carry:`visible band is ${(DATA.deaths[2].D_nm-d.D_nm).toFixed(2)} nm wide`}},
+ 6:d=>{const n=atomsOf(d.D_nm);return{txt:`${d.D_nm.toFixed(3)} nm holds ${Math.round(n)} atoms\nunder a thousand atoms the word crystal is doing work it cannot do:\nadd or remove ONE atom here and the size moves by ${((1/3)/n*100).toFixed(2)}%\nhis 8^8 holds ${fmt(Math.round(L[7].atoms))}, where one atom moves it by ${((1/3)/L[7].atoms*100).toExponential(1)}%`,ok:Math.round(n)===1000,carry:`1,000 atoms`}},
+ 7:d=>{const f=surf(d.D_nm);return{txt:`${d.D_nm.toFixed(3)} nm: surface fraction ${(f*100).toFixed(1)}%\nskin thickness taken as one bond, ${bond.toFixed(4)} nm [AMBER: my choice]\nabove this circle the ball has an inside. below it, it is mostly skin,\nand surface chemistry, not size, decides what it does`,ok:Math.abs(f-0.5)<0.02,carry:`50% surface`}},
+ 8:d=>{const cells=d.D_nm/(DATA.cell.a/10),v=lam(d.R_nm),v1=lam(L[0].R);
+   return{txt:`${d.D_nm.toFixed(3)} nm = ${cells.toFixed(2)} unit cells across\nunder two cells nothing repeats, and a law built on a repeating lattice has no lattice\nWATCH IT LIE: the same law at this size returns ${v.toFixed(1)} nm, and at 8^1 (${L[0].D.toFixed(2)} nm) it returns ${v1.toFixed(1)} nm.\nboth are deep ultraviolet numbers produced with total confidence. the law does not refuse.`,ok:cells<2.01,carry:`the law stops refusing`}},
+ 9:d=>{const digits=8,cells=Math.round(L[7].units/8**8);
+   return{txt:`the floor: one unit, ${DATA.floor.atoms} atoms, ${d.D_nm.toFixed(4)} nm across\n8 octal digits address 8^8 cells; ${fmt(L[7].units)} / 8^8 = ${cells} unit per address\nthere is no tenth circle because there is no ninth digit.\nI-13 rwr(9, 0) = ${I('rwr(9, 0)')} = ${I('rwr(9, 0)').toString(8)} in octal: one digit returned per circle`,ok:cells===1,carry:`floor reached`}}};
+EL('circles').innerHTML=DATA.deaths.map((d,i)=>{const n=i+1;const here=L.filter(l=>l.D>d.D_nm&&(i===0||l.D<=DATA.deaths[i-1].D_nm));
+ return `<section class="circle${n===9?' frozen':''}" style="--c:var(${COL[i]})">
+  <div class="hdrow"><h3>CIRCLE ${d.roman} — what dies: ${d.what}</h3><span class="dnum">${d.D_nm.toFixed(3)} nm across</span></div>
+  <div class="why">${d.why}</div>
+  <div class="row"><button id="bc${n}">Run circle ${d.roman}</button><span id="sc${n}" class="wait">not run</span>
+   <span class="wait">levels entering here: ${here.length?here.map(l=>'8^'+l.n).join(' '):'none'}</span></div>
+  <pre class="blk" id="oc${n}">— not run —</pre></section>`}).join('');
+DATA.deaths.forEach((d,i)=>{const n=i+1;EL('bc'+n).onclick=()=>{const b=EL('bc'+n);b.disabled=true;
+ const r=CHECK[n](d);EL('oc'+n).textContent=r.txt;EL('sc'+n).innerHTML=r.ok?'<span class="ok">ran · check holds</span>':'<span class="bad">ran · CHECK FAILED</span>';
+ RAN[n]={ok:r.ok,carry:r.carry};rail();updateRet();b.disabled=false}});
+/* ---------- the return ---------- */
+function updateRet(){const done=Object.keys(RAN).map(Number).sort((a,b)=>a-b);
+ EL('clims').innerHTML=HELD?'<span class="ok">carrying: one unit</span>':(done.length<9?`<span class="wait">${done.length} of 9 circles have run · empty-handed</span>`:'<span class="ok">floor reached · nothing picked up yet</span>');
+ if(done.length)EL('retout').textContent=done.map(n=>`circle ${DATA.deaths[n-1].roman.padEnd(4)} ${RAN[n].ok?'✓':'✕'}  carries up: ${RAN[n].carry}`).join('\n');}
+let HELD=null;   // what you are carrying. null = empty-handed.
+const GAIN={9:'the address itself: 8 octal digits, one unit, 8 atoms',8:'a lattice around it — two unit cells, something that repeats',
+ 7:'an interior: more inside than skin',6:'a crowd: a thousand atoms, so one atom no longer moves the size',
+ 5:'violet — the blue edge of a colour it can emit',4:'the squeeze as one term among two, not the whole story',
+ 3:'red — the far edge, and with V the whole visible band',2:'the word "quantum" in a warm room',1:'the word "quantum" in the cold'};
+EL('bfetch').onclick=()=>{if(!RAN[9]){EL('retout').textContent='REFUSED: circle IX has not run. you cannot pick up a floor you have not reached.';return}
+ HELD={what:`one unit · ${DATA.floor.atoms} atoms · ${DATA.deaths[8].D_nm.toFixed(4)} nm · address 8 octal digits`,gained:[],carried:0};
+ EL('retout').textContent=`FETCHED from the floor:\n  ${HELD.what}\n\nthis is the object. it is not a note about the object.\nnow climb: each circle either gives it back what that circle took, or does not.`;
+ EL('clims').innerHTML='<span class="ok">carrying: one unit</span>'};
+EL('bclimb').onclick=()=>{const done=Object.keys(RAN).map(Number).sort((a,b)=>b-a);
+ if(done.length<9){EL('retout').textContent=`REFUSED: ${9-done.length} circle(s) have not run. a climb from a floor you never reached carries nothing — that is the failure that reads as success.`;return}
+ if(!HELD){EL('retout').textContent='REFUSED: empty-handed. you went down and are coming back with observations. that is research, not retrieval — press FETCH first.';return}
+ let carried=0;const steps=[],lost=[];
+ done.forEach(n=>{const d=RAN[n].ok?1:0;if(!d)lost.push(DATA.deaths[n-1].roman);carried=carried*8+d;
+  steps.push(`  ${DATA.deaths[n-1].roman.padStart(4)} ~~> ${d}  ${carried.toString(8).padStart(9,'0')}  ${d?'REGAINS  '+GAIN[n]:'GIVES NOTHING BACK — '+DATA.deaths[n-1].what+' stays dead'}`)});
+ const kernel=I('rwr(9, 0)'),whole=carried===kernel;HELD.carried=carried;
+ EL('retout').textContent=`carrying: ${HELD.what}\nclimbing IX -> I. digit 1 = this circle gave the object back what it took.\n${steps.join('\n')}\n\n`+
+  `what came back up : ${carried.toString(8).padStart(9,'0')} (${fmt(carried)})\ncomplete retrieval : ${kernel.toString(8)} (${fmt(kernel)})   ${whole?'WHOLE':'INCOMPLETE'}\n\n`+
+  (whole?`you came back with a ${DATA.levels[7].D.toFixed(2)} nm ball that is quantum in the cold, has a colour,\nhas an inside, repeats, and knows its own address. the thing, not a description of it.`
+       :`INCOMPLETE. ${lost.length} circle(s) gave nothing back: ${lost.join(', ')}.${tampered?' the tamper is ON, and that is the test: a broken input must come back with a lighter object.':' something failed on a clean run — read those circles.'}\n`+
+        `an earlier version of this panel handed up a 1 for merely RUNNING, so a tampered climb still\nreturned 111111111 and still said AGREE — an attendance register wearing a witness badge.\ngraveyard/08, caught by the user.`)+
+  `\n\nalive at the floor: 0%. still true, still the correct record. the difference is that you are\nholding something on the way up, so the descent has a result and not just a report.`;
+ EL('clims').innerHTML=whole?'<span class="ok">returned whole · 111111111</span>':`<span class="bad">returned incomplete · ${carried.toString(8).padStart(9,'0')} · missing ${lost.join(' ')}</span>`};
+updateRet();
+/* ---------- the known-bad: every check above passes, so break the input on purpose ---------- */
+let tampered=false;
+EL('btam').onclick=()=>{tampered=!tampered;C=tampered?DATA.C*10:DATA.C;EL('btam').textContent='tamper: '+(tampered?'ON — confinement x10':'off');
+ const ran=Object.keys(RAN).map(Number);if(!ran.length){EL('retout').textContent='TAMPER armed. now run some circles: the ones that depend on the confinement constant must fail.';return}
+ let MSG='';let failed=0;ran.forEach(n=>{const r=CHECK[n](DATA.deaths[n-1]);EL('oc'+n).textContent=r.txt;
+  EL('sc'+n).innerHTML=r.ok?'<span class="ok">ran · check holds</span>':'<span class="bad">ran · CHECK FAILED</span>';RAN[n]={ok:r.ok,carry:r.carry};if(!r.ok)failed++});
+ MSG=(tampered?'TAMPERED (confinement constant x10). ':'restored. ')+`${failed} of ${ran.length} run circles now fail.\n`+
+  (tampered&&failed===0?'NO CHECK NOTICED. the checks are not reading the constant they claim to read.':'')+
+  (!tampered&&failed===0?'all checks hold again, so the failures above were the tamper and not drift.':'')+
+  '\ncircles that do not move: VI (atom count), VII (surface), VIII (lattice), IX (address) never touch\nthe constant at all, and IV only compares two terms, so multiplying one of them by ten cannot flip it.\nnow press CLIMB OUT: the return address must come back DIFFERENT. if it does not, the witness is broken.';
+ updateRet();EL('retout').textContent=MSG};
+/* ---------- the frozen floor ---------- */
+EL('frozen').textContent=`${DATA.i13.marker}\nbase ${DATA.append.base_bytes} bytes unchanged + ${DATA.append.added_bytes} bytes appended = ${DATA.append.base_bytes+DATA.append.added_bytes}\nprefix identical to the previous kernel: ${DATA.append.prefix_identical}\n\n${DATA.i13.src}`;
+EL('bfz').onclick=()=>{const b=EL('bfz');b.disabled=true;
+ let msg;try{const r=I('half(r, 9)',{r:DATA.levels[7].R});const atoms=DATA.levels[7].atoms/8**9;
+  msg=`a ninth halving computes: r = ${r.toFixed(5)} nm, holding ${atoms.toFixed(3)} atoms.\nARITHMETIC DOES NOT REFUSE. ${atoms.toFixed(3)} of an atom is not a thing; the address space is what refuses:\n8^9 = ${fmt(8**9)} addresses over 8^8 = ${fmt(8**8)} cells, so ${(8**9/8**8)} addresses would point at the SAME cell. the ninth digit does not name anything new.\nthe floor is a property of the FOLD, not of the calculator. a machine that stops only when the\nnumbers stop is a machine that never stops.`}catch(e){msg='refused: '+e.message}
+ EL('fzout').textContent=msg;EL('fzs').innerHTML='<span class="ok">tried · see above</span>';b.disabled=false};
+EL('stamps').innerHTML=DATA.stamps.map(([s,t])=>`<div style="margin-bottom:3px;font-size:10px"><span class="stamp s-${s.toLowerCase()}">${s}</span> ${t}</div>`).join('');
+EL('limits').textContent=`STILL WRONG\n - 1 unit = 8 atoms and the confinement constant is borrowed from the last build. every circle\n   inherits both, so nine circles agreeing is not nine independent checks.\n - circle VII's skin is one bond thick because I chose that. a two-bond skin moves it to ${(2*2*bond/(1-Math.cbrt(0.5))).toFixed(2)} nm.\n - circles III and V use the same law circle VIII says stops applying below two unit cells.\n   they sit above that line, so they are inside the fence, but they share its assumptions.\n - quartz, the material his numbers name, has a ~9 eV gap: its light is ultraviolet at every\n   size on this page. the colour circles describe the borrowed material, not his.`;
+EL('foot').textContent='vector 9, frozen at v0 and append-only. every figure recomputed before this file was written (verify/verify.js) and re-derived from this page (verify/crosscheck.js). the kernel is I-13 running on a shadow evaluator, not the v0.12 .pyz. ORNAMENT: the pulsing marker on the rail, and nothing else.';
+setInterval(rail,120);rail();addEventListener('resize',rail);
+</script></body></html>
