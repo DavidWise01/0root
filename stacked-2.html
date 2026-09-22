@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Stacked 2% thick out of 100% - AEON</title>
+<style>
+body{margin:0;background:#050510;color:#e5e7eb;font-family:monospace;overflow:hidden}
+canvas{display:block}
+#info{position:absolute;left:12px;top:10px;font-size:11px;background:#000000aa;padding:10px;border-radius:12px;border:1px solid #ffffff15;line-height:1.5}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="info">
+Stacked on top of each other<br/>
+2% thick out of 100%<br/>
+<br/>
+One qdot = 8x8x8x8x1x8x8x8x8 = 16,777,216 AEONs<br/>
+Stack = 50 layers x 2% = 100%<br/>
+Each layer = 2% thick wafer<br/>
+<br/>
+<span style="color:#a78bfa">Isomorphic stacking</span><br/>
+<span style="color:#fcd34d">a=4.9135Å c=5.4050Å P3121/P3221 Fe3+</span>
+</div>
+<script>
+const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+let w,h,t=0;
+function resize(){ w=canvas.width=innerWidth*2; h=canvas.height=innerHeight*2; canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px'; }
+addEventListener('resize',resize); resize();
+function loop(){
+ t+=0.008;
+ ctx.fillStyle='rgba(5,5,16,0.25)'; ctx.fillRect(0,0,w,h);
+ let cx=w/2, cy=h/2;
+ let layers=50; // 100% / 2% = 50 layers
+ let totalH = h*0.7;
+ let layerH = totalH * 0.02; // 2% thick
+ let startY = cy - totalH/2;
+ // breathing
+ let breath=(Math.sin(t*0.2)+1)/2;
+ for(let L=0; L<layers; L++){
+   let y = startY + L*layerH*1.05; // slight gap
+   // fade with depth
+   let depthAlpha = 0.15 + (L/layers)*0.5;
+   // each layer contains 8x8x8x8x1x8x8x8x8 collapsed representation
+   // draw as thin wafer with 8x8 grid inside
+   ctx.globalAlpha=depthAlpha;
+   // wafer base
+   ctx.fillStyle= L%8===0 ? '#a78bfa22' : '#ffffff08';
+   ctx.fillRect(cx - w*0.25, y, w*0.5, layerH);
+   // border
+   ctx.strokeStyle='#a78bfa44'; ctx.lineWidth=0.5; ctx.strokeRect(cx - w*0.25, y, w*0.5, layerH);
+   // inside wafer, draw 8 dots representing 8 AEON types
+   for(let i=0;i<8;i++){
+     let x = cx - w*0.25 + (i+0.5)*(w*0.5/8);
+     let r = layerH*0.35 + Math.sin(t+i*0.5+L*0.1)*0.8;
+     let cols=['#e9d5ff','#f5f0ff','#d8b4fe','#a78bfa','#a3e635','#f472b6','#111','#fff'];
+     ctx.fillStyle=cols[i];
+     ctx.globalAlpha=depthAlpha*0.9;
+     ctx.beginPath(); ctx.arc(x, y+layerH/2, r, 0, Math.PI*2); ctx.fill();
+     // when folded, connect to center
+     if(breath>0.85 && L%8===0){
+       ctx.globalAlpha=(breath-0.85)*2*0.15;
+       ctx.strokeStyle=cols[i]; ctx.lineWidth=0.3;
+       ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y+layerH/2); ctx.stroke();
+     }
+   }
+   // label every 8th layer
+   if(L%8===0){
+     ctx.globalAlpha=0.7; ctx.fillStyle='#c4b5fd'; ctx.font='10px monospace';
+     ctx.fillText(`layer ${L} ${(L*2)}%-${(L*2+2)}% | 8x8x8x8x1x8x8x8x8 = 16,777,216 AEONs`, cx - w*0.25, y-4);
+   }
+ }
+ // central qdot when fully folded
+ if(breath>0.9){
+   let coreR= 20+breath*10;
+   let grad=ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*3);
+   grad.addColorStop(0,'#fef3c7'); grad.addColorStop(0.3,'#fbbf24'); grad.addColorStop(0.7,'#9333ea'); grad.addColorStop(1,'#1e1b4b');
+   ctx.globalAlpha=(breath-0.9)*10*0.9; ctx.fillStyle=grad;
+   ctx.beginPath(); ctx.arc(cx,cy,coreR,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#c084fc'; ctx.font='11px monospace'; ctx.textAlign='center';
+   ctx.fillText('F.O.L.D. 50 x 2% = 100% stacked -> 1 qdot', cx, cy+totalH/2+30);
+   ctx.textAlign='left';
+ }
+ requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body></html>
