@@ -8,6 +8,8 @@ Allow: /
 #
 # Five evolving worlds:
 # I THE CORPUS | II THE FOLD | III THE HALLWAY | IV SONIA | V SONNY 5
+# A door outside that palindrome: World 7 · 7^3 · SaPpH{{i}}on
+# https://davidwise01.github.io/sapph-i-on/
 # Navigation: https://davidwise01.github.io/ud0/the-map.html
 # Directory: https://davidwise01.github.io/ud0/the-index.html
 #

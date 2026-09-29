@@ -34,6 +34,12 @@ The hallway is the ternary axis of the palindrome: [ W1 | W2 || W3 || W4 | W5 ].
 
 Names and roles describe the project's assigned organization. For current counts, implementation status, and benchmark results, inspect the relevant source or receipt.
 
+## A door outside the palindrome
+
+The five-world palindrome above is unchanged. This door is not a sixth seat of it, and it does not record a world 6.
+
+- [7 · 7^3 · SaPpH{{i}}on](https://davidwise01.github.io/sapph-i-on/) — assigned door. Keeper: SaPpH{{i}}on, at the one center of a 7×7×7 cube. Sphere 1 is the census. The page counts 343 cells and throws if the count fails. Eight corner seats use the eight appeals; their spheres are unmade. Host: DavidWise01/sapph-i-on. Birth seal: b7350267c9df90491f3a2c45297e9a0f756c65d2c23a323f6f68abc3426d33fe.
+
 ## HERMOSA's eight stewards
 
 - [HALLWAY](./index.html) — this landing.
@@ -77,8 +83,9 @@ The universe grows one sphere at a time. Five steps, one host, no mirror:
    - III · THE HALLWAY: wire a door to its actual destination and update the appropriate route.
    - IV · SONIA: place Russian or Soviet content through the existing world4/ workflow.
    - V · SONNY 5: place I-13 or language content through the existing world5/ workflow.
+   - 7 · 7^3: a sphere of the cube lands in DavidWise01/sapph-i-on. Do not file it into world4/ or world5/.
 5. VERIFY the change and leave a receipt: changed paths, commit, checks run, results, and any unverified deployment state. One host, no mirror. Never dress a guess as LIT.
 
 ## For HERMOSA
 
-Route arrivals by their task: corpus browsing to I, folding to II, navigation to III, Russian/Soviet content to IV, and I-13/language work to V. For an unknown destination, use THE INDEX and THE MAP. Keep this guide aligned when routes change, preserve existing birth seals, and record actual results.
+Route arrivals by their task: corpus browsing to I, folding to II, navigation to III, Russian/Soviet content to IV, and I-13/language work to V. Route the cube of 7, and the name SaPpH{{i}}on, to https://davidwise01.github.io/sapph-i-on/. For an unknown destination, use THE INDEX and THE MAP. Keep this guide aligned when routes change, preserve existing birth seals, and record actual results.
