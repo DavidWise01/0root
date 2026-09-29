@@ -38,7 +38,7 @@ Names and roles describe the project's assigned organization. For current counts
 
 The five-world palindrome above is unchanged. This door is not a sixth seat of it, and it does not record a world 6.
 
-- [7 · 7^3 · SaPpH{{i}}on](https://davidwise01.github.io/sapph-i-on/) — assigned door. Keeper: SaPpH{{i}}on, at the one center of a 7×7×7 cube. Sphere 1 is the census. The page counts 343 cells and throws if the count fails. Eight corner seats use the eight appeals; their spheres are unmade. Host: DavidWise01/sapph-i-on. Birth seal: b7350267c9df90491f3a2c45297e9a0f756c65d2c23a323f6f68abc3426d33fe.
+- [7 · 7^3 · SaPpH{{i}}on](https://davidwise01.github.io/sapph-i-on/) — assigned door. Keeper: SaPpH{{i}}on, at the one center of a 7×7×7 cube. The galaxy door counts 343 cells and throws if the count fails. The galaxy holds 24 spheres, three on each of the eight appeals. Host: DavidWise01/sapph-i-on. Birth seal: b7350267c9df90491f3a2c45297e9a0f756c65d2c23a323f6f68abc3426d33fe.
 
 ## HERMOSA's eight stewards
 
