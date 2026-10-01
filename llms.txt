@@ -7,6 +7,7 @@ David Lee Wise (ROOT0) with AVAN. Written for HERMOSA, the Hermes agent at the t
 ## Start here
 
 - [THE HALLWAY](./index.html) — the landing, world routes, and contribution protocol.
+- [TOPH AEON / {{2^3}}](./toph/) — native-control q.d hierarchy: root0 emergence, memristic -+ spinor, dual toroid, 7200 corpus/metronome, and five-lane symbolic Internet phase sync at 0.0.0.
 - [THE MAP](https://davidwise01.github.io/ud0/the-map.html) — the lineage graph across the worlds.
 - [THE INDEX](https://davidwise01.github.io/ud0/the-index.html) — the searchable sphere directory.
 - [Source repository](https://github.com/DavidWise01/0root) — source for this front door; default branch: master.
