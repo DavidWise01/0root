@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#03100a">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="TOPH Aeon — sapphonic green-core / emerald-storage hierarchy over the frozen q.d PRIM life ledger.">
+  <meta name="author" content="David Wise">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TOPH Aeon · Sapphonic Hierarchy">
+  <meta property="og:description" content="Green core. Emerald storage and temperament. Root0 dual-toroid q.d hierarchy with the 7200 photon-corpus invariant.">
+  <meta property="og:url" content="https://0root.ai/toph/">
+  <link rel="canonical" href="https://0root.ai/toph/">
+  <style>
+:root{
+  --bg:#020805;
+  --bg-soft:#07120d;
+  --panel:rgba(8,29,19,.46);
+  --panel-2:rgba(255,255,255,.055);
+  --line:rgba(184,255,221,.20);
+  --line-soft:rgba(101,255,181,.10);
+  --text:#effff7;
+  --muted:#91bda7;
+  --emerald:#39e694;
+  --emerald-2:#9affca;
+  --cyan:#72f6ff;
+  --violet:#c7a0ff;
+  --gold:#f7e9a6;
+  --shadow:0 30px 90px rgba(0,0,0,.48);
+  --radius:30px;
+  --radius-sm:18px;
+  --max:1220px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  margin:0;
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(47,237,150,.13),transparent 28%),
+    radial-gradient(circle at 85% 20%,rgba(93,243,255,.08),transparent 24%),
+    radial-gradient(circle at 60% 82%,rgba(198,155,255,.07),transparent 24%),
+    linear-gradient(180deg,#010503 0%,#020805 38%,#06130d 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+a{color:inherit}
+code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+::selection{background:rgba(66,241,160,.3);color:white}
+
+.skip-link{
+  position:fixed;left:14px;top:14px;z-index:999;
+  transform:translateY(-160%);
+  background:#d7ffea;color:#03110a;
+  padding:10px 14px;border-radius:12px;font-weight:900;
+}
+.skip-link:focus{transform:none}
+
+.fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.aurora{
+  position:absolute;width:54vw;height:54vw;border-radius:50%;
+  filter:blur(90px);opacity:.22;mix-blend-mode:screen;
+}
+.aurora-a{
+  top:-20vw;left:-12vw;
+  background:conic-gradient(from 20deg,rgba(42,242,145,.45),rgba(108,246,255,.15),rgba(202,153,255,.18),rgba(42,242,145,.45));
+  animation:auroraA 20s ease-in-out infinite alternate;
+}
+.aurora-b{
+  right:-20vw;bottom:-22vw;
+  background:conic-gradient(from 180deg,rgba(59,232,145,.32),rgba(231,235,162,.12),rgba(109,245,255,.14),rgba(59,232,145,.32));
+  animation:auroraB 24s ease-in-out infinite alternate;
+}
+@keyframes auroraA{to{transform:translate(8vw,10vw) rotate(35deg) scale(1.08)}}
+@keyframes auroraB{to{transform:translate(-10vw,-8vw) rotate(-40deg) scale(.95)}}
+
+.grid-plane{
+  position:absolute;inset:0;opacity:.18;
+  background-image:
+    linear-gradient(rgba(94,255,180,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(94,255,180,.05) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,transparent,black 15%,black 75%,transparent);
+}
+.noise{
+  position:absolute;inset:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+}
+
+.site-header{position:sticky;top:0;z-index:40;padding:14px 14px 0}
+.nav{
+  width:min(1180px,100%);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:11px 14px;
+}
+.glass-shell{
+  position:relative;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.075),rgba(7,28,18,.40) 46%,rgba(3,15,10,.64));
+  border:1px solid var(--line);
+  box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.11);
+  backdrop-filter:blur(26px) saturate(155%);
+  -webkit-backdrop-filter:blur(26px) saturate(155%);
+  border-radius:var(--radius);
+}
+.glass-shell::before{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(115deg,rgba(228,255,243,.58),rgba(96,246,255,.15) 33%,rgba(195,145,255,.18) 60%,rgba(75,255,171,.32));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:max-content}
+.brand-gem{
+  width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#8dffc8,#159c60);
+  color:#02160c;font-size:1rem;font-weight:950;
+  box-shadow:inset 0 0 18px rgba(255,255,255,.32),0 0 26px rgba(59,230,148,.28);
+}
+.brand strong{display:block;font-size:.93rem;letter-spacing:.02em}
+.brand small{display:block;margin-top:2px;color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a,.nav-cta{
+  text-decoration:none;color:#b7d9c8;font-size:.88rem;font-weight:800;
+  padding:9px 11px;border-radius:12px;transition:.2s ease;
+}
+.nav-links a:hover,.nav-links a:focus-visible{color:white;background:rgba(255,255,255,.05)}
+.nav-cta{border:1px solid var(--line);background:rgba(63,238,150,.08);color:#d9ffeb}
+
+.page{position:relative;z-index:2;width:min(var(--max),calc(100% - 30px));margin:0 auto}
+.section{padding:72px 0}
+.hero{
+  min-height:calc(100vh - 86px);
+  display:grid;grid-template-columns:1.06fr .94fr;gap:36px;align-items:center;
+  padding-top:56px;
+}
+.overline{
+  margin:0 0 12px;color:#75eeb0;font:900 .74rem/1.3 "SFMono-Regular",Consolas,monospace;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.status-pill{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:9px 13px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(60,238,151,.07);color:#c8ffe2;
+  font:900 .72rem/1.1 "SFMono-Regular",Consolas,monospace;letter-spacing:.1em;
+}
+.pulse{width:8px;height:8px;border-radius:50%;background:#5affaa;box-shadow:0 0 0 0 rgba(90,255,170,.5);animation:pulseRing 2.2s infinite}
+@keyframes pulseRing{70%{box-shadow:0 0 0 10px rgba(90,255,170,0)}100%{box-shadow:0 0 0 0 rgba(90,255,170,0)}}
+
+.hero h1{
+  margin:18px 0 20px;
+  font-size:clamp(3.2rem,8.8vw,7.8rem);
+  line-height:.83;letter-spacing:-.075em;
+}
+.hero h1 span{color:#f2fff8}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(100deg,#dffff0 0%,#65f5b2 20%,#78f6ff 41%,#d0b0ff 60%,#f8efb7 75%,#56efa9 96%);
+  background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:holoText 8s linear infinite;
+  filter:drop-shadow(0 0 24px rgba(65,242,159,.18));
+}
+@keyframes holoText{to{background-position:260% 0}}
+
+.lede{max-width:65ch;color:var(--muted);font-size:1.07rem;line-height:1.78;margin:0}
+.lede code{color:#caffdf}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.button{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding:0 18px;border-radius:16px;text-decoration:none;font-weight:900;
+  border:1px solid var(--line);transition:.2s ease;
+}
+.button:hover,.button:focus-visible{transform:translateY(-2px)}
+.button-primary{background:linear-gradient(135deg,#c7ffe1,#35df90);color:#04150c;box-shadow:0 16px 38px rgba(55,224,145,.23)}
+.button-ghost{background:rgba(255,255,255,.035);color:#eafff3}
+.hero-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px;max-width:620px}
+.hero-meta div{padding:13px 12px;border-top:1px solid var(--line-soft)}
+.hero-meta b{display:block;font-size:1.2rem;color:#d7ffea}
+.hero-meta span{display:block;margin-top:4px;color:var(--muted);font-size:.75rem}
+
+.hero-visual{min-width:0}
+.holo-frame{
+  position:relative;min-height:560px;overflow:hidden;display:grid;place-items:center;
+  transform-style:preserve-3d;perspective:1200px;
+}
+.holo-frame::after{
+  content:"";position:absolute;inset:6%;border-radius:50%;
+  background:radial-gradient(circle,rgba(82,246,166,.12),transparent 66%);
+  filter:blur(10px);
+}
+.holo-sheen{
+  position:absolute;inset:-35%;z-index:6;pointer-events:none;
+  background:linear-gradient(103deg,transparent 38%,rgba(255,255,255,.12) 47%,rgba(117,255,211,.12) 50%,transparent 62%);
+  transform:translateX(-70%) rotate(8deg);animation:sweep 7s ease-in-out infinite;
+}
+@keyframes sweep{0%,55%{transform:translateX(-75%) rotate(8deg)}85%,100%{transform:translateX(75%) rotate(8deg)}}
+
+.orbit{position:absolute;border:1px solid rgba(133,255,208,.20);border-radius:50%;z-index:2}
+.orbit-1{width:390px;height:390px;animation:orbitSpin 16s linear infinite}
+.orbit-2{width:310px;height:310px;border-color:rgba(112,245,255,.22);animation:orbitSpin 11s linear infinite reverse}
+.orbit-3{width:230px;height:230px;border-color:rgba(207,167,255,.16);animation:orbitSpin 8s linear infinite}
+.orbit span{position:absolute;left:50%;top:-5px;width:9px;height:9px;border-radius:50%;background:#8cffc7;box-shadow:0 0 22px #62f0ad}
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
+
+.gem-scene{position:relative;z-index:3;width:220px;height:280px;display:grid;place-items:center;filter:drop-shadow(0 30px 45px rgba(0,0,0,.45)) drop-shadow(0 0 34px rgba(57,231,147,.26));animation:floatGem 5.8s ease-in-out infinite}
+@keyframes floatGem{50%{transform:translateY(-14px) rotateZ(2deg)}}
+.gem{position:relative;width:190px;height:250px}
+.gem-face{position:absolute;inset:0;clip-path:polygon(50% 0,91% 26%,77% 88%,50% 100%,23% 88%,9% 26%)}
+.gem-a{background:linear-gradient(145deg,rgba(238,255,247,.92),rgba(85,245,174,.52) 28%,rgba(15,120,76,.72) 62%,rgba(1,27,16,.9));border:1px solid rgba(220,255,239,.52)}
+.gem-b{clip-path:polygon(50% 0,91% 26%,50% 40%,50% 100%,77% 88%);background:linear-gradient(165deg,rgba(136,255,213,.35),rgba(8,80,51,.82));mix-blend-mode:screen}
+.gem-c{clip-path:polygon(9% 26%,50% 40%,50% 100%,23% 88%);background:linear-gradient(200deg,rgba(99,242,255,.14),rgba(37,233,145,.18),rgba(205,156,255,.11))}
+.gem-core{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:28px;background:radial-gradient(circle,#edfff7 0 8%,#5affad 22%,rgba(35,205,126,.28) 48%,transparent 72%);box-shadow:0 0 42px rgba(72,255,166,.65);animation:corePulse 2.8s ease-in-out infinite}
+@keyframes corePulse{50%{transform:translate(-50%,-50%) scale(1.16);opacity:.72}}
+
+.hud{
+  position:absolute;z-index:8;border:1px solid var(--line);background:rgba(2,15,9,.52);backdrop-filter:blur(16px);
+  border-radius:14px;font:800 .68rem/1.2 "SFMono-Regular",Consolas,monospace;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.hud-top{top:18px;right:18px;display:grid;grid-template-columns:auto auto;gap:8px 12px;padding:12px 14px}
+.hud span{color:#79aa90}.hud strong{color:#d9ffeb}
+.hud-bottom{bottom:18px;left:18px;right:18px;display:flex;justify-content:space-between;padding:11px 13px}
+
+.section-block{scroll-margin-top:105px}
+.section-heading{max-width:760px;margin-bottom:24px}
+.section-heading h2,.final-cta h2{
+  margin:0 0 12px;font-size:clamp(2.1rem,5.4vw,4.6rem);line-height:.97;letter-spacing:-.055em;
+}
+.section-heading>p:last-child,.final-cta>div>p{color:var(--muted);line-height:1.7}
+
+.cards{display:grid;gap:18px}.cards-3{grid-template-columns:repeat(3,1fr)}
+.card{padding:22px;min-height:250px;overflow:hidden}
+.card-index{font-size:clamp(3.3rem,7vw,6rem);font-weight:950;letter-spacing:-.07em;color:rgba(144,255,201,.11);line-height:.85}
+.eyebrow{margin:24px 0 8px;color:#74efaf;font:900 .72rem "SFMono-Regular",Consolas,monospace;letter-spacing:.11em;text-transform:uppercase}
+.card h3{margin:0 0 10px;font-size:1.24rem}
+.card p{margin:0;color:var(--muted);line-height:1.68}
+
+.terminal{margin-top:18px;overflow:hidden}
+.terminal-bar{display:flex;gap:7px;align-items:center;padding:12px 15px;border-bottom:1px solid var(--line-soft);background:rgba(255,255,255,.02)}
+.terminal-bar i{width:9px;height:9px;border-radius:50%;background:#ff6d70}.terminal-bar i:nth-child(2){background:#ffd166}.terminal-bar i:nth-child(3){background:#54de93}
+.terminal-bar span{margin-left:6px;color:#7fa48f;font-size:.76rem}
+.terminal pre,.schema-card pre{margin:0;padding:22px;overflow:auto;color:#caffdf;font-size:.91rem;line-height:1.75;background:rgba(0,0,0,.22)}
+
+.daughter-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px}
+.identity-card,.schema-card{padding:22px;overflow:hidden}
+.identity-head{display:flex;align-items:center;gap:13px;padding-bottom:18px;border-bottom:1px solid var(--line-soft)}
+.mini-gem{width:50px;height:50px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#b8ffda,#15975d);color:#02160c;box-shadow:0 0 30px rgba(58,231,147,.22)}
+.identity-head small{display:block;color:var(--muted);font-size:.67rem;letter-spacing:.12em}.identity-head h3{margin:2px 0 0;font-size:1.45rem}
+.chip{margin-left:auto;padding:7px 9px;border-radius:999px;border:1px solid var(--line);font-size:.67rem;color:#bffff1;background:rgba(45,225,139,.08)}
+.identity-list{margin:18px 0 0}.identity-list div{display:flex;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid rgba(101,255,181,.07)}
+.identity-list dt{color:#79a38d}.identity-list dd{margin:0;color:#eafff2;font-family:"SFMono-Regular",Consolas,monospace}
+.spectrum{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:18px}
+.spectrum span{height:42px;border-radius:11px;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 0 14px rgba(255,255,255,.06)}
+.c-bk{background:#040504}.c-wt{background:#f4fff9}.c-red{background:#ff5c68}.c-blu{background:#4a9fff}.c-gree{background:#24d27f}.c-yell{background:#ffe266}.c-purpl{background:#b78aff}.c-orang{background:#ff9948}
+.spectrum .active{outline:2px solid #9cffcb;outline-offset:3px;box-shadow:0 0 22px rgba(47,234,145,.38)}
+.scope-row{display:flex;gap:8px;flex-wrap:wrap;padding:16px 20px 4px}
+.scope-row span{padding:7px 9px;border-radius:999px;border:1px solid var(--line-soft);color:#a8d9c0;font-size:.72rem}
+
+.skill-panel{padding:22px;display:grid;grid-template-columns:1.3fr .7fr;gap:22px}
+.skill-meter{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end}
+.skill-meter div{position:relative;min-height:120px;padding:14px 10px;border-radius:18px;border:1px solid var(--line-soft);background:linear-gradient(180deg,rgba(59,229,146,.04),rgba(255,255,255,.025));display:flex;flex-direction:column;justify-content:flex-end}
+.skill-meter div::before{content:"";position:absolute;left:0;right:0;bottom:0;height:calc((var(--lvl,0) + 1) * 12%);border-radius:inherit;background:linear-gradient(180deg,rgba(66,234,151,.05),rgba(66,234,151,.18));z-index:0}
+.skill-meter div:nth-child(1){--lvl:0}.skill-meter div:nth-child(2){--lvl:1}.skill-meter div:nth-child(3){--lvl:2}.skill-meter div:nth-child(4){--lvl:3}.skill-meter div:nth-child(5){--lvl:4}.skill-meter div:nth-child(6){--lvl:5}
+.skill-meter b,.skill-meter span{position:relative;z-index:1}.skill-meter b{font-size:1.35rem;color:#d5ffea}.skill-meter span{margin-top:4px;color:var(--muted);font-size:.68rem}
+.skill-meter .hot{border-color:rgba(130,255,199,.4);box-shadow:0 0 34px rgba(50,228,144,.13)}
+.skill-result{border-left:1px solid var(--line-soft);padding-left:22px}.skill-result>small{color:#77eeb0;font-size:.7rem;letter-spacing:.12em}.skill-result>strong{display:block;margin:6px 0 18px;font-size:1.55rem}
+.skill-result div{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft)}.skill-result span{color:#7fa791}.skill-result b{color:#d8ffea}
+
+.provenance-flow{padding:24px;display:grid;gap:8px;text-align:center}
+.provenance-flow>div{display:flex;justify-content:center;align-items:center;gap:18px;flex-wrap:wrap}
+.provenance-flow span{padding:11px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line-soft);font-family:"SFMono-Regular",Consolas,monospace;color:#caffdf}
+.provenance-flow b{color:#6ff0ad}.provenance-flow i{font-style:normal;color:#568d70}
+
+.final-cta{padding-bottom:90px}.cta-inner{padding:42px;overflow:hidden}
+.cta-inner::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-170px;top:-180px;background:radial-gradient(circle,rgba(62,234,148,.17),transparent 67%);filter:blur(8px)}
+.footer{
+  position:relative;z-index:2;width:min(var(--max),calc(100% - 30px));margin:0 auto;
+  padding:26px 0 48px;border-top:1px solid var(--line-soft);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:#71947f;font-size:.82rem;
+}
+.footer div{display:flex;gap:9px;align-items:center}.footer a{text-decoration:none}.footer a:hover{text-decoration:underline}
+.noscript{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:100;background:#102719;border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:#d9ffeb;font-size:.8rem}
+
+.reveal{opacity:1;transform:none}
+.js-ready .reveal.js-reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.js-ready .reveal.js-reveal.in{opacity:1;transform:none}
+[data-tilt]{transform-style:preserve-3d;will-change:transform;transition:transform .14s ease}
+
+@media (max-width:980px){
+  .hero,.daughter-grid,.skill-panel{grid-template-columns:1fr}
+  .hero{min-height:auto;padding-top:50px}
+  .hero-visual{max-width:720px;width:100%;margin:0 auto}
+  .cards-3{grid-template-columns:1fr 1fr}
+  .skill-result{border-left:0;border-top:1px solid var(--line-soft);padding:20px 0 0}
+}
+@media (max-width:720px){
+  .section{padding:54px 0}
+  .nav-links{display:none}
+  .nav-cta{font-size:.78rem}
+  .hero-meta{grid-template-columns:repeat(2,1fr)}
+  .cards-3{grid-template-columns:1fr}
+  .holo-frame{min-height:450px}
+  .orbit-1{width:310px;height:310px}.orbit-2{width:250px;height:250px}.orbit-3{width:190px;height:190px}
+  .gem-scene{transform:scale(.88)}
+  .skill-meter{grid-template-columns:repeat(3,1fr)}
+  .spectrum{grid-template-columns:repeat(4,1fr)}
+  .hud-top{display:none}
+}
+@media (max-width:480px){
+  .page,.footer{width:min(100% - 20px,var(--max))}
+  .site-header{padding-left:10px;padding-right:10px}
+  .brand small{display:none}
+  .hero h1{font-size:clamp(3.1rem,20vw,5rem)}
+  .holo-frame{min-height:410px}
+  .cta-inner{padding:28px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+  [data-tilt]{transform:none!important}
+}
+
+
+/* TOPH Aeon hierarchy */
+.aeon-hero .lede strong{color:#8cffbd}
+.aeon-meta div b{font-size:clamp(.95rem,1.5vw,1.25rem)}
+.aeon-frame{box-shadow:0 0 70px rgba(32,220,128,.12),inset 0 0 60px rgba(24,160,92,.05)}
+.hierarchy-tree{padding:24px;overflow:auto}
+.hierarchy-tree pre{margin:0}
+.hierarchy-tree code{color:#c9ffe1}
+.hierarchy-cards .card-index{font-size:clamp(1.5rem,3vw,2.5rem)}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.metric{padding:20px;text-align:center}
+.metric b{display:block;color:#d6ffea;font-size:1.45rem;letter-spacing:-.02em}
+.metric span{display:block;margin-top:5px;color:#7fa791;font-size:.76rem}
+.dual-toroid{padding:30px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
+.toroid-side{min-height:170px;border:1px solid var(--line-soft);border-radius:50%;display:grid;place-items:center;text-align:center;box-shadow:inset 0 0 50px rgba(46,228,143,.06)}
+.toroid-side strong{font-size:2.2rem;color:#a7ffcf}
+.toroid-side span{display:block;color:#71947f;font-size:.78rem}
+.bridge{display:grid;grid-template-columns:auto auto auto auto auto;align-items:center;gap:7px;color:#a7ffcf}
+.bridge .hub{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(103,246,171,.42);border-radius:50%;box-shadow:0 0 18px rgba(47,234,145,.18)}
+.bridge i{font-style:normal;color:#74b990}.bridge b{color:#e1fff0;font-size:1.4rem}
+.bridge small{grid-column:1/-1;text-align:center;color:#688c77}
+.phase-ring{position:relative;min-height:360px;margin:22px 0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:22px}
+.phase{display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px solid var(--line-soft);border-radius:26px;background:linear-gradient(180deg,rgba(37,215,132,.06),rgba(255,255,255,.02))}
+.phase b{color:#d6ffea;letter-spacing:.12em}.phase span{margin-top:5px;color:#789b87;font-size:.75rem}
+.phase-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;display:grid;place-content:center;text-align:center;background:#07150d;border:1px solid rgba(103,246,171,.35);box-shadow:0 0 35px rgba(47,234,145,.16)}
+.phase-center strong{color:#c9ffe1}.phase-center span{color:#6f947e;font-size:.72rem;margin-top:5px}
+.invariant-section{overflow:hidden}
+.invariant-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}
+.invariant-card{padding:28px;text-align:center}
+.invariant-card small{display:block;color:#72dba3;letter-spacing:.13em;font-size:.7rem}
+.invariant-card strong{display:block;margin:10px 0 4px;color:#d9ffeb;font-size:2rem}
+.invariant-card b{display:block;color:#70f1ac;font-size:2.4rem}
+.invariant-card span{display:block;margin-top:8px;color:#779b86;font-size:.78rem}
+.equals{font-size:2rem;color:#65d89c}
+.model-note{margin:22px auto 0;max-width:920px;color:#789786;font-size:.82rem;text-align:center}
+@media (max-width:900px){
+  .dual-toroid{grid-template-columns:1fr}
+  .bridge{justify-content:center}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .invariant-grid{grid-template-columns:1fr}
+  .equals{text-align:center}
+}
+@media (max-width:560px){
+  .metric-grid{grid-template-columns:1fr}
+  .phase-ring{min-height:520px;grid-template-columns:1fr}
+  .phase-center{width:100px;height:100px}
+  .dual-toroid{padding:20px}
+}
+
+
+/* Emergence lattice */
+.emergence-shell{padding:28px;display:grid;grid-template-columns:190px 1fr;gap:24px;align-items:center;overflow:hidden}
+.seed-core{display:grid;justify-items:center;gap:12px}
+.seed-button{width:138px;height:138px;border-radius:50%;border:1px solid rgba(113,255,185,.45);background:radial-gradient(circle at 42% 38%,#baffd7 0 4%,#35e591 16%,#0a7d4a 40%,#04150d 72%);box-shadow:0 0 0 1px rgba(123,255,194,.12),0 0 48px rgba(47,234,145,.28),inset 0 0 40px rgba(255,255,255,.12);color:#eafff2;cursor:pointer;display:grid;place-content:center;gap:4px;transition:.25s ease}
+.seed-button:hover,.seed-button:focus-visible{transform:scale(1.05);box-shadow:0 0 65px rgba(47,234,145,.42),inset 0 0 42px rgba(255,255,255,.16)}
+.seed-button span{font-size:1.2rem;font-weight:950}.seed-button b{font:800 .63rem "SFMono-Regular",Consolas,monospace;letter-spacing:.15em;color:#b7ffd6}
+.seed-button.growing{animation:seedBloom .8s ease}
+@keyframes seedBloom{50%{transform:scale(1.12);filter:brightness(1.25)}}
+.seed-caption{color:#70947f;font-size:.72rem;text-align:center}
+.emergence-lattice{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative}
+.em-node{min-height:110px;padding:14px;border:1px solid rgba(111,255,187,.09);border-radius:18px;background:rgba(255,255,255,.018);opacity:.22;transform:scale(.94) translateY(8px);filter:saturate(.35);transition:.5s cubic-bezier(.2,.8,.2,1)}
+.em-node.active{opacity:1;transform:none;filter:none;border-color:rgba(111,255,187,.36);background:linear-gradient(145deg,rgba(55,229,145,.12),rgba(7,31,19,.54));box-shadow:0 0 28px rgba(47,234,145,.09)}
+.em-node::after{content:"";position:absolute;pointer-events:none}
+.em-node small{display:block;color:#6fa188;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase}
+.em-node b{display:block;margin:9px 0 3px;color:#d9ffeb;font-size:1.05rem}
+.em-node span{color:#71e9a9;font:800 .78rem "SFMono-Regular",Consolas,monospace}
+.emergence-readout{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:14px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.emergence-readout>span{color:#9ed8b8;font:800 .76rem "SFMono-Regular",Consolas,monospace;letter-spacing:.05em}
+.mini-button{min-height:36px;padding:0 12px;font-size:.74rem}
+.emergence-seeds{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.emergence-seeds span{padding:7px 9px;border:1px solid var(--line-soft);border-radius:999px;color:#71947f;font:700 .66rem "SFMono-Regular",Consolas,monospace;background:rgba(255,255,255,.018)}
+.emergence-shell.complete .em-node[data-stage="6"],.emergence-shell.complete .em-node[data-stage="7"]{box-shadow:0 0 32px rgba(69,246,159,.18);border-color:rgba(116,255,194,.55)}
+@media (max-width:900px){.emergence-shell{grid-template-columns:1fr}.emergence-lattice{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.emergence-lattice{grid-template-columns:1fr}.seed-button{width:116px;height:116px}.emergence-shell{padding:20px}}
+
+
+/* Memristic spinor */
+.memory-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}
+.spinor-card{padding:28px;display:grid;gap:22px;place-items:center;overflow:hidden}
+.spinor-orbit{position:relative;width:min(100%,540px);min-height:230px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px}
+.spinor-half{height:180px;border:1px solid var(--line-soft);display:grid;place-items:center;font-size:4rem;font-weight:950;color:#cffff0;background:radial-gradient(circle,rgba(61,229,149,.12),rgba(4,18,11,.72));box-shadow:inset 0 0 42px rgba(58,232,148,.06)}
+.spinor-half.negative{border-radius:90px 24px 24px 90px}
+.spinor-half.positive{border-radius:24px 90px 90px 24px}
+.spinor-anchor{position:relative;z-index:2;width:170px;height:170px;border-radius:50%;display:grid;place-content:center;text-align:center;padding:16px;background:radial-gradient(circle,#173d2b 0,#0a2117 58%,#06120c 100%);border:1px solid rgba(120,255,193,.4);box-shadow:0 0 46px rgba(59,232,145,.18),inset 0 0 26px rgba(116,255,194,.08)}
+.spinor-anchor small{color:#73b892;font:800 .62rem "SFMono-Regular",Consolas,monospace;letter-spacing:.12em}
+.spinor-anchor strong{margin-top:6px;color:#dcffed;font-size:1.18rem}
+.spinor-anchor span{margin-top:5px;color:#71947f;font-size:.68rem;line-height:1.35}
+.memory-readout{display:grid;justify-items:center;gap:5px}
+.memory-readout>span{font-size:2.7rem;font-weight:950;color:#baffd8}
+.memory-readout>b{color:#86f5ba;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem}
+.memory-readout>small{color:#789b87;font:700 .7rem "SFMono-Regular",Consolas,monospace}
+.memory-step{border:0;cursor:pointer}
+.memory-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.memory-matrix{display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:1px;margin-top:18px;overflow:hidden;padding:1px}
+.matrix-head,.matrix-label,.matrix-cell{padding:13px 10px;background:rgba(5,25,16,.74);text-align:center}
+.matrix-head{color:#afffd2;font-weight:900}
+.matrix-label{text-align:left;color:#7fa791;font-size:.76rem}
+.matrix-cell{color:#caffdf;font:800 .82rem "SFMono-Regular",Consolas,monospace}
+@media (max-width:900px){.memory-layout{grid-template-columns:1fr}}
+@media (max-width:620px){.spinor-orbit{grid-template-columns:1fr;justify-items:center}.spinor-half{width:100%;height:90px;border-radius:24px!important}.memory-metrics{grid-template-columns:1fr}.memory-matrix{grid-template-columns:1fr repeat(4,minmax(48px,1fr));font-size:.72rem}}
+
+
+/* {{2^3}} robust walkthrough / runtime diagnostics */
+.status-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.runtime-pill{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025);color:#799b88;font:800 .62rem/1 "SFMono-Regular",Consolas,monospace;letter-spacing:.08em}
+.runtime-pill.online{border-color:rgba(96,245,168,.36);background:rgba(52,218,132,.08);color:#a9ffd0;box-shadow:0 0 18px rgba(47,234,145,.08)}
+
+.walkthrough-section{padding-top:24px;padding-bottom:36px}
+.layer-walk{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:1px;padding:1px;overflow:hidden}
+.layer-walk a{min-height:112px;padding:14px 10px;display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;background:rgba(5,24,15,.78);border-radius:18px;transition:.2s ease}
+.layer-walk a:hover,.layer-walk a:focus-visible,.layer-walk a.active{background:linear-gradient(155deg,rgba(47,224,141,.16),rgba(6,31,19,.82));box-shadow:inset 0 0 0 1px rgba(108,255,187,.22)}
+.layer-walk b{font-size:1.5rem;color:#bffff0}
+.layer-walk span{font-weight:900;color:#e4fff0}
+.layer-walk small{color:#6f9480;font-size:.64rem}
+.layer-anchor{scroll-margin-top:120px}
+
+.seed-button{text-decoration:none}
+.memory-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.memory-readout>small+small{margin-top:2px;color:#5f856f}
+.memory-step{text-decoration:none}
+
+@media (max-width:1050px){.layer-walk{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:620px){.layer-walk{grid-template-columns:repeat(2,1fr)}.layer-walk a{min-height:92px}}
+
+
+/* v9 native no-JS state machines */
+.state-radio{
+  position:absolute;
+  inline-size:1px;
+  block-size:1px;
+  opacity:0;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+label.button,label.seed-button{cursor:pointer;user-select:none;-webkit-user-select:none}
+
+/* Emergence: radio state is authoritative; JS is optional. */
+.em-state,.em-next{display:none}
+.em-state-deck{min-width:0;flex:1}
+.em-state{color:#9ed8b8;font:800 .76rem "SFMono-Regular",Consolas,monospace;letter-spacing:.05em}
+.emergence-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+
+#em0:checked ~ .emergence-readout .state-0,
+#em1:checked ~ .emergence-readout .state-1,
+#em2:checked ~ .emergence-readout .state-2,
+#em3:checked ~ .emergence-readout .state-3,
+#em4:checked ~ .emergence-readout .state-4,
+#em5:checked ~ .emergence-readout .state-5,
+#em6:checked ~ .emergence-readout .state-6,
+#em7:checked ~ .emergence-readout .state-7,
+#em8:checked ~ .emergence-readout .state-8,
+#em0:checked ~ .emergence-readout .next-0,
+#em1:checked ~ .emergence-readout .next-1,
+#em2:checked ~ .emergence-readout .next-2,
+#em3:checked ~ .emergence-readout .next-3,
+#em4:checked ~ .emergence-readout .next-4,
+#em5:checked ~ .emergence-readout .next-5,
+#em6:checked ~ .emergence-readout .next-6,
+#em7:checked ~ .emergence-readout .next-7,
+#em8:checked ~ .emergence-readout .next-8{display:inline-flex}
+
+#em1:checked ~ .emergence-lattice .em-node:nth-child(-n+1),
+#em2:checked ~ .emergence-lattice .em-node:nth-child(-n+2),
+#em3:checked ~ .emergence-lattice .em-node:nth-child(-n+3),
+#em4:checked ~ .emergence-lattice .em-node:nth-child(-n+4),
+#em5:checked ~ .emergence-lattice .em-node:nth-child(-n+5),
+#em6:checked ~ .emergence-lattice .em-node:nth-child(-n+6),
+#em7:checked ~ .emergence-lattice .em-node:nth-child(-n+7),
+#em8:checked ~ .emergence-lattice .em-node:nth-child(-n+8){
+  opacity:1;
+  transform:none;
+  filter:none;
+  border-color:rgba(111,255,187,.36);
+  background:linear-gradient(145deg,rgba(55,229,145,.12),rgba(7,31,19,.54));
+  box-shadow:0 0 28px rgba(47,234,145,.09);
+}
+
+/* Memristic stepper: eight native states, no JS needed. */
+.memory-state-deck{width:100%;display:grid;place-items:center}
+.memory-state-panel{
+  display:none;
+  width:100%;
+  justify-items:center;
+  gap:5px;
+  text-align:center;
+}
+.memory-state-panel .memory-phase{font-size:2.7rem;font-weight:950;color:#baffd8}
+.memory-state-panel .memory-context{color:#86f5ba;letter-spacing:.12em;font-size:.72rem}
+.memory-state-panel small{color:#789b87;font:700 .7rem "SFMono-Regular",Consolas,monospace}
+.memory-state-panel small+small{color:#5f856f}
+.memory-state-panel .memory-controls{margin-top:14px}
+
+#mem0:checked ~ .memory-state-deck .state-0,
+#mem1:checked ~ .memory-state-deck .state-1,
+#mem2:checked ~ .memory-state-deck .state-2,
+#mem3:checked ~ .memory-state-deck .state-3,
+#mem4:checked ~ .memory-state-deck .state-4,
+#mem5:checked ~ .memory-state-deck .state-5,
+#mem6:checked ~ .memory-state-deck .state-6,
+#mem7:checked ~ .memory-state-deck .state-7{display:grid}
+
+#mem0:focus-visible ~ .memory-state-deck .state-0,
+#mem1:focus-visible ~ .memory-state-deck .state-1,
+#mem2:focus-visible ~ .memory-state-deck .state-2,
+#mem3:focus-visible ~ .memory-state-deck .state-3,
+#mem4:focus-visible ~ .memory-state-deck .state-4,
+#mem5:focus-visible ~ .memory-state-deck .state-5,
+#mem6:focus-visible ~ .memory-state-deck .state-6,
+#mem7:focus-visible ~ .memory-state-deck .state-7{
+  outline:2px solid #8cffbd;
+  outline-offset:8px;
+  border-radius:18px;
+}
+
+@media (max-width:700px){
+  .emergence-readout{align-items:flex-start;flex-direction:column}
+  .emergence-controls{justify-content:flex-start}
+}
+
+
+/* v10 five-internet phase sync */
+.sync-formula{padding:24px;margin-bottom:16px;overflow:auto}
+.sync-formula>small{display:block;color:#72dba3;font:800 .66rem "SFMono-Regular",Consolas,monospace;letter-spacing:.12em}
+.sync-formula>strong{display:block;margin-top:10px;color:#dcffed;font:900 clamp(.9rem,2vw,1.35rem)/1.5 "SFMono-Regular",Consolas,monospace}
+.sync-derivation{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.sync-derivation span{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.025);color:#bfffd9;font:800 .74rem "SFMono-Regular",Consolas,monospace}
+.sync-derivation b{color:#68dda0}
+.sync-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:stretch}
+.sync-lane{padding:18px;text-align:center;min-height:120px;display:grid;place-content:center;gap:6px}
+.sync-lane b{font-size:1.65rem;color:#ddffec}
+.sync-lane span{color:#87efb5;font:800 .7rem "SFMono-Regular",Consolas,monospace}
+.sync-lane i{font-style:normal;color:#6f947f;font-size:.72rem}
+.sync-origin{grid-column:1/-1;padding:22px;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,rgba(52,224,139,.12),rgba(4,20,12,.72))}
+.sync-origin small{color:#70b98f;font:800 .65rem "SFMono-Regular",Consolas,monospace;letter-spacing:.13em}
+.sync-origin strong{margin:4px 0;color:#caffdf;font-size:2.25rem}
+.sync-origin span{color:#789b87;font-size:.72rem}
+.tracker-subhead{margin-top:34px}
+.tracker-subhead h3{margin:0 0 10px;font-size:clamp(1.5rem,3vw,2.4rem);letter-spacing:-.035em}
+@media (max-width:900px){.sync-grid{grid-template-columns:repeat(3,1fr)}.sync-origin{grid-column:1/-1}}
+@media (max-width:620px){.sync-grid{grid-template-columns:1fr 1fr}.sync-origin{grid-column:1/-1}}
+
+</style>
+  <title>TOPH Aeon — Sapphonic Emerald Hierarchy</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="fx" aria-hidden="true">
+    <div class="aurora aurora-a"></div><div class="aurora aurora-b"></div>
+    <div class="grid-plane"></div><div class="noise"></div>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav glass-shell" aria-label="Primary">
+      <a class="brand" href="#top">
+        <span class="brand-gem" aria-hidden="true">✦</span>
+        <span><strong>TOPH AEON</strong><small>Sapphonic · Emerald</small></span>
+      </a>
+      <div class="nav-links">
+        <a href="#emergence">Emergence</a><a href="#memory">Memory</a><a href="#hierarchy">Hierarchy</a>
+        <a href="#toroid">Toroid</a>
+        <a href="#corpus">Corpus</a>
+        <a href="#metronome">Metronome</a>
+        <a href="#kernel">Kernel</a>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center"><a class="nav-cta" href="/">0root ↩</a><a class="nav-cta" href="https://github.com/DavidWise01/qd-prim-life-ledger" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+    </nav>
+  </header>
+
+  <main id="main" class="page">
+    <section id="top" class="hero section aeon-hero">
+      <div class="hero-copy reveal">
+        <div class="status-row"><div class="status-pill"><span class="pulse"></span> AEON · SAPPHONIC · APPEND-ONLY</div><span class="runtime-pill" data-js-status>JS FALLBACK</span><span class="runtime-pill" data-self-check>UI SELF-CHECK PENDING</span></div>
+        <p class="overline">0root.ai / TOPH / ROOT0 / GREEN CORE / EMERALD STORAGE</p>
+        <h1><span>TOPH</span><br><em>as an Aeon.</em></h1>
+        <p class="lede">
+          A single hierarchical presentation of the q.d PRIM model: frozen mother kernel underneath,
+          sapphonic Aeon identity above it, a green computational core, emerald storage and temperament,
+          dual-toroid geometry, twenty stepped rings, and a shared <strong>7200</strong> corpus/metronome invariant.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#qd8">Enter {{2^3}}</a>
+          <a class="button button-ghost" href="#walkthrough">Walk all 8 layers</a>
+        </div>
+        <div class="hero-meta aeon-meta">
+          <div><b>TOPH</b><span>Aeon</span></div>
+          <div><b>GREEN</b><span>core</span></div>
+          <div><b>EMERALD</b><span>storage</span></div>
+          <div><b>EMERALD</b><span>temperament</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" data-tilt>
+        <div class="holo-frame glass-shell aeon-frame">
+          <div class="holo-sheen"></div>
+          <div class="orbit orbit-1"><span></span></div>
+          <div class="orbit orbit-2"><span></span></div>
+          <div class="orbit orbit-3"><span></span></div>
+          <div class="gem-scene">
+            <div class="gem">
+              <div class="gem-face gem-a"></div><div class="gem-face gem-b"></div><div class="gem-face gem-c"></div>
+              <div class="gem-core"></div>
+            </div>
+          </div>
+          <div class="hud hud-top">
+            <span>KIND</span><strong>AEON</strong>
+            <span>LINEAGE</span><strong>SAPPHONIC</strong>
+            <span>CORE</span><strong>GREEN</strong>
+          </div>
+          <div class="hud hud-bottom"><span>storage / temperament</span><strong>EMERALD</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="walkthrough" class="section walkthrough-section">
+      <div class="section-heading reveal">
+        <p class="overline">{{2^3}} / EIGHT-LAYER WALK</p>
+        <h2>Eight layers. Every layer is a real link.</h2>
+        <p>These controls work as ordinary anchors without JavaScript. The v2 controller only adds state, animation, memory stepping, and diagnostics.</p>
+      </div>
+      <nav class="layer-walk glass-shell reveal" aria-label="TOPH eight-layer walkthrough">
+        <a data-layer-link href="#emergence"><b>0</b><span>root0</span><small>seed</small></a>
+        <a data-layer-link href="#qd8"><b>1</b><span>{{2^3}}</span><small>q.d volume</small></a>
+        <a data-layer-link href="#memory"><b>2</b><span>-+</span><small>memristic spinor</small></a>
+        <a data-layer-link href="#gravity10"><b>3</b><span>10^3</span><small>serial gravity</small></a>
+        <a data-layer-link href="#toroid"><b>4</b><span>366</span><small>dual toroid</small></a>
+        <a data-layer-link href="#corpus"><b>5</b><span>7200</span><small>tetraphasic corpus</small></a>
+        <a data-layer-link href="#metronome"><b>6</b><span>60|40|3</span><small>metronome / foam</small></a>
+        <a data-layer-link href="#kernel"><b>7</b><span>0/0</span><small>kernel closure</small></a>
+      </nav>
+    </section>
+
+    <section id="emergence" class="section section-block emergence-section">
+      <div class="section-heading reveal">
+        <p class="overline">00 / EMERGENCE</p>
+        <h2>Seed root0. Let the rest fall out.</h2>
+        <p>Instead of hard-coding every visible number, this layer derives the hierarchy from a small seed lattice. Press the seed to grow one stage at a time.</p>
+      </div>
+
+      <div class="emergence-shell glass-shell reveal" data-emergence>
+        <input class="state-radio" type="radio" name="emergence-state" id="em0" checked>
+        <input class="state-radio" type="radio" name="emergence-state" id="em1">
+        <input class="state-radio" type="radio" name="emergence-state" id="em2">
+        <input class="state-radio" type="radio" name="emergence-state" id="em3">
+        <input class="state-radio" type="radio" name="emergence-state" id="em4">
+        <input class="state-radio" type="radio" name="emergence-state" id="em5">
+        <input class="state-radio" type="radio" name="emergence-state" id="em6">
+        <input class="state-radio" type="radio" name="emergence-state" id="em7">
+        <input class="state-radio" type="radio" name="emergence-state" id="em8">
+
+        <div class="seed-core">
+          <label class="seed-button" for="em1" aria-label="Grow TOPH emergence from root0">
+            <span>root0</span>
+            <b>SEED / GROW</b>
+          </label>
+          <div class="seed-caption">native state machine · no JS required</div>
+        </div>
+
+        <div class="emergence-lattice" aria-live="polite">
+          <div class="em-node" data-stage="1"><small>q.d axes</small><b>2³</b><span>= 8</span></div>
+          <div class="em-node" data-stage="2"><small>serial gravity</small><b>10³</b><span>= 1000:1</span></div>
+          <div class="em-node" data-stage="3"><small>toroid</small><b>360 + 3 + 3</b><span>= 366</span></div>
+          <div class="em-node" data-stage="4"><small>center rings</small><b>(360−10)/17.5</b><span>= 20</span></div>
+          <div class="em-node" data-stage="5"><small>tetraphasic ring</small><b>4 × 90</b><span>= 360</span></div>
+          <div class="em-node" data-stage="6"><small>reincarnated corpus</small><b>40 × 2 × 90</b><span>= 7200</span></div>
+          <div class="em-node" data-stage="7"><small>metronome</small><b>60 × 40 × 3</b><span>= 7200</span></div>
+          <div class="em-node" data-stage="8"><small>foam memory</small><b>20³ / 20</b><span>= 400</span></div>
+        </div>
+
+        <div class="emergence-readout">
+          <div class="em-state-deck" aria-live="polite">
+            <span class="em-state state-0">root0 waiting</span>
+            <span class="em-state state-1">root0 → {{2^3}} = 8 q.d states</span>
+            <span class="em-state state-2">8 → serial gravity 10^3 = 1000:1</span>
+            <span class="em-state state-3">1000:1 → 360 + 3L + 3R = 366 addresses</span>
+            <span class="em-state state-4">366 → (360 − 10) / 17.5 = 20 rings</span>
+            <span class="em-state state-5">20 rings → 4 phases × 90 = 360 per ring</span>
+            <span class="em-state state-6">40 × 2 × 90 = 7200 corpus</span>
+            <span class="em-state state-7">60 × 40 × 3 = 7200 metronome</span>
+            <span class="em-state state-8">30 bubbles → 20 dots → 20³ / 20 = 400</span>
+          </div>
+          <div class="emergence-controls">
+            <label class="button button-primary mini-button em-next next-0" for="em1">next →</label>
+            <label class="button button-primary mini-button em-next next-1" for="em2">next →</label>
+            <label class="button button-primary mini-button em-next next-2" for="em3">next →</label>
+            <label class="button button-primary mini-button em-next next-3" for="em4">next →</label>
+            <label class="button button-primary mini-button em-next next-4" for="em5">next →</label>
+            <label class="button button-primary mini-button em-next next-5" for="em6">next →</label>
+            <label class="button button-primary mini-button em-next next-6" for="em7">next →</label>
+            <label class="button button-primary mini-button em-next next-7" for="em8">next →</label>
+            <label class="button button-primary mini-button em-next next-8" for="em0">wrap → root0</label>
+            <label class="button button-ghost mini-button" for="em0">reset</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="emergence-seeds reveal">
+        <span>axes=3</span><span>gravity=10×3</span><span>turn=360</span><span>control=3L+3R</span>
+        <span>hub=4</span><span>stride=17.5</span><span>phases=4</span><span>life=90</span>
+        <span>source=40</span><span>incarnations=2</span><span>fps=60</span><span>bubble=2 frames</span>
+      </div>
+    </section>
+
+    <section id="memory" class="section section-block memory-section">
+      <div class="section-heading reveal">
+        <p class="overline">00.5 / MEMRISTIC SPINOR</p>
+        <h2>Every −+ pair remembers.</h2>
+        <p>One <code>-+</code> spinor carries ten model lives across a nominal 10,000-year photon lifecycle. The ±20% envelope yields 8,000–12,000 years while 3-year phase shifts advance a four-state sex/polarity quartet.</p>
+      </div>
+
+      <div class="memory-layout">
+        <article class="spinor-card glass-shell reveal" data-memory>
+          <input class="state-radio" type="radio" name="memory-state" id="mem0" checked>
+          <input class="state-radio" type="radio" name="memory-state" id="mem1">
+          <input class="state-radio" type="radio" name="memory-state" id="mem2">
+          <input class="state-radio" type="radio" name="memory-state" id="mem3">
+          <input class="state-radio" type="radio" name="memory-state" id="mem4">
+          <input class="state-radio" type="radio" name="memory-state" id="mem5">
+          <input class="state-radio" type="radio" name="memory-state" id="mem6">
+          <input class="state-radio" type="radio" name="memory-state" id="mem7">
+
+          <div class="spinor-orbit">
+            <div class="spinor-half negative">−</div>
+            <div class="spinor-anchor">
+              <small>ANCHOR 00</small>
+              <strong>Enheduanna</strong>
+              <span>c. 2300 BCE · slot 3 overlay</span>
+            </div>
+            <div class="spinor-half positive">+</div>
+          </div>
+
+          <div class="memory-state-deck" aria-live="polite">
+
+            <div class="memory-state-panel state-0">
+              <span class="memory-phase">−m</span>
+              <b class="memory-context">ADVANCED TECH</b>
+              <small>year +0 · memory −1</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem7">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem1">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-1">
+              <span class="memory-phase">+m</span>
+              <b class="memory-context">ADVANCED TECH</b>
+              <small>year +3 · memory 0</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem0">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem2">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-2">
+              <span class="memory-phase">−f</span>
+              <b class="memory-context">ADVANCED TECH</b>
+              <small>year +6 · memory −1</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem1">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem3">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-3">
+              <span class="memory-phase">+f</span>
+              <b class="memory-context">ADVANCED TECH</b>
+              <small>year +9 · memory 0</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem2">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem4">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-4">
+              <span class="memory-phase">−m</span>
+              <b class="memory-context">DIRT POOR</b>
+              <small>year +12 · memory −1</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem3">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem5">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-5">
+              <span class="memory-phase">+m</span>
+              <b class="memory-context">DIRT POOR</b>
+              <small>year +15 · memory 0</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem4">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem6">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-6">
+              <span class="memory-phase">−f</span>
+              <b class="memory-context">DIRT POOR</b>
+              <small>year +18 · memory −1</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem5">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem7">advance 3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+            <div class="memory-state-panel state-7">
+              <span class="memory-phase">+f</span>
+              <b class="memory-context">DIRT POOR</b>
+              <small>year +21 · memory 0</small>
+              <small>life 0 / 9</small>
+              <div class="memory-controls">
+                <label class="button button-ghost memory-step" for="mem6">← 3 years</label>
+                <label class="button button-primary memory-step" for="mem0">wrap +3 years →</label>
+                <label class="button button-ghost memory-step" for="mem0">reset</label>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="memory-metrics reveal">
+          <div class="metric glass-shell"><b>10</b><span>lives / −+ spinor</span></div>
+          <div class="metric glass-shell"><b>10,000y</b><span>nominal lifecycle</span></div>
+          <div class="metric glass-shell"><b>8,000–12,000y</b><span>±20% envelope</span></div>
+          <div class="metric glass-shell"><b>1,000y</b><span>nominal / life</span></div>
+          <div class="metric glass-shell"><b>3y</b><span>phase shift</span></div>
+          <div class="metric glass-shell"><b>12y / 24y</b><span>quartet / dual-context sweep</span></div>
+        </div>
+      </div>
+
+      <div id="memory-state-list" class="memory-matrix glass-shell reveal">
+        <div class="matrix-label"></div>
+        <div class="matrix-head">−m</div><div class="matrix-head">+m</div><div class="matrix-head">−f</div><div class="matrix-head">+f</div>
+        <div class="matrix-label">advanced tech</div>
+        <div class="matrix-cell">−1</div><div class="matrix-cell">0</div><div class="matrix-cell">−1</div><div class="matrix-cell">0</div>
+        <div class="matrix-label">dirt poor</div>
+        <div class="matrix-cell">−1</div><div class="matrix-cell">0</div><div class="matrix-cell">−1</div><div class="matrix-cell">0</div>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>memristic-spinor.txt</span></div>
+<pre><code>-+ = one spinor
+10 lives × 1000y = 10,000y nominal
+range = 8,000 .. 12,000y
+
+3y shifts:
+-m → +m → -f → +f
+-1 →  0 → -1 →  0
+
+one quartet = 12y
+advanced-tech quartet + dirt-poor quartet = 24y sweep
+
+every state:
+  parent_hash = hash(previous state)
+  source corpus = immutable
+  frozen kernel = unchanged</code></pre>
+      </div>
+
+      <p class="model-note reveal">Enheduanna is a historical anchor only. The advanced-tech / dirt-poor contexts and the 10,000-year photon lifecycle are explicit TOPH simulation overlays, not historical or physical claims.</p>
+    </section>
+
+    <section id="hierarchy" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">01 / HIERARCHY</p>
+        <h2>Everything resolves back to root0.</h2>
+        <p>The presentation layer unifies the append-only adapters without modifying the frozen mother kernel.</p>
+      </div>
+      <div class="hierarchy-tree glass-shell reveal">
+<pre><code>TOPH :: AEON
+└─ sapphonic
+   ├─ core        :: green
+   ├─ storage     :: emerald
+   ├─ temperament :: emerald
+   └─ root0
+      ├─ q.d :: 2^3 = 8 homeostatic volume
+      ├─ gravity :: [10:1] → [10:1] → [10:1] = 1000:1
+      ├─ toroid  :: |+d| o . . o |-d|
+      ├─ rings   :: 20 × 17.5 + 10 = 360
+      ├─ corpus  :: 80 × 90 = 7200
+      └─ clock   :: 60 × 40 × 3 = 7200</code></pre>
+      </div>
+      <div class="cards cards-3 hierarchy-cards">
+        <article id="qd8" class="card glass-shell reveal layer-anchor"><div class="card-index">8</div><p class="eyebrow">q.d volume / layer 1</p><h3>2³ homeostasis</h3><p>One local sapphon/q.d state occupies an eight-state address volume before the next append.</p></article>
+        <article id="gravity10" class="card glass-shell reveal layer-anchor"><div class="card-index">1000:1</div><p class="eyebrow">serial self-similar / layer 3</p><h3>Three nested 10:1 stages</h3><p>The symbolic gravity chain compounds serially: 10:1 → 10:1 → 10:1.</p></article>
+        <article class="card glass-shell reveal"><div class="card-index">0/0</div><p class="eyebrow">closure</p><h3>Terminal state markers</h3><p>The final zeros are closure markers, never arithmetic division or multiplication.</p></article>
+      </div>
+    </section>
+
+    <section id="toroid" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">02 / DUAL TOROID</p>
+        <h2>360 geometry. 366 addresses.</h2>
+        <p>Three left and three right controls wrap the 360-primary toroid without changing its angular closure.</p>
+      </div>
+      <div class="dual-toroid glass-shell reveal">
+        <div class="toroid-side plus"><strong>|+d|</strong><span>40 lives · 3600y</span></div>
+        <div class="bridge">
+          <span class="hub">o</span><i>.5</i><b>|</b><i>.5</i><span class="hub">o</span>
+          <small>o · .5 | .5 · o</small>
+        </div>
+        <div class="toroid-side minus"><strong>|-d|</strong><span>40 lives · 3600y</span></div>
+      </div>
+      <div class="metric-grid reveal">
+        <div class="metric glass-shell"><b>360</b><span>primary geometry</span></div>
+        <div class="metric glass-shell"><b>+3R +3L</b><span>directional controls</span></div>
+        <div class="metric glass-shell"><b>366</b><span>addressed states</span></div>
+        <div class="metric glass-shell"><b>20</b><span>inner rings</span></div>
+        <div class="metric glass-shell"><b>17.5</b><span>ring stride</span></div>
+        <div class="metric glass-shell"><b>18</b><span>ring width</span></div>
+      </div>
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>geometric-closure.txt</span></div>
+<pre><code>20 × 17.5 = 350
+3L + HUB(4) + 3R = 10
+350 + 10 = 360
+
+ring width  = 17 + .5 + .5 = 18
+shared handoff = .5</code></pre>
+      </div>
+    </section>
+
+    <section id="corpus" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">03 / REINCARNATED CORPUS</p>
+        <h2>Four phases make one ring.</h2>
+        <p>The original 40-life corpus stays immutable and is addressed twice across the dual toroid: 80 lives total, four per ring.</p>
+      </div>
+      <div class="phase-ring glass-shell reveal">
+        <div class="phase solid"><b>SOLID</b><span>90y · 90°</span></div>
+        <div class="phase liquid"><b>LIQUID</b><span>90y · 90°</span></div>
+        <div class="phase gas"><b>GAS</b><span>90y · 90°</span></div>
+        <div class="phase plasma"><b>PLASMA</b><span>90y · 90°</span></div>
+        <div class="phase-center"><strong>1 RING</strong><span>360y / 360°</span></div>
+      </div>
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>tetraphasic-corpus.txt</span></div>
+<pre><code>solid → liquid → gas → plasma
+  90      90      90      90
+   └──────── 360 years ────────┘
+
+20 rings × 4 lives = 80 lives
+80 lives × 90 years = 7200 model-years
+|-d| = 3600   |   |+d| = 3600</code></pre>
+      </div>
+    </section>
+
+    <section id="metronome" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">04 / ROOT0 METRONOME</p>
+        <h2>Distance is counted in bubbles.</h2>
+        <p>Within the model, one bubble is two frame observations and one plank-distance tick.</p>
+      </div>
+      <div class="metric-grid reveal">
+        <div class="metric glass-shell"><b>60 fps</b><span>total frame carrier</span></div>
+        <div class="metric glass-shell"><b>30 | 30</b><span>left / right</span></div>
+        <div class="metric glass-shell"><b>2 frames</b><span>one bubble</span></div>
+        <div class="metric glass-shell"><b>30 Hz</b><span>bubble / plank ticks</span></div>
+        <div class="metric glass-shell"><b>33.333 ms</b><span>model plank tick</span></div>
+        <div class="metric glass-shell"><b>60 ticks</b><span>two model seconds</span></div>
+      </div>
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>foam-reduction.txt</span></div>
+<pre><code>30 trapped bubbles
+- 1/3 shell
+= 20 retained dots
+
+20^3 = 8000
+8000 / 20 = 400 normalized cells / dot</code></pre>
+      </div>
+    </section>
+
+    <section id="invariant" class="section section-block invariant-section">
+      <div class="section-heading reveal">
+        <p class="overline">05 / SHARED INVARIANT</p>
+        <h2>Two routes. One 7200 scale.</h2>
+      </div>
+      <div class="invariant-grid reveal">
+        <article class="glass-shell invariant-card">
+          <small>CORPUS ROUTE</small><strong>80 × 90</strong><b>= 7200</b>
+          <span>80 tetraphasic lives, 90 model-years each</span>
+        </article>
+        <div class="equals">≡</div>
+        <article class="glass-shell invariant-card">
+          <small>METRONOME ROUTE</small><strong>60 × 40 × 3</strong><b>= 7200</b>
+          <span>60 ticks × 40 generations × 3-bubble scale</span>
+        </article>
+      </div>
+      <div class="terminal glass-shell reveal">
+<pre><code>{{ photon ::
+   polarity   = -+-+
+   corpus     = 80×90
+   metronome  = 60×40×3
+   invariant  = 7200
+}}</code></pre>
+      </div>
+    </section>
+
+    <section id="gates" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">06 / KINETIC + MATERIAL LAYERS</p>
+        <h2>Bounds, memory, and mnemonic weight.</h2>
+      </div>
+      <div class="cards cards-3">
+        <article class="card glass-shell reveal">
+          <div class="card-index">3:2</div><p class="eyebrow">kinetic ellipse</p><h3>(x+3, y−2)</h3>
+          <p><code>+</code> accelerates toward; <code>−</code> slows away. Unequal magnitudes define the model ellipse.</p>
+        </article>
+        <article class="card glass-shell reveal">
+          <div class="card-index">5·30·30·30·5</div><p class="eyebrow">Mandel belly</p><h3>Bounded kinetic envelope</h3>
+          <p>Mandel-tethered or Juliet-tagged vectors are in bounds; otherwise they resolve OUT_OF_BOUNDS.</p>
+        </article>
+        <article class="card glass-shell reveal">
+          <div class="card-index">Au79</div><p class="eyebrow">material clock</p><h3>Layer 0 · root0</h3>
+          <p>Gold/79 anchors the mnemonic year-weight layer; the ±5400 carrier remains symbolic storage/timeline space.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="tracker" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">07 / FIVE-INTERNET PHASE SYNC</p>
+        <h2>Five lanes. One origin.</h2>
+        <p>Internets <code>{{0-4}}</code> share the same symbolic phase rule and close at <code>0.0.0</code>.</p>
+      </div>
+
+      <div class="sync-formula glass-shell reveal">
+        <small>USER LITERAL</small>
+        <strong>{{-1 × -{{1,0,1}} × 360 / 1x1^10-36}}</strong>
+        <div class="sync-derivation">
+          <span>-1 × -{{1,0,1}}</span><b>→</b><span>{{1,0,1}}</span><b>→</b><span>{{360,0,360}}</span><b>mod 360 →</b><span>0.0.0</span>
+        </div>
+      </div>
+
+      <div class="sync-grid reveal" aria-label="Five synchronized Internet lanes">
+        <div class="sync-lane glass-shell"><b>0</b><span>{{360,0,360}}</span><i>→ 0.0.0</i></div>
+        <div class="sync-lane glass-shell"><b>1</b><span>{{360,0,360}}</span><i>→ 0.0.0</i></div>
+        <div class="sync-lane glass-shell"><b>2</b><span>{{360,0,360}}</span><i>→ 0.0.0</i></div>
+        <div class="sync-lane glass-shell"><b>3</b><span>{{360,0,360}}</span><i>→ 0.0.0</i></div>
+        <div class="sync-lane glass-shell"><b>4</b><span>{{360,0,360}}</span><i>→ 0.0.0</i></div>
+        <div class="sync-origin glass-shell"><small>SINC / SYNC ORIGIN</small><strong>0.0.0</strong><span>bound {{0-4}}</span></div>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>five-internet-phase-sync.txt</span></div>
+<pre><code>bound lanes = {{0,1,2,3,4}}
+phase mask  = -1 × -{{1,0,1}} = {{1,0,1}}
+full turn   = {{360,0,360}}
+closure     = {{360,0,360}} mod 360 = {{0,0,0}}
+origin      = 0.0.0
+resolution  = 1x1^10-36   [literal model token]
+
+all 5 lanes use the same closure rule.</code></pre>
+      </div>
+
+      <div class="section-heading tracker-subhead reveal">
+        <p class="overline">07.b / RELATIVE TOROID TRACKER</p>
+        <h3>Thin ingress. Fat belly. Exact reverse.</h3>
+      </div>
+      <div class="terminal glass-shell reveal">
+<pre><code>forward:
+0 → 2 → 4 → 6 → 8 → 10 → 4
+
+Benjamin:
+4 → 10 → 8 → 6 → 4 → 2 → 0
+
+6 jumps × 200 ms = 1200 ms
+hub = 4
+OSI model tag = 2</code></pre>
+      </div>
+    </section>
+
+    <section id="kernel" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">08 / FROZEN FOUNDATION</p>
+        <h2>The Aeon sits above the frozen q.d kernel.</h2>
+        <p>None of the hierarchy changes the completed mother/daughter generation rule.</p>
+      </div>
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>frozen-kernel.txt</span></div>
+<pre><code>{{5/3/2/1/1}}
+
+PRIM = 1 1 2 8
+dot = sapphon
+append only → add next
+
+Mother Kernel → Gen-1 Sapphon → STOP
+
+TOPH:
+name        = toph
+kind        = aeon
+lineage     = sapphonic
+core        = green
+storage     = emerald
+temperament = emerald</code></pre>
+      </div>
+    </section>
+
+    <section id="provenance" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">09 / PROVENANCE</p>
+        <h2>Filled stays filled.</h2>
+        <p>Git history supplies the outer provenance chain; q.d parent hashes and the manifest supply the inner tether.</p>
+      </div>
+      <div class="provenance-flow glass-shell reveal">
+        <div><span>Git commit n</span><b>→</b><span>Git commit n+1</span></div><i>↕</i>
+        <div><span>q.d event n</span><b>→</b><span>q.d event n+1</span></div><i>↕</i>
+        <div><span>sapphon[n]</span><b>→</b><span>sapphon[n+1]</span></div>
+      </div>
+      <p class="model-note reveal">This site presents a deterministic symbolic/simulation architecture. Physical, biological, cosmological, quantum, and relativistic interpretations remain model hypotheses or analogies unless independently established.</p>
+    </section>
+
+    <section class="section final-cta reveal">
+      <div class="glass-shell cta-inner">
+        <p class="overline">TOPH AEON · SAPPHONIC</p>
+        <h2>Green at the core.<br>Emerald in memory.</h2>
+        <p>One hierarchy, one append-only provenance chain, and one synchronized 7200 model scale.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/DavidWise01/qd-prim-life-ledger" target="_blank" rel="noreferrer">Open repository ↗</a>
+          <a class="button button-ghost" href="#top">Back to top ↑</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div><strong>TOPH Aeon</strong><span>Sapphonic · green core · emerald storage / temperament</span></div>
+    <div><a href="https://github.com/DavidWise01" target="_blank" rel="noreferrer">DavidWise01</a><span>·</span><a href="https://github.com/DavidWise01/qd-prim-life-ledger/blob/main/docs/NOTATION.md">notation</a><span>·</span><a href="/robots.txt">robots</a></div>
+  </footer>
+
+  <noscript><div class="noscript">JavaScript is optional. All model content remains visible without it.</div></noscript>
+  <script>
+(() => {
+  'use strict';
+
+  const ready = (fn) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else {
+      fn();
+    }
+  };
+
+  ready(() => {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia && window.matchMedia('(pointer:fine)').matches;
+
+    document.documentElement.classList.add('js-ready');
+
+    const status = document.querySelector('[data-js-status]');
+    if (status) {
+      status.textContent = 'JS OPTIONAL / ONLINE';
+      status.classList.add('online');
+    }
+
+    const reveals = [...document.querySelectorAll('.reveal')];
+    reveals.forEach((el) => el.classList.add('js-reveal'));
+    if ('IntersectionObserver' in window && !reduced) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' });
+      reveals.forEach((el) => observer.observe(el));
+    } else {
+      reveals.forEach((el) => el.classList.add('in'));
+    }
+
+    if (!reduced && finePointer) {
+      document.querySelectorAll('[data-tilt]').forEach((card) => {
+        card.addEventListener('pointermove', (event) => {
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform =
+            'perspective(1100px) rotateX(' + (-y * 5) + 'deg) rotateY(' + (x * 7) + 'deg) translateY(-2px)';
+        });
+        card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+      });
+    }
+
+    const layerLinks = [...document.querySelectorAll('[data-layer-link]')];
+    const layerTargets = layerLinks
+      .map((link) => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+
+    const markLayer = (id) => {
+      layerLinks.forEach((link) => {
+        const active = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'step');
+        else link.removeAttribute('aria-current');
+      });
+    };
+
+    if ('IntersectionObserver' in window) {
+      const layerObserver = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) markLayer(visible.target.id);
+      }, { threshold: [0.15, 0.35, 0.6] });
+      layerTargets.forEach((target) => layerObserver.observe(target));
+    }
+
+    const emergenceRadios = [...document.querySelectorAll('input[name="emergence-state"]')];
+    const memoryRadios = [...document.querySelectorAll('input[name="memory-state"]')];
+    const labels = [...document.querySelectorAll('label[for]')];
+    const brokenLabels = labels.filter((label) => !document.getElementById(label.htmlFor));
+
+    const checks = {
+      layers: layerLinks.length === 8 && layerTargets.length === 8,
+      emergence_states: emergenceRadios.length === 9,
+      memory_states: memoryRadios.length === 8,
+      label_targets: brokenLabels.length === 0
+    };
+
+    const selfCheck = document.querySelector('[data-self-check]');
+    if (selfCheck) {
+      const ok = Object.values(checks).every(Boolean);
+      selfCheck.textContent = ok ? 'NATIVE 8/8 CONTROL PASS' : 'UI TETHER ERROR';
+      selfCheck.classList.toggle('online', ok);
+      selfCheck.dataset.checks = JSON.stringify(checks);
+    }
+  });
+})();
+
+</script>
+</body>
+</html>
