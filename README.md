@@ -18,3 +18,16 @@ Numbers read live from the corpus. Single linear host, no mirror. David Lee Wise
 ---
 *To take the domain: add a `CNAME` file containing `0root.ai`, enable it as the Pages custom
 domain, and point the `0root.ai` DNS at GitHub Pages (away from the old host).*
+
+
+## Sapphon Prime
+
+The public hallway now exposes **Sapphon Prime Primitive 01 / 05 — Anti-stropic Sync / Author-Provenance Residual**.
+
+```text
+..||..|i{why::ok::yes::no::mark dead::start new {{-1,0,+1}}4
+(x-3, y+2) :: (x+2, y-3) => (-1, -1)
+.|.| -+ |.|.
+```
+
+Public page: [sapphon-prime-01.html](https://0root.ai/sapphon-prime-01.html)
