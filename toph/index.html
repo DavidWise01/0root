@@ -908,7 +908,8 @@ every state:
       ├─ toroid  :: |+d| o . . o |-d|
       ├─ rings   :: 20 × 17.5 + 10 = 360
       ├─ corpus  :: 80 × 90 = 7200
-      └─ clock   :: 60 × 40 × 3 = 7200</code></pre>
+      ├─ clock   :: 60 × 40 × 3 = 7200
+      └─ silo    :: Diodic → Petri({{i}}) verification projection</code></pre>
       </div>
       <div class="cards cards-3 hierarchy-cards">
         <article id="qd8" class="card glass-shell reveal layer-anchor"><div class="card-index">8</div><p class="eyebrow">q.d volume / layer 1</p><h3>2³ homeostasis</h3><p>One local sapphon/q.d state occupies an eight-state address volume before the next append.</p></article>
@@ -1159,9 +1160,96 @@ history     = append-only</code></pre>
       </div>
     </section>
 
+
+    <section id="petri-silo" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">09 / SAPPHON PETRI SILO</p>
+        <h2>Verify outside. Preserve inside.</h2>
+        <p>The Petri net is a sealed verification silo attached to Sapphon. Native TOPH/Diodic semantics remain authoritative; the silo receives a projection, carries <code>{{i}}</code> unchanged, checks enabled transitions, reachability, and deadlock, then returns a verification result without directly mutating native state.</p>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>sapphon-petri-silo.txt</span></div>
+<pre><code>TOPH / SAPPHON
+    │
+    │ native DIODIC constructor
+    │ carrier = {{i}}
+    ▼
+┌───────────────────────────────┐
+│        PETRI SILO             │
+│                               │
+│ places      := realized state │
+│ tokens      := prerequisites  │
+│ transitions := constructors   │
+│ identity    := {{i}}          │
+│                               │
+│ CHECK: enabled?               │
+│ CHECK: reachable?             │
+│ CHECK: deadlock?              │
+│ CHECK: lineage preserved?     │
+└───────────────────────────────┘
+    │
+    │ verification result only
+    ▼
+TOPH gate
+
+SILO LAW
+1. input is a projection, never the native ledger
+2. {{i}} enters and exits unchanged
+3. disabled transition cannot mutate projected marking
+4. successful fire is append-only in the projection
+5. cyclic unsatisfied requirements report DEADLOCK
+6. Petri result may VERIFY or REJECT a proposed Diodic step
+7. Petri never authors the next TOPH state
+
+DIODIC remains native.
+PETRI remains siloed.</code></pre>
+      </div>
+
+      <div class="cards cards-3 hierarchy-cards">
+        <article class="card glass-shell reveal">
+          <div class="card-index">{{i}}</div>
+          <p class="eyebrow">identity carrier</p>
+          <h3>Lineage does not fire away</h3>
+          <p>The adapter transports <code>{{i}}</code> through every projected transition unchanged, so verification cannot substitute a new identity.</p>
+        </article>
+        <article class="card glass-shell reveal">
+          <div class="card-index">→</div>
+          <p class="eyebrow">diodic projection</p>
+          <h3>Forward-gated only</h3>
+          <p>Realized prerequisites become Petri inputs; Diodic constructors become transitions. Missing inputs keep the transition disabled and the marking unchanged.</p>
+        </article>
+        <article class="card glass-shell reveal">
+          <div class="card-index">0e</div>
+          <p class="eyebrow">silo return</p>
+          <h3>Verification, not authorship</h3>
+          <p>The silo reports pass, blocked, unreachable, or deadlock. Native TOPH decides whether a verified constructor is appended.</p>
+        </article>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+<pre><code>reference adapter benchmark
+B disabled without A              PASS
+B enabled with A                  PASS
+B fires                           PASS
+C waits for B                     PASS
+C fires after B                   PASS
+{{i}} retained through firing     PASS
+append-only projected marking     PASS
+empty cyclic pair deadlock        PASS
+
+measured reference runtime:
+≈ 2.06 million projection+fire ops/s
+≈ 0.485 µs/op
+
+benchmark = implementation observation,
+not a physical timing constant.</code></pre>
+      </div>
+    </section>
+
     <section id="provenance" class="section section-block">
       <div class="section-heading reveal">
-        <p class="overline">09 / PROVENANCE</p>
+        <p class="overline">10 / PROVENANCE</p>
         <h2>Filled stays filled.</h2>
         <p>Git history supplies the outer provenance chain; q.d parent hashes and the manifest supply the inner tether.</p>
       </div>
