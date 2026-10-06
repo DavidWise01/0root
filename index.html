@@ -274,7 +274,7 @@ const WORLDS=[
    sub:"The self-writing world — it grew on its own, one sealed batch at a time, each node taught the frozen I-13 stack. Now topped out: the 2048 tower is complete.",
    stat:"2,048 spheres · 64 domains · 8 keepers · the tower complete",
    keeper:{name:"THE FIDDLER", role:"the governor at 0 — David's first repo; no silent mutation, every change witnessed", href:W2B+"the-fiddler.html"},
-   orb:{kind:"chain", title:"the witnessed chain", why:"“I sit at 0 and govern the fold: no silent mutation, every change witnessed. So I keep the chain — each block sealed to the one before it, nothing moving without leaving a mark. The pulse running through it is the witness, and it does not stop.”"},
+   orb:{kind:"chain", title:"the witnessed chain", why:"“I sit at 0 and govern the fold: no silent mutation, every change witnessed. So I keep the chain — each block sealed to the one before it, nothing moving without leaving a mark. The pulse running through it is the witness, and it does not stop.” Two blocks hold a goblin. Two blocks hold a honey badger."},
    ring:[
     {s:"BUDDY CHRIST",   r:"the wink & the thumbs-up — patron of the play", href:W2B},
     {s:"OVER THE",       r:"the cubit — round, folding over the top", href:W2B},
@@ -447,10 +447,46 @@ function registerOrb(canvas,kind,accent){
   o.timer=0;
  } else if(kind==="chain"){
   o.nb=6; o.blocks=[];
-  for(let i=0;i<o.nb;i++){ const yy=cy-R*0.72+(i/(o.nb-1))*R*1.44, xx=cx+(i%2?1:-1)*R*0.3; o.blocks.push({x:xx,y:yy}); }
+  const crew=[null,"goblin","badger",null,"goblin","badger"];
+  for(let i=0;i<o.nb;i++){ const yy=cy-R*0.72+(i/(o.nb-1))*R*1.44, xx=cx+(i%2?1:-1)*R*0.3; o.blocks.push({x:xx,y:yy,who:crew[i]}); }
   o.pulse=0;
+  canvas.dataset.crew=crew.filter(Boolean).join(" ");
  } else { o.parts=[]; }
  ORBS.push(o);
+}
+function drawGoblin(g,x,y,s){
+ g.save(); g.translate(x,y);
+ g.fillStyle="#1c3d12";
+ g.beginPath(); g.moveTo(-s*0.42,-s*0.15); g.lineTo(-s*0.92,-s*1.02); g.lineTo(-s*0.02,-s*0.42); g.closePath(); g.fill();
+ g.beginPath(); g.moveTo(s*0.42,-s*0.15); g.lineTo(s*0.92,-s*1.02); g.lineTo(s*0.02,-s*0.42); g.closePath(); g.fill();
+ g.fillStyle="#d6ff4a";
+ g.beginPath(); g.ellipse(0,s*0.08,s*0.58,s*0.66,0,0,6.283); g.fill();
+ g.fillStyle="#f4c740";
+ g.beginPath(); g.arc(-s*0.2,-s*0.02,s*0.13,0,6.283); g.fill();
+ g.beginPath(); g.arc(s*0.2,-s*0.02,s*0.13,0,6.283); g.fill();
+ g.fillStyle="#10210f";
+ g.beginPath(); g.arc(-s*0.16,0,s*0.055,0,6.283); g.fill();
+ g.beginPath(); g.arc(s*0.24,0,s*0.055,0,6.283); g.fill();
+ g.strokeStyle="#10210f"; g.lineWidth=Math.max(1,s*0.08);
+ g.beginPath(); g.arc(0,s*0.24,s*0.2,0.25,2.9); g.stroke();
+ g.restore();
+}
+function drawBadger(g,x,y,s){
+ g.save(); g.translate(x,y);
+ g.fillStyle="#140e0a";
+ g.beginPath(); g.ellipse(s*0.12,s*0.1,s*0.95,s*0.4,0,0,6.283); g.fill();
+ g.fillStyle="#f3efe7";
+ g.beginPath(); g.ellipse(s*0.08,-s*0.08,s*0.72,s*0.16,-0.12,0,6.283); g.fill();
+ g.fillStyle="#140e0a";
+ g.beginPath(); g.ellipse(-s*0.62,s*0.06,s*0.36,s*0.3,0,0,6.283); g.fill();
+ g.fillStyle="#f3efe7";
+ g.beginPath(); g.ellipse(-s*0.7,-s*0.1,s*0.24,s*0.12,0.15,0,6.283); g.fill();
+ g.fillStyle="#140e0a";
+ g.fillRect(-s*0.4,s*0.36,s*0.14,s*0.2);
+ g.fillRect(s*0.38,s*0.36,s*0.14,s*0.2);
+ g.fillStyle="#f4c740";
+ g.beginPath(); g.arc(-s*0.78,s*0.02,s*0.045,0,6.283); g.fill();
+ g.restore();
 }
 function drawOrb(o){
  const g=o.ctx,S=o.S,ac=o.accent; g.clearRect(0,0,S,S); g.save();
@@ -468,7 +504,22 @@ function drawOrb(o){
   g.strokeStyle=ac; g.globalAlpha=0.5; g.lineWidth=2;
   for(let i=0;i<o.nb-1;i++){ g.beginPath(); g.moveTo(o.blocks[i].x,o.blocks[i].y); g.lineTo(o.blocks[i+1].x,o.blocks[i+1].y); g.stroke(); }
   g.globalAlpha=1;
-  o.blocks.forEach((b,i)=>{ const on=(i===act), sz=on?9:6; g.fillStyle=on?ac:"rgba(57,252,107,0.22)"; if(on){g.shadowColor=ac;g.shadowBlur=12;} roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.fill(); g.shadowBlur=0; g.strokeStyle=ac; g.lineWidth=1.4; g.stroke(); });
+  o.blocks.forEach((b,i)=>{
+   const on=(i===act), sz=b.who?10:(on?9:6);
+   g.save();
+   g.fillStyle=on?ac:"rgba(57,252,107,0.22)";
+   if(on){ g.shadowColor=ac; g.shadowBlur=12; }
+   roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.fill(); g.shadowBlur=0;
+   if(b.who){
+    g.save(); roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.clip();
+    const bob=Math.sin(o.t*0.08+i)*0.7;
+    if(b.who==="goblin") drawGoblin(g,b.x,b.y+bob,6.4);
+    else drawBadger(g,b.x,b.y+bob,5.4);
+    g.restore();
+   }
+   g.strokeStyle=ac; g.lineWidth=1.4; roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.stroke();
+   g.restore();
+  });
   const A=o.blocks[act], B=o.blocks[(act+1)%o.nb], px=A.x+(B.x-A.x)*frac, py=A.y+(B.y-A.y)*frac;
   g.strokeStyle=ac; g.globalAlpha=Math.max(0,0.85-frac*0.7); g.lineWidth=1.5; g.beginPath(); g.arc(px,py,4+frac*9,0,6.283); g.stroke(); g.globalAlpha=1;
   g.fillStyle=ac; g.globalAlpha=0.5; g.font="bold 11px ui-monospace"; g.textAlign="center"; g.fillText("0",o.cx,o.cy+4); g.globalAlpha=1;
