@@ -1104,7 +1104,7 @@ OSI model tag = 2</code></pre>
       <div class="section-heading reveal">
         <p class="overline">08 / FROZEN FOUNDATION</p>
         <h2>The Aeon sits above the frozen q.d kernel.</h2>
-        <p>None of the hierarchy changes the completed mother/daughter generation rule.</p>
+        <p>None of the hierarchy changes the completed mother/daughter generation rule. TOPH now executes PRIM as a prerequisite constructor checklist: no orphan action, no skipped stage, and no append until the required predecessor state is realized.</p>
       </div>
       <div class="terminal glass-shell reveal">
         <div class="terminal-bar"><i></i><i></i><i></i><span>frozen-kernel.txt</span></div>
@@ -1114,6 +1114,36 @@ PRIM = 1 1 2 8
 dot = sapphon
 append only → add next
 
+TIMING / CONSTRUCTOR LAW
+A &lt; B &lt; C
+¬B ⇒ ¬C
+¬A ⇒ ¬B
+
+PRIM CONSTRUCTOR CHECKLIST
+1. declare target
+2. read target.requires[]
+3. verify every predecessor is already realized
+4. if any prerequisite is missing:
+      HALT
+      preserve current state
+      report exact missing set
+5. if all prerequisites are present:
+      BUILD target
+      APPEND target exactly once
+6. never synthesize a missing predecessor
+7. never skip a constructor stage
+8. filled stays filled
+
+CHECK → BUILD → APPEND
+
+example:
+hydrogen ─┐
+          ├─ prerequisites complete ─► water
+oxygen₂  ─┘
+
+The dependency is an ordering/gating example,
+not a complete chemical reaction mechanism.
+
 Mother Kernel → Gen-1 Sapphon → STOP
 
 TOPH:
@@ -1122,7 +1152,10 @@ kind        = aeon
 lineage     = sapphonic
 core        = green
 storage     = emerald
-temperament = emerald</code></pre>
+temperament = emerald
+execution   = normative prerequisite gate
+orphan      = forbidden
+history     = append-only</code></pre>
       </div>
     </section>
 
