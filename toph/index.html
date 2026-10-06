@@ -910,6 +910,7 @@ every state:
       ├─ corpus  :: 80 × 90 = 7200
       ├─ clock   :: 60 × 40 × 3 = 7200
       └─ verifier incline
+         ├─ corpus bind :: 40 × 9 = 360 timed addresses
          ├─ DAG
          ├─ PETRI
          ├─ FSM
@@ -1274,6 +1275,7 @@ not a physical timing constant.</code></pre>
       └─ {{-Ee+Ee}} / 3-2-1 / retained timing witness
 
 projection only → VERIFY | BLOCK | DEADLOCK | INVALID
+corpus bind    → {{i}} → INDEX[i] → SOURCE[j] → PASSAGE[k]
 native mutation → TOPH only</code></pre>
       </div>
 
@@ -1369,9 +1371,131 @@ any BLOCK / INVALID / DEADLOCK
       <p class="model-note reveal">These are formal-computation adapters. Similarity to biological, physical, or chemical processes is treated as analogy unless independently established.</p>
     </section>
 
+
+    <section id="corpus-bind" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">11 / CORPUS BIND</p>
+        <h2>One corpus. Many verification views.</h2>
+        <p>The verifier incline is bound to the immutable source corpus and its timed address layer. Every silo reads the same corpus referent through <code>{{i}}</code>; none receives authority to rewrite source material or bypass the truth gate.</p>
+      </div>
+
+      <div class="hierarchy-tree glass-shell reveal">
+<pre><code>CANONICAL CORPUS PATH
+
+source corpus
+-+2700-+0+-2700-+
+40 immutable life slots
+20 shadow + 20 light
+        │
+        ▼
+timed radix address
+40 life slots × 9 radix positions = 360 timed positions
+90 model-years / life
+10 model-years / radix
+        │
+        ▼
+{{i}} corpus address
+INDEX[i] → SOURCE[j] → PASSAGE[k]
+        │
+        ▼
+projection bus
+        ├─ DAG
+        ├─ PETRI
+        ├─ FSM
+        ├─ EVENT / MERKLE
+        └─ TEMPORAL
+        │
+        ▼
+truth gate
+verified
+quarantined
+non_aligned
+        │
+        ▼
+verified only may append
+past_verified → current_verified</code></pre>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>corpus-binding-contract.txt</span></div>
+<pre><code>CORPUS IS IMMUTABLE
+  source slots never overwritten
+  original source distinction preserved
+  append-only provenance outside source
+
+ADDRESS
+  life_slot ∈ 0..39
+  radix     ∈ 0..8
+  timed_position = life_slot × 9 + radix
+  domain = 360 timed positions
+
+IDENTITY
+  {{i}} binds:
+    corpus_id
+    life_slot
+    radix
+    source_ref
+    passage_ref
+    lineage_ref
+
+VERIFIER RULE
+  each silo receives only:
+    {{i}}
+    projected current state
+    proposed constructor
+    corpus references required for that check
+
+  each silo returns:
+    VERIFY
+    BLOCK
+    INVALID
+    DEADLOCK
+    + reason
+    + same {{i}}
+
+TRUTH RULE
+  verified      → eligible to carry forward
+  quarantined   → preserved / isolated / non-reproductive
+  non_aligned   → preserved / non-reproductive by default
+
+HOT PATH
+  {past_verified, current_verified}
+
+EXCEPTION RECHECK
+  contradictory evidence
+  broken provenance
+  changed source
+  time-sensitive expiry
+  sufficient downstream contradiction</code></pre>
+      </div>
+
+      <div class="cards cards-3 hierarchy-cards">
+        <article class="card glass-shell reveal">
+          <div class="card-index">40</div>
+          <p class="eyebrow">source layer</p>
+          <h3>Immutable life-slot corpus</h3>
+          <p>The original 40-slot corpus is read-only. The dual-toroid 80-life / 7200 model-year view is a derived addressing pass, not a second source corpus.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">360</div>
+          <p class="eyebrow">timed address layer</p>
+          <h3>40 × 9 radix positions</h3>
+          <p>Each source slot exposes nine timed radix addresses, giving 360 addressable timed positions without multiplying the underlying source corpus.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">{{i}}</div>
+          <p class="eyebrow">corpus tether</p>
+          <h3>Index → source → passage</h3>
+          <p><code>{{i}}</code> carries the same corpus address into every verification silo, preserving source identity and lineage across projections.</p>
+        </article>
+      </div>
+    </section>
+
     <section id="provenance" class="section section-block">
       <div class="section-heading reveal">
-        <p class="overline">11 / PROVENANCE</p>
+        <p class="overline">12 / PROVENANCE</p>
         <h2>Filled stays filled.</h2>
         <p>Git history supplies the outer provenance chain; q.d parent hashes and the manifest supply the inner tether.</p>
       </div>
