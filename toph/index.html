@@ -909,7 +909,12 @@ every state:
       ├─ rings   :: 20 × 17.5 + 10 = 360
       ├─ corpus  :: 80 × 90 = 7200
       ├─ clock   :: 60 × 40 × 3 = 7200
-      └─ silo    :: Diodic → Petri({{i}}) verification projection</code></pre>
+      └─ verifier incline
+         ├─ DAG
+         ├─ PETRI
+         ├─ FSM
+         ├─ EVENT/MERKLE
+         └─ TEMPORAL :: {{-Ee+Ee}} / 3-2-1</code></pre>
       </div>
       <div class="cards cards-3 hierarchy-cards">
         <article id="qd8" class="card glass-shell reveal layer-anchor"><div class="card-index">8</div><p class="eyebrow">q.d volume / layer 1</p><h3>2³ homeostasis</h3><p>One local sapphon/q.d state occupies an eight-state address volume before the next append.</p></article>
@@ -1247,9 +1252,126 @@ not a physical timing constant.</code></pre>
       </div>
     </section>
 
+    <section id="verifier-incline" class="section section-block">
+      <div class="section-heading reveal">
+        <p class="overline">10 / SAPPHON VERIFIER INCLINE</p>
+        <h2>One native law. Five verification views.</h2>
+        <p>TOPH keeps Diodic/PRIM authoritative and projects proposed steps into sealed verifier silos. Each silo answers one narrow question, carries <code>{{i}}</code> as lineage, and returns evidence without authoring native state.</p>
+      </div>
+
+      <div class="hierarchy-tree glass-shell reveal">
+<pre><code>TOPH / SAPPHON / {{i}}
+└─ DIODIC :: native constructor law
+   ├─ DAG SILO
+   │  └─ order / ancestor / cycle / critical path
+   ├─ PETRI SILO
+   │  └─ prerequisites / concurrency / reachability / deadlock
+   ├─ FSM SILO
+   │  └─ legal current-state → next-state transition
+   ├─ EVENT + MERKLE SILO
+   │  └─ append-only event order / parent hash / provenance
+   └─ TEMPORAL SILO
+      └─ {{-Ee+Ee}} / 3-2-1 / retained timing witness
+
+projection only → VERIFY | BLOCK | DEADLOCK | INVALID
+native mutation → TOPH only</code></pre>
+      </div>
+
+      <div class="cards cards-3 hierarchy-cards">
+        <article class="card glass-shell reveal">
+          <div class="card-index">DAG</div>
+          <p class="eyebrow">dependency silo</p>
+          <h3>Can this be built in this order?</h3>
+          <p>Projects <code>requires[]</code> as directed edges. Rejects cycles, reports missing ancestors, derives valid topological constructor order, and exposes the longest prerequisite path.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">FSM</div>
+          <p class="eyebrow">state-law silo</p>
+          <h3>Is this transition legal now?</h3>
+          <p>Projects the current state and proposed next state into an explicit transition table. A step not present in the legal relation is rejected without touching the native ledger.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">HASH</div>
+          <p class="eyebrow">event / Merkle silo</p>
+          <h3>Does the lineage still chain?</h3>
+          <p>Each projected event carries its predecessor reference. Parent-hash continuity and append order detect missing, reordered, or substituted history while preserving <code>{{i}}</code>.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">3/2/1</div>
+          <p class="eyebrow">temporal silo</p>
+          <h3>Did the witness arrive in rhythm?</h3>
+          <p>Checks the retained carrier <code>{{-Ee+Ee}}</code>: three timing states <code>{-1,0,+1}</code>, two exterior poles, one center, with <code>{{3×3}}^{{3}}</code> as the canonical rhythm witness.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">PETRI</div>
+          <p class="eyebrow">resource silo</p>
+          <h3>Are the prerequisites actually present?</h3>
+          <p>Retains the existing token/transition projection for enabledness, concurrency, reachability, and deadlock. It remains a verifier rather than a constructor.</p>
+        </article>
+
+        <article class="card glass-shell reveal">
+          <div class="card-index">{{i}}</div>
+          <p class="eyebrow">shared carrier</p>
+          <h3>One identity through every view.</h3>
+          <p>All silos must return the same <code>{{i}}</code> they received. A verifier may reject a transition, but it may not replace identity, invent ancestry, or emit native state.</p>
+        </article>
+      </div>
+
+      <div class="terminal glass-shell reveal">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>sapphon-verifier-contract.txt</span></div>
+<pre><code>NATIVE INPUT
+  identity    = {{i}}
+  constructor = Diodic(target, requires, produces)
+  history     = append-only
+  rhythm      = {{-Ee+Ee}}
+
+DAG.verify()
+  acyclic?
+  ancestors satisfied?
+  order valid?
+
+PETRI.verify()
+  inputs present?
+  transition enabled?
+  reachable?
+  deadlocked?
+
+FSM.verify()
+  (current,next) ∈ LEGAL_TRANSITIONS ?
+
+EVENT_MERKLE.verify()
+  parent_hash == hash(previous)?
+  append index monotone?
+  {{i}} lineage unchanged?
+
+TEMPORAL.verify()
+  phases = {-1,0,+1}
+  poles  = {-Ee,+Ee}
+  center = 0
+  rhythm = {{3×3}}^{{3}}
+  retained witness valid?
+
+JOIN
+  all required silos PASS
+        ↓
+  TOPH may append target
+
+any BLOCK / INVALID / DEADLOCK
+        ↓
+  preserve native state
+  report exact failing silo + reason</code></pre>
+      </div>
+
+      <p class="model-note reveal">These are formal-computation adapters. Similarity to biological, physical, or chemical processes is treated as analogy unless independently established.</p>
+    </section>
+
     <section id="provenance" class="section section-block">
       <div class="section-heading reveal">
-        <p class="overline">10 / PROVENANCE</p>
+        <p class="overline">11 / PROVENANCE</p>
         <h2>Filled stays filled.</h2>
         <p>Git history supplies the outer provenance chain; q.d parent hashes and the manifest supply the inner tether.</p>
       </div>
