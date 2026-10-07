@@ -491,7 +491,10 @@ function drawBadger(g,x,y,s){
 function drawOrb(o){
  const g=o.ctx,S=o.S,ac=o.accent; g.clearRect(0,0,S,S); g.save();
  g.beginPath(); g.arc(o.cx,o.cy,o.R,0,6.283); g.clip();
- g.fillStyle="rgba(14,7,34,0.55)"; g.fillRect(0,0,S,S); o.t++;
+ g.fillStyle="rgba(14,7,34,0.55)"; g.fillRect(0,0,S,S);
+ const wash=g.createRadialGradient(o.cx,o.cy-o.R*0.2,o.R*0.1,o.cx,o.cy,o.R);
+ wash.addColorStop(0,"rgba(255,255,255,0.10)"); wash.addColorStop(1,"rgba(8,4,22,0)");
+ g.fillStyle=wash; g.fillRect(0,0,S,S); o.t++;
  if(o.kind==="web"){
   if(o.timer--<=0){ o.timer=36+Math.random()*30|0; const k=Math.random()*o.nodes.length|0; o.nodes[k].f=1; o.nodes[k].sp=false; }
   o.nodes.forEach((nd,i)=>{ if(nd.f>0.55&&!nd.sp){ o.adj[i].forEach(j=>o.nodes[j].f=Math.max(o.nodes[j].f,0.82)); nd.sp=true; } });
@@ -549,12 +552,21 @@ function drawOrb(o){
   for(let i=0;i<8;i++){
     const x=(i&1)?1:-1, y=(i&2)?1:-1, z=(i&4)?1:-1;
     const x2=x*cy-z*sy, z2=x*sy+z*cy, y2=y*cp-z2*sp, z3=y*sp+z2*cp, f=0.72+z3*0.16;
-    pts.push({x:o.cx+x2*s*f, y:o.cy+y2*s*f});
+    pts.push({x:o.cx+x2*s*f, y:o.cy+y2*s*f, z:z3});
   }
-  g.strokeStyle=ac; g.globalAlpha=0.9; g.lineWidth=1.5;
+  const faces=[[0,2,6,4],[1,3,7,5],[0,1,5,4],[2,3,7,6],[0,1,3,2],[4,5,7,6]];
+  faces.sort((a,b)=>(pts[a[0]].z+pts[a[1]].z+pts[a[2]].z+pts[a[3]].z)-(pts[b[0]].z+pts[b[1]].z+pts[b[2]].z+pts[b[3]].z));
+  faces.forEach(face=>{
+    const depth=(pts[face[0]].z+pts[face[1]].z+pts[face[2]].z+pts[face[3]].z)/4;
+    g.beginPath(); g.moveTo(pts[face[0]].x,pts[face[0]].y);
+    for(let k=1;k<4;k++) g.lineTo(pts[face[k]].x,pts[face[k]].y);
+    g.closePath();
+    g.fillStyle=ac; g.globalAlpha=Math.max(0.08,Math.min(0.40,0.16+depth*0.12)); g.fill();
+  });
+  g.strokeStyle=ac; g.globalAlpha=0.92; g.lineWidth=1.5;
   for(let a=0;a<8;a++) for(let b=a+1;b<8;b++){ const d=a^b; if(d!==1&&d!==2&&d!==4) continue;
     g.beginPath(); g.moveTo(pts[a].x,pts[a].y); g.lineTo(pts[b].x,pts[b].y); g.stroke(); }
-  g.globalAlpha=1; g.fillStyle="#f4c740"; g.beginPath(); g.arc(o.cx,o.cy,3.4,0,6.283); g.fill();
+  g.globalAlpha=1; g.fillStyle="#f4c740"; g.shadowColor="#f4c740"; g.shadowBlur=8; g.beginPath(); g.arc(o.cx,o.cy,3.4,0,6.283); g.fill(); g.shadowBlur=0;
  } else {
   g.strokeStyle=ac; g.globalAlpha=0.32; g.lineWidth=1.5; g.beginPath(); g.moveTo(o.cx,o.cy-o.R*0.82); g.lineTo(o.cx,o.cy+o.R*0.82); g.stroke(); g.globalAlpha=1;
   if(o.t%8===0){ const dir=Math.random()<0.5?1:-1, y=o.cy+(Math.random()-0.5)*o.R*1.3; o.parts.push({x:o.cx-dir*(o.R+2),y,vx:dir*(0.7+Math.random()*0.6)}); }
@@ -565,7 +577,11 @@ function drawOrb(o){
   g.globalAlpha=1;
  }
  g.restore();
- g.strokeStyle=ac; g.globalAlpha=0.5; g.lineWidth=2; g.beginPath(); g.arc(o.cx,o.cy,o.R,0,6.283); g.stroke(); g.globalAlpha=1;
+ g.save(); g.beginPath(); g.arc(o.cx,o.cy,o.R,0,6.283); g.clip();
+ g.strokeStyle="rgba(255,255,255,0.62)"; g.lineWidth=2.2; g.beginPath();
+ g.arc(o.cx-o.R*0.18,o.cy-o.R*0.32,o.R*0.66,3.7,5.5); g.stroke(); g.restore();
+ g.strokeStyle=ac; g.globalAlpha=0.72; g.lineWidth=2; g.shadowColor=ac; g.shadowBlur=10;
+ g.beginPath(); g.arc(o.cx,o.cy,o.R,0,6.283); g.stroke(); g.shadowBlur=0; g.globalAlpha=1;
 }
 document.querySelectorAll(".orb").forEach(c=>registerOrb(c,c.dataset.kind,c.dataset.accent));
 function orbLoop(){ for(const o of ORBS) drawOrb(o); requestAnimationFrame(orbLoop); }
@@ -605,6 +621,9 @@ function hall(){
  for(const e of E){ const a=0.05+0.20*(1-Math.sqrt(e[2])/D); gg.strokeStyle="rgba(47,198,192,"+a.toFixed(3)+")"; gg.lineWidth=1; gg.beginPath(); gg.moveTo(P[e[0]].x,P[e[0]].y); gg.lineTo(P[e[1]].x,P[e[1]].y); gg.stroke(); }
  // L0 — the pieces (hubs light gold once they gather enough neighbours)
  for(let i=0;i<P.length;i++){ const deg=adj[i].length, hub=deg>=4; gg.fillStyle=hub?"rgba(244,199,64,0.85)":"rgba(220,208,255,0.68)"; gg.beginPath(); gg.arc(P[i].x,P[i].y,hub?2.3:1.5,0,6.283); gg.fill(); }
+ const vig=gg.createRadialGradient(W*0.5,H*0.42,Math.min(W,H)*0.18,W*0.5,H*0.5,Math.max(W,H)*0.72);
+ vig.addColorStop(0,"rgba(0,0,0,0)"); vig.addColorStop(1,"rgba(8,2,22,0.48)");
+ gg.fillStyle=vig; gg.fillRect(0,0,W,H);
  requestAnimationFrame(hall);
 }
 hall();
@@ -656,6 +675,7 @@ hall();
         ctx.globalAlpha=tw; ctx.fillStyle=j%2?acc:acc2; ctx.beginPath(); ctx.arc(q.x,q.y,1.5,0,6.28); ctx.fill(); }
       ctx.globalAlpha=1;
     } else if(kind==="cube"){
+      ctx.globalAlpha=0.28; ctx.fillStyle=acc; ctx.fillRect(10,12,18,18); ctx.fillStyle=acc2; ctx.fillRect(18,6,18,18); ctx.globalAlpha=1;
       ctx.strokeStyle=acc; ctx.lineWidth=1;
       ctx.strokeRect(10,12,18,18); ctx.strokeRect(18,6,18,18);
       ctx.beginPath(); ctx.moveTo(10,12); ctx.lineTo(18,6); ctx.moveTo(28,12); ctx.lineTo(36,6); ctx.moveTo(10,30); ctx.lineTo(18,24); ctx.moveTo(28,30); ctx.lineTo(36,24); ctx.stroke();
