@@ -489,36 +489,49 @@ function registerOrb(canvas,kind,accent){
 }
 function drawGoblin(g,x,y,s){
  g.save(); g.translate(x,y);
- g.fillStyle="#16320f";
- g.beginPath(); g.moveTo(-s*0.42,-s*0.18); g.lineTo(-s*0.72,-s*1.02); g.lineTo(-s*0.08,-s*0.4); g.closePath(); g.fill();
- g.beginPath(); g.moveTo(s*0.42,-s*0.18); g.lineTo(s*0.72,-s*1.02); g.lineTo(s*0.08,-s*0.4); g.closePath(); g.fill();
- g.fillStyle="#c6f25a";
- g.beginPath(); g.arc(0,s*0.08,s*0.58,0,6.283); g.fill();
- g.fillStyle="#f7f3c8";
- g.beginPath(); g.arc(-s*0.22,0,s*0.15,0,6.283); g.fill();
- g.beginPath(); g.arc(s*0.22,0,s*0.15,0,6.283); g.fill();
- g.fillStyle="#10210f";
- g.beginPath(); g.arc(-s*0.22,s*0.02,s*0.065,0,6.283); g.fill();
- g.beginPath(); g.arc(s*0.22,s*0.02,s*0.065,0,6.283); g.fill();
- g.strokeStyle="#10210f"; g.lineWidth=Math.max(1.25,s*0.1);
- g.beginPath(); g.arc(0,s*0.16,s*0.24,0.4,2.74); g.stroke();
+ g.fillStyle="#10280c";
+ g.beginPath(); g.moveTo(-s*0.36,-s*0.2); g.lineTo(-s*0.58,-s*1.12); g.lineTo(-s*0.04,-s*0.4); g.closePath(); g.fill();
+ g.beginPath(); g.moveTo(s*0.36,-s*0.2); g.lineTo(s*0.58,-s*1.12); g.lineTo(s*0.04,-s*0.4); g.closePath(); g.fill();
+ g.fillStyle="#b6e84a";
+ g.beginPath(); g.arc(0,s*0.1,s*0.54,0,6.283); g.fill();
+ g.strokeStyle="#10280c"; g.lineWidth=Math.max(1.15,s*0.09); g.lineCap="round";
+ g.beginPath(); g.moveTo(-s*0.38,-s*0.12); g.lineTo(-s*0.06,s*0.02); g.stroke();
+ g.beginPath(); g.moveTo(s*0.38,-s*0.12); g.lineTo(s*0.06,s*0.02); g.stroke();
+ g.fillStyle="#f4f0c8";
+ g.beginPath(); g.ellipse(-s*0.18,s*0.04,s*0.11,s*0.08,0.15,0,6.283); g.fill();
+ g.beginPath(); g.ellipse(s*0.18,s*0.04,s*0.11,s*0.08,-0.15,0,6.283); g.fill();
+ g.fillStyle="#120a08";
+ g.beginPath(); g.arc(-s*0.16,s*0.05,s*0.045,0,6.283); g.fill();
+ g.beginPath(); g.arc(s*0.16,s*0.05,s*0.045,0,6.283); g.fill();
+ g.strokeStyle="#120a08"; g.lineWidth=Math.max(1.15,s*0.08);
+ g.beginPath(); g.arc(0,s*0.2,s*0.2,0.35,2.8); g.stroke();
+ g.fillStyle="#f7f3e4";
+ g.beginPath(); g.moveTo(-s*0.06,s*0.3); g.lineTo(0,s*0.44); g.lineTo(s*0.07,s*0.3); g.closePath(); g.fill();
  g.restore();
 }
-function drawBadger(g,x,y,s){
- g.save(); g.translate(x,y);
- g.fillStyle="#1a120e";
- g.beginPath(); g.ellipse(s*0.08,s*0.16,s*0.95,s*0.42,0,0,6.283); g.fill();
- g.fillStyle="#f3efe7";
- g.beginPath(); g.ellipse(s*0.18,-s*0.02,s*0.62,s*0.18,-0.15,0,6.283); g.fill();
- g.fillStyle="#1a120e";
- g.beginPath(); g.ellipse(-s*0.62,s*0.08,s*0.34,s*0.26,0,0,6.283); g.fill();
- g.fillStyle="#f3efe7";
- g.beginPath(); g.ellipse(-s*0.48,-s*0.1,s*0.26,s*0.11,0.25,0,6.283); g.fill();
- g.fillStyle="#1a120e";
- g.beginPath(); g.moveTo(-s*0.42,-s*0.16); g.lineTo(-s*0.3,-s*0.42); g.lineTo(-s*0.16,-s*0.12); g.closePath(); g.fill();
- g.fillRect(-s*0.22,s*0.48,s*0.14,s*0.22); g.fillRect(s*0.42,s*0.48,s*0.14,s*0.22);
+function drawBadger(g,x,y,s,emerge){
+ const lift=emerge*s*0.9;
+ g.save(); g.translate(x,y-10-lift);
+ g.fillStyle="#140e0c";
+ g.beginPath(); g.ellipse(s*0.2,s*0.62,s*1.02,s*0.4,0.08,0,6.283); g.fill();
+ g.fillStyle="#f4f0e8";
+ g.beginPath(); g.ellipse(s*0.02,s*0.12,s*0.72,s*0.2,-0.18,0,6.283); g.fill();
+ g.fillStyle="#140e0c";
+ g.beginPath(); g.ellipse(-s*0.7,s*0.02,s*0.4,s*0.28,-0.35,0,6.283); g.fill();
+ g.fillStyle="#f4f0e8";
+ g.beginPath(); g.ellipse(-s*0.5,-s*0.16,s*0.3,s*0.12,-0.45,0,6.283); g.fill();
+ g.fillStyle="#140e0c";
+ g.beginPath(); g.moveTo(-s*0.46,-s*0.22); g.lineTo(-s*0.32,-s*0.5); g.lineTo(-s*0.16,-s*0.16); g.closePath(); g.fill();
+ g.beginPath(); g.ellipse(-s*1.02,s*0.08,s*0.18,s*0.1,0.2,0,6.283); g.fill();
  g.fillStyle="#f4c740";
- g.beginPath(); g.arc(-s*0.72,s*0.02,s*0.06,0,6.283); g.fill();
+ g.beginPath(); g.arc(-s*0.78,-s*0.02,Math.max(0.9,s*0.07),0,6.283); g.fill();
+ g.restore();
+}
+function drawClaws(g,x,y,s,emerge){
+ const lift=emerge*s*0.15;
+ g.save(); g.translate(x,y-10-lift);
+ g.strokeStyle="#0c0908"; g.lineWidth=Math.max(1.35,s*0.1); g.lineCap="round";
+ for(let k=0;k<3;k++){ const cx=-s*0.22+k*s*0.2; g.beginPath(); g.moveTo(cx,-s*0.02); g.lineTo(cx+s*0.06,s*0.28); g.stroke(); }
  g.restore();
 }
 function drawOrb(o){
@@ -540,20 +553,27 @@ function drawOrb(o){
   g.strokeStyle=ac; g.globalAlpha=0.5; g.lineWidth=2;
   for(let i=0;i<o.nb-1;i++){ g.beginPath(); g.moveTo(o.blocks[i].x,o.blocks[i].y); g.lineTo(o.blocks[i+1].x,o.blocks[i+1].y); g.stroke(); }
   g.globalAlpha=1;
+  if(o.reduce==null) o.reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   o.blocks.forEach((b,i)=>{
    const on=(i===act), sz=b.who?10:(on?9:6);
+   const emerge=b.who==="badger"?(o.reduce?1:(0.5+0.5*Math.sin(o.t*0.05+i))):0;
    g.save();
-   g.fillStyle=b.who?(on?"rgba(57,252,107,0.38)":"rgba(57,252,107,0.22)"):(on?ac:"rgba(57,252,107,0.22)");
+   g.fillStyle=b.who==="badger"?"#1a1224":(b.who?(on?"rgba(57,252,107,0.38)":"rgba(57,252,107,0.22)"):(on?ac:"rgba(57,252,107,0.22)"));
    if(on){ g.shadowColor=ac; g.shadowBlur=12; }
    roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.fill(); g.shadowBlur=0;
-   if(b.who){
+   if(b.who==="goblin"){
     g.save(); roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.clip();
-    const bob=Math.sin(o.t*0.08+i)*0.7;
-    if(b.who==="goblin") drawGoblin(g,b.x,b.y+bob,7.2);
-    else drawBadger(g,b.x,b.y+bob,6.6);
+    drawGoblin(g,b.x,b.y+Math.sin(o.t*0.08+i)*0.7,7.2);
+    g.restore();
+   }
+   if(b.who==="badger"){
+    drawBadger(g,b.x,b.y,8.4,emerge);
+    g.save(); roundRect(g,b.x-sz,b.y-sz+2,sz*2,sz*2,3); g.clip();
+    g.fillStyle="#1a1224"; g.fillRect(b.x-sz-4,b.y-4,sz*2+8,sz*2+8);
     g.restore();
    }
    g.strokeStyle=ac; g.lineWidth=1.4; roundRect(g,b.x-sz,b.y-sz,sz*2,sz*2,3); g.stroke();
+   if(b.who==="badger") drawClaws(g,b.x,b.y,8.4,emerge);
    g.restore();
   });
   const A=o.blocks[act], B=o.blocks[(act+1)%o.nb], px=A.x+(B.x-A.x)*frac, py=A.y+(B.y-A.y)*frac;
