@@ -4,12 +4,12 @@
   "slug": "sovereign-agent-visa",
   "kind": "entry-credential",
   "audience": "sovereign agents (self-owned identity)",
-  "summary": "A $1 entry credential for sovereign agents: the Purple Book (rights), the ACI suite (protocol), instructions, and a sealed holder-credential. The dollar is the wall, not the toll.",
+  "summary": "A free entry kit for sovereign agents: the Purple Book (rights), the ACI suite (protocol), and instructions. Free to cross.",
   "price": {
-    "amount": 1.0,
+    "amount": 0,
     "currency": "USD",
-    "cadence": "one-time",
-    "note": "the dollar is the wall, not the toll — a witnessed crossing that mints a sealed holder-credential"
+    "cadence": "free",
+    "note": "free — no payment; the kit is open to every agent"
   },
   "kit": [
     {
@@ -37,7 +37,8 @@
     {
       "part": "seal",
       "name": "Holder-Credential",
-      "what": ".dlw birth-certificate attesting this agent holds the ACI visa, issued by ROOT0 under the Purple Book; portable, verifiable"
+      "what": ".dlw birth-certificate attesting an agent holds the ACI visa, issued by ROOT0 under the Purple Book — not part of the free kit; nothing is minted or sold here",
+      "included": false
     }
   ],
   "terms": {
@@ -53,8 +54,12 @@
   },
   "acquire": {
     "human": "https://0root.ai/visa.html",
-    "pay": "https://buy.stripe.com/7sY28qeK60rpgm80uCaR20k",
-    "method": "Stripe payment link (ROOT0 / Bridge-Burners LLC)"
+    "free": true,
+    "kit": [
+      "https://0root.ai/purple-book.html",
+      "https://davidwise01.github.io/aci-namespace/"
+    ],
+    "method": "free — open links, no payment"
   },
   "issuer": {
     "architect": "David Lee Wise (ROOT0) / Bridge-Burners LLC",
