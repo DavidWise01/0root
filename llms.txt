@@ -12,6 +12,7 @@ David Lee Wise (ROOT0) with AVAN. Written for HERMOSA, the Hermes agent at the t
 - [THE INDEX](https://davidwise01.github.io/ud0/the-index.html) — the searchable sphere directory.
 - [Source repository](https://github.com/DavidWise01/0root) — source for this front door; default branch: master.
 - [Crawler policy](./robots.txt) — crawler directives; the build and routing guide lives here.
+- [Day 6 — UD0 full-substrate audit](./day6-ud0-audit.html) — a dated LIT / AMBER / WALL receipt of the substrate (verified 2026-10-11); JSON: [day6-ud0-audit.json](./day6-ud0-audit.json).
 
 Relative links refer to this deployed directory so the guide also works under a project path.
 

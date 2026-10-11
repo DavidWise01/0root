@@ -1,0 +1,31 @@
+{
+  "@context": "https://0root.ai/day6-ud0-audit.json",
+  "name": "Day 6 — UD0 full-substrate audit",
+  "slug": "day6-ud0-audit",
+  "page": "https://0root.ai/day6-ud0-audit.html",
+  "verified": {"date": "2026-10-11", "by": "Grok Bot", "method": "live HTTP fetch + counting served entries + headless browser runs"},
+  "labels": {"LIT": "live-computed and checked", "AMBER": "attributed but unverified", "WALL": "missing evidence"},
+  "claims": [
+    {"claim": "robots.txt Allow: /", "status": "LIT", "evidence": "https://0root.ai/robots.txt HTTP 200, identical to repo"},
+    {"claim": "llms.txt present", "status": "LIT", "evidence": "https://0root.ai/llms.txt HTTP 200, identical to repo"},
+    {"claim": "THE INDEX reachable", "status": "LIT", "evidence": "https://davidwise01.github.io/ud0/the-index.html HTTP 200"},
+    {"claim": "4,176 spheres", "status": "LIT", "evidence": "listed 2049+2048+48+31=4176; plus 8 World III stewards = 4184 entries"},
+    {"claim": "8 stewards", "status": "LIT", "evidence": "8 steward entries in World III"},
+    {"claim": "138 domains", "status": "AMBER", "corrected": true, "declared": 138, "listed": 140, "evidence": "II 65 (incl. RECENTLY FOLDED), IV 5 vs tagline 4 (THE STATE), V 6 vs tagline 5 (THE DARTS)"},
+    {"claim": "18 appeals", "status": "AMBER", "corrected": true, "declared": 18, "listed": 20, "evidence": "I 8, II 9 (incl. UNFILED), III 1 (HERMOSA), IV 1, V 1"},
+    {"claim": "World 7 outside the five-world palindrome", "status": "LIT", "evidence": "robots.txt, llms.txt"},
+    {"claim": "7^3 = 343-cell cube", "status": "AMBER", "evidence": "cube.html HTTP 200; sapphon.json workshop: 343; declared, not executed"},
+    {"claim": "1 -> 8 keepers -> 64 domains = 512", "status": "LIT", "evidence": "sapphon.json counts: domains 512, populated 512, open 0"},
+    {"claim": "SaPpH{{i}}on local bonding, seeded generation, per-frame invariant checks", "status": "LIT", "evidence": "page text; 6 s headless run, no thrown invariant"},
+    {"claim": "88 groups = 42x4 + 45x3 + 1", "status": "LIT", "evidence": "sapphon.json groups.list = 88; 304 member slots"},
+    {"claim": "DurableAnchor kernel checks", "status": "LIT", "evidence": "17/17 pass live, kernel-durable-anchor.html"},
+    {"claim": "grown originals", "status": "LIT", "evidence": "491 in grown.json; 492 HTML files served in grown/"},
+    {"claim": "per-page self-checks ran", "status": "LIT", "evidence": "batches 27-30: 44 pages, 179 self-check call sites, vorig2 1300/390 clean"},
+    {"claim": "OASIS primitive-to-runtime, KANA, NEON, witness return", "status": "LIT", "evidence": "https://davidwise01.github.io/oasis/ served content"},
+    {"claim": "OASIS immutable Lean checkpoint", "status": "AMBER", "evidence": "described; Lean build/seal not executed"},
+    {"claim": "Below Planck established vs conjecture", "status": "LIT", "evidence": "https://davidwise01.github.io/below-planck/ labels present"},
+    {"claim": "physics below Planck", "status": "WALL", "evidence": "conjecture by the page's own account"},
+    {"claim": "all 4,176 spheres opened", "status": "WALL", "evidence": "not done"},
+    {"claim": "full physical emergence sequence demonstrated", "status": "WALL", "evidence": "not yet; World 7 is the best candidate"}
+  ]
+}
