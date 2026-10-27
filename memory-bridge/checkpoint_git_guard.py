@@ -9,7 +9,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 PIN="memory-bridge/trust/checkpoint-key-pins.json"
-PREFIX="memory-bridge/checkpoints/"
+PREFIXES=("memory-bridge/checkpoints/","memory-bridge/referents/")
 DECISIONS="memory-bridge/trust/key-decisions.jsonl"
 
 def git(*args)->bytes:
@@ -34,12 +34,12 @@ def check()->None:
         raise ValueError("Historical independent key BLOCK events rewritten/truncated")
     if latest and not latest.endswith(b"\n"):
         raise ValueError("Incomplete receiver decision journal")
-    paths=git("ls-tree","-r","--name-only","HEAD^","--",PREFIX).decode().splitlines()
+    paths=git("ls-tree","-r","--name-only","HEAD^","--",*PREFIXES).decode().splitlines()
     for path in paths:
-        if not path.startswith(PREFIX) or not path.endswith(".json"):continue
+        if not any(path.startswith(prefix) for prefix in PREFIXES) or not path.endswith(".json"):continue
         file=ROOT/path
         if not file.is_file() or file.read_bytes()!=previous(path):
-            raise ValueError("Previously anchored checkpoint deleted or rewritten: "+path)
+            raise ValueError("Previously anchored checkpoint or referent deleted or rewritten: "+path)
     print(f"APPEND PASS / prior Hallway anchors={len(paths)} / retained trust pins={len(original)}")
 
 if __name__=="__main__":
