@@ -20,7 +20,7 @@ import urllib.request
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[1]
 TRUST=ROOT/"memory-bridge"/"trust"/"checkpoint-key-pins.json"
 INBOX=ROOT/"memory-bridge"/"checkpoints"
 BASE="https://raw.githubusercontent.com/DavidWise01/toph-cortex/main/memory/corpus-spine/"
