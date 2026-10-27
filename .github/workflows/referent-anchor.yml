@@ -1,0 +1,50 @@
+name: ROOT0 Hallway — independently anchor watermarked referent
+on:
+  workflow_dispatch:
+    inputs:
+      referent_seq:
+        description: "Existing TOPH watermarked referent event number"
+        required: true
+        type: string
+      event_hash:
+        description: "Exact verified source event SHA-256"
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: root0-hallway-checkpoint-master
+  cancel-in-progress: false
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Check existing independent referent anchors
+        run: python3 memory-bridge/referent_anchor.py verify-local
+      - name: Fetch and verify exact source watermark
+        env:
+          SEQ: ${{ inputs.referent_seq }}
+          HASH: ${{ inputs.event_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SEQ" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid sequence"; exit 1; }
+          [[ "$HASH" =~ ^[a-f0-9]{64}$ ]] || { echo "Invalid hash"; exit 1; }
+          python3 memory-bridge/referent_anchor.py receive --seq "$SEQ" --hash "$HASH"
+          python3 memory-bridge/referent_anchor.py verify-local
+      - name: Commit immutable Hallway source reference
+        env:
+          HASH: ${{ inputs.event_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "root0-referent-anchor[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "memory-bridge/referents/$HASH.json"
+          git diff --cached --quiet && { echo "No new anchored referent"; exit 1; }
+          git commit -m "memory(referent): independently preserve historical watermark and timing"
+          git push origin HEAD:master
