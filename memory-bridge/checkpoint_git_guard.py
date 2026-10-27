@@ -9,7 +9,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 PIN="memory-bridge/trust/checkpoint-key-pins.json"
-PREFIXES=("memory-bridge/checkpoints/","memory-bridge/referents/")
+PREFIXES=("memory-bridge/checkpoints/","memory-bridge/referents/","memory-bridge/loom/")
 DECISIONS="memory-bridge/trust/key-decisions.jsonl"
 
 def git(*args)->bytes:
