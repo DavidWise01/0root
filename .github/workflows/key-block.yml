@@ -1,0 +1,54 @@
+name: ROOT0 Hallway — independently block compromised witness key
+on:
+  workflow_dispatch:
+    inputs:
+      key_id:
+        description: "Previously pinned key fingerprint (SHA-256)"
+        required: true
+        type: string
+      reason:
+        description: "Reason to permanently refuse NEW checkpoint receipts"
+        required: true
+        type: string
+      expected_tip:
+        description: "Current Hallway independent decisions SHA tip"
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: root0-hallway-checkpoint-master
+  cancel-in-progress: false
+jobs:
+  block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Install pinned Ed25519 verifier
+        run: python3 -m pip install 'cryptography==46.0.4'
+      - name: Verify independent public keys and existing history
+        run: python3 memory-bridge/checkpoint_receiver.py verify-local
+      - name: Append independently authorized key disablement
+        env:
+          KEY_ID: ${{ inputs.key_id }}
+          REASON: ${{ inputs.reason }}
+          EXPECTED: ${{ inputs.expected_tip }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$KEY_ID" =~ ^[0-9a-f]{64}$ ]] || { echo "Invalid key ID"; exit 1; }
+          python3 memory-bridge/key_decisions.py block --key-id "$KEY_ID" \
+            --reason "$REASON" --expected-tip "$EXPECTED"
+          python3 memory-bridge/checkpoint_receiver.py verify-local
+      - name: Persist irreversible block in receiver Git history
+        run: |
+          set -euo pipefail
+          git config user.name "root0-key-block[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- memory-bridge/trust/key-decisions.jsonl
+          git diff --cached --quiet && { echo "No new block decision"; exit 1; }
+          git commit -m "memory(trust): append independent irreversible witness-key block"
+          git push origin HEAD:master
