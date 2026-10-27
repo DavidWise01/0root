@@ -167,6 +167,10 @@ def receive(seq:int,expected_hash:str)->Path:
     if seq>len(checkpoints):raise ValueError("Checkpoint sequence not present")
     checkpoint=checkpoints[seq-1]
     if checkpoint["hash"]!=expected_hash:raise ValueError("Offered checkpoint hash mismatch")
+    import key_decisions
+    if checkpoint["key_id"] in key_decisions.replay(key_decisions.read(key_decisions.LEDGER,trust),trust):
+        raise ValueError("Hallway independent key BLOCK forbids new checkpoint acceptance")
+
     existing=anchored(trust=trust)
     if any(old["hash"]==expected_hash for old in existing):
         raise ValueError("Checkpoint already anchored")
@@ -197,7 +201,10 @@ def main()->int:
     args=parser.parse_args()
     try:
         if args.cmd=="verify-local":
-            items=anchored();print(f"PASS / anchored={len(items)} / trusted public keys={len(pins())}")
+            import key_decisions
+            trust=pins();blocked=key_decisions.replay(key_decisions.read(key_decisions.LEDGER,trust),trust)
+            items=anchored(trust=trust)
+            print(f"PASS / anchored={len(items)} / trusted public keys={len(trust)} / irreversibly blocked={len(blocked)}")
         else:print("CREATED VERIFIED ANCHOR:",receive(args.seq,args.hash))
         return 0
     except (ValueError,OSError,KeyError,TypeError) as e:
