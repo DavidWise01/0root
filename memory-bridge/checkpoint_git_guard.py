@@ -10,6 +10,7 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 PIN="memory-bridge/trust/checkpoint-key-pins.json"
 PREFIX="memory-bridge/checkpoints/"
+DECISIONS="memory-bridge/trust/key-decisions.jsonl"
 
 def git(*args)->bytes:
     p=subprocess.run(["git",*args],cwd=ROOT,capture_output=True)
