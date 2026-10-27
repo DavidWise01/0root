@@ -28,6 +28,12 @@ def check()->None:
         raise ValueError("Untrusted or changed pinned trust registry")
     if len(current)<len(original) or current[:len(original)]!=original:
         raise ValueError("Existing independent witness keys removed or rewritten")
+    prior_decisions=previous(DECISIONS)
+    latest=(ROOT/DECISIONS).read_bytes()
+    if not latest.startswith(prior_decisions):
+        raise ValueError("Historical independent key BLOCK events rewritten/truncated")
+    if latest and not latest.endswith(b"\\n"):
+        raise ValueError("Incomplete receiver decision journal")
     paths=git("ls-tree","-r","--name-only","HEAD^","--",PREFIX).decode().splitlines()
     for path in paths:
         if not path.startswith(PREFIX) or not path.endswith(".json"):continue
