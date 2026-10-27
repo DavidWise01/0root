@@ -1,0 +1,15 @@
+{
+  "schema": "root0.checkpoint-trust-pins/1",
+  "receiver": "DavidWise01/0root",
+  "pins": [],
+  "policy": {
+    "no_quorum": true,
+    "no_voting": true,
+    "fail_closed_when_empty": true,
+    "private_keys_forbidden": true,
+    "source_registry": "DavidWise01/toph-cortex/memory/corpus-spine/witness-public-keys.json",
+    "new_trust_pin": "separate manually reviewed Git commit after source key enrollment",
+    "key_id": "SHA-256 of 32-byte raw Ed25519 public key",
+    "receiver_signatures": "GitHub authenticated receiver commit, not additional Ed25519 signature"
+  }
+}
