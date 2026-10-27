@@ -32,7 +32,7 @@ def check()->None:
     latest=(ROOT/DECISIONS).read_bytes()
     if not latest.startswith(prior_decisions):
         raise ValueError("Historical independent key BLOCK events rewritten/truncated")
-    if latest and not latest.endswith(b"\\n"):
+    if latest and not latest.endswith(b"\n"):
         raise ValueError("Incomplete receiver decision journal")
     paths=git("ls-tree","-r","--name-only","HEAD^","--",PREFIX).decode().splitlines()
     for path in paths:
