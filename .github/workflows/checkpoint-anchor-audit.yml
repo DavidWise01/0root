@@ -12,6 +12,10 @@ on:
       - "memory-bridge/test_key_decisions.py"
       - "memory-bridge/referent_anchor.py"
       - "memory-bridge/test_referent_anchor.py"
+      - "memory-bridge/cubit_constant.py"
+      - "memory-bridge/test_cubit_constant.py"
+      - "memory-bridge/CUBIT_CONSTANT.md"
+      - ".github/workflows/cubit-constant-check.yml"
       - "memory-bridge/referents/**"
       - ".github/workflows/referent-anchor.yml"
       - "memory-bridge/trust/key-decisions.jsonl"
@@ -39,4 +43,4 @@ jobs:
       - name: Verify independent watermark receipts
         run: python3 memory-bridge/referent_anchor.py verify-local
       - name: Run receiver regression tests
-        run: python3 -m unittest discover -s memory-bridge -p 'test_checkpoint_receiver.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_key_decisions.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_referent_anchor.py' -v
+        run: python3 -m unittest discover -s memory-bridge -p 'test_checkpoint_receiver.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_key_decisions.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_referent_anchor.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_cubit_constant.py' -v
