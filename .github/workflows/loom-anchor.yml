@@ -1,0 +1,51 @@
+name: ROOT0 Hallway — independently anchor threaded loom event
+on:
+  workflow_dispatch:
+    inputs:
+      loom_seq:
+        description: "Existing canonical TOPH loom event number"
+        required: true
+        type: string
+      event_hash:
+        description: "Exact .dlw-watermarked event SHA-256"
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: root0-hallway-checkpoint-master
+  cancel-in-progress: false
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Validate existing independently saved loom receipts
+        run: python3 memory-bridge/loom_anchor.py verify-local
+      - name: Fetch entire source chain, check all witnesses and .dlw / cubit invariants
+        env:
+          SEQ: ${{ inputs.loom_seq }}
+          HASH: ${{ inputs.event_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s memory-bridge -p 'test_loom_anchor.py' -v
+          [[ "$SEQ" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid loom sequence"; exit 1; }
+          [[ "$HASH" =~ ^[a-f0-9]{64}$ ]] || { echo "Invalid loom event hash"; exit 1; }
+          python3 memory-bridge/loom_anchor.py receive --seq "$SEQ" --hash "$HASH"
+          python3 memory-bridge/loom_anchor.py verify-local
+      - name: Append create-only receipt in independent Hallway Git history
+        env:
+          HASH: ${{ inputs.event_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "root0-loom-anchor[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "memory-bridge/loom/$HASH.json"
+          git diff --cached --quiet && { echo "No new loom anchor"; exit 1; }
+          git commit -m "memory(loom): independently anchor one causal .dlw thread event"
+          git push origin HEAD:master
