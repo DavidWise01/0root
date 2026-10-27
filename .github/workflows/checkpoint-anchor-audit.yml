@@ -1,0 +1,30 @@
+name: ROOT0 Hallway — audit independent checkpoint anchors
+on:
+  push:
+    branches: [master]
+    paths:
+      - "memory-bridge/checkpoints/**"
+      - "memory-bridge/trust/**"
+      - "memory-bridge/checkpoint_receiver.py"
+      - "memory-bridge/checkpoint_git_guard.py"
+      - "memory-bridge/test_checkpoint_receiver.py"
+      - ".github/workflows/checkpoint-anchor*.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Pin Ed25519 verifier dependency
+        run: python3 -m pip install 'cryptography==46.0.4'
+      - name: Enforce append-only source history and reviewed trust pins
+        run: python3 memory-bridge/checkpoint_git_guard.py
+      - name: Independently verify all previously anchored signatures
+        run: python3 memory-bridge/checkpoint_receiver.py verify-local
+      - name: Run receiver regression tests
+        run: python3 -m unittest discover -s memory-bridge -p 'test_checkpoint_receiver.py' -v
