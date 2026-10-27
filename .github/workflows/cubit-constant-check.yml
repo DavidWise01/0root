@@ -1,0 +1,47 @@
+name: ROOT0 Hallway — immutable cubit copy/distill check
+on:
+  workflow_dispatch:
+    inputs:
+      source_path:
+        description: "Source UTF-8 file in this repository"
+        required: true
+        type: string
+      output_path:
+        description: "Copied or distilled UTF-8 file in this repository"
+        required: true
+        type: string
+      mode:
+        description: "Preserve exact cubit count (copy) or canonical presence (distill)"
+        required: true
+        type: choice
+        options: [copy, distill]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Run Hallway cubit constant tests
+        run: python3 -m unittest discover -s memory-bridge -p 'test_cubit_constant.py' -v
+      - name: Check two source artifacts
+        env:
+          BEFORE: ${{ inputs.source_path }}
+          AFTER: ${{ inputs.output_path }}
+          MODE: ${{ inputs.mode }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          root=Path.cwd().resolve()
+          for name in ("BEFORE","AFTER"):
+              file=(root/os.environ[name]).resolve()
+              if not file.is_relative_to(root) or not file.is_file():
+                  raise SystemExit(name+" must be an existing repository file")
+          PY
+          python3 memory-bridge/cubit_constant.py --source "$BEFORE" --output "$AFTER" --mode "$MODE"
