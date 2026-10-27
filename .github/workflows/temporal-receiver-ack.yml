@@ -1,0 +1,111 @@
+name: ROOT0 Hallway — receive temporal OFFER by Git acknowledgment
+on:
+  workflow_dispatch:
+    inputs:
+      offer_seq:
+        description: "Existing OFFER sequence in TOPH CORTEX delivery ledger"
+        required: true
+        type: string
+      offer_hash:
+        description: "Exact OFFER SHA-256; filename and compare-and-swap guard"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: root0-hallway-ack-master
+  cancel-in-progress: false
+
+jobs:
+  receive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Verify authenticated owner and canonical upstream offer
+        env:
+          OFFER_SEQ: ${{ inputs.offer_seq }}
+          OFFER_HASH: ${{ inputs.offer_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "DavidWise01/0root"
+          test "$GITHUB_REF" = "refs/heads/master"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_ACTOR_ID" = "148925959"
+          python3 - <<'PY'
+          import datetime
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import urllib.request
+
+          seq=os.environ["OFFER_SEQ"]
+          digest=os.environ["OFFER_HASH"]
+          if not re.fullmatch(r"[1-9][0-9]*",seq) or not re.fullmatch(r"[0-9a-f]{64}",digest):
+              raise SystemExit("Invalid offer sequence/hash")
+
+          base="https://raw.githubusercontent.com/DavidWise01/toph-cortex/main/memory/corpus-spine/"
+          def read(name):
+              url=base+name
+              request=urllib.request.Request(url,headers={"User-Agent":"ROOT0-receiver/1"})
+              with urllib.request.urlopen(request,timeout=20) as response:
+                  content=response.read()
+              if content and not content.endswith(b"\n"):
+                  raise SystemExit("Incomplete upstream ledger")
+              return [json.loads(line) for line in content.decode("utf-8").splitlines() if line]
+
+          def proof_hash(body):
+              raw=json.dumps(body,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
+              return hashlib.sha256(raw).hexdigest()
+
+          delivery=read("delivery-events.jsonl")
+          temporal=read("temporal-events.jsonl")
+          prev="GENESIS"
+          for i,e in enumerate(delivery,1):
+              if e.get("seq")!=i or e.get("prev")!=prev or e.get("hash")!=proof_hash({k:v for k,v in e.items() if k!="hash"}):
+                  raise SystemExit("Unverified delivery chain")
+              prev=e["hash"]
+          prev="GENESIS"
+          for i,e in enumerate(temporal,1):
+              if e.get("seq")!=i or e.get("prev")!=prev or e.get("hash")!=proof_hash({k:v for k,v in e.items() if k!="hash"}):
+                  raise SystemExit("Unverified temporal chain")
+              prev=e["hash"]
+
+          offer=next((e for e in delivery if e["seq"]==int(seq) and e["kind"]=="OFFER"),None)
+          if not offer or offer["hash"]!=digest or offer["destination_repo"]!="DavidWise01/0root":
+              raise SystemExit("No matching offer addressed to this receiver")
+          witness=next((e for e in temporal if e["seq"]==offer["temporal_seq"] and e["hash"]==offer["temporal_hash"]),None)
+          if not witness or witness["witness"]!=offer["witness"]:
+              raise SystemExit("Broken independent witness provenance")
+          if any(e["kind"]=="RECEIPT" and e["offer_seq"]==int(seq) for e in delivery):
+              raise SystemExit("Already acknowledged at canonical source")
+
+          target=Path("memory-bridge/receipts")/(digest+".json")
+          target.parent.mkdir(parents=True,exist_ok=True)
+          ack={"schema":"root0.delivery-ack/1","offer_hash":digest,
+               "temporal_hash":offer["temporal_hash"],"destination_repo":"DavidWise01/0root",
+               "received":True}
+          with target.open("x",encoding="utf-8",newline="\n") as out:
+              json.dump(ack,out,indent=2,sort_keys=True)
+              out.write("\n")
+          print("Created receiver proof file:",target)
+          PY
+      - name: Commit receiver proof only once
+        env:
+          OFFER_HASH: ${{ inputs.offer_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "root0-hallway-receiver[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "memory-bridge/receipts/$OFFER_HASH.json"
+          git diff --cached --quiet && { echo "No receipt"; exit 1; }
+          git commit -m "memory(receiver): acknowledge immutable temporal offer"
+          git push origin HEAD:master
