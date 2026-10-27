@@ -47,12 +47,16 @@ class IndependentAnchorTests(unittest.TestCase):
             recv.verify_record(wrong,{pin["key_id"]:pin})
 
     def test_source_count_rollback_detection(self):
-        _,pin,record=fixture()
+        secret,pin,record=fixture()
         streams={k:[] for k in recv.STREAMS}
         recv.validate_checkpoint_chain([record],{pin["key_id"]:pin},streams)
         fake={"seq":1,"prev":"GENESIS","hash":"a"*64}
         streams["CORPUS"]=[fake]
         record["state"]["CORPUS"]={"count":1,"tip":"b"*64}
+        payload=recv.message(record)
+        record["payload_sha256"]=hashlib.sha256(payload).hexdigest()
+        record["signature_b64"]=base64.b64encode(secret.sign(payload)).decode()
+        record["hash"]=recv.sha({k:v for k,v in record.items() if k!="hash"})
         with self.assertRaisesRegex(ValueError,"source-prefix"):
             recv.validate_checkpoint_chain([record],{pin["key_id"]:pin},streams)
 
