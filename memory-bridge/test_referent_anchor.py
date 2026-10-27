@@ -24,6 +24,20 @@ class IndependentReferent(unittest.TestCase):
         row=sample();anchor.verify_row(row)
         self.assertEqual(len(row["watermark"]),64)
 
+    def test_dlw_v2_attribution_is_independently_verified(self):
+        legacy=sample()
+        core={k:v for k,v in legacy.items() if k not in ("hash","watermark")}
+        core["version"]=2
+        core["attribution"]=dict(anchor.ATTRIBUTION)
+        mark=anchor.watermark(core)
+        e={**core,"watermark":mark,"hash":anchor.hashed({**core,"watermark":mark})}
+        self.assertEqual(mark[:5],".dlw:")
+        self.assertEqual(len(mark),69)
+        anchor.verify_row(e)
+        tampered={**e,"attribution":{**e["attribution"],"third_party_ownership_claim":True}}
+        with self.assertRaisesRegex(ValueError,"attribution"):
+            anchor.verify_row(tampered)
+
     def test_mutated_claim_is_rejected(self):
         changed={**sample(),"why":"tampered"}
         with self.assertRaisesRegex(ValueError,"watermark"):
