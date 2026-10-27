@@ -24,7 +24,9 @@ jobs:
         with:
           ref: master
       - name: Install public-key verifier
-        run: python3 -m pip install 'cryptography==50.0.2'
+        run: python3 -m pip install 'cryptography==46.0.4'
+      - name: Offline receiver signature and rollback regressions
+        run: python3 -m unittest discover -s memory-bridge -p "test_checkpoint_receiver.py" -v
       - name: Validate independent 0root pins and historical anchors
         run: python3 memory-bridge/checkpoint_receiver.py verify-local
       - name: Read source, validate signed checkpoint, append independent anchor file
