@@ -4,6 +4,8 @@
 **Public reader:** https://davidwise01.github.io/persist-cortex/referents/  
 **Hallway receiving action:** https://github.com/DavidWise01/0root/actions/workflows/referent-anchor.yml
 
+**Attribution:** Starting with version 2, the canonical mark is `.dlw:<SHA-256>`, anchored to [TOPH's `.dlw` manifest](https://github.com/DavidWise01/toph-cortex/blob/main/memory/corpus-spine/attribution.dlw). It attributes the ROOT0 provenance-record framework to **David Lee Wise**, not the referenced third-party article or any independent witness. The Hallway verifies that the mark, scope, claimant, and chained digest agree before preserving an event. Existing v1 plain-SHA records remain valid historical evidence.
+
 The Hallway independently fetches TOPH's append-only referent ledger, validates the SHA-256 event chain and deterministic provenance watermark, and accepts an explicitly selected source event by its full SHA-256 hash. This creates a **new** `memory-bridge/referents/<event_hash>.json` in the Hallway repository. The original TOPH record remains untouched.
 
 Records may include network delay and HTTP Date readings, but these are **witnessed measurements or server assertions**, not proof of article authorship, independent UTC notarization, scientific priority, or relativistic time dilation. The precise user-supplied Scientific American/Navier–Stokes referent is preserved in TOPH's research note without fabricated article-content bytes.
