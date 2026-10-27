@@ -19,11 +19,14 @@ ROOT=Path(__file__).resolve().parents[1]
 INBOX=ROOT/"memory-bridge"/"referents"
 SOURCE="https://raw.githubusercontent.com/DavidWise01/toph-cortex/main/memory/corpus-spine/referent-events.jsonl"
 DOMAIN="ROOT0-WATERMARK-v1\n"
+DLW_DOMAIN="ROOT0-DLW-ATTRIBUTION-v2\n"
+ATTRIBUTION={"mark":".dlw","claimant":"David Lee Wise","scope":"PROVENANCE_CONTAINER_ONLY","third_party_ownership_claim":False}
 HEX=re.compile(r"^[0-9a-f]{64}$")
 KINDS=("REGISTER","SAMPLE","CORRECT")
 KEYS={"version","seq","kind","recorded_at","witness","github_actor_id","referent_id",
     "referent_uri","basis","what","how","why","claimed_author","content_sha256",
     "source_seq","sample","prev","watermark","hash"}
+V2_KEYS=KEYS|{"attribution"}
 
 def canonical(x:dict)->bytes:
     return json.dumps(x,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode("utf-8")
@@ -33,10 +36,16 @@ def hashed(x:dict)->str:
 
 def watermark(e:dict)->str:
     core={k:v for k,v in e.items() if k not in ("hash","watermark")}
-    return hashlib.sha256(DOMAIN.encode("ascii")+canonical(core)).hexdigest()
+    if e["version"]==2:
+        if e.get("attribution")!=ATTRIBUTION:
+            raise ValueError("Invalid .dlw attribution envelope")
+        return ".dlw:"+hashlib.sha256(DLW_DOMAIN.encode("ascii")+canonical(core)).hexdigest()
+    if e["version"]==1:
+        return hashlib.sha256(DOMAIN.encode("ascii")+canonical(core)).hexdigest()
+    raise ValueError("Unsupported watermark version")
 
 def verify_row(e:dict)->None:
-    if not isinstance(e,dict) or set(e)!=KEYS or e["version"]!=1 or type(e["seq"]) is not int or e["seq"]<1 or e["kind"] not in KINDS:
+    if not isinstance(e,dict) or e.get("version") not in (1,2) or set(e)!=(KEYS if e["version"]==1 else V2_KEYS) or type(e["seq"]) is not int or e["seq"]<1 or e["kind"] not in KINDS:
         raise ValueError("Invalid referent source event schema")
     if e["witness"] not in ("A","B","C") or not isinstance(e["github_actor_id"],str) or not e["github_actor_id"].isdigit():
         raise ValueError("Invalid source witness")
