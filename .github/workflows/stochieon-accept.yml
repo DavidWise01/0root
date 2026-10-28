@@ -1,0 +1,55 @@
+name: ROOT0 Gate17 — Independently Accept Stochieon Kernel Seal
+on:
+  workflow_dispatch:
+    inputs:
+      seal_seq:
+        description: "Exact existing STOCHIEON SEAL event number from TOPH"
+        required: true
+        type: string
+      seal_hash:
+        description: "Exact SHA-256 event hash (64 lowercase hex)"
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: root0-hallway-checkpoint-master
+  cancel-in-progress: false
+jobs:
+  accept:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: master
+          fetch-depth: 2
+      - name: Verify independently pinned scope and existing receipts
+        run: |
+          set -euo pipefail
+          python3 memory-bridge/stochieon_receiver.py verify-local
+          python3 -m unittest discover -s memory-bridge -p 'test_gate17.py' -v
+      - name: Reject divergence and independently accept one true seal
+        env:
+          SEQ: ${{ inputs.seal_seq }}
+          HASH: ${{ inputs.seal_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SEQ" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid seal sequence"; exit 1; }
+          [[ "$HASH" =~ ^[a-f0-9]{64}$ ]] || { echo "Invalid seal SHA-256"; exit 1; }
+          python3 memory-bridge/stochieon_receiver.py audit-remote
+          python3 memory-bridge/stochieon_receiver.py accept --seq "$SEQ" --hash "$HASH"
+          python3 memory-bridge/stochieon_receiver.py verify-local
+      - name: Commit immutable independent kernel receipt
+        env:
+          HASH: ${{ inputs.seal_hash }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "root0-stochieon-receiver[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "memory-bridge/stochieon/receipts/$HASH.json"
+          git diff --cached --quiet && { echo "No new kernel receipt"; exit 1; }
+          git commit -m "memory(stochieon): independently anchor complete kernel seal"
+          git push origin HEAD:master
