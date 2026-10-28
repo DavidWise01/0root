@@ -1,0 +1,32 @@
+{
+  "schema": "root0.stochieon.cortex-hallway-reference/1",
+  "registry": {
+    "repo": "DavidWise01/toph-cortex",
+    "branch": "main",
+    "path": "memory/stochieon/cortex-promotions-v1.json",
+    "git_blob_sha": "adb7dbff0438101c8d16f6cbe6d4a4f149502618"
+  },
+  "promotion": "NONDESTRUCTIVE_SOURCE_PINNED_REGISTRY",
+  "scope": "promoted SOURCE references, not migrated/running agents",
+  "promoted_nodes": 14,
+  "families": [
+    "toph",
+    "oasis-four-cortex",
+    "ud0-i13",
+    "atlas-hyper-cortex"
+  ],
+  "supporting_formal_sources": 6,
+  "mirrored_implementations_deduplicated": 1,
+  "watermark": ".dlw",
+  "constant": "cubit",
+  "witnesses": [
+    "A",
+    "B",
+    "C"
+  ],
+  "quorum": null,
+  "independent_witness_acks": 0,
+  "requires_execution_for_live_status": true,
+  "source_history_rewritten": false,
+  "note": "No automatic code execution or independent witness testimony; cite exact Git blob SHA to audit original source."
+}
