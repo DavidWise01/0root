@@ -119,6 +119,45 @@ def local()->list[dict]:
         out.append(record)
     return out
 
+def verify_anchored_prefix(remote:list[dict],receipts:list[dict])->dict:
+    """Fail closed if any independent historical receipt diverges from TOPH.
+
+    This compares a previously accepted *immutable event* with the same
+    sequence in the current fully verified canonical chain. No consensus and
+    no source/receiver rewrite is attempted. A 404/missing source is not
+    treated as a clean empty history.
+    """
+    verify(remote)
+    seen_seq=set()
+    seen_hash=set()
+    earliest=None
+    for receipt in receipts:
+        if not isinstance(receipt,dict) or receipt.get("schema")!="root0.loom-anchor/14":
+            raise ValueError("Invalid historical Hallway receipt")
+        event=receipt.get("event")
+        if not isinstance(event,dict):
+            raise ValueError("Missing anchored source event")
+        seq=event.get("seq")
+        digest_hash=event.get("hash")
+        if type(seq) is not int or seq<1 or not isinstance(digest_hash,str) or not HEX.fullmatch(digest_hash):
+            raise ValueError("Malformed historical anchor sequence or hash")
+        if seq in seen_seq or digest_hash in seen_hash:
+            raise ValueError("Duplicate historical Hallway receipt")
+        seen_seq.add(seq)
+        seen_hash.add(digest_hash)
+        if seq>len(remote):
+            raise ValueError(f"SOURCE ROLLBACK: anchored event #{seq} no longer exists in TOPH")
+        source_event=remote[seq-1]
+        if source_event["hash"]!=digest_hash or canon(source_event)!=canon(event):
+            raise ValueError(f"SOURCE DIVERGENCE: anchored event #{seq} differs from TOPH")
+        earliest=seq if earliest is None else min(earliest,seq)
+    return {"schema":"root0.loom-prefix-audit/16",
+            "status":"PASS","canonical_events":len(remote),
+            "independent_receipts":len(receipts),
+            "first_anchored_seq":earliest,
+            "latest_canonical_tip":remote[-1]["hash"] if remote else "GENESIS",
+            "no_quorum":True,"no_write":True}
+
 def receive(seq:int,sha:str)->Path:
     allowed=(os.environ.get("GITHUB_ACTIONS")=="true" and
              os.environ.get("GITHUB_REPOSITORY")=="DavidWise01/0root" and
@@ -130,7 +169,10 @@ def receive(seq:int,sha:str)->Path:
     if type(seq) is not int or seq<1 or not HEX.fullmatch(sha):raise ValueError("Invalid target seq/hash")
     remote=history()
     if seq>len(remote) or remote[seq-1]["hash"]!=sha:raise ValueError("Remote loom event absent or changed")
-    if any(x["event"]["hash"]==sha for x in local()):raise ValueError("Already anchored")
+    existing=local()
+    verify_anchored_prefix(remote,existing)
+    if any(x["event"]["hash"]==sha for x in existing):
+        raise ValueError("Already anchored")
     INBOX.mkdir(parents=True,exist_ok=True)
     target=INBOX/(sha+".json")
     item={"schema":"root0.loom-anchor/14","receiver":"DavidWise01/0root",
@@ -144,11 +186,16 @@ def main(argv=None)->int:
     p=argparse.ArgumentParser()
     sub=p.add_subparsers(dest="cmd",required=True)
     sub.add_parser("verify-local")
+    sub.add_parser("audit-remote")
     a=sub.add_parser("receive");a.add_argument("--seq",type=int,required=True);a.add_argument("--hash",required=True)
     args=p.parse_args(argv)
     try:
-        if args.cmd=="verify-local":print(f"PASS / independently anchored loom events={len(local())}")
-        else:print("APPENDED HISTORICAL LOOM ANCHOR:",receive(args.seq,args.hash))
+        if args.cmd=="verify-local":
+            print(f"PASS / independently anchored loom events={len(local())}")
+        elif args.cmd=="audit-remote":
+            print(json.dumps(verify_anchored_prefix(history(),local()),indent=2))
+        else:
+            print("APPENDED HISTORICAL LOOM ANCHOR:",receive(args.seq,args.hash))
         return 0
     except (ValueError,OSError,KeyError,TypeError,json.JSONDecodeError,urllib.error.URLError) as exc:
         print("HALTED: "+str(exc),file=sys.stderr);return 1
