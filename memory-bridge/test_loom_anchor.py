@@ -27,7 +27,15 @@ def event(rows,kind="OPEN",thread="cortex",witness="A",phase="PAST_OBSERVES",tex
 class IndependentLoomTests(unittest.TestCase):
     def test_empty_root_means_no_fake_events(self):
         self.assertEqual(loom.verify([]),"GENESIS")
-        self.assertEqual(loom.local(),[])
+        # This fixture must stay valid after the first real Hallway receipt.
+        # Never assume the production receipt directory remains empty.
+        previous=loom.INBOX
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                loom.INBOX=Path(tmp)
+                self.assertEqual(loom.local(),[])
+            finally:
+                loom.INBOX=previous
 
     def test_source_hash_and_dlw_replay(self):
         first=event([])
