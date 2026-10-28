@@ -1,0 +1,33 @@
+{
+  "schema": "root0.stochieon.trust/17",
+  "receiver": "DavidWise01/0root",
+  "source_manifest": {
+    "repo": "DavidWise01/toph-cortex",
+    "path": "memory/stochieon/manifest-v1.json",
+    "branch": "main",
+    "git_blob_sha": "42d6cd47a664eb52f629fed760b2982eb0fcbd5f"
+  },
+  "source_journal": {
+    "repo": "DavidWise01/toph-cortex",
+    "path": "memory/stochieon/events-v1.jsonl",
+    "branch": "main"
+  },
+  "required_loom_anchor": {
+    "seq": 1,
+    "hash": "9368d3921ec95ad4c1ba02ce79f4bdde89516a1449d69a8f81dfbc1fa3e53780"
+  },
+  "watermark": ".dlw",
+  "constant": "cubit",
+  "three_witnesses": [
+    "A",
+    "B",
+    "C"
+  ],
+  "quorum": null,
+  "automatic_writes": false,
+  "required_independent_receipt": true,
+  "time_policy": {
+    "http_date": "UNSIGNED_NOT_TSA",
+    "cryptographic_timestamp": "NOT_ESTABLISHED_UNTIL_VERIFIED_TOKEN"
+  }
+}
