@@ -1,0 +1,41 @@
+{
+  "schema": "root0.stochieon.cubit-sapphon-hallway-pin/1",
+  "version": 19,
+  "relation": [
+    "STOCHIEON",
+    "CORTEX",
+    "cubit",
+    "SAPPHON"
+  ],
+  "canonical_parent": "cubit",
+  "source_registry": {
+    "repo": "DavidWise01/toph-cortex",
+    "branch": "main",
+    "path": "memory/stochieon/cubit-sapphon-promotions-v1.json",
+    "git_blob_sha": "eacd3275db21616d5e9aa6f9dcbc4cf27e3c35e1"
+  },
+  "cubit_spec": {
+    "repo": "DavidWise01/oasis",
+    "path": "n184/analytical-cubit-color-bands-v93/spec.json",
+    "git_blob_sha": "bd885523f405e70aa80c8692d0b0e8bc80d542bb"
+  },
+  "declared_children": 16,
+  "spectral_positions": 18,
+  "seven_bands": true,
+  "primes_canonical": [
+    1,
+    2,
+    3
+  ],
+  "primes_unassigned": [
+    4,
+    5
+  ],
+  "mark": ".dlw",
+  "constant": "cubit",
+  "source_moves": 0,
+  "synthetic_witnesses": 0,
+  "quorum": null,
+  "execution": "NOT_ATTESTED",
+  "independence": "Separate Git repository source-pin only, not independent human witness"
+}
