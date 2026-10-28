@@ -16,6 +16,7 @@ on:
       - "memory-bridge/test_cubit_constant.py"
       - "memory-bridge/loom_anchor.py"
       - "memory-bridge/test_loom_anchor.py"
+      - "memory-bridge/test_gate16_prefix.py"
       - "memory-bridge/loom/**"
       - "memory-bridge/CUBIT_CONSTANT.md"
       - ".github/workflows/cubit-constant-check.yml"
@@ -48,4 +49,4 @@ jobs:
       - name: Verify independent loom anchors
         run: python3 memory-bridge/loom_anchor.py verify-local
       - name: Run receiver regression tests
-        run: python3 -m unittest discover -s memory-bridge -p 'test_checkpoint_receiver.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_key_decisions.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_referent_anchor.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_cubit_constant.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_loom_anchor.py' -v
+        run: python3 -m unittest discover -s memory-bridge -p 'test_checkpoint_receiver.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_key_decisions.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_referent_anchor.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_cubit_constant.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_loom_anchor.py' -v && python3 -m unittest discover -s memory-bridge -p 'test_gate16_prefix.py' -v
