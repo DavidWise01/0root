@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quartz G87 evidence reconciliation</title><style>body{background:#10101c;color:#eee;font:18px system-ui;max-width:850px;margin:3rem auto;padding:1rem}h1{color:#d89aff}a{color:#75eaff}section,pre{border:1px solid #a854ff;padding:1rem;white-space:pre-wrap;overflow-wrap:anywhere}svg{width:100%;max-width:520px;display:block;margin:auto}</style><h1>Quartz · G87 evidence reconciliation</h1><pre>G86 → G87
+13944 → 14088
+18 workload records · 21 recovery records · 5 browser batches
+0 independently verified witnesses · HOLD · .dlw</pre><svg viewBox="0 0 340 250"><g id="mesh"></g><text x="170" y="239" fill="#ffac64" font-size="10" text-anchor="middle">REANALYSIS DOES NOT ESTABLISH INDEPENDENCE</text></svg><script>document.querySelector('#mesh').innerHTML=[[55,55],[285,55],[170,155]].map(([x,y],i)=>'<g transform="translate('+x+' '+y+')">'+Array.from({length:5},(_,k)=>'<rect x="'+(-35+k*8)+'" y="'+(-35+k*8)+'" width="'+(70-k*16)+'" height="'+(70-k*16)+'" fill="#8050bf11" stroke="#b47aff" transform="rotate('+(45+k*9)+')"/>').join('')+['#ff4967','#398dff','#27d5a1'].map((c,k)=>'<ellipse rx="12" ry="32" fill="none" stroke="'+c+'" transform="rotate('+k*120+')"/>').join('')+'<circle r="17" fill="#8050bf"/><text y="4" fill="white" text-anchor="middle" font-size="9">'+['G85','G86','HOLD'][i]+'</text></g>').join('')</script><section>Recomputed G85 medians: 1442.998793 ms full prefix, 1.992441 ms rolling at 4095 records. G86: 21 unchanged references, 9 complete candidates, all writer exits -9. Original raw files reopened and hashed. No new execution or independent replication.</section><pre>g85-workload.json
+3240d898a4988cd500f31e9b70bab807bf7eca2b19983a49bf6a1aaeb3afd270
+
+g85-workload.py
+f82bde613407d8817d1f9e34b9831efb8d8c93eba6607623d5591388b11b829a
+
+g86-recovery.json
+5b0a1c7e16138cb71dd45671c3e8e823458239dfc48da71e64b6c929b45845e0
+
+g86-recovery.py
+92458be08007d5999b7dc8912f8efcf863e101b23fb6806aaadd807f19bb7b2d</pre><p>Live deployment and native Quartz qualification remain unverified.</p><p><a href="quartz-rust-g86.html">G86 predecessor</a> · <a href="https://github.com/DavidWise01/-we-/blob/main/rust/quartz/g87-reconciliation.json">Reconciliation ledger</a></p></html>
